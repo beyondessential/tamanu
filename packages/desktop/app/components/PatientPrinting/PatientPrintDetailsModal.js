@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { Colors } from '../../constants';
-import { useApi } from '../../api';
+import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
@@ -83,7 +83,11 @@ const PrintOption = ({ label, onPress }) => (
 
 async function getPatientProfileImage(api, patientId) {
   try {
-    const { data } = await api.get(`patient/${patientId}/profilePicture`);
+    const { data } = await api.get(
+      `patient/${patientId}/profilePicture`,
+      {},
+      { isErrorUnknown: isErrorUnknownAllow404s },
+    );
     return data;
   } catch (e) {
     // 1x1 blank pixel

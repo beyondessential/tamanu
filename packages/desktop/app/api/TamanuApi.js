@@ -84,11 +84,18 @@ function clearLocalStorage() {
   localStorage.removeItem(PERMISSIONS);
 }
 
-function isErrorUnknown(error, response) {
+export function isErrorUnknownDefault(error, response) {
   if (!response || typeof response.status !== 'number') {
     return true;
   }
-  return response.status >= 500;
+  return response.status >= 400;
+}
+
+export function isErrorUnknownAllow404s(error, response) {
+  if (response?.status === 404) {
+    return false;
+  }
+  return isErrorUnknownDefault(error, response);
 }
 
 export class TamanuApi {
@@ -189,6 +196,7 @@ export class TamanuApi {
       headers,
       returnResponse = false,
       showUnknownErrorToast = false,
+      isErrorUnknown = isErrorUnknownDefault,
       ...otherConfig
     } = config;
     const queryString = qs.stringify(query || {});
