@@ -191,6 +191,8 @@ class CentralSyncManager {
       patientIdsForFullSync,
     },
   ) {
+    // TODO if a fetchPullCount hits right at this moment, it could see a released advisory lock and a null snapshotCompletedAt, despite everything being fine
+
     try {
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
       // snapshot is underway aren't included (as this could lead to a pair of foreign records with
@@ -252,6 +254,8 @@ class CentralSyncManager {
           await removeEchoedChanges(this.store, session.id);
         },
       );
+
+      // TODO if a fetchPullCount hits right at this moment, it could see a released advisory lock and a null snapshotCompletedAt, despite everything being fine
 
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
