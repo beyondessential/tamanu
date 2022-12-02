@@ -10,7 +10,6 @@ export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey
     }
     return rows.filter(row => selectedKeys.has(row[selectionKey]));
   }, [rows, selectedKeys, selectionKey]);
-  const isEveryRowSelected = rows?.length > 0 && selectedRows.length === rows.length;
 
   const cellOnChange = useCallback(
     (event, rowIndex) => {
@@ -44,14 +43,13 @@ export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey
     },
     [rows, selectionKey],
   );
-  const titleAccessor = useCallback(
-    () => <CheckInput value={isEveryRowSelected} name="selected" onChange={titleOnChange} />,
-    [isEveryRowSelected, titleOnChange],
-  );
+  const titleAccessor = useCallback(() => {
+    const isEveryRowSelected = rows?.length > 0 && selectedRows.length === rows.length;
+    return <CheckInput value={isEveryRowSelected} name="selected" onChange={titleOnChange} />;
+  }, [rows, selectedRows, titleOnChange]);
 
   return {
     selectedRows,
-    isEveryRowSelected,
     selectableColumn: {
       key: columnKey,
       title: '',

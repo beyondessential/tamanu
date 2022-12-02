@@ -71,11 +71,9 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     setLabRequestsData(allLabRequests);
   }, [data]);
 
-  const {
-    selectedRows,
-    isEveryRowSelected,
-    selectableColumn,
-  } = useSelectableColumn(labRequestsData, { columnKey: COLUMN_KEYS.SELECTED });
+  const { selectedRows, selectableColumn } = useSelectableColumn(labRequestsData, {
+    columnKey: COLUMN_KEYS.SELECTED,
+  });
 
   const handlePrintConfirm = useCallback(() => {
     if (selectedRows.length > 0) {
@@ -96,7 +94,6 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         <Table
           headerColor={Colors.white}
           columns={[selectableColumn, ...COLUMNS]}
-          titleData={{ selected: isEveryRowSelected }}
           data={labRequestsData || []}
           elevated={false}
           isLoading={isLoading}
