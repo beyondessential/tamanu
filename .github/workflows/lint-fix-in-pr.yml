@@ -38,6 +38,12 @@ jobs:
             content: "eyes",
           });
 
+    - name: Setup Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: yarn
+
     - uses: actions/checkout@v3
     - uses: chainguard-dev/actions/setup-gitsign@main
     - name: Autolint
