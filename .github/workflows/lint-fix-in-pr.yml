@@ -49,6 +49,7 @@ jobs:
     - name: Autolint
       run: |
         yarn install --frozen-lockfile
+        yarn build-shared
         yarn lint-fix || true
     - name: Commit and push
       run: |
