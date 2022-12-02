@@ -16,9 +16,7 @@ type NewProgramEntryTabsProps = {
   selectedPatient: IPatient;
 };
 
-const getPatientName = (
-  patient: IPatient,
-): string => joinNames(patient);
+const getPatientName = (patient: IPatient): string => joinNames(patient);
 
 const DumbCheckUpTabs = ({
   navigation,
@@ -31,10 +29,7 @@ const DumbCheckUpTabs = ({
   return (
     <>
       <StackHeader title="Check up" subtitle={getPatientName(selectedPatient)} onGoBack={goBack} />
-      <Tabs.Navigator
-        swipeEnabled={false}
-        lazy
-      >
+      <Tabs.Navigator swipeEnabled={false} lazy>
         <Tabs.Screen
           options={{
             title: 'Add Vitals',

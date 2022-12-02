@@ -1,155 +1,85 @@
-import React, { useCallback, ReactElement } from 'react';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import { compose } from 'redux';
-import { useSelector } from 'react-redux';
-import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
-import { Routes } from '/helpers/routes';
-import { theme } from '/styled/theme';
-import { TextField } from '/components/TextField/TextField';
-import { Button } from '/components/Button';
-import { Field } from '/components/Forms/FormField';
-import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
-import { useBackend } from '~/ui/hooks';
-import { withPatient } from '~/ui/containers/Patient';
-import { SectionHeader } from '/components/SectionHeader';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import React, { ReactElement, useState } from 'react';
 import { FormScreenView } from '/components/Forms/FormScreenView';
-import { NumberField } from '~/ui/components/NumberField';
-import { TemperatureField } from '~/ui/components/TemperatureField';
-import { Dropdown } from '~/ui/components/Dropdown';
-import { AVPUType } from '~/types';
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { SectionHeader } from '/components/SectionHeader';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { SurveyForm } from '/components/Forms/SurveyForm';
+import { FullView } from '/styled/common';
+import { useSelector } from 'react-redux';
+import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
+import { PatientStateProps } from '/store/ducks/patient';
+import { authUserSelector } from '/helpers/selectors';
+import { SurveyTypes } from '~/types';
 
-export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactElement => {
-  const renderFormFields = useCallback(
-    ({ handleSubmit, errors }): ReactElement => (
-      <FormScreenView>
-        <StyledView
-          height={screenPercentageToDP(89.64, Orientation.Height)}
-          justifyContent="space-between"
-        >
-          <SectionHeader h3>VITALS READINGS</SectionHeader>
-          <Field component={NumberField} label="Weight (kg)" name="weight" />
-          <Field component={NumberField} label="Height (cm)" name="height" />
-          <Field component={NumberField} label="sbp" name="sbp" />
-          <Field component={NumberField} label="dbp" name="dbp" />
-          <Field component={NumberField} label="Heart Rate" name="heartRate" />
-          <Field component={NumberField} label="Respiratory Rate" name="respiratoryRate" />
-          <Field component={TemperatureField} label="Temperature (ºC)" name="temperature" />
-          <Field component={NumberField} label="SpO2 (%)" name="spo2" />
-          <Field
-            component={Dropdown}
-            options={Object.values(AVPUType).map(t => ({ value: t, label: t }))}
-            label="AVPU"
-            name="avpu"
-          />
-          <SectionHeader h3>COMMENTS</SectionHeader>
-          <Field component={TextField} name="comments" label="comments" multiline />
-          <FormValidationMessage message={errors.form} />
-          <Button
-            marginTop={20}
-            backgroundColor={theme.colors.PRIMARY_MAIN}
-            buttonText="Submit"
-            onPress={handleSubmit}
-          />
-        </StyledView>
-      </FormScreenView>
-    ),
-    [],
+export const AddVitalsScreen = () => {
+  const [survey, surveyError] = useBackendEffect(({ models }) =>
+    models.Survey.getRepository().findOne('program-patientvitals-patientvitals'),
   );
 
-  const numericType = Yup.number()
-    .nullable()
-    .transform(value => {
-      if (Number.isNaN(value)) {
-        return null;
-      }
-      return value;
-    });
+  console.log('survey', survey);
 
-  const readingFields = {
-    weight: numericType,
-    height: numericType,
-    sbp: numericType,
-    dbp: numericType,
-    heartRate: numericType,
-    respiratoryRate: numericType,
-    temperature: numericType,
-    spo2: numericType,
-    avpu: Yup.string(), // AVPUType
-  };
+  const [components, componentsError] = useBackendEffect(() => survey && survey.getComponents(), [
+    survey,
+  ]);
 
-  const validationSchema = Yup.object().shape({
-    ...readingFields,
-    comment: Yup.string(),
-  });
-
-  const requiresOneOfFields = Object.keys(readingFields);
-
-  const validate = (values: object): object => {
-    const hasAtLeastOneReading = !Object.entries(values).some(([key, value]) => {
-      // Only check fields containing a vital reading
-      if (requiresOneOfFields.includes(key) === false) {
-        return false;
-      }
-
-      // Check if value is truthy (not 0 or empty string)
-      return !!value;
-    });
-
-    if (hasAtLeastOneReading) {
-      return {
-        form: 'At least one vital must be recorded.',
-      };
-    }
-
-    return {};
-  };
-
-  const navigateToHistory = useCallback(() => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory }],
-    });
-  }, []);
+  const { selectedPatient } = useSelector(
+    (state: ReduxStoreProps): PatientStateProps => state.patient,
+  );
 
   const user = useSelector(authUserSelector);
 
+  const [note, setNote] = useState('Waiting for submission attempt.');
+
   const { models } = useBackend();
-  const recordVitals = useCallback(async (values: any): Promise<any> => {
-    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+
+  const onSubmit = async (values: any) => {
+    console.log('submit');
+
+    const response = await models.SurveyResponse.submit(
       selectedPatient.id,
       user.id,
-      { reasonForEncounter: values.comments },
+      {
+        surveyId: 'program-patientvitals-patientvitals',
+        components,
+        surveyType: SurveyTypes.vitals,
+        encounterReason: `Survey response for ${survey.name}`,
+      },
+      values,
+      setNote,
     );
 
-    await models.Vitals.createAndSaveOne({
-      ...values,
-      encounter: encounter.id,
-      dateRecorded: getCurrentDateTimeString(),
-    });
+    if (!response) {
+      console.log('error');
+      return;
+    }
+  };
 
-    navigateToHistory();
-  }, []);
+  if (surveyError) {
+    console.log('survey', surveyError);
+    return <ErrorScreen error={surveyError} />;
+  }
+
+  if (componentsError) {
+    console.log('componentsError', componentsError);
+    return <ErrorScreen error={componentsError} />;
+  }
+
+  if (!survey || !components) {
+    return <LoadingScreen />;
+  }
+
   return (
-    <StyledSafeAreaView flex={1}>
-      <FullView
-        background={theme.colors.BACKGROUND_GREY}
-        paddingBottom={screenPercentageToDP(4.86, Orientation.Height)}
-      >
-        <Formik
-          initialValues={{}}
-          validate={validate}
-          validationSchema={validationSchema}
-          onSubmit={recordVitals}
-        >
-          {renderFormFields}
-        </Formik>
+    <FormScreenView>
+      <SectionHeader h3>VITALS READINGS</SectionHeader>
+      <FullView>
+        <SurveyForm
+          patient={selectedPatient}
+          note={note}
+          components={components}
+          onSubmit={onSubmit}
+        />
       </FullView>
-    </StyledSafeAreaView>
+    </FormScreenView>
   );
 };
-
-export const AddVitalsScreen = compose(withPatient)(DumbAddVitalsScreen);
