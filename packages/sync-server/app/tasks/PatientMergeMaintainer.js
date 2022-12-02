@@ -1,17 +1,18 @@
+/* eslint camelcase: ["error", { allow: ["^specificUpdate_"] }] */
+
 import config from 'config';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 
-import { 
+import { QueryTypes } from 'sequelize';
+import {
   mergePatientAdditionalData,
   reconcilePatientFacilities,
   simpleUpdateModels,
   specificUpdateModels,
 } from '../admin/patientMerge/mergePatient';
-import { QueryTypes } from 'sequelize';
-import { mergeRecord } from 'shared/sync/mergeRecord';
 
 export class PatientMergeMaintainer extends ScheduledTask {
   getName() {
@@ -58,7 +59,8 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
   async findPendingMergePatients(model) {
     const tableName = model.getTableName();
-    return model.sequelize.query(`
+    return model.sequelize.query(
+      `
       SELECT 
         patients.id as "mergedPatientId",
         patients.merged_into_id as "keepPatientId"
@@ -67,10 +69,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
       WHERE 
         patients.merged_into_id IS NOT NULL
         ;
-    `, {
-      type: QueryTypes.SELECT,
-      raw: true,
-    });
+    `,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+      },
+    );
   }
 
   async remergePatientRecords() {
@@ -111,10 +115,14 @@ export class PatientMergeMaintainer extends ScheduledTask {
     // PAD records need to be reconciled after merging
     const { PatientAdditionalData } = this.models;
     const padMerges = await this.findPendingMergePatients(PatientAdditionalData);
-    
+
     const records = [];
     for (const { keepPatientId, mergedPatientId } of padMerges) {
-      const mergedPad = await mergePatientAdditionalData(this.models, keepPatientId, mergedPatientId);
+      const mergedPad = await mergePatientAdditionalData(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
       if (mergedPad) {
         records.push(mergedPad);
       }
@@ -125,10 +133,14 @@ export class PatientMergeMaintainer extends ScheduledTask {
   async specificUpdate_PatientFacility() {
     const { PatientFacility } = this.models;
     const facilityMerges = await this.findPendingMergePatients(PatientFacility);
-  
+
     const records = [];
     for (const { keepPatientId, mergedPatientId } of facilityMerges) {
-      const facilities = await reconcilePatientFacilities(this.models, keepPatientId, mergedPatientId)
+      const facilities = await reconcilePatientFacilities(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
       records.push(...facilities);
     }
 
