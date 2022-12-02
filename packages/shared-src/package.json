@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rm -rf ../shared",
     "prepare": "mkdir -p ../shared && cp -n shared.package.json ../shared/package.json || true",
-    "compile": "yarn run prepare && npx swc --only '.js' src -d ../shared",
+    "compile": "yarn run prepare && swc --only '.js' src -d ../shared",
     "build": "yarn run clean && yarn run compile",
     "build-watch": "yarn run compile --watch",
     "test": "NODE_ENV=test jest",

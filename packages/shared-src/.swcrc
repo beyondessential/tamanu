@@ -3,8 +3,7 @@
   "jsc": {
     "parser": {
       "syntax": "ecmascript",
-      "jsx": true,
-      "exportDefaultFrom": true
+      "jsx": true
     }
   },
   "module": {

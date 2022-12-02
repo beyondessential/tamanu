@@ -4,7 +4,6 @@
     "parser": {
       "syntax": "ecmascript",
       "jsx": true,
-      "exportDefaultFrom": true,
       "decorators": true
     }
   },
