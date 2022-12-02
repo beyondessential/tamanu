@@ -469,21 +469,42 @@ describe('Patient merge', () => {
       expect(note.recordId).toEqual(keep.id);
     });
 
-    it.todo('Should remerge a patient facility')(async () => {
-      const { PatientFacility } = models;
+    it('Should remerge a patient facility', async () => {
+      const { Facility, PatientFacility } = models;
+
+      const facility = await Facility.create(fake(Facility));
 
       const [keep, merge] = await makeTwoPatients();
       await mergePatient(models, keep.id, merge.id);
 
-      // TODO: create a new PatientFacility record here
+      // create the facility association after the merge
+      await PatientFacility.create({
+        facilityId: facility.id,
+        patientId: merge.id,
+      });
 
+      // remerge it
       const results = await maintainerTask.remergePatientRecords();
       expect(results).toEqual({
         PatientFacility: 1,
       });
 
-      // TODO: check that the PatientFacility record was successfully merged
- 
+      const updatedFacility = await PatientFacility.findOne({
+        where: {
+          patientId: keep.id,
+          facilityId: facility.id,
+        }
+      });
+      expect(updatedFacility).toBeTruthy();
+
+      // ensure the old record was deleted
+      const removedFacility = await PatientFacility.findOne({
+        where: {
+          patientId: merge.id,
+          facilityId: facility.id,
+        }
+      });
+      expect(removedFacility).toBeFalsy();
     });
   });
 });

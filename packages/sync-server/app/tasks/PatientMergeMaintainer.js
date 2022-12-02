@@ -3,9 +3,13 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
-import { mergeRecord } from 'shared/sync/mergeRecord';
 
-import { simpleUpdateModels, specificUpdateModels } from '../admin/patientMerge/mergePatient';
+import { 
+  reconcilePatientFacilities,
+  simpleUpdateModels,
+  specificUpdateModels,
+} from '../admin/patientMerge/mergePatient';
+import { QueryTypes } from 'sequelize';
 
 export class PatientMergeMaintainer extends ScheduledTask {
   getName() {
@@ -101,7 +105,26 @@ export class PatientMergeMaintainer extends ScheduledTask {
   }
 
   async specificUpdate_PatientFacility() {
-    // TODO: ???
+    const { PatientFacility } = this.models;
+    const patientsWithPendingFacilityMerges = await PatientFacility.sequelize.query(`
+      SELECT 
+        patients.id,
+        patients.merged_into_id
+      FROM patient_facilities
+      JOIN patients ON patients.id = patient_facilities.patient_id
+      WHERE patients.merged_into_id IS NOT NULL;
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true,
+    });
+
+    const merged = [];
+    for (const mergedPatient of patientsWithPendingFacilityMerges) {
+      const facilities = await reconcilePatientFacilities(this.models, mergedPatient.merged_into_id, mergedPatient.id)
+      merged.push(...facilities);
+    }
+
+    return merged;
   }
 
   async specificUpdate_NotePage() {
