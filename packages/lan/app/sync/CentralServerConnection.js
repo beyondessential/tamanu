@@ -133,7 +133,7 @@ export class CentralServerConnection {
           );
           // attach status and body from response
           err.centralServerResponse = {
-            message: error.message,
+            message: errorMessage,
             status: response.status,
             body: responseBody,
           };
