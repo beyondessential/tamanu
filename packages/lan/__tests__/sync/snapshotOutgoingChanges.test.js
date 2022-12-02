@@ -419,6 +419,7 @@ describe('snapshotOutgoingChanges', () => {
     `);
 
     // run the snapshot, which should not crash
+    // const start = new Date;
     await snapshotOutgoingChanges(
       ctx.sequelize,
       {
@@ -427,5 +428,6 @@ describe('snapshotOutgoingChanges', () => {
       syncSession.id,
       tock - 1,
     );
+    // console.log(`Snapshotting ${limit + 100} records took ${new Date - start}ms`);
   });
 });
