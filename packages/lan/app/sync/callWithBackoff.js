@@ -9,8 +9,11 @@ const isErrorOnIrrecoverableList = e =>
   IRRECOVERABLE_ERRORS.some(irrecErr => e instanceof irrecErr);
 const is4xx = e => e.centralServerResponse?.status >= 400 && e.centralServerResponse?.status < 500;
 const isInsufficientStorage = e => e.centralServerResponse?.message === 'InsufficientStorage';
+const isSyncSessionFailure = e => e.centralServerResponse?.message.startsWith('Sync session');
 const isIrrecoverable = e => {
-  return isErrorOnIrrecoverableList(e) || is4xx(e) || isInsufficientStorage(e);
+  return (
+    isErrorOnIrrecoverableList(e) || is4xx(e) || isInsufficientStorage(e) || isSyncSessionFailure(e)
+  );
 };
 
 export const callWithBackoff = async (
