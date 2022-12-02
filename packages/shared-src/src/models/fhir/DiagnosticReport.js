@@ -12,6 +12,7 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../services/fhirTypes';
+import { latestDateTime } from '../../utils/dateTime';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
