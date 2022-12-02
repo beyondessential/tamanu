@@ -34,7 +34,7 @@ export const simpleUpdateModels = [
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
 export const specificUpdateModels = [
-  'Patient', 
+  'Patient',
   'PatientAdditionalData',
   'NotePage',
   'PatientFacility',
@@ -89,7 +89,29 @@ async function mergeRecordsForModel(
   return result.rowCount;
 }
 
-export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) { 
+export async function mergePatientAdditionalData(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedPAD = await models.PatientAdditionalData.findOne({
+    where: { patientId: unwantedPatientId },
+    raw: true,
+  });
+  if (!existingUnwantedPAD) return null;
+  const existingKeepPAD = await models.PatientAdditionalData.findOne({
+    where: { patientId: keepPatientId },
+    raw: true,
+  });
+  const mergedPAD = mergeRecord(existingKeepPAD || {}, {
+    ...existingUnwantedPAD,
+    patientId: keepPatientId,
+  });
+  await models.PatientAdditionalData.destroy({
+    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
+    force: true,
+  });
+  delete mergedPAD.id; // id is a generated field, delete it before creating the new one
+  return models.PatientAdditionalData.create(mergedPAD);
+}
+
+export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
   // This is a special case that helps with syncing the now-merged patient to any facilities
   // that track it
   // For any facility with a patient_facilities record on _either_ patient, we create a brand new
@@ -180,25 +202,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     // Now reconcile patient additional data.
     // This is a special case as we want to just keep one, merged PAD record
-    const existingUnwantedPAD = await models.PatientAdditionalData.findOne({
-      where: { patientId: unwantedPatientId },
-      raw: true,
-    });
-    if (existingUnwantedPAD) {
-      const existingKeepPAD = await models.PatientAdditionalData.findOne({
-        where: { patientId: keepPatientId },
-        raw: true,
-      });
-      const mergedPAD = mergeRecord(existingKeepPAD || {}, {
-        ...existingUnwantedPAD,
-        patientId: keepPatientId,
-      });
-      await models.PatientAdditionalData.destroy({
-        where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
-        force: true,
-      });
-      delete mergedPAD.id; // id is a generated field, delete it before creating the new one
-      await models.PatientAdditionalData.create(mergedPAD);
+    const updated = await mergePatientAdditionalData(models, keepPatientId, unwantedPatientId);
+    if (updated) {
       updates.PatientAdditionalData = 1;
     }
 
@@ -216,7 +221,11 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     // Finally reconcile patient_facilities records
-    const facilityUpdates = await reconcilePatientFacilities(models, keepPatientId, unwantedPatientId);
+    const facilityUpdates = await reconcilePatientFacilities(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
     if (facilityUpdates.length > 0) {
       updates.PatientFacility = facilityUpdates.length;
     }

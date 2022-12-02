@@ -9,6 +9,7 @@ import {
 } from '../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
+import { LocalSystemFact } from 'shared/models/LocalSystemFact';
 
 describe('Patient merge', () => {
   let ctx;
@@ -419,7 +420,7 @@ describe('Patient merge', () => {
     });
 
     it('Should remerge some patient additional data', async () => {
-      const { PatientAdditionalData } = models;
+      const { PatientAdditionalData, LocalSystemFact } = models;
       
       const [keep, merge] = await makeTwoPatients();
       await mergePatient(models, keep.id, merge.id);
@@ -429,6 +430,11 @@ describe('Patient merge', () => {
         passport: 'keep',
         patientId: keep.id,
       });
+
+      // increment sync tick so the reconciler knows how to merge the records 
+      await LocalSystemFact.increment('currentSyncTick'); 
+
+      // create second record
       const mergePad = await PatientAdditionalData.create({
         placeOfBirth: 'merge',
         patientId: merge.id,
@@ -446,8 +452,8 @@ describe('Patient merge', () => {
       expect(keepPad).toHaveProperty('placeOfBirth', 'merge');      
 
       // and the merge pad should be deleted
-      await mergePad.reload({ paranoid: false });
-      expect(mergePad.deletedAt).toBeTruthy();
+      const deletedPad = await PatientAdditionalData.findByPk(mergePad.id);
+      expect(deletedPad).toBeFalsy();
     });
 
     it('Should remerge a patient note', async () => {

@@ -5,6 +5,7 @@ import { log } from 'shared/services/logging';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 
 import { 
+  mergePatientAdditionalData,
   reconcilePatientFacilities,
   simpleUpdateModels,
   specificUpdateModels,
@@ -63,7 +64,9 @@ export class PatientMergeMaintainer extends ScheduledTask {
         patients.merged_into_id as "keepPatientId"
       FROM ${tableName}
       JOIN patients ON patients.id = ${tableName}.patient_id
-      WHERE patients.merged_into_id IS NOT NULL;
+      WHERE 
+        patients.merged_into_id IS NOT NULL
+        ;
     `, {
       type: QueryTypes.SELECT,
       raw: true,
@@ -109,31 +112,27 @@ export class PatientMergeMaintainer extends ScheduledTask {
     const { PatientAdditionalData } = this.models;
     const padMerges = await this.findPendingMergePatients(PatientAdditionalData);
     
-    /*
-    const merged = [];
+    const records = [];
     for (const { keepPatientId, mergedPatientId } of padMerges) {
-      const keepPad = PatientAdditionalData.findByPk(keepPatientId);
-      const mergePad = PatientAdditionalData.findByPk(mergedPatientId);
-      await mergeRecord(keepPad, mergePad);
-      merged.push(keepPad);
+      const mergedPad = await mergePatientAdditionalData(this.models, keepPatientId, mergedPatientId);
+      if (mergedPad) {
+        records.push(mergedPad);
+      }
     }
-    return merged;
-    */
-
-    return [];
+    return records;
   }
 
   async specificUpdate_PatientFacility() {
     const { PatientFacility } = this.models;
     const facilityMerges = await this.findPendingMergePatients(PatientFacility);
   
-    const merged = [];
+    const records = [];
     for (const { keepPatientId, mergedPatientId } of facilityMerges) {
       const facilities = await reconcilePatientFacilities(this.models, keepPatientId, mergedPatientId)
-      merged.push(...facilities);
+      records.push(...facilities);
     }
 
-    return merged;
+    return records;
   }
 
   async specificUpdate_NotePage() {
