@@ -120,7 +120,7 @@ class CentralSyncManager {
     return unmarkSnapshotAsProcessing;
   }
 
-  async checkSnapshotIsProcessing(sessionId) {)
+  async checkSnapshotIsProcessing(sessionId) {
     const [rows] = await this.store.sequelize.query(
       'SELECT NOT(pg_try_advisory_xact_lock(:snapshotLockId)) AS snapshot_is_processing;',
       {
