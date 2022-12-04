@@ -82,7 +82,7 @@ describe(`Materialised FHIR - Observation`, () => {
 
     it('creates a result from an observation', () => showError(async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
@@ -123,6 +123,70 @@ describe(`Materialised FHIR - Observation`, () => {
       // assert
       expect(response).toHaveSucceeded();
       expect(response.status).toBe(201);
+      const ires = await ImagingResult.findOne({
+        where: { externalCode: 'ACCESSION' },
+      });
+      expect(ires).toBeTruthy();
+      expect(ires.description).toEqual('This is a note\n\nThis is another note');
     }));
+
+    it('updates a result from an observation', () => showError(async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: encounter.id,
+          locationId: resources.location.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          priority: 'normal',
+          requestedDate: '2022-03-04 15:30:00',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
+      
+      const ires = await ImagingResult.create(fake(ImagingResult, {
+        imagingRequestId: ir.id,
+        externalCode: 'ACCESSION',
+      }));
+
+      // act
+      const response = await app.post(PATH).send({
+        resourceType: 'Observation',
+        status: 'final',
+        identifier: [
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+            value: 'ACCESSION',
+          },
+        ],
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            identifier: {
+              system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+              value: mat.id,
+            },
+          },
+        ],
+        note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+      });
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.status).toBe(201);
+      await ires.reload();
+      expect(ires.description).toEqual('This is a note\n\nThis is another note');
+    }));
+  });
+
+  describe('errors', () => {
+    it.todo('returns invalid if the resourceType does not match');
+    it.todo('returns invalid if the status is not final');
+    it.todo('returns invalid if the service request id is missing');
+    it.todo('returns invalid if the service request cannot be found');
   });
 });
