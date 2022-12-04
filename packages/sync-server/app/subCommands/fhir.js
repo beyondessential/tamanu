@@ -4,7 +4,7 @@ import * as yup from 'yup';
 
 import { FHIR_INTERACTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
-import { resourcesThatCanDo } from 'shared/utils/fhir';
+import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 import { ApplicationContext } from '../ApplicationContext';
 

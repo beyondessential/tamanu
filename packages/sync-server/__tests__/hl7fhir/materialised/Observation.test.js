@@ -280,7 +280,7 @@ describe(`Materialised FHIR - Observation`, () => {
         // act
         const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/Observation`).send({
           resourceType: 'Observation',
-          status: 'pending',
+          status: 'final',
           identifier: [
             {
               system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
@@ -315,7 +315,7 @@ describe(`Materialised FHIR - Observation`, () => {
         // act
         const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/Observation`).send({
           resourceType: 'Observation',
-          status: 'pending',
+          status: 'final',
           identifier: [
             {
               system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',

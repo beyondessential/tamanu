@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { FHIR_INTERACTIONS } from 'shared/constants';
-import { resourcesThatCanDo } from 'shared/utils/fhir';
+import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
 

@@ -2,7 +2,7 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { FHIR_INTERACTIONS } from 'shared/constants';
-import { resourcesThatCanDo } from 'shared/utils/fhir';
+import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
