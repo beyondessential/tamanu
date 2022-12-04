@@ -55,21 +55,19 @@ const COLUMNS = [
 
 export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
-  const [labRequestsData, setLabRequestsData] = useState([]);
   const api = useApi();
-  const { data, error, isLoading } = useQuery(['labRequests', encounter.id], () =>
-    api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
-      includeNotePages: 'true',
-      status: 'reception_pending',
-      order: 'asc',
-      orderBy: 'requestedDate',
-    }),
+  const { data: labRequestsData, error, isLoading } = useQuery(
+    ['labRequests', encounter.id],
+    async () => {
+      const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
+        includeNotePages: 'true',
+        status: 'reception_pending',
+        order: 'asc',
+        orderBy: 'requestedDate',
+      });
+      return result.data;
+    },
   );
-
-  useEffect(() => {
-    const allLabRequests = data?.data || [];
-    setLabRequestsData(allLabRequests);
-  }, [data]);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequestsData, {
     columnKey: COLUMN_KEYS.SELECTED,
