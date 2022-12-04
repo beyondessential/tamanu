@@ -103,6 +103,12 @@ class CentralSyncManager {
   }
 
   async markSnapshotAsProcessing(sessionId) {
+    // Mark the snapshot as processing in a way that
+    // a) can be read across processes, if the central server is running in cluster mode; and
+    // b) will automatically get cleared if the process restarts
+    // A transaction level advisory lock fulfils both of these criteria, as it sits at the database
+    // level (independent of an individual node process), but will be unlocked if the transaction is
+    // rolled back for any reason (e.g. the server restarts
     const transaction = await this.store.sequelize.transaction();
     await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:snapshotLockId);', {
       replacements: { snapshotLockId: idToInteger(sessionId) },
@@ -114,7 +120,7 @@ class CentralSyncManager {
     return unmarkSnapshotAsProcessing;
   }
 
-  async checkSnapshotIsProcessing(sessionId) {
+  async checkSnapshotIsProcessing(sessionId) {)
     const [rows] = await this.store.sequelize.query(
       'SELECT NOT(pg_try_advisory_xact_lock(:snapshotLockId)) AS snapshot_is_processing;',
       {
