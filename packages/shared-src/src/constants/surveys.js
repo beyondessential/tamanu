@@ -9,6 +9,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   MULTI_SELECT: 'MultiSelect',
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
+  DATE_TIME: 'DateTime',
   SUBMISSION_DATE: 'SubmissionDate',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
@@ -44,15 +45,15 @@ export const SURVEY_TYPES = {
   VITALS: 'vitals',
 };
 
-export const VITALS_SURVEY_REQUIRED_FIELDS = [
-  'Date',
-  'Height',
-  'Weight',
-  'SBP',
-  'DBP',
-  'HeartRate',
-  'RespiratoryRate',
-  'Temperature',
-  'SPO2',
-  'AVPU',
-];
+export const VITALS_DATA_ELEMENT_IDS = {
+  dateRecorded: 'pde-PatientVitalsDate',
+  temperature: 'pde-PatientVitalsTemperature',
+  weight: 'pde-PatientVitalsWeight',
+  height: 'pde-PatientVitalsHeight',
+  sbp: 'pde-PatientVitalsSBP',
+  dbp: 'pde-PatientVitalsDBP',
+  heartRate: 'pde-PatientVitalsHeartRate',
+  respiratoryRate: 'pde-PatientVitalsRespiratoryRate',
+  spo2: 'pde-PatientVitalsSPO2',
+  avpu: 'pde-PatientVitalsAVPU',
+};

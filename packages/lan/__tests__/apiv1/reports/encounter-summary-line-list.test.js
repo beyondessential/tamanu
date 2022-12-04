@@ -325,7 +325,7 @@ const fakeAllData = async models => {
   return { patient, encounterId, locationGroupId };
 };
 
-describe('fijiAspenMediciReport', () => {
+describe('Encounter summary line list report', () => {
   let ctx;
   let app;
   let models;

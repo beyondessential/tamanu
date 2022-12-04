@@ -26,8 +26,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
       answers: getAnswersFromData(data, survey),
       actions: getActionsFromData(data, survey),
     });
-    // Todo: clear react-query cache for vitals once they are moved to react-query
-    // queryClient.invalidateQueries(['encounterVitals', encounter.id]);
+    queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
   };
 

@@ -5,7 +5,7 @@ import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
-import { toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
@@ -98,6 +98,7 @@ export const AppointmentsCalendar = () => {
             onChange: updateFilterValue,
           }}
           endpoint="locationGroup"
+          filterByFacility
         />
       ),
     },

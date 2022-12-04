@@ -26,11 +26,11 @@ const locationSuggester = (api, groupValue) => {
   });
 };
 
-const useLocationGroups = () => {
+const useLocationGroups = filterByFacility => {
   const api = useApi();
 
   const { data = [], ...query } = useQuery(['locationGroups'], () =>
-    api.get('suggestions/locationGroup/all'),
+    api.get('suggestions/locationGroup/all', { filterByFacility }),
   );
 
   const options = data.map(({ id, name }) => ({
@@ -64,12 +64,13 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    filterByFacility,
   }) => {
     const api = useApi();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = locationSuggester(api, groupId);
-    const { data: options, isSuccess, isError, isLoading } = useLocationGroups();
+    const { data: options, isSuccess, isError, isLoading } = useLocationGroups(filterByFacility);
     const { data } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
@@ -130,6 +131,7 @@ LocationInput.propTypes = {
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
+  filterByFacility: PropTypes.bool,
   helperText: PropTypes.string,
   name: PropTypes.string,
   className: PropTypes.string,
@@ -141,6 +143,10 @@ LocationInput.defaultProps = {
   required: false,
   error: false,
   disabled: false,
+  // filterByFacility=false is needed on forms where areas and locations can be edited
+  // since they could be initially set from another facility. When a form is simply creating
+  // new records, filterByFacility will usually be true
+  filterByFacility: true,
   name: undefined,
   helperText: '',
   className: '',

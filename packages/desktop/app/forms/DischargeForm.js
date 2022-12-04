@@ -6,7 +6,7 @@ import { format, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Checkbox from '@material-ui/core/Checkbox';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
-import { toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 

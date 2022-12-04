@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
-import { parseDate } from 'shared-src/src/utils/dateTime';
+import { parseDate } from 'shared/utils/dateTime';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 

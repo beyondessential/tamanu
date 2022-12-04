@@ -1,36 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { useQuery } from '@tanstack/react-query';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
+import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
-import { useApi } from '../api';
-
-const useVitalsSurvey = () => {
-  const api = useApi();
-  // Todo: update to use vitals survey endpoint
-  const VITALS_SURVEY_ID = 'program-patientvitals-patientvitals';
-
-  return useQuery(['survey', { type: 'vitals' }], () =>
-    api.get(`survey/${encodeURIComponent(VITALS_SURVEY_ID)}`),
-  );
-};
-
-const COLUMNS_TO_DATA_ELEMENT_ID = {
-  dateRecorded: 'pde-PatientVitalsDate',
-  temperature: 'pde-PatientVitalsTemperature',
-  weight: 'pde-PatientVitalsWeight',
-  height: 'pde-PatientVitalsHeight',
-  sbp: 'pde-PatientVitalsSBP',
-  dbp: 'pde-PatientVitalsDBP',
-  heartRate: 'pde-PatientVitalsHeartRate',
-  respiratoryRate: 'pde-PatientVitalsRespiratoryRate',
-  spo2: 'pde-PatientVitalsSPO2',
-  avpu: 'pde-PatientVitalsAVPU',
-};
+import { useVitalsSurvey } from '../api/queries';
 
 const ErrorMessage = () => {
   return (
@@ -62,13 +39,13 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
     <Form
       onSubmit={handleSubmit}
       validationSchema={yup.object().shape({
-        [COLUMNS_TO_DATA_ELEMENT_ID.dateRecorded]: yup.date().required(),
+        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup.date().required(),
       })}
       initialValues={{
-        [COLUMNS_TO_DATA_ELEMENT_ID.dateRecorded]: getCurrentDateTimeString(),
+        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
         ...editedObject,
       }}
-      validate={({ [COLUMNS_TO_DATA_ELEMENT_ID.dateRecorded]: date, ...values }) => {
+      validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};
 
         // All readings are either numbers or strings
@@ -97,7 +74,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
 VitalsForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
-  patient: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
   editedObject: PropTypes.shape({}),
 };
 
