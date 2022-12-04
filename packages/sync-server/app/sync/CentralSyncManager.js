@@ -12,16 +12,13 @@ import {
   getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { injectConfig } from 'shared/utils/withConfig';
+import { injectConfig, idToInteger } from 'shared/utils';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
-
-// TODO this could be in a utils folder
-const idToInteger = id => parseInt(id.replace('-', ''), 16); // parse as hex
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
