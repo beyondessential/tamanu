@@ -21,7 +21,11 @@ export function createHandler(FhirResource) {
         FhirResource.INTAKE_SCHEMA.shape({
           resourceType: yup
             .string()
-            .matches(new RegExp(`^${FhirResource.fhirName}$`))
+            .test(
+              'is-same-as-route',
+              `must be '${FhirResource.fhirName}'`,
+              t => t === FhirResource.fhirName,
+            )
             .required(),
         }).validate(req.body, { stripUnknown: true }),
         err => OperationOutcome.fromYupError(err),
