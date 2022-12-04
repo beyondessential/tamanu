@@ -695,11 +695,15 @@ describe('Encounter', () => {
 
     describe('vitals', () => {
       let vitalsEncounter = null;
+      let vitalsPatient = null;
 
       beforeAll(async () => {
+        // The original patient may or may not have a current encounter
+        // So let's create a specific one for vitals testing
+        vitalsPatient = await models.Patient.create(await createDummyPatient(models));
         vitalsEncounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          patientId: patient.id,
+          ...(await createDummyEncounter(models, { endDate: null })),
+          patientId: vitalsPatient.id,
           reasonForEncounter: 'vitals test',
         });
         await setupSurveyFromObject(models, {
@@ -723,7 +727,7 @@ describe('Encounter', () => {
         const submissionDate = getCurrentDateTimeString();
         const result = await app.post('/v1/surveyResponse').send({
           surveyId: 'vitals-survey',
-          patientId: patient.id,
+          patientId: vitalsPatient.id,
           startTime: submissionDate,
           endTime: submissionDate,
           answers: {
@@ -732,17 +736,45 @@ describe('Encounter', () => {
           },
         });
         expect(result).toHaveSucceeded();
-        const saved = await models.SurveyResponseAnswers.findOne({
-          where: { data_element_id: 'pde-PatientVitalsHeartRate', body: 1234 },
+        const saved = await models.SurveyResponseAnswer.findOne({
+          where: { dataElementId: 'pde-PatientVitalsHeartRate', body: '1234' },
         });
-        expect(saved).toHaveProperty('body', 1234);
+        expect(saved).toHaveProperty('body', '1234');
       });
 
       it('should get vitals readings for an encounter', async () => {
+        const submissionDate = getCurrentDateTimeString();
+        const answers = {
+          'pde-PatientVitalsDate': submissionDate,
+          'pde-PatientVitalsHeartRate': 123,
+          'pde-PatientVitalsHeight': 456,
+          'pde-PatientVitalsWeight': 789,
+        };
+        await app.post('/v1/surveyResponse').send({
+          surveyId: 'vitals-survey',
+          patientId: vitalsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers,
+        });
         const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
         expect(result).toHaveSucceeded();
         const { body } = result;
+        expect(body).toHaveProperty('count');
         expect(body.count).toBeGreaterThan(0);
+        expect(body).toHaveProperty('data');
+        expect(body.data).toEqual(
+          expect.arrayContaining(
+            Object.entries(answers).map(([key, value]) =>
+              expect.objectContaining({
+                dataElementId: key,
+                records: {
+                  [submissionDate]: value.toString(),
+                },
+              }),
+            ),
+          ),
+        );
       });
     });
 
