@@ -4,7 +4,11 @@ import { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { AddVitalsScreen, ViewHistoryScreen } from '../screens/checkup/tabs';
+import {
+  AddVitalsScreen,
+  ViewHistoryScreen,
+  LegacyViewHistoryScreen,
+} from '../screens/checkup/tabs';
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '~/ui/helpers/user';
@@ -36,6 +40,13 @@ const DumbCheckUpTabs = ({
           }}
           name={Routes.HomeStack.CheckUpStack.CheckUpTabs.AddDetails}
           component={AddVitalsScreen}
+        />
+        <Tabs.Screen
+          options={{
+            title: 'Legacy Vitals',
+          }}
+          name={Routes.HomeStack.CheckUpStack.CheckUpTabs.LegacyViewHistory}
+          component={LegacyViewHistoryScreen}
         />
         <Tabs.Screen
           options={{

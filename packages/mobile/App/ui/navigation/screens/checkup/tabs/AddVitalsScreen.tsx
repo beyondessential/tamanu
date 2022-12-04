@@ -42,7 +42,7 @@ export const AddVitalsScreen = () => {
       {
         surveyId: 'program-patientvitals-patientvitals',
         components,
-        surveyType: SurveyTypes.vitals,
+        surveyType: SurveyTypes.Vitals,
         encounterReason: `Survey response for ${survey.name}`,
       },
       values,
