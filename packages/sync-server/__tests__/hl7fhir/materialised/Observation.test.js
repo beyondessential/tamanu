@@ -121,7 +121,6 @@ describe(`Materialised FHIR - Observation`, () => {
       });
 
       // assert
-      console.log(response.body);
       expect(response).toHaveSucceeded();
       expect(response.status).toBe(201);
     }));

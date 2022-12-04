@@ -15,7 +15,10 @@ export class Composite {
   }
 
   constructor(params) {
-    this.params = this.constructor.SCHEMA().validateSync(params);
+    const withoutNulls = Object.fromEntries(
+      Object.entries(params).filter(([, value]) => value !== null && value !== undefined),
+    );
+    this.params = this.constructor.SCHEMA().validateSync(withoutNulls);
 
     for (const name of Object.keys(this.params)) {
       // exclude phantom fields (used only for advanced yup validations)
