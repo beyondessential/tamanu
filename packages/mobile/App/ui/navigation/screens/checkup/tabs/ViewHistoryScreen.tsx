@@ -19,7 +19,7 @@ export const ViewHistoryScreen = (): ReactElement => {
 
   // Note: Vitals are only filtered by patient instead of encounter on mobile
   const [data, error] = useBackendEffect(
-    ({ models }) => models.Encounter.getVitals(selectedPatient.id),
+    ({ models }) => models.Patient.getVitals(selectedPatient.id),
     [],
   );
 

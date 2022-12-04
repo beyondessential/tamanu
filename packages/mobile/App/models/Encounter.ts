@@ -220,50 +220,6 @@ export class Encounter extends BaseModel implements IEncounter {
     return query.getRawMany();
   }
 
-  static async getVitals(patientId: string): Promise<ISurveyResponse[]> {
-    const entityManager = getManager();
-    const results = await entityManager.query(
-      `SELECT
-          json_object(
-            'dataElementId', answer.dataElementId,
-            'name', MAX(pde.name),
-            'config', MAX(ssc.config),
-            'records', json_group_object(date.body, answer.body)) result
-        FROM
-          survey_response_answer answer
-        INNER JOIN
-          survey_screen_component ssc
-        ON
-          ssc.dataElementId = answer.dataElementId
-        INNER JOIN
-          program_data_element pde
-        ON
-          pde.id = answer.dataElementId
-        INNER JOIN
-          (SELECT
-            responseId, body
-          FROM
-            survey_response_answer
-          INNER JOIN
-            survey_response response
-          ON
-            response.id = responseId
-          WHERE
-            dataElementId = $2
-          AND
-            body IS NOT NULL
-          AND
-            response.encounterId = $1
-          ORDER BY body asc LIMIT 50 OFFSET :offset) date
-        ON date.responseId = answer.responseId
-        GROUP BY answer.dataElementId`,
-      ['97c9c1bb-ff12-4fc3-9b80-8947fa12166e', 'pde-PatientVitalsDate'],
-    );
-
-    console.log('results', results);
-    return results;
-  }
-
   static includedSyncRelations = [
     'administeredVaccines',
     'surveyResponses',

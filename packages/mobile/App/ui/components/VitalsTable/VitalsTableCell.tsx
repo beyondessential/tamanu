@@ -23,7 +23,7 @@ export const VitalsTableCell = ({ data, rowKey }: PropsWithChildren<any>): JSX.E
   const { getString } = useLocalisation();
   const unitSettings = getString('units.temperature', 'celsius');
 
-  console.log('unitSettings', unitSettings);
+  // console.log('unitSettings', unitSettings);
 
   const cellValue =
     typeof vitalRowFieldsAccessors[rowKey] === 'function'

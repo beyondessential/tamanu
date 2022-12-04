@@ -203,4 +203,60 @@ export class Patient extends BaseModel implements IPatient {
 
     return query.getRawMany();
   }
+
+  static async getVitals(patientId: string): Promise<any[]> {
+    const repo = this.getRepository();
+    const results = await repo.query(
+      `SELECT
+          answer.dataElementId dataElementId,
+          MAX(pde.name) name,
+          MAX(ssc.config) config,
+          group_concat('{"' || date.body || '":"' || answer.body || '"}') records
+        FROM
+          survey_response_answer answer
+        INNER JOIN
+          survey_screen_component ssc
+        ON
+          ssc.dataElementId = answer.dataElementId
+        INNER JOIN
+          program_data_element pde
+        ON
+          pde.id = answer.dataElementId
+        INNER JOIN
+          (SELECT
+            responseId, body
+          FROM
+            survey_response_answer
+          INNER JOIN
+            survey_response response
+          ON
+            response.id = responseId
+          INNER JOIN
+            encounter
+          ON
+            encounter.id = response.encounterId
+          WHERE
+            dataElementId = $1
+          AND
+            encounter.patientId = $2
+          AND
+            body IS NOT NULL
+          ORDER BY body asc LIMIT 50) date
+        ON date.responseId = answer.responseId
+        GROUP BY answer.dataElementId`,
+      ['pde-PatientVitalsDate', patientId],
+    );
+
+    const mappedResults = results.map(r => {
+      const { records, ...rest } = r;
+      const stringRecords = records.split(',');
+      const objRecords = stringRecords.map(str => JSON.parse(str));
+      return ({
+        records: Object.assign({}, ...objRecords),
+        ...rest,
+      });
+    });
+
+    return mappedResults;
+  }
 }
