@@ -5,7 +5,7 @@ export * from './generateId';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';
-export * from './idToInteger';
+export * from './uuidToFairlyUniqueInteger';
 export * from './patientCertificates';
 export * from './sleepAsync';
 export * from './tmpdir';

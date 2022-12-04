@@ -12,7 +12,7 @@ import {
   getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { injectConfig, idToInteger } from 'shared/utils';
+import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
@@ -111,7 +111,7 @@ class CentralSyncManager {
     // rolled back for any reason (e.g. the server restarts
     const transaction = await this.store.sequelize.transaction();
     await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:snapshotLockId);', {
-      replacements: { snapshotLockId: idToInteger(sessionId) },
+      replacements: { snapshotLockId: uuidToFairlyUniqueInteger(sessionId) },
       transaction,
     });
     const unmarkSnapshotAsProcessing = async () => {
@@ -124,7 +124,7 @@ class CentralSyncManager {
     const [rows] = await this.store.sequelize.query(
       'SELECT NOT(pg_try_advisory_xact_lock(:snapshotLockId)) AS snapshot_is_processing;',
       {
-        replacements: { snapshotLockId: idToInteger(sessionId) },
+        replacements: { snapshotLockId: uuidToFairlyUniqueInteger(sessionId) },
       },
     );
     return rows[0].snapshot_is_processing;
