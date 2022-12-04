@@ -44,7 +44,7 @@ async function doRefresh(resource, { existing, missing, since }) {
   if (resource.toLowerCase() === 'all') {
     for (const Resource of materialisableResources) {
       if (!Resource?.UpstreamModel) continue;
-      await doRefresh(res, { existing, missing, since });
+      await doRefresh(Resource.fhirName, { existing, missing, since });
     }
     return;
   }
@@ -81,7 +81,7 @@ async function doRefresh(resource, { existing, missing, since }) {
   log.info('Resolving upstream references...');
   await Resource.resolveUpstreams();
 
-  log.info(`Done refreshing ${done} ${normalised} records`);
+  log.info(`Done refreshing ${done} ${Resource.fhirName} records`);
   await app.close();
 }
 
