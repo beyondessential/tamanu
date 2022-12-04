@@ -18,7 +18,7 @@ jobs:
       env:
         COMMENT: ${{ github.event.comment.body }}
       run: |
-        const matcher = /^!lint-fix/;
+        const matcher = /^!lint-fix/m;
         const comment = process.env['COMMENT'];
         if (!comment.match(matcher)) {
           process.exit(1);
