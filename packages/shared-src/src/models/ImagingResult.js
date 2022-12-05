@@ -44,13 +44,18 @@ export class ImagingResult extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['request'];
+    return ['request', 'completedBy'];
   }
 
   static initRelations(models) {
     this.belongsTo(models.ImagingRequest, {
       foreignKey: 'imagingRequestId',
       as: 'request',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'completedById',
+      as: 'completedBy',
     });
   }
 

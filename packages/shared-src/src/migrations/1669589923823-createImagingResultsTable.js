@@ -42,6 +42,14 @@ export async function up(query) {
         key: 'id',
       },
     },
+    completed_by_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+    },
 
     description: {
       type: DataTypes.TEXT,
