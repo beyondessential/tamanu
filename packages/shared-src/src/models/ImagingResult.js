@@ -4,6 +4,7 @@ import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class ImagingResult extends Model {
   static init(options) {
