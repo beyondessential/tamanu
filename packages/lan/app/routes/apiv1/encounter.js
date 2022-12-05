@@ -9,6 +9,7 @@ import {
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from 'shared/constants';
+import { parseOrNull } from 'shared/utils/parse-or-null';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
 
@@ -283,6 +284,7 @@ encounterRelations.get(
             'dataElementId', answer.data_element_id,
             'name', MAX(pde.name),
             'config', MAX(ssc.config),
+            'validationCriteria', MAX(ssc.validation_criteria),
             'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
         FROM
           survey_response_answers answer
@@ -324,7 +326,11 @@ encounterRelations.get(
       },
     );
 
-    const data = result.map(r => r.result);
+    const data = result.map(r => ({
+      ...r.result,
+      config: parseOrNull(r.result.config),
+      validationCriteria: parseOrNull(r.result.validationCriteria),
+    }));
 
     res.send({
       count: parseInt(count, 10),

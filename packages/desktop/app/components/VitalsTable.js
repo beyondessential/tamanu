@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
+import { Tooltip } from '@material-ui/core';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { capitaliseFirstLetter } from '../utils/capitalise';
@@ -10,23 +11,42 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 
 function unitDisplay(amount, config) {
-  try {
-    const { unit = '', rounding = 0, accessor } = JSON.parse(config || '{}');
-    if (typeof accessor === 'function') {
-      return accessor({ amount });
-    }
-
-    if (parseFloat(amount)) {
-      return `${parseFloat(amount).toFixed(rounding)}${unit}`;
-    }
-    if (typeof amount === 'string') {
-      return capitaliseFirstLetter(amount);
-    }
-    return '-';
-  } catch (e) {
-    // do nothing
+  const { unit = '', rounding = 0, accessor } = config || {};
+  if (typeof accessor === 'function') {
+    return accessor({ amount });
   }
-  return amount;
+
+  if (parseFloat(amount)) {
+    return `${parseFloat(amount).toFixed(rounding)}${unit}`;
+  }
+  if (typeof amount === 'string') {
+    return capitaliseFirstLetter(amount);
+  }
+  return amount || '-';
+}
+
+function unitWarning(amount, validationCriteria, config) {
+  const { normalRange } = validationCriteria || {};
+  const { unit = '' } = config || {};
+  if (!normalRange) return null;
+
+  const val = parseFloat(amount);
+  const base = 'Outside normal range\n';
+
+  if (val < normalRange.min) {
+    return `${base} <${normalRange.min}${unit}`;
+  }
+  if (val > normalRange.max) {
+    return `${base} >${normalRange.max}${unit}`;
+  }
+  return null;
+}
+
+function rangeInfo(validationCriteria, config) {
+  const { normalRange } = validationCriteria || {};
+  const { unit = '' } = config || {};
+  if (!normalRange) return null;
+  return `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`;
 }
 
 const useVitals = encounterId => {
@@ -48,13 +68,18 @@ const useVitals = encounterId => {
 
     readings = data
       .filter(vital => vital.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .map(({ name, config, records }) => ({
+      .map(({ name, config, validationCriteria, records }) => ({
         title: name,
+        tooltip: rangeInfo(validationCriteria, config),
         ...recordings.reduce((state, date) => {
           const answer = records[date] || null;
           return {
             ...state,
-            [date]: unitDisplay(answer, config),
+            [date]: {
+              value: unitDisplay(answer, config),
+              tooltip: unitWarning(answer, validationCriteria, config),
+              severity: 'warning',
+            },
           };
         }, {}),
       }));
@@ -85,6 +110,55 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const VitalsCellWrapper = styled.div`
+  background: ${({ severity }) =>
+    severity === 'warning' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'}
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin: -8px 0;
+  width: fit-content;
+`;
+
+const StyledTooltip = styled(props => (
+  <Tooltip classes={{ popper: props.className }} {...props}>
+    {props.children}
+  </Tooltip>
+))`
+  z-index: 1500;
+  pointer-events: auto;
+
+  & .MuiTooltip-tooltip {
+    background-color: ${Colors.primaryDark};
+    color: ${Colors.white};
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 15px;
+    white-space: pre-line;
+    cursor: pointer;
+    max-width: 500px;
+    display: -webkit-box;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+    text-align: center;
+    & .MuiTooltip-arrow {
+      color: ${Colors.primaryDark};
+    }
+  }
+`;
+
+const VitalsCell = React.memo(({ value, tooltip, severity }) => {
+  if (tooltip) {
+    return (
+      <StyledTooltip arrow placement="top" title={tooltip}>
+        <VitalsCellWrapper severity={severity}>
+          <div>{value}</div>
+        </VitalsCellWrapper>
+      </StyledTooltip>
+    );
+  }
+  return value;
+});
+
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordings, error, isLoading } = useVitals(encounter.id);
@@ -95,12 +169,18 @@ export const VitalsTable = React.memo(() => {
 
   // create a column for each reading
   const columns = [
-    { key: 'title', title: 'Measure', width: 145 },
+    {
+      key: 'title',
+      title: 'Measure',
+      width: 145,
+      accessor: c => <VitalsCell tooltip={c.tooltip} value={c.title} />,
+    },
     ...recordings
       .sort((a, b) => b.localeCompare(a))
       .map(r => ({
         title: <DateDisplay showTime date={r} />,
         key: r,
+        accessor: c => <VitalsCell {...c[r]} />,
       })),
   ];
 

@@ -73,10 +73,12 @@ export class SurveyScreenComponent extends Model {
   }
 
   forResponse() {
-    const { options, ...values } = this.dataValues;
+    const { options, config, validationCriteria, ...values } = this.dataValues;
     return {
       ...values,
       options: parseOrNull(options),
+      config: parseOrNull(config),
+      validationCriteria: parseOrNull(validationCriteria),
     };
   }
 }
