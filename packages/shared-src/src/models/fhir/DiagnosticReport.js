@@ -4,7 +4,6 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
-import { dateType } from '../dateTimeTypes';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -12,7 +11,7 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../services/fhirTypes';
-import { latestDateTime } from '../../utils/dateTime';
+import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -32,8 +31,14 @@ export class FhirDiagnosticReport extends FhirResource {
           type: DataTypes.FHIR_REFERENCE,
           allowNull: true,
         },
-        effectiveDateTime: dateType('effectiveDateTime', { allowNull: true }),
-        issued: dateType('issued', { allowNull: true }),
+        effectiveDateTime: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
+        issued: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
         performer: arrayOf('performer', DataTypes.FHIR_REFERENCE),
         result: arrayOf('result', DataTypes.FHIR_REFERENCE),
       },
@@ -110,8 +115,8 @@ export class FhirDiagnosticReport extends FhirResource {
       status: status(labRequest),
       code: code(labTestType),
       subject: patientReference(patient),
-      effectiveDateTime: labRequest.sampleTime,
-      issued: labRequest.requestedDate,
+      effectiveDateTime: dateTimeStringIntoCountryTimezone(labRequest.sampleTime),
+      issued: dateTimeStringIntoCountryTimezone(labRequest.requestedDate),
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
     });

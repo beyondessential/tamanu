@@ -1,4 +1,4 @@
-import Sequelize from 'sequelize';
+import Sequelize, { DataTypes } from 'sequelize';
 
 const TABLE = { schema: 'fhir', tableName: 'diagnostic_reports' };
 
@@ -47,11 +47,11 @@ export async function up(query) {
       allowNull: true,
     },
     effective_date_time: {
-      type: 'date_time_string',
+      type: DataTypes.DATE,
       allowNull: true,
     },
     issued: {
-      type: 'date_time_string',
+      type: DataTypes.DATE,
       allowNull: true,
     },
     performer: {
