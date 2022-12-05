@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { compose } from 'redux';
 import { FullView, StyledSafeAreaView } from '/styled/common';
-import { VitalsTable } from '/components/VitalsTable';
+import { VitalsTable, LegacyVitalsTable } from '/components/VitalsTable';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
@@ -15,22 +15,17 @@ export const ViewHistoryScreen = (): ReactElement => {
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
 
-  console.log('selectedPatient', selectedPatient);
-
   // Note: Vitals are only filtered by patient instead of encounter on mobile
   const [data, error] = useBackendEffect(
-    ({ models }) => models.Encounter.getVitals(selectedPatient.id),
+    ({ models }) => models.Patient.getVitals(selectedPatient.id),
     [],
   );
 
   if (error) return <ErrorScreen error={error} />;
 
-  console.log('error', error);
-  console.log('data', data);
-
   return (
     <StyledSafeAreaView flex={1}>
-      {/*<FullView>{data ? <VitalsTable patientData={data} /> : <LoadingScreen />}</FullView>*/}
+      <FullView>{data ? <VitalsTable data={data} /> : <LoadingScreen />}</FullView>
     </StyledSafeAreaView>
   );
 };
@@ -43,9 +38,11 @@ export const DumbViewHistoryScreen = ({ selectedPatient }): ReactElement => {
 
   if (error) return <ErrorScreen error={error} />;
 
+  console.log('legacy data ', data);
+
   return (
     <StyledSafeAreaView flex={1}>
-      <FullView>{data ? <VitalsTable patientData={data} /> : <LoadingScreen />}</FullView>
+      <FullView>{data ? <LegacyVitalsTable patientData={data} /> : <LoadingScreen />}</FullView>
     </StyledSafeAreaView>
   );
 };

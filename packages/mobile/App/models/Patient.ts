@@ -1,6 +1,7 @@
 import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
+import { groupBy } from 'lodash';
 import { readConfig } from '~/services/config';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
@@ -14,6 +15,8 @@ import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 import { DateStringColumn } from './DateColumns';
+import { formatStringDate } from '/helpers/date';
+import { DateFormats } from '/helpers/constants';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -202,5 +205,51 @@ export class Patient extends BaseModel implements IPatient {
       .andWhere('encounter.deviceId = :deviceId', { deviceId });
 
     return query.getRawMany();
+  }
+
+  static async getVitals(patientId: string): Promise<any[]> {
+    const repo = this.getRepository();
+    const results = await repo.query(
+      `SELECT
+           answer.id, pde.name, answer.dataElementId, answer.responseId, ssc.config, answer.body
+        FROM
+        survey_response_answer answer
+        INNER JOIN
+        survey_response response
+        ON
+        response.id = responseId
+        INNER JOIN
+        survey_screen_component ssc
+        ON
+        ssc.dataElementId = answer.dataElementId
+        INNER JOIN
+        program_data_element pde
+        ON
+        pde.id = answer.dataElementId
+        INNER JOIN
+        encounter
+        ON
+        encounter.id = response.encounterId
+        AND
+        encounter.patientId = $1
+        AND
+        body IS NOT NULL
+        ORDER BY answer.createdAt asc LIMIT $2`,
+      [patientId, 50],
+    );
+
+    console.log('results', results);
+    const library = groupBy(results, 'responseId');
+
+    // formatStringDate(vitals.dateRecorded, DateFormats.DATE_AND_TIME);
+
+    return Object.keys(library).reduce((state, key) => {
+      const records = library[key];
+      const newKey = records.find(x => x.dataElementId === 'pde-PatientVitalsDate');
+      if (newKey) {
+        return { ...state, [newKey.body]: records };
+      }
+      return state;
+    }, {});
   }
 }

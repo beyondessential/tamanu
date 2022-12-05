@@ -25,27 +25,30 @@ export const Table = ({
   cells,
   tableHeader,
   onPressItem,
-}: TableProps): JSX.Element => (
-  <RowView>
-    <StyledView>
-      <Title />
-      {rows.map(r => r.rowHeader())}
-    </StyledView>
-    <ScrollView
-      bounces={false}
-      scrollEnabled
-      showsHorizontalScrollIndicator
-      horizontal
-    >
-      <RowView>
-        {columns.map((column: any) => (
-          <StyledView key={`${column}`}>
-            {tableHeader.accessor(column, onPressItem)}
-            {cells[column]
-              && rows.map(row => row.cell(cells[column].find(c => c[row.rowKey] === row.rowTitle)))}
-          </StyledView>
-        ))}
-      </RowView>
-    </ScrollView>
-  </RowView>
-);
+}: TableProps): JSX.Element => {
+  console.log('table columns', columns);
+  if (typeof rows.map !== 'function') {
+    return null;
+  }
+  return (
+    <RowView>
+      <StyledView>
+        <Title />
+        {rows.map(r => r.rowHeader())}
+      </StyledView>
+      <ScrollView bounces={false} scrollEnabled showsHorizontalScrollIndicator horizontal>
+        <RowView>
+          {columns.map((column: any) => (
+            <StyledView key={`${column}`}>
+              {tableHeader.accessor(column, onPressItem)}
+              {cells[column] &&
+                rows.map(row => {
+                  return row.cell(cells[column].find(c => c[row.rowKey] === row.rowTitle));
+                })}
+            </StyledView>
+          ))}
+        </RowView>
+      </ScrollView>
+    </RowView>
+  );
+};

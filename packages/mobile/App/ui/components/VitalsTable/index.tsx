@@ -1,37 +1,41 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { Table } from '../Table';
-import { vitalsRows, vitalsColumns } from './VitalsTableData';
+import { vitalsRows } from './VitalsTableData';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
-import { formatStringDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
+import { useBackendEffect } from '~/ui/hooks';
+
 interface VitalsTableProps {
-  patientData: PatientVitalsProps[];
+  data: PatientVitalsProps[];
 }
 
 export const VitalsTable = memo(
-  ({ patientData }: VitalsTableProps): JSX.Element => {
-    const columns = useCallback(() => vitalsColumns(patientData), [patientData])();
-    const cells = {};
-    patientData.forEach(vitals => {
-      const recordedDateString = formatStringDate(vitals.dateRecorded, DateFormats.DATE_AND_TIME);
-      cells[recordedDateString] = [];
-      Object.entries(vitals).forEach(([key, value]) => {
-        cells[recordedDateString].push({
-          label: key,
-          value,
-        });
-      });
-    });
+  ({ data }: VitalsTableProps): JSX.Element => {
+    const columns = Object.keys(data);
+
+    const [survey, surveyError] = useBackendEffect(({ models }) =>
+      models.Survey.getRepository().findOne('program-patientvitals-patientvitals'),
+    );
+
+    const [components, componentsError] = useBackendEffect(() => survey && survey.getComponents(), [
+      survey,
+    ]);
+
+    if (!survey || !components) {
+      return null;
+    }
+    const mobileFormComponents = components.filter(
+      c => c.dataElementId !== 'pde-PatientVitalsDate',
+    );
 
     return (
       <Table
         Title={VitalsTableTitle}
         tableHeader={vitalsTableHeader}
-        rows={vitalsRows}
+        rows={vitalsRows(mobileFormComponents)}
         columns={columns}
-        cells={cells}
+        cells={data}
       />
     );
   },
