@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 
-export const vitalsRows = rows =>
+export const vitalsTableRows = rows =>
   rows.map(r => ({
     rowKey: 'dataElementId',
     rowTitle: r.dataElementId,

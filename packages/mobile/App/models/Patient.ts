@@ -15,8 +15,6 @@ import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 import { DateStringColumn } from './DateColumns';
-import { formatStringDate } from '/helpers/date';
-import { DateFormats } from '/helpers/constants';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -207,7 +205,7 @@ export class Patient extends BaseModel implements IPatient {
     return query.getRawMany();
   }
 
-  static async getVitals(patientId: string): Promise<any[]> {
+  static async getVitals(patientId: string): Promise<any> {
     const repo = this.getRepository();
     const results = await repo.query(
       `SELECT
@@ -234,16 +232,13 @@ export class Patient extends BaseModel implements IPatient {
         encounter.patientId = $1
         AND
         body IS NOT NULL
-        ORDER BY answer.createdAt asc LIMIT $2`,
-      [patientId, 50],
+        ORDER BY answer.createdAt desc LIMIT $2`,
+      [patientId, 500],
     );
 
-    console.log('results', results);
     const library = groupBy(results, 'responseId');
 
-    // formatStringDate(vitals.dateRecorded, DateFormats.DATE_AND_TIME);
-
-    return Object.keys(library).reduce((state, key) => {
+    const data = Object.keys(library).reduce((state, key) => {
       const records = library[key];
       const newKey = records.find(x => x.dataElementId === 'pde-PatientVitalsDate');
       if (newKey) {
@@ -251,5 +246,11 @@ export class Patient extends BaseModel implements IPatient {
       }
       return state;
     }, {});
+
+    const columns = Object.keys(data).sort((a, b) => {
+      return new Date(b) - new Date(a);
+    });
+
+    return { data, columns };
   }
 }

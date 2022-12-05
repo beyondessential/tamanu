@@ -14,16 +14,22 @@ export const ViewHistoryScreen = (): ReactElement => {
   );
 
   // Note: Vitals are only filtered by patient instead of encounter on mobile
-  const [data, error] = useBackendEffect(
+  const [response, error] = useBackendEffect(
     ({ models }) => models.Patient.getVitals(selectedPatient.id),
-    [],
+    [selectedPatient.id],
   );
 
   if (error) return <ErrorScreen error={error} />;
 
   return (
     <StyledSafeAreaView flex={1}>
-      <FullView>{data ? <VitalsTable data={data} /> : <LoadingScreen />}</FullView>
+      <FullView>
+        {response?.data ? (
+          <VitalsTable data={response.data} columns={response.columns} />
+        ) : (
+          <LoadingScreen />
+        )}
+      </FullView>
     </StyledSafeAreaView>
   );
 };

@@ -26,7 +26,6 @@ export const Table = ({
   tableHeader,
   onPressItem,
 }: TableProps): JSX.Element => {
-  console.log('table columns', columns);
   if (typeof rows.map !== 'function') {
     return null;
   }
