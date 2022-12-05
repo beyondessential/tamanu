@@ -23,9 +23,9 @@ export class FhirAnnotation extends Composite {
         text: yup.string().required(),
         _exclusive: yup.bool().when(['authorReference', 'authorString'], {
           is: (name, path) => !!name && !!path,
-          then: yup.bool().required(
-            'Only one of authorReference or authorString are allowed, but not both.',
-          ),
+          then: yup
+            .bool()
+            .required('Only one of authorReference or authorString are allowed, but not both.'),
           otherwise: yup.bool(),
         }),
       })

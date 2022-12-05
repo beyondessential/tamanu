@@ -33,7 +33,9 @@ export class ImagingResult extends Model {
         validate: {
           mustHaveImagingRequest() {
             if (!this.imagingRequestId) {
-              throw new InvalidOperationError('An imaging result must be associated with an imaging request.');
+              throw new InvalidOperationError(
+                'An imaging result must be associated with an imaging request.',
+              );
             }
           },
         },

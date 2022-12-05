@@ -44,7 +44,7 @@ export class COMPOSITE extends ABSTRACT {
       // lmao this isn't react
       // eslint-disable-next-line react/no-this-in-sfc
       return this.constructor.ValueClass.fromSql(value, options);
-    }
+    };
   }
 
   toSql() {

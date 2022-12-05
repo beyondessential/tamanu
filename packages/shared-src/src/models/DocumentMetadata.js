@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
     super.init(

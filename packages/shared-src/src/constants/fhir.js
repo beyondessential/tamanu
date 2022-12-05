@@ -19,7 +19,7 @@ export const FHIR_INTERACTIONS = {
   },
   INTERNAL: {
     MATERIALISE: 'materialise',
-  }
+  },
 };
 
 // The resource:upstreams relationship. Used to set up hooks.

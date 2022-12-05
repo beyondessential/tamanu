@@ -34,7 +34,7 @@ async function showStatus() {
       `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest}`,
     );
   }
-  
+
   await app.close();
 }
 

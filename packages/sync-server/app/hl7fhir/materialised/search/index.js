@@ -1,12 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
 import { FHIR_BUNDLE_TYPES } from 'shared/constants';
-import {
-  Invalid,
-  OperationOutcome,
-  Unsupported,
-  normaliseParameters
-} from 'shared/utils/fhir';
+import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'shared/utils/fhir';
 
 import { Bundle } from '../bundle';
 import { buildSearchQuery, pushToQuery } from './query';
@@ -38,7 +33,8 @@ export function searchHandler(FhirResource) {
 }
 
 async function parseRequest(req, parameters) {
-  const pairs = Object.entries(req.query).flatMap(([name, values]) => Array.isArray(values) ? values.map(v => [name, v]) : [[name, values]]
+  const pairs = Object.entries(req.query).flatMap(([name, values]) =>
+    Array.isArray(values) ? values.map(v => [name, v]) : [[name, values]],
   );
 
   const errors = [];
@@ -62,7 +58,7 @@ async function parseRequest(req, parameters) {
           errors.push(
             new Invalid(err.message, {
               expression: param,
-            })
+            }),
           );
         }
       }
