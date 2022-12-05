@@ -28,6 +28,7 @@ export class COMPOSITE extends ABSTRACT {
     // eslint-disable-next-line no-shadow
     this._value = (value, options) => compositeToSql(this.fieldSet(value), options);
     this._stringify = this._value;
+    // eslint-disable-next-line no-shadow
     this._sanitize = (value, options) => {
       if (value instanceof Composite) {
         // sometimes sequelize gives us an already parsed and valid value to sanitize.
