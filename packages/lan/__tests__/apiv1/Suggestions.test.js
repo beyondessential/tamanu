@@ -366,16 +366,17 @@ describe('Suggestions', () => {
   });
 
   it('Should get all suggestions on the /all endpoint', async () => {
+    await models.ReferenceData.truncate({ cascade: true });
     const dummyRecords = (new Array(30)).fill(0).map((_, i) => ({
       id: `diag-${i}`,
+      type: 'icd10',
       name: `Diag ${i}`,
       code: `diag-${i}`,
-    })).map(buildDiagnosis);
+    }));
 
     await models.ReferenceData.bulkCreate(dummyRecords);
-
     const result = await userApp.get('/v1/suggestions/icd10/all');
     expect(result).toHaveSucceeded();
-    expect(result.body.length).toBeGreaterThanOrEqual(30);
+    expect(result.body).toHaveLength(30);
   });
 });
