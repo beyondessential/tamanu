@@ -16,7 +16,7 @@ export async function up(query) {
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     upstream_id: {
-      type: Sequelize.STRING(36),
+      type: Sequelize.STRING,
       allowNull: false,
     },
     last_updated: {
@@ -35,7 +35,7 @@ export async function up(query) {
       defaultValue: '{}',
     },
     status: {
-      type: Sequelize.STRING(16),
+      type: Sequelize.TEXT,
       allowNull: false,
     },
     code: {
@@ -76,7 +76,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.sequelize.query(`DROP TRIGGER versioning ON fhir.${TABLE.tableName}`);
-
   await query.dropTable(TABLE);
 }

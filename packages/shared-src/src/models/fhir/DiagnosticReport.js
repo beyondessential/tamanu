@@ -20,7 +20,7 @@ export class FhirDiagnosticReport extends FhirResource {
         extension: arrayOf('extension', DataTypes.FHIR_EXTENSION), // This field is part of DomainResource
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
-          type: Sequelize.STRING(16),
+          type: Sequelize.TEXT,
           allowNull: false,
         },
         code: {

@@ -19,7 +19,7 @@ export class FhirImmunization extends FhirResource {
     super.init(
       {
         status: {
-          type: Sequelize.STRING(16),
+          type: Sequelize.TEXT,
           allowNull: false,
         },
         vaccineCode: {
@@ -102,7 +102,7 @@ export class FhirImmunization extends FhirResource {
     });
   }
 
-  // These won't currently work - no support yet for references or codeable concept token type
+  // Searching for patient is not supported yet
   static searchParameters() {
     return {
       ...super.searchParameters(),
@@ -112,8 +112,8 @@ export class FhirImmunization extends FhirResource {
       },
       'vaccine-code': {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['vaccineCode']],
-        tokenType: FHIR_SEARCH_TOKEN_TYPES.CODEABLE_CONCEPT, // type doesn't exist yet
+        path: [['vaccineCode', 'coding', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
       },
     };
   }
