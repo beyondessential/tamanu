@@ -54,7 +54,6 @@ export const Routes = {
         Index: '',
         AddDetails: '',
         ViewHistory: '',
-        LegacyViewHistory: '',
       },
     },
     ProgramStack: {

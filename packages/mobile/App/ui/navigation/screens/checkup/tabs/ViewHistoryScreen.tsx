@@ -1,10 +1,8 @@
 import React, { ReactElement } from 'react';
-import { compose } from 'redux';
 import { FullView, StyledSafeAreaView } from '/styled/common';
-import { VitalsTable, LegacyVitalsTable } from '/components/VitalsTable';
+import { VitalsTable } from '/components/VitalsTable';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks';
 import { useSelector } from 'react-redux';
 import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
@@ -29,22 +27,3 @@ export const ViewHistoryScreen = (): ReactElement => {
     </StyledSafeAreaView>
   );
 };
-
-export const DumbViewHistoryScreen = ({ selectedPatient }): ReactElement => {
-  const [data, error] = useBackendEffect(
-    ({ models }) => models.Vitals.getForPatient(selectedPatient.id),
-    [],
-  );
-
-  if (error) return <ErrorScreen error={error} />;
-
-  console.log('legacy data ', data);
-
-  return (
-    <StyledSafeAreaView flex={1}>
-      <FullView>{data ? <LegacyVitalsTable patientData={data} /> : <LoadingScreen />}</FullView>
-    </StyledSafeAreaView>
-  );
-};
-
-export const LegacyViewHistoryScreen = compose(withPatient)(DumbViewHistoryScreen);
