@@ -8,6 +8,7 @@ import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
@@ -340,6 +341,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
     // It will be fixed properly as part of EPI-160
     id: undefined,
+    noteType: chance.pickone(NOTE_TYPE_VALUES),
   }),
   NoteItem: () => ({
     id: undefined,

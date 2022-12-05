@@ -2,6 +2,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { findUser } from '../auth/utils';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
+import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
@@ -23,6 +24,7 @@ export async function startScheduledTasks(context) {
     PatientEmailCommunicationProcessor,
     ReportRequestProcessor,
     CertificateNotificationProcessor,
+    PatientMergeMaintainer,
   ];
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
