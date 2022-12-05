@@ -364,4 +364,18 @@ describe('Suggestions', () => {
     expect(idArray).toContain(visible.id);
     expect(idArray).not.toContain(invisible.id);
   });
+
+  it('Should get all suggestions on the /all endpoint', async () => {
+    const dummyRecords = (new Array(30)).fill(0).map((_, i) => ({
+      id: `diag-${i}`,
+      name: `Diag ${i}`,
+      code: `diag-${i}`,
+    })).map(buildDiagnosis);
+
+    await models.ReferenceData.bulkCreate(dummyRecords);
+
+    const result = await userApp.get('/v1/suggestions/icd10/all');
+    expect(result).toHaveSucceeded();
+    expect(result.body.length).toBeGreaterThanOrEqual(30);
+  });
 });
