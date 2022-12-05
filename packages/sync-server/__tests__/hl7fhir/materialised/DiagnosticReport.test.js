@@ -137,7 +137,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       await destroyDatabaseTables(ctx.store.models);
     });
 
-    it('fetches a diagnostic report by materialised ID', async () => {
+    it.skip('fetches a diagnostic report by materialised ID', async () => {
       const { FhirDiagnosticReport, Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
       const {
