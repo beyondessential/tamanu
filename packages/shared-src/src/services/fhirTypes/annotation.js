@@ -1,7 +1,6 @@
 import * as yup from 'yup';
 
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
-import { fakeString } from '../../test-helpers/fake';
 import { FhirReference } from './reference';
 
 export class FhirAnnotation extends Composite {
@@ -43,9 +42,9 @@ export class FhirAnnotation extends Composite {
 
   static fake(model, { fieldName }, id) {
     return new this({
-      authorString: fakeString(model, { fieldName: `${fieldName}.author` }, id),
+      authorString: `${model.name}.${fieldName}.author.${id}`,
       time: new Date(),
-      text: fakeString(model, { fieldName: `${fieldName}.text` }, id),
+      text: `${model.name}.${fieldName}.text.${id}`,
     });
   }
 }
