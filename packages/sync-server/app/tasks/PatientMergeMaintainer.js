@@ -44,6 +44,9 @@ export class PatientMergeMaintainer extends ScheduledTask {
     // the next pass anyway.
 
     const tableName = model.getTableName();
+    // Note that this is an UPDATE query that we're getting some RETURNS values from,
+    // rather than a traditional SELECT, so it requires a slightly different approach (hence
+    // the array destructure, the first value of which would be the # of affected rows)
     const [, result] = await model.sequelize.query(`
       UPDATE ${tableName}
       SET ${patientFieldName} = patients.merged_into_id
