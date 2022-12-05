@@ -214,8 +214,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       expect(response.body.total).toBe(1);
     });
 
-    // Unskip when we fix searching codeable concepts token types
-    it.skip('filters immunizations by vaccineId (vaccine-code)', async () => {
+    it('filters immunizations by vaccineId (vaccine-code)', async () => {
       const { FhirImmunization } = ctx.store.models;
       const { vaccine, administeredVaccine } = await createAdministeredVaccineHierarchy(
         ctx.store.models,
