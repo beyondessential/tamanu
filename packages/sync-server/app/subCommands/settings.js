@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { Op } from 'sequelize';
 
 import { log } from 'shared/services/logging';
 
