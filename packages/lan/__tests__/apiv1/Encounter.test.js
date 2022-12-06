@@ -806,8 +806,8 @@ describe('Encounter', () => {
             Object.entries(answers).map(([key, value]) =>
               expect.objectContaining({
                 dataElementId: key,
-                config: configs[key],
-                validationCriteria: validationCriteria[key],
+                config: configs[key] || null,
+                validationCriteria: validationCriteria[key] || null,
                 records: {
                   [submissionDate]: value.toString(),
                 },
