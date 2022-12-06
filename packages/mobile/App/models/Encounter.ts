@@ -1,9 +1,8 @@
 import { Entity, Column, ManyToOne, OneToMany, Index, RelationId } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
-import { getManager } from 'typeorm';
 import { BaseModel, IdRelation } from './BaseModel';
-import { IEncounter, EncounterType, ISurveyResponse } from '~/types';
+import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
 import { Medication } from './Medication';

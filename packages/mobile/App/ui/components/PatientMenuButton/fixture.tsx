@@ -22,7 +22,7 @@ export const BaseStory = (): JSX.Element => (
         />
         <StyledView marginLeft={8} marginRight={8}>
           <PatientMenuButton
-            title="Check up"
+            title="Vitals"
             Icon={VitalsIcon}
             onPress={(): void => console.log('here')}
           />
