@@ -48,9 +48,9 @@ export const COMMUNICATION_STATUSES = {
 
 export const JOB_QUEUE_STATUSES = {
   QUEUED: 'Queued',
-  BEGUN: 'Begun',
-  COMPLETE: 'Complete',
-  ERRORED: 'Error',
+  BEGAN: 'Began',
+  COMPLETED: 'Completed',
+  ERRORED: 'Errored',
 };
 
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);

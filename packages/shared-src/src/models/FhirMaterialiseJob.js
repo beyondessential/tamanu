@@ -1,17 +1,38 @@
-import Sequelize, { Op, DataTypes } from 'sequelize';
+import Sequelize, { Op, DataTypes, QueryTypes } from 'sequelize';
 import { Model } from './Model';
 import { JOB_QUEUE_STATUSES, SYNC_DIRECTIONS } from '../constants';
 
 const TIMEOUT = '10 minutes';
+
 const PENDING_RECORDS_WHERE = {
   [Op.or]: [
     { status: JOB_QUEUE_STATUSES.QUEUED },
     {
-      status: JOB_QUEUE_STATUSES.BEGUN,
-      beganAt: { [Op.lte]: Sequelize.literal(`current_timestamp(3)- '${TIMEOUT}'::interval`) },
+      status: JOB_QUEUE_STATUSES.BEGAN,
+      beganAt: { [Op.lte]: Sequelize.literal(`current_timestamp(3) - '${TIMEOUT}'::interval`) },
     },
   ],
 };
+
+// postgres doesn't support `UPDATE ... LIMIT n;` so we work around the limitation
+const UPDATE_SQL = `
+UPDATE fhir_materialise_jobs
+SET status = 'Began', began_at = current_timestamp(3)
+WHERE id IN (
+  SELECT id
+  FROM fhir_materialise_jobs
+  WHERE deleted_at IS NULL
+  AND (
+    status = 'Queued'
+    OR (
+      status = 'Began'
+      AND began_at <= current_timestamp(3) - '${TIMEOUT}'::interval
+    )
+  )
+  LIMIT :limit
+)
+RETURNING *;
+`;
 
 export class FhirMaterialiseJob extends Model {
   static init({ primaryKey, ...options }) {
@@ -70,22 +91,22 @@ export class FhirMaterialiseJob extends Model {
   }
 
   static async lockAndRun(limit, fn) {
-    const [, jobs] = await this.update(
-      {
-        status: JOB_QUEUE_STATUSES.BEGUN,
-        beganAt: Sequelize.fn('current_timestamp', 3),
-      },
-      {
-        where: PENDING_RECORDS_WHERE,
-        returning: true,
-        limit,
-      },
-    );
+    if (!Number.isFinite(limit)) {
+      throw new Error('FhirMaterialiseJob: limit must be a number, and finite');
+    }
+    if (typeof fn !== 'function') {
+      throw new Error('FhirMaterialiseJob: fn must be a function');
+    }
+    const [jobs] = await this.sequelize.query(UPDATE_SQL, {
+      type: QueryTypes.UPDATE,
+      replacements: { limit },
+    });
     const completed = [];
     const failed = [];
     for (const job of jobs) {
       try {
-        await fn(job);
+        const { upstreamId, resource } = job;
+        await fn({ upstreamId, resource });
         await this.update(
           {
             status: JOB_QUEUE_STATUSES.COMPLETED,
