@@ -55,11 +55,19 @@ export class FhirResource extends Model {
     return this.name.replace(/^Fhir/, '');
   }
 
+  // API interactions enabled for the resource
+  // see FHIR_INTERACTIONS constant
+  static CAN_DO = new Set();
+
   // main Tamanu model this resource is based on
   static UpstreamModel;
 
   // switch to true if the upstream's ID is the UUID pg type
   static UPSTREAM_UUID = false;
+
+  // yup schema for validating incoming resource
+  // TODO: derive from the sequelize attributes by default
+  static INTAKE_SCHEMA;
 
   // set upstream_id, call updateMaterialisation
   // do not set relatedToId when calling this, it's for internal use only.
@@ -169,6 +177,11 @@ export class FhirResource extends Model {
 
   static async resolveUpstreams() {
     await this.sequelize.query('CALL fhir.resolve_upstreams()');
+  }
+
+  // take a FhirResource and save it into Tamanu
+  async pushUpstream() {
+    throw new Error('must be overridden');
   }
 
   formatFieldsAsFhir(fields) {

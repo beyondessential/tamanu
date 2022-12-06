@@ -1,7 +1,8 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { FHIR_INTERACTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 import {
@@ -47,6 +48,12 @@ export class FhirDiagnosticReport extends FhirResource {
 
     this.UpstreamModel = models.LabTest;
   }
+
+  static CAN_DO = new Set([
+    FHIR_INTERACTIONS.INSTANCE.READ,
+    FHIR_INTERACTIONS.TYPE.SEARCH,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  ]);
 
   async updateMaterialisation() {
     const {

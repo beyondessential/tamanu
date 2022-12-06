@@ -12,6 +12,7 @@ import {
   FhirReference,
 } from '../../services/fhirTypes';
 import {
+  FHIR_INTERACTIONS,
   FHIR_REQUEST_INTENT,
   FHIR_REQUEST_PRIORITY,
   FHIR_REQUEST_STATUS,
@@ -51,6 +52,12 @@ export class FhirServiceRequest extends FhirResource {
 
     this.UpstreamModel = models.ImagingRequest;
   }
+
+  static CAN_DO = new Set([
+    FHIR_INTERACTIONS.INSTANCE.READ,
+    FHIR_INTERACTIONS.TYPE.SEARCH,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  ]);
 
   async updateMaterialisation() {
     const {

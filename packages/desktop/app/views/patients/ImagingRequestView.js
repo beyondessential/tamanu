@@ -81,6 +81,9 @@ const ImagingRequestInfoPane = React.memo(
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
 
+    const resultsDescription = values.results.map(result => result.description).join('\n\n');
+    const firstResultExtCode = values.results.find(result => result.externalCode)?.externalCode;
+
     return (
       <Formik
         // Only submit specific fields for update
@@ -163,14 +166,14 @@ const ImagingRequestInfoPane = React.memo(
                   name="results"
                   label="Results Description"
                   multiline
-                  value={values.results}
+                  value={resultsDescription}
                   onChange={handleChange}
                   style={{ gridColumn: '1 / -1', minHeight: '60px' }}
                 />
               )}
               <ButtonRow>
-                {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
-                  <Button color="secondary" disabled>
+                {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && firstResultExtCode && (
+                  <Button color="secondary" disabled title={`TODO: ${firstResultExtCode}`}>
                     View image (external link)
                   </Button>
                 )}

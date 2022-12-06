@@ -1,10 +1,26 @@
-// The resource types that are supported at an API level.
-export const FHIR_RESOURCE_TYPES = [
-  'Patient',
-  'ServiceRequest',
-  'DiagnosticReport',
-  'Immunization',
-];
+export const FHIR_INTERACTIONS = {
+  INSTANCE: {
+    READ: 'resource-read',
+    VREAD: 'resource-vread',
+    UPDATE: 'resource-update', // and patch
+    DELETE: 'resource-delete',
+    HISTORY: 'resource-history',
+  },
+  TYPE: {
+    CREATE: 'type-create',
+    SEARCH: 'type-search',
+    HISTORY: 'type-history',
+  },
+  SYSTEM: {
+    CAPABILITIES: 'capabilities',
+    TRANSACTION: 'transaction', // and batch
+    HISTORY: 'system-history',
+    SEARCH: 'system-search',
+  },
+  INTERNAL: {
+    MATERIALISE: 'materialise',
+  },
+};
 
 // The resource:upstreams relationship. Used to set up hooks.
 export const FHIR_UPSTREAMS = {

@@ -15,7 +15,17 @@ export class Composite {
   }
 
   constructor(params) {
-    this.params = this.constructor.SCHEMA().validateSync(params);
+    const withoutNulls = Object.fromEntries(
+      Object.entries(params).filter(([, value]) => value !== null && value !== undefined),
+    );
+    this.params = this.constructor.SCHEMA().validateSync(withoutNulls);
+
+    for (const name of Object.keys(this.params)) {
+      // exclude phantom fields (used only for advanced yup validations)
+      if (name.startsWith('_')) {
+        delete this.params[name];
+      }
+    }
   }
 
   sqlFields() {
@@ -60,9 +70,11 @@ export class Composite {
    */
   static asYup() {
     return mixed()
-      .transform((value, originalValue) =>
-        typeof value === 'string' ? this.fromSql(originalValue) : value,
-      )
+      .transform((value, originalValue) => {
+        if (typeof value === 'string') return this.fromSql(originalValue);
+        if (typeof value === 'object' && !(value instanceof this)) return new this(value);
+        return value;
+      })
       .test('is-fhir-type', `must be a ${this.name}`, t => (t ? t instanceof this : true));
   }
 

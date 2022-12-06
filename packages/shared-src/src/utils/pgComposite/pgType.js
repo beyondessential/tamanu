@@ -20,14 +20,14 @@ export class COMPOSITE extends ABSTRACT {
     this.options = options || {};
     this.key = this.constructor.key;
 
-    // we need to do this to tightly bind `this` in the functions; Sequelize rebinds _methods to the
+    // We need to do this to tightly bind `this` in the functions; Sequelize rebinds _methods to the
     // MODEL which loses all the valuable context such as "how do I parse this value" but whatever,
-    // we just force it to the right thing.
+    // we just force it to the right thing. This is no longer the case in Sequelize 7, so we'll be
+    // able to undo this workaround when we upgrade.
 
     // eslint-disable-next-line no-shadow
     this._value = (value, options) => compositeToSql(this.fieldSet(value), options);
     this._stringify = this._value;
-
     // eslint-disable-next-line no-shadow
     this._sanitize = (value, options) => {
       if (value instanceof Composite) {
@@ -45,7 +45,7 @@ export class COMPOSITE extends ABSTRACT {
       // lmao this isn't react
       // eslint-disable-next-line react/no-this-in-sfc
       return this.constructor.ValueClass.fromSql(value, options);
-    }
+    };
   }
 
   toSql() {

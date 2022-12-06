@@ -1,7 +1,12 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
 import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from 'shared/constants/fhir';
+import {
+  FHIR_INTERACTIONS,
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
+} from 'shared/constants/fhir';
+
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 import { dateTimeType } from '../dateTimeTypes';
@@ -45,6 +50,12 @@ export class FhirImmunization extends FhirResource {
 
     this.UpstreamModel = models.AdministeredVaccine;
   }
+
+  static CAN_DO = new Set([
+    FHIR_INTERACTIONS.INSTANCE.READ,
+    FHIR_INTERACTIONS.TYPE.SEARCH,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  ]);
 
   async updateMaterialisation() {
     const { ScheduledVaccine, Encounter, Patient, ReferenceData, User } = this.sequelize.models;
