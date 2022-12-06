@@ -2,13 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
-import { Tooltip } from '@material-ui/core';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { Colors } from '../constants';
+import { TableTooltip } from './Table/TableTooltip';
 
 function unitDisplay(amount, config) {
   const { unit = '', rounding = 0, accessor } = config || {};
@@ -121,40 +121,12 @@ const VitalsCellWrapper = styled.div`
   width: fit-content;
 `;
 
-const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
-    {props.children}
-  </Tooltip>
-))`
-  z-index: 1500;
-  pointer-events: auto;
-
-  & .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    color: ${Colors.white};
-    font-weight: 400;
-    font-size: 11px;
-    line-height: 15px;
-    white-space: pre-line;
-    cursor: pointer;
-    max-width: 500px;
-    display: -webkit-box;
-    -webkit-line-clamp: 10;
-    -webkit-box-orient: vertical;
-    text-align: center;
-    & .MuiTooltip-arrow {
-      color: ${Colors.primaryDark};
-    }
-  }
-`;
-
 const VitalsCell = React.memo(({ value, tooltip, severity }) => {
   if (tooltip) {
     return (
-      // Currently we would not want to highlight a cell without a corresponding warning tooltip
-      <StyledTooltip arrow placement="top" title={tooltip}>
+      <TableTooltip arrow placement="top" title={tooltip}>
         <VitalsCellWrapper severity={severity}>{value}</VitalsCellWrapper>
-      </StyledTooltip>
+      </TableTooltip>
     );
   }
   return <VitalsCellWrapper>{value}</VitalsCellWrapper>;
