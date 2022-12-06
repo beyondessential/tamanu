@@ -3,17 +3,11 @@ import * as yup from 'yup';
 
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
-import {
-  Field,
-  Form,
-  AutocompleteField,
-  SelectField,
-  DateTimeField,
-} from '../Field';
+import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 
-import { useApi, usePatientSuggester, useSuggester } from '../../api';
+import { useApi, useLocationGroupSuggester, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
 
 export const AppointmentForm = props => {
@@ -22,9 +16,7 @@ export const AppointmentForm = props => {
   const isUpdating = !!appointment;
   const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
-  const locationGroupSuggester = useSuggester('locationGroup', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const locationGroupSuggester = useLocationGroupSuggester();
 
   let initialValues = {};
   if (isUpdating) {
