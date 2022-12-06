@@ -9,9 +9,7 @@ import {
   OperationOutcome,
   Unsupported,
   NotFound,
-  // normaliseParameter,
   normaliseParameters,
-  // RESULT_PARAMETERS,
 } from 'shared/utils/fhir';
 
 import { Bundle } from './bundle';

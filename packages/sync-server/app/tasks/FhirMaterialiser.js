@@ -28,7 +28,7 @@ export class FhirMaterialiser extends ScheduledTask {
   async countQueue() {
     let total = frontQueue.length;
     for (const resource of FHIR_RESOURCE_TYPES) {
-      log.debug(`Counting missing records for Fhir${resource}`);
+      log.debug(`FhirMaterialiser: Counting missing records for Fhir${resource}`);
       const Resource = this.models[`Fhir${resource}`];
       total += await Resource.countMissingRecords();
     }
@@ -40,6 +40,7 @@ export class FhirMaterialiser extends ScheduledTask {
     const { limit } = this.config;
     let total = 0;
 
+    log.debug('FhirMaterialiser: Running through explicit queue');
     for (const { resource, upstreamId } of frontQueue.splice(0, limit)) {
       total += 1;
       await this.materialise(
@@ -49,6 +50,7 @@ export class FhirMaterialiser extends ScheduledTask {
       );
     }
 
+    log.debug('FhirMaterialiser: Running through backlog');
     for (const resource of FHIR_RESOURCE_TYPES) {
       if (total >= limit) return;
 
@@ -64,14 +66,16 @@ export class FhirMaterialiser extends ScheduledTask {
       }
     }
 
-    await this.models.FhirPatient.resolveUpstreamLinks();
+    log.debug('FhirMaterialiser: Running resolve upstreams procedure');
+    await this.models.FhirPatient.resolveUpstreams();
+    // can be called from any resource
   }
 
   async materialise(logger, resource, upstreamId) {
-    logger.debug('Starting materialise');
+    logger.debug('FhirMaterialiser: Starting materialise');
     const start = +new Date();
     const result = await this.models[`Fhir${resource}`].materialiseFromUpstream(upstreamId);
-    logger.debug('Done materialising', {
+    logger.debug('FhirMaterialiser: Done materialising', {
       resourceId: result.id,
       versionId: result.versionId,
       duration: +new Date() - start,

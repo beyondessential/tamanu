@@ -167,6 +167,14 @@ export class FhirResource extends Model {
     return Number(rows[0]?.count || 0);
   }
 
+  static async resolveUpstreams() {
+    await this.sequelize.query('CALL fhir.resolve_upstreams()');
+  }
+
+  formatFieldsAsFhir(fields) {
+    return objectAsFhir(fields);
+  }
+
   asFhir() {
     const fields = {};
     for (const name of Object.keys(this.constructor.getAttributes())) {
@@ -185,7 +193,7 @@ export class FhirResource extends Model {
           FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
         ),
       },
-      ...objectAsFhir(fields),
+      ...this.formatFieldsAsFhir(fields),
     };
   }
 

@@ -1,9 +1,19 @@
 // The resource types that are supported at an API level.
-export const FHIR_RESOURCE_TYPES = ['Patient'];
+export const FHIR_RESOURCE_TYPES = ['Patient', 'ServiceRequest'];
 
 // The resource:upstreams relationship. Used to set up hooks.
 export const FHIR_UPSTREAMS = {
   Patient: ['Patient', 'PatientAdditionalData'],
+  ServiceRequest: [
+    'Encounter',
+    'Facility',
+    'ImagingAreaExternalCode',
+    'ImagingRequestArea',
+    'Location',
+    'Patient',
+    'ReferenceData',
+    'User',
+  ],
 };
 
 // All possible search parameter types
@@ -154,4 +164,37 @@ export const FHIR_ISSUE_TYPE = {
     THROTTLED: 'throttled',
   },
   INFORMATIONAL: 'informational',
+};
+
+export const FHIR_REQUEST_STATUS = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  ON_HOLD: 'on-hold',
+  REVOKED: 'revoked',
+  COMPLETED: 'completed',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
+
+export const FHIR_REQUEST_INTENT = {
+  PROPOSAL: 'proposal',
+  PLAN: 'plan',
+  DIRECTIVE: 'directive',
+  ORDER: {
+    _: 'order',
+    ORIGINAL: 'original-order',
+    REFLEX: 'reflex-order',
+    FILLER: {
+      _: 'filler-order',
+      INSTANCE: 'instance-order',
+    },
+  },
+  OPTION: 'option',
+};
+
+export const FHIR_REQUEST_PRIORITY = {
+  ROUTINE: 'routine',
+  URGENT: 'urgent',
+  ASAP: 'asap',
+  STAT: 'stat',
 };
