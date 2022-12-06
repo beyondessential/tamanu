@@ -12,12 +12,14 @@ import {
   FhirReference,
 } from '../../services/fhirTypes';
 import {
-  FHIR_REQUEST_STATUS,
   FHIR_REQUEST_INTENT,
+  FHIR_REQUEST_PRIORITY,
+  FHIR_REQUEST_STATUS,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
 } from '../../constants';
+import { Exception } from '../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
@@ -140,7 +142,7 @@ export class FhirServiceRequest extends FhirResource {
           ],
         }),
       ],
-      priority: upstream.priority, // assumes that the values are FHIR compatible
+      priority: validatePriority(upstream.priority),
       code: imagingCode(upstream)
         ? new FhirCodeableConcept({
             text: imagingCode(upstream),
@@ -230,4 +232,12 @@ function imagingCode(upstream) {
   }
 
   return null;
+}
+
+function validatePriority(priority) {
+  if (!Object.values(FHIR_REQUEST_PRIORITY).includes(priority)) {
+    throw new Exception(`Invalid priority: ${priority}`);
+  }
+
+  return priority;
 }
