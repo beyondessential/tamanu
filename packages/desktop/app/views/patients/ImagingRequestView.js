@@ -79,6 +79,9 @@ const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
+    const locationGroupSuggester = useSuggester('locationGroup', {
+      baseQueryParameters: { filterByFacility: true },
+    });
 
     return (
       <Formik
@@ -150,9 +153,8 @@ const ImagingRequestInfoPane = React.memo(
                   <Field
                     label="Area"
                     name="locationGroupId"
-                    endpoint="locationGroup"
                     component={AutocompleteField}
-                    filterByFacility
+                    suggester={locationGroupSuggester}
                     required
                   />
                 </>
