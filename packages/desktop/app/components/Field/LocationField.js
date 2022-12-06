@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
-import { useApi } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
@@ -22,18 +22,6 @@ const locationSuggester = (api, groupValue) => {
       };
     },
     baseQueryParameters: { filterByFacility: true, locationGroupId: groupValue },
-  });
-};
-
-const locationGroupsSuggester = api => {
-  return new Suggester(api, 'locationGroup', {
-    formatter: ({ name, id }) => {
-      return {
-        value: id,
-        label: name,
-      };
-    },
-    baseQueryParameters: { filterByFacility: true },
   });
 };
 
@@ -65,7 +53,9 @@ export const LocationInput = React.memo(
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = locationSuggester(api, groupId);
-    const areaSuggester = locationGroupsSuggester(api);
+    const locationGroupSuggester = useSuggester('locationGroup', {
+      baseQueryParameters: { filterByFacility: true },
+    });
     const { data } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
@@ -97,7 +87,7 @@ export const LocationInput = React.memo(
           label={locationGroupLabel}
           required={required}
           onChange={handleChangeCategory}
-          suggester={areaSuggester}
+          suggester={locationGroupSuggester}
           value={groupId}
           disabled={disabled}
         />
