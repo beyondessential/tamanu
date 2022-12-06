@@ -1,7 +1,7 @@
+/* eslint-disable no-console */
+
 import { Command } from 'commander';
 import { Op } from 'sequelize';
-
-import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
 
@@ -9,7 +9,7 @@ async function listSettings(filter = null) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
-  log.info('---------------------------------\n');
+  console.log('---------------------------------\n');
 
   const settings = await Setting.findAll({
     where: filter
@@ -22,12 +22,12 @@ async function listSettings(filter = null) {
   });
 
   if (settings.length === 0) {
-    log.info('No settings found');
+    console.log('No settings found');
     return;
   }
 
   for (const setting of settings) {
-    log.info(setting.key);
+    console.log(setting.key);
   }
 }
 
@@ -35,13 +35,13 @@ async function getSetting(key, { facility }) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
-  log.info('---------------------------------\n');
+  console.log('---------------------------------\n');
 
   const setting = await Setting.get(key, facility);
   if (setting === undefined) {
-    log.info('(no setting found)');
+    console.log('(no setting found)');
   } else {
-    log.info(`value: ${JSON.stringify(setting, null, 2)}`);
+    console.log(`value: ${JSON.stringify(setting, null, 2)}`);
   }
 }
 
@@ -49,20 +49,20 @@ async function setSetting(key, value, { facility }) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
-  log.info('---------------------------------\n');
+  console.log('---------------------------------\n');
 
   const setting = await Setting.get(key, facility);
   if (setting && JSON.stringify(setting) !== '{}') {
-    log.info('current value:');
-    log.info(JSON.stringify(setting, null, 2));
-    log.info('\n')
+    console.log('current value:');
+    console.log(JSON.stringify(setting, null, 2));
+    console.log('\n')
   } else {
-    log.info('no current value\n');
+    console.log('no current value\n');
   }
 
   const newValue = JSON.parse(value);
   await Setting.set(key, newValue, facility);
-  log.info('new value set');
+  console.log('new value set');
 }
 
 export const settingsCommand = new Command('settings')
