@@ -9,16 +9,16 @@ export class ImagingAreaExternalCode extends Model {
       {
         id: primaryKey,
         visibilityStatus: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
           defaultValue: 'current',
         },
 
         code: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
-        description: DataTypes.STRING,
+        description: DataTypes.TEXT,
       },
       {
         ...options,
