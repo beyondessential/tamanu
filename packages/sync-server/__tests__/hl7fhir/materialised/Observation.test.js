@@ -97,7 +97,7 @@ describe(`Materialised FHIR - Observation`, () => {
             encounterId: encounter.id,
             locationId: resources.location.id,
             status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-            priority: 'normal',
+            priority: 'routine',
             requestedDate: '2022-03-04 15:30:00',
           }),
         );
@@ -148,7 +148,7 @@ describe(`Materialised FHIR - Observation`, () => {
             encounterId: encounter.id,
             locationId: resources.location.id,
             status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-            priority: 'normal',
+            priority: 'routine',
             requestedDate: '2022-03-04 15:30:00',
           }),
         );
@@ -227,7 +227,7 @@ describe(`Materialised FHIR - Observation`, () => {
             encounterId: encounter.id,
             locationId: resources.location.id,
             status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-            priority: 'normal',
+            priority: 'routine',
             requestedDate: '2022-03-04 15:30:00',
           }),
         );
