@@ -1,5 +1,4 @@
 import { Op, Transaction } from 'sequelize';
-import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
@@ -13,15 +12,18 @@ import {
   getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
+import { injectConfig } from 'shared/utils/withConfig';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 
+// about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
-const { lapsedSessionSeconds, lapsedSessionCheckFrequencySeconds } = config.sync;
 
-export class CentralSyncManager {
+export
+@injectConfig
+class CentralSyncManager {
   currentSyncTick;
 
   store;
@@ -32,7 +34,7 @@ export class CentralSyncManager {
     this.store = ctx.store;
     this.purgeInterval = setInterval(
       this.purgeLapsedSessions,
-      lapsedSessionCheckFrequencySeconds * 1000,
+      this.constructor.config.sync.lapsedSessionCheckFrequencySeconds * 1000,
     );
     ctx.onClose(this.close);
   }
@@ -40,7 +42,10 @@ export class CentralSyncManager {
   close = () => clearInterval(this.purgeInterval);
 
   purgeLapsedSessions = async () => {
-    await completeInactiveSyncSessions(this.store, lapsedSessionSeconds);
+    await completeInactiveSyncSessions(
+      this.store,
+      this.constructor.config.sync.lapsedSessionSeconds,
+    );
   };
 
   async tickTockGlobalClock() {
@@ -136,7 +141,7 @@ export class CentralSyncManager {
         // no need for historical ones on initial sync, and no need on mobile
         syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
         syncAllEncountersForTheseVaccines: isMobile
-          ? config.sync.syncAllEncountersForTheseVaccines
+          ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
           : [],
         isMobile,
       };
@@ -156,7 +161,7 @@ export class CentralSyncManager {
             patientIdsForFullSync,
             sessionId,
             facilityId,
-            sessionConfig,
+            {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
           );
 
           // get changes since the last successful sync for all other synced patients and independent

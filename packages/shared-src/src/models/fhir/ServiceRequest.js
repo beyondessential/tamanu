@@ -1,6 +1,9 @@
+import config from 'config';
 import { DataTypes } from 'sequelize';
+
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
+
 import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
 import {
   FhirCodeableConcept,
@@ -12,10 +15,13 @@ import {
   FHIR_INTERACTIONS,
   FHIR_REQUEST_STATUS,
   FHIR_REQUEST_INTENT,
+  FHIR_REQUEST_PRIORITY,
+  FHIR_REQUEST_STATUS,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
 } from '../../constants';
+import { Exception } from '../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {

@@ -1,6 +1,8 @@
 import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';
+import 'jest-expect-message';
+import * as jestExtendedMatchers from 'jest-extended';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 
@@ -30,6 +32,8 @@ ${JSON.stringify(response.body.error, null, 2)}
 };
 
 export function extendExpect(expect) {
+  // Needs to be added explicitly because of the jest-expect-message import
+  expect.extend(jestExtendedMatchers);
   expect.extend({
     toBeForbidden(response) {
       const { statusCode } = response;

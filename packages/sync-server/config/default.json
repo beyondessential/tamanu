@@ -114,6 +114,10 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "patientMergeMaintainer": {
+      // once an hour at minute 12
+      "schedule": "12 * * * *"
+    },
     "certificateNotificationProcessor": {
       // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
@@ -710,7 +714,9 @@
     "dataDictionaries": {
       "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
-      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
+      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
+      "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
+      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html"
     }
   },
   "s3": {},

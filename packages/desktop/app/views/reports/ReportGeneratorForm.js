@@ -188,7 +188,6 @@ export const ReportGeneratorForm = () => {
       initialValues={{
         reportId: '',
         emails: currentUser.email,
-        ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
@@ -201,7 +200,7 @@ export const ReportGeneratorForm = () => {
           {},
         ),
       })}
-      render={({ values, submitForm }) => (
+      render={({ values, submitForm, clearForm }) => (
         <>
           <FormGrid columns={2}>
             <Field
@@ -210,7 +209,10 @@ export const ReportGeneratorForm = () => {
               component={ReportIdField}
               options={reportOptions}
               required
-              onValueChange={setSelectedReportId}
+              onValueChange={reportId => {
+                setSelectedReportId(reportId);
+                clearForm();
+              }}
             />
             <Field
               name="dataSource"

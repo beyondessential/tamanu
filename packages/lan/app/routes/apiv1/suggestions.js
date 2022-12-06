@@ -73,7 +73,7 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
 function createAllRecordsSuggesterRoute(
   endpoint,
   modelName,
-  where,
+  baseWhere,
   mapper = defaultMapper,
   orderColumn = 'name',
 ) {
@@ -81,10 +81,13 @@ function createAllRecordsSuggesterRoute(
     `/${endpoint}/all`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
-      const { models } = req;
+      const { models, query } = req;
+
       const model = models[modelName];
       const results = await model.findAll({
-        where,
+        where: query.filterByFacility
+          ? { ...baseWhere, facilityId: config.serverFacilityId }
+          : baseWhere,
         limit: defaultLimit,
         order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
@@ -192,10 +195,7 @@ createSuggester(
   'name',
 );
 
-createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', {
-  facilityId: config.serverFacilityId,
-  ...VISIBILITY_CRITERIA,
-});
+createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 

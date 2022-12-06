@@ -212,3 +212,10 @@ export const FHIR_REQUEST_INTENT = {
   },
   OPTION: 'option',
 };
+
+export const FHIR_REQUEST_PRIORITY = {
+  ROUTINE: 'routine',
+  URGENT: 'urgent',
+  ASAP: 'asap',
+  STAT: 'stat',
+};

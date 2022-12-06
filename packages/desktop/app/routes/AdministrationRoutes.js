@@ -6,6 +6,7 @@ import {
   ReferenceDataAdminView,
   PermissionsAdminView,
   PatientMergeView,
+  SyncView,
 } from '../views';
 
 export const AdministrationRoutes = React.memo(({ match }) => (
@@ -14,6 +15,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/permissions`} component={PermissionsAdminView} />
     <Route path={`${match.path}/programs`} component={ProgramsAdminView} />
     <Route path={`${match.path}/patientMerge`} component={PatientMergeView} />
+    <Route path={`${match.path}/sync`} component={SyncView} />
     <Redirect to={`${match.path}/refdata`} />
   </Switch>
 ));
