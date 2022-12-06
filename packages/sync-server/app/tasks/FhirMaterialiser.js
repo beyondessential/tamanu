@@ -6,12 +6,6 @@ import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
-// jobs pushed in there are done first (from sync)
-const frontQueue = [];
-export function fhirQueue(resource, upstreamId) {
-  frontQueue.push({ resource, upstreamId });
-}
-
 export class FhirMaterialiser extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.fhirMaterialiser;
@@ -29,7 +23,7 @@ export class FhirMaterialiser extends ScheduledTask {
   }
 
   async countQueue() {
-    let total = frontQueue.length;
+    let total = await this.models.FhirMaterialiseJob.countQueued();
     for (const Resource of materialisableResources) {
       log.debug(`FhirMaterialiser: Counting missing records for ${Resource.fhirName}`);
       total += await Resource.countMissingRecords();
@@ -39,19 +33,32 @@ export class FhirMaterialiser extends ScheduledTask {
   }
 
   async run() {
+    const { FhirMaterialiseJob } = this.models;
     const { limit } = this.config;
     let total = 0;
+    if (!Number.isFinite(limit)) {
+      throw new Error('config.schedules.fhirMaterialiser.limit must be finite');
+    }
 
     log.debug('FhirMaterialiser: Running through explicit queue');
-    for (const { resource, upstreamId } of frontQueue.splice(0, limit)) {
-      total += 1;
-      const Resource = materialisableResources.find(r => r.fhirName === resource);
-      await this.materialise(
-        log.child({ nth: total, limit, resource, upstreamId }),
-        Resource,
-        upstreamId,
-      );
-    }
+    const [completed, failed] = await FhirMaterialiseJob.lockAndRun(
+      limit,
+      ({ resource, upstreamId }) => {
+        const Resource = materialisableResources.find(r => r.fhirName === resource);
+        this.materialise(
+          log.child({ nth: total, limit, resource, upstreamId }),
+          Resource,
+          upstreamId,
+        );
+      },
+    );
+    total += completed.length + failed.length;
+    log.debug('FhirMaterialiser: Finished locking and running FhirMaterialiseJob jobs', {
+      limit,
+      total,
+      completed: completed.map(c => c.id).join(','),
+      failed: failed.map(f => f.id).join(','),
+    });
 
     log.debug('FhirMaterialiser: Running through backlog');
     for (const Resource of materialisableResources) {

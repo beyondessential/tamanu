@@ -90,3 +90,4 @@ export * from './SyncSession';
 export * from './SyncSessionRecord';
 
 export * from './fhir';
+export * from './FhirMaterialiseJob';
