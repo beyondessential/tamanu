@@ -55,7 +55,7 @@ async function setSetting(key, value, { facility }) {
   if (setting && JSON.stringify(setting) !== '{}') {
     console.log('current value:');
     console.log(JSON.stringify(setting, null, 2));
-    console.log('\n')
+    console.log('\n');
   } else {
     console.log('no current value\n');
   }
