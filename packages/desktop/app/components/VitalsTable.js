@@ -12,6 +12,7 @@ import { TableTooltip } from './Table/TableTooltip';
 
 function unitDisplay(amount, config) {
   const { unit = '', rounding = 0, accessor } = config || {};
+  if (!amount) return '-';
   if (typeof accessor === 'function') {
     return accessor({ amount });
   }
@@ -22,31 +23,39 @@ function unitDisplay(amount, config) {
   if (typeof amount === 'string') {
     return capitaliseFirstLetter(amount);
   }
-  return amount || '-';
+  return amount;
 }
 
-function unitWarning(amount, validationCriteria, config) {
+function rangeAlert(amount, validationCriteria, config) {
   const { normalRange } = validationCriteria || {};
   const { unit = '' } = config || {};
   if (!normalRange) return null;
 
   const val = parseFloat(amount);
-  const base = 'Outside normal range\n';
+  let tooltip = 'Outside normal range\n';
 
   if (val < normalRange.min) {
-    return `${base} <${normalRange.min}${unit}`;
+    tooltip += `<${normalRange.min}${unit}`;
+  } else if (val > normalRange.max) {
+    tooltip += `>${normalRange.max}${unit}`;
+  } else {
+    return null;
   }
-  if (val > normalRange.max) {
-    return `${base} >${normalRange.max}${unit}`;
-  }
-  return null;
+
+  return {
+    tooltip,
+    severity: 'alert',
+  };
 }
 
 function rangeInfo(validationCriteria, config) {
   const { normalRange } = validationCriteria || {};
   const { unit = '' } = config || {};
   if (!normalRange) return null;
-  return `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`;
+  return {
+    tooltip: `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`,
+    severity: 'info',
+  };
 }
 
 const useVitals = encounterId => {
@@ -71,7 +80,7 @@ const useVitals = encounterId => {
       .map(({ name, config, validationCriteria, records }) => ({
         title: {
           value: name,
-          tooltip: rangeInfo(validationCriteria, config),
+          ...rangeInfo(validationCriteria, config),
         },
         ...recordings.reduce((state, date) => {
           const answer = records[date] || null;
@@ -79,8 +88,7 @@ const useVitals = encounterId => {
             ...state,
             [date]: {
               value: unitDisplay(answer, config),
-              tooltip: unitWarning(answer, validationCriteria, config),
-              severity: 'warning',
+              ...rangeAlert(answer, validationCriteria, config),
             },
           };
         }, {}),
@@ -114,10 +122,10 @@ const StyledTable = styled(Table)`
 
 const VitalsCellWrapper = styled.div`
   background: ${({ severity }) =>
-    severity === 'warning' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'};
+    severity === 'alert' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'};
   border-radius: 10px;
   padding: 8px 14px;
-  margin: -8px ${({ severity }) => (severity === 'warning' ? '0px' : '-14px')};
+  margin: -8px ${({ severity }) => (severity === 'alert' ? '0px' : '-14px')};
   width: fit-content;
 `;
 
@@ -146,7 +154,9 @@ export const VitalsTable = React.memo(() => {
       key: 'title',
       title: 'Measure',
       width: 145,
-      accessor: c => <VitalsCell tooltip={c.title.tooltip} value={c.title.value} />,
+      accessor: c => (
+        <VitalsCell tooltip={c.title.tooltip} value={c.title.value} severity={c.title.severity} />
+      ),
     },
     ...recordings
       .sort((a, b) => b.localeCompare(a))
