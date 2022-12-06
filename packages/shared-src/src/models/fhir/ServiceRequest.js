@@ -129,7 +129,7 @@ export class FhirServiceRequest extends FhirResource {
       ),
       identifier: [
         new FhirIdentifier({
-          system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+          system: config.hl7.dataDictionaries.serviceRequestId,
           value: upstream.id,
         }),
       ],
@@ -163,7 +163,7 @@ export class FhirServiceRequest extends FhirResource {
                 coding: [
                   new FhirCoding({
                     code: areaExtCodes.get(id)?.code,
-                    system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    system: config.hl7.dataDictionaries.areaExternalCode,
                   }),
                 ],
               }),
