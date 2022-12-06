@@ -26,6 +26,9 @@ import {
   FhirPatientLink,
   FhirPeriod,
   FhirReference,
+  FhirExtension,
+  FhirImmunizationPerformer,
+  FhirImmunizationProtocolApplied,
 } from '../services/fhirTypes';
 
 const chance = new Chance();
@@ -241,6 +244,9 @@ const FIELD_HANDLERS = {
   FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
   FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
   FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
+  FHIR_EXTENSION: (...args) => FhirExtension.fake(...args),
+  FHIR_IMMUNIZATION_PERFORMER: (...args) => FhirImmunizationPerformer.fake(...args),
+  FHIR_IMMUNIZATION_PROTOCOL_APPLIED: (...args) => FhirImmunizationProtocolApplied.fake(...args),
 };
 
 const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];

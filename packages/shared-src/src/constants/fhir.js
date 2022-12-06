@@ -35,6 +35,22 @@ export const FHIR_UPSTREAMS = {
     'ReferenceData',
     'User',
   ],
+  DiagnosticReport: [
+    'LabTest',
+    'LabRequest',
+    'LabTestType',
+    'ReferenceData',
+    'Encounter',
+    'Patient',
+  ],
+  Immunization: [
+    'AdministeredVaccine',
+    'ScheduledVaccine',
+    'Encounter',
+    'Patient',
+    'ReferenceData',
+    'User',
+  ],
 };
 
 // All possible search parameter types
