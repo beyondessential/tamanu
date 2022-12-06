@@ -1,18 +1,15 @@
 import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
-import { CheckUpTabs } from './CheckUpTabs';
+import { VitalsTabs } from './VitalsTabs';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const CheckUpStack = (): ReactElement => (
+export const VitalsStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator headerMode="none">
-      <Stack.Screen
-        name={Routes.HomeStack.CheckUpStack.Index}
-        component={CheckUpTabs}
-      />
+      <Stack.Screen name={Routes.HomeStack.VitalsStack.Index} component={VitalsTabs} />
     </Stack.Navigator>
   </ErrorBoundary>
 );
