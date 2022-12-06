@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
-import { ISurveyResponse, ISurveyScreenComponent, EncounterType } from '~/types';
+import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
 
 import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
@@ -86,10 +86,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   static async submit(
     patientId: string,
     userId: string,
-    surveyData: ISurveyResponse & {
-      encounterReason: string;
-      components: ISurveyScreenComponent[];
-    },
+    surveyData: ICreateSurveyResponse,
     values: object,
     setNote: (note: string) => void = () => null,
   ): Promise<SurveyResponse> {

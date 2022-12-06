@@ -44,6 +44,13 @@ export interface ISurveyScreenComponent {
   getOptions();
 }
 
+export interface IVitalsSurvey {
+  id: ID;
+  name: string;
+  components: ISurveyScreenComponent[];
+  dateComponent: ISurveyScreenComponent;
+}
+
 export enum DataElementType {
   // For later versions
   // Meditrak-specific

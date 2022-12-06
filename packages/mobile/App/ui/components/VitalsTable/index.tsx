@@ -4,6 +4,7 @@ import { Table } from '../Table';
 import { vitalsTableRows } from './VitalsTableRows';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
+import { LoadingScreen } from '/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '/components/ErrorScreen';
 
@@ -12,36 +13,24 @@ interface VitalsTableProps {
   columns: [];
 }
 
-export const VitalsTable = memo(
-  ({ data, columns }: VitalsTableProps): JSX.Element => {
-    const [survey, surveyError] = useBackendEffect(
-      ({ models }) => models.Survey.getRepository().findOne('program-patientvitals-patientvitals'),
-      [],
-    );
+export const VitalsTable: React.FC<VitalsTableProps> = memo(({ data, columns }) => {
+  const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
 
-    const [components, componentsError] = useBackendEffect(() => survey && survey.getComponents(), [
-      survey,
-    ]);
+  if (!vitalsSurvey) {
+    return <LoadingScreen />;
+  }
 
-    if (!survey || !components) {
-      return null;
-    }
+  if (error) {
+    return <ErrorScreen error={error} />;
+  }
 
-    if (surveyError) return <ErrorScreen error={surveyError} />;
-    if (componentsError) return <ErrorScreen error={componentsError} />;
-
-    const mobileFormComponents = components.filter(
-      c => c.dataElementId !== 'pde-PatientVitalsDate',
-    );
-
-    return (
-      <Table
-        Title={VitalsTableTitle}
-        tableHeader={vitalsTableHeader}
-        rows={vitalsTableRows(mobileFormComponents)}
-        columns={columns}
-        cells={data}
-      />
-    );
-  },
-);
+  return (
+    <Table
+      Title={VitalsTableTitle}
+      tableHeader={vitalsTableHeader}
+      rows={vitalsTableRows(vitalsSurvey.components)}
+      columns={columns}
+      cells={data}
+    />
+  );
+});

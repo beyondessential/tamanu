@@ -210,3 +210,7 @@ export const AutocompleteSourceToColumnMap = {
   Location: 'name',
   ReferenceData: 'name',
 };
+
+export const VitalsDataElements = {
+  dateRecorded: 'pde-PatientVitalsDate',
+};

@@ -12,6 +12,7 @@ export type SurveyFormProps = {
   components: any;
   patient: any;
   note: string;
+  validate: any;
 };
 
 export const SurveyForm = ({
@@ -19,6 +20,7 @@ export const SurveyForm = ({
   components,
   note,
   patient,
+  validate,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [
@@ -50,6 +52,7 @@ export const SurveyForm = ({
       validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
+      validate={validate}
     >
       {({ values, setFieldValue }): ReactElement => {
         useEffect(() => {
