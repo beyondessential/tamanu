@@ -23,8 +23,12 @@ export class COMPOSITE extends ABSTRACT {
     // we need to do this to tightly bind `this` in the functions; Sequelize rebinds _methods to the
     // MODEL which loses all the valuable context such as "how do I parse this value" but whatever,
     // we just force it to the right thing.
-    this._value = (value, opts) => compositeToSql(this.fieldSet(value), opts);
+
+    // eslint-disable-next-line no-shadow
+    this._value = (value, options) => compositeToSql(this.fieldSet(value), options);
     this._stringify = this._value;
+
+    // eslint-disable-next-line no-shadow
     this._sanitize = (value, options) => {
       if (value instanceof Composite) {
         // sometimes sequelize gives us an already parsed and valid value to sanitize.
