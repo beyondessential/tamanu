@@ -111,7 +111,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
   const navigateToHistory = useCallback(() => {
     navigation.reset({
       index: 0,
-      routes: [{ name: Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory }],
+      routes: [{ name: Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory }],
     });
   }, []);
 

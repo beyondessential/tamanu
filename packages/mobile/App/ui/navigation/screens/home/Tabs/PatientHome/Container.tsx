@@ -45,20 +45,21 @@ const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
   return secondPart
     ? {
-      title: firstPart,
-      textBody: secondPart,
-    }
+        title: firstPart,
+        textBody: secondPart,
+      }
     : {
-      title: '',
-      textBody: firstPart,
-    };
+        title: '',
+        textBody: firstPart,
+      };
 };
 
-const showPatientWarningPopups = (issues: IPatientIssue[]): void => showPopupChain(
-  issues
-    .filter(({ type }) => type === PatientIssueType.Warning)
-    .map(({ note }) => formatNoteToPopup(note)),
-);
+const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
+  showPopupChain(
+    issues
+      .filter(({ type }) => type === PatientIssueType.Warning)
+      .map(({ note }) => formatNoteToPopup(note)),
+  );
 
 const PatientHomeContainer = ({
   navigation,
@@ -74,8 +75,8 @@ const PatientHomeContainer = ({
       },
       {
         title: 'Check up',
-        Icon: Icons.CheckUpIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.CheckUpStack.Index),
+        Icon: Icons.VitalsIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
       },
       {
         title: 'Programs',

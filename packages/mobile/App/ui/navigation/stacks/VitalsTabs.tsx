@@ -1,10 +1,10 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { AddVitalsScreen, ViewHistoryScreen } from '../screens/checkup/tabs';
+import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '~/ui/helpers/user';
@@ -16,11 +16,9 @@ type NewProgramEntryTabsProps = {
   selectedPatient: IPatient;
 };
 
-const getPatientName = (
-  patient: IPatient,
-): string => joinNames(patient);
+const getPatientName = (patient: IPatient): string => joinNames(patient);
 
-const DumbCheckUpTabs = ({
+const DumbVitalsTabs = ({
   navigation,
   selectedPatient,
 }: NewProgramEntryTabsProps): ReactElement => {
@@ -31,22 +29,19 @@ const DumbCheckUpTabs = ({
   return (
     <>
       <StackHeader title="Check up" subtitle={getPatientName(selectedPatient)} onGoBack={goBack} />
-      <Tabs.Navigator
-        swipeEnabled={false}
-        lazy
-      >
+      <Tabs.Navigator swipeEnabled={false} lazy>
         <Tabs.Screen
           options={{
             title: 'Add Vitals',
           }}
-          name={Routes.HomeStack.CheckUpStack.CheckUpTabs.AddDetails}
+          name={Routes.HomeStack.VitalsStack.VitalsTabs.AddDetails}
           component={AddVitalsScreen}
         />
         <Tabs.Screen
           options={{
             title: 'Vitals History',
           }}
-          name={Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory}
+          name={Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory}
           component={ViewHistoryScreen}
         />
       </Tabs.Navigator>
@@ -54,4 +49,4 @@ const DumbCheckUpTabs = ({
   );
 };
 
-export const CheckUpTabs = compose(withPatient)(DumbCheckUpTabs);
+export const VitalsTabs = compose(withPatient)(DumbVitalsTabs);
