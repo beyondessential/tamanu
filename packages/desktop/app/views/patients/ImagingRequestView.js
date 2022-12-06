@@ -23,6 +23,7 @@ import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { shell } from 'electron';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -82,7 +83,9 @@ const ImagingRequestInfoPane = React.memo(
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
 
     const resultsDescription = values.results.map(result => result.description).join('\n\n');
-    const firstResultExtCode = values.results.find(result => result.externalCode)?.externalCode;
+    const firstResultExtUrl = values.results.find(result => result.externalUrl)?.externalUrl;
+
+    const openExternalUrl = useCallback((url) => shell.openExternal(url), []);
 
     return (
       <Formik
@@ -172,8 +175,8 @@ const ImagingRequestInfoPane = React.memo(
                 />
               )}
               <ButtonRow>
-                {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && firstResultExtCode && (
-                  <Button color="secondary" disabled title={`TODO: ${firstResultExtCode}`}>
+                {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && firstResultExtUrl && (
+                  <Button color="secondary" click={openExternalUrl(firstResultExtUrl)}>
                     View image (external link)
                   </Button>
                 )}
