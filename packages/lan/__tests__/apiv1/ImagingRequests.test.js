@@ -147,4 +147,9 @@ describe('Imaging requests', () => {
       }),
     );
   });
+
+  it.todo('should return all results for an imaging request');
+  it.todo('should create a result for an imaging request');
+  it.todo('should create multiple results for an imaging request');
+  it.todo('should query an external provider for imaging results if configured so');
 });
