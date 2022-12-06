@@ -84,7 +84,7 @@ export const AddVitalsScreen = ({ navigation }) => {
   const navigateToHistory = () => {
     navigation.reset({
       index: 0,
-      routes: [{ name: Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory }],
+      routes: [{ name: Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory }],
     });
   };
 
