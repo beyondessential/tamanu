@@ -231,7 +231,15 @@
       // New keys may be issued by running `node dist/app.bundle.js apiKeys issue fhirIntegration <email> -e '100 years'
       // If this is changed, all API keys using this secret will be revoked and must be reissued
       "secret": null
-    }
+    },
+    // "imaging": {
+    //   "provider": "merlin",
+    //   "urlgen": "https://example...",
+    //   "auth": {
+    //     "username": "MerlinUser",
+    //     "password": "MerlinPassword"
+    //   }
+    // }
   },
   // on the sync-server, don't read these values from config!
   // use the getLocalisation() helper in packages/sync-server/app/localisation.js

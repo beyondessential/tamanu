@@ -7,6 +7,7 @@ import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { getNoteWithType, mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
+import { getImagingProvider } from '../../integrations/imaging';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -58,7 +59,15 @@ imagingRequest.get(
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
-      include: ImagingRequest.getFullReferenceAssociations(),
+      include: [
+        'requestedBy',
+        'areas',
+        {
+          model: 'ImagingResult',
+          as: 'results',
+          include: ['completedBy'],
+        },
+      ],
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
@@ -90,9 +99,38 @@ imagingRequest.get(
       }
     }
 
+    const results = imagingRequestObject.results.map(result => result.get({ plain: true }));
+    const imagingProvider = await getImagingProvider(req.models);
+    if (imagingProvider) {
+      const urls = await Promise.all(
+        imagingRequestObject.results.map(async result => {
+          // catch all errors so we never fail to show the request if the external provider errors
+          try {
+            const url = imagingProvider.getUrlForResult(result);
+            return { resultId: result.id, url };
+          } catch (err) {
+            return { resultId: result.id, err };
+          }
+        }),
+      );
+
+      for (const result of results) {
+        const externalResult = urls.find(url => url.resultId === result.id);
+        if (!externalResult) continue;
+
+        const { url, err } = externalResult;
+        if (url) {
+          result.externalUrl = url;
+        } else {
+          result.externalError = err?.toString() ?? 'Unknown error';
+        }
+      }
+    }
+
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
+      results,
     });
   }),
 );
