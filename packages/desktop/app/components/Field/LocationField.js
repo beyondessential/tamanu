@@ -87,8 +87,7 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
-    // Only disable the location select field if there was a location groups successful fetched
-    // and one is not selected yet
+    // Disable the location field if the location group is not selected yet
     const locationSelectIsDisabled = !groupId;
 
     return (
