@@ -9,7 +9,6 @@ import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { SelectInput } from './SelectField';
 
 const locationSuggester = (api, groupValue) => {
   return new Suggester(api, 'location', {
@@ -100,7 +99,7 @@ export const LocationInput = React.memo(
     return (
       <>
         {/* Show required asterisk but the field is not actually required */}
-        <SelectInput
+        <AutocompleteInput
           label={locationGroupLabel}
           options={options}
           required={required}

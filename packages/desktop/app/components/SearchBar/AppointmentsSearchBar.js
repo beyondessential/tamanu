@@ -1,13 +1,7 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import {
-  DateTimeField,
-  AutocompleteField,
-  LocalisedField,
-  SelectField,
-  SuggesterSelectField,
-} from '../Field';
+import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
 
@@ -44,7 +38,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         defaultLabel="Area"
         name="locationGroupId"
         endpoint="locationGroup"
-        component={SuggesterSelectField}
+        component={AutocompleteField}
         filterByFacility
       />
       <LocalisedField

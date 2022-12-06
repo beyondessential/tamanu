@@ -17,7 +17,6 @@ import {
   Field,
   AutocompleteField,
   DateTimeInput,
-  SuggesterSelectField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
@@ -152,7 +151,7 @@ const ImagingRequestInfoPane = React.memo(
                     label="Area"
                     name="locationGroupId"
                     endpoint="locationGroup"
-                    component={SuggesterSelectField}
+                    component={AutocompleteField}
                     filterByFacility
                     required
                   />
