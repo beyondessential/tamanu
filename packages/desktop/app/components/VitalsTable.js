@@ -69,8 +69,10 @@ const useVitals = encounterId => {
     readings = data
       .filter(vital => vital.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
       .map(({ name, config, validationCriteria, records }) => ({
-        title: name,
-        tooltip: rangeInfo(validationCriteria, config),
+        title: {
+          value: name,
+          tooltip: rangeInfo(validationCriteria, config),
+        },
         ...recordings.reduce((state, date) => {
           const answer = records[date] || null;
           return {
@@ -112,10 +114,10 @@ const StyledTable = styled(Table)`
 
 const VitalsCellWrapper = styled.div`
   background: ${({ severity }) =>
-    severity === 'warning' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'}
+    severity === 'warning' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'};
   border-radius: 10px;
   padding: 8px 14px;
-  margin: -8px 0;
+  margin: -8px ${({ severity }) => (severity === 'warning' ? '0px' : '-14px')};
   width: fit-content;
 `;
 
@@ -149,14 +151,13 @@ const StyledTooltip = styled(props => (
 const VitalsCell = React.memo(({ value, tooltip, severity }) => {
   if (tooltip) {
     return (
+      // Currently we would not want to highlight a cell without a corresponding warning tooltip
       <StyledTooltip arrow placement="top" title={tooltip}>
-        <VitalsCellWrapper severity={severity}>
-          <div>{value}</div>
-        </VitalsCellWrapper>
+        <VitalsCellWrapper severity={severity}>{value}</VitalsCellWrapper>
       </StyledTooltip>
     );
   }
-  return value;
+  return <VitalsCellWrapper>{value}</VitalsCellWrapper>;
 });
 
 export const VitalsTable = React.memo(() => {
@@ -173,7 +174,7 @@ export const VitalsTable = React.memo(() => {
       key: 'title',
       title: 'Measure',
       width: 145,
-      accessor: c => <VitalsCell tooltip={c.tooltip} value={c.title} />,
+      accessor: c => <VitalsCell tooltip={c.title.tooltip} value={c.title.value} />,
     },
     ...recordings
       .sort((a, b) => b.localeCompare(a))
