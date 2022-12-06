@@ -41,7 +41,7 @@ async function getSetting(key, { facility }) {
   if (setting === undefined) {
     log.info('(no setting found)');
   } else {
-    log.info('value:' + JSON.stringify(setting, null, 2));
+    log.info(`value: ${JSON.stringify(setting, null, 2)}`);
   }
 }
 
