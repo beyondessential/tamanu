@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
 import {
   DateDisplay,
-  ViewButton,
+  Button,
   DeathCertificateModal,
   ButtonWithPermissionCheck,
 } from '../../../components';
@@ -210,7 +210,9 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         <BoldTitle variant="h3">Type:</BoldTitle>
         <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
         <div style={{ flexGrow: 1 }} />
-        <ViewButton onClick={() => viewEncounter(id)} size="small" />
+        <Button onClick={() => viewEncounter(id)} size="small">
+          View encounter
+        </Button>
       </Header>
       <Content>
         <ContentItem>

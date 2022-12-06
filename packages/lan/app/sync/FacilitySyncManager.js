@@ -1,15 +1,16 @@
-import config from 'config';
-
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { getModelsForDirection, saveIncomingChanges } from 'shared/sync';
+import { injectConfig } from 'shared/utils/withConfig';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
-export class FacilitySyncManager {
+export
+@injectConfig
+class FacilitySyncManager {
   models = null;
 
   sequelize = null;
@@ -25,7 +26,7 @@ export class FacilitySyncManager {
   }
 
   async triggerSync() {
-    if (!config.sync.enabled) {
+    if (!this.constructor.config.sync.enabled) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return;
     }

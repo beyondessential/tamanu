@@ -44,6 +44,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
         {
           model: Location,
           as: 'plannedLocation',
+          required: true,
         },
       ],
     };

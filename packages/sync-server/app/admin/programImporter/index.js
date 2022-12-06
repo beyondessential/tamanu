@@ -152,7 +152,6 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   // then loop over each survey defined in metadata and import it
   for (const md of surveyMetadata.filter(shouldImportSurvey)) {
     const sheetName = md.name;
-    const surveyRows = [];
 
     const surveyData = {
       id: `${programId}-${idify(md.code)}`,
@@ -161,11 +160,14 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       surveyType: md.surveyType,
       isSensitive: md.isSensitive,
     };
-    surveyRows.push({
-      model: 'Survey',
-      sheetRow: -2,
-      values: surveyData,
-    });
+
+    let surveyRows = [
+      {
+        model: 'Survey',
+        sheetRow: -2,
+        values: surveyData,
+      },
+    ];
 
     // don't import questions for obsoleted surveys
     // (or even read their worksheet, or check if it exists)
@@ -189,7 +191,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     }
 
     const data = utils.sheet_to_json(worksheet);
-    surveyRows.push(...importSurveySheet(data, surveyData));
+    surveyRows = surveyRows.concat(importSurveySheet(data, surveyData));
 
     stats.push(
       await importRows(context(sheetName), {
