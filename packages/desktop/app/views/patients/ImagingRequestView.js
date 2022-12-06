@@ -18,7 +18,7 @@ import {
   AutocompleteField,
   DateTimeInput,
 } from '../../components/Field';
-import { useApi, useSuggester } from '../../api';
+import { useApi, useSuggester, useLocationGroupSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
@@ -79,9 +79,7 @@ const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
-    const locationGroupSuggester = useSuggester('locationGroup', {
-      baseQueryParameters: { filterByFacility: true },
-    });
+    const locationGroupSuggester = useLocationGroupSuggester();
 
     return (
       <Formik
