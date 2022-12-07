@@ -233,6 +233,30 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(2);
     });
+
+    it('materialises even with minimal required info', async () => {
+      const { FhirDiagnosticReport, Patient } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      const { labTest, labTestMethod, laboratory } = await createLabTestHierarchy(
+        ctx.store.models,
+        patient,
+      );
+      /*
+        To create a DiagnosticReport only status and code are mandatory,
+        which are taken from LabRequest and LabTestType respectively. However,
+        other models are needed to create both in Tamanu, so just getting rid
+        the ones that are actually possible.
+      */
+      await Promise.all([laboratory.destroy(), labTestMethod.destroy()]);
+      const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
+
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport/${mat.id}`;
+      const response = await app.get(path);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.extension.length).toBe(0);
+      expect(response.body.performer.length).toBe(1);
+    });
   });
 
   describe('filtering', () => {
