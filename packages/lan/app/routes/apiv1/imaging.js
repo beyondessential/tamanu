@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfDay, endOfDay } from 'date-fns';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -17,6 +17,42 @@ const SNAKE_CASE_COLUMN_NAMES = {
   id: 'ImagingRequest.id',
   name: 'name',
 };
+
+async function renderResults(models, imagingRequest) {
+  const results = imagingRequest.results
+    ?.filter(result => !result.deletedAt)
+    .map(result => result.get({ plain: true }));
+  if (!results || results.length === 0) return results;
+
+  const imagingProvider = await getImagingProvider(models);
+  if (imagingProvider) {
+    const urls = await Promise.all(
+      imagingRequest.results.map(async result => {
+        // catch all errors so we never fail to show the request if the external provider errors
+        try {
+          const url = imagingProvider.getUrlForResult(result);
+          return { resultId: result.id, url };
+        } catch (err) {
+          return { resultId: result.id, err };
+        }
+      }),
+    );
+
+    for (const result of results) {
+      const externalResult = urls.find(url => url.resultId === result.id);
+      if (!externalResult) continue;
+
+      const { url, err } = externalResult;
+      if (url) {
+        result.externalUrl = url;
+      } else {
+        result.externalError = err?.toString() ?? 'Unknown error';
+      }
+    }
+  }
+
+  return results;
+}
 
 // Filtering functions for sequelize queries
 const caseInsensitiveFilter = getCaseInsensitiveFilter(SNAKE_CASE_COLUMN_NAMES);
@@ -54,18 +90,29 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingResult, User, ReferenceData },
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
       include: [
-        'requestedBy',
-        'areas',
         {
-          model: 'ImagingResult',
+          model: User,
+          as: 'requestedBy',
+        },
+        {
+          model: ReferenceData,
+          as: 'areas',
+        },
+        {
+          model: ImagingResult,
           as: 'results',
-          include: ['completedBy'],
+          include: [
+            {
+              model: User,
+              as: 'completedBy',
+            },
+          ],
         },
       ],
     });
@@ -99,38 +146,10 @@ imagingRequest.get(
       }
     }
 
-    const results = imagingRequestObject.results.map(result => result.get({ plain: true }));
-    const imagingProvider = await getImagingProvider(req.models);
-    if (imagingProvider) {
-      const urls = await Promise.all(
-        imagingRequestObject.results.map(async result => {
-          // catch all errors so we never fail to show the request if the external provider errors
-          try {
-            const url = imagingProvider.getUrlForResult(result);
-            return { resultId: result.id, url };
-          } catch (err) {
-            return { resultId: result.id, err };
-          }
-        }),
-      );
-
-      for (const result of results) {
-        const externalResult = urls.find(url => url.resultId === result.id);
-        if (!externalResult) continue;
-
-        const { url, err } = externalResult;
-        if (url) {
-          result.externalUrl = url;
-        } else {
-          result.externalError = err?.toString() ?? 'Unknown error';
-        }
-      }
-    }
-
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-      results,
+      results: await renderResults(req.models, imagingRequestObject),
     });
   }),
 );
@@ -139,10 +158,18 @@ imagingRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingResult },
       params: { id },
       user,
-      body: { areas, note, areaNote, ...imagingRequestData },
+      body: {
+        areas,
+        note,
+        areaNote,
+        newResultCompletedBy,
+        newResultDate,
+        newResultDescription,
+        ...imagingRequestData
+      },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id);
@@ -205,13 +232,26 @@ imagingRequest.put(
       }
     }
 
-    // Convert Sequelize model to use a custom object as response
-    const responseObject = {
+    if (newResultDescription?.length > 0) {
+      const newResult = await ImagingResult.create({
+        createdAt: parseISO(newResultDate),
+        description: newResultDescription,
+        completedById: newResultCompletedBy,
+        imagingRequestId: imagingRequestObject.id,
+      });
+
+      if (imagingRequestObject.results) {
+        imagingRequestObject.results.push(newResult);
+      } else {
+        imagingRequestObject.results = [newResult];
+      }
+    }
+
+    res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-    };
-
-    res.send(responseObject);
+      results: await renderResults(req.models, imagingRequestObject),
+    });
   }),
 );
 
