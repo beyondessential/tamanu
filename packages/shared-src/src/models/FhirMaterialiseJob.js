@@ -41,7 +41,7 @@ export class FhirMaterialiseJob extends Model {
         id: {
           ...primaryKey,
           type: DataTypes.UUID,
-          defaultValue: Sequelize.UUIDV4,
+          defaultValue: Sequelize.fn('uuid_generate_v4'),
         },
 
         // queue-related fields
