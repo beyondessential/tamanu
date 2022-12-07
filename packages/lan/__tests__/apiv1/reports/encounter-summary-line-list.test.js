@@ -391,7 +391,7 @@ describe('Encounter summary line list report', () => {
         'Imaging requests':
           'xRay, Areas to be imaged: Left Leg; Right Leg, Notes: Note type: other, Content: Check for fractured knees please, Note date: 10-06-2022 06:04 AM',
         Notes:
-          'Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 10-06-2022 04:39 AM; Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 10-06-2022 03:39 AM',
+          'Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 10-06-2022 03:39 AM; Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 10-06-2022 04:39 AM',
       },
     ]);
   });

@@ -183,7 +183,7 @@ with
           'Note type', note_type,
           'Content', "content",
           'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        ) order by ni.date desc
+        ) order by ni.date asc
       ) "Notes"
     from note_pages np
     join note_items ni on ni.note_page_id = np.id
