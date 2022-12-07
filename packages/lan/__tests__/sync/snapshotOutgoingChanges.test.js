@@ -395,14 +395,9 @@ describe('snapshotOutgoingChanges', () => {
     }
 
     // now we can use this limit to test the snapshotting
-    const { SyncSession, LocalSystemFact } = models;
+    const { LocalSystemFact } = models;
 
     // start a sync session
-    const startTime = new Date();
-    const syncSession = await SyncSession.create({
-      startTime,
-      lastConnectionTime: startTime,
-    });
     const tock = await LocalSystemFact.increment('currentSyncTick', 2);
 
     // create a bunch of records, more than the call stack limit
@@ -425,7 +420,7 @@ describe('snapshotOutgoingChanges', () => {
       {
         ReferenceData: models.ReferenceData,
       },
-      syncSession.id,
+      syncSessionId,
       tock - 1,
     );
     // console.log(`Snapshotting ${limit + 100} records took ${new Date - start}ms`);

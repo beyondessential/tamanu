@@ -3,13 +3,16 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
 import {
+  createSnapshotTable,
+  insertSnapshotRecords,
+  updateSnapshotRecords,
+  completeInactiveSyncSessions,
+  completeSyncSession,
+  countSyncSnapshotRecords,
+  findSyncSnapshotRecords,
   getModelsForDirection,
-  getOutgoingChangesForSession,
   removeEchoedChanges,
   saveIncomingChanges,
-  completeSyncSession,
-  completeInactiveSyncSessions,
-  getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { injectConfig } from 'shared/utils/withConfig';
@@ -67,6 +70,7 @@ class CentralSyncManager {
       startTime,
       lastConnectionTime: startTime,
     });
+    await createSnapshotTable(this.store.sequelize, syncSession.id);
 
     log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
 
@@ -149,8 +153,8 @@ class CentralSyncManager {
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
       // snapshot is underway aren't included (as this could lead to a pair of foreign records with
       // the child in the snapshot and its parent missing)
-      // as the snapshot only contains read queries plus writes to the specific rows in
-      // sync_session_records that it controls, there should be no concurrent update issues :)
+      // as the snapshot only contains read queries plus writes to the specific sync snapshot table
+      // that it controls, there should be no concurrent update issues :)
       await this.store.sequelize.transaction(
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
@@ -203,13 +207,17 @@ class CentralSyncManager {
     if (session.snapshotCompletedAt === null) {
       return null;
     }
-    return getOutgoingChangesCount(this.store, sessionId);
+    return countSyncSnapshotRecords(
+      this.store.sequelize,
+      sessionId,
+      SYNC_SESSION_DIRECTION.OUTGOING,
+    );
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
     await this.connectToSession(sessionId);
-    return getOutgoingChangesForSession(
-      this.store,
+    return findSyncSnapshotRecords(
+      this.store.sequelize,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       fromId,
@@ -218,7 +226,7 @@ class CentralSyncManager {
   }
 
   async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }, tablesToInclude) {
-    const { models } = this.store;
+    const { models, sequelize } = this.store;
     await this.connectToSession(sessionId);
     const syncSessionRecords = changes.map(c => ({
       ...c,
@@ -232,7 +240,7 @@ class CentralSyncManager {
     log.debug(
       `CentralSyncManager.addIncomingChanges: Adding ${syncSessionRecords.length} changes for ${sessionId}`,
     );
-    await models.SyncSessionRecord.bulkCreate(syncSessionRecords);
+    await insertSnapshotRecords(sequelize, sessionId, syncSessionRecords);
 
     if (pushedSoFar === totalToPush) {
       const modelsToInclude = tablesToInclude
@@ -240,7 +248,7 @@ class CentralSyncManager {
         : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
 
       // commit the changes to the db
-      await this.store.sequelize.transaction(async () => {
+      await sequelize.transaction(async () => {
         // we tick-tock the global clock to make sure there is a unique tick for these changes, and
         // to acquire a lock on the sync time row in the local system facts table, so that no sync
         // pull snapshot can start while this save is still in progress
@@ -249,10 +257,10 @@ class CentralSyncManager {
         // but aren't visible in the db to be snapshot until the transaction commits, so would
         // otherwise be completely skipped over by that sync client
         const { tock } = await this.tickTockGlobalClock();
-        await saveIncomingChanges(models, modelsToInclude, sessionId, true);
+        await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
-        await models.SyncSessionRecord.update({ savedAtSyncTick: tock }, { where: { sessionId } });
+        await updateSnapshotRecords(sequelize, { savedAtSyncTick: tock }, { sessionId });
       });
       await models.SyncSession.addDebugInfo(sessionId, {
         pushCompletedAt: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
