@@ -51,7 +51,7 @@ async function renderResults(models, imagingRequest) {
     }
   }
 
-  return results;
+  return results.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 }
 
 // Filtering functions for sequelize queries
