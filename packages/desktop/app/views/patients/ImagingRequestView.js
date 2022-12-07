@@ -155,7 +155,9 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
       {values.results?.map(result => (
         <BottomAlignFormGrid columns={result.externalUrl ? 3 : 2}>
           <TextInput
-            value={result.completedBy?.displayName ?? values.completedBy?.displayName}
+            value={
+              result.completedBy?.displayName ?? (result.externalUrl && 'External provider') ?? ''
+            }
             disabled
           />
           <DateTimeInput value={result.createdAt} disabled />
