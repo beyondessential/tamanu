@@ -20,5 +20,5 @@ export async function getUrlForResult(models, config, result) {
   url.searchParams.set('patId', 'UID0000403');
 
   const res = await fetch(url);
-  return await res.text();
+  return res.text();
 }

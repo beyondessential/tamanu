@@ -31,7 +31,7 @@ async function renderResults(models, imagingRequest) {
         // catch all errors so we never fail to show the request if the external provider errors
         try {
           const url = await imagingProvider.getUrlForResult(result);
-          if (!url) return;
+          if (!url) return null;
 
           return { resultId: result.id, url };
         } catch (err) {
