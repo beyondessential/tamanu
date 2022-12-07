@@ -27,13 +27,23 @@ const fakeAllData = async models => {
   const { id: location1Id } = await models.Location.create(
     fake(models.Location, { facilityId, locationGroupId, name: 'Emergency room 1' }),
   );
-  const { id: location2Id } = await models.Location.create(
+
+  const { id: location21Id } = await models.Location.create(
     fake(models.Location, {
       facilityId,
       locationGroupId: decoyLocationGroupId,
-      name: 'Emergency room 2',
+      name: 'Emergency room 2 - bed 1',
     }),
   );
+
+  const { id: location22Id } = await models.Location.create(
+    fake(models.Location, {
+      facilityId,
+      locationGroupId: decoyLocationGroupId,
+      name: 'Emergency room 2 - bed 2',
+    }),
+  );
+
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
       type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
@@ -128,7 +138,7 @@ const fakeAllData = async models => {
       reasonForEncounter: 'Severe Migrane',
       examinerId: userId,
       patientBillingTypeId,
-      locationId: location2Id,
+      locationId: location21Id,
       departmentId,
     }),
   );
@@ -306,21 +316,13 @@ const fakeAllData = async models => {
   // Location/departments:
   const encounter = await models.Encounter.findByPk(encounterId);
   await encounter.update({
-    locationId: location2Id,
+    locationId: location21Id,
+    submittedTime: '2022-06-09 08:04:54',
   });
-
-  const { id: resultantNotePageId } = await models.NotePage.findOne({
-    where: {
-      noteType: NOTE_TYPES.SYSTEM,
-    },
+  await encounter.update({
+    locationId: location22Id,
+    submittedTime: '2022-06-09 08:06:54',
   });
-  const systemNoteItem = await models.NoteItem.findOne({
-    where: {
-      notePageId: resultantNotePageId,
-    },
-  });
-  systemNoteItem.date = '2022-06-09 08:04:54';
-  await systemNoteItem.save();
 
   return { patient, encounterId, locationGroupId };
 };
@@ -367,7 +369,7 @@ describe('Encounter summary line list report', () => {
         'Time seen following triage/Wait time (hh:mm)': '1:3',
         Department: 'Emergency dept., Assigned time: 09-06-2022 12:02 AM',
         Location:
-          'Emergency area 1, Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Emergency area 2, Emergency room 2, Assigned time: 09-06-2022 08:04 AM',
+          'Emergency area 1, Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Emergency area 2, Emergency room 2 - bed 1, Assigned time: 09-06-2022 08:04 AM; Emergency area 2, Emergency room 2 - bed 2, Assigned time: 09-06-2022 08:06 AM',
         'Reason for encounter': 'Severe Migrane',
         Diagnosis:
           'Acute subdural hematoma, Is primary?: primary, Certainty: confirmed; Acute subdural hematoma, Is primary?: secondary, Certainty: suspected',

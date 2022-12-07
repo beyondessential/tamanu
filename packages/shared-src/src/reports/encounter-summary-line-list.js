@@ -208,8 +208,24 @@ with
     where note_type = 'system'
     and ni.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
+  first_from_table as (
+    select
+      encounter_id,
+      place,
+      max(first_from) first_from
+    from (
+      select
+        *,
+        first_value("from") over (
+            partition by encounter_id, place
+            order by nh2."date"
+        ) first_from
+      from note_history nh2
+    ) first_from_table
+    group by encounter_id, place
+  ),
   place_history_if_changed as (
-    select 
+    select
       e.id encounter_id,
       nh.place,
       concat(
@@ -229,27 +245,14 @@ with
         || jsonb_agg(case when nh.place = 'location' then coalesce(lg.id, l.id) else d.id end
       ) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
+      join lateral (
+        select regexp_matches(nh."from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches -- note that the double \\ escape the single backslash in the regex.
+      ) as location_matches on true
     join encounters e on nh.encounter_id = e.id
     left join departments d on d.name = "from"
-    join (
-      select
-        encounter_id,
-        regexp_matches("from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches
-      from note_history nh3
-    ) location_matches
-    on location_matches.encounter_id = nh.encounter_id
     left join location_groups lg on lg.name = location_matches[1]
     left join locations l on l.name = location_matches[2]
-    join (
-    	select
-    		encounter_id,
-    		place,
-    		first_value("from") over(
-    			partition by encounter_id, place
-    			order by nh2."date"
-    		) first_from
-    	from note_history nh2
-    ) first_val_table on nh.encounter_id = first_val_table.encounter_id and first_val_table.place = nh.place
+    join first_from_table fft on nh.encounter_id = fft.encounter_id and fft.place = nh.place
     group by e.id, e.start_date, nh.place
   ),
   place_info as (
