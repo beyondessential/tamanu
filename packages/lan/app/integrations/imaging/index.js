@@ -25,7 +25,7 @@ class Provider {
 export async function getImagingProvider(models) {
   const { Setting } = models;
   const config = await Setting.get('integrations.imaging');
-  if (!config) return false;
+  if (!config || !config.enabled) return false;
 
   switch (config.provider) {
     case 'test':
