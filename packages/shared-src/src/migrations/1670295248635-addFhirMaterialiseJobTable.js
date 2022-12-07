@@ -31,7 +31,7 @@ export async function up(query) {
       type: DataTypes.STRING,
       defaultValue: 'Queued',
     },
-    began_at: DataTypes.DATE,
+    started_at: DataTypes.DATE,
     completed_at: DataTypes.DATE,
     errored_at: DataTypes.DATE,
     error: DataTypes.TEXT,

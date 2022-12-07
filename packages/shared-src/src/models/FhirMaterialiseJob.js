@@ -8,8 +8,8 @@ const PENDING_RECORDS_WHERE = {
   [Op.or]: [
     { status: JOB_QUEUE_STATUSES.QUEUED },
     {
-      status: JOB_QUEUE_STATUSES.BEGAN,
-      beganAt: { [Op.lte]: Sequelize.literal(`current_timestamp(3) - '${TIMEOUT}'::interval`) },
+      status: JOB_QUEUE_STATUSES.STARTED,
+      startedAt: { [Op.lte]: Sequelize.literal(`current_timestamp(3) - '${TIMEOUT}'::interval`) },
     },
   ],
 };
@@ -17,7 +17,7 @@ const PENDING_RECORDS_WHERE = {
 // postgres doesn't support `UPDATE ... LIMIT n;` so we work around the limitation
 const UPDATE_SQL = `
 UPDATE fhir_materialise_jobs
-SET status = 'Began', began_at = current_timestamp(3)
+SET status = 'Started', started_at = current_timestamp(3)
 WHERE id IN (
   SELECT id
   FROM fhir_materialise_jobs
@@ -25,8 +25,8 @@ WHERE id IN (
   AND (
     status = 'Queued'
     OR (
-      status = 'Began'
-      AND began_at <= current_timestamp(3) - '${TIMEOUT}'::interval
+      status = 'Started'
+      AND started_at <= current_timestamp(3) - '${TIMEOUT}'::interval
     )
   )
   LIMIT :limit
@@ -52,7 +52,7 @@ export class FhirMaterialiseJob extends Model {
             isIn: [Object.values(JOB_QUEUE_STATUSES)],
           },
         },
-        beganAt: DataTypes.DATE,
+        startedAt: DataTypes.DATE,
         completedAt: DataTypes.DATE,
         erroredAt: DataTypes.DATE,
         error: DataTypes.TEXT,
