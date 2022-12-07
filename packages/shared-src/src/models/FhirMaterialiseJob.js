@@ -48,6 +48,7 @@ export class FhirMaterialiseJob extends Model {
         status: {
           type: DataTypes.STRING,
           defaultValue: JOB_QUEUE_STATUSES.QUEUED,
+          allowNull: false,
           validate: {
             isIn: [Object.values(JOB_QUEUE_STATUSES)],
           },
