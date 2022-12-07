@@ -1,13 +1,24 @@
 import fetch from 'node-fetch';
 
-export async function getUrlForResult(models, config, result) {
+export async function getUrlForResult({ Patient, Encounter }, config, result) {
   const { externalCode } = result;
   if (!externalCode) return null;
+
+  const request = await irr.getRequest({
+    include: [
+      {
+        model: Encounter,
+        as: 'encounter',
+        include: [{ model: Patient, as: 'patient' }],
+      },
+    ],
+  });
+  const { patient } = request.encounter;
 
   const {
     urlgen,
     auth: { username, password },
-    patientIdType = 'AUID',
+    patientId: { type, field },
   } = config;
 
   const url = new URL(urlgen);
@@ -15,9 +26,8 @@ export async function getUrlForResult(models, config, result) {
   url.password = password;
   url.searchParams.set('accesion', externalCode);
 
-  // TODO: where do we get the patient ID from?
-  url.searchParams.set('patIdType', patientIdType);
-  url.searchParams.set('patId', 'UID0000403');
+  url.searchParams.set('patIdType', type);
+  url.searchParams.set('patId', patient[field]);
 
   const res = await fetch(url);
   return res.text();
