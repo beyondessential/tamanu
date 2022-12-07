@@ -28,7 +28,7 @@ const DumbVitalsTabs = ({
 
   return (
     <>
-      <StackHeader title="Check up" subtitle={getPatientName(selectedPatient)} onGoBack={goBack} />
+      <StackHeader title="Vitals" subtitle={getPatientName(selectedPatient)} onGoBack={goBack} />
       <Tabs.Navigator swipeEnabled={false} lazy>
         <Tabs.Screen
           options={{
@@ -39,7 +39,7 @@ const DumbVitalsTabs = ({
         />
         <Tabs.Screen
           options={{
-            title: 'Vitals History',
+            title: 'History',
           }}
           name={Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory}
           component={ViewHistoryScreen}

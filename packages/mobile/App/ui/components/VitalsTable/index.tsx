@@ -1,38 +1,36 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { Table } from '../Table';
-import { vitalsRows, vitalsColumns } from './VitalsTableData';
+import { vitalsTableRows } from './VitalsTableRows';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
-import { formatStringDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { useBackendEffect } from '~/ui/hooks';
+import { ErrorScreen } from '/components/ErrorScreen';
+
 interface VitalsTableProps {
-  patientData: PatientVitalsProps[];
+  data: PatientVitalsProps[];
+  columns: [];
 }
 
-export const VitalsTable = memo(
-  ({ patientData }: VitalsTableProps): JSX.Element => {
-    const columns = useCallback(() => vitalsColumns(patientData), [patientData])();
-    const cells = {};
-    patientData.forEach(vitals => {
-      const recordedDateString = formatStringDate(vitals.dateRecorded, DateFormats.DATE_AND_TIME);
-      cells[recordedDateString] = [];
-      Object.entries(vitals).forEach(([key, value]) => {
-        cells[recordedDateString].push({
-          label: key,
-          value,
-        });
-      });
-    });
+export const VitalsTable: React.FC<VitalsTableProps> = memo(({ data, columns }) => {
+  const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
 
-    return (
-      <Table
-        Title={VitalsTableTitle}
-        tableHeader={vitalsTableHeader}
-        rows={vitalsRows}
-        columns={columns}
-        cells={cells}
-      />
-    );
-  },
-);
+  if (!vitalsSurvey) {
+    return <LoadingScreen />;
+  }
+
+  if (error) {
+    return <ErrorScreen error={error} />;
+  }
+
+  return (
+    <Table
+      Title={VitalsTableTitle}
+      tableHeader={vitalsTableHeader}
+      rows={vitalsTableRows(vitalsSurvey.components)}
+      columns={columns}
+      cells={data}
+    />
+  );
+});

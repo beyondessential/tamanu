@@ -35,7 +35,7 @@ export const FormFields = ({
   const scrollViewRef = useRef(null);
 
   const maxIndex = components
-    .map((x) => x.screenIndex)
+    .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   const onNavigateNext = useCallback(() => {
@@ -52,7 +52,7 @@ export const FormFields = ({
   );
 
   const screenComponents = components
-    .filter((x) => x.screenIndex === currentScreenIndex)
+    .filter(x => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex)
     .filter(shouldShow)
     .map((component, index) => (
@@ -61,19 +61,12 @@ export const FormFields = ({
           {component.text || component.dataElement.defaultText || ''}
         </SectionHeader>
         {component.detail ? (
-          <StyledText
-            marginTop={4}
-            fontSize={screenPercentageToDP('2.2', Orientation.Height)}
-          >
+          <StyledText marginTop={4} fontSize={screenPercentageToDP('2.2', Orientation.Height)}>
             {component.detail}
           </StyledText>
         ) : null}
         <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-          <SurveyQuestion
-            key={component.id}
-            component={component}
-            patient={patient}
-          />
+          <SurveyQuestion key={component.id} component={component} patient={patient} />
         </ErrorBoundary>
       </React.Fragment>
     ));
@@ -88,22 +81,18 @@ export const FormFields = ({
       <FormScreenView scrollViewRef={scrollViewRef}>
         {screenComponents}
         <RowView width="68%" marginTop={25}>
-          <Button
-            margin={5}
-            disabled={currentScreenIndex === 0}
-            buttonText="Previous Page"
-            onPress={onNavigatePrevious}
-          />
-          {currentScreenIndex !== maxIndex ? (
+          {maxIndex > 1 && (
             <Button
               margin={5}
-              buttonText="Next Page"
-              onPress={onNavigateNext}
+              disabled={currentScreenIndex === 0}
+              buttonText="Previous Page"
+              onPress={onNavigatePrevious}
             />
+          )}
+          {currentScreenIndex !== maxIndex ? (
+            <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
           ) : (
-            <SubmitButton
-              margin={5}
-            />
+            <SubmitButton margin={5} />
           )}
         </RowView>
         {currentScreenIndex === maxIndex && (

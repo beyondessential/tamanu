@@ -74,7 +74,7 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
       },
       {
-        title: 'Check up',
+        title: 'Vitals',
         Icon: Icons.VitalsIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
       },
