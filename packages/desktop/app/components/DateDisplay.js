@@ -87,7 +87,13 @@ const DateTooltip = ({ date, children }) => {
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
+  ({
+    date: dateValue,
+    disableTooltip = false,
+    showDate = true,
+    showTime = false,
+    showExplicitDate = false,
+  }) => {
     const dateObj = parseDate(dateValue);
 
     const parts = [];
@@ -100,11 +106,9 @@ export const DateDisplay = React.memo(
       parts.push(formatTime(dateObj));
     }
 
-    return (
-      <DateTooltip date={dateObj}>
-        <span>{parts.join(' ')}</span>
-      </DateTooltip>
-    );
+    const dateDisplay = <span>{parts.join(' ')}</span>;
+
+    return disableTooltip ? dateDisplay : <DateTooltip date={dateObj}>{dateDisplay}</DateTooltip>;
   },
 );
 

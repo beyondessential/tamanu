@@ -129,6 +129,13 @@ const VitalsCellWrapper = styled.div`
   width: fit-content;
 `;
 
+const VitalHeadCellWrapper = styled.div`
+  span:last-child {
+    color: ${Colors.midText};
+    display: block;
+  }
+`;
+
 const VitalsCell = React.memo(({ value, tooltip, severity }) => {
   if (tooltip) {
     return (
@@ -138,6 +145,15 @@ const VitalsCell = React.memo(({ value, tooltip, severity }) => {
     );
   }
   return <VitalsCellWrapper>{value}</VitalsCellWrapper>;
+});
+
+const VitalsHeadCell = React.memo(({ date }) => {
+  return (
+    <VitalHeadCellWrapper>
+      <DateDisplay date={date} />
+      <DateDisplay disableTooltip showTime showDate={false} date={date} />
+    </VitalHeadCellWrapper>
+  );
 });
 
 export const VitalsTable = React.memo(() => {
@@ -154,14 +170,12 @@ export const VitalsTable = React.memo(() => {
       key: 'title',
       title: 'Measure',
       width: 145,
-      accessor: c => (
-        <VitalsCell tooltip={c.title.tooltip} value={c.title.value} severity={c.title.severity} />
-      ),
+      accessor: c => <VitalsCell {...c.title} />,
     },
     ...recordings
       .sort((a, b) => b.localeCompare(a))
       .map(r => ({
-        title: <DateDisplay showTime date={r} />,
+        title: <VitalsHeadCell date={r} />,
         key: r,
         accessor: c => <VitalsCell {...c[r]} />,
       })),
