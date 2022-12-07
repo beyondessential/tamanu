@@ -7,6 +7,7 @@ import { log } from 'shared/services/logging';
 
 import * as cmd from './app/subCommands';
 import { setupEnv } from './app/env';
+import { closeDatabase } from './app/database';
 
 async function run() {
   program
@@ -19,11 +20,10 @@ async function run() {
   }
 
   setupEnv();
-  const { args } = await program.parseAsync(process.argv);
-  if (args[0] && !args[0].match(/^serve/i)) {
-    // Fast exit for commands that aren't running a server
-    process.exit(0);
-  }
+  await program.parseAsync(process.argv);
+
+  log.debug('run(): closing database connection...');
+  await closeDatabase();
 }
 
 // catch and exit if run() throws an error
