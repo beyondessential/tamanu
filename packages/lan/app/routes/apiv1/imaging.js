@@ -30,7 +30,9 @@ async function renderResults(models, imagingRequest) {
       imagingRequest.results.map(async result => {
         // catch all errors so we never fail to show the request if the external provider errors
         try {
-          const url = imagingProvider.getUrlForResult(result);
+          const url = await imagingProvider.getUrlForResult(result);
+          if (!url) return;
+
           return { resultId: result.id, url };
         } catch (err) {
           return { resultId: result.id, err };
@@ -39,7 +41,7 @@ async function renderResults(models, imagingRequest) {
     );
 
     for (const result of results) {
-      const externalResult = urls.find(url => url.resultId === result.id);
+      const externalResult = urls.find(url => url?.resultId === result.id);
       if (!externalResult) continue;
 
       const { url, err } = externalResult;
