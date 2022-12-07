@@ -19,11 +19,7 @@ async function run() {
   }
 
   setupEnv();
-  const { args } = await program.parseAsync(process.argv);
-  if (args[0] && !args[0].match(/^serve/i)) {
-    // Fast exit for commands that aren't running a server
-    process.exit(0);
-  }
+  await program.parseAsync(process.argv);
 }
 
 // catch and exit if run() throws an error
