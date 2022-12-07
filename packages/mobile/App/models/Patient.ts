@@ -9,6 +9,7 @@ import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
@@ -240,7 +241,7 @@ export class Patient extends BaseModel implements IPatient {
 
     const data = Object.keys(library).reduce((state, key) => {
       const records = library[key];
-      const newKey = records.find(x => x.dataElementId === 'pde-PatientVitalsDate');
+      const newKey = records.find(x => x.dataElementId === VitalsDataElements.dateRecorded);
       if (newKey) {
         return { ...state, [newKey.body]: records };
       }
