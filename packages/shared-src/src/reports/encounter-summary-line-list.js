@@ -13,8 +13,10 @@ const FIELDS = [
   'Encounter ID',
   'Encounter start date',
   'Encounter end date',
+  'Discharge Disposition',
   'Encounter type',
   'Triage category',
+  'Arrival Mode',
   {
     title: 'Time seen following triage/Wait time (hh:mm)',
     accessor: data => data.waitTimeFollowingTriage,
@@ -303,6 +305,7 @@ select
   e.id "Encounter ID",
   to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter start date",
   to_char(e.end_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter end date",
+  discharge_disposition.name "Discharge Disposition",
   case e.encounter_type
     when 'triage' then  'Triage'
     when 'observation' then  'Active ED patient'
@@ -314,6 +317,7 @@ select
     else e.encounter_type
   end "Encounter type",
   t.score "Triage category",
+  arrival_mode.name "Arrival Mode",
   ti."waitTimeFollowingTriage",
   di2.place_history "Department",
   li.place_history "Location",
@@ -335,10 +339,13 @@ left join procedure_info pi on e.id = pi.encounter_id
 left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
-left join triages t on t.encounter_id = e.id
 left join triage_info ti on ti.encounter_id = e.id
 left join place_info li on li.encounter_id = e.id and li.place = 'location'
 left join place_info di2 on di2.encounter_id = e.id and di2.place = 'department'
+left join discharges discharge on discharge.encounter_id = e.id
+left join reference_data discharge_disposition on discharge_disposition.id = discharge.disposition_id
+left join triages t on t.encounter_id = e.id
+left join reference_data arrival_mode on arrival_mode.id = t.arrival_mode_id
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end 

@@ -44,6 +44,12 @@ const fakeAllData = async models => {
     }),
   );
 
+  const { id: arrivalModeId } = await models.ReferenceData.create(
+    fake(models.ReferenceData, {
+      type: REFERENCE_TYPES.ARRIVAL_MODE,
+      name: 'Wheelchair',
+    }),
+  );
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
       type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
@@ -161,6 +167,7 @@ const fakeAllData = async models => {
     fake(models.Triage, {
       encounterId,
       score: 2,
+      arrivalModeId,
       triageTime: '2022-06-09 02:04:54',
       closedTime: '2022-06-09 03:07:54',
     }),
@@ -364,8 +371,10 @@ describe('Encounter summary line list report', () => {
         'Encounter ID': encounterId,
         'Encounter start date': '09-06-2022 12:02 AM',
         'Encounter end date': '12-06-2022 12:02 AM',
+        'Discharge Disposition': 'Transfer to another facility',
         'Encounter type': 'Hospital admission',
         'Triage category': '2',
+        'Arrival Mode': 'Wheelchair',
         'Time seen following triage/Wait time (hh:mm)': '1:3',
         Department: 'Emergency dept., Assigned time: 09-06-2022 12:02 AM',
         Location:
