@@ -106,8 +106,7 @@ export class FhirMaterialiseJob extends Model {
     const failed = [];
     for (const job of jobs) {
       try {
-        const { upstreamId, resource } = job;
-        await fn({ upstreamId, resource });
+        await fn(job);
         await this.update(
           {
             status: JOB_QUEUE_STATUSES.COMPLETED,
