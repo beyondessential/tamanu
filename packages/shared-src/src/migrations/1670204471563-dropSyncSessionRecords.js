@@ -60,7 +60,7 @@ export async function down(query) {
     },
     updated_at_by_field_sum: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
     },
   });
 }
