@@ -23,11 +23,10 @@ import {
   Field,
   AutocompleteField,
   DateTimeInput,
-  SuggesterSelectField,
   DateTimeField,
   TextField,
 } from '../../components/Field';
-import { useApi, useSuggester } from '../../api';
+import { useApi, useSuggester, useLocationGroupSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
@@ -84,59 +83,56 @@ const PrintButton = ({ imagingRequest, patient }) => {
   );
 };
 
-const ImagingRequestSection = ({
-  values,
-  imagingRequest,
-  imagingPriorities,
-  imagingTypes,
-  SuggesterSelectField,
-}) => (
-  <FormGrid columns={3}>
-    <TextInput value={imagingRequest.id} label="Request ID" disabled />
-    <TextInput
-      value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-      label="Request type"
-      disabled
-    />
-    <TextInput
-      value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
-      label="Priority"
-      disabled
-    />
-    <Field name="status" label="Status" component={SelectField} options={STATUS_OPTIONS} />
-    <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
-    {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
-      values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
-      <Field
-        label="Area"
-        name="locationGroupId"
-        endpoint="locationGroup"
-        component={SuggesterSelectField}
-        filterByFacility
-        required
+const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
+  const locationGroupSuggester = useLocationGroupSuggester();
+
+  return (
+    <FormGrid columns={3}>
+      <TextInput value={imagingRequest.id} label="Request ID" disabled />
+      <TextInput
+        value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
+        label="Request type"
+        disabled
       />
-    )}
-    <TextInput
-      multiline
-      value={
-        // Either use free text area or multi-select areas data
-        imagingRequest.areas?.length
-          ? imagingRequest.areas.map(area => area.name).join(', ')
-          : imagingRequest.areaNote
-      }
-      label="Areas to be imaged"
-      style={{ gridColumn: '1 / -1', minHeight: '60px' }}
-      disabled
-    />
-    <TextInput
-      multiline
-      value={imagingRequest.note}
-      label="Notes"
-      style={{ gridColumn: '1 / -1', minHeight: '60px' }}
-      disabled
-    />
-  </FormGrid>
-);
+      <TextInput
+        value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
+        label="Priority"
+        disabled
+      />
+      <Field name="status" label="Status" component={SelectField} options={STATUS_OPTIONS} />
+      <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
+      {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
+        values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
+        <Field
+          label="Area"
+          name="locationGroupId"
+          component={AutocompleteField}
+          suggester={locationGroupSuggester}
+          required
+        />
+      )}
+      <TextInput
+        multiline
+        value={
+          // Either use free text area or multi-select areas data
+          imagingRequest.areas?.length
+            ? imagingRequest.areas.map(area => area.name).join(', ')
+            : imagingRequest.areaNote
+        }
+        label="Areas to be imaged"
+        style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+        disabled
+      />
+      <TextInput
+        multiline
+        value={imagingRequest.note}
+        label="Notes"
+        style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+        disabled
+      />
+    </FormGrid>
+  );
+};
 
 const BottomAlignFormGrid = styled(FormGrid)`
   align-items: end;
@@ -236,7 +232,6 @@ const ImagingRequestInfoPane = React.memo(
                   imagingRequest,
                   imagingPriorities,
                   imagingTypes,
-                  SuggesterSelectField,
                 }}
               />
               {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
