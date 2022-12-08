@@ -53,12 +53,24 @@ export class FhirMaterialiser extends ScheduledTask {
       },
     );
     total += completed.length + failed.length;
-    log.debug('FhirMaterialiser: Finished locking and running FhirMaterialiseJob jobs', {
-      limit,
-      total,
-      completed: completed.map(c => c.id).join(','),
-      failed: failed.map(f => f.id).join(','),
-    });
+    const completedIds = completed.map(f => f.id).join(',');
+    const failedIds = failed.map(f => f.id).join(',');
+    if (failed.length > 0) {
+      log.error('FhirMaterialiser: FhirMaterialiseJob: Some jobs failed', {
+        limit,
+        total,
+        failedIds,
+        completedIds,
+        hint:
+          'Try running `SELECT id, resource, upstream_id, error FROM fhir_materialise_jobs WHERE ids IN (?)`',
+      });
+    } else {
+      log.debug('FhirMaterialiser: FhirMaterialiseJob: All jobs completed successfully', {
+        limit,
+        total,
+        completedIds,
+      });
+    }
 
     log.debug('FhirMaterialiser: Running through backlog');
     for (const Resource of materialisableResources) {
