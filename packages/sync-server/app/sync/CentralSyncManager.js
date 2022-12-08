@@ -324,7 +324,12 @@ class CentralSyncManager {
         await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
-        await updateSnapshotRecords(sequelize, { savedAtSyncTick: tock }, { sessionId });
+        await updateSnapshotRecords(
+          sequelize,
+          sessionId,
+          { savedAtSyncTick: tock },
+          { direction: SYNC_SESSION_DIRECTION.INCOMING },
+        );
       });
       await models.SyncSession.addDebugInfo(sessionId, {
         pushCompletedAt: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
