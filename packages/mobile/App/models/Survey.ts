@@ -67,8 +67,7 @@ export class Survey extends BaseModel implements ISurvey {
 
     return {
       dateComponent: components.find(c => c.dataElementId === VitalsDataElements.dateRecorded),
-      // On mobile, date is programmatically submitted
-      components: components.filter(c => c.dataElementId !== VitalsDataElements.dateRecorded),
+      components,
       name: vitalsSurvey.name,
       id: vitalsSurvey.id,
     };

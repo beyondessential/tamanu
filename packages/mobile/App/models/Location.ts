@@ -7,6 +7,7 @@ import { Facility } from './Facility';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
+import { readConfig } from '~/services/config';
 
 @Entity('location')
 export class Location extends BaseModel implements ILocation {
@@ -27,9 +28,34 @@ export class Location extends BaseModel implements ILocation {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  @OneToMany(() => Encounter, ({ location }) => location)
+  @OneToMany(
+    () => Encounter,
+    ({ location }) => location,
+  )
   encounters: Location[];
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.location)
+  @OneToMany(
+    () => AdministeredVaccine,
+    administeredVaccine => administeredVaccine.location,
+  )
   administeredVaccines: AdministeredVaccine[];
+
+  static async getOrCreateDefaultLocation(): Promise<Location> {
+    const repo = this.getRepository();
+    const facilityId = await readConfig('facilityId', '');
+
+    const defaultLocation = await repo.findOne({
+      where: { facility: { id: facilityId } },
+    });
+
+    if (defaultLocation) {
+      return defaultLocation;
+    }
+
+    return Location.createAndSaveOne({
+      code: 'GeneralClinic',
+      name: 'General Clinic',
+      facilityId,
+    });
+  }
 }

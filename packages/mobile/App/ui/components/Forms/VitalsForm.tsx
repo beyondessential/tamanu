@@ -9,6 +9,7 @@ import { authUserSelector } from '/helpers/selectors';
 import { SurveyTypes } from '~/types';
 import { getCurrentDateTimeString } from '/helpers/date';
 import { SurveyForm } from '/components/Forms/SurveyForm';
+import { VitalsDataElements } from '/helpers/constants';
 
 const validate = (values: object): object => {
   const errors: { form?: string } = {};
@@ -44,7 +45,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { id, name, components, dateComponent } = vitalsSurvey;
 
   const onSubmit = async (values: any): Promise<void> => {
-    await models.SurveyResponse.submit(
+    const responseRecord = await models.SurveyResponse.submit(
       selectedPatient.id,
       user.id,
       {
@@ -57,14 +58,21 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
       setNote,
     );
 
-    onAfterSubmit();
+    if (responseRecord) {
+      onAfterSubmit();
+    }
   };
+
+  // On mobile, date is programmatically submitted
+  const visibleComponents = components.filter(
+    c => c.dataElementId !== VitalsDataElements.dateRecorded,
+  );
 
   return (
     <SurveyForm
       patient={selectedPatient}
       note={note}
-      components={components}
+      components={visibleComponents}
       onSubmit={onSubmit}
       validate={validate}
     />

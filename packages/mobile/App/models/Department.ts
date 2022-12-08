@@ -6,6 +6,7 @@ import { Facility } from './Facility';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
+import { readConfig } from '~/services/config';
 
 @Entity('department')
 export class Department extends BaseModel implements IDepartment {
@@ -31,4 +32,23 @@ export class Department extends BaseModel implements IDepartment {
     administeredVaccine => administeredVaccine.department,
   )
   administeredVaccines: AdministeredVaccine[];
+
+  static async getOrCreateDefaultDepartment(): Promise<Department> {
+    const repo = this.getRepository();
+    const facilityId = await readConfig('facilityId', '');
+
+    const defaultDepartment = await repo.findOne({
+      where: { facility: { id: facilityId } },
+    });
+
+    if (defaultDepartment) {
+      return defaultDepartment;
+    }
+
+    return Department.createAndSaveOne({
+      code: 'GeneralClinic',
+      name: 'General Clinic',
+      facilityId,
+    });
+  }
 }
