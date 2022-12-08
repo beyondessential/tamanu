@@ -175,6 +175,7 @@ export const VitalsTable = React.memo(() => {
       .sort((a, b) => b.localeCompare(a))
       .map(r => ({
         title: <VitalsHeadCell date={r} />,
+        sortable: false,
         key: r,
         accessor: c => <VitalsCell {...c[r]} />,
       })),
