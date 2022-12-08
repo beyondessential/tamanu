@@ -50,13 +50,19 @@ const useParent = (api, enabled, parentId) => {
 
   const { data: grandMother, isLoading: grandMotherLoading } = useQuery(
     ['mothersName', additionalData?.motherId],
-    () => (additionalData?.motherId ? api.get(`patient/${encodeURIComponent(additionalData?.motherId)}`) : null),
+    () =>
+      additionalData?.motherId
+        ? api.get(`patient/${encodeURIComponent(additionalData?.motherId)}`)
+        : null,
     { enabled: !additionalDataLoading },
   );
 
   const { data: grandFather, isLoading: grandFatherLoading } = useQuery(
     ['fathersName', additionalData?.fatherId],
-    () => (additionalData?.fatherId ? api.get(`patient/${encodeURIComponent(additionalData?.fatherId)}`) : null),
+    () =>
+      additionalData?.fatherId
+        ? api.get(`patient/${encodeURIComponent(additionalData?.fatherId)}`)
+        : null,
     { enabled: !additionalDataLoading },
   );
 
