@@ -293,7 +293,7 @@ class CentralSyncManager {
   async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }, tablesToInclude) {
     const { models, sequelize } = this.store;
     await this.connectToSession(sessionId);
-    const syncSessionRecords = changes.map(c => ({
+    const incomingSnapshotRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
       updatedAtByFieldSum: c.data.updatedAtByField
@@ -302,9 +302,9 @@ class CentralSyncManager {
     }));
 
     log.debug(
-      `CentralSyncManager.addIncomingChanges: Adding ${syncSessionRecords.length} changes for ${sessionId}`,
+      `CentralSyncManager.addIncomingChanges: Adding ${incomingSnapshotRecords.length} changes for ${sessionId}`,
     );
-    await insertSnapshotRecords(sequelize, sessionId, syncSessionRecords);
+    await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
 
     if (pushedSoFar === totalToPush) {
       const modelsToInclude = tablesToInclude

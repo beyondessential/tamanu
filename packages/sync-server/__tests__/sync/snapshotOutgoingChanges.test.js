@@ -408,12 +408,12 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
-      const syncSessionRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
         ctx.store.sequelize,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [labTest.id, labRequest.id, encounter.id].sort(),
       );
     });
@@ -431,12 +431,12 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
-      const syncSessionRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
         ctx.store.sequelize,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [labTest.id, labRequest.id, encounter.id].sort(),
       );
     });
@@ -454,12 +454,12 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: false },
       );
 
-      const syncSessionRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
         ctx.store.sequelize,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(syncSessionRecords.length).toEqual(0);
+      expect(outgoingSnapshotRecords.length).toEqual(0);
     });
   });
 
@@ -567,12 +567,12 @@ describe('snapshotOutgoingChanges', () => {
         },
       );
 
-      const syncSessionRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
         ctx.store.sequelize,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [administeredVaccine1.id, encounter1.id].sort(),
       );
     });
@@ -600,12 +600,12 @@ describe('snapshotOutgoingChanges', () => {
         },
       );
 
-      const syncSessionRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
         ctx.store.sequelize,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [administeredVaccine2.id, encounter2.id].sort(),
       );
     });
@@ -627,12 +627,12 @@ describe('snapshotOutgoingChanges', () => {
         },
       );
 
-      const syncSessionRecords = await findSyncSnapshotRecords(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
         ctx.store.sequelize,
         syncSession.id,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
-      expect(syncSessionRecords.length).toEqual(0);
+      expect(outgoingSnapshotRecords.length).toEqual(0);
     });
   });
 });
