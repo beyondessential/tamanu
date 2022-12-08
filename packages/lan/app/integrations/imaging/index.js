@@ -8,10 +8,10 @@ export async function getImagingProvider(models) {
 
   switch (config.provider) {
     case 'test':
-      return new MerlinProvider(models, config);
+      return new TestProvider(models, config);
 
     case 'merlin':
-      return new TestProvider(models, config);
+      return new MerlinProvider(models, config);
 
     default:
       throw new Error(`unsupported provider: ${config.provider}`);
