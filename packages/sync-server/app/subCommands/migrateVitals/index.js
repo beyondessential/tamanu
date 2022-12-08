@@ -88,7 +88,7 @@ export async function migrateVitals() {
         // Each survey response generates many answer, map them to an array of arrays then flatten
         const answerData = vitalsChunk.map(vital =>
           Object.entries(vital.dataValues)
-            .filter(([key]) => COLUMNS_TO_DATA_ELEMENT_ID[key])
+            .filter(([key, value]) => value && COLUMNS_TO_DATA_ELEMENT_ID[key])
             .map(([key, value]) => ({
               dataElementId: COLUMNS_TO_DATA_ELEMENT_ID[key],
               responseId: idMap.get(vital.dataValues.id),
