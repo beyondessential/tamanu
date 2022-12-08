@@ -63,4 +63,7 @@ export async function down(query) {
       allowNull: true,
     },
   });
+  await query.sequelize.query(`
+    CREATE INDEX sync_session_record_session_id_direction_index ON sync_session_records(session_id, direction);
+  `);
 }
