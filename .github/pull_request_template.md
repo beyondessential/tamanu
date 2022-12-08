@@ -7,7 +7,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] Code is finished
 - [ ] Tests are written
 - [ ] UI Screenshots added to the Linear issue
-- [ ] Add testing notes to the Linear issue
+- [ ] Testing notes added to the Linear issue
 - [ ] Update the changelog (find it [here](https://github.com/beyondessential/tamanu/pulls?q=is%3Apr+is%3Aopen+release+in%3Atitle))
   - [ ] with a ticket reference (e.g. `TAN-123: a one line description`, keep the lists sorted)
   - [ ] any config/settings changes
