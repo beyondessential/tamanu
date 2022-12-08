@@ -31,7 +31,7 @@ describe('FhirMaterialiseJob', () => {
         upstreamId: 'up1',
         resource: 'r1',
         status: 'Queued',
-        beganAt: null,
+        startedAt: null,
         completedAt: null,
         erroredAt: null,
         error: null,
@@ -105,7 +105,7 @@ describe('FhirMaterialiseJob', () => {
       expect(found[0]).toMatchObject({
         ...job,
         status: 'Completed',
-        beganAt: expect.any(Date),
+        startedAt: expect.any(Date),
         completedAt: expect.any(Date),
         erroredAt: null,
         error: null,
@@ -119,13 +119,13 @@ describe('FhirMaterialiseJob', () => {
       const job2 = { upstreamId: 'up6', resource: 'r6' };
       await FhirMaterialiseJob.create({
         ...job1,
-        status: 'Began',
-        beganAt: new Date(2020, 1, 1),
+        status: 'Started',
+        startedAt: new Date(2020, 1, 1),
       });
       await FhirMaterialiseJob.create({
         ...job2,
-        status: 'Began',
-        beganAt: new Date(),
+        status: 'Started',
+        startedAt: new Date(),
       });
 
       // act
@@ -141,7 +141,7 @@ describe('FhirMaterialiseJob', () => {
 
       const found = await FhirMaterialiseJob.findAll({ where: {} }, { raw: true });
       expect(found).toHaveLength(2);
-      expect(found.map(f => f.status).sort()).toEqual(['Began', 'Completed']);
+      expect(found.map(f => f.status).sort()).toEqual(['Started', 'Completed']);
     });
 
     it('records errors', async () => {
@@ -203,13 +203,13 @@ describe('FhirMaterialiseJob', () => {
       const job3 = { upstreamId: 'up13', resource: 'r13' };
       await FhirMaterialiseJob.create({
         ...job1,
-        status: 'Began',
-        beganAt: new Date(2020, 1, 1),
+        status: 'Started',
+        startedAt: new Date(2020, 1, 1),
       });
       await FhirMaterialiseJob.create({
         ...job2,
-        status: 'Began',
-        beganAt: new Date(),
+        status: 'Started',
+        startedAt: new Date(),
       });
       await FhirMaterialiseJob.enqueue(job3);
 
