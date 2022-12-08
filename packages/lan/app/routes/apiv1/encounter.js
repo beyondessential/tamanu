@@ -239,6 +239,7 @@ encounterRelations.get(
     req.checkPermission('list', 'Vitals');
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
+    const { order = 'DESC' } = query;
     // The LIMIT and OFFSET occur in an unusual place in this query
     // So we can't run it through the generic runPaginatedQuery function
     const countResult = await db.query(
@@ -311,7 +312,7 @@ encounterRelations.get(
             body IS NOT NULL
           AND
             response.encounter_id = :encounterId
-          LIMIT :limit OFFSET :offset) date
+            ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
         GROUP BY answer.data_element_id,  ssc.component_index
         ORDER BY ssc.component_index ASC
