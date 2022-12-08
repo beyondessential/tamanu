@@ -4,7 +4,6 @@ import { SURVEY_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { v4 as generateId } from 'uuid';
 import config from 'config';
-import convert from 'convert';
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;
@@ -23,12 +22,11 @@ export const COLUMNS_TO_DATA_ELEMENT_ID = {
 
 const conversionFunctions = {
   temperature: value => {
-    if (!value || config.localisation.data.units.temperature === 'celsius') {
-      return value;
+    if (value && config.localisation.data.units.temperature === 'fahrenheit') {
+      // Do this the hard way so we don't need to add a conversion lib to sync
+      return (value * (9 / 5) + 32).toFixed(1);
     }
-    return convert(parseFloat(value), 'celsius')
-      .to('fahrenheit')
-      .toFixed(1);
+    return value;
   },
 };
 
