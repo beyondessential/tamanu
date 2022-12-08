@@ -19,3 +19,10 @@ export const usePatientSuggester = () => {
     }),
   });
 };
+
+export const useLocationGroupSuggester = () => {
+  const api = useApi();
+  return new Suggester(api, 'locationGroup', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+};

@@ -230,12 +230,15 @@ export class MobileSyncManager {
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
     this.setProgress(STAGE_MAX_PROGRESS[this.syncStage - 1], 'Preparing data to pull...');
-
+    const tablesForFullResync = await this.models.LocalSystemFact.findOne({
+      where: { key: 'tablesForFullResync' },
+    });
     const { count: incomingChangesCount, tick: safePullTick } = await pullIncomingChanges(
       this.centralServer,
       sessionId,
       pullSince,
       Object.values(this.models).map(m => m.getTableNameForSync()),
+      tablesForFullResync?.value.split(','),
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
@@ -256,6 +259,10 @@ export class MobileSyncManager {
           incomingModels,
           this.updateProgress,
         );
+      }
+
+      if (tablesForFullResync) {
+        await tablesForFullResync.remove();
       }
 
       // update the last successful sync in the same save transaction,
