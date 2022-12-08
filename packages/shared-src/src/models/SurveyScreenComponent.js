@@ -48,7 +48,10 @@ export class SurveyScreenComponent extends Model {
         },
       },
       include: this.getListReferenceAssociations(),
-      order: ['screenIndex', 'componentIndex'],
+      order: [
+        ['screen_index', 'ASC'],
+        ['component_index', 'ASC'],
+      ],
     });
 
     return components.map(c => c.forResponse());

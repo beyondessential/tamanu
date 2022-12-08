@@ -77,7 +77,6 @@ const useVitals = encounterId => {
 
     readings = data
       .filter(vital => vital.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .sort((a, b) => a.componentIndex - b.componentIndex)
       .map(({ name, config, validationCriteria, records }) => ({
         title: {
           value: name,

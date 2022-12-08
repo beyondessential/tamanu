@@ -21,7 +21,6 @@ export const SurveyScreen = ({
 }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
-    .sort((a, b) => a.componentIndex - b.componentIndex)
     .map(c => <SurveyQuestion component={c} patient={patient} key={c.id} />);
 
   return (
