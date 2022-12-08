@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants/surveys';
 import * as yup from 'yup';
 
 const parseJSONColumn = field => {
@@ -22,7 +23,7 @@ export const useSurveyValidationSchema = surveyData => {
         const { id, type, defaultText } = dataElement;
         const text = componentText || defaultText;
         switch (type) {
-          case 'Number':
+          case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
             acc[id] = yup
               .number()
               .nullable()
@@ -30,13 +31,18 @@ export const useSurveyValidationSchema = surveyData => {
               .max(max, `${text} can not exceed ${max}`)
               [mandatory ? 'required' : 'notRequired']();
             break;
-          case 'Select':
+          case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+          case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
+          case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
             acc[id] = yup.string()[mandatory ? 'required' : 'notRequired']();
             break;
-          case 'DateTime':
+          case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+          case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
+          case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
             acc[id] = yup.date()[mandatory ? 'required' : 'notRequired']();
             break;
           default:
+            acc[id] = yup.mixed()[mandatory ? 'required' : 'notRequired']();
             break;
         }
         return acc;
