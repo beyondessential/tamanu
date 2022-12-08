@@ -116,7 +116,7 @@ describe('Imaging requests', () => {
   });
 
   it('should get imaging request reference info when listing imaging requests', async () => {
-    const createdImagingRequest = await models.ImagingRequest.create({
+    await models.ImagingRequest.create({
       encounterId: encounter.id,
       requestedById: app.user.id,
       imagingType: IMAGING_TYPES.CT_SCAN,

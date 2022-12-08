@@ -35,6 +35,8 @@ export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './ImagingRequest';
 export * from './ImagingRequestArea';
+export * from './ImagingAreaExternalCode';
+export * from './ImagingResult';
 
 export * from './Program';
 export * from './Survey';

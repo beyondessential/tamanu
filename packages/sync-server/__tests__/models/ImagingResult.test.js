@@ -5,7 +5,7 @@ import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
-describe('ImagingRequest', () => {
+describe('ImagingResult', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -14,18 +14,17 @@ describe('ImagingRequest', () => {
 
   it('allows more than 255 characters in the results', async () => {
     // arrange
-    const { ImagingRequest, User } = ctx.store.models;
-    const results = chance.string({ length: 5000 });
+    const { ImagingRequest, ImagingResult, User } = ctx.store.models;
+    const description = chance.string({ length: 5000 });
     const { id: requestedById } = await User.create(fake(User));
+    const ir = await ImagingRequest.create(fake(ImagingRequest, { requestedById }));
 
     // act
-    const irPromise = ImagingRequest.create({
-      ...fake(ImagingRequest),
-      results,
-      requestedById,
-    });
+    const ires = await ImagingResult.create(
+      fake(ImagingResult, { description, imagingRequestId: ir.id }),
+    );
 
     // assert
-    await expect(irPromise).resolves.toMatchObject({ results });
+    await expect(ires).toMatchObject({ description });
   });
 });

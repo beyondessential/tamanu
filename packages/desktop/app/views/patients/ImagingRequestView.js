@@ -17,9 +17,8 @@ import {
   Field,
   AutocompleteField,
   DateTimeInput,
-  SuggesterSelectField,
 } from '../../components/Field';
-import { useApi, useSuggester } from '../../api';
+import { useApi, useSuggester, useLocationGroupSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
@@ -80,6 +79,10 @@ const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
+    const locationGroupSuggester = useLocationGroupSuggester();
+
+    const resultsDescription = values.results.map(result => result.description).join('\n\n');
+    const firstResultExtCode = values.results.find(result => result.externalCode)?.externalCode;
 
     return (
       <Formik
@@ -151,9 +154,8 @@ const ImagingRequestInfoPane = React.memo(
                   <Field
                     label="Area"
                     name="locationGroupId"
-                    endpoint="locationGroup"
-                    component={SuggesterSelectField}
-                    filterByFacility
+                    component={AutocompleteField}
+                    suggester={locationGroupSuggester}
                     required
                   />
                 </>
@@ -163,14 +165,14 @@ const ImagingRequestInfoPane = React.memo(
                   name="results"
                   label="Results Description"
                   multiline
-                  value={values.results}
+                  value={resultsDescription}
                   onChange={handleChange}
                   style={{ gridColumn: '1 / -1', minHeight: '60px' }}
                 />
               )}
               <ButtonRow>
-                {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
-                  <Button color="secondary" disabled>
+                {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && firstResultExtCode && (
+                  <Button color="secondary" disabled title={`TODO: ${firstResultExtCode}`}>
                     View image (external link)
                   </Button>
                 )}
