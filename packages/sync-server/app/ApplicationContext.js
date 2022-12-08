@@ -14,6 +14,9 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
+    this.closePromise = new Promise(resolve => {
+      this.onClose(resolve);
+    });
     await initIntegrations(this);
     return this;
   }
@@ -30,8 +33,6 @@ export class ApplicationContext {
   };
   
   async waitForClose() {
-    return new Promise(resolve => {
-      this.onClose(resolve);
-    });
+    return this.closePromise;
   }
 }
