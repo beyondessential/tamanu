@@ -36,7 +36,7 @@ export const createSnapshotTable = async (sequelize, sessionId) => {
 export const dropSnapshotTable = async (sequelize, sessionId) => {
   const tableName = getSnapshotTableName(sessionId);
   await sequelize.query(`
-    DROP TABLE ${tableName};
+    DROP TABLE IF EXISTS ${tableName};
   `);
 };
 
