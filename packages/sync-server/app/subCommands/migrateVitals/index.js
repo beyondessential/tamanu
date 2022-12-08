@@ -3,6 +3,8 @@ import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { v4 as generateId } from 'uuid';
+import config from 'config';
+import convert from 'convert';
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;
@@ -19,10 +21,20 @@ export const COLUMNS_TO_DATA_ELEMENT_ID = {
   avpu: 'pde-PatientVitalsAVPU',
 };
 
+const conversionFunctions = {
+  temperature: value => {
+    if (!value || config.localisation.data.units.temperature === 'celsius') {
+      return value;
+    }
+    return convert(parseFloat(value), 'celsius')
+      .to('fahrenheit')
+      .toFixed(1);
+  },
+};
+
 export async function migrateVitals() {
   const store = await initDatabase({ testMode: false });
   const { models, sequelize } = store;
-
 
   const vitalsSurvey = await models.Survey.findOne({
     where: {
@@ -82,7 +94,7 @@ export async function migrateVitals() {
             .map(([key, value]) => ({
               dataElementId: COLUMNS_TO_DATA_ELEMENT_ID[key],
               responseId: idMap.get(vital.dataValues.id),
-              body: value,
+              body: conversionFunctions[key] ? conversionFunctions[key](value) : value,
             })),
         );
         await models.SurveyResponseAnswer.bulkCreate(answerData.flat());
