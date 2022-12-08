@@ -141,7 +141,7 @@ describe('FhirMaterialiseJob', () => {
 
       const found = await FhirMaterialiseJob.findAll({ where: {} }, { raw: true });
       expect(found).toHaveLength(2);
-      expect(found.map(f => f.status).sort()).toEqual(['Started', 'Completed']);
+      expect(found.map(f => f.status).sort()).toEqual(['Completed', 'Started']);
     });
 
     it('records errors', async () => {
