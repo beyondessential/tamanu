@@ -296,7 +296,6 @@ class CentralSyncManager {
     const syncSessionRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
-      sessionId,
       updatedAtByFieldSum: c.data.updatedAtByField
         ? Object.values(c.data.updatedAtByField).reduce((s, v) => s + v)
         : null,
