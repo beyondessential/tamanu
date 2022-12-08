@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
 import { parseDate } from 'shared/utils/dateTime';
+import { Colors } from '../constants';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
@@ -86,13 +88,19 @@ const DateTooltip = ({ date, children }) => {
   );
 };
 
+const DateDisplayWrapper = styled.span`
+  div:not(:first-child) {
+    color: ${Colors.midText};
+  }
+`;
+
 export const DateDisplay = React.memo(
   ({
     date: dateValue,
-    disableTooltip = false,
     showDate = true,
     showTime = false,
     showExplicitDate = false,
+    newlineParts = false,
   }) => {
     const dateObj = parseDate(dateValue);
 
@@ -106,9 +114,13 @@ export const DateDisplay = React.memo(
       parts.push(formatTime(dateObj));
     }
 
-    const dateDisplay = <span>{parts.join(' ')}</span>;
-
-    return disableTooltip ? dateDisplay : <DateTooltip date={dateObj}>{dateDisplay}</DateTooltip>;
+    return (
+      <DateTooltip date={dateObj}>
+        <DateDisplayWrapper>
+          {newlineParts ? parts.map(part => <div>{part}</div>) : parts.join(' ')}
+        </DateDisplayWrapper>
+      </DateTooltip>
+    );
   },
 );
 

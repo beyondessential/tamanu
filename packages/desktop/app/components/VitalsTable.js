@@ -130,7 +130,7 @@ const VitalsCellWrapper = styled.div`
 `;
 
 const VitalHeadCellWrapper = styled.div`
-  span:last-child {
+  span div:last-child {
     color: ${Colors.midText};
     display: block;
   }
@@ -150,8 +150,7 @@ const VitalsCell = React.memo(({ value, tooltip, severity }) => {
 const VitalsHeadCell = React.memo(({ date }) => {
   return (
     <VitalHeadCellWrapper>
-      <DateDisplay date={date} />
-      <DateDisplay disableTooltip showTime showDate={false} date={date} />
+      <DateDisplay date={date} showTime newlineParts />
     </VitalHeadCellWrapper>
   );
 });
