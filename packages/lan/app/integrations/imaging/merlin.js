@@ -1,34 +1,40 @@
 import fetch from 'node-fetch';
 
-export async function getUrlForResult({ Patient, Encounter }, config, result) {
-  const { externalCode } = result;
-  if (!externalCode) return null;
+import { Provider } from './provider';
 
-  const request = await result.getRequest({
-    include: [
-      {
-        model: Encounter,
-        as: 'encounter',
-        include: [{ model: Patient, as: 'patient' }],
-      },
-    ],
-  });
-  const { patient } = request.encounter;
+export class MerlinProvider extends Provider {
+  async getUrlForResult(result) {
+    const { Encounter, Patient } = this.models;
 
-  const {
-    urlgen,
-    auth: { username, password },
-    patientId: { type, field },
-  } = config;
+    const { externalCode } = result;
+    if (!externalCode) return null;
 
-  const url = new URL(urlgen);
-  url.username = username;
-  url.password = password;
-  url.searchParams.set('accesion', externalCode);
+    const request = await result.getRequest({
+      include: [
+        {
+          model: Encounter,
+          as: 'encounter',
+          include: [{ model: Patient, as: 'patient' }],
+        },
+      ],
+    });
+    const { patient } = request.encounter;
 
-  url.searchParams.set('patIdType', type);
-  url.searchParams.set('patId', patient[field]);
+    const {
+      urlgen,
+      auth: { username, password },
+      patientId: { type, field },
+    } = this.config;
 
-  const res = await fetch(url);
-  return res.text();
+    const url = new URL(urlgen);
+    url.username = username;
+    url.password = password;
+    url.searchParams.set('accesion', externalCode);
+
+    url.searchParams.set('patIdType', type);
+    url.searchParams.set('patId', patient[field]);
+
+    const res = await fetch(url);
+    return res.text();
+  }
 }

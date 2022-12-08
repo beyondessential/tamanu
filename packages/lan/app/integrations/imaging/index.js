@@ -1,26 +1,5 @@
-import * as merlin from './merlin';
-import * as test from './test';
-
-class Provider {
-  constructor(models, name, config) {
-    this.models = models;
-    this.name = name;
-    this.config = config;
-  }
-
-  getUrlForResult(result) {
-    switch (this.name) {
-      case 'test':
-        return test.getUrlForResult(this.models, this.config, result);
-
-      case 'merlin':
-        return merlin.getUrlForResult(this.models, this.config, result);
-
-      default:
-        throw new Error(`unsupported provider: ${this.name}`);
-    }
-  }
-}
+import { MerlinProvider } from './merlin';
+import { TestProvider } from './test';
 
 export async function getImagingProvider(models) {
   const { Setting } = models;
@@ -29,10 +8,10 @@ export async function getImagingProvider(models) {
 
   switch (config.provider) {
     case 'test':
-      return new Provider(models, 'test', config);
+      return new MerlinProvider(models, config);
 
     case 'merlin':
-      return new Provider(models, 'merlin', config);
+      return new TestProvider(models, config);
 
     default:
       throw new Error(`unsupported provider: ${config.provider}`);
