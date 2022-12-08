@@ -125,7 +125,7 @@ export function getFlattenMergedPatientReplaceLinks(
   mergedPatientsByMergedIntoId,
   isRootPatientActive,
 ) {
-  const links = [];
+  let links = [];
   const mergedPatients = mergedPatientsByMergedIntoId[patient.id] || [];
 
   for (const mergedPatient of mergedPatients) {
@@ -138,8 +138,8 @@ export function getFlattenMergedPatientReplaceLinks(
         : FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
     });
     // get deeper level of merged patients if there's any
-    links.push(
-      ...getFlattenMergedPatientReplaceLinks(
+    links = links.concat(
+      getFlattenMergedPatientReplaceLinks(
         baseUrl,
         mergedPatient,
         mergedPatientsByMergedIntoId,
@@ -169,7 +169,7 @@ export function getFlattenMergedPatientReplaceLinks(
  * ]
  */
 export function getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patientById) {
-  const links = [];
+  let links = [];
   const supersededPatient = patientById[patient.mergedIntoId];
 
   if (patient.mergedIntoId && supersededPatient?.mergedIntoId) {
@@ -179,7 +179,9 @@ export function getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patient
       },
       type: FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
     });
-    links.push(...getFlattenMergedPatientReplacecByLinks(baseUrl, supersededPatient, patientById));
+    links = links.concat(
+      getFlattenMergedPatientReplacecByLinks(baseUrl, supersededPatient, patientById),
+    );
   } else {
     links.push({
       other: {
@@ -223,19 +225,19 @@ const getPatientLinks = (
   mergedPatientsByMergedIntoId,
   isRootPatientActive,
 ) => {
-  const links = [];
+  let links = [];
 
   // Get 'replaced-by/seealso' links of a patient if there's any
   if (patient.mergedIntoId) {
-    links.push(...getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patientById));
+    links = getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patientById);
   }
 
   const mergedPatients = mergedPatientsByMergedIntoId[patient.id] || [];
 
   // Get 'replaces' links of a patient if there's any
   if (mergedPatients.length) {
-    links.push(
-      ...getFlattenMergedPatientReplaceLinks(
+    links = links.concat(
+      getFlattenMergedPatientReplaceLinks(
         baseUrl,
         patient,
         mergedPatientsByMergedIntoId,

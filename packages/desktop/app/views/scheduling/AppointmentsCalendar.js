@@ -11,10 +11,10 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput, MultiselectInput, SuggesterSelectField } from '../../components/Field';
+import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
-import { useApi } from '../../api';
+import { useApi, useLocationGroupSuggester } from '../../api';
 
 const LeftContainer = styled.div`
   min-height: 100vh;
@@ -74,6 +74,7 @@ const TodayButton = styled(Button)`
 
 export const AppointmentsCalendar = () => {
   const api = useApi();
+  const locationGroupSuggester = useLocationGroupSuggester();
 
   const [date, setDate] = useState(new Date());
   const [filterValue, setFilterValue] = useState('');
@@ -91,14 +92,10 @@ export const AppointmentsCalendar = () => {
     locationGroup: {
       label: 'Area',
       component: (
-        <SuggesterSelectField
-          field={{
-            value: filterValue,
-            name: 'locationGroup',
-            onChange: updateFilterValue,
-          }}
-          endpoint="locationGroup"
-          filterByFacility
+        <AutocompleteInput
+          value={filterValue}
+          onChange={updateFilterValue}
+          suggester={locationGroupSuggester}
         />
       ),
     },
