@@ -13,6 +13,7 @@ import { useBackendEffect } from '../../../../../hooks';
 
 export const ProgramViewHistoryScreen = ({
   route,
+  navigation,
 }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, selectedPatient, latestResponseId } = route.params;
 
@@ -20,8 +21,17 @@ export const ProgramViewHistoryScreen = ({
   // a new survey is submitted (as this tab can be mounted while
   // it isn't active)
   const [responses, error] = useBackendEffect(
-    ({ models }) => models.Survey.getResponses(surveyId),
-    [latestResponseId],
+    ({ models }) => {
+      if (!navigation.isFocused) {
+        // always show the loading screen when in background
+        // (ie, it will be what's shown when the user navigates
+        // to this tab). We don't want to load & render all the
+        // responses as it causes performance issues.
+        return null;
+      }
+      return models.Survey.getResponses(surveyId);
+    },
+    [navigation.isFocused, latestResponseId],
   );
 
   if (error) {
