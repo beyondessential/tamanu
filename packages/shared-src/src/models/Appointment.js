@@ -50,6 +50,7 @@ export class Appointment extends Model {
       foreignKey: 'locationGroupId',
     });
 
+    // Appointments are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
@@ -66,11 +67,11 @@ export class Appointment extends Model {
       ON
         appointments.location_group_id = location_groups.id
       WHERE
-        location_groups.patient_id IN (:patientIds)
+        appointments.patient_id IN (:patientIds)
       AND
-        facility_id = :facilityId
+        location_groups.facility_id = :facilityId
       AND
-        updated_at_sync_tick > :since
+        appointments.updated_at_sync_tick > :since
     `;
   }
 }
