@@ -39,9 +39,11 @@ export async function setupSurveyFromObject(models, input) {
   );
 
   await models.SurveyScreenComponent.bulkCreate(
-    input?.questions.map(({ name, id }) => ({
+    input?.questions.map(({ name, id, config, validationCriteria }) => ({
       dataElementId: id || `pde-${name}`,
       surveyId: survey.id,
+      config,
+      validationCriteria,
     })),
   );
 }
