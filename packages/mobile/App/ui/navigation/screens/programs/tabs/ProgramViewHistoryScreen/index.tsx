@@ -29,7 +29,11 @@ export const ProgramViewHistoryScreen = ({
         // responses as it causes performance issues.
         return null;
       }
-      return models.Survey.getResponses(surveyId);
+
+      return models.Survey.getResponses(
+        surveyId,
+        selectedPatient ? selectedPatient.id : null
+      );
     },
     [navigation.isFocused, latestResponseId],
   );
@@ -42,18 +46,6 @@ export const ProgramViewHistoryScreen = ({
     return <LoadingScreen />;
   }
 
-  const responsesToShow = selectedPatient
-    ? responses.filter(({ encounter }) => {
-        if (typeof encounter === "string" ) {
-          return false;
-        }
-        if (typeof encounter.patient === "string") {
-          return false;
-        }
-        return encounter.patient.id === selectedPatient.id;
-      })
-    : responses;
-
   return (
     <FlatList
       style={{
@@ -63,7 +55,7 @@ export const ProgramViewHistoryScreen = ({
         backgroundColor: theme.colors.BACKGROUND_GREY,
       }}
       showsVerticalScrollIndicator={false}
-      data={responsesToShow}
+      data={responses}
       keyExtractor={(item): string => item.id}
       renderItem={({ item, index }): ReactElement => (
         <SurveyResponseLink
