@@ -116,7 +116,7 @@ export const settingsCommand = new Command('settings')
     new Command('get')
       .description('get a setting')
       .argument('<key>', 'key to retrieve')
-      .option('--facility', 'ID of facility to scope to')
+      .option('--facility <facility>', 'ID of facility to scope to')
       .action(getSetting),
   )
   .addCommand(
@@ -124,7 +124,7 @@ export const settingsCommand = new Command('settings')
       .description('set a setting')
       .argument('<key>', 'key to create/update')
       .argument('<value>', 'value in JSON')
-      .option('--facility', 'ID of facility to scope to')
+      .option('--facility <facility>', 'ID of facility to scope to')
       .action(setSetting),
   )
   .addCommand(
