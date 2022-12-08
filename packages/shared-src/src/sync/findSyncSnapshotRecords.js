@@ -7,7 +7,7 @@ export const findSyncSnapshotRecords = async (
   sessionId,
   direction,
   fromId = '00000000-0000-0000-0000-000000000000',
-  limit,
+  limit = Number.MAX_SAFE_INTEGER,
   recordType,
 ) => {
   const tableName = getSnapshotTableName(sessionId);
