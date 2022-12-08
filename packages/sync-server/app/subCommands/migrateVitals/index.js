@@ -23,7 +23,6 @@ export async function migrateVitals() {
   const store = await initDatabase({ testMode: false });
   const { models, sequelize } = store;
 
-
   const vitalsSurvey = await models.Survey.findOne({
     where: {
       surveyType: SURVEY_TYPES.VITALS,
