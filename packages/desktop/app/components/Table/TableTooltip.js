@@ -4,7 +4,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { Colors } from '../../constants';
 
 export const TableTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
+  <Tooltip classes={{ popper: props.className }} arrow {...props}>
     {props.children}
   </Tooltip>
 ))`

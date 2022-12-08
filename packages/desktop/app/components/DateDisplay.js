@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
 import { parseDate } from 'shared/utils/dateTime';
-import { Colors } from '../constants';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
-const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
+export const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
   return new Date(date).toLocaleString(getLocale(), formatOptions);
 };
+
+export const formatShortest = date =>
+  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04
 
 export const formatShort = date =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
@@ -32,7 +33,7 @@ const formatShortExplicit = date =>
   }); // "4 Mar 2019"
 
 // long format date is displayed on hover
-const formatLong = date =>
+export const formatLong = date =>
   intlFormatDate(
     date,
     {
@@ -88,20 +89,8 @@ const DateTooltip = ({ date, children }) => {
   );
 };
 
-const DateDisplayWrapper = styled.span`
-  div:not(:first-child) {
-    color: ${Colors.midText};
-  }
-`;
-
 export const DateDisplay = React.memo(
-  ({
-    date: dateValue,
-    showDate = true,
-    showTime = false,
-    showExplicitDate = false,
-    newlineParts = false,
-  }) => {
+  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
     const dateObj = parseDate(dateValue);
 
     const parts = [];
@@ -116,9 +105,7 @@ export const DateDisplay = React.memo(
 
     return (
       <DateTooltip date={dateObj}>
-        <DateDisplayWrapper>
-          {newlineParts ? parts.map(part => <div>{part}</div>) : parts.join(' ')}
-        </DateDisplayWrapper>
+        <span>{parts.join(' ')}</span>
       </DateTooltip>
     );
   },

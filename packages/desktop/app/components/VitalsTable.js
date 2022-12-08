@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
 import { Table } from './Table';
-import { DateDisplay } from './DateDisplay';
+import { formatLong, formatShortest, formatTime } from './DateDisplay';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
@@ -107,15 +107,22 @@ const StyledTable = styled(Table)`
       position: sticky;
       z-index: 1;
       border-right: 1px solid ${Colors.outline};
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25);
+      clip-path: inset(0px -5px 0px 0px);
+      min-width: 160px;
     }
 
     thead tr th:first-child {
       background: ${Colors.background};
-      min-width: 160px;
     }
 
     tbody tr td:first-child {
       background: ${Colors.white};
+    }
+
+    tfoot tr td button {
+      position: sticky;
+      left: 16px;
     }
   }
 `;
@@ -129,30 +136,36 @@ const VitalsCellWrapper = styled.div`
   width: fit-content;
 `;
 
-const VitalHeadCellWrapper = styled.div`
-  span div:last-child {
+const VitalsHeadCellWrapper = styled.div`
+  display: block;
+  div {
     color: ${Colors.midText};
-    display: block;
+    :first-child {
+      color: ${Colors.darkText};
+    }
   }
 `;
+
+const VitalsHeadCell = React.memo(({ date }) => {
+  return (
+    <TableTooltip placement="top" title={formatLong(date)}>
+      <VitalsHeadCellWrapper>
+        <div>{formatShortest(date)}</div>
+        <div>{formatTime(date)}</div>
+      </VitalsHeadCellWrapper>
+    </TableTooltip>
+  );
+});
 
 const VitalsCell = React.memo(({ value, tooltip, severity }) => {
   if (tooltip) {
     return (
-      <TableTooltip arrow placement="top" title={tooltip}>
+      <TableTooltip placement="top" title={tooltip}>
         <VitalsCellWrapper severity={severity}>{value}</VitalsCellWrapper>
       </TableTooltip>
     );
   }
   return <VitalsCellWrapper>{value}</VitalsCellWrapper>;
-});
-
-const VitalsHeadCell = React.memo(({ date }) => {
-  return (
-    <VitalHeadCellWrapper>
-      <DateDisplay date={date} showTime newlineParts />
-    </VitalHeadCellWrapper>
-  );
 });
 
 export const VitalsTable = React.memo(() => {
@@ -168,7 +181,7 @@ export const VitalsTable = React.memo(() => {
     {
       key: 'title',
       title: 'Measure',
-      width: 145,
+      sortable: false,
       accessor: c => <VitalsCell {...c.title} />,
     },
     ...recordings
