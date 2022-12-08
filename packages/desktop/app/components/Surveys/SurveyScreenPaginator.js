@@ -66,9 +66,7 @@ export const SurveyScreenPaginator = ({
     .reduce((max, current) => Math.max(max, current), 0);
 
   if (screenIndex <= maxIndex) {
-    const screenComponents = components
-      .filter(x => x.screenIndex === screenIndex)
-      .sort((a, b) => a.componentIndex - b.componentIndex);
+    const screenComponents = components.filter(x => x.screenIndex === screenIndex);
 
     return (
       <SurveyScreen

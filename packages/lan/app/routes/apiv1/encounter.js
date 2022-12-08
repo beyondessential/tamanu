@@ -283,6 +283,7 @@ encounterRelations.get(
             'dataElementId', answer.data_element_id,
             'name', MAX(pde.name),
             'config', MAX(ssc.config),
+            'componentIndex', MAX(ssc.component_index),
             'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
         FROM
           survey_response_answers answer
