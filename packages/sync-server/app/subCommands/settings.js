@@ -1,7 +1,10 @@
 /* eslint-disable no-console */
 
+import { promises as fs } from 'fs';
 import { Command } from 'commander';
 import { Op } from 'sequelize';
+import TOML from '@iarna/toml';
+import { parse as parseJiK } from '@bgotink/kdl/json';
 
 import { initDatabase } from '../database';
 
@@ -65,6 +68,42 @@ async function setSetting(key, value, { facility }) {
   console.log('new value set');
 }
 
+async function loadSettings(key, filepath, { facility, preview }) {
+  const {
+    models: { Setting },
+  } = await initDatabase({ testMode: false });
+  console.log('---------------------------------\n');
+
+  if (key.length < 1) {
+    console.error('Key must be specified');
+    return;
+  }
+
+  const file = (await fs.readFile(filepath)).toString();
+  let value;
+  if (filepath.endsWith('.json')) {
+    value = JSON.parse(file);
+  } else if (filepath.endsWith('.toml')) {
+    value = TOML.parse(file);
+  } else if (filepath.endsWith('.kdl')) {
+    value = parseJiK(file);
+  } else {
+    console.error('File format not supported');
+    return;
+  }
+
+  if (preview) {
+    console.log(JSON.stringify(value, null, 2));
+    return;
+  }
+
+  console.log(`Setting ${key}...`);
+  await Setting.set(key, value, facility);
+
+  const currentValue = await Setting.get(key, facility);
+  console.log(JSON.stringify(currentValue, null, 2));
+}
+
 export const settingsCommand = new Command('settings')
   .description('Manage settings')
   .addCommand(
@@ -87,4 +126,13 @@ export const settingsCommand = new Command('settings')
       .argument('<value>', 'value in JSON')
       .option('--facility', 'ID of facility to scope to')
       .action(setSetting),
+  )
+  .addCommand(
+    new Command('load')
+      .description('load settings from a file')
+      .argument('<key>', 'key to load to')
+      .argument('<file>', 'JSON or TOML file to load settings from')
+      .option('--facility <facility>', 'ID of facility to scope to')
+      .option('--preview', 'Print the settings that would be loaded in JSON')
+      .action(loadSettings),
   );
