@@ -4,7 +4,7 @@ export async function getUrlForResult({ Patient, Encounter }, config, result) {
   const { externalCode } = result;
   if (!externalCode) return null;
 
-  const request = await irr.getRequest({
+  const request = await result.getRequest({
     include: [
       {
         model: Encounter,
