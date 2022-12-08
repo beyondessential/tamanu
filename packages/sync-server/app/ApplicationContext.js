@@ -28,4 +28,10 @@ export class ApplicationContext {
     }
     await closeDatabase();
   };
+  
+  async waitForClose() {
+    return new Promise(resolve => {
+      this.onClose(resolve);
+    });
+  }
 }
