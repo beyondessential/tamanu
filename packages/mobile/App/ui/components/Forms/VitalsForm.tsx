@@ -44,24 +44,20 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { id, name, components, dateComponent } = vitalsSurvey;
 
   const onSubmit = async (values: any): Promise<void> => {
-    try {
-      await models.SurveyResponse.submit(
-        selectedPatient.id,
-        user.id,
-        {
-          surveyId: id,
-          components,
-          surveyType: SurveyTypes.Vitals,
-          encounterReason: `Survey response for ${name}`,
-        },
-        { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
-        setNote,
-      );
+    await models.SurveyResponse.submit(
+      selectedPatient.id,
+      user.id,
+      {
+        surveyId: id,
+        components,
+        surveyType: SurveyTypes.Vitals,
+        encounterReason: `Survey response for ${name}`,
+      },
+      { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
+      setNote,
+    );
 
-      onAfterSubmit();
-    } catch (err) {
-      console.log('error', err);
-    }
+    onAfterSubmit();
   };
 
   return (
