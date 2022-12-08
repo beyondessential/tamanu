@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import * as yup from 'yup';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
 import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
@@ -8,6 +7,7 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
+import { useSurveyValidationSchema } from '../hooks/useSurveyValidationSchema';
 
 const ErrorMessage = () => {
   return (
@@ -22,6 +22,7 @@ const ErrorMessage = () => {
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject }) => {
   const { data: vitalsSurvey, isLoading, isError } = useVitalsSurvey();
+  const validationSchema = useSurveyValidationSchema(vitalsSurvey);
 
   if (isLoading) {
     return <ModalLoader />;
@@ -38,9 +39,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
   return (
     <Form
       onSubmit={handleSubmit}
-      validationSchema={yup.object().shape({
-        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: yup.date().required(),
-      })}
+      validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
         ...editedObject,
