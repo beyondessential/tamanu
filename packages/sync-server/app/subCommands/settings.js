@@ -4,6 +4,9 @@ import { promises as fs } from 'fs';
 import { Command } from 'commander';
 import { Op } from 'sequelize';
 import TOML from '@iarna/toml';
+
+// it does work, but eslint doesn't like it
+// eslint-disable-next-line import/no-unresolved
 import { parse as parseJiK } from '@bgotink/kdl/json';
 
 import { initDatabase } from '../database';
