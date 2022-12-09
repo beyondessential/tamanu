@@ -202,11 +202,6 @@ export class FhirServiceRequest extends FhirResource {
         path: [['category', '[]', 'coding', '[]']],
         tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
       },
-      code: {
-        type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['code', 'coding', '[]']],
-        tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
-      },
       intent: {
         type: FHIR_SEARCH_PARAMETERS.STRING,
         path: [['intent']],
