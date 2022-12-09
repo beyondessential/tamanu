@@ -242,6 +242,11 @@ function imagingCode(upstream) {
 }
 
 function validatePriority(priority) {
+  if (!priority) {
+    // default to routine when we don't have a priority in Tamanu
+    return FHIR_REQUEST_PRIORITY.ROUTINE;
+  }
+
   if (!Object.values(FHIR_REQUEST_PRIORITY).includes(priority)) {
     throw new Exception(`Invalid priority: ${priority}`);
   }
