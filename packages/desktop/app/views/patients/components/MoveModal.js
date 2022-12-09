@@ -17,7 +17,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     <Modal title="Move patient" open={open} onClose={onClose}>
       <Form
         initialValues={{
-          locationId: encounter.location.id,
           // Used in creation of associated notes
           submittedTime: getCurrentDateTimeString(),
         }}
