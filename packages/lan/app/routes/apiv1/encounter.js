@@ -284,6 +284,7 @@ encounterRelations.get(
             'dataElementId', answer.data_element_id,
             'name', MAX(pde.name),
             'config', MAX(ssc.config),
+            'componentIndex', MAX(ssc.component_index),
             'validationCriteria', MAX(ssc.validation_criteria),
             'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
         FROM
@@ -311,9 +312,10 @@ encounterRelations.get(
             body IS NOT NULL
           AND
             response.encounter_id = :encounterId
-          ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
+            ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
-        GROUP BY answer.data_element_id
+        GROUP BY answer.data_element_id,  ssc.component_index
+        ORDER BY ssc.component_index ASC
       `,
       {
         replacements: {
