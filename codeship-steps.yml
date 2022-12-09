@@ -105,7 +105,7 @@
             - name: onto nauru demo
               tag: ^(master$)
               service: awsdeployment
-              command: ./scripts/deploy_sync.sh demo-nauru tamanu-sync-server-demo-nauru
+              command: ./scripts/deploy_sync.sh demo-nauru tamanu-central-server-demo-nauru
             - name: onto klaus
               tag: ^(klaus-)
               service: awsdeployment
@@ -177,7 +177,7 @@
             - name: onto nauru demo
               tag: ^(master$)
               service: awsdeployment
-              command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
+              command: ./scripts/deploy_lan.sh demo-nauru tamanu-facility-server-demo-nauru
         - name: the meta server
           type: serial
           steps:
