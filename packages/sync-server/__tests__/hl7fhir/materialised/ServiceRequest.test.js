@@ -66,11 +66,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   describe('full resource checks', () => {
     let encounter;
     beforeEach(async () => {
-      const { Encounter, FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
+      const {
+        Encounter,
+        FhirServiceRequest,
+        ImagingRequest,
+        ImagingRequestArea,
+      } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
-      
+
       encounter = await Encounter.create(
         fake(Encounter, {
           patientId: resources.patient.id,
@@ -106,7 +111,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       // normalise for comparison
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
-      
+
       // assert
       expect(response.body).toMatchObject({
         resourceType: 'ServiceRequest',
@@ -175,6 +180,44 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         ],
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(ir.updatedAt)));
+      expect(response).toHaveSucceeded();
+    });
+
+    it('materialises the default priority if the source data has a null priority', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: encounter.id,
+          locationId: resources.location.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: null,
+          requestedDate: '2022-03-04 15:30:00',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'ServiceRequest',
+        id: expect.any(String),
+        identifier: [
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+            value: ir.id,
+          },
+        ],
+        priority: 'routine',
+      });
       expect(response).toHaveSucceeded();
     });
 
@@ -298,11 +341,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   describe('search', () => {
     let encounter, irs;
     beforeAll(async () => {
-      const { Encounter, FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
+      const {
+        Encounter,
+        FhirServiceRequest,
+        ImagingRequest,
+        ImagingRequestArea,
+      } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
-      
+
       encounter = await Encounter.create(
         fake(Encounter, {
           patientId: resources.patient.id,
