@@ -9,6 +9,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
+import { useVitalsSurvey } from '../api/queries';
 
 function unitDisplay(amount, config) {
   const { unit = '', rounding = 0, accessor } = config || {};
@@ -65,34 +66,39 @@ const useVitals = encounterId => {
     api.get(`encounter/${encounterId}/vitals`, { rowsPerPage: 50 }),
   );
 
+  const { data: vitalsSurvey } = useVitalsSurvey();
+
   let readings = [];
   let recordings = [];
   const data = query?.data?.data || [];
 
-  if (data.length > 0) {
+  if (data.length > 0 && vitalsSurvey) {
     // Use the Date answers as the list of recordings
     recordings = Object.keys(
       data.find(vital => vital.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded).records,
     );
-
-    readings = data
-      .filter(vital => vital.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .map(({ name, config, validationCriteria, records }) => ({
-        title: {
-          value: name,
-          ...rangeInfo(validationCriteria, config),
-        },
-        ...recordings.reduce((state, date) => {
-          const answer = records[date] || null;
-          return {
-            ...state,
-            [date]: {
-              value: unitDisplay(answer, config),
-              ...rangeAlert(answer, validationCriteria, config),
-            },
-          };
-        }, {}),
-      }));
+    const elementIdToAnswer = data.reduce((dict, a) => ({ ...dict, [a.dataElementId]: a }), {});
+    readings = vitalsSurvey.components
+      .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
+      .map(({ config, validationCriteria, dataElement }) => {
+        const { records = {} } = elementIdToAnswer[dataElement.id] || {};
+        return {
+          title: {
+            value: dataElement.name,
+            ...rangeInfo(validationCriteria, config),
+          },
+          ...recordings.reduce((state, date) => {
+            const answer = records[date];
+            return {
+              ...state,
+              [date]: {
+                value: unitDisplay(answer, config),
+                ...rangeAlert(answer, validationCriteria, config),
+              },
+            };
+          }, {}),
+        };
+      });
   }
 
   return { ...query, data: readings, recordings };
@@ -146,27 +152,24 @@ const VitalsHeadCellWrapper = styled.div`
   }
 `;
 
-const VitalsHeadCell = React.memo(({ date }) => {
-  return (
-    <TableTooltip placement="top" title={formatLong(date)}>
-      <VitalsHeadCellWrapper>
-        <div>{formatShortest(date)}</div>
-        <div>{formatTime(date)}</div>
-      </VitalsHeadCellWrapper>
-    </TableTooltip>
-  );
-});
+const VitalsHeadCell = React.memo(({ date }) => (
+  <TableTooltip title={formatLong(date)}>
+    <VitalsHeadCellWrapper>
+      <div>{formatShortest(date)}</div>
+      <div>{formatTime(date)}</div>
+    </VitalsHeadCellWrapper>
+  </TableTooltip>
+));
 
-const VitalsCell = React.memo(({ value, tooltip, severity }) => {
-  if (tooltip) {
-    return (
-      <TableTooltip placement="top" title={tooltip}>
-        <VitalsCellWrapper severity={severity}>{value}</VitalsCellWrapper>
-      </TableTooltip>
-    );
-  }
-  return <VitalsCellWrapper>{value}</VitalsCellWrapper>;
-});
+const VitalsCell = React.memo(({ value, tooltip, severity }) =>
+  tooltip ? (
+    <TableTooltip title={tooltip}>
+      <VitalsCellWrapper severity={severity}>{value}</VitalsCellWrapper>
+    </TableTooltip>
+  ) : (
+    <VitalsCellWrapper>{value}</VitalsCellWrapper>
+  ),
+);
 
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
