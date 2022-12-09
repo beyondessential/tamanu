@@ -63,7 +63,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   });
   afterAll(() => ctx.close());
 
-  describe('full resource checks', () => {
+  describe('materialise', () => {
     let encounter;
     beforeEach(async () => {
       const {
@@ -514,6 +514,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('filters by priority', async () => {
       const response = await app.get(
         `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
+      );
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('filters by category', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
       );
 
       expect(response.body.total).toBe(1);
