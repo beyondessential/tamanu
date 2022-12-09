@@ -521,13 +521,21 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it('filters by category', async () => {
+    it('filters by category (match)', async () => {
       const response = await app.get(
         `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005`,
       );
 
-      expect(response.body.total).toBe(1);
-      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+      expect(response.body.total).toBe(2);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('filters by category (no match)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679123`,
+      );
+
+      expect(response.body.total).toBe(0);
       expect(response).toHaveSucceeded();
     });
   });
