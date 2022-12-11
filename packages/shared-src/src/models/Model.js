@@ -109,15 +109,6 @@ export class Model extends sequelize.Model {
     });
   }
 
-  // list of callbacks to call after model is initialised
-  static afterInitCallbacks = [];
-
-  // adds a function to be called once model is initialised
-  // (useful for hooks and anything else that needs an initialised model)
-  static afterInit(fn) {
-    this.afterInitCallbacks.push(fn);
-  }
-
   static sanitizeForCentralServer(values) {
     // implement on the specific model if needed
     return values;
