@@ -197,12 +197,6 @@ export abstract class BaseModel extends BaseEntity {
     return instance.save();
   }
 
-  static async filterExportRecords(ids: string[]) {
-    return ids;
-  }
-
-  static async postExportCleanUp() {}
-
   static syncDirection = null;
 
   static uploadLimit = 100;
