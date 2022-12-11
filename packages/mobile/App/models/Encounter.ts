@@ -162,9 +162,22 @@ export class Encounter extends BaseModel implements IEncounter {
     const defaultDepartment = await Department.findOne({
       where: { facility: { id: facilityId } },
     });
+
+    if (!defaultDepartment) {
+      throw new Error(
+        `No default Department is configured for facility: ${facilityId}. You need to update the Department reference data.`,
+      );
+    }
+
     const defaultLocation = await Location.findOne({
       where: { facility: { id: facilityId } },
     });
+
+    if (!defaultLocation) {
+      throw new Error(
+        `No default Location is configured for facility: ${facilityId}. You need to update the Location reference data.`,
+      );
+    }
 
     return Encounter.createAndSaveOne({
       patient: patientId,

@@ -7,6 +7,7 @@ import { VitalsTableTitle } from './VitalsTableTitle';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '/components/ErrorScreen';
+import { VitalsDataElements } from '/helpers/constants';
 
 interface VitalsTableProps {
   data: PatientVitalsProps[];
@@ -24,11 +25,16 @@ export const VitalsTable: React.FC<VitalsTableProps> = memo(({ data, columns }) 
     return <ErrorScreen error={error} />;
   }
 
+  // Date is the column so remove it from rows
+  const rows = vitalsSurvey.components.filter(
+    c => c.dataElementId !== VitalsDataElements.dateRecorded,
+  );
+
   return (
     <Table
       Title={VitalsTableTitle}
       tableHeader={vitalsTableHeader}
-      rows={vitalsTableRows(vitalsSurvey.components)}
+      rows={vitalsTableRows(rows)}
       columns={columns}
       cells={data}
     />
