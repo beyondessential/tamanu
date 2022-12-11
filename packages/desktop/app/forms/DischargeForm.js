@@ -20,6 +20,7 @@ import {
   CheckField,
   StyledTextField,
   LocalisedField,
+  getLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
@@ -312,6 +313,11 @@ export const DischargeForm = ({
           .object()
           .shape({
             dischargerId: foreignKey('Discharging physician is a required field'),
+          })
+          .shape({
+            dispositionId: getLocalisedSchema(getLocalisation, {
+              name: 'dischargeDisposition',
+            }),
           })
           .required(),
       })}
