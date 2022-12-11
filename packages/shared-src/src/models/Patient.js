@@ -2,6 +2,7 @@ import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -38,6 +39,7 @@ export class Patient extends Model {
         ],
       },
     );
+    onSaveMarkPatientForSync(this, 'id');
   }
 
   static initRelations(models) {

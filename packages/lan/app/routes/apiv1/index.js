@@ -23,6 +23,7 @@ import { medication } from './medication';
 import { notePages } from './note';
 import { ongoingCondition } from './ongoingCondition';
 import { patient, patientCarePlan, patientIssue, patientFieldDefinition } from './patient';
+import { patientFacility } from './patientFacility';
 import { procedure } from './procedure';
 import { program } from './program';
 import { referenceData } from './referenceData';
@@ -101,3 +102,4 @@ referenceDataRoutes.use('/user', user);
 // sync endpoints
 syncRoutes.use('/sync', sync);
 syncRoutes.use('/syncHealth', syncHealth);
+syncRoutes.use('/patientFacility', patientFacility);
