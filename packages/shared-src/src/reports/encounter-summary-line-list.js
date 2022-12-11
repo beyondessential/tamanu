@@ -241,21 +241,29 @@ with
         ),
         '; '
         ORDER BY nh.date
-      ) place_history,
+      ) place_history
+    from note_history nh
+    join encounters e on nh.encounter_id = e.id
+    join first_from_table fft on nh.encounter_id = fft.encounter_id and fft.place = nh.place
+    group by e.id, e.start_date, nh.place
+  ),
+  all_place_ids as (
+    select
+      e.id encounter_id,
+      nh.place,
       jsonb_build_array(
         case when nh.place = 'location' then e.location_id else e.department_id end) 
         || jsonb_agg(case when nh.place = 'location' then coalesce(lg.id, l.id) else d.id end
       ) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
       join lateral (
-        select regexp_matches(nh."from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches -- note that the double \\ escape the single backslash in the regex.
+        select regexp_matches(nh."from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches
       ) as location_matches on true
     join encounters e on nh.encounter_id = e.id
     left join departments d on d.name = "from"
     left join location_groups lg on lg.name = location_matches[1]
     left join locations l on l.name = location_matches[2]
-    join first_from_table fft on nh.encounter_id = fft.encounter_id and fft.place = nh.place
-    group by e.id, e.start_date, nh.place
+    group by e.id, nh.place
   ),
   place_info as (
     select
@@ -278,6 +286,7 @@ with
     left join location_groups lg on l.location_group_id = lg.id
     left join departments d on d.id = e.department_id
     left join place_history_if_changed ph on ph.encounter_id = e.id and ph.place = places.column1
+    left join all_place_ids place_ids on place_ids.encounter_id = e.id and place_ids.place = places.column1
   ),
   triage_info as (
     select
