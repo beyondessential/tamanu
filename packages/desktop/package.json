@@ -207,7 +207,6 @@
     "cheerio": "^1.0.0-rc.10",
     "classnames": "^2.2.5",
     "connected-react-router": "^6.5.2",
-    "convert": "^4.7.0",
     "date-fns": "^2.25.0",
     "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
