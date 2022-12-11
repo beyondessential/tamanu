@@ -41,6 +41,9 @@ import { user } from './user';
 import { vitals } from './vitals';
 
 export const apiv1 = express.Router();
+const patientDataRoutes = express.Router();
+const referenceDataRoutes = express.Router();
+const syncRoutes = express.Router();
 
 // auth endpoints (added pre auth check)
 apiv1.post('/login', loginHandler);
@@ -50,47 +53,51 @@ apiv1.use('/changePassword', changePassword);
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 
-// patient data endpoints
-apiv1.use('/allergy', allergy);
-apiv1.use('/appointments', appointments);
-apiv1.use('/diagnosis', diagnosis);
-apiv1.use('/encounter', encounter);
-apiv1.use('/familyHistory', familyHistory);
-apiv1.use('/imagingRequest', imagingRequest);
-apiv1.use('/invoices', invoices);
-apiv1.use('/labRequest', labRequest);
-apiv1.use('/labTest', labTest);
-apiv1.use('/medication', medication);
-apiv1.use('/notePages', notePages);
-apiv1.use('/ongoingCondition', ongoingCondition);
-apiv1.use('/patient', patient);
-apiv1.use('/patientCarePlan', patientCarePlan);
-apiv1.use('/patientIssue', patientIssue);
-apiv1.use('/procedure', procedure);
-apiv1.use('/referral', referral);
-apiv1.use('/surveyResponse', surveyResponse);
-apiv1.use('/triage', triage);
-apiv1.use('/vitals', vitals);
+apiv1.use(patientDataRoutes); // see below for specifics
+apiv1.use(referenceDataRoutes); // see below for specifics
+apiv1.use(syncRoutes); // see below for specifics
 
-// system/reference data endpoints
-apiv1.use('/asset', asset);
-apiv1.use('/attachment', attachment);
-apiv1.use('/certificateNotification', certificateNotification);
-apiv1.use('/department', department);
-apiv1.use('/invoiceLineTypes', invoiceLineTypes);
-apiv1.use('/labRequestLog', labRequestLog);
-apiv1.use('/location', location);
-apiv1.use('/locationGroup', locationGroup);
-apiv1.use('/patientFieldDefinition', patientFieldDefinition);
-apiv1.use('/program', program);
-apiv1.use('/referenceData', referenceData);
-apiv1.use('/reportRequest', reportRequest);
-apiv1.use('/reports', reports);
-apiv1.use('/scheduledVaccine', scheduledVaccine);
-apiv1.use('/suggestions', suggestions);
-apiv1.use('/survey', survey);
-apiv1.use('/user', user);
+// patient data endpoints
+patientDataRoutes.use('/allergy', allergy);
+patientDataRoutes.use('/appointments', appointments);
+patientDataRoutes.use('/diagnosis', diagnosis);
+patientDataRoutes.use('/encounter', encounter);
+patientDataRoutes.use('/familyHistory', familyHistory);
+patientDataRoutes.use('/imagingRequest', imagingRequest);
+patientDataRoutes.use('/invoices', invoices);
+patientDataRoutes.use('/labRequest', labRequest);
+patientDataRoutes.use('/labTest', labTest);
+patientDataRoutes.use('/medication', medication);
+patientDataRoutes.use('/notePages', notePages);
+patientDataRoutes.use('/ongoingCondition', ongoingCondition);
+patientDataRoutes.use('/patient', patient);
+patientDataRoutes.use('/patientCarePlan', patientCarePlan);
+patientDataRoutes.use('/patientIssue', patientIssue);
+patientDataRoutes.use('/procedure', procedure);
+patientDataRoutes.use('/referral', referral);
+patientDataRoutes.use('/surveyResponse', surveyResponse);
+patientDataRoutes.use('/triage', triage);
+patientDataRoutes.use('/vitals', vitals);
+
+// reference data endpoints
+referenceDataRoutes.use('/asset', asset);
+referenceDataRoutes.use('/attachment', attachment);
+referenceDataRoutes.use('/certificateNotification', certificateNotification);
+referenceDataRoutes.use('/department', department);
+referenceDataRoutes.use('/invoiceLineTypes', invoiceLineTypes);
+referenceDataRoutes.use('/labRequestLog', labRequestLog);
+referenceDataRoutes.use('/location', location);
+referenceDataRoutes.use('/locationGroup', locationGroup);
+referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
+referenceDataRoutes.use('/program', program);
+referenceDataRoutes.use('/referenceData', referenceData);
+referenceDataRoutes.use('/reportRequest', reportRequest);
+referenceDataRoutes.use('/reports', reports);
+referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
+referenceDataRoutes.use('/suggestions', suggestions);
+referenceDataRoutes.use('/survey', survey);
+referenceDataRoutes.use('/user', user);
 
 // sync endpoints
-apiv1.use('/sync', sync);
-apiv1.use('/syncHealth', syncHealth);
+syncRoutes.use('/sync', sync);
+syncRoutes.use('/syncHealth', syncHealth);
