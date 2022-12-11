@@ -19,8 +19,6 @@ import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 
-const { serverFacilityId } = config;
-
 const patientRoute = express.Router();
 
 patientRoute.get(
