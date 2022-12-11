@@ -13,8 +13,10 @@ const FIELDS = [
   'Encounter ID',
   'Encounter start date',
   'Encounter end date',
+  'Discharge Disposition',
   'Encounter type',
   'Triage category',
+  'Arrival Mode',
   {
     title: 'Time seen following triage/Wait time (hh:mm)',
     accessor: data => data.waitTimeFollowingTriage,
@@ -181,7 +183,7 @@ with
           'Note type', note_type,
           'Content', "content",
           'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        ) order by ni.date desc
+        ) order by ni.date asc
       ) "Notes"
     from note_pages np
     join note_items ni on ni.note_page_id = np.id
@@ -208,8 +210,24 @@ with
     where note_type = 'system'
     and ni.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
+  first_from_table as (
+    select
+      encounter_id,
+      place,
+      max(first_from) first_from
+    from (
+      select
+        *,
+        first_value("from") over (
+            partition by encounter_id, place
+            order by nh2."date"
+        ) first_from
+      from note_history nh2
+    ) first_from_table
+    group by encounter_id, place
+  ),
   place_history_if_changed as (
-    select 
+    select
       e.id encounter_id,
       nh.place,
       concat(
@@ -229,27 +247,14 @@ with
         || jsonb_agg(case when nh.place = 'location' then coalesce(lg.id, l.id) else d.id end
       ) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
+      join lateral (
+        select regexp_matches(nh."from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches -- note that the double \\ escape the single backslash in the regex.
+      ) as location_matches on true
     join encounters e on nh.encounter_id = e.id
     left join departments d on d.name = "from"
-    join (
-      select
-        encounter_id,
-        regexp_matches("from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches
-      from note_history nh3
-    ) location_matches
-    on location_matches.encounter_id = nh.encounter_id
     left join location_groups lg on lg.name = location_matches[1]
     left join locations l on l.name = location_matches[2]
-    join (
-    	select
-    		encounter_id,
-    		place,
-    		first_value("from") over(
-    			partition by encounter_id, place
-    			order by nh2."date"
-    		) first_from
-    	from note_history nh2
-    ) first_val_table on nh.encounter_id = first_val_table.encounter_id and first_val_table.place = nh.place
+    join first_from_table fft on nh.encounter_id = fft.encounter_id and fft.place = nh.place
     group by e.id, e.start_date, nh.place
   ),
   place_info as (
@@ -300,6 +305,7 @@ select
   e.id "Encounter ID",
   to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter start date",
   to_char(e.end_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter end date",
+  discharge_disposition.name "Discharge Disposition",
   case e.encounter_type
     when 'triage' then  'Triage'
     when 'observation' then  'Active ED patient'
@@ -311,6 +317,7 @@ select
     else e.encounter_type
   end "Encounter type",
   t.score "Triage category",
+  arrival_mode.name "Arrival Mode",
   ti."waitTimeFollowingTriage",
   di2.place_history "Department",
   li.place_history "Location",
@@ -332,10 +339,13 @@ left join procedure_info pi on e.id = pi.encounter_id
 left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
-left join triages t on t.encounter_id = e.id
 left join triage_info ti on ti.encounter_id = e.id
 left join place_info li on li.encounter_id = e.id and li.place = 'location'
 left join place_info di2 on di2.encounter_id = e.id and di2.place = 'department'
+left join discharges discharge on discharge.encounter_id = e.id
+left join reference_data discharge_disposition on discharge_disposition.id = discharge.disposition_id
+left join triages t on t.encounter_id = e.id
+left join reference_data arrival_mode on arrival_mode.id = t.arrival_mode_id
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end 

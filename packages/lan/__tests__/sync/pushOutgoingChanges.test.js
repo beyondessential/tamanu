@@ -9,7 +9,7 @@ const limitConfig = fc.record({
   minLimit: fc.integer({ min: 1, max: 999 }),
   maxLimit: fc.integer({ min: 1000, max: 100000 }),
   optimalTimePerPageMs: fc.integer({ min: 50, max: 10000 }),
-  maxLimitChangePerPage: fc.double({ min: 0.1, max: 0.9 }),
+  maxLimitChangePerPage: fc.double({ min: 0.1, max: 0.9, noNaN: true }),
 });
 
 describe('pushOutgoingChanges', () => {

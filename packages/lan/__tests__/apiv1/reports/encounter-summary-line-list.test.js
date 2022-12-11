@@ -27,11 +27,27 @@ const fakeAllData = async models => {
   const { id: location1Id } = await models.Location.create(
     fake(models.Location, { facilityId, locationGroupId, name: 'Emergency room 1' }),
   );
-  const { id: location2Id } = await models.Location.create(
+
+  const { id: location21Id } = await models.Location.create(
     fake(models.Location, {
       facilityId,
       locationGroupId: decoyLocationGroupId,
-      name: 'Emergency room 2',
+      name: 'Emergency room 2 - bed 1',
+    }),
+  );
+
+  const { id: location22Id } = await models.Location.create(
+    fake(models.Location, {
+      facilityId,
+      locationGroupId: decoyLocationGroupId,
+      name: 'Emergency room 2 - bed 2',
+    }),
+  );
+
+  const { id: arrivalModeId } = await models.ReferenceData.create(
+    fake(models.ReferenceData, {
+      type: REFERENCE_TYPES.ARRIVAL_MODE,
+      name: 'Wheelchair',
     }),
   );
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
@@ -128,7 +144,7 @@ const fakeAllData = async models => {
       reasonForEncounter: 'Severe Migrane',
       examinerId: userId,
       patientBillingTypeId,
-      locationId: location2Id,
+      locationId: location21Id,
       departmentId,
     }),
   );
@@ -151,6 +167,7 @@ const fakeAllData = async models => {
     fake(models.Triage, {
       encounterId,
       score: 2,
+      arrivalModeId,
       triageTime: '2022-06-09 02:04:54',
       closedTime: '2022-06-09 03:07:54',
     }),
@@ -306,21 +323,13 @@ const fakeAllData = async models => {
   // Location/departments:
   const encounter = await models.Encounter.findByPk(encounterId);
   await encounter.update({
-    locationId: location2Id,
+    locationId: location21Id,
+    submittedTime: '2022-06-09 08:04:54',
   });
-
-  const { id: resultantNotePageId } = await models.NotePage.findOne({
-    where: {
-      noteType: NOTE_TYPES.SYSTEM,
-    },
+  await encounter.update({
+    locationId: location22Id,
+    submittedTime: '2022-06-09 08:06:54',
   });
-  const systemNoteItem = await models.NoteItem.findOne({
-    where: {
-      notePageId: resultantNotePageId,
-    },
-  });
-  systemNoteItem.date = '2022-06-09 08:04:54';
-  await systemNoteItem.save();
 
   return { patient, encounterId, locationGroupId };
 };
@@ -362,12 +371,14 @@ describe('Encounter summary line list report', () => {
         'Encounter ID': encounterId,
         'Encounter start date': '09-06-2022 12:02 AM',
         'Encounter end date': '12-06-2022 12:02 AM',
+        'Discharge Disposition': 'Transfer to another facility',
         'Encounter type': 'Hospital admission',
         'Triage category': '2',
+        'Arrival Mode': 'Wheelchair',
         'Time seen following triage/Wait time (hh:mm)': '1:3',
         Department: 'Emergency dept., Assigned time: 09-06-2022 12:02 AM',
         Location:
-          'Emergency area 1, Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Emergency area 2, Emergency room 2, Assigned time: 09-06-2022 08:04 AM',
+          'Emergency area 1, Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Emergency area 2, Emergency room 2 - bed 1, Assigned time: 09-06-2022 08:04 AM; Emergency area 2, Emergency room 2 - bed 2, Assigned time: 09-06-2022 08:06 AM',
         'Reason for encounter': 'Severe Migrane',
         Diagnosis:
           'Acute subdural hematoma, Is primary?: primary, Certainty: confirmed; Acute subdural hematoma, Is primary?: secondary, Certainty: suspected',
@@ -380,7 +391,7 @@ describe('Encounter summary line list report', () => {
         'Imaging requests':
           'xRay, Areas to be imaged: Left Leg; Right Leg, Notes: Note type: other, Content: Check for fractured knees please, Note date: 10-06-2022 06:04 AM',
         Notes:
-          'Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 10-06-2022 04:39 AM; Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 10-06-2022 03:39 AM',
+          'Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 10-06-2022 03:39 AM; Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 10-06-2022 04:39 AM',
       },
     ]);
   });

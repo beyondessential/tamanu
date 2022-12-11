@@ -23,7 +23,7 @@ export function buildSearchQuery(query, parameters, FhirResource) {
   };
 
   if (query.has('_sort')) {
-    const ordering = [];
+    let ordering = [];
     for (const { order, by } of query.get('_sort').flatMap(v => v.value)) {
       const def = parameters.get(by);
       if (def.path.length === 0) continue;
@@ -33,7 +33,7 @@ export function buildSearchQuery(query, parameters, FhirResource) {
         return singleOrder(resolvedPath, order, def, FhirResource);
       });
 
-      ordering.push(...alternates);
+      ordering = ordering.concat(alternates);
     }
     sql.order = ordering;
   }

@@ -8,6 +8,7 @@ import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
@@ -15,15 +16,19 @@ import {
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
-  FhirIdentifier,
-  FhirPeriod,
   FhirAddress,
-  FhirCoding,
+  FhirAnnotation,
   FhirCodeableConcept,
+  FhirCoding,
   FhirContactPoint,
   FhirHumanName,
+  FhirIdentifier,
   FhirPatientLink,
+  FhirPeriod,
   FhirReference,
+  FhirExtension,
+  FhirImmunizationPerformer,
+  FhirImmunizationProtocolApplied,
 } from '../services/fhirTypes';
 
 const chance = new Chance();
@@ -195,13 +200,14 @@ export function fakeEncounterMedication(prefix = 'test-') {
   };
 }
 
-const fakeDate = () => new Date(random(0, Date.now()));
-const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
-const fakeDateTimeString = () => toDateTimeString(fakeDate());
-const fakeDateString = () => toDateString(fakeDate());
-const fakeInt = () => random(0, 10);
-const fakeFloat = () => Math.random() * 1000;
-const fakeBool = () => sample([true, false]);
+export const fakeDate = () => new Date(random(0, Date.now()));
+export const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+export const fakeDateTimeString = () => toDateTimeString(fakeDate());
+export const fakeDateString = () => toDateString(fakeDate());
+export const fakeInt = () => random(0, 10);
+export const fakeFloat = () => Math.random() * 1000;
+export const fakeBool = () => sample([true, false]);
+
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
@@ -228,15 +234,19 @@ const FIELD_HANDLERS = {
   ENUM: (model, { type }) => sample(type.values),
   UUID: () => fakeUUID(),
 
-  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
-  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
   FHIR_ADDRESS: (...args) => FhirAddress.fake(...args),
-  FHIR_CODING: (...args) => FhirCoding.fake(...args),
+  FHIR_ANNOTATION: (...args) => FhirAnnotation.fake(...args),
   FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
+  FHIR_CODING: (...args) => FhirCoding.fake(...args),
   FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
   FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
+  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
   FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
+  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
   FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
+  FHIR_EXTENSION: (...args) => FhirExtension.fake(...args),
+  FHIR_IMMUNIZATION_PERFORMER: (...args) => FhirImmunizationPerformer.fake(...args),
+  FHIR_IMMUNIZATION_PROTOCOL_APPLIED: (...args) => FhirImmunizationProtocolApplied.fake(...args),
 };
 
 const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
@@ -340,6 +350,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
     // It will be fixed properly as part of EPI-160
     id: undefined,
+    noteType: chance.pickone(NOTE_TYPE_VALUES),
   }),
   NoteItem: () => ({
     id: undefined,

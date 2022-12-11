@@ -100,7 +100,9 @@ function pct(part, total) {
     )}%)`,
   );
   if (total.style > 0) {
-    console.log(`- **${total.style} style errors** (run \`yarn lint-fix\` to solve)`);
+    console.log(`- **${total.style} style errors**
+  - Either run \`yarn lint-fix\` locally, or:
+  - Say \`!lint-fix\` in a comment to have the bot fix them for you`);
   }
   if (total.lint > 0) {
     console.log(`- **${total.lint} code errors** (detail below)`);

@@ -14,12 +14,12 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
     recordTypesToTables[r] = Utils.pluralize(snake(r));
   });
 
-  const joins = NOTE_RECORD_TYPE_VALUES.filter(r => r !== NOTE_RECORD_TYPES.PATIENT).map(
+  let joins = NOTE_RECORD_TYPE_VALUES.filter(r => r !== NOTE_RECORD_TYPES.PATIENT).map(
     r =>
       `LEFT JOIN ${recordTypesToTables[r]} ON note_pages.record_id = ${recordTypesToTables[r]}.id AND note_pages.record_type = '${r}'`,
   );
-  joins.push(
-    ...recordTypesWithPatientViaEncounter.map(
+  joins = joins.concat(
+    recordTypesWithPatientViaEncounter.map(
       r =>
         `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${recordTypesToTables[r]}.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
     ),

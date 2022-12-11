@@ -19,8 +19,11 @@ export const tasks = async ({ skipMigrationCheck }) => {
     process.once(sig, () => {
       log.info(`Received ${sig}, stopping scheduled tasks`);
       stopScheduledTasks();
+      context.close();
     });
   }
+
+  await context.waitForClose();
 };
 
 export const tasksCommand = new Command('tasks')
