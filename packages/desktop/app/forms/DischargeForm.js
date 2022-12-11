@@ -19,6 +19,7 @@ import {
   TextField,
   CheckField,
   StyledTextField,
+  LocalisedField,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
@@ -220,7 +221,6 @@ export const DischargeForm = ({
   const [dischargeNotePages, setDischargeNotePages] = useState([]);
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const dischargeDisposition = Boolean(getLocalisation('features.enableDischargeDisposition'));
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
@@ -266,14 +266,12 @@ export const DischargeForm = ({
           suggester={practitionerSuggester}
           required
         />
-        {dischargeDisposition && (
-          <Field
-            name="discharge.dispositionId"
-            label="Discharge disposition"
-            component={AutocompleteField}
-            suggester={dispositionSuggester}
-          />
-        )}
+        <LocalisedField
+          name="discharge.dispositionId"
+          path="fields.dischargeDisposition"
+          component={AutocompleteField}
+          suggester={dispositionSuggester}
+        />
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>
