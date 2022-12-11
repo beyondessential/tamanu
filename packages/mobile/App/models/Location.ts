@@ -39,23 +39,4 @@ export class Location extends BaseModel implements ILocation {
     administeredVaccine => administeredVaccine.location,
   )
   administeredVaccines: AdministeredVaccine[];
-
-  static async getOrCreateDefaultLocation(): Promise<Location> {
-    const repo = this.getRepository();
-    const facilityId = await readConfig('facilityId', '');
-
-    const defaultLocation = await repo.findOne({
-      where: { facility: { id: facilityId } },
-    });
-
-    if (defaultLocation) {
-      return defaultLocation;
-    }
-
-    return Location.createAndSaveOne({
-      code: 'GeneralClinic',
-      name: 'General Clinic',
-      facilityId,
-    });
-  }
 }
