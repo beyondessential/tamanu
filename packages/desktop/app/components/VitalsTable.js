@@ -66,7 +66,8 @@ const useVitals = encounterId => {
     api.get(`encounter/${encounterId}/vitals`, { rowsPerPage: 50 }),
   );
 
-  const { data: vitalsSurvey } = useVitalsSurvey();
+  const { data: vitalsSurvey, error: vitalsError } = useVitalsSurvey();
+  const error = query.error || vitalsError;
 
   let readings = [];
   let recordings = [];
@@ -101,7 +102,12 @@ const useVitals = encounterId => {
       });
   }
 
-  return { ...query, data: readings, recordings };
+  return {
+    ...query,
+    data: readings,
+    recordings,
+    error,
+  };
 };
 
 const StyledTable = styled(Table)`
