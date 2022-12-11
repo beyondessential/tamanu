@@ -10,15 +10,15 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
 
-function unitDisplay(amount, config) {
-  const { unit = '', rounding = 0, accessor } = config || {};
+function valueDisplay(amount, config) {
+  const { rounding = 0, accessor } = config || {};
   if (!amount) return '-';
   if (typeof accessor === 'function') {
     return accessor({ amount });
   }
 
   if (parseFloat(amount)) {
-    return `${parseFloat(amount).toFixed(rounding)}${unit}`;
+    return parseFloat(amount).toFixed(rounding);
   }
   if (typeof amount === 'string') {
     return capitaliseFirstLetter(amount);
@@ -87,7 +87,7 @@ const useVitals = encounterId => {
           return {
             ...state,
             [date]: {
-              value: unitDisplay(answer, config),
+              value: valueDisplay(answer, config),
               ...rangeAlert(answer, validationCriteria, config),
             },
           };
@@ -107,13 +107,12 @@ const StyledTable = styled(Table)`
       position: sticky;
       z-index: 1;
       border-right: 1px solid ${Colors.outline};
-      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25);
-      clip-path: inset(0px -5px 0px 0px);
-      min-width: 160px;
     }
 
     thead tr th:first-child {
       background: ${Colors.background};
+      width: 160px;
+      min-width: 160px;
     }
 
     tbody tr td:first-child {
@@ -138,6 +137,7 @@ const VitalsCellWrapper = styled.div`
 
 const VitalsHeadCellWrapper = styled.div`
   display: block;
+  width: fit-content;
   div {
     color: ${Colors.midText};
     :first-child {
