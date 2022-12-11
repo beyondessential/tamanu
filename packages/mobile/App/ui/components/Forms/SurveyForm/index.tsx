@@ -54,7 +54,7 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setFieldValue }): ReactElement => {
+      {({ values, setFieldValue, errors }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -64,7 +64,15 @@ export const SurveyForm = ({
             .filter(([k, v]) => values[k] !== v)
             .map(([k, v]) => setFieldValue(k, v));
         }, [values]);
-        return <FormFields components={components} values={values} note={note} patient={patient} />;
+        return (
+          <FormFields
+            components={components}
+            values={values}
+            note={note}
+            patient={patient}
+            errors={errors}
+          />
+        );
       }}
     </Form>
   );
