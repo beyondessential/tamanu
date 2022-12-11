@@ -13,11 +13,18 @@ import { MATCH_ANY } from '../../toMatchTabularReport';
 const fakeAllData = async models => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: facilityId } = await models.Facility.create(fake(models.Facility));
+  const { id: decoyFacilityId } = await models.Facility.create(fake(models.Facility));
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
+
   const { id: locationGroupId } = await models.LocationGroup.create(
     fake(models.LocationGroup, { facilityId, name: 'Emergency area 1' }),
+  );
+
+  // Decoy location group
+  await models.LocationGroup.create(
+    fake(models.LocationGroup, { facilityId: decoyFacilityId, name: 'Emergency area 1' }),
   );
 
   const { id: decoyLocationGroupId } = await models.LocationGroup.create(
