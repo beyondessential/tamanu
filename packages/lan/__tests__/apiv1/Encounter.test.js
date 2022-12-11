@@ -697,27 +697,6 @@ describe('Encounter', () => {
       let vitalsEncounter = null;
       let vitalsPatient = null;
 
-      const configs = {
-        'pde-PatientVitalsHeartRate': {
-          unit: 'bpm',
-        },
-        'pde-PatientVitalsHeight': {
-          unit: 'cm',
-        },
-        'pde-PatientVitalsWeight': {
-          unit: 'kg',
-        },
-      };
-
-      const validationCriteria = {
-        'pde-PatientVitalsHeartRate': {
-          normalRange: {
-            min: 0,
-            max: 200,
-          },
-        },
-      };
-
       beforeAll(async () => {
         // The original patient may or may not have a current encounter
         // So let's create a specific one for vitals testing
@@ -744,18 +723,14 @@ describe('Encounter', () => {
             {
               name: 'PatientVitalsWeight',
               type: 'Number',
-              config: JSON.stringify(configs['pde-PatientVitalsWeight']),
             },
             {
               name: 'PatientVitalsHeight',
               type: 'Number',
-              config: JSON.stringify(configs['pde-PatientVitalsHeight']),
             },
             {
               name: 'PatientVitalsHeartRate',
               type: 'Number',
-              config: JSON.stringify(configs['pde-PatientVitalsHeartRate']),
-              validationCriteria: JSON.stringify(validationCriteria['pde-PatientVitalsHeartRate']),
             },
           ],
         });
@@ -806,8 +781,6 @@ describe('Encounter', () => {
             Object.entries(answers).map(([key, value]) =>
               expect.objectContaining({
                 dataElementId: key,
-                config: configs[key] || null,
-                validationCriteria: validationCriteria[key] || null,
                 records: {
                   [submissionDate]: value.toString(),
                 },
