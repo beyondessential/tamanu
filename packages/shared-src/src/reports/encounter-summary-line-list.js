@@ -22,7 +22,9 @@ const FIELDS = [
     accessor: data => data.waitTimeFollowingTriage,
   },
   'Department',
+  'Assigned Department',
   'Location',
+  'Assigned Location',
   'Reason for encounter',
   'Diagnosis',
   'Medications',
@@ -230,18 +232,16 @@ with
     select
       e.id encounter_id,
       nh.place,
-      concat(
-        max(first_from), --first "from" from note
-        ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+      max(first_from) || '; ' || string_agg("to", '; ' ORDER BY nh.date) place_history,
+      concat('Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
       ) || '; ' ||
       string_agg(
         concat(
-          "to",
-          ', Assigned time: ', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+          'Assigned time: ', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ),
         '; '
         ORDER BY nh.date
-      ) place_history
+      ) assigned_time_history
     from note_history nh
     join encounters e on nh.encounter_id = e.id
     join first_from_table fft on nh.encounter_id = fft.encounter_id and fft.place = nh.place
@@ -271,11 +271,12 @@ with
       places.column1 place,
       coalesce(
         place_history,
-        concat(
-          case when places.column1 = 'location' then concat(case when lg.name is not null then (lg.name || ', ') else '' end, l.name) else d.name end,
-          ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        )
+        case when places.column1 = 'location' then concat(case when lg.name is not null then (lg.name || ', ') else '' end, l.name) else d.name end
       ) place_history,
+      coalesce(
+        assigned_time_history,
+        concat('Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM'))
+      ) assigned_time_history,
       coalesce(
         place_id_list,
         jsonb_build_array(case when places.column1 = 'location' then l.id else d.id end)
@@ -329,7 +330,9 @@ select
   arrival_mode.name "Arrival Mode",
   ti."waitTimeFollowingTriage",
   di2.place_history "Department",
+  di2.assigned_time_history "Assigned Department",
   li.place_history "Location",
+  li.assigned_time_history "Assigned Location",
   e.reason_for_encounter "Reason for encounter",
   di."Diagnosis",
   mi."Medications",
