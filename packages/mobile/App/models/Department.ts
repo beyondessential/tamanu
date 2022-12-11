@@ -6,7 +6,6 @@ import { Facility } from './Facility';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
-import { readConfig } from '~/services/config';
 
 @Entity('department')
 export class Department extends BaseModel implements IDepartment {
