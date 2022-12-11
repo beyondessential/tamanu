@@ -15,16 +15,21 @@ export const LocalisedField = ({ name, path = `fields.${name}`, defaultLabel, ..
   return <Field label={label} name={name} required={required} {...props} />;
 };
 
-export const getLocalisedSchema = (getLocalisation, { name, path = `fields.${name}` }) => {
-  const hidden = getLocalisation(`${path}.hidden`);
-  const label = getLocalisation(`${path}.longLabel`) || path;
-  const required = getLocalisation(`${path}.required`) || false;
+export const useLocalisedSchema = () => {
+  const { getLocalisation } = useLocalisation();
+  return {
+    getLocalisedSchema: ({ name, path = `fields.${name}` }) => {
+      const hidden = getLocalisation(`${path}.hidden`);
+      const label = getLocalisation(`${path}.longLabel`) || path;
+      const required = getLocalisation(`${path}.required`) || false;
 
-  if (hidden) {
-    return yup.string().nullable();
-  }
-  if (required) {
-    return yup.string().required(`${label} is a required field`);
-  }
-  return yup.string();
+      if (hidden) {
+        return yup.string().nullable();
+      }
+      if (required) {
+        return yup.string().required(`${label} is a required field`);
+      }
+      return yup.string();
+    },
+  };
 };
