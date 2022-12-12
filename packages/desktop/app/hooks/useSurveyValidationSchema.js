@@ -19,7 +19,8 @@ export const useSurveyValidationSchema = surveyData => {
     const { components } = surveyData;
     const schema = components.reduce(
       (acc, { dataElement, validationCriteria, text: componentText }) => {
-        const { min, max, mandatory } = parseJSONColumn(validationCriteria) || {};
+        const { min, max, mandatory } =
+          parseJSONColumn(validationCriteria) || validationCriteria || {};
         const { id, type, defaultText } = dataElement;
         const text = componentText || defaultText;
         switch (type) {
