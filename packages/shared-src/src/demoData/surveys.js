@@ -12,9 +12,14 @@
  */
 export async function setupSurveyFromObject(models, input) {
   const { id: programId, ...programOverrides } = input?.program;
-  const existingProgram = await models.Program.findOne({ id: programId });
-  if (!existingProgram) {
-    await models.Program.create({
+  let program;
+  program = await models.Program.findOne({
+    where: {
+      id: programId,
+    },
+  });
+  if (!program) {
+    program = await models.Program.create({
       id: programId,
       ...programOverrides,
     });
@@ -28,7 +33,7 @@ export async function setupSurveyFromObject(models, input) {
     ...surveyOverrides,
   });
 
-  await models.ProgramDataElement.bulkCreate(
+  const dataElements = await models.ProgramDataElement.bulkCreate(
     input?.questions.map(({ name, type, ...overrides }) => ({
       name,
       type,
@@ -38,7 +43,7 @@ export async function setupSurveyFromObject(models, input) {
     })),
   );
 
-  await models.SurveyScreenComponent.bulkCreate(
+  const components = await models.SurveyScreenComponent.bulkCreate(
     input?.questions.map(({ name, id, config, validationCriteria }) => ({
       dataElementId: id || `pde-${name}`,
       surveyId: survey.id,
@@ -46,4 +51,10 @@ export async function setupSurveyFromObject(models, input) {
       validationCriteria,
     })),
   );
+  return {
+    survey,
+    dataElements,
+    components,
+    program,
+  };
 }
