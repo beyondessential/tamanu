@@ -14,7 +14,9 @@ const FIELDS = [
   'Encounter start date',
   'Encounter end date',
   'Discharge Disposition',
-  'Encounter type',
+  'Triage Encounter',
+  'Inpatient Encounter',
+  'Outpatient Encounter',
   'Triage category',
   'Arrival Mode',
   {
@@ -195,7 +197,7 @@ with
   note_history as (
     select
       record_id encounter_id,
-      matched_vals[1] place,
+      matched_vals[1] change_type,
       matched_vals[2] "from",
       matched_vals[3] "to",
       ni.date,
@@ -215,23 +217,23 @@ with
   first_from_table as (
     select
       encounter_id,
-      place,
+      change_type,
       max(first_from) first_from
     from (
       select
         *,
         first_value("from") over (
-            partition by encounter_id, place
+            partition by encounter_id, change_type
             order by nh2."date"
         ) first_from
       from note_history nh2
     ) first_from_table
-    group by encounter_id, place
+    group by encounter_id, change_type
   ),
   place_history_if_changed as (
     select
       e.id encounter_id,
-      nh.place,
+      nh.change_type place,
       max(first_from) || '; ' || string_agg("to", '; ' ORDER BY nh.date) place_history,
       concat('Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
       ) || '; ' ||
@@ -244,16 +246,17 @@ with
       ) assigned_time_history
     from note_history nh
     join encounters e on nh.encounter_id = e.id
-    join first_from_table fft on nh.encounter_id = fft.encounter_id and fft.place = nh.place
-    group by e.id, e.start_date, nh.place
+    join first_from_table fft on nh.encounter_id = fft.encounter_id and fft.change_type = nh.change_type
+    where nh.change_type in ('location', 'department')
+    group by e.id, e.start_date, nh.change_type
   ),
   all_place_ids as (
     select
       e.id encounter_id,
-      nh.place,
+      nh.change_type place,
       jsonb_build_array(
-        case when nh.place = 'location' then e.location_id else e.department_id end) 
-        || jsonb_agg(case when nh.place = 'location' then coalesce(lg.id, l.id) else d.id end
+        case when nh.change_type = 'location' then e.location_id else e.department_id end) 
+        || jsonb_agg(case when nh.change_type = 'location' then coalesce(lg.id, l.id) else d.id end
       ) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
       join lateral (
@@ -263,7 +266,8 @@ with
     left join departments d on d.name = "from"
     left join location_groups lg on lg.name = location_matches[1]
     left join locations l on l.name = location_matches[2]
-    group by e.id, nh.place
+    where change_type in ('location', 'department')
+    group by e.id, nh.change_type
   ),
   place_info as (
     select
@@ -288,6 +292,49 @@ with
     left join departments d on d.id = e.department_id
     left join place_history_if_changed ph on ph.encounter_id = e.id and ph.place = places.column1
     left join all_place_ids place_ids on place_ids.encounter_id = e.id and place_ids.place = places.column1
+  ),
+  encounter_type_history as (
+    select
+      e.id encounter_id,
+      case "from"
+        when 'triage' then  'Triage'
+        when 'observation' then  'Active ED patient'
+        when 'emergency' then  'Emergency short stay'
+        when 'admission' then  'Hospital admission'
+        when 'clinic' then 'Clinic'
+        when 'imaging' then 'Imaging'
+        when 'surveyResponse' then 'Survey response'
+        else e.encounter_type
+      end encounter_type,
+      case "from"
+        when 'triage' then  'Triage Encounter'
+        when 'observation' then  'Triage Encounter'
+        when 'emergency' then  'Triage Encounter'
+        when 'admission' then  'Inpatient Encounter'
+        when 'clinic' then 'Outpatient Encounter'
+        when 'imaging' then 'Inpatient Encounter'
+        when 'surveyResponse' then 'Inpatient Encounter'
+        else 'Inpatient Encounter' -- TODO: check this logic
+      end encounter_type_category,
+      "date"
+    from encounters e
+      join lateral (
+      select
+        "from",
+        "date"
+      from note_history nh
+      where nh.encounter_id = e.id
+      and change_type = 'type'
+      union all
+      select e.encounter_type, e.end_date
+    ) type_history on true 
+  ),
+  encounter_type_info as (
+    select distinct
+        encounter_id,
+        encounter_type_category,
+        first_value(encounter_type) over(partition by encounter_id, encounter_type_category order by "date" desc) most_recent_type_for_category
+    from encounter_type_history
   ),
   triage_info as (
     select
@@ -316,16 +363,9 @@ select
   to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter start date",
   to_char(e.end_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter end date",
   discharge_disposition.name "Discharge Disposition",
-  case e.encounter_type
-    when 'triage' then  'Triage'
-    when 'observation' then  'Active ED patient'
-    when 'emergency' then  'Emergency short stay'
-    when 'admission' then  'Hospital admission'
-    when 'clinic' then 'Clinic'
-    when 'imaging' then 'Imaging'
-    when 'surveyResponse' then 'Survey response'
-    else e.encounter_type
-  end "Encounter type",
+  tti.most_recent_type_for_category "Triage Encounter",
+  iti.most_recent_type_for_category "Inpatient Encounter",
+  oti.most_recent_type_for_category "Outpatient Encounter",
   t.score "Triage category",
   arrival_mode.name "Arrival Mode",
   ti."waitTimeFollowingTriage",
@@ -354,6 +394,9 @@ left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triage_info ti on ti.encounter_id = e.id
 left join place_info li on li.encounter_id = e.id and li.place = 'location'
 left join place_info di2 on di2.encounter_id = e.id and di2.place = 'department'
+left join encounter_type_info tti on tti.encounter_id = e.id and tti.encounter_type_category = 'Triage Encounter'
+left join encounter_type_info iti on tti.encounter_id = e.id and iti.encounter_type_category = 'Inpatient Encounter'
+left join encounter_type_info oti on tti.encounter_id = e.id and oti.encounter_type_category = 'Outpatient Encounter'
 left join discharges discharge on discharge.encounter_id = e.id
 left join reference_data discharge_disposition on discharge_disposition.id = discharge.disposition_id
 left join triages t on t.encounter_id = e.id

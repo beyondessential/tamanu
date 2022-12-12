@@ -379,14 +379,18 @@ describe('Encounter summary line list report', () => {
         'Encounter start date': '09-06-2022 12:02 AM',
         'Encounter end date': '12-06-2022 12:02 AM',
         'Discharge Disposition': 'Transfer to another facility',
-        'Encounter type': 'Hospital admission',
+        'Triage Encounter': 'Hospital admission',
+        'Inpatient Encounter': 'Hospital admission',
+        'Outpatient Encounter': null,
         'Triage category': '2',
         'Arrival Mode': 'Wheelchair',
         'Time seen following triage/Wait time (hh:mm)': '1:3',
         Department: 'Emergency dept.',
         'Assigned Department': 'Assigned time: 09-06-2022 12:02 AM',
-        Location: 'Emergency area 1, Emergency room 1; Emergency area 2, Emergency room 2 - bed 1; Emergency area 2, Emergency room 2 - bed 2',
-        'Assigned Location': 'Assigned time: 09-06-2022 12:02 AM; Assigned time: 09-06-2022 08:04 AM; Assigned time: 09-06-2022 08:06 AM',
+        Location:
+          'Emergency area 1, Emergency room 1; Emergency area 2, Emergency room 2 - bed 1; Emergency area 2, Emergency room 2 - bed 2',
+        'Assigned Location':
+          'Assigned time: 09-06-2022 12:02 AM; Assigned time: 09-06-2022 08:04 AM; Assigned time: 09-06-2022 08:06 AM',
         'Reason for encounter': 'Severe Migrane',
         Diagnosis:
           'Acute subdural hematoma, Is primary?: primary, Certainty: confirmed; Acute subdural hematoma, Is primary?: secondary, Certainty: suspected',
