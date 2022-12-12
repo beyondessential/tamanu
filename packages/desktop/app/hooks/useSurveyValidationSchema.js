@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants/surveys';
 import * as yup from 'yup';
 
-const parseJSONColumn = field => {
+export const parseJSONColumn = field => {
   if (!field) return null;
   try {
     return JSON.parse(field);
@@ -22,30 +22,33 @@ export const useSurveyValidationSchema = surveyData => {
         const { min, max, mandatory } = parseJSONColumn(validationCriteria) || {};
         const { id, type, defaultText } = dataElement;
         const text = componentText || defaultText;
+        let valueSchema;
         switch (type) {
-          case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
-            acc[id] = yup
-              .number()
-              .nullable()
-              .min(min, `${text} must be at least ${min}`)
-              .max(max, `${text} can not exceed ${max}`)
-              [mandatory ? 'required' : 'notRequired']();
+          case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
+            valueSchema = yup.number().nullable();
+            if (min) {
+              valueSchema = valueSchema.min(min, `${text} must be at least ${min}`);
+            }
+            if (max) {
+              valueSchema = valueSchema.max(max, `${text} can not exceed ${max}`);
+            }
             break;
+          }
           case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
           case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
           case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
-            acc[id] = yup.string()[mandatory ? 'required' : 'notRequired']();
+            valueSchema = yup.string();
             break;
           case PROGRAM_DATA_ELEMENT_TYPES.DATE:
           case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
           case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
-            acc[id] = yup.date()[mandatory ? 'required' : 'notRequired']();
+            valueSchema = yup.date();
             break;
           default:
-            acc[id] = yup.mixed()[mandatory ? 'required' : 'notRequired']();
+            valueSchema = yup.mixed();
             break;
         }
-        return acc;
+        return { ...acc, [id]: valueSchema[mandatory ? 'required' : 'notRequired']() };
       },
       {},
     );

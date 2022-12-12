@@ -48,7 +48,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
         const errors = {};
 
         // All readings are either numbers or strings
-        if (!Object.values(values).some(x => x && ['number', 'string'].includes(typeof x))) {
+        if (!Object.values(values).some(x => ['number', 'string'].includes(typeof x))) {
           errors.form = 'At least one recording must be entered.';
         }
 

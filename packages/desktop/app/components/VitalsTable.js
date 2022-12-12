@@ -10,6 +10,7 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
 import { useVitalsSurvey } from '../api/queries';
+import { parseJSONColumn } from '../hooks/useSurveyValidationSchema';
 
 function formatAnswer(amount, config) {
   const { rounding = 0, accessor } = config || {};
@@ -82,18 +83,20 @@ const useVitals = encounterId => {
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
       .map(({ config, validationCriteria, dataElement }) => {
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};
+        const validationCriteriaObj = parseJSONColumn(validationCriteria);
+        const configObj = parseJSONColumn(config);
         return {
           title: {
             value: dataElement.name,
-            ...rangeInfo(validationCriteria, config),
+            ...rangeInfo(validationCriteriaObj, configObj),
           },
           ...recordedDates.reduce((state, date) => {
             const answer = records[date];
             return {
               ...state,
               [date]: {
-                value: formatAnswer(answer, config),
-                ...rangeAlert(answer, validationCriteria, config),
+                value: formatAnswer(answer, configObj),
+                ...rangeAlert(answer, validationCriteriaObj, configObj),
               },
             };
           }, {}),

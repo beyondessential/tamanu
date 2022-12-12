@@ -165,11 +165,10 @@ function getInitialValue(dataElement) {
   }
 }
 
-export function getConfigObject(componentId, configString) {
-  if (!configString) return {};
-
+export function getConfigObject(componentId, config) {
+  if (!config) return {};
   try {
-    return JSON.parse(configString);
+    return JSON.parse(config);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn(`Invalid config in survey screen component ${componentId}`);
