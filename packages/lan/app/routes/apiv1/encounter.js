@@ -9,7 +9,6 @@ import {
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from 'shared/constants';
-import { parseOrNull } from 'shared/utils/parse-or-null';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
 
@@ -282,10 +281,6 @@ encounterRelations.get(
         SELECT
           JSONB_BUILD_OBJECT(
             'dataElementId', answer.data_element_id,
-            'name', MAX(pde.name),
-            'config', MAX(ssc.config),
-            'componentIndex', MAX(ssc.component_index),
-            'validationCriteria', MAX(ssc.validation_criteria),
             'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
         FROM
           survey_response_answers answer
@@ -293,10 +288,6 @@ encounterRelations.get(
           survey_screen_components ssc
         ON
           ssc.data_element_id = answer.data_element_id
-        INNER JOIN
-          program_data_elements pde
-        ON
-          pde.id = answer.data_element_id
         INNER JOIN
           (SELECT
             response_id, body
@@ -314,9 +305,8 @@ encounterRelations.get(
             response.encounter_id = :encounterId
             ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
-        GROUP BY answer.data_element_id,  ssc.component_index
-        ORDER BY ssc.component_index ASC
-      `,
+        GROUP BY answer.data_element_id 
+        `,
       {
         replacements: {
           encounterId,
@@ -328,11 +318,7 @@ encounterRelations.get(
       },
     );
 
-    const data = result.map(r => ({
-      ...r.result,
-      config: parseOrNull(r.result.config),
-      validationCriteria: parseOrNull(r.result.validationCriteria),
-    }));
+    const data = result.map(r => r.result);
 
     res.send({
       count: parseInt(count, 10),

@@ -9,8 +9,9 @@ import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
+import { useVitalsSurvey } from '../api/queries';
 
-function valueDisplay(amount, config) {
+function formatAnswer(amount, config) {
   const { rounding = 0, accessor } = config || {};
   if (!amount) return '-';
   if (typeof accessor === 'function') {
@@ -65,37 +66,47 @@ const useVitals = encounterId => {
     api.get(`encounter/${encounterId}/vitals`, { rowsPerPage: 50 }),
   );
 
-  let readings = [];
-  let recordings = [];
+  const { data: vitalsSurvey, error: vitalsError } = useVitalsSurvey();
+  const error = query.error || vitalsError;
+
+  let vitalsRecords = [];
+  let recordedDates = [];
   const data = query?.data?.data || [];
 
-  if (data.length > 0) {
-    // Use the Date answers as the list of recordings
-    recordings = Object.keys(
+  if (data.length > 0 && vitalsSurvey) {
+    recordedDates = Object.keys(
       data.find(vital => vital.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded).records,
     );
-
-    readings = data
-      .filter(vital => vital.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .map(({ name, config, validationCriteria, records }) => ({
-        title: {
-          value: name,
-          ...rangeInfo(validationCriteria, config),
-        },
-        ...recordings.reduce((state, date) => {
-          const answer = records[date] || null;
-          return {
-            ...state,
-            [date]: {
-              value: valueDisplay(answer, config),
-              ...rangeAlert(answer, validationCriteria, config),
-            },
-          };
-        }, {}),
-      }));
+    const elementIdToAnswer = data.reduce((dict, a) => ({ ...dict, [a.dataElementId]: a }), {});
+    vitalsRecords = vitalsSurvey.components
+      .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
+      .map(({ config, validationCriteria, dataElement }) => {
+        const { records = {} } = elementIdToAnswer[dataElement.id] || {};
+        return {
+          title: {
+            value: dataElement.name,
+            ...rangeInfo(validationCriteria, config),
+          },
+          ...recordedDates.reduce((state, date) => {
+            const answer = records[date];
+            return {
+              ...state,
+              [date]: {
+                value: formatAnswer(answer, config),
+                ...rangeAlert(answer, validationCriteria, config),
+              },
+            };
+          }, {}),
+        };
+      });
   }
 
-  return { ...query, data: readings, recordings };
+  return {
+    ...query,
+    data: vitalsRecords,
+    recordedDates,
+    error,
+  };
 };
 
 const StyledTable = styled(Table)`
@@ -146,31 +157,28 @@ const VitalsHeadCellWrapper = styled.div`
   }
 `;
 
-const VitalsHeadCell = React.memo(({ date }) => {
-  return (
-    <TableTooltip placement="top" title={formatLong(date)}>
-      <VitalsHeadCellWrapper>
-        <div>{formatShortest(date)}</div>
-        <div>{formatTime(date)}</div>
-      </VitalsHeadCellWrapper>
-    </TableTooltip>
-  );
-});
+const VitalsHeadCell = React.memo(({ date }) => (
+  <TableTooltip title={formatLong(date)}>
+    <VitalsHeadCellWrapper>
+      <div>{formatShortest(date)}</div>
+      <div>{formatTime(date)}</div>
+    </VitalsHeadCellWrapper>
+  </TableTooltip>
+));
 
-const VitalsCell = React.memo(({ value, tooltip, severity }) => {
-  if (tooltip) {
-    return (
-      <TableTooltip placement="top" title={tooltip}>
-        <VitalsCellWrapper severity={severity}>{value}</VitalsCellWrapper>
-      </TableTooltip>
-    );
-  }
-  return <VitalsCellWrapper>{value}</VitalsCellWrapper>;
-});
+const VitalsCell = React.memo(({ value, tooltip, severity }) =>
+  tooltip ? (
+    <TableTooltip title={tooltip}>
+      <VitalsCellWrapper severity={severity}>{value}</VitalsCellWrapper>
+    </TableTooltip>
+  ) : (
+    <VitalsCellWrapper>{value}</VitalsCellWrapper>
+  ),
+);
 
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
-  const { data, recordings, error, isLoading } = useVitals(encounter.id);
+  const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
 
   if (isLoading) {
     return 'loading...';
@@ -184,7 +192,7 @@ export const VitalsTable = React.memo(() => {
       sortable: false,
       accessor: c => <VitalsCell {...c.title} />,
     },
-    ...recordings
+    ...recordedDates
       .sort((a, b) => b.localeCompare(a))
       .map(r => ({
         title: <VitalsHeadCell date={r} />,
