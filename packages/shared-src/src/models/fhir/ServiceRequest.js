@@ -84,6 +84,16 @@ export class FhirServiceRequest extends FhirResource {
               model: Patient,
               as: 'patient',
             },
+            {
+              model: Location,
+              as: 'location',
+              include: [
+                {
+                  model: Facility,
+                  as: 'facility',
+                },
+              ],
+            },
           ],
         },
         {
@@ -179,13 +189,7 @@ export class FhirServiceRequest extends FhirResource {
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
       }),
-      locationCode: upstream.location?.facility?.name
-        ? [
-            new FhirCodeableConcept({
-              text: upstream.location.facility.name,
-            }),
-          ]
-        : [],
+      locationCode: locationCode(upstream),
     });
   }
 
@@ -247,4 +251,18 @@ function validatePriority(priority) {
   }
 
   return priority;
+}
+
+function locationCode(upstream) {
+  const facility =
+    upstream.locationGroup?.facility ?? // most accurate
+    upstream.location?.facility ?? // legacy data
+    upstream.encounter?.location?.facility; // fallback to encounter
+  if (!facility) return [];
+
+  return [
+    new FhirCodeableConcept({
+      text: facility.name,
+    }),
+  ];
 }
