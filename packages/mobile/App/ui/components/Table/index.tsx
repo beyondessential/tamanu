@@ -26,9 +26,6 @@ export const Table = ({
   tableHeader,
   onPressItem,
 }: TableProps): JSX.Element => {
-  if (typeof rows.map !== 'function') {
-    return null;
-  }
   return (
     <RowView>
       <StyledView>
