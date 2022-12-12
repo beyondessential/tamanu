@@ -13,6 +13,7 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
     // allow filter by status for encounter lab requests
     if (status) {
       newOptions.additionalFilters = {
+        ...options.additionalFilters,
         status,
       };
     }
