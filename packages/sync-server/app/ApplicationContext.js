@@ -31,7 +31,7 @@ export class ApplicationContext {
     }
     await closeDatabase();
   };
-  
+
   async waitForClose() {
     return this.closePromise;
   }
