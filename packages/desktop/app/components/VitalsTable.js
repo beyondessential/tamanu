@@ -69,17 +69,16 @@ const useVitals = encounterId => {
   const { data: vitalsSurvey, error: vitalsError } = useVitalsSurvey();
   const error = query.error || vitalsError;
 
-  let readings = [];
-  let recordings = [];
+  let vitalsRecords = [];
+  let recordedDates = [];
   const data = query?.data?.data || [];
 
   if (data.length > 0 && vitalsSurvey) {
-    // Use the Date answers as the list of recordings
-    recordings = Object.keys(
+    recordedDates = Object.keys(
       data.find(vital => vital.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded).records,
     );
     const elementIdToAnswer = data.reduce((dict, a) => ({ ...dict, [a.dataElementId]: a }), {});
-    readings = vitalsSurvey.components
+    vitalsRecords = vitalsSurvey.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
       .map(({ config, validationCriteria, dataElement }) => {
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};
@@ -88,7 +87,7 @@ const useVitals = encounterId => {
             value: dataElement.name,
             ...rangeInfo(validationCriteria, config),
           },
-          ...recordings.reduce((state, date) => {
+          ...recordedDates.reduce((state, date) => {
             const answer = records[date];
             return {
               ...state,
@@ -104,8 +103,8 @@ const useVitals = encounterId => {
 
   return {
     ...query,
-    data: readings,
-    recordings,
+    data: vitalsRecords,
+    recordedDates,
     error,
   };
 };
@@ -179,7 +178,7 @@ const VitalsCell = React.memo(({ value, tooltip, severity }) =>
 
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
-  const { data, recordings, error, isLoading } = useVitals(encounter.id);
+  const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
 
   if (isLoading) {
     return 'loading...';
@@ -193,7 +192,7 @@ export const VitalsTable = React.memo(() => {
       sortable: false,
       accessor: c => <VitalsCell {...c.title} />,
     },
-    ...recordings
+    ...recordedDates
       .sort((a, b) => b.localeCompare(a))
       .map(r => ({
         title: <VitalsHeadCell date={r} />,
