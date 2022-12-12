@@ -34,8 +34,10 @@ export class Attachment extends BaseModel {
     }
   }
 
-  // TODO only sync attachments that are actually associated with a survey response, not orphans
-  // TODO clean up attachments after they've been synced to the central server
+  // TODOs
+  // - only sync attachments that are actually associated with a survey response, not orphans
+  // - clean up attachments after they've been synced to the central server
+  // for original code, see https://github.com/beyondessential/tamanu/commit/c8f5891159733b8da5571ca301dead1fbd52ac1e
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'filePath'];
 }
