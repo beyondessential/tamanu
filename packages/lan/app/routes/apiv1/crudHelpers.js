@@ -74,44 +74,47 @@ export const simplePost = modelName =>
     res.send(object);
   });
 
+export const getResourceList = async (req, modelName, foreignKey = '', options = {}) => {
+  const { models, params, query } = req;
+  const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
+  const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
+
+  if (skipPermissionCheck === false) {
+    req.checkPermission('list', modelName);
+  }
+
+  const model = models[modelName];
+  const associations = model.getListReferenceAssociations(models) || [];
+
+  const baseQueryOptions = {
+    where: {
+      ...(foreignKey && { [foreignKey]: params.id }),
+      ...additionalFilters,
+    },
+    order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    include: [...associations, ...include],
+  };
+
+  const count = await models[modelName].count({
+    ...baseQueryOptions,
+  });
+
+  const objects = await models[modelName].findAll({
+    ...baseQueryOptions,
+    limit: rowsPerPage,
+    offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+  });
+
+  const data = objects.map(x => x.forResponse());
+
+  return { count, data };
+};
+
 export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
-    const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
+    const response = await getResourceList(req, modelName, foreignKey, options);
 
-    if (skipPermissionCheck === false) {
-      req.checkPermission('list', modelName);
-    }
-
-    const model = models[modelName];
-    const associations = model.getListReferenceAssociations(models) || [];
-
-    const baseQueryOptions = {
-      where: {
-        ...(foreignKey && { [foreignKey]: params.id }),
-        ...additionalFilters,
-      },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      include: [...associations, ...include],
-    };
-
-    const count = await models[modelName].count({
-      ...baseQueryOptions,
-    });
-
-    const objects = await models[modelName].findAll({
-      ...baseQueryOptions,
-      limit: rowsPerPage,
-      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
-    });
-
-    const data = objects.map(x => x.forResponse());
-
-    res.send({
-      count,
-      data,
-    });
+    res.send(response);
   });
 
 export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {

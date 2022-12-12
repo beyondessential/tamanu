@@ -124,7 +124,13 @@ export class LabRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['requestedBy', 'category', 'priority', 'laboratory'];
+    return [
+      'requestedBy',
+      'category',
+      'priority',
+      'laboratory',
+      { association: 'tests', include: ['labTestType'] },
+    ];
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
