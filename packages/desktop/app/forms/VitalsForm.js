@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
@@ -7,7 +7,7 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
-import { useSurveyValidationSchema } from '../hooks/useSurveyValidationSchema';
+import { getValidationSchema } from '../utils';
 
 const ErrorMessage = () => {
   return (
@@ -22,7 +22,7 @@ const ErrorMessage = () => {
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject }) => {
   const { data: vitalsSurvey, isLoading, isError } = useVitalsSurvey();
-  const validationSchema = useSurveyValidationSchema(vitalsSurvey);
+  const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
 
   if (isLoading) {
     return <ModalLoader />;

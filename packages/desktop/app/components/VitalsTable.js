@@ -10,7 +10,7 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
 import { useVitalsSurvey } from '../api/queries';
-import { parseJSONColumn } from '../hooks/useSurveyValidationSchema';
+import { getConfigObject, getValidationCriteriaObject } from '../utils';
 
 function formatAnswer(amount, config) {
   const { rounding = 0, accessor } = config || {};
@@ -81,10 +81,10 @@ const useVitals = encounterId => {
     const elementIdToAnswer = data.reduce((dict, a) => ({ ...dict, [a.dataElementId]: a }), {});
     vitalsRecords = vitalsSurvey.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .map(({ config, validationCriteria, dataElement }) => {
+      .map(({ id, config, validationCriteria, dataElement }) => {
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};
-        const validationCriteriaObj = parseJSONColumn(validationCriteria);
-        const configObj = parseJSONColumn(config);
+        const validationCriteriaObj = getValidationCriteriaObject(id, validationCriteria);
+        const configObj = getConfigObject(id, config);
         return {
           title: {
             value: dataElement.name,

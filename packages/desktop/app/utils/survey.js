@@ -1,4 +1,5 @@
 import React from 'react';
+import * as yup from 'yup';
 import { inRange } from 'lodash';
 
 import { ageInYears } from 'shared/utils/dateTime';
@@ -176,6 +177,17 @@ export function getConfigObject(componentId, config) {
   }
 }
 
+export function getValidationCriteriaObject(componentId, config) {
+  if (!config) return {};
+  try {
+    return JSON.parse(config);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn(`Invalid validationCriteria in survey screen component ${componentId}`);
+    return {};
+  }
+}
+
 function transformPatientData(patient, config) {
   const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
@@ -244,3 +256,47 @@ export const getActionsFromData = (data, survey) =>
     }
     return acc;
   }, {});
+
+export const getValidationSchema = surveyData => {
+  if (!surveyData) return {};
+  const { components } = surveyData;
+  const schema = components.reduce(
+    (
+      acc,
+      { id: componentId, dataElement, validationCriteria, dataElementId, text: componentText },
+    ) => {
+      const { min, max, mandatory } = getValidationCriteriaObject(componentId, validationCriteria);
+      const { type, defaultText } = dataElement;
+      const text = componentText || defaultText;
+      let valueSchema;
+      switch (type) {
+        case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
+          valueSchema = yup.number().nullable();
+          if (min) {
+            valueSchema = valueSchema.min(min, `${text} must be at least ${min}`);
+          }
+          if (max) {
+            valueSchema = valueSchema.max(max, `${text} can not exceed ${max}`);
+          }
+          break;
+        }
+        case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+        case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
+        case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
+          valueSchema = yup.string();
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+        case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
+        case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
+          valueSchema = yup.date();
+          break;
+        default:
+          valueSchema = yup.mixed();
+          break;
+      }
+      return { ...acc, [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired']() };
+    },
+    {},
+  );
+  return yup.object().shape(schema);
+};
