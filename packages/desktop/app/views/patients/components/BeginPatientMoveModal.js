@@ -15,6 +15,11 @@ import {
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
+const PatientMoveActions = [
+  { label: 'Finalise', value: 'finalise' },
+  { label: 'Plan', value: 'plan' },
+];
+
 const Container = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -32,11 +37,20 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
 
   const { getLocalisation } = useLocalisation();
   const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
+  const onSubmit = data => {
+    if (data.action === 'plan') {
+      submit(data);
+    } else {
+      // If we're finalising the move, we just directly update the locationId
+      const { plannedLocationId: locationId, ...rest } = data;
+      submit({ locationId, ...rest });
+    }
+  };
   return (
     <Modal title="Move patient" open={open} onClose={onClose}>
       <Form
-        initialValues={{ plannedLocationId: encounter.plannedLocationId }}
-        onSubmit={submit}
+        initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'finalise' }}
+        onSubmit={onSubmit}
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
@@ -50,18 +64,15 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                   name="action"
                   label="Would you like to finalise or plan the patient move?"
                   component={RadioField}
-                  options={[
-                    { label: 'Finalise', value: 0 },
-                    { label: 'Plan', value: 1 },
-                  ]}
+                  options={PatientMoveActions}
                   style={{ gridColumn: '1/-1' }}
                 />
-                <Text fullWidth>
-                  By selecting ‘Plan’ the new location will not be reflected in the patient
-                  encounter until you finalise the move. If the move is not finalised within{' '}
-                  {plannedMoveTimeoutHours} hours, the location will be deemed ‘Available’ again.
-                </Text>
               </Container>
+              <Text>
+                By selecting ‘Plan’ the new location will not be reflected in the patient encounter
+                until you finalise the move. If the move is not finalised within{' '}
+                {plannedMoveTimeoutHours} hours, the location will be deemed ‘Available’ again.
+              </Text>
               <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </>
           );
