@@ -100,8 +100,8 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
       if (key !== COLUMN_KEYS.SELECTED) {
         return;
       }
-      const newLabRequestsData = labRequestsData.map(m => ({
-        ...m,
+      const newLabRequestsData = labRequestsData.map(lr => ({
+        ...lr,
         selected: event.target.checked,
       }));
       setLabRequestsData(newLabRequestsData);
@@ -109,7 +109,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     [labRequestsData],
   );
 
-  const selectedLabRequestsData = labRequestsData.filter(l => l.selected);
+  const selectedLabRequestsData = labRequestsData.filter(lr => lr.selected);
   const isEveryRowSelected = selectedLabRequestsData.length === labRequestsData.length;
 
   const handlePrintConfirm = useCallback(() => {
