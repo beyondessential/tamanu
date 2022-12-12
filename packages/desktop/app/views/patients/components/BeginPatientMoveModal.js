@@ -30,6 +30,7 @@ const Container = styled.div`
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
+  padding-bottom: 20px;
 `;
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
