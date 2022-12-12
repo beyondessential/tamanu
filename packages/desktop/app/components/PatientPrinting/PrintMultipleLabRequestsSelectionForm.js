@@ -77,10 +77,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
 
   useEffect(() => {
     const allLabRequests = data?.data || [];
-    const printableLabRequests = allLabRequests
-      .filter(m => !m.discontinued)
-      .map(m => ({ ...m, repeats: 0 }));
-    setLabRequestsData(printableLabRequests);
+    setLabRequestsData(allLabRequests);
   }, [data]);
 
   const cellOnChange = useCallback(
