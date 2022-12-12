@@ -23,6 +23,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       Facility,
       ImagingAreaExternalCode,
       Location,
+      LocationGroup,
       Patient,
       ReferenceData,
       User,
@@ -42,10 +43,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       fake(Department, { locationId: location.id, facilityId: facility.id }),
     );
 
-    const [extCode1, extCode2, pat] = await Promise.all([
+    const [extCode1, extCode2, pat, locationGroup] = await Promise.all([
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
       FhirPatient.materialiseFromUpstream(patient.id),
+      LocationGroup.create(
+        fake(LocationGroup, { facilityId: facility.id, locationId: location.id }),
+      ),
     ]);
 
     resources = {
@@ -59,6 +63,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       extCode1,
       extCode2,
       pat,
+      locationGroup,
     };
   });
   afterAll(() => ctx.close());
@@ -93,7 +98,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
           encounterId: encounter.id,
-          locationId: resources.location.id,
+          locationGroupId: resources.locationGroup.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2022-03-04 15:30:00',
@@ -190,7 +195,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
           encounterId: encounter.id,
-          locationId: resources.location.id,
+          locationGroupId: resources.locationGroup.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: null,
           requestedDate: '2022-03-04 15:30:00',
@@ -228,7 +233,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
           encounterId: encounter.id,
-          locationId: resources.location.id,
+          locationGroupId: resources.locationGroup.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
