@@ -230,7 +230,7 @@ describe('Encounter', () => {
       expect(result.body.data[0].notePages).not.toBeDefined();
     });
 
-    it('should get a list of lab requests including associated note pages if specified in query paramter', async () => {
+    it('should get a list of lab requests including associated note pages if specified in query parameter', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
