@@ -23,8 +23,8 @@ const PatientMoveActions = [
 const Container = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-row-gap: 20px;
-  margin: 30px auto 20px;
+  grid-row-gap: 35px;
+  margin: 20px auto 20px;
   grid-column-gap: 30px;
 `;
 
