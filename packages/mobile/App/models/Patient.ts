@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
-import { addHours, startOfDay, subYears } from 'date-fns';
+import { parseISO, addHours, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
 import { readConfig } from '~/services/config';
 import { BaseModel, IdRelation } from './BaseModel';
@@ -249,7 +249,7 @@ export class Patient extends BaseModel implements IPatient {
     }, {});
 
     const columns = Object.keys(data).sort((a, b) => {
-      return new Date(b) - new Date(a);
+      return parseISO(b) - parseISO(a);
     });
 
     return { data, columns };
