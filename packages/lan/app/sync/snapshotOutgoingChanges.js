@@ -61,7 +61,7 @@ export const snapshotOutgoingChanges = withConfig(
     return sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async transaction => {
-        const outgoingChanges = [];
+        let outgoingChanges = [];
         for (const model of Object.values(models)) {
           const changesForModel = await snapshotChangesForModel(
             model,
@@ -69,7 +69,7 @@ export const snapshotOutgoingChanges = withConfig(
             since,
             transaction,
           );
-          outgoingChanges.push(...changesForModel);
+          outgoingChanges = outgoingChanges.concat(changesForModel);
         }
         return outgoingChanges;
       },

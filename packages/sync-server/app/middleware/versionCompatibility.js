@@ -34,6 +34,10 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     min: null,
     max: null,
   },
+  FHIR: {
+    min: null,
+    max: null,
+  },
 };
 
 export const versionCompatibility = (req, res, next) => {

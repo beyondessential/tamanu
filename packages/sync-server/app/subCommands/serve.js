@@ -35,6 +35,8 @@ export const serve = async ({ skipMigrationCheck }) => {
       context.close();
     });
   }
+
+  await context.waitForClose();
 };
 
 export const serveCommand = new Command('serve')

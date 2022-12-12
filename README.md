@@ -33,9 +33,6 @@ Install dependencies with yarn:
 
 ```bash
 $ cd tamanu
-$ # Enable yarn workspaces
-$ yarn config set workspaces-experimental true
-$ yarn config set workspaces-nohoist-experimental true
 $ yarn
 ```
 

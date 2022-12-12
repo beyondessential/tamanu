@@ -1,28 +1,22 @@
 import React from 'react';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { useSuggester } from '../../../api';
 import {
   Modal,
   FormGrid,
   ConfirmCancelRow,
   Form,
   Field,
-  AutocompleteField,
+  LocalisedLocationField,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
 
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
-
   return (
     <Modal title="Move patient" open={open} onClose={onClose}>
       <Form
         initialValues={{
-          locationId: encounter.location.id,
           // Used in creation of associated notes
           submittedTime: getCurrentDateTimeString(),
         }}
@@ -31,8 +25,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           <FormGrid columns={1}>
             <Field
               name="locationId"
-              component={AutocompleteField}
-              suggester={locationSuggester}
+              component={LocalisedLocationField}
               label="New location"
               required
             />

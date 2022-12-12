@@ -88,7 +88,6 @@ function createAllRecordsSuggesterRoute(
         where: query.filterByFacility
           ? { ...baseWhere, facilityId: config.serverFacilityId }
           : baseWhere,
-        limit: defaultLimit,
         order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
