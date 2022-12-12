@@ -10,6 +10,7 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
 import { useVitalsSurvey } from '../api/queries';
+import { getConfigObject, getValidationCriteriaObject } from '../utils';
 
 function formatAnswer(amount, config) {
   const { rounding = 0, accessor } = config || {};
@@ -80,20 +81,22 @@ const useVitals = encounterId => {
     const elementIdToAnswer = data.reduce((dict, a) => ({ ...dict, [a.dataElementId]: a }), {});
     vitalsRecords = vitalsSurvey.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .map(({ config, validationCriteria, dataElement }) => {
+      .map(({ id, config, validationCriteria, dataElement }) => {
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};
+        const validationCriteriaObj = getValidationCriteriaObject(id, validationCriteria);
+        const configObj = getConfigObject(id, config);
         return {
           title: {
             value: dataElement.name,
-            ...rangeInfo(validationCriteria, config),
+            ...rangeInfo(validationCriteriaObj, configObj),
           },
           ...recordedDates.reduce((state, date) => {
             const answer = records[date];
             return {
               ...state,
               [date]: {
-                value: formatAnswer(answer, config),
-                ...rangeAlert(answer, validationCriteria, config),
+                value: formatAnswer(answer, configObj),
+                ...rangeAlert(answer, validationCriteriaObj, configObj),
               },
             };
           }, {}),
