@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getFilteredListByPermission } from 'shared/utils/getFilteredListByPermission';
 import { NotFoundError } from 'shared/errors';
-import { parseOrNull } from 'shared/utils/parse-or-null';
 import { findRouteObject, permissionCheckingRouter, simpleGetList } from './crudHelpers';
 
 export const survey = express.Router();
@@ -22,11 +21,7 @@ survey.get(
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
     res.send({
       ...surveyRecord.forResponse(),
-      components: components.map(({ config, validationCriteria, ...rest }) => ({
-        ...rest,
-        config: parseOrNull(config),
-        validationCriteria: parseOrNull(validationCriteria),
-      })),
+      components,
     });
   }),
 );

@@ -40,7 +40,7 @@ describe('Survey', () => {
         ],
       });
     });
-    it('should return the vitals survey with config objects parsed', async () => {
+    it('should return the vitals survey', async () => {
       const result = await app.get(`/v1/survey/vitals`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -53,13 +53,13 @@ describe('Survey', () => {
               name: 'PatientVitalsSPO2',
               type: 'Number',
             }),
-            config: {
+            config: JSON.stringify({
               unit: 'mm Hg',
-            },
-            validationCriteria: {
+            }),
+            validationCriteria: JSON.stringify({
               min: 0,
               max: 999,
-            },
+            }),
           }),
         ],
       });

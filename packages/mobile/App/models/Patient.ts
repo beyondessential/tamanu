@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
-import { addHours, startOfDay, subYears } from 'date-fns';
+import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
 import { readConfig } from '~/services/config';
 import { BaseModel, IdRelation } from './BaseModel';
@@ -119,12 +119,11 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery =>
-          subQuery
-            .select('surveyResponse.id', 'id')
-            .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
-            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -147,12 +146,11 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery =>
-          subQuery
-            .select('surveyResponse.id', 'id')
-            .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
-            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -169,12 +167,11 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery =>
-          subQuery
-            .select('surveyResponse.id', 'id')
-            .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
-            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -248,9 +245,7 @@ export class Patient extends BaseModel implements IPatient {
       return state;
     }, {});
 
-    const columns = Object.keys(data).sort((a, b) => {
-      return new Date(b) - new Date(a);
-    });
+    const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());
 
     return { data, columns };
   }
