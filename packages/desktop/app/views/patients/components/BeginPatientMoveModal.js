@@ -15,7 +15,7 @@ import {
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
-const PatientMoveActions = [
+const patientMoveActionOptions = [
   { label: 'Finalise', value: 'finalise' },
   { label: 'Plan', value: 'plan' },
 ];
@@ -65,7 +65,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                   name="action"
                   label="Would you like to finalise or plan the patient move?"
                   component={RadioField}
-                  options={PatientMoveActions}
+                  options={patientMoveActionOptions}
                   style={{ gridColumn: '1/-1' }}
                 />
               </Container>
