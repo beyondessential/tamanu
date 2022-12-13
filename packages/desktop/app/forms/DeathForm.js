@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
 import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
-import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
+import { ageInMonths, ageInYears, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import {
   ArrayField,
   Button,
@@ -24,6 +24,7 @@ import {
   FormGrid,
   FormSeparatorLine,
 } from '../components';
+import { useAuth } from '../contexts/Auth';
 
 const binaryOptions = [
   { value: 'yes', label: 'Yes' },
@@ -155,10 +156,12 @@ export const DeathForm = React.memo(
     onSubmit,
     patient,
     hasCurrentEncounter,
+    deathData,
     practitionerSuggester,
     icd10Suggester,
     facilitySuggester,
   }) => {
+    const { currentUser } = useAuth();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
@@ -196,6 +199,8 @@ export const DeathForm = React.memo(
         })}
         initialValues={{
           outsideHealthFacility: false,
+          timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
+          clinicianId: deathData?.clinicianId || currentUser.id,
         }}
       >
         <StyledFormGrid columns={1}>
