@@ -1,15 +1,3 @@
-export const MEDICATION_STATUSES = {
-  COMPLETED: 'Completed',
-  FULFILLED: 'Fulfilled',
-  REQUESTED: 'Requested',
-};
-
-export const OPERATION_PLAN_STATUSES = {
-  PLANNED: 'Planned',
-  DROPPED: 'Dropped',
-  COMPLETED: 'Completed',
-};
-
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
   IN_PROGRESS: 'in_progress',

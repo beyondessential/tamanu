@@ -43,4 +43,4 @@ const split = s =>
     .map(x => x.trim())
     .filter(x => x);
 
-export const splitIds = ids => split(ids).map(s => ({ _id: makeId(s), name: s }));
+export const splitIds = ids => split(ids).map(s => ({ id: makeId(s), name: s }));

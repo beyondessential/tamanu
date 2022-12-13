@@ -160,7 +160,7 @@ const StyledIconButton = styled(IconButton)`
 
 export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const api = useApi();
-  const { id, type, status, clinician, patient, location } = appointment;
+  const { id, type, status, clinician, patient, locationGroup } = appointment;
   const [statusOption, setStatusOption] = useState(
     appointmentStatusOptions.find(option => option.value === status),
   );
@@ -217,8 +217,8 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       </Section>
       <PatientInfo patient={patient} />
       <Section>
-        <Heading>Location</Heading>
-        {location.name}
+        <Heading>Area</Heading>
+        {locationGroup.name}
       </Section>
       <Button
         variant="outlined"

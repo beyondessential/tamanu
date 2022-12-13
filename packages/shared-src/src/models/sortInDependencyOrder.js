@@ -1,17 +1,19 @@
 export function sortInDependencyOrder(models) {
   const sorted = [];
-  const stillToSort = { ...models };
-  while (Object.keys(stillToSort).length > 0) {
-    Object.values(stillToSort).forEach(model => {
+  const stillToSort = new Map(Object.entries(models).sort((a, b) => a[0].localeCompare(b[0])));
+
+  while (stillToSort.size > 0) {
+    for (const [name, model] of stillToSort) {
       const dependsOn = Object.values(model.associations)
         .filter(a => a.associationType === 'BelongsTo' && !a.isSelfAssociation)
         .map(a => a.target.name);
-      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort[d]);
+      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort.has(d));
       if (dependenciesStillToSort.length === 0) {
         sorted.push(model);
-        delete stillToSort[model.name];
+        stillToSort.delete(name);
       }
-    });
+    }
   }
+
   return sorted;
 }

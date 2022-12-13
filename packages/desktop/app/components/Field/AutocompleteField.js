@@ -8,6 +8,7 @@ import Search from '@material-ui/icons/Search';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
+import { Tag } from '../Tag';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -56,6 +57,20 @@ const Icon = styled(InputAdornment)`
   }
 `;
 
+const OptionTag = styled(Tag)`
+  position: relative;
+`;
+
+const SelectTag = styled(Tag)`
+  position: relative;
+`;
+
+const Item = styled(MenuItem)`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+`;
+
 class BaseAutocomplete extends Component {
   constructor() {
     super();
@@ -64,7 +79,7 @@ class BaseAutocomplete extends Component {
 
     this.state = {
       suggestions: [],
-      displayedValue: '',
+      selectedOption: { value: '', tag: null },
     };
   }
 
@@ -81,16 +96,22 @@ class BaseAutocomplete extends Component {
 
   updateValue = async () => {
     const { value, suggester } = this.props;
+
     if (!suggester || value === undefined) {
       return;
     }
     if (value === '') {
-      this.setState({ displayedValue: '' });
+      this.setState({ selectedOption: { value: '', tag: null } });
       return;
     }
     const currentOption = await suggester.fetchCurrentOption(value);
     if (currentOption) {
-      this.setState({ displayedValue: currentOption.label });
+      this.setState({
+        selectedOption: {
+          value: currentOption.label,
+          tag: currentOption.tag,
+        },
+      });
     } else {
       this.handleSuggestionChange({ value: null, label: '' });
     }
@@ -126,11 +147,11 @@ class BaseAutocomplete extends Component {
     }
     if (typeof newValue !== 'undefined') {
       this.setState(prevState => {
-        const newSuggestion = prevState.suggestions.find(suggest => suggest.value === newValue);
+        const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
         if (!newSuggestion) {
-          return { displayedValue: newValue };
+          return { selectedOption: { value: newValue, tag: null } };
         }
-        return { displayedValue: newSuggestion.label };
+        return { selectedOption: { value: newSuggestion.label, tag: newSuggestion.tag } };
       });
     }
   };
@@ -146,11 +167,19 @@ class BaseAutocomplete extends Component {
     }
   };
 
-  renderSuggestion = (suggestion, { isHighlighted }) => (
-    <MenuItem selected={isHighlighted} component="div">
-      <Typography variant="body2">{suggestion.label}</Typography>
-    </MenuItem>
-  );
+  renderSuggestion = (suggestion, { isHighlighted }) => {
+    const { tag } = suggestion;
+    return (
+      <Item selected={isHighlighted} component="div">
+        <Typography variant="body2">{suggestion.label}</Typography>
+        {tag && (
+          <OptionTag $background={tag.background} $color={tag.color}>
+            {tag.label}
+          </OptionTag>
+        )}
+      </Item>
+    );
+  };
 
   renderContainer = option => (
     <SuggestionsContainer
@@ -167,7 +196,7 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, ...other } = inputProps;
+    const { label, required, className, infoTooltip, tag, value, ...other } = inputProps;
     return (
       <OuterLabelFieldWrapper
         label={label}
@@ -180,12 +209,20 @@ class BaseAutocomplete extends Component {
           InputProps={{
             ref: this.setAnchorRefForPopper,
             endAdornment: (
-              <Icon position="end">
-                <Search />
-              </Icon>
+              <>
+                {tag && (
+                  <SelectTag $background={tag.background} $color={tag.color}>
+                    {tag.label}
+                  </SelectTag>
+                )}
+                <Icon position="end">
+                  <Search />
+                </Icon>
+              </>
             ),
           }}
           fullWidth
+          value={value}
           {...other}
         />
       </OuterLabelFieldWrapper>
@@ -193,7 +230,7 @@ class BaseAutocomplete extends Component {
   };
 
   render() {
-    const { displayedValue, suggestions } = this.state;
+    const { selectedOption, suggestions } = this.state;
     const {
       label,
       required,
@@ -206,29 +243,32 @@ class BaseAutocomplete extends Component {
     } = this.props;
 
     return (
-      <Autosuggest
-        alwaysRenderSuggestions
-        suggestions={suggestions}
-        onSuggestionsFetchRequested={this.debouncedFetchOptions}
-        onSuggestionsClearRequested={this.clearOptions}
-        renderSuggestionsContainer={this.renderContainer}
-        getSuggestionValue={this.handleSuggestionChange}
-        renderSuggestion={this.renderSuggestion}
-        renderInputComponent={this.renderInputComponent}
-        inputProps={{
-          label,
-          required,
-          disabled,
-          error,
-          helperText,
-          name,
-          placeholder,
-          infoTooltip,
-          value: displayedValue,
-          onKeyDown: this.onKeyDown,
-          onChange: this.handleInputChange,
-        }}
-      />
+      <>
+        <Autosuggest
+          alwaysRenderSuggestions
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={this.debouncedFetchOptions}
+          onSuggestionsClearRequested={this.clearOptions}
+          renderSuggestionsContainer={this.renderContainer}
+          getSuggestionValue={this.handleSuggestionChange}
+          renderSuggestion={this.renderSuggestion}
+          renderInputComponent={this.renderInputComponent}
+          inputProps={{
+            label,
+            required,
+            disabled,
+            error,
+            helperText,
+            name,
+            placeholder,
+            infoTooltip,
+            value: selectedOption?.value,
+            tag: selectedOption?.tag,
+            onKeyDown: this.onKeyDown,
+            onChange: this.handleInputChange,
+          }}
+        />
+      </>
     );
   }
 }

@@ -5,8 +5,7 @@ export const expectDeepSyncRecordMatch = (dbRecord, syncRecord, options = {}) =>
     updatedAt: _updatedAt,
     createdAt: _createdAt,
     deletedAt: _deletedAt,
-    markedForSyncAt: _markedForSyncAt,
-    isPushing: _isPushing,
+    updatedAtSyncTick: _updatedAtSyncTick,
     password: _password,
     ...syncableData
   } = dbRecord;
@@ -25,7 +24,7 @@ export const expectDeepSyncRecordMatch = (dbRecord, syncRecord, options = {}) =>
     } else if (dbRecord[field] instanceof Date) {
       expect(syncRecord.data).toHaveProperty(field, dbRecord[field].toISOString());
     } else if (nullableDateFields.includes(field)) {
-      expect(syncRecord.data[field]).toBeUndefined();
+      expect(syncRecord.data[field]).toBeNull();
     } else {
       expect(syncRecord.data).toHaveProperty(field, dbRecord[field]);
     }

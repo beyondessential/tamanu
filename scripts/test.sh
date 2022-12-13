@@ -35,3 +35,4 @@ if [[ "${1:-}" == "pr-coverage" ]]; then
   echo "Posting coverage to PR"
   node scripts/pr-comment.mjs coverage.md 'Coverage Report' || true
 fi
+

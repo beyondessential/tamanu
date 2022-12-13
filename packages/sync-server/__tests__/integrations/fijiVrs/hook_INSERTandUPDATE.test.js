@@ -96,7 +96,6 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
           deletedAt: null,
-          markedForSync: expect.anything(),
         });
         const foundAdditionalData = await PatientAdditionalData.findOne({
           where: { patientId: foundPatient.id },

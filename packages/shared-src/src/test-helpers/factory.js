@@ -39,6 +39,8 @@ export const buildEncounter = async (models, patientId, optionalEncounterId) => 
   encounter.referralSourceId = null;
   encounter.locationId = await findOrCreateId(models, models.Location);
   encounter.departmentId = await findOrCreateId(models, models.Department);
+  encounter.plannedLocationId = null;
+  encounter.plannedLocationStartTime = null;
 
   return encounter;
 };
@@ -171,7 +173,9 @@ const addAssociations = async (models, model, record) => {
   for (const association of Object.values(model.associations)) {
     const { associationType, foreignKey, target } = association;
     if (associationType === 'BelongsTo') {
-      newRecord[foreignKey] = await findOrCreateId(models, target);
+      if (!newRecord[foreignKey]) {
+        newRecord[foreignKey] = await findOrCreateId(models, target);
+      }
     }
   }
 

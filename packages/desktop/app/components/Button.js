@@ -41,6 +41,11 @@ const StyledButton = styled(MuiButton)`
     height: auto;
     margin-right: 10px;
   }
+
+  &.MuiButton-sizeSmall {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
 `;
 
 export const Button = ({ children, isSubmitting, disabled, hasPermission = true, ...props }) => {

@@ -8,6 +8,8 @@ export * from './Cross';
 export * from './Chat';
 export * from './Search';
 export * from './ScheduledVaccine';
+export * from './GreenTick';
+export * from './Error';
 
 export * from './CameraOutline';
 export * from './Settings';

@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { Location } from 'shared/models/Location';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
@@ -133,7 +134,7 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
 
   if (!relevantNotes.length) {
     const { [placeType]: place, startDate } = encounterData;
-    const { name: placeName } = place;
+    const placeName = Location.formatFullLocationName(place);
     return [{ to: placeName, date: startDate }];
   }
 
@@ -157,22 +158,43 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
 
   return history;
 };
-const formatPlaceHistory = (history, placeType) =>
-  history
-    .map(
-      ({ to, date }) =>
-        `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`,
-    )
-    .join('; ');
+
+const formatHistory = (history, placeType) => {
+  const items = history.map(({ to, date }) => {
+    return `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`;
+  });
+  return items.join('; ');
+};
 
 const filterResults = async (models, results, parameters) => {
-  const { location, department } = parameters;
-  const { name: requiredLocation } = (await models.Location.findByPk(location)) ?? {};
+  const { locationGroup, department } = parameters;
+
+  const locations =
+    locationGroup &&
+    (await models.Location.findAll({
+      where: {
+        locationGroupId: locationGroup,
+      },
+    }));
+
+  const { name: locationGroupName } = locationGroup
+    ? await models.LocationGroup.findOne({
+        where: {
+          id: locationGroup,
+        },
+      })
+    : {};
+
+  const locationNames = locations?.map(({ name }) => name);
+
   const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
 
-  const locationFilteredResults = requiredLocation
+  const locationFilteredResults = locationGroup
     ? results.filter(result =>
-        result.locationHistory.map(({ to }) => to).includes(requiredLocation),
+        result.locationHistory.some(({ to }) => {
+          const { group, location } = Location.parseFullLocationName(to);
+          return group ? group === locationGroupName : locationNames.includes(location);
+        }),
       )
     : results;
 
@@ -196,7 +218,11 @@ async function queryAdmissionsData(models, parameters) {
         },
         'examiner',
         'patientBillingType',
-        'location',
+        {
+          model: models.Location,
+          as: 'location',
+          include: ['locationGroup'],
+        },
         'department',
         {
           model: models.EncounterDiagnosis,
@@ -223,13 +249,18 @@ async function queryAdmissionsData(models, parameters) {
 
   const filteredResults = await filterResults(models, resultsWithHistory, parameters);
 
-  return filteredResults.map(result => ({
-    ...result,
-    locationHistoryString: formatPlaceHistory(result.locationHistory, 'location'),
-    departmentHistoryString: formatPlaceHistory(result.departmentHistory, 'department'),
-    primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
-    secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
-  }));
+  return Promise.all(
+    filteredResults.map(async result => {
+      const locationHistoryString = formatHistory(result.locationHistory, 'location');
+      return {
+        ...result,
+        locationHistoryString,
+        departmentHistoryString: formatHistory(result.departmentHistory, 'department'),
+        primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
+        secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
+      };
+    }),
+  );
 }
 
 export async function dataGenerator({ models }, parameters) {

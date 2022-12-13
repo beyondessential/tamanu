@@ -34,7 +34,7 @@ export const DailySchedule = ({
       }
       return true;
     }),
-    appt => appt[activeFilter.name].id,
+    appt => appt[activeFilter].id,
   );
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
@@ -47,7 +47,7 @@ export const DailySchedule = ({
     })
     .map(([key, appts]) => {
       const firstAppointment = appts[0];
-      const filterObject = firstAppointment[activeFilter.name];
+      const filterObject = firstAppointment[activeFilter];
       // location has name, while clinician has displayName;
       const header = filterObject.name || filterObject.displayName;
 

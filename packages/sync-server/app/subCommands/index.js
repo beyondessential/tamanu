@@ -1,3 +1,4 @@
+export * from './apiKeys';
 export * from './calculateSurveyResults';
 export * from './fhir';
 export * from './generate';
@@ -5,8 +6,8 @@ export * from './generateVaccineCertificate';
 export * from './importReport';
 export * from './loadSigner';
 export * from './migrate';
+export * from './migrateImagingRequestsToLocationGroups';
 export * from './printRoutes';
-export * from './removeDuplicatedPatientAdditionalData';
 export * from './report';
 export * from './saveCertificateRequest';
 export * from './serve';

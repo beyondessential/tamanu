@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
@@ -15,20 +16,7 @@ export class LabRequestLog extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          channelRoutes: [
-            {
-              route: 'labRequest/:labRequestId/log',
-              params: [{ name: 'labRequestId' }],
-            },
-          ],
-          getChannels: async () =>
-            this.sequelize.models.LabRequest.findAll({
-              where: {},
-              attributes: ['id'],
-            }).map(lr => `labRequest/${lr.id}/log`),
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }
@@ -47,5 +35,12 @@ export class LabRequestLog extends Model {
 
   static getListReferenceAssociations() {
     return ['labRequest', 'updatedBy'];
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);
   }
 }

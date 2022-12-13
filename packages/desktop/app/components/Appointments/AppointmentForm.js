@@ -7,19 +7,16 @@ import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../F
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 
-import { useApi, usePatientSuggester } from '../../api';
-import { Suggester } from '../../utils/suggester';
+import { useApi, useLocationGroupSuggester, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
-  const clinicianSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
+  const locationGroupSuggester = useLocationGroupSuggester();
 
   let initialValues = {};
   if (isUpdating) {
@@ -29,7 +26,7 @@ export const AppointmentForm = props => {
       startTime: appointment.startTime,
       endTime: appointment.endTime,
       clinicianId: appointment.clinicianId,
-      locationId: appointment.locationId,
+      locationGroupId: appointment.locationGroupId,
     };
   }
   const createAppointment = useCallback(
@@ -61,7 +58,10 @@ export const AppointmentForm = props => {
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
         clinicianId: yup.string().required('Please select a clinician'),
-        locationId: yup.string().required('Please choose a location'),
+        locationGroupId: yup
+          .string()
+          .required('Please select an area')
+          .nullable(),
       })}
       render={({ submitForm }) => (
         <>
@@ -100,10 +100,10 @@ export const AppointmentForm = props => {
                 required
               />
               <Field
-                label="Location"
-                name="locationId"
+                label="Area"
+                name="locationGroupId"
                 component={AutocompleteField}
-                suggester={locationSuggester}
+                suggester={locationGroupSuggester}
                 required
               />
               <FormSeparatorLine />
