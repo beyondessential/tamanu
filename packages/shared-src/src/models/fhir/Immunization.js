@@ -230,6 +230,8 @@ function site(injectionSite) {
 }
 
 function performer(recorder) {
+  if (!recorder) return [];
+
   return [
     new FhirImmunizationPerformer({
       actor: new FhirReference({
