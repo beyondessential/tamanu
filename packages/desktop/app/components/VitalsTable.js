@@ -12,6 +12,54 @@ import { TableTooltip } from './Table/TableTooltip';
 import { useVitalsSurvey } from '../api/queries';
 import { getConfigObject, getValidationCriteriaObject } from '../utils';
 
+const StyledTable = styled(Table)`
+  table {
+    position: relative;
+    thead tr th:first-child,
+    tbody tr td:first-child {
+      left: 0;
+      position: sticky;
+      z-index: 1;
+      border-right: 1px solid ${Colors.outline};
+    }
+
+    thead tr th:first-child {
+      background: ${Colors.background};
+      width: 160px;
+      min-width: 160px;
+    }
+
+    tbody tr td:first-child {
+      background: ${Colors.white};
+    }
+
+    tfoot tr td button {
+      position: sticky;
+      left: 16px;
+    }
+  }
+`;
+
+const VitalsCellWrapper = styled.div`
+  background: ${({ severity }) =>
+    severity === 'alert' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'};
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin: -8px ${({ severity }) => (severity === 'alert' ? '0px' : '-14px')};
+  width: fit-content;
+`;
+
+const VitalsHeadCellWrapper = styled.div`
+  display: block;
+  width: fit-content;
+  div {
+    color: ${Colors.midText};
+    :first-child {
+      color: ${Colors.darkText};
+    }
+  }
+`;
+
 function formatAnswer(amount, config) {
   const { rounding = 0, accessor, unit } = config || {};
   if (!amount) return '-';
@@ -28,20 +76,31 @@ function formatAnswer(amount, config) {
   return amount;
 }
 
+function valueInfo(value, config) {
+  const { unit } = config || {};
+  if (!unit || unit.length <= 2) return null;
+  return {
+    tooltip: `${value}${unit}`,
+  };
+}
+
 function rangeAlert(amount, validationCriteria, config) {
   const { normalRange } = validationCriteria || {};
-  const { unit = '' } = config || {};
-  if (!normalRange) return null;
+  const { unit = '', rounding = 0 } = config || {};
 
   const val = parseFloat(amount);
-  let tooltip = 'Outside normal range\n';
+  const fixedVal = val.toFixed(rounding);
+  if (!normalRange) {
+    return valueInfo(fixedVal, config);
+  }
+  let tooltip = `Outside normal range\n`;
 
   if (val < normalRange.min) {
     tooltip += `<${normalRange.min}${unit}`;
   } else if (val > normalRange.max) {
     tooltip += `>${normalRange.max}${unit}`;
   } else {
-    return null;
+    return valueInfo(fixedVal, config);
   }
 
   return {
@@ -112,53 +171,6 @@ const useVitals = encounterId => {
   };
 };
 
-const StyledTable = styled(Table)`
-  table {
-    position: relative;
-    thead tr th:first-child,
-    tbody tr td:first-child {
-      left: 0;
-      position: sticky;
-      z-index: 1;
-      border-right: 1px solid ${Colors.outline};
-    }
-
-    thead tr th:first-child {
-      background: ${Colors.background};
-      width: 160px;
-      min-width: 160px;
-    }
-
-    tbody tr td:first-child {
-      background: ${Colors.white};
-    }
-
-    tfoot tr td button {
-      position: sticky;
-      left: 16px;
-    }
-  }
-`;
-
-const VitalsCellWrapper = styled.div`
-  background: ${({ severity }) =>
-    severity === 'alert' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'};
-  border-radius: 10px;
-  padding: 8px 14px;
-  margin: -8px ${({ severity }) => (severity === 'alert' ? '0px' : '-14px')};
-  width: fit-content;
-`;
-
-const VitalsHeadCellWrapper = styled.div`
-  display: block;
-  width: fit-content;
-  div {
-    color: ${Colors.midText};
-    :first-child {
-      color: ${Colors.darkText};
-    }
-  }
-`;
 
 const VitalsHeadCell = React.memo(({ date }) => (
   <TableTooltip title={formatLong(date)}>
@@ -176,7 +188,7 @@ const VitalsCell = React.memo(({ value, tooltip, severity }) =>
     </TableTooltip>
   ) : (
     <VitalsCellWrapper>{value}</VitalsCellWrapper>
-  ),
+  )
 );
 
 export const VitalsTable = React.memo(() => {
