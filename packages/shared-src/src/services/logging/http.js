@@ -36,6 +36,7 @@ const httpFormatter = (tokens, req, res) => {
     '-', // separator for named fields
     field(status, { color: getStatusColor(status), prefix: 'status=' }),
     field(tokens['response-time'](req, res), { prefix: 'time-proc=', suffix: 'ms' }),
+    field(userId?.[userId?.length - 1], { color: COLORS.magenta, prefix: 'user=' }),
   ]
     .filter(Boolean)
     .join(' ');
