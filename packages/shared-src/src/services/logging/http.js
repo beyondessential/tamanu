@@ -23,6 +23,15 @@ function field(str, { prefix = '', suffix = '', color = String } = {}) {
   return `${prefix}${color(`${str}${suffix}`)}`;
 }
 
+function getSendTime(req, res) {
+  if (!req._startAt) return;
+
+  // time elapsed from response headers sent
+  const elapsed = process.hrtime(res._startAt);
+  const ms = elapsed[0] * 1e3 + elapsed[1] * 1e-6;
+  return ms.toFixed(3);
+}
+
 const httpFormatter = (tokens, req, res) => {
   const status = tokens.status(req, res);
   const userId = req.user?.id?.split('-');
@@ -36,6 +45,7 @@ const httpFormatter = (tokens, req, res) => {
     '-', // separator for named fields
     field(status, { color: getStatusColor(status), prefix: 'status=' }),
     field(tokens['response-time'](req, res), { prefix: 'time-proc=', suffix: 'ms' }),
+    field(getSendTime(req, res), { prefix: 'time-send=', suffix: 'ms' }),
     field(userId?.[userId?.length - 1], { color: COLORS.magenta, prefix: 'user=' }),
   ]
     .filter(Boolean)
