@@ -60,7 +60,10 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
             <>
               <Container>
                 <Field name="plannedLocationId" component={LocalisedLocationField} required />
-                <LocationAvailabilityWarningMessage locationId={values?.plannedLocationId} />
+                <LocationAvailabilityWarningMessage
+                  locationId={values?.plannedLocationId}
+                  style={{ gridColumn: '2', marginTop: '-35px', fontSize: '12px' }}
+                />
                 <Field
                   name="action"
                   label="Would you like to finalise or plan the patient move?"
