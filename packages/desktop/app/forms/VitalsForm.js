@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
@@ -7,7 +7,7 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
-import { useSurveyValidationSchema } from '../hooks/useSurveyValidationSchema';
+import { getValidationSchema } from '../utils';
 
 const ErrorMessage = () => {
   return (
@@ -22,7 +22,7 @@ const ErrorMessage = () => {
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject }) => {
   const { data: vitalsSurvey, isLoading, isError } = useVitalsSurvey();
-  const validationSchema = useSurveyValidationSchema(vitalsSurvey);
+  const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
 
   if (isLoading) {
     return <ModalLoader />;
@@ -48,7 +48,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
         const errors = {};
 
         // All readings are either numbers or strings
-        if (!Object.values(values).some(x => x && ['number', 'string'].includes(typeof x))) {
+        if (!Object.values(values).some(x => ['number', 'string'].includes(typeof x))) {
           errors.form = 'At least one recording must be entered.';
         }
 
