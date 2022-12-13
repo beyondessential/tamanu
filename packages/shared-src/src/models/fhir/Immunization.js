@@ -94,12 +94,12 @@ export class FhirImmunization extends FhirResource {
 
     this.set({
       lastUpdated: latestDateTime(
-        administeredVaccine.updatedAt,
-        encounter.updatedAt,
-        scheduledVaccine.updatedAt,
-        recorder.updatedAt,
-        scheduledVaccine.vaccine.updatedAt,
-        patient.updatedAt,
+        administeredVaccine?.updatedAt,
+        encounter?.updatedAt,
+        scheduledVaccine?.updatedAt,
+        recorder?.updatedAt,
+        scheduledVaccine?.vaccine?.updatedAt,
+        patient?.updatedAt,
       ),
       status: status(administeredVaccine.status),
       vaccineCode: vaccineCode(scheduledVaccine),
