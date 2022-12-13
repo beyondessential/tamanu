@@ -23,8 +23,8 @@ function field(str, { prefix = '', suffix = '', color = String } = {}) {
   return `${prefix}${color(`${str}${suffix}`)}`;
 }
 
-function getSendTime(req, res) {
-  if (!req._startAt) return;
+function getSendTime(res) {
+  if (!res._startAt) return;
 
   // time elapsed from response headers sent
   const elapsed = process.hrtime(res._startAt);
@@ -47,7 +47,7 @@ const httpFormatter = (tokens, req, res) => {
     field(req._bytesRead?.toFixed(0), { prefix: 'bytes-recv=' }),
     field(res._bytesWritten?.toFixed(0), { prefix: 'bytes-sent=' }),
     field(tokens['response-time'](req, res), { prefix: 'time-proc=', suffix: 'ms' }),
-    field(getSendTime(req, res), { prefix: 'time-send=', suffix: 'ms' }),
+    field(getSendTime(res), { prefix: 'time-send=', suffix: 'ms' }),
     field(userId?.[userId?.length - 1], { color: COLORS.magenta, prefix: 'user=' }),
   ]
     .filter(Boolean)
