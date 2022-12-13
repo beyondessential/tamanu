@@ -5,7 +5,7 @@ import { Typography, Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
-import { checkVisibility } from '../../utils';
+import { getVisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
 
 const COMPLETE_MESSAGE = `
@@ -44,22 +44,6 @@ const DefaultSuccessScreen = ({ onClose }) => (
     </ButtonRow>
   </div>
 );
-
-const getVisibleQuestions = (questionComponents, values) =>
-  // Adapt the questionComponents from react elements to the survey config objects which the
-  // checkVisibility util expects
-  questionComponents.filter(c =>
-    checkVisibility(
-      {
-        visibilityCriteria: JSON.stringify(c.props.visibilityCriteria),
-        dataElement: {},
-      },
-      values,
-      questionComponents.map(x => ({
-        dataElement: { id: x.props.name, name: x.props.name, code: x.props.name },
-      })),
-    ),
-  );
 
 const DefaultFormScreen = ({
   screenComponent,
