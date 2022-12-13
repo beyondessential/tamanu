@@ -3,7 +3,6 @@ import morgan from 'morgan'; // logging middleware for http requests
 import { COLORS } from './color';
 import { log } from './log';
 
-// Middleware for logging http requests
 function getStatusColor(status) {
   switch (status && status[0]) {
     case '5':
@@ -19,21 +18,27 @@ function getStatusColor(status) {
   }
 }
 
+function field(str, { prefix = '', suffix = '', color = String } = {}) {
+  if (!str?.length) return null;
+  return `${prefix}${color(`${str}${suffix}`)}`;
+}
+
 const httpFormatter = (tokens, req, res) => {
-  const methodColor = req.method === 'GET' ? COLORS.green : COLORS.yellow;
   const status = tokens.status(req, res);
-  const statusColor = getStatusColor(status);
+  const userId = req.user?.id?.split('-');
 
   return [
-    COLORS.grey(tokens['remote-addr'](req, res)),
-    methodColor(tokens.method(req, res)),
-    tokens.url(req, res),
-    statusColor(status),
-    res['content-length'],
-    '-',
-    tokens['response-time'](req, res),
-    'ms',
-  ].join(' ');
+    field(tokens['remote-addr'](req, res), { color: COLORS.grey }),
+    field(tokens.method(req, res), {
+      color: req.method === 'GET' ? COLORS.green : COLORS.yellow,
+    }),
+    field(tokens.url(req, res)),
+    '-', // separator for named fields
+    field(status, { color: getStatusColor(status), prefix: 'status=' }),
+    field(tokens['response-time'](req, res), { prefix: 'time-proc=', suffix: 'ms' }),
+  ]
+    .filter(Boolean)
+    .join(' ');
 };
 
 export function getLoggingMiddleware() {
