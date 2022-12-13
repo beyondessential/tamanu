@@ -46,6 +46,7 @@ const httpFormatter = (tokens, req, res) => {
     field(status, { color: getStatusColor(status), prefix: 'status=' }),
     field(req._bytesRead?.toFixed(0), { prefix: 'bytes-recv=' }),
     field(res._bytesWritten?.toFixed(0), { prefix: 'bytes-sent=' }),
+    field(res.getHeader('content-type')?.match(/\/([\w+]+);?/)?.[1], { prefix: 'content=' }),
     field(tokens['response-time'](req, res), { prefix: 'time-proc=', suffix: 'ms' }),
     field(getSendTime(res), { prefix: 'time-send=', suffix: 'ms' }),
     field(userId?.[userId?.length - 1], { color: COLORS.magenta, prefix: 'user=' }),
