@@ -24,7 +24,7 @@ function field(str, { prefix = '', suffix = '', color = String } = {}) {
 }
 
 function getSendTime(res) {
-  if (!res._startAt) return;
+  if (!res._startAt) return null;
 
   // time elapsed from response headers sent
   const elapsed = process.hrtime(res._startAt);
