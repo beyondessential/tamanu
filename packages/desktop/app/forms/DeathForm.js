@@ -168,11 +168,17 @@ export const DeathForm = React.memo(
         onCancel={onCancel}
         SummaryScreen={hasCurrentEncounter ? DoubleConfirmScreen : ConfirmScreen}
         validationSchema={yup.object().shape({
-          causeOfDeath: yup.string().required(),
-          causeOfDeathInterval: yup
-            .string()
-            .required()
-            .label('Time between onset and death'),
+          causeOfDeath: yup.string().when('isPartialWorkflow', {
+            is: undefined,
+            then: yup.string().required(),
+          }),
+          causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
+            is: undefined,
+            then: yup
+              .string()
+              .required()
+              .label('Time between onset and death'),
+          }),
           clinicianId: yup
             .string()
             .required()
