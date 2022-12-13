@@ -1,6 +1,7 @@
 import { beforeAll, describe, it } from '@jest/globals';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers/fake';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 
@@ -186,6 +187,64 @@ describe('databaseState', () => {
       await expectPatientFacility(patient.id, false);
       const record = await fakeRecord(models, patient.id);
       await models[modelName].bulkCreate([record]);
+      await expectPatientFacility(patient.id, false);
+    }
+  });
+
+  it('updating a record via modify-and-save in a relevant table does not mark the patient for sync', async () => {
+    // we only expect creates of related tables to mark patients for sync, as some facilities sync e.g. all
+    // lab request encounters, and if they edit them, we don't want that to add the patient for sync
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+      // create a patient without using hooks so we don't mark them for sync on create
+      const patient = await Patient.create(fake(Patient), {
+        hooks: false,
+      });
+      await expectPatientFacility(patient.id, false);
+      const record = await fakeRecord(models, patient.id);
+      const instance = await models[modelName].create(record, { hooks: false }); // turn off hooks - we're testing update
+      await expectPatientFacility(patient.id, false);
+
+      // edit is arbitrary, but id is easiest because all related tables under test use it
+      instance.id = fakeUUID();
+      await instance.save();
+      await expectPatientFacility(patient.id, false);
+    }
+  });
+
+  it('updating a record via update() in a relevant table does not mark the patient for sync', async () => {
+    // we only expect creates of related tables to mark patients for sync, as some facilities sync e.g. all
+    // lab request encounters, and if they edit them, we don't want that to add the patient for sync
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+      // create a patient without using hooks so we don't mark them for sync on create
+      const patient = await Patient.create(fake(Patient), {
+        hooks: false,
+      });
+      await expectPatientFacility(patient.id, false);
+      const record = await fakeRecord(models, patient.id);
+      const instance = await models[modelName].create(record, { hooks: false }); // turn off hooks - we're testing update
+      await expectPatientFacility(patient.id, false);
+
+      // edit is arbitrary, but id is easiest because all related tables under test use it
+      await instance.update({ id: fakeUUID });
+      await expectPatientFacility(patient.id, false);
+    }
+  });
+
+  it('updating a record via bulk update in a relevant table does not mark the patient for sync', async () => {
+    // we only expect creates of related tables to mark patients for sync, as some facilities sync e.g. all
+    // lab request encounters, and if they edit them, we don't want that to add the patient for sync
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+      // create a patient without using hooks so we don't mark them for sync on create
+      const patient = await Patient.create(fake(Patient), {
+        hooks: false,
+      });
+      await expectPatientFacility(patient.id, false);
+      const record = await fakeRecord(models, patient.id);
+      await models[modelName].create(record, { hooks: false }); // turn off hooks - we're testing update
+      await expectPatientFacility(patient.id, false);
+
+      // edit is arbitrary, but id is easiest because all related tables under test use it
+      await models[modelName].update({ ...record, id: fakeUUID() }, { where: { id: record.id } });
       await expectPatientFacility(patient.id, false);
     }
   });

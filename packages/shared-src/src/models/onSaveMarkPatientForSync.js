@@ -1,12 +1,22 @@
 import config from 'config';
 
+// by default, we use "afterCreate" as the hook trigger
+// only single-creates of related tables should mark patients for sync, as anything more aggressive
+// would lead to accidentally marking patients for sync when they shouldn't be
+// as an example, when a facility has "syncAllLabRequests" turned on, the lab requests encounters
+// will sync in, but
+// - shouldn't mark the patient for sync when saved during the sync pull process (which uses bulk-create)
+// - shouldn't mark the patient for sync when updated as part of processing the lab request (which
+//   is why we don't trigger on updates)
+const DEFAULT_HOOK_TRIGGER = 'afterCreate';
 const HOOK_NAME = 'markPatientForSync';
+const DEFAULT_PATIENT_ID_FIELD = 'patientId';
 
 // any interaction with a non-syncing patient should mark it for ongoing sync
 export const onSaveMarkPatientForSync = (
   model,
-  patientIdField = 'patientId',
-  hookTrigger = 'afterCreate',
+  patientIdField = DEFAULT_PATIENT_ID_FIELD,
+  hookTrigger = DEFAULT_HOOK_TRIGGER,
 ) => {
   const facilityId = config.serverFacilityId;
   if (!facilityId) {
