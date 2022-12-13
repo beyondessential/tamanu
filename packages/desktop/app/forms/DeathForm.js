@@ -198,6 +198,22 @@ export const DeathForm = React.memo(
           outsideHealthFacility: false,
         }}
       >
+        <StyledFormGrid columns={1}>
+          <Field
+            name="timeOfDeath"
+            label="Date/Time"
+            component={props => <DateTimeField {...props} InputProps={{}} />}
+            saveDateAsString
+            required
+          />
+          <Field
+            name="clinicianId"
+            label="Attending Clinician"
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            required
+          />
+        </StyledFormGrid>
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
             name="causeOfDeath"
@@ -259,20 +275,6 @@ export const DeathForm = React.memo(
             )}
           />
           <FormSeparatorLine />
-          <Field
-            name="clinicianId"
-            label="Attending Clinician"
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-            required
-          />
-          <Field
-            name="timeOfDeath"
-            label="Date/Time"
-            component={props => <DateTimeField {...props} InputProps={{}} />}
-            saveDateAsString
-            required
-          />
           <Field
             name="facilityId"
             label="Facility"
