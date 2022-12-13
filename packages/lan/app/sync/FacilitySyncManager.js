@@ -89,7 +89,6 @@ class FacilitySyncManager {
     const outgoingChanges = await snapshotOutgoingChanges(
       this.sequelize,
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-      sessionId,
       pushSince,
     );
     if (outgoingChanges.length > 0) {
