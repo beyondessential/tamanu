@@ -201,7 +201,6 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   }
 
   @BeforeInsert()
-  @BeforeUpdate()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patientId);
   }

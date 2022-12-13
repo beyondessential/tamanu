@@ -143,7 +143,6 @@ export class Encounter extends BaseModel implements IEncounter {
   vitals: Vitals[];
 
   @BeforeInsert()
-  @BeforeUpdate()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patientId);
   }
