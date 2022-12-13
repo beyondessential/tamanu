@@ -60,10 +60,19 @@ const getVisibleQuestions = (questionComponents, values) =>
       })),
     ),
   );
-const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast }) => {
+
+const DefaultFormScreen = ({
+  screenComponent,
+  values,
+  onStepForward,
+  onStepBack,
+  isLast,
+  screenIndex,
+}) => {
   const { children } = screenComponent.props;
   const questionComponents = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(questionComponents, values);
+  const hasStepBack = screenIndex > 0;
 
   // screenComponent is a react element (not a component) so we have to attach the new children manually
   const updatedScreenComponent = {
@@ -75,7 +84,7 @@ const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast
     <>
       {updatedScreenComponent}
       <Box mt={4} display="flex" justifyContent="space-between">
-        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+        <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
           Back
         </OutlinedButton>
         <Button color="primary" variant="contained" onClick={onStepForward}>
@@ -119,6 +128,7 @@ export const PaginatedForm = ({
   children,
   onSubmit,
   onCancel,
+  FormScreen = DefaultFormScreen,
   SummaryScreen = DefaultSummaryScreen,
   SuccessScreen = DefaultSuccessScreen,
   validationSchema,
@@ -163,7 +173,8 @@ export const PaginatedForm = ({
                 values={values}
                 onStepForward={onStepForward}
                 isLast={isLast}
-                onStepBack={screenIndex > 0 ? onStepBack : null}
+                onStepBack={onStepBack}
+                screenIndex={screenIndex}
               />
             </>
           );
