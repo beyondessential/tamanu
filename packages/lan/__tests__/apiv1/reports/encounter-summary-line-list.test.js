@@ -5,6 +5,7 @@ import {
   ENCOUNTER_TYPES,
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
+  PATIENT_FIELD_DEFINITION_TYPES,
 } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../../utilities';
@@ -93,6 +94,33 @@ const fakeAllData = async models => {
       vaccineId: vaccineDrugId,
     }),
   );
+
+  const { id: fieldDefinitionCategoryId } = await models.PatientFieldDefinitionCategory.create(
+    fake(models.PatientFieldDefinitionCategory, {
+      name: 'Test Field Category',
+    }),
+  );
+
+  const { id: fieldDefinitionId1 } = await models.PatientFieldDefinition.create(
+    fake(models.PatientFieldDefinition, {
+      id: 'test-field-id-1',
+      name: 'Test Field 1',
+      fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+      categoryId: fieldDefinitionCategoryId,
+      options: [],
+    }),
+  );
+
+  await models.PatientFieldDefinition.create(
+    fake(models.PatientFieldDefinition, {
+      id: 'test-field-id-2',
+      name: 'Test Field 2',
+      fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+      categoryId: fieldDefinitionCategoryId,
+      options: [],
+    }),
+  );
+
   const { id: diagnosisId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
       type: REFERENCE_TYPES.ICD10,
@@ -139,6 +167,14 @@ const fakeAllData = async models => {
     }),
   );
 
+  await models.PatientFieldValue.create(
+    fake(models.PatientFieldValue, {
+      definitionId: fieldDefinitionId1,
+      value: 'Test patient field value',
+      patientId: patient.id,
+    }),
+  );
+
   // Decoy encounter to test
   // - location filtering
   // - first_from logic
@@ -156,12 +192,12 @@ const fakeAllData = async models => {
     }),
   );
 
-  const { id: encounterId } = await models.Encounter.create(
+  const encounter = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
       startDate: '2022-06-09 00:02:54',
       endDate: '2022-06-12 00:02:54',
-      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      encounterType: ENCOUNTER_TYPES.TRIAGE,
       reasonForEncounter: 'Severe Migrane',
       examinerId: userId,
       patientBillingTypeId,
@@ -169,6 +205,8 @@ const fakeAllData = async models => {
       departmentId,
     }),
   );
+  const { id: encounterId } = encounter;
+
   // Call build and save to avoid custom triage.create logic
   const triage = models.Triage.build(
     fake(models.Triage, {
@@ -176,13 +214,18 @@ const fakeAllData = async models => {
       score: 2,
       arrivalModeId,
       triageTime: '2022-06-09 02:04:54',
-      closedTime: '2022-06-09 03:07:54',
+      closedTime: null,
     }),
     {
       options: { raw: true },
     },
   );
   await triage.save();
+  // Note that this closes the triage
+  await encounter.update({
+    encounterType: ENCOUNTER_TYPES.ADMISSION,
+    submittedTime: '2022-06-09 03:07:54',
+  });
 
   // Data referenced by the encounter
   await models.PatientBirthData.create(
@@ -328,7 +371,6 @@ const fakeAllData = async models => {
     }),
   );
   // Location/departments:
-  const encounter = await models.Encounter.findByPk(encounterId);
   await encounter.update({
     locationId: location21Id,
     submittedTime: '2022-06-09 08:04:54',
@@ -379,7 +421,7 @@ describe('Encounter summary line list report', () => {
         'Encounter start date': '09-06-2022 12:02 AM',
         'Encounter end date': '12-06-2022 12:02 AM',
         'Discharge Disposition': 'Transfer to another facility',
-        'Triage Encounter': 'Hospital admission',
+        'Triage Encounter': 'Triage',
         'Inpatient Encounter': 'Hospital admission',
         'Outpatient Encounter': null,
         'Triage category': '2',
@@ -404,6 +446,8 @@ describe('Encounter summary line list report', () => {
           'xRay, Areas to be imaged: Left Leg; Right Leg, Notes: Note type: other, Content: Check for fractured knees please, Note date: 10-06-2022 06:04 AM',
         Notes:
           'Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 10-06-2022 03:39 AM; Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 10-06-2022 04:39 AM',
+        'Test Field 1': 'Test patient field value',
+        'Test Field 2': null,
       },
     ]);
   });

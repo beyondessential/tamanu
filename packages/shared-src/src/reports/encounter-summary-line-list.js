@@ -1,8 +1,9 @@
+import config from 'config';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
-const FIELDS = [
+const BASE_FIELDS = [
   'Patient ID',
   'First name',
   'Last name',
@@ -37,16 +38,33 @@ const FIELDS = [
   'Notes',
 ];
 
-const reportColumnTemplate = FIELDS.map(field =>
-  typeof field === 'string'
-    ? {
-        title: field,
-        accessor: data => data[field],
-      }
-    : field,
-);
+const getReportColumnTemplate = async (sequelize, includedPatientFieldIds) => {
+  const includedPatientFields = await sequelize.query(
+    `select id, name from patient_field_definitions where id in (:field_ids)`,
+    {
+      type: sequelize.QueryTypes.SELECT,
+      replacements: {
+        field_ids: includedPatientFieldIds?.length ? includedPatientFieldIds : null,
+      },
+    },
+  );
+  const additionalFields = includedPatientFields.map(({ id, name }) => ({
+    title: name,
+    accessor: data => data[id],
+  }));
+  const fields = [...BASE_FIELDS, ...additionalFields];
 
-const query = `
+  return fields.map(field =>
+    typeof field === 'string'
+      ? {
+          title: field,
+          accessor: data => data[field],
+        }
+      : field,
+  );
+};
+
+const getQuery = includedPatientFieldIds => `
 with
   notes_info as (
     select
@@ -350,6 +368,23 @@ with
     ) total_minutes,
     lateral (select floor(total_minutes / 60) hours) hours,
     lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
+  ),
+  additional_field_info as (
+    select
+      p.id patient_id,
+      d.id field_id,
+      d.name,
+      v.value
+    from patients p,
+     patient_field_definitions d
+	    join lateral (
+	      select value
+	      from patient_field_values v
+	      where v.definition_id = d.id
+	        and v.patient_id = p.id
+	      -- TODO: order by logical clock
+	      order by updated_at desc limit 1
+	    ) v on true
   )
 select
   p.display_id "Patient ID",
@@ -381,6 +416,7 @@ select
   lri."Lab requests",
   ii."Imaging requests",
   ni."Notes"
+${includedPatientFieldIds.map(fieldId => `,"afi_${fieldId}".value "${fieldId}"`).join('\n')}
 from patients p
 join encounters e on e.patient_id = p.id
 left join reference_data billing on billing.id = e.patient_billing_type_id
@@ -395,12 +431,18 @@ left join triage_info ti on ti.encounter_id = e.id
 left join place_info li on li.encounter_id = e.id and li.place = 'location'
 left join place_info di2 on di2.encounter_id = e.id and di2.place = 'department'
 left join encounter_type_info tti on tti.encounter_id = e.id and tti.encounter_type_category = 'Triage Encounter'
-left join encounter_type_info iti on tti.encounter_id = e.id and iti.encounter_type_category = 'Inpatient Encounter'
-left join encounter_type_info oti on tti.encounter_id = e.id and oti.encounter_type_category = 'Outpatient Encounter'
+left join encounter_type_info iti on iti.encounter_id = e.id and iti.encounter_type_category = 'Inpatient Encounter'
+left join encounter_type_info oti on oti.encounter_id = e.id and oti.encounter_type_category = 'Outpatient Encounter'
 left join discharges discharge on discharge.encounter_id = e.id
 left join reference_data discharge_disposition on discharge_disposition.id = discharge.disposition_id
 left join triages t on t.encounter_id = e.id
 left join reference_data arrival_mode on arrival_mode.id = t.arrival_mode_id
+${includedPatientFieldIds
+  .map(
+    fieldId =>
+      `left join additional_field_info "afi_${fieldId}" on "afi_${fieldId}".patient_id = p.id and "afi_${fieldId}".field_id = '${fieldId}'`,
+  )
+  .join('\n')}
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end 
@@ -410,13 +452,13 @@ and case when :to_date is not null then e.start_date::timestamp <= :to_date::tim
 order by e.start_date desc;
 `;
 
-const getData = async (sequelize, parameters) => {
+const getData = async (sequelize, parameters, includedPatientFieldIds) => {
   const { fromDate, toDate, patientBillingType, department, locationGroup } = parameters;
 
   const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
-  return sequelize.query(query, {
+  return sequelize.query(getQuery(includedPatientFieldIds), {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
       from_date: queryFromDate ?? null,
@@ -460,10 +502,14 @@ const formatRow = row =>
   Object.entries(row).reduce((acc, [k, v]) => ({ ...acc, [k]: formatJsonValue(v) }), {});
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
-  const results = await getData(sequelize, parameters);
+  // Note this could be reading from facility config OR central server config
+  const includedPatientFieldIds =
+    config?.reportConfig?.['encounter-summary-line-list']?.includedPatientFieldIds;
 
+  const results = await getData(sequelize, parameters, includedPatientFieldIds);
   const formattedResults = results.map(formatRow);
 
+  const reportColumnTemplate = await getReportColumnTemplate(sequelize, includedPatientFieldIds);
   return generateReportFromQueryData(formattedResults, reportColumnTemplate);
 };
 
