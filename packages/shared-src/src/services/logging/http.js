@@ -44,6 +44,8 @@ const httpFormatter = (tokens, req, res) => {
     field(tokens.url(req, res)),
     '-', // separator for named fields
     field(status, { color: getStatusColor(status), prefix: 'status=' }),
+    field(req._bytesRead?.toFixed(0), { prefix: 'bytes-recv=' }),
+    field(res._bytesWritten?.toFixed(0), { prefix: 'bytes-sent=' }),
     field(tokens['response-time'](req, res), { prefix: 'time-proc=', suffix: 'ms' }),
     field(getSendTime(req, res), { prefix: 'time-send=', suffix: 'ms' }),
     field(userId?.[userId?.length - 1], { color: COLORS.magenta, prefix: 'user=' }),
@@ -52,8 +54,15 @@ const httpFormatter = (tokens, req, res) => {
     .join(' ');
 };
 
+function recordActualBytes(req, res) {
+  req._bytesRead = req.socket.bytesRead - req._prevBytesRead;
+  res._bytesWritten = req.socket.bytesWritten - res._prevBytesWritten;
+  req._prevBytesRead = req.socket.bytesRead;
+  res._prevBytesWritten = req.socket.bytesWritten;
+}
+
 export function getLoggingMiddleware() {
-  return morgan(httpFormatter, {
+  const logger = morgan(httpFormatter, {
     stream: {
       write: message => {
         // strip whitespace (morgan appends a \n, but winston will too!)
@@ -61,4 +70,14 @@ export function getLoggingMiddleware() {
       },
     },
   });
+
+  return (req, res, next) => {
+    // record actual bytes read/written from/to socket, without trusting headers
+    req._prevBytesRead = 0;
+    res._prevBytesWritten = 0;
+    res.on('end', () => recordActualBytes(req, res));
+    res.on('finish', () => recordActualBytes(req, res));
+
+    logger(req, res, next);
+  };
 }
