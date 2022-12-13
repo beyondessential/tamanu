@@ -39,7 +39,7 @@ export class Patient extends Model {
         ],
       },
     );
-    onSaveMarkPatientForSync(this, 'id');
+    onSaveMarkPatientForSync(this, 'id', 'afterSave');
   }
 
   static initRelations(models) {
