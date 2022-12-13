@@ -13,14 +13,14 @@ import { useVitalsSurvey } from '../api/queries';
 import { getConfigObject, getValidationCriteriaObject } from '../utils';
 
 function formatAnswer(amount, config) {
-  const { rounding = 0, accessor } = config || {};
+  const { rounding = 0, accessor, unit } = config || {};
   if (!amount) return '-';
   if (typeof accessor === 'function') {
     return accessor({ amount });
   }
 
   if (parseFloat(amount)) {
-    return parseFloat(amount).toFixed(rounding);
+    return `${parseFloat(amount).toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
   }
   if (typeof amount === 'string') {
     return capitaliseFirstLetter(amount);
