@@ -1,11 +1,10 @@
 import { beforeAll, describe, it } from '@jest/globals';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers/fake';
-import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 
-const fakeRecordFnByMarkForSyncModel = {
+const fakeRecordFnByModel = {
   DocumentMetadata: async (models, patientId) => {
     const { DocumentMetadata } = models;
     return fake(DocumentMetadata, { patientId });
@@ -71,6 +70,37 @@ const fakeRecordFnByMarkForSyncModel = {
       diagnosisId: diagnosis.id,
     });
   },
+  // PatientFieldValue: async (models, patientId) => {
+  //   const { PatientFieldValue, PatientFieldDefinition } = models;
+  //   const definition = await PatientFieldDefinition.create(
+  //     fake(PatientFieldDefinition, {
+  //       fieldType: 'string',
+  //       visibilityStatus: 'current',
+  //     }),
+  //   );
+  //   return PatientFieldValue.create(
+  //     fake(PatientFieldValue, { patientId, definitionId: definition.id }),
+  //   );
+  // },
+  // PatientIssue: async (models, patientId) => {
+  //   const { PatientIssue } = models;
+  //   return PatientIssue.create(fake(PatientIssue, { patientId, type: 'issue' }));
+  // },
+  // PatientSecondaryId: async (models, patientId) => {
+  //   const { PatientSecondaryId } = models;
+  //   return PatientSecondaryId.create(fake(PatientSecondaryId, { patientId }));
+  // },
+};
+
+const textFieldPerModel = {
+  DocumentMetadata: 'name',
+  Encounter: 'reasonForEncounter',
+  PatientAdditionalData: 'passport',
+  PatientAllergy: 'note',
+  PatientBirthData: 'birthDeliveryType',
+  PatientCondition: 'note',
+  PatientDeathData: 'manner',
+  PatientFamilyHistory: 'note',
   // PatientFieldValue: async (models, patientId) => {
   //   const { PatientFieldValue, PatientFieldDefinition } = models;
   //   const definition = await PatientFieldDefinition.create(
@@ -164,7 +194,7 @@ describe('databaseState', () => {
   });
 
   it('creating a record in a relevant table marks the patient for sync', async () => {
-    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByModel)) {
       // create a patient without using hooks so we don't mark them for sync on create
       const patient = await Patient.create(fake(Patient), {
         hooks: false,
@@ -179,7 +209,7 @@ describe('databaseState', () => {
   it('bulk creating records in a relevant table does not mark the patient for sync', async () => {
     // this tests that when they get bulk created during the sync pull process the patient is not
     // immediately marked for sync
-    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByModel)) {
       // create a patient without using hooks so we don't mark them for sync on create
       const patient = await Patient.create(fake(Patient), {
         hooks: false,
@@ -194,7 +224,7 @@ describe('databaseState', () => {
   it('updating a record via modify-and-save in a relevant table does not mark the patient for sync', async () => {
     // we only expect creates of related tables to mark patients for sync, as some facilities sync e.g. all
     // lab request encounters, and if they edit them, we don't want that to add the patient for sync
-    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByModel)) {
       // create a patient without using hooks so we don't mark them for sync on create
       const patient = await Patient.create(fake(Patient), {
         hooks: false,
@@ -204,8 +234,9 @@ describe('databaseState', () => {
       const instance = await models[modelName].create(record, { hooks: false }); // turn off hooks - we're testing update
       await expectPatientFacility(patient.id, false);
 
-      // edit is arbitrary, but id is easiest because all related tables under test use it
-      instance.id = fakeUUID();
+      // edit is arbitrary, use any text field for editing ease
+
+      instance[textFieldPerModel[modelName]] = 'xxx';
       await instance.save();
       await expectPatientFacility(patient.id, false);
     }
@@ -214,7 +245,7 @@ describe('databaseState', () => {
   it('updating a record via update() in a relevant table does not mark the patient for sync', async () => {
     // we only expect creates of related tables to mark patients for sync, as some facilities sync e.g. all
     // lab request encounters, and if they edit them, we don't want that to add the patient for sync
-    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByModel)) {
       // create a patient without using hooks so we don't mark them for sync on create
       const patient = await Patient.create(fake(Patient), {
         hooks: false,
@@ -224,8 +255,8 @@ describe('databaseState', () => {
       const instance = await models[modelName].create(record, { hooks: false }); // turn off hooks - we're testing update
       await expectPatientFacility(patient.id, false);
 
-      // edit is arbitrary, but id is easiest because all related tables under test use it
-      await instance.update({ id: fakeUUID });
+      // edit is arbitrary, use any text field for editing ease
+      await instance.update({ [textFieldPerModel[modelName]]: 'xxx' });
       await expectPatientFacility(patient.id, false);
     }
   });
@@ -233,7 +264,7 @@ describe('databaseState', () => {
   it('updating a record via bulk update in a relevant table does not mark the patient for sync', async () => {
     // we only expect creates of related tables to mark patients for sync, as some facilities sync e.g. all
     // lab request encounters, and if they edit them, we don't want that to add the patient for sync
-    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByMarkForSyncModel)) {
+    for (const [modelName, fakeRecord] of Object.entries(fakeRecordFnByModel)) {
       // create a patient without using hooks so we don't mark them for sync on create
       const patient = await Patient.create(fake(Patient), {
         hooks: false,
@@ -243,8 +274,11 @@ describe('databaseState', () => {
       await models[modelName].create(record, { hooks: false }); // turn off hooks - we're testing update
       await expectPatientFacility(patient.id, false);
 
-      // edit is arbitrary, but id is easiest because all related tables under test use it
-      await models[modelName].update({ ...record, id: fakeUUID() }, { where: { id: record.id } });
+      // edit is arbitrary, use any text field for editing ease
+      await models[modelName].update(
+        { ...record, [textFieldPerModel[modelName]]: 'xxx' },
+        { where: { id: record.id } },
+      );
       await expectPatientFacility(patient.id, false);
     }
   });
