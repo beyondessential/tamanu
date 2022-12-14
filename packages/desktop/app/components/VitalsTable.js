@@ -151,7 +151,7 @@ const useVitals = encounterId => {
     vitalsRecords = vitalsSurvey.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
       .map(({ id, config, validationCriteria, dataElement }) => {
-        const { records } = elementIdToAnswer[dataElement.id] || { records: {} };
+        const { records = {} } = elementIdToAnswer[dataElement.id] || {};
         const validationCriteriaObj = getValidationCriteriaObject(id, validationCriteria);
         const configObj = getConfigObject(id, config);
         return recordedDates.reduce(
