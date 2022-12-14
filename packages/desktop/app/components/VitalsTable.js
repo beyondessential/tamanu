@@ -60,47 +60,32 @@ const VitalsHeadCellWrapper = styled.div`
   }
 `;
 
-function formatAnswer(amount, config) {
-  const { rounding = 0, accessor, unit } = config || {};
-  if (!amount) return '-';
-  if (typeof accessor === 'function') {
-    return accessor({ amount });
-  }
-
-  if (parseFloat(amount)) {
-    return `${parseFloat(amount).toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
-  }
-  if (typeof amount === 'string') {
-    return capitaliseFirstLetter(amount);
-  }
-  return amount;
+function parseNumericAnswer(answer) {
+  const value = parseFloat(answer);
+  if (isNaN(value)) return null;
+  return value;
 }
 
-function valueInfo(value, config) {
-  const { unit } = config || {};
-  if (!unit || unit.length <= 2) return null;
-  return {
-    tooltip: `${value}${unit}`,
-  };
-}
-
-function rangeAlert(amount, validationCriteria, config) {
-  const { normalRange } = validationCriteria || {};
+function getVitalsCellTooltip(value, validationCriteria, config) {
   const { unit = '', rounding = 0 } = config || {};
-
-  const val = parseFloat(amount);
-  const fixedVal = val.toFixed(rounding);
-  if (!normalRange) {
-    return valueInfo(fixedVal, config);
+  const { normalRange } = validationCriteria || {};
+  const isWithinRange = !normalRange || (value <= normalRange.max && value >= normalRange.min);
+  if (isWithinRange) {
+    if (!unit || unit.length <= 2) return null;
+    // Show tooltip to show full value and unit
+    const fixedVal = value.toFixed(rounding);
+    return {
+      tooltip: `${fixedVal}${unit}`,
+      severity: 'info',
+    };
   }
+  // Show Outside range tooltip
   let tooltip = `Outside normal range\n`;
 
-  if (val < normalRange.min) {
+  if (value < normalRange.min) {
     tooltip += `<${normalRange.min}${unit}`;
-  } else if (val > normalRange.max) {
+  } else if (value > normalRange.max) {
     tooltip += `>${normalRange.max}${unit}`;
-  } else {
-    return valueInfo(fixedVal, config);
   }
 
   return {
@@ -109,12 +94,35 @@ function rangeAlert(amount, validationCriteria, config) {
   };
 }
 
-function rangeInfo(validationCriteria, config) {
+function vitalsCellConfig(answer, validationCriteria, config) {
+  const { rounding = 0, accessor, unit } = config || {};
+  let value = answer;
+  let tooltipConfig = null;
+  const float = parseNumericAnswer(answer);
+  if (float === null) {
+    // Non-numeric value
+    if (typeof accessor === 'function') {
+      value = accessor({ amount: answer });
+    } else {
+      value = answer ? capitaliseFirstLetter(answer) : '-';
+    }
+  } else {
+    // Numeric value
+    tooltipConfig = getVitalsCellTooltip(float, validationCriteria, config);
+    const showUnit = unit && unit.length <= 2;
+    value = `${float.toFixed(rounding)}${showUnit ? unit : ''}`;
+  }
+  return { value, ...tooltipConfig };
+}
+
+function measureCellConfig(value, validationCriteria, config) {
+  const { unit } = config || {};
   const { normalRange } = validationCriteria || {};
-  const { unit = '' } = config || {};
-  if (!normalRange) return null;
+  const tooltip =
+    normalRange && `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`;
   return {
-    tooltip: `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`,
+    value,
+    tooltip,
     severity: 'info',
   };
 }
@@ -145,18 +153,12 @@ const useVitals = encounterId => {
         const validationCriteriaObj = getValidationCriteriaObject(id, validationCriteria);
         const configObj = getConfigObject(id, config);
         return {
-          title: {
-            value: dataElement.name,
-            ...rangeInfo(validationCriteriaObj, configObj),
-          },
+          title: measureCellConfig(dataElement.name, validationCriteriaObj, configObj),
           ...recordedDates.reduce((state, date) => {
             const answer = records[date];
             return {
               ...state,
-              [date]: {
-                value: formatAnswer(answer, configObj),
-                ...rangeAlert(answer, validationCriteriaObj, configObj),
-              },
+              [date]: vitalsCellConfig(answer, validationCriteriaObj, configObj),
             };
           }, {}),
         };
@@ -170,7 +172,6 @@ const useVitals = encounterId => {
     error,
   };
 };
-
 
 const VitalsHeadCell = React.memo(({ date }) => (
   <TableTooltip title={formatLong(date)}>
@@ -188,7 +189,7 @@ const VitalsCell = React.memo(({ value, tooltip, severity }) =>
     </TableTooltip>
   ) : (
     <VitalsCellWrapper>{value}</VitalsCellWrapper>
-  )
+  ),
 );
 
 export const VitalsTable = React.memo(() => {
