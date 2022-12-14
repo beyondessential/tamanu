@@ -88,6 +88,7 @@ export const LocationInput = React.memo(
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={disabled}
+          autofill
         />
         <AutocompleteInput
           label={label}
@@ -100,6 +101,7 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
+          autofill
         />
       </>
     );
