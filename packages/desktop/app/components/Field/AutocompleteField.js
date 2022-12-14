@@ -92,16 +92,20 @@ class BaseAutocomplete extends Component {
     if (value !== prevProps.value) {
       await this.updateValue();
     }
+    if (value === '') {
+      await this.attemptAutoFill();
+    }
   }
 
   updateValue = async () => {
-    const { value, suggester, autofill } = this.props;
+    const { value, suggester } = this.props;
 
     if (!suggester || value === undefined) {
       return;
     }
     if (value === '') {
       this.setState({ selectedOption: { value: '', tag: null } });
+      this.attemptAutoFill();
       return;
     }
     const currentOption = await suggester.fetchCurrentOption(value);
@@ -126,7 +130,7 @@ class BaseAutocomplete extends Component {
   };
 
   fetchOptions = async ({ value, reason }) => {
-    const { suggester, options, autofill, name } = this.props;
+    const { suggester, options } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -137,19 +141,34 @@ class BaseAutocomplete extends Component {
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
-    if (autofill && value === '' && suggestions.length === 1) {
-      const autoSelectOption = suggestions[0];
-      this.setState({
-        selectedOption: {
-          value: autoSelectOption.label,
-          tag: autoSelectOption.tag,
-        },
-      });
-      this.handleSuggestionChange({ value: autoSelectOption.value, name });
-      return;
+    if (value === '') {
+      if (await this.attemptAutoFill({ suggestions })) return;
     }
 
     this.setState({ suggestions });
+  };
+
+  attemptAutoFill = async (overrides = { suggestions: null }) => {
+    const { suggester, options, autofill, name } = this.props;
+    if (!autofill) {
+      return false;
+    }
+    const suggestions =
+      overrides.suggestions || suggester
+        ? await suggester.fetchSuggestions('')
+        : options.filter(x => x.label.toLowerCase().includes(''));
+    if (suggestions.length !== 1) {
+      return false;
+    }
+    const autoSelectOption = suggestions[0];
+    this.setState({
+      selectedOption: {
+        value: autoSelectOption.label,
+        tag: autoSelectOption.tag,
+      },
+    });
+    this.handleSuggestionChange({ value: autoSelectOption.value, name });
+    return true;
   };
 
   handleInputChange = (event, { newValue }) => {
