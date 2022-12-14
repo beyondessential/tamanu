@@ -21,7 +21,9 @@ patientFacility.post('/$', async (req, res) => {
 
   // this endpoint functions as a "find or update", avoiding any issues where another device marks
   // the patient for sync, and that copy syncs in after the user is already in the patient page
-  const record = await models.PatientFacility.findOrCreate({ facilityId, patientId });
+  const record = await models.PatientFacility.findOrCreate({
+    where: { facilityId, patientId },
+  });
 
   // trigger a sync to immediately start pulling data for this patient
   syncManager.triggerSync();
