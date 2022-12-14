@@ -153,7 +153,7 @@ const Text = styled(BodyText)`
   margin-top: -5px;
 `;
 
-export const LocationAvailabilityWarningMessage = ({ locationId }) => {
+export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => {
   const { data, isSuccess } = useLocationSuggestion(locationId);
 
   if (!isSuccess) {
@@ -164,7 +164,7 @@ export const LocationAvailabilityWarningMessage = ({ locationId }) => {
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <Text>
+      <Text {...props}>
         <span style={{ color: Colors.alert }}>*</span> This location is reserved by another patient.
         Please ensure the bed is available before confirming.
       </Text>
@@ -173,7 +173,7 @@ export const LocationAvailabilityWarningMessage = ({ locationId }) => {
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <Text>
+      <Text {...props}>
         <span style={{ color: Colors.alert }}>*</span> This location is occupied by another patient.
         Please ensure the bed is available before confirming.
       </Text>
