@@ -70,29 +70,33 @@ const fakeRecordFnByModel = {
       diagnosisId: diagnosis.id,
     });
   },
-  // PatientFieldValue: async (models, patientId) => {
-  //   const { PatientFieldValue, PatientFieldDefinition } = models;
-  //   const definition = await PatientFieldDefinition.create(
-  //     fake(PatientFieldDefinition, {
-  //       fieldType: 'string',
-  //       visibilityStatus: 'current',
-  //     }),
-  //   );
-  //   return PatientFieldValue.create(
-  //     fake(PatientFieldValue, { patientId, definitionId: definition.id }),
-  //   );
-  // },
-  // PatientIssue: async (models, patientId) => {
-  //   const { PatientIssue } = models;
-  //   return PatientIssue.create(fake(PatientIssue, { patientId, type: 'issue' }));
-  // },
-  // PatientSecondaryId: async (models, patientId) => {
-  //   const { PatientSecondaryId } = models;
-  //   return PatientSecondaryId.create(fake(PatientSecondaryId, { patientId }));
-  // },
+  PatientFieldValue: async (models, patientId) => {
+    const { PatientFieldValue, PatientFieldDefinition, PatientFieldDefinitionCategory } = models;
+    const category = await PatientFieldDefinitionCategory.create(
+      fake(PatientFieldDefinitionCategory),
+    );
+    const definition = await PatientFieldDefinition.create(
+      fake(PatientFieldDefinition, {
+        fieldType: 'string',
+        visibilityStatus: 'current',
+        categoryId: category.id,
+        options: ['one', 'two', 'xxx'],
+      }),
+    );
+    return fake(PatientFieldValue, { patientId, definitionId: definition.id, value: 'one' });
+  },
+  PatientIssue: async (models, patientId) => {
+    const { PatientIssue } = models;
+    return fake(PatientIssue, { patientId, type: 'issue' });
+  },
+  PatientSecondaryId: async (models, patientId) => {
+    const { PatientSecondaryId, ReferenceData } = models;
+    const type = await ReferenceData.create(fakeReferenceData());
+    return fake(PatientSecondaryId, { patientId, typeId: type.id });
+  },
 };
 
-const textFieldPerModel = {
+const textFieldByModel = {
   DocumentMetadata: 'name',
   Encounter: 'reasonForEncounter',
   PatientAdditionalData: 'passport',
@@ -101,26 +105,9 @@ const textFieldPerModel = {
   PatientCondition: 'note',
   PatientDeathData: 'manner',
   PatientFamilyHistory: 'note',
-  // PatientFieldValue: async (models, patientId) => {
-  //   const { PatientFieldValue, PatientFieldDefinition } = models;
-  //   const definition = await PatientFieldDefinition.create(
-  //     fake(PatientFieldDefinition, {
-  //       fieldType: 'string',
-  //       visibilityStatus: 'current',
-  //     }),
-  //   );
-  //   return PatientFieldValue.create(
-  //     fake(PatientFieldValue, { patientId, definitionId: definition.id }),
-  //   );
-  // },
-  // PatientIssue: async (models, patientId) => {
-  //   const { PatientIssue } = models;
-  //   return PatientIssue.create(fake(PatientIssue, { patientId, type: 'issue' }));
-  // },
-  // PatientSecondaryId: async (models, patientId) => {
-  //   const { PatientSecondaryId } = models;
-  //   return PatientSecondaryId.create(fake(PatientSecondaryId, { patientId }));
-  // },
+  PatientFieldValue: 'value',
+  PatientIssue: 'note',
+  PatientSecondaryId: 'value',
 };
 
 describe('databaseState', () => {
@@ -236,7 +223,7 @@ describe('databaseState', () => {
 
       // edit is arbitrary, use any text field for editing ease
 
-      instance[textFieldPerModel[modelName]] = 'xxx';
+      instance[textFieldByModel[modelName]] = 'xxx';
       await instance.save();
       await expectPatientFacility(patient.id, false);
     }
@@ -256,7 +243,7 @@ describe('databaseState', () => {
       await expectPatientFacility(patient.id, false);
 
       // edit is arbitrary, use any text field for editing ease
-      await instance.update({ [textFieldPerModel[modelName]]: 'xxx' });
+      await instance.update({ [textFieldByModel[modelName]]: 'xxx' });
       await expectPatientFacility(patient.id, false);
     }
   });
@@ -276,7 +263,7 @@ describe('databaseState', () => {
 
       // edit is arbitrary, use any text field for editing ease
       await models[modelName].update(
-        { ...record, [textFieldPerModel[modelName]]: 'xxx' },
+        { ...record, [textFieldByModel[modelName]]: 'xxx' },
         { where: { id: record.id } },
       );
       await expectPatientFacility(patient.id, false);
