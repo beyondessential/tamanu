@@ -145,23 +145,22 @@ const useVitals = encounterId => {
     recordedDates = Object.keys(
       data.find(vital => vital.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded).records,
     );
+
     const elementIdToAnswer = data.reduce((dict, a) => ({ ...dict, [a.dataElementId]: a }), {});
+
     vitalsRecords = vitalsSurvey.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
       .map(({ id, config, validationCriteria, dataElement }) => {
-        const { records = {} } = elementIdToAnswer[dataElement.id] || {};
+        const { records } = elementIdToAnswer[dataElement.id] || { records: {} };
         const validationCriteriaObj = getValidationCriteriaObject(id, validationCriteria);
         const configObj = getConfigObject(id, config);
-        return {
-          title: measureCellConfig(dataElement.name, validationCriteriaObj, configObj),
-          ...recordedDates.reduce((state, date) => {
-            const answer = records[date];
-            return {
-              ...state,
-              [date]: vitalsCellConfig(answer, validationCriteriaObj, configObj),
-            };
-          }, {}),
-        };
+        return recordedDates.reduce(
+          (state, date) => ({
+            ...state,
+            [date]: vitalsCellConfig(records[date], validationCriteriaObj, configObj),
+          }),
+          { title: measureCellConfig(dataElement.name, validationCriteriaObj, configObj) },
+        );
       });
   }
 
