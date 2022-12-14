@@ -22,8 +22,6 @@ import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
 
-const TIME_OFFSET = 3;
-
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -140,16 +138,11 @@ export class Encounter extends BaseModel implements IEncounter {
   ): Promise<Encounter> {
     const repo = this.getRepository();
 
-    // The 3 hour offset is a completely arbitrary time we decided would be safe to
-    // close the previous days encounters at, rather than midnight.
-    const date = addHours(startOfDay(new Date()), TIME_OFFSET);
-
+    // Get the latest open encounter, if there is one
     const found = await repo
       .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
-      .andWhere("startDate >= datetime(:date, 'unixepoch')", {
-        date: formatDateForQuery(date),
-      })
+      .where('endDate IS NOT NULL')
       .orderBy('startDate', 'DESC')
       .getOne();
 
@@ -205,6 +198,10 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
+    // The 3 hour offset is a completely arbitrary time we decided would be safe to
+    // close the previous days encounters at, rather than midnight.
+    const TIME_OFFSET = 3;
+
     const repo = this.getRepository();
     // 28 days ago for report
     const date = subDays(addHours(startOfDay(new Date()), TIME_OFFSET), 28);
