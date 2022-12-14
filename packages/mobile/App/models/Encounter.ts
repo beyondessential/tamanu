@@ -142,7 +142,7 @@ export class Encounter extends BaseModel implements IEncounter {
     const found = await repo
       .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
-      .where('endDate IS NOT NULL')
+      .where('endDate IS NULL')
       .orderBy('startDate', 'DESC')
       .getOne();
 
