@@ -95,7 +95,7 @@ class BaseAutocomplete extends Component {
   }
 
   updateValue = async () => {
-    const { value, suggester } = this.props;
+    const { value, suggester, autofill } = this.props;
 
     if (!suggester || value === undefined) {
       return;
@@ -126,7 +126,7 @@ class BaseAutocomplete extends Component {
   };
 
   fetchOptions = async ({ value, reason }) => {
-    const { suggester, options } = this.props;
+    const { suggester, options, autofill, name } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -136,6 +136,18 @@ class BaseAutocomplete extends Component {
     const suggestions = suggester
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
+
+    if (autofill && value === '' && suggestions.length === 1) {
+      const autoSelectOption = suggestions[0];
+      this.setState({
+        selectedOption: {
+          value: autoSelectOption.label,
+          tag: autoSelectOption.tag,
+        },
+      });
+      this.handleSuggestionChange({ value: autoSelectOption.value, name });
+      return;
+    }
 
     this.setState({ suggestions });
   };
@@ -294,6 +306,7 @@ BaseAutocomplete.propTypes = {
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     }),
   ),
+  autofill: PropTypes.bool,
 };
 
 BaseAutocomplete.defaultProps = {
@@ -307,6 +320,7 @@ BaseAutocomplete.defaultProps = {
   value: '',
   options: [],
   suggester: null,
+  autofill: false,
 };
 
 export const AutocompleteInput = styled(BaseAutocomplete)`
