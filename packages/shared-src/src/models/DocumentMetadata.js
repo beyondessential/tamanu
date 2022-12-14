@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -36,6 +38,8 @@ export class DocumentMetadata extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
