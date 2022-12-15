@@ -1,16 +1,14 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import {
-  REFERENCE_TYPES,
   LAB_REQUEST_STATUSES,
   NOTE_TYPES,
   NOTE_RECORD_TYPES,
-  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';

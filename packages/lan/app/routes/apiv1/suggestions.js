@@ -9,7 +9,6 @@ import {
   REFERENCE_TYPE_VALUES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
-  REFERENCE_TYPES,
 } from 'shared/constants';
 
 export const suggestions = express.Router();
@@ -113,7 +112,7 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-REFERENCE_TYPE_VALUES.map(typeName => {
+REFERENCE_TYPE_VALUES.forEach(typeName => {
   createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
     type: typeName,
     ...VISIBILITY_CRITERIA,
