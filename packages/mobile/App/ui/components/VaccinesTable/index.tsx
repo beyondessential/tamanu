@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
@@ -22,7 +22,7 @@ export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
-}: VaccinesTableProps): ReactElement => {
+}: VaccinesTableProps) : JSX.Element => {
   const isFocused = useIsFocused();
 
   const [scheduledVaccines, error] = useBackendEffect(

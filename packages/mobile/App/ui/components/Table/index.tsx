@@ -4,37 +4,37 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 export type TableHeader = {
   key: string;
-  accessor: (value: string, onPress: (item: any) => void) => Element;
+  accessor: (value: string, onPress: (item: any) => void) => JSX.Element;
 }
 
-export type Row = {
+export type TableRow = {
   rowKey: string;
   rowTitle: string;
-  rowHeader: () => Element;
-  cell: (cellContent: any) => Element;
+  rowHeader: () => JSX.Element;
+  cell: (cellContent: any) => JSX.Element;
 };
 
-export type Cells<T> = {
+export type TableCells<T> = {
   [key: string]: T[];
 }
 
 interface TableProps {
-  Title: React.FC<any>;
-  cells: Cells<any>;
-  rows: Row[];
+  Title: React.MemoExoticComponent<() => JSX.Element> | (() => JSX.Element);
+  cells: TableCells<any>;
+  rows: TableRow[];
   columns: string[];
   tableHeader: TableHeader;
   onPressItem?: (item: any) => void;
 }
 
-export const Table : React.FC<TableProps> = ({
+export const Table = ({
   Title,
   rows,
   columns,
   cells,
   tableHeader,
   onPressItem,
-}) => (
+}: TableProps): JSX.Element => (
   <RowView>
     <StyledView>
       <Title />

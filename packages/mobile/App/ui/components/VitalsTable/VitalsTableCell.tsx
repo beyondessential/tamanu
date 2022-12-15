@@ -19,10 +19,10 @@ const checkNeedsAttention = (
   return fValue > normalRange.max || fValue < normalRange.min;
 };
 
-export const VitalsTableCell : React.FC<VitalsTableCellProps> = ({
+export const VitalsTableCell = ({
   data,
   validationCriteria = {},
-}) => {
+}: VitalsTableCellProps) : JSX.Element => {
   const cellValue = data?.body || '';
   return (
     <StyledView

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
-import { Cells, Table } from '../Table';
+import { Table, TableCells } from '../Table';
 import { vitalsTableRows } from './VitalsTableRows';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
@@ -12,11 +12,11 @@ import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
 interface VitalsTableProps {
-  data: Cells<PatientVitalsProps>;
+  data: TableCells<PatientVitalsProps>;
   columns: string[];
 }
 
-export const VitalsTable: React.FC<VitalsTableProps> = memo(({ data, columns }) => {
+export const VitalsTable = memo(({ data, columns }: VitalsTableProps) : JSX.Element => {
   const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
 
   if (!vitalsSurvey) {

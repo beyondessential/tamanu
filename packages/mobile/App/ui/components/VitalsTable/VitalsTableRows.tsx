@@ -1,10 +1,10 @@
 import React from 'react';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
-import { Row } from '../Table';
+import { TableRow } from '../Table';
 import { ISurveyScreenComponent } from '~/types';
 
-export const vitalsTableRows = (rows: ISurveyScreenComponent[]): Row[] => rows.map(r => {
+export const vitalsTableTableRows = (rows: ISurveyScreenComponent[]): TableRow[] => rows.map(r => {
   const validationCriteria = r.getValidationCriteriaObject();
   return {
     rowKey: 'dataElementId',

@@ -1,11 +1,14 @@
-import React from 'react';
-import { TableCellProps } from './TableCell';
+import React, { ReactNode } from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 
-export const RowHeaderCell : React.FC<TableCellProps> = ({
+export interface TableCellProps {
+  children: ReactNode;
+}
+
+export const RowHeaderCell = ({
   children,
-}) => (
+} : TableCellProps) : JSX.Element => (
   <StyledView
     width={130}
     borderRightWidth={1}

@@ -7,7 +7,7 @@ interface VitalsTableRowHeaderProps {
   title: string;
 }
 
-export const VitalsTableRowHeader: React.FC<VitalsTableRowHeaderProps> = ({ title }) => (
+export const VitalsTableRowHeader = ({ title }: VitalsTableRowHeaderProps) : JSX.Element => (
   <StyledView
     width={screenPercentageToDP(31.63, Orientation.Width)}
     borderRightWidth={1}
