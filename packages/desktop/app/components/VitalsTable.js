@@ -22,17 +22,14 @@ const StyledTable = styled(Table)`
       z-index: 1;
       border-right: 1px solid ${Colors.outline};
     }
-
     thead tr th:first-child {
       background: ${Colors.background};
       width: 160px;
       min-width: 160px;
     }
-
     tbody tr td:first-child {
       background: ${Colors.white};
     }
-
     tfoot tr td button {
       position: sticky;
       left: 16px;
