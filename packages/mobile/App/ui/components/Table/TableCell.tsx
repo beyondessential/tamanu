@@ -2,11 +2,11 @@ import React, { ReactNode } from 'react';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 
-interface TableCellProps {
+export interface TableCellProps {
   children: ReactNode;
 }
 
-export const TableCell = ({ children }: TableCellProps): JSX.Element => (
+export const TableCell : React.FC<TableCellProps> = ({ children }) => (
   <StyledView
     height={45}
     paddingLeft={15}

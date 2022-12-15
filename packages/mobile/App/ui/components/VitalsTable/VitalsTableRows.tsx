@@ -1,24 +1,17 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
+import { Row } from '../Table';
 import { ISurveyScreenComponent } from '~/types';
 
-type VitalTableRow = {
-  rowKey: 'dataElementId';
-  rowTitle: string;
-  rowHeader: () => ReactElement;
-  cell: (cellData: any) => ReactElement;
-}
-
-export const vitalsTableRows = (rows: ISurveyScreenComponent[]): VitalTableRow[] => rows.map(r => {
+export const vitalsTableRows = (rows: ISurveyScreenComponent[]): Row[] => rows.map(r => {
   const validationCriteria = r.getValidationCriteriaObject();
   return {
     rowKey: 'dataElementId',
     rowTitle: r.dataElementId,
     rowHeader: () => <VitalsTableRowHeader title={r.dataElement.name} />,
-    cell: (cellData): ReactElement => (
+    cell: (cellData) => (
       <VitalsTableCell
-        rowKey={r}
         data={cellData}
         validationCriteria={validationCriteria}
         key={cellData?.id || r.id}

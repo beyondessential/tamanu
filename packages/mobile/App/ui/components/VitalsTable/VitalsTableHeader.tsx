@@ -5,11 +5,11 @@ import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TableHeader } from '../Table';
 
-export const vitalsTableHeader = {
+export const vitalsTableHeader : TableHeader = {
   key: 'date',
-  tableHeader: true,
-  accessor: (date: string): JSX.Element => (
+  accessor: (date) => (
     <StyledView
       // key={date}
       width={screenPercentageToDP(20.68, Orientation.Width)}
