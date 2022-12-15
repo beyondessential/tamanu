@@ -90,9 +90,8 @@ export const LabRequestForm = ({
 }) => {
   const api = useApi();
 
-  const { data: testTypes, isLoading: testTypesLoading } = useQuery(
-    ['labTestTypes'],
-    () => api.get('suggestions/labTestType/all'),
+  const { data: testTypes, isLoading: testTypesLoading } = useQuery(['labTestTypes'], () =>
+    api.get('suggestions/labTestType/all'),
   );
 
   const renderForm = ({ values, submitForm }) => {

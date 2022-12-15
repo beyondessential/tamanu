@@ -113,27 +113,18 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-REFERENCE_TYPE_VALUES
-  .map(typeName => {
-    createAllRecordsSuggesterRoute(
-      typeName, 
-      'ReferenceData',
-      {
-        type: typeName,
-        ...VISIBILITY_CRITERIA,
-      }
-    );
-
-    createSuggester(
-      typeName, 
-      'ReferenceData', 
-      search => ({
-        name: { [Op.iLike]: search },
-        type: typeName,
-        ...VISIBILITY_CRITERIA,
-      })
-    );
+REFERENCE_TYPE_VALUES.map(typeName => {
+  createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
+    type: typeName,
+    ...VISIBILITY_CRITERIA,
   });
+
+  createSuggester(typeName, 'ReferenceData', search => ({
+    name: { [Op.iLike]: search },
+    type: typeName,
+    ...VISIBILITY_CRITERIA,
+  }));
+});
 
 createAllRecordsSuggesterRoute(
   'labTestType',
