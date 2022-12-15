@@ -19,8 +19,3 @@ export const usePatientSuggester = () => {
     }),
   });
 };
-
-export const useLocationGroupSuggester = () => {
-  const api = useApi();
-  return new Suggester(api, 'facilityLocationGroup');
-};
