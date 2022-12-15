@@ -11,7 +11,6 @@ export const vitalsTableHeader : TableHeader = {
   key: 'date',
   accessor: (date) => (
     <StyledView
-      // key={date}
       width={screenPercentageToDP(20.68, Orientation.Width)}
       height={screenPercentageToDP(4.86, Orientation.Height)}
       justifyContent="center"

@@ -4,7 +4,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 export type TableHeader = {
   key: string;
-  accessor: (value: string) => Element;
+  accessor: (value: string, onPress: (item: any) => void) => Element;
 }
 
 export type Row = {
@@ -23,7 +23,7 @@ interface TableProps {
   cells: Cells<any>;
   rows: Row[];
   columns: string[];
-  tableHeader: any;
+  tableHeader: TableHeader;
   onPressItem?: (item: any) => void;
 }
 
