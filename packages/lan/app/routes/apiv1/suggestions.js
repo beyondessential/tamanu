@@ -9,6 +9,7 @@ import {
   REFERENCE_TYPE_VALUES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
+  REFERENCE_TYPES,
 } from 'shared/constants';
 
 export const suggestions = express.Router();
@@ -25,7 +26,7 @@ function createSuggesterRoute(
   searchColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}`,
+    `/${endpoint}$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -78,7 +79,7 @@ function createAllRecordsSuggesterRoute(
   orderColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}/all`,
+    `/${endpoint}/all$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -112,19 +113,33 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-REFERENCE_TYPE_VALUES.map(typeName =>
-  createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
-    type: typeName,
-    ...VISIBILITY_CRITERIA,
-  }),
-);
+REFERENCE_TYPE_VALUES
+  .map(typeName => {
+    createAllRecordsSuggesterRoute(
+      typeName, 
+      'ReferenceData',
+      {
+        type: typeName,
+        ...VISIBILITY_CRITERIA,
+      }
+    );
 
-REFERENCE_TYPE_VALUES.map(typeName =>
-  createSuggester(typeName, 'ReferenceData', search => ({
-    name: { [Op.iLike]: search },
-    type: typeName,
-    ...VISIBILITY_CRITERIA,
-  })),
+    createSuggester(
+      typeName, 
+      'ReferenceData', 
+      search => ({
+        name: { [Op.iLike]: search },
+        type: typeName,
+        ...VISIBILITY_CRITERIA,
+      })
+    );
+  });
+
+createAllRecordsSuggesterRoute(
+  'labTestType',
+  'LabTestType',
+  VISIBILITY_CRITERIA,
+  ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 );
 
 const DEFAULT_WHERE_BUILDER = search => ({
