@@ -15,7 +15,7 @@ import {
 //
 // where interface LoadRow { model: string; values: object; }
 //
-// creating dependency cycles is a sin (it will deadloop, don't do it)
+// creating dependency cycles will (intentionally) crash the importer
 export default {
   user: {},
 
@@ -59,4 +59,6 @@ export default {
     loader: patientFieldDefinitionLoader,
     needs: ['patientFieldDefinitionCategory'],
   },
+
+  imagingAreaExternalCode: {},
 };

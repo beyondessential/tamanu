@@ -87,7 +87,5 @@ export class OutpatientDischarger extends ScheduledTask {
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
-
-    log.info('OutpatientDischarger finished running');
   }
 }

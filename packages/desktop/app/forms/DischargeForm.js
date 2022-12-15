@@ -19,6 +19,8 @@ import {
   TextField,
   CheckField,
   StyledTextField,
+  LocalisedField,
+  useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
@@ -29,7 +31,6 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import { useLocalisation } from '../contexts/Localisation';
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -219,8 +220,7 @@ export const DischargeForm = ({
   const { encounter } = useEncounter();
   const [dischargeNotePages, setDischargeNotePages] = useState([]);
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const dischargeDisposition = Boolean(getLocalisation('features.enableDischargeDisposition'));
+  const { getLocalisedSchema } = useLocalisedSchema();
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
@@ -266,14 +266,12 @@ export const DischargeForm = ({
           suggester={practitionerSuggester}
           required
         />
-        {dischargeDisposition && (
-          <Field
-            name="discharge.dispositionId"
-            label="Discharge disposition"
-            component={AutocompleteField}
-            suggester={dispositionSuggester}
-          />
-        )}
+        <LocalisedField
+          name="discharge.dispositionId"
+          path="fields.dischargeDisposition"
+          component={AutocompleteField}
+          suggester={dispositionSuggester}
+        />
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>
@@ -314,6 +312,11 @@ export const DischargeForm = ({
           .object()
           .shape({
             dischargerId: foreignKey('Discharging physician is a required field'),
+          })
+          .shape({
+            dispositionId: getLocalisedSchema({
+              name: 'dischargeDisposition',
+            }),
           })
           .required(),
       })}
