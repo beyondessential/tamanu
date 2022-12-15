@@ -24,6 +24,7 @@ const ALLOWLIST = [
   'facility',
   'fluroscopyImagingArea',
   'holterMonitorImagingArea',
+  'imagingAreaExternalCode',
   'imagingType',
   'invoiceLineType',
   'invoicePriceChangeType',

@@ -1,0 +1,85 @@
+name: Run lint auto fix on a PR
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  lint-fix:
+    if: ${{ github.event.issue.pull_request && contains('!lint-fix', github.event.comment.body) }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Enable OIDC
+      pull-requests: write
+      contents: write
+    steps:
+    - name: Check that !lint-fix is at the start of a line
+      shell: node {0}
+      env:
+        COMMENT: ${{ github.event.comment.body }}
+      run: |
+        const matcher = /^!lint-fix/m;
+        const comment = process.env['COMMENT'];
+        if (!comment.match(matcher)) {
+          process.exit(1);
+        }
+
+    - name: Signal we're processing the comment
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const {owner, repo} = context.issue
+          github.reactions.createForIssueComment({
+            owner,
+            repo,
+            comment_id: context.payload.comment.id,
+            content: "eyes",
+          });
+
+    - name: Get PR branch
+      id: branch
+      uses: actions/github-script@v4
+      with:
+        result-encoding: string
+        script: |
+          const {owner, repo, number} = context.issue;
+          const pr = await github.pulls.get({
+            owner,
+            repo,
+            pull_number: number,
+          });
+          return pr.data.head.ref;
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ steps.branch.outputs.result }}
+
+    - name: Setup Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: yarn
+
+    - uses: chainguard-dev/actions/setup-gitsign@main
+    - name: Autolint
+      run: |
+        yarn install --frozen-lockfile
+        yarn build-shared
+        yarn lint-fix || true
+    - name: Commit and push
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git commit -am "lint (auto fix)"
+        git push
+
+    - name: Signal we're done
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const {owner, repo} = context.issue
+          github.reactions.createForIssueComment({
+            owner,
+            repo,
+            comment_id: context.payload.comment.id,
+            content: "rocket",
+          });

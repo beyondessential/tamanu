@@ -18,9 +18,11 @@ export function injectConfig(value, { kind }) {
 
   return class extends value {
     static config = config;
+
     static overrideConfig(override) {
       this.config = override;
     }
+
     static restoreConfig() {
       this.config = config;
     }

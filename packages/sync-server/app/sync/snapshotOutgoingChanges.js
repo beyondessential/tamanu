@@ -1,5 +1,9 @@
 import { snake } from 'case';
-import { SYNC_SESSION_DIRECTION, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
+import {
+  getSnapshotTableName,
+  SYNC_SESSION_DIRECTION,
+  COLUMNS_EXCLUDED_FROM_SYNC,
+} from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging/log';
 import { withConfig } from 'shared/utils/withConfig';
@@ -29,13 +33,11 @@ const snapshotChangesForModel = async (
   const attributes = model.getAttributes();
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
+  const snapshotTableName = getSnapshotTableName(sessionId);
+
   const [, count] = await model.sequelize.query(
     `
-      INSERT INTO sync_session_records (
-        id,
-        created_at,
-        updated_at,
-        session_id,
+      INSERT INTO ${snapshotTableName} (
         direction,
         is_deleted,
         record_type,
@@ -45,10 +47,6 @@ const snapshotChangesForModel = async (
         data
       )
       SELECT
-        uuid_generate_v4(),
-        now(),
-        now(),
-        :sessionId,
         '${SYNC_SESSION_DIRECTION.OUTGOING}',
         ${table}.deleted_at IS NOT NULL,
         '${table}',

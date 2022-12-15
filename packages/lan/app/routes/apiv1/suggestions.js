@@ -88,7 +88,6 @@ function createAllRecordsSuggesterRoute(
         where: query.filterByFacility
           ? { ...baseWhere, facilityId: config.serverFacilityId }
           : baseWhere,
-        limit: defaultLimit,
         order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
@@ -198,6 +197,11 @@ createSuggester(
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
+
+// Location groups filtered by facility. Used in the survey form autocomplete
+createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
+  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+);
 
 createSuggester(
   'survey',

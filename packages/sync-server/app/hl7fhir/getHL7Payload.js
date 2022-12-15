@@ -58,7 +58,7 @@ export async function getHL7Payload({
     }),
   ]);
 
-  const entry = [];
+  let entry = [];
 
   // If we want to perform expensive operations to transform records,
   // use toHL7List to do all the heavy uplift first (fetch all necessary
@@ -66,20 +66,20 @@ export async function getHL7Payload({
   if (toHL7List) {
     const resources = await toHL7List(records, query);
     const bundledResources = resources.map(resource => createBundledResource(baseUrl, resource));
-    entry.push(...bundledResources);
+    entry = entry.concat(bundledResources);
   } else {
     // run in a loop instead of using `.map()` so embedded queries run in serial
     const hl7FhirResources = [];
-    const hl7FhirIncludedResources = [];
+    let hl7FhirIncludedResources = [];
     for (const r of records) {
       const { mainResource, includedResources } = await toHL7(r, query);
       hl7FhirResources.push(createBundledResource(baseUrl, mainResource));
       if (includedResources) {
-        hl7FhirIncludedResources.push(...includedResources);
+        hl7FhirIncludedResources = hl7FhirIncludedResources.concat(includedResources);
       }
     }
 
-    entry.push(...hl7FhirResources, ...hl7FhirIncludedResources);
+    entry = entry.concat(hl7FhirResources).concat(hl7FhirIncludedResources);
   }
 
   const link = [

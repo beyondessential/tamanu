@@ -9,6 +9,7 @@ const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   Department: 'name',
   Facility: 'name',
   Location: 'name',
+  LocationGroup: 'name',
   ReferenceData: 'name',
 };
 

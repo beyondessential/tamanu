@@ -2,12 +2,13 @@ import config from 'config';
 import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
 import { SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { insertSnapshotRecords } from '../../../shared-src/src/sync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
 const { persistedCacheBatchSize } = config.sync;
 
-export const pullIncomingChanges = async (centralServer, models, sessionId, since) => {
+export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // setting the pull filter also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   const { tick } = await centralServer.setPullFilter(sessionId, since);
@@ -51,9 +52,9 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
     // in the memory because we might run into memory issue when:
     // 1. During the first sync when there is a lot of data to load
     // 2. When a huge number of data is imported to sync and the facility syncs it down
-    // So store the data in sync_session_records table instead and will persist it to the actual tables later
+    // So store the data in a sync snapshot table instead and will persist it to the actual tables later
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
-      await models.SyncSessionRecord.bulkCreate(batchOfRows);
+      await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
     }
 
     limit = calculatePageLimit(limit, pullTime);

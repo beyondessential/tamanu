@@ -18,12 +18,6 @@ export class SyncSession extends Model {
     );
   }
 
-  static initRelations(models) {
-    this.hasMany(models.SyncSessionRecord, {
-      foreignKey: 'sessionId',
-    });
-  }
-
   static async addDebugInfo(id, info) {
     const session = await this.findOne({ where: { id } });
     await session.update({

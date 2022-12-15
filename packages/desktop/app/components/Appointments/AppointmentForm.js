@@ -1,29 +1,20 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
-import {
-  Field,
-  Form,
-  AutocompleteField,
-  SelectField,
-  DateTimeField,
-  SuggesterSelectField,
-} from '../Field';
+import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
-
-import { useApi, usePatientSuggester } from '../../api';
-import { Suggester } from '../../utils/suggester';
+import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
-  const clinicianSuggester = new Suggester(api, 'practitioner');
+  const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   let initialValues = {};
   if (isUpdating) {
@@ -109,9 +100,8 @@ export const AppointmentForm = props => {
               <Field
                 label="Area"
                 name="locationGroupId"
-                endpoint="locationGroup"
-                component={SuggesterSelectField}
-                filterByFacility
+                component={AutocompleteField}
+                suggester={locationGroupSuggester}
                 required
               />
               <FormSeparatorLine />
