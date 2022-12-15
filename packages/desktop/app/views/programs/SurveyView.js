@@ -12,6 +12,7 @@ import {
   mapOptionsToValues,
   getFormInitialValues,
   getConfigObject,
+  getValidationCriteriaObject,
 } from 'desktop/app/utils';
 import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
@@ -32,6 +33,21 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
+function validateFromCritera(name, validationCriteria) {
+  return value => {
+    const { min, max, mandatory } = validationCriteria;
+    let error;
+    if (mandatory && !value) {
+      error = `${name} is a required field`;
+    } else if (min && value < min) {
+      error = `${name} must be at least ${min}`;
+    } else if (max && value > max) {
+      error = `${name} can not exceed ${max}`;
+    }
+    return error;
+  };
+}
+
 const SurveyQuestion = ({ component, patient }) => {
   const {
     dataElement,
@@ -39,12 +55,16 @@ const SurveyQuestion = ({ component, patient }) => {
     config: componentConfig,
     options: componentOptions,
     text: componentText,
+    validationCriteria,
   } = component;
   const { defaultText, type, defaultOptions, id } = dataElement;
   const configObject = getConfigObject(id, componentConfig);
   const text = componentText || defaultText;
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const FieldComponent = getComponentForQuestionType(type, configObject);
+  const validationCriteriaObject = getValidationCriteriaObject(id, validationCriteria);
+  const required = validationCriteriaObject?.mandatory || null;
+  const validation = validateFromCritera(text, validationCriteriaObject);
 
   if (!FieldComponent) return <Text>{text}</Text>;
 
@@ -57,6 +77,8 @@ const SurveyQuestion = ({ component, patient }) => {
       options={options}
       config={configObject}
       helperText={detail}
+      required={required}
+      validate={validation}
     />
   );
 };
@@ -125,6 +147,7 @@ export const SurveyScreenPaginator = ({
   onCancel,
   setFieldValue,
   patient,
+  validateForm,
 }) => {
   const { components } = survey;
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
@@ -145,7 +168,13 @@ export const SurveyScreenPaginator = ({
         values={values}
         patient={patient}
         components={screenComponents}
-        onStepForward={onStepForward}
+        onStepForward={async () => {
+          const errors = await validateForm();
+          // Only move forward if there's no errors
+          if (Object.keys(errors).length === 0) {
+            onStepForward();
+          }
+        }}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
       />
     );
@@ -184,7 +213,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   );
 
   const renderSurvey = props => {
-    const { submitForm, values, setFieldValue, setValues } = props;
+    const { submitForm, values, setFieldValue, setValues, validateForm } = props;
 
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
@@ -210,6 +239,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
         setFieldValue={setFieldValue}
         onSurveyComplete={submitVisibleValues}
         onCancel={onCancel}
+        validateForm={validateForm}
       />
     );
   };
