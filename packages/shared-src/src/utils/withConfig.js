@@ -11,11 +11,7 @@ export function withConfig(fn) {
 }
 
 /** Injects a .config static property into the class, use as a decorator */
-export function injectConfig(value, { kind }) {
-  if (kind !== 'class') {
-    throw new Error('injectConfig can only be used on classes');
-  }
-
+export function injectConfig(value) {
   return class extends value {
     static config = config;
 

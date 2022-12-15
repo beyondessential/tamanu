@@ -26,9 +26,8 @@ const errorMessageFromSession = session =>
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
-
-export
 @injectConfig
+export
 class CentralSyncManager {
   currentSyncTick;
 

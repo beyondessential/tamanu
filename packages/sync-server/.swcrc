@@ -4,7 +4,12 @@
     "parser": {
       "syntax": "ecmascript",
       "jsx": true,
-      "decorators": true
+      "exportDefaultFrom": true,
+      "decorators": true,
+      "decoratorsBeforeExport": true
+    },
+    "transform": {
+      "legacyDecorator": true
     }
   }
 }

@@ -5,10 +5,11 @@
       "syntax": "ecmascript",
       "jsx": true,
       "exportDefaultFrom": true,
-      "decorators": true
+      "decorators": true,
+      "decoratorsBeforeExport": true
+    },
+    "transform": {
+      "legacyDecorator": true
     }
-  },
-  "module": {
-    "type": "commonjs"
   }
 }
