@@ -1,4 +1,13 @@
-import { Entity, Column, ManyToOne, OneToMany, Index, RelationId } from 'typeorm/browser';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+} from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 import { BaseModel, IdRelation } from './BaseModel';
@@ -132,6 +141,11 @@ export class Encounter extends BaseModel implements IEncounter {
     ({ encounter }) => encounter,
   )
   vitals: Vitals[];
+
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
+  }
 
   static async getOrCreateCurrentEncounter(
     patientId: string,
