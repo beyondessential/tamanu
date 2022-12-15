@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { VitalsTableCell, VitalsTableHeadCell } from './VitalsTableCell';
-import { useVitals } from '../hooks/useVitals';
+import { VitalsTableCell, VitalsTableHeadCell, VitalsTableMeasureCell } from './VitalsTableCell';
+import { useVitals } from '../api/queries/useVitals';
 
 const StyledTable = styled(Table)`
   table {
@@ -35,25 +35,35 @@ export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
 
-  if (isLoading) {
-    return 'loading...';
-  }
-
   // create a column for each reading
   const columns = [
     {
-      key: 'title',
       title: 'Measure',
       sortable: false,
-      accessor: c => <VitalsTableCell {...c.title} />,
+      accessor: ({ value, config, validationCriteria }) => (
+        <VitalsTableMeasureCell
+          value={value}
+          config={config}
+          validationCriteria={validationCriteria}
+        />
+      ),
     },
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
-      .map(r => ({
-        title: <VitalsTableHeadCell date={r} />,
+      .map(date => ({
+        title: <VitalsTableHeadCell value={date} />,
         sortable: false,
-        key: r,
-        accessor: c => <VitalsTableCell {...c[r]} />,
+        key: date,
+        accessor: cells => {
+          const { value, config, validationCriteria } = cells[date];
+          return (
+            <VitalsTableCell
+              value={value}
+              config={config}
+              validationCriteria={validationCriteria}
+            />
+          );
+        },
       })),
   ];
 
