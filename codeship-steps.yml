@@ -88,7 +88,6 @@
               command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
             - name: onto nauru demo
               tag: ^(master$)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-nauru tamanu-central-server-demo-nauru
             - name: onto klaus
               tag: ^(klaus-)
