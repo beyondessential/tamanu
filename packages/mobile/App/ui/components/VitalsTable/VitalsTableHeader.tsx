@@ -9,7 +9,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 export const vitalsTableHeader = {
   key: 'date',
   tableHeader: true,
-  accessor: (date: Date): JSX.Element => (
+  accessor: (date: string): JSX.Element => (
     <StyledView
       // key={date}
       width={screenPercentageToDP(20.68, Orientation.Width)}

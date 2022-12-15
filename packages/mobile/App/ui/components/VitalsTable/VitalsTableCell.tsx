@@ -3,7 +3,7 @@ import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-export const VitalsTableCell = ({ data }: PropsWithChildren<any>): JSX.Element => {
+export const VitalsTableCell = ({ data, validationCriteria }: PropsWithChildren<any>): JSX.Element => {
   const cellValue = data?.body || '';
   return (
     <StyledView
