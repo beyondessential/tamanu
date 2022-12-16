@@ -208,6 +208,7 @@ export const AutocompleteSourceToColumnMap = {
   Department: 'name',
   Facility: 'name',
   Location: 'name',
+  LocationGroup: 'name',
   ReferenceData: 'name',
 };
 

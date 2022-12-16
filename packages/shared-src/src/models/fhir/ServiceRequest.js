@@ -84,6 +84,16 @@ export class FhirServiceRequest extends FhirResource {
               model: Patient,
               as: 'patient',
             },
+            {
+              model: Location,
+              as: 'location',
+              include: [
+                {
+                  model: Facility,
+                  as: 'facility',
+                },
+              ],
+            },
           ],
         },
         {
@@ -179,13 +189,7 @@ export class FhirServiceRequest extends FhirResource {
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
       }),
-      locationCode: upstream.location?.facility?.name
-        ? [
-            new FhirCodeableConcept({
-              text: upstream.location.facility.name,
-            }),
-          ]
-        : [],
+      locationCode: locationCode(upstream),
     });
   }
 
@@ -199,13 +203,8 @@ export class FhirServiceRequest extends FhirResource {
       },
       category: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['category', '[]']],
-        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
-      },
-      code: {
-        type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['code']],
-        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+        path: [['category', '[]', 'coding', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
       },
       intent: {
         type: FHIR_SEARCH_PARAMETERS.STRING,
@@ -242,9 +241,28 @@ function imagingCode(upstream) {
 }
 
 function validatePriority(priority) {
+  if (!priority) {
+    // default to routine when we don't have a priority in Tamanu
+    return FHIR_REQUEST_PRIORITY.ROUTINE;
+  }
+
   if (!Object.values(FHIR_REQUEST_PRIORITY).includes(priority)) {
     throw new Exception(`Invalid priority: ${priority}`);
   }
 
   return priority;
+}
+
+function locationCode(upstream) {
+  const facility =
+    upstream.locationGroup?.facility ?? // most accurate
+    upstream.location?.facility ?? // legacy data
+    upstream.encounter?.location?.facility; // fallback to encounter
+  if (!facility) return [];
+
+  return [
+    new FhirCodeableConcept({
+      text: facility.name,
+    }),
+  ];
 }

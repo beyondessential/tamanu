@@ -578,6 +578,11 @@
         "locationGroupId": {
           "shortLabel": "Area",
           "longLabel": "Area"
+        },
+        "dischargeDisposition": {
+          "shortLabel": "Discharge disposition",
+          "longLabel": "Discharge disposition",
+          "hidden": true
         }
       },
       "features": {
@@ -588,7 +593,6 @@
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
-        "enableDischargeDisposition": false,
         "editDisplayId": false,
         "patientPlannedMove": false
       },
@@ -725,6 +729,13 @@
     "diskPath": "C:/",
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 16
+    }
+  },
+  // Note: this config should be duplicated on the lan server if the same behavior is
+  // desired for "this facility" and "all facilities"
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": []
     }
   },
   "questionCodeIds": {

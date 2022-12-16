@@ -67,7 +67,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   );
 };
 
-MultiplePrescriptionPrintout.propTypes = {
+MultiplePrescriptionPrintoutModal.propTypes = {
   encounter: PropTypes.object.isRequired,
   prescriberId: PropTypes.string.isRequired,
   prescriptions: PropTypes.array.isRequired,

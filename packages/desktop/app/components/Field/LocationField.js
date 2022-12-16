@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
-import { useApi, useLocationGroupSuggester } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
@@ -53,7 +53,7 @@ export const LocationInput = React.memo(
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = locationSuggester(api, groupId);
-    const locationGroupSuggester = useLocationGroupSuggester();
+    const locationGroupSuggester = useSuggester('facilityLocationGroup');
     const { data } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
@@ -88,6 +88,7 @@ export const LocationInput = React.memo(
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={disabled}
+          autofill
         />
         <AutocompleteInput
           label={label}
@@ -100,6 +101,7 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
+          autofill
         />
       </>
     );
@@ -153,7 +155,7 @@ const Text = styled(BodyText)`
   margin-top: -5px;
 `;
 
-export const LocationAvailabilityWarningMessage = ({ locationId }) => {
+export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => {
   const { data, isSuccess } = useLocationSuggestion(locationId);
 
   if (!isSuccess) {
@@ -164,7 +166,7 @@ export const LocationAvailabilityWarningMessage = ({ locationId }) => {
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <Text>
+      <Text {...props}>
         <span style={{ color: Colors.alert }}>*</span> This location is reserved by another patient.
         Please ensure the bed is available before confirming.
       </Text>
@@ -173,7 +175,7 @@ export const LocationAvailabilityWarningMessage = ({ locationId }) => {
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <Text>
+      <Text {...props}>
         <span style={{ color: Colors.alert }}>*</span> This location is occupied by another patient.
         Please ensure the bed is available before confirming.
       </Text>
