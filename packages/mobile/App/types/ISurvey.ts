@@ -16,6 +16,7 @@ export enum SurveyTypes {
   Programs = 'programs',
   Referral = 'referral',
   Obsolete = 'obsolete',
+  Vitals = 'vitals',
 }
 
 export interface ISurveyScreenComponent {
@@ -41,6 +42,13 @@ export interface ISurveyScreenComponent {
 
   getConfigObject();
   getOptions();
+}
+
+export interface IVitalsSurvey {
+  id: ID;
+  name: string;
+  components: ISurveyScreenComponent[];
+  dateComponent: ISurveyScreenComponent;
 }
 
 export enum DataElementType {

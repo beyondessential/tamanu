@@ -5,6 +5,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { subWeeks } from 'date-fns';
@@ -829,37 +830,99 @@ describe('Encounter', () => {
 
     describe('vitals', () => {
       let vitalsEncounter = null;
+      let vitalsPatient = null;
 
       beforeAll(async () => {
+        // The original patient may or may not have a current encounter
+        // So let's create a specific one for vitals testing
+        vitalsPatient = await models.Patient.create(await createDummyPatient(models));
         vitalsEncounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          patientId: patient.id,
+          ...(await createDummyEncounter(models, { endDate: null })),
+          patientId: vitalsPatient.id,
           reasonForEncounter: 'vitals test',
+        });
+
+        await setupSurveyFromObject(models, {
+          program: {
+            id: 'vitals-program',
+          },
+          survey: {
+            id: 'vitals-survey',
+            survey_type: 'vitals',
+          },
+          questions: [
+            {
+              name: 'PatientVitalsDate',
+              type: 'Date',
+            },
+            {
+              name: 'PatientVitalsWeight',
+              type: 'Number',
+            },
+            {
+              name: 'PatientVitalsHeight',
+              type: 'Number',
+            },
+            {
+              name: 'PatientVitalsHeartRate',
+              type: 'Number',
+            },
+          ],
         });
       });
 
       it('should record a new vitals reading', async () => {
-        const result = await app.post('/v1/vitals').send({
-          encounterId: vitalsEncounter.id,
-          heartRate: 1234,
+        const submissionDate = getCurrentDateTimeString();
+        const result = await app.post('/v1/surveyResponse').send({
+          surveyId: 'vitals-survey',
+          patientId: vitalsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers: {
+            'pde-PatientVitalsDate': submissionDate,
+            'pde-PatientVitalsHeartRate': 1234,
+          },
         });
         expect(result).toHaveSucceeded();
-        const saved = await models.Vitals.findOne({ where: { heartRate: 1234 } });
-        expect(saved).toHaveProperty('heartRate', 1234);
-      });
-
-      it('should not record a vitals reading with an invalid encounter', async () => {
-        const result = await app.post('/v1/vitals').send({
-          heartRate: 100,
+        const saved = await models.SurveyResponseAnswer.findOne({
+          where: { dataElementId: 'pde-PatientVitalsHeartRate', body: '1234' },
         });
-        expect(result).toHaveRequestError();
+        expect(saved).toHaveProperty('body', '1234');
       });
 
       it('should get vitals readings for an encounter', async () => {
+        const submissionDate = getCurrentDateTimeString();
+        const answers = {
+          'pde-PatientVitalsDate': submissionDate,
+          'pde-PatientVitalsHeartRate': 123,
+          'pde-PatientVitalsHeight': 456,
+          'pde-PatientVitalsWeight': 789,
+        };
+        await app.post('/v1/surveyResponse').send({
+          surveyId: 'vitals-survey',
+          patientId: vitalsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers,
+        });
         const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
         expect(result).toHaveSucceeded();
         const { body } = result;
+        expect(body).toHaveProperty('count');
         expect(body.count).toBeGreaterThan(0);
+        expect(body).toHaveProperty('data');
+        expect(body.data).toEqual(
+          expect.arrayContaining(
+            Object.entries(answers).map(([key, value]) =>
+              expect.objectContaining({
+                dataElementId: key,
+                records: {
+                  [submissionDate]: value.toString(),
+                },
+              }),
+            ),
+          ),
+        );
       });
     });
 
