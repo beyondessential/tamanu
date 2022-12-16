@@ -88,7 +88,7 @@
               command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
             - name: onto nauru demo
               tag: ^(master$)
-              command: ./scripts/deploy_sync.sh demo-nauru tamanu-sync-server-demo-nauru
+              command: ./scripts/deploy_sync.sh demo-nauru tamanu-central-server-demo-nauru
             - name: onto klaus
               tag: ^(klaus-)
               command: ./scripts/deploy_sync.sh klaus tamanu-central-server-klaus
@@ -144,8 +144,8 @@
               command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
             - name: onto nauru demo
               tag: ^(master$)
-              command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
-        - name: deploy the meta server
+              command: ./scripts/deploy_lan.sh demo-nauru tamanu-facility-server-demo-nauru
+        - name: the meta server
           service: awsdeployment
           type: serial
           steps:

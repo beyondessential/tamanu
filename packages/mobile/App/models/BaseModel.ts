@@ -123,33 +123,6 @@ export abstract class BaseModel extends BaseEntity {
     this.updatedAtSyncTick = syncTick;
   }
 
-  async findParent<T extends typeof BaseModel>(
-    parentModel: T,
-    parentProperty: string,
-  ): Promise<AbstractInstanceType<T>> {
-    let entity: AbstractInstanceType<T>;
-    const parentValue = this[parentProperty];
-
-    if (typeof parentValue === 'string') {
-      entity = (await parentModel.findOne({
-        where: { id: parentValue },
-      })) as AbstractInstanceType<T>;
-    } else if (typeof parentValue === 'object') {
-      entity = (await parentModel.findOne({
-        where: { id: parentValue.id },
-      })) as AbstractInstanceType<T>;
-    } else {
-      const thisModel = this.constructor as typeof BaseModel;
-      entity = await thisModel
-        .getRepository()
-        .createQueryBuilder()
-        .relation(thisModel, parentProperty)
-        .of(this)
-        .loadOne();
-    }
-    return entity;
-  }
-
   /*
     Convenient helper for creating a new record.
 
@@ -197,12 +170,6 @@ export abstract class BaseModel extends BaseEntity {
     return instance.save();
   }
 
-  static async filterExportRecords(ids: string[]) {
-    return ids;
-  }
-
-  static async postExportCleanUp() {}
-
   static syncDirection = null;
 
   static uploadLimit = 100;
@@ -220,16 +187,5 @@ export abstract class BaseModel extends BaseEntity {
     // specific plural handling, and a couple of other unique cases, are handled on the relevant
     // model (see Diagnosis and Medication)
     return `${this.getRepository().metadata.tableName}s`;
-  }
-
-  getPlainData(): ModelPojo {
-    const thisModel = this.constructor as typeof BaseModel;
-    const repo = thisModel.getRepository();
-    const { metadata } = repo;
-    const allColumns = [
-      ...metadata.columns,
-      ...metadata.relationIds, // typeorm thinks these aren't columns
-    ].map(({ propertyName }) => propertyName);
-    return pick(this, allColumns) as ModelPojo;
   }
 }
