@@ -146,6 +146,7 @@
               tag: ^(master$)
               command: ./scripts/deploy_lan.sh demo-nauru tamanu-facility-server-demo-nauru
         - name: the meta server
+           service: awsdeployment
           type: serial
           steps:
             - name: onto dev
