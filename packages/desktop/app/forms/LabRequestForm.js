@@ -90,7 +90,7 @@ export const LabRequestForm = ({
 }) => {
   const api = useApi();
 
-  const { data: testTypes, isLoading: testTypesLoading } = useQuery(['labTestTypes'], () =>
+  const { data: testTypes } = useQuery(['labTestTypes'], () =>
     api.get('suggestions/labTestType/all'),
   );
 
@@ -98,7 +98,7 @@ export const LabRequestForm = ({
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const filteredTestTypes = filterTestTypes(testTypes, values.labTestCategoryId);
+    const filteredTestTypes = filterTestTypes(testTypes || [], values.labTestCategoryId);
 
     return (
       <FormGrid>
