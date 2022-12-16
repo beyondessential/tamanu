@@ -37,7 +37,6 @@ export const FamilyHistoryForm = ({
         <Field
           name="practitionerId"
           label="Doctor/nurse"
-          required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
@@ -55,7 +54,6 @@ export const FamilyHistoryForm = ({
     }}
     validationSchema={yup.object().shape({
       diagnosisId: foreignKey('Diagnosis is required'),
-      practitionerId: foreignKey('Doctor/nurse is required'),
       recordedDate: yup.date().required(),
     })}
   />
