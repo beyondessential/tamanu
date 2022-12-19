@@ -36,8 +36,6 @@ const dateTimeTableColumns = Object.entries({
 }).flatMap(([t, cs]) => cs.map(c => [t, c]));
 
 export async function run(store) {
-  const { sequelize: { query, transaction } } = store;
-
   // Theory of operation:
   // - server was misconfigured at UTC-11 (Pacific/Samoa)
   // - dates were input as `YYYY-MM-DD HH:MM:SS` into timestamptz columns, thus interpreted as UTC
@@ -48,30 +46,39 @@ export async function run(store) {
   //
   // - the WHERE: as we've reconfigured the server correctly, we hardcode the old wrong timezone for detection.
 
-  await transaction(async () => {
+  console.time('script');
+  await store.sequelize.transaction(async () => {
     for (const [tableName, columnName] of dateTimeTableColumns) {
-      await query(`
+      console.log(`remigrating datetime column ${tableName}.${columnName}`);
+      console.time(`${tableName}.${columnName}`);
+      await store.sequelize.query(`
         UPDATE ${tableName}
         SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_TIME_FMT}'),
           updated_at = CURRENT_TIMESTAMP(3)
         WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_TIME_FMT}');
       `);
+      console.timeEnd(`${tableName}.${columnName}`);
     }
 
     for (const [tableName, columnName] of dateTableColumns) {
-      await query(`
+      console.log(`remigrating datetime column ${tableName}.${columnName}`);
+      console.time(`${tableName}.${columnName}`);
+      await store.sequelize.query(`
         UPDATE ${tableName}
         SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_FMT}'),
           updated_at = CURRENT_TIMESTAMP(3)
         WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}');
       `);
+      console.timeEnd(`${tableName}.${columnName}`);
     }
 
     // DOB gets special handling:
     // - if any test or vaccination certificates were issued, don't touch, it's correct
     //   - only types of certificates issued in samoa were those, so just match presence in table
     // - otherwise, fix as above
-    await query(`
+    console.log(`remigrating patients DOB`);
+    console.time('patients.date_of_birth');
+    await store.sequelize.query(`
         UPDATE patients
         SET date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_FMT}'),
           updated_at = CURRENT_TIMESTAMP(3)
@@ -80,5 +87,7 @@ export async function run(store) {
             SELECT DISTINCT p.id FROM patients p JOIN certificate_notifications cn ON cn.patient_id = p.id
           );
       `);
+    console.timeEnd('patients.date_of_birth');
   });
+  console.timeEnd('script');
 }
