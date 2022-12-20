@@ -15,7 +15,6 @@ const dateTableColumns = Object.entries({
 }).flatMap(([t, cs]) => cs.map(c => [t, c]));
 
 const dateTimeTableColumns = Object.entries({
-  administered_vaccines: ['date'],
   encounter_diagnoses: ['date'],
   encounter_medications: ['date', 'end_date'],
   encounters: ['start_date', 'end_date'],
@@ -49,25 +48,27 @@ export async function run(store) {
   console.time('script');
   await store.sequelize.transaction(async () => {
     for (const [tableName, columnName] of dateTimeTableColumns) {
-      console.log(`remigrating datetime column ${tableName}.${columnName}`);
+      console.log(`${tableName}.${columnName}...`);
       console.time(`${tableName}.${columnName}`);
       await store.sequelize.query(`
         UPDATE ${tableName}
         SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_TIME_FMT}'),
           updated_at = CURRENT_TIMESTAMP(3)
-        WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_TIME_FMT}');
+        WHERE ${columnName}_legacy IS NOT NULL
+          AND ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_TIME_FMT}');
       `);
       console.timeEnd(`${tableName}.${columnName}`);
     }
 
     for (const [tableName, columnName] of dateTableColumns) {
-      console.log(`remigrating datetime column ${tableName}.${columnName}`);
+      console.log(`${tableName}.${columnName}...`);
       console.time(`${tableName}.${columnName}`);
       await store.sequelize.query(`
         UPDATE ${tableName}
         SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_FMT}'),
           updated_at = CURRENT_TIMESTAMP(3)
-        WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}');
+        WHERE ${columnName}_legacy IS NOT NULL
+          AND ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}');
       `);
       console.timeEnd(`${tableName}.${columnName}`);
     }
@@ -76,18 +77,50 @@ export async function run(store) {
     // - if any test or vaccination certificates were issued, don't touch, it's correct
     //   - only types of certificates issued in samoa were those, so just match presence in table
     // - otherwise, fix as above
-    console.log(`remigrating patients DOB`);
+    console.log(`patients.date_of_birth...`);
     console.time('patients.date_of_birth');
     await store.sequelize.query(`
         UPDATE patients
         SET date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_FMT}'),
           updated_at = CURRENT_TIMESTAMP(3)
-        WHERE date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}')
+        WHERE date_of_birth_legacy IS NOT NULL
+          AND date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}')
           AND id NOT IN (
             SELECT DISTINCT p.id FROM patients p JOIN certificate_notifications cn ON cn.patient_id = p.id
           );
       `);
     console.timeEnd('patients.date_of_birth');
+    
+    // Vaccines get special handling:
+    // - when we've got an external record (printed certificates!):
+    // - we want these to match
+    // - not as important to fix dates such that they are objectively correct
+    console.log(`administered_vaccines.date...`);
+    console.time('administered_vaccines.date');
+    await store.sequelize.query(`
+        -- optimisation to avoid running this over and over
+        CREATE MATERIALIZED VIEW max_cn_for_av AS (
+          SELECT av.id as av_id, max(cn.created_at) as max_cn
+          FROM certificate_notifications cn
+          JOIN patients p ON cn.patient_id = p.id
+          JOIN encounters e ON e.patient_id = p.id
+          JOIN administered_vaccines av ON av.encounter_id = e.id
+          WHERE cn.type = 'icao.vacc' AND av.id IS NOT NULL
+          GROUP BY av.id
+        );
+        CREATE INDEX max_cn_for_av_idx ON max_cn_for_av (av_id);
+
+        UPDATE administered_vaccines
+        SET date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Apia', '${ISO9075_DATE_FMT}'),
+          updated_at = CURRENT_TIMESTAMP(3)
+        WHERE date_legacy IS NOT NULL
+          AND date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}')
+          AND created_at <= (SELECT max_cn FROM max_cn_for_av WHERE av_id = administered_vaccines.id);
+
+        DROP INDEX max_cn_for_av_idx;
+        DROP MATERIALIZED VIEW max_cn_for_av;
+      `);
+    console.timeEnd('administered_vaccines.date');
   });
   console.timeEnd('script');
 }
