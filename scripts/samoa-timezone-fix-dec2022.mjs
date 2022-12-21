@@ -98,7 +98,7 @@ export async function run(store) {
     console.log(`administered_vaccines.date...`);
     console.time('administered_vaccines.date');
     await store.sequelize.query(`
-        -- optimisation to avoid running this over and over
+        -- optimisation to avoid running this as a subquery over and over
         CREATE MATERIALIZED VIEW max_cn_for_av AS (
           SELECT av.id as av_id, max(cn.created_at) as max_cn
           FROM certificate_notifications cn
@@ -110,12 +110,18 @@ export async function run(store) {
         );
         CREATE INDEX max_cn_for_av_idx ON max_cn_for_av (av_id);
 
-        UPDATE administered_vaccines
-        SET date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Apia', '${ISO9075_DATE_FMT}'),
-          updated_at = CURRENT_TIMESTAMP(3)
-        WHERE date_legacy IS NOT NULL
-          AND date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}')
-          AND created_at <= (SELECT max_cn FROM max_cn_for_av WHERE av_id = administered_vaccines.id);
+        WITH
+        updated_encounters AS (
+          UPDATE administered_vaccines
+          SET date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Apia', '${ISO9075_DATE_TIME_FMT}'),
+            updated_at = CURRENT_TIMESTAMP(3)
+          WHERE date_legacy IS NOT NULL
+            AND date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_TIME_FMT}')
+            AND created_at <= (SELECT max_cn FROM max_cn_for_av WHERE av_id = administered_vaccines.id)
+          RETURNING encounter_id
+        )
+        UPDATE encounters SET updated_at = CURRENT_TIMESTAMP(3) WHERE id IN (select distinct encounter_id FROM updated_encounters);
+        -- for sync, just in case these encounters weren't already hit by their own fix migration
 
         DROP INDEX max_cn_for_av_idx;
         DROP MATERIALIZED VIEW max_cn_for_av;
