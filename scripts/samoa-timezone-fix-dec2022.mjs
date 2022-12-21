@@ -2,37 +2,47 @@
 // > tzfix = await import('../../scripts/samoa-timezone-fix-dec2022.mjs');
 // > await tzfix.run(store);
 
-import { Sequelize, DataTypes, Op } from 'sequelize';
+const FORMATS = {
+  time: 'YYYY-MM-DD HH24:MI:SS',
+  date: 'YYYY-MM-DD',
+};
 
-const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
-const ISO9075_DATE_FMT = 'YYYY-MM-DD';
+const mapTable = table =>
+  Object.entries(table).flatMap(([t, { type, also, cols }]) =>
+    cols.map(col => [t, { type, also, col }]),
+  );
 
-const dateTableColumns = Object.entries({
-  appointments: ['start_time', 'end_time'],
-  lab_requests: ['sample_time', 'requested_date'],
-  patients: ['date_of_death'],
-  triages: ['arrival_time', 'triage_time', 'closed_time'],
-}).flatMap(([t, cs]) => cs.map(c => [t, c]));
-
-const dateTimeTableColumns = Object.entries({
-  encounter_diagnoses: ['date'],
-  encounter_medications: ['date', 'end_date'],
-  encounters: ['start_date', 'end_date'],
-  imaging_requests: ['requested_date'],
-  invoice_line_items: ['date_generated'],
-  invoice_price_change_items: ['date'],
-  invoices: ['date'],
-  note_items: ['date'],
-  note_pages: ['date'],
-  patient_allergies: ['recorded_date'],
-  patient_care_plans: ['date'],
-  patient_conditions: ['recorded_date'],
-  patient_death_data: ['external_cause_date', 'last_surgery_date'],
-  patient_family_histories: ['recorded_date'],
-  patient_issues: ['recorded_date'],
-  procedures: ['date', 'start_time', 'end_time'],
-  vitals: ['date_recorded'],
-}).flatMap(([t, cs]) => cs.map(c => [t, c]));
+const tableColumns = mapTable({
+  appointments: { type: 'date', also: 'patient', cols: ['start_time', 'end_time'] },
+  encounter_diagnoses: { type: 'time', also: 'encounter', cols: ['date'] },
+  encounter_medications: { type: 'time', also: 'encounter', cols: ['date', 'end_date'] },
+  encounters: { type: 'time', also: 'patient', cols: ['start_date', 'end_date'] },
+  imaging_requests: { type: 'time', also: 'encounter', cols: ['requested_date'] },
+  invoice_line_items: { type: 'time', also: 'invoice', cols: ['date_generated'] },
+  invoice_price_change_items: { type: 'time', also: 'invoice', cols: ['date'] },
+  invoices: { type: 'time', also: 'encounter', cols: ['date'] },
+  lab_requests: { type: 'date', also: 'encounter', cols: ['sample_time', 'requested_date'] },
+  note_items: { type: 'time', also: 'note_page', cols: ['date'] },
+  note_pages: { type: 'time', also: null, cols: ['date'] },
+  patient_allergies: { type: 'time', also: 'patient', cols: ['recorded_date'] },
+  patient_care_plans: { type: 'time', also: 'patient', cols: ['date'] },
+  patient_conditions: { type: 'time', also: 'patient', cols: ['recorded_date'] },
+  patient_death_data: {
+    type: 'time',
+    also: 'patient',
+    cols: ['external_cause_date', 'last_surgery_date'],
+  },
+  patient_family_histories: { type: 'time', also: 'patient', cols: ['recorded_date'] },
+  patient_issues: { type: 'time', also: 'patient', cols: ['recorded_date'] },
+  patients: { type: 'date', also: null, cols: ['date_of_death'] },
+  procedures: { type: 'time', also: 'encounter', cols: ['date', 'start_time', 'end_time'] },
+  triages: {
+    type: 'date',
+    also: 'encounter',
+    cols: ['arrival_time', 'triage_time', 'closed_time'],
+  },
+  vitals: { type: 'time', also: 'encounter', cols: ['date_recorded'] },
+});
 
 export async function run(store) {
   // Theory of operation:
@@ -47,56 +57,54 @@ export async function run(store) {
 
   console.time('script');
   await store.sequelize.transaction(async () => {
-    for (const [tableName, columnName] of dateTimeTableColumns) {
-      console.log(`${tableName}.${columnName}...`);
-      console.time(`${tableName}.${columnName}`);
+    console.time('normal fixes');
+    for (const [tableName, { type, also, col: columnName }] of tableColumns) {
+      const logname = `${tableName}.${columnName} (${type}) +${also ?? 'none'}`;
+      console.log(`${logname}: start`);
+      console.time(logname);
       await store.sequelize.query(`
-        UPDATE ${tableName}
-        SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_TIME_FMT}'),
-          updated_at = CURRENT_TIMESTAMP(3)
-        WHERE ${columnName}_legacy IS NOT NULL
-          AND ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_TIME_FMT}');
+        ${also ? 'WITH updated_rows AS (' : ''}
+          UPDATE ${tableName}
+          SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${FORMATS[type]}'),
+            updated_at = CURRENT_TIMESTAMP(3)
+          WHERE ${columnName}_legacy IS NOT NULL
+            AND ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${FORMATS[type]}')
+        ${also ? `
+          RETURNING ${also}_id AS also_id
+        )
+        UPDATE ${also}s
+        SET updated_at = CURRENT_TIMESTAMP(3)
+        WHERE id IN (select distinct also_id FROM updated_rows)
+        ` : ''}
       `);
-      console.timeEnd(`${tableName}.${columnName}`);
+      console.timeEnd(logname);
     }
-
-    for (const [tableName, columnName] of dateTableColumns) {
-      console.log(`${tableName}.${columnName}...`);
-      console.time(`${tableName}.${columnName}`);
-      await store.sequelize.query(`
-        UPDATE ${tableName}
-        SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_FMT}'),
-          updated_at = CURRENT_TIMESTAMP(3)
-        WHERE ${columnName}_legacy IS NOT NULL
-          AND ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}');
-      `);
-      console.timeEnd(`${tableName}.${columnName}`);
-    }
+    console.timeEnd('normal fixes');
 
     // DOB gets special handling:
     // - if any test or vaccination certificates were issued, don't touch, it's correct
     //   - only types of certificates issued in samoa were those, so just match presence in table
-    // - otherwise, fix as above
-    console.log(`patients.date_of_birth...`);
-    console.time('patients.date_of_birth');
+    // - otherwise, fix as normal
+    console.log(`patients.date_of_birth (date) +none: start`);
+    console.time('patients.date_of_birth (date) +none: start');
     await store.sequelize.query(`
         UPDATE patients
-        SET date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_FMT}'),
+        SET date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', '${FORMATS.date}'),
           updated_at = CURRENT_TIMESTAMP(3)
         WHERE date_of_birth_legacy IS NOT NULL
-          AND date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_FMT}')
+          AND date_of_birth = TO_CHAR(date_of_birth_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${FORMATS.date}')
           AND id NOT IN (
             SELECT DISTINCT p.id FROM patients p JOIN certificate_notifications cn ON cn.patient_id = p.id
           );
       `);
-    console.timeEnd('patients.date_of_birth');
-    
+    console.timeEnd('patients.date_of_birth (date) +none: start');
+
     // Vaccines get special handling:
     // - when we've got an external record (printed certificates!):
     // - we want these to match
     // - not as important to fix dates such that they are objectively correct
-    console.log(`administered_vaccines.date...`);
-    console.time('administered_vaccines.date');
+    console.log(`administered_vaccines.date (time) +encounter: start`);
+    console.time('administered_vaccines.date (time) +encounter: start');
     await store.sequelize.query(`
         -- optimisation to avoid running this as a subquery over and over
         CREATE MATERIALIZED VIEW max_cn_for_av AS (
@@ -113,10 +121,10 @@ export async function run(store) {
         WITH
         updated_encounters AS (
           UPDATE administered_vaccines
-          SET date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Apia', '${ISO9075_DATE_TIME_FMT}'),
+          SET date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Apia', '${FORMATS.time}'),
             updated_at = CURRENT_TIMESTAMP(3)
           WHERE date_legacy IS NOT NULL
-            AND date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${ISO9075_DATE_TIME_FMT}')
+            AND date = TO_CHAR(date_legacy::TIMESTAMPTZ AT TIME ZONE 'Pacific/Samoa', '${FORMATS.time}')
             AND created_at <= (SELECT max_cn FROM max_cn_for_av WHERE av_id = administered_vaccines.id)
           RETURNING encounter_id
         )
@@ -126,7 +134,7 @@ export async function run(store) {
         DROP INDEX max_cn_for_av_idx;
         DROP MATERIALIZED VIEW max_cn_for_av;
       `);
-    console.timeEnd('administered_vaccines.date');
+    console.timeEnd('administered_vaccines.date (time) +encounter: start');
   });
   console.timeEnd('script');
 }
