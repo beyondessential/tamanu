@@ -119,6 +119,7 @@ export const PaginatedForm = ({
   initialValues,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
+  const [showStepper, setShowStepper] = useState(true);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
   const onSubmitForm = async data => {
@@ -147,18 +148,24 @@ export const PaginatedForm = ({
 
           return (
             <>
-              <FormStepper
-                screenIndex={screenIndex}
-                handleStep={handleStep}
-                screens={formScreens}
-              />
+              {showStepper && (
+                <FormStepper
+                  screenIndex={screenIndex}
+                  handleStep={handleStep}
+                  screens={formScreens}
+                />
+              )}
               <FormScreen
                 screenComponent={screenComponent}
                 values={values}
+                setValues={setValues}
+                submitForm={submitForm}
                 onStepForward={onStepForward}
                 isLast={isLast}
                 onStepBack={onStepBack}
                 screenIndex={screenIndex}
+                setShowStepper={setShowStepper}
+                onCancel={onCancel}
               />
             </>
           );
