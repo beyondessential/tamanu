@@ -64,6 +64,7 @@ export const ProcedureForm = React.memo(
                     locationGroupLabel="Procedure area"
                     label="Procedure location"
                     name="locationId"
+                    enableLocationStatus={false}
                     required
                     component={LocationField}
                   />
