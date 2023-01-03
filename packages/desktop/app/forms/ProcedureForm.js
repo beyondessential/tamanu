@@ -69,7 +69,7 @@ export const ProcedureForm = React.memo(
                   />
                   <Field
                     name="physicianId"
-                    label="Physician"
+                    label="Clinician"
                     required
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
@@ -153,7 +153,7 @@ export const ProcedureForm = React.memo(
         date: yup.date().required(),
         startTime: yup.date(),
         endTime: yup.date(),
-        physicianId: foreignKey('Physician must be selected'),
+        physicianId: foreignKey('Clinician must be selected'),
         assistantId: optionalForeignKey(),
         anaesthetistId: optionalForeignKey(),
         anaestheticId: optionalForeignKey(),
