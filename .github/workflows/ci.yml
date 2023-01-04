@@ -132,32 +132,32 @@ jobs:
 
     - run: yarn workspace ${{ matrix.package }} run lint
 
-  storybook:
-    if: false # soft disable for now
-    needs: build
-    continue-on-error: true
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '16.x'
-
-    name: Test storybook node=${{ matrix.node }}
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - name: Get prebuilt shared
-      uses: ./.github/actions/get-shared
-      with:
-        node: ${{ matrix.node }}
-
-    - run: yarn workspace desktop run verify-storybook
+  ## disable for now as it's broken
+  # storybook:
+  #   needs: build
+  #   continue-on-error: true
+  #
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       node:
+  #         - '16.x'
+  #
+  #   name: Test storybook node=${{ matrix.node }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Use Node.js ${{ matrix.node }}
+  #     uses: actions/setup-node@v3
+  #     with:
+  #       node-version: ${{ matrix.node }}
+  #       cache: yarn
+  #   - name: Get prebuilt shared
+  #     uses: ./.github/actions/get-shared
+  #     with:
+  #       node: ${{ matrix.node }}
+  #
+  #   - run: yarn workspace desktop run verify-storybook
 
   migrations:
     needs: build
