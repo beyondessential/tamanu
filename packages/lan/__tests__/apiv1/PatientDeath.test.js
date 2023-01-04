@@ -108,24 +108,6 @@ describe('PatientDeath', () => {
     expect(foundPatient.dateOfDeath).toEqual(dod);
   });
 
-  it('should not mark a dead patient as dead', async () => {
-    const { Patient } = models;
-    const patientData = fake(Patient);
-    patientData.dateOfDeath = '2021-08-31 12:00:00';
-    const { id } = await Patient.create(patientData);
-    const { clinicianId, facilityId, cond1Id } = commons;
-
-    const result = await app.post(`/v1/patient/${id}/death`).send({
-      clinicianId,
-      facilityId,
-      timeOfDeath: '2021-09-01 00:00:00',
-      causeOfDeath: cond1Id,
-      causeOfDeathInterval: 100,
-      mannerOfDeath: 'Disease',
-    });
-    expect(result).not.toHaveSucceeded();
-  });
-
   it('should reject with no data', async () => {
     const { Patient } = models;
     const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
@@ -274,6 +256,71 @@ describe('PatientDeath', () => {
         stillborn: 'unknown',
         withinDayOfBirth: true,
       },
+    });
+  });
+
+  describe('Partial workflow', () => {
+    it('should mark a patient as dead with minimal info', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
+      const { clinicianId } = commons;
+
+      const dod = '2021-09-01 00:00:00';
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        clinicianId,
+        timeOfDeath: dod,
+        isPartialWorkflow: true,
+      });
+      expect(result).toHaveSucceeded();
+
+      const foundPatient = await Patient.findByPk(id);
+      expect(foundPatient.dateOfDeath).toEqual(dod);
+    });
+
+    it('should allow completing partially saved patient death data', async () => {
+      const { Patient, PatientDeathData } = models;
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
+      const { clinicianId, facilityId, cond1Id, cond2Id, cond3Id } = commons;
+      const dod = '2021-09-01 00:00:00';
+      const formerDeathData = await PatientDeathData.create({
+        patientId: id,
+        clinicianId,
+        timeOfDeath: dod,
+        isPartialWorkflow: true,
+      });
+
+      const mod = 'Accident';
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        clinicianId,
+        facilityId,
+        outsideHealthFacility: false,
+        timeOfDeath: dod,
+        causeOfDeath: cond1Id,
+        causeOfDeathInterval: 100,
+        antecedentCause1: cond2Id,
+        antecedentCause1Interval: 120,
+        antecedentCause2: cond3Id,
+        antecedentCause2Interval: 150,
+        otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
+        surgeryInLast4Weeks: 'yes',
+        lastSurgeryDate: '2021-08-02',
+        lastSurgeryReason: cond1Id,
+        pregnant: 'no',
+        mannerOfDeath: mod,
+        mannerOfDeathDate: '2021-08-31',
+        fetalOrInfant: 'yes',
+        stillborn: 'unknown',
+        birthWeight: 120,
+        numberOfCompletedPregnancyWeeks: 30,
+        ageOfMother: 21,
+        motherExistingCondition: cond1Id,
+        deathWithin24HoursOfBirth: 'yes',
+        numberOfHoursSurvivedSinceBirth: 12,
+      });
+      expect(result).toHaveSucceeded();
+
+      const deathData = await PatientDeathData.findByPk(formerDeathData.id);
+      expect(deathData.manner).toEqual(mod);
     });
   });
 });
