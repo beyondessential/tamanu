@@ -14,6 +14,7 @@ type FormProps<T extends InitialValuesProps> = {
   validationSchema: ValidationSchema;
   onSubmit: onSubmit<T>;
   children: (props: FormikProps<T>) => ReactElement;
+  validate: any;
 };
 
 export function Form<T>({
@@ -21,11 +22,13 @@ export function Form<T>({
   validationSchema,
   onSubmit,
   children,
+  validate,
 }: FormProps<T>): ReactElement {
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
+      validate={validate}
       onSubmit={onSubmit}
     >
       {children}

@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';
@@ -26,4 +26,9 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
+
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
+  }
 }

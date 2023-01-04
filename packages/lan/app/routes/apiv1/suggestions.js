@@ -198,6 +198,11 @@ createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRIT
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
+// Location groups filtered by facility. Used in the survey form autocomplete
+createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
+  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+);
+
 createSuggester(
   'survey',
   'Survey',

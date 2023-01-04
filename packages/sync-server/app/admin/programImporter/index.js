@@ -1,6 +1,9 @@
 import { log } from 'shared/services/logging';
 import { readFile, utils } from 'xlsx';
 import config from 'config';
+import { Op } from 'sequelize';
+import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
+import { validateQuestions } from './validateQuestions';
 
 import { ValidationError } from '../errors';
 import { importRows } from '../importRows';
@@ -175,6 +178,19 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       continue;
     }
 
+    // There should only be one instance of a vitals survey
+    if (md.surveyType === 'vitals') {
+      const vitalsCount = await models.Survey.count({
+        where: { id: { [Op.not]: `${programId}-${idify(md.code)}` }, survey_type: 'vitals' },
+      });
+      if (vitalsCount > 0) {
+        errors.push(
+          new ValidationError(sheetName, -2, 'Only one vitals survey may exist at a time'),
+        );
+        continue;
+      }
+    }
+
     // Strip some characters from workbook names before trying to find them
     // (this mirrors the punctuation stripping that node-xlsx does internally)
     const worksheet = workbook.Sheets[sheetName.replace(/['"]/g, '')] || workbook.Sheets[md.code];
@@ -192,6 +208,18 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
 
     const data = utils.sheet_to_json(worksheet);
     surveyRows = surveyRows.concat(importSurveySheet(data, surveyData));
+
+    if (md.surveyType === 'vitals') {
+      if (
+        !validateQuestions({ ...surveyData, errors }, data, {
+          requiredFields: Object.values(VITALS_DATA_ELEMENT_IDS),
+        })
+      ) {
+        continue;
+      }
+    }
+
+    surveyRows.push(...importSurveySheet(data, surveyData));
 
     stats.push(
       await importRows(context(sheetName), {

@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientFieldValue extends Model {
   static init({ primaryKey, ...options }) {
@@ -57,6 +58,7 @@ export class PatientFieldValue extends Model {
         ],
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {

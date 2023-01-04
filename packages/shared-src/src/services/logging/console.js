@@ -22,7 +22,7 @@ const additionalDataFormatter = (obj = {}) => {
 const logFormat = winston.format.printf(({ level, message, childLabel, timestamp, ...rest }) => {
   const restString = additionalDataFormatter(rest);
   if (restString === '') {
-    return `${COLORS.grey(timestamp)} ${level}:${childLabel ? `${childLabel} - ` : ''}${message}`;
+    return `${COLORS.grey(timestamp)} ${level}: ${childLabel ? `${childLabel} - ` : ''}${message}`;
   }
 
   return `${COLORS.grey(timestamp)} ${level}: ${message} ${COLORS.grey(restString)}`;

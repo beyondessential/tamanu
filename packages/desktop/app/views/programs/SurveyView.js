@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
@@ -17,10 +17,7 @@ import {
 import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
-
-const Text = styled.div`
-  margin-bottom: 10px;
-`;
+import { SurveyCompletedMessage, SurveyScreenPaginator } from '../../components/Surveys';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};

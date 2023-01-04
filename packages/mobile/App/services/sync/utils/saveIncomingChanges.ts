@@ -9,7 +9,7 @@ import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
-import { getDirPath, getFilePath } from './getFilePath';
+import { getDirPath } from './getFilePath';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -77,7 +77,9 @@ export const saveIncomingChanges = async (
       const batchString = Buffer.from(base64, 'base64').toString();
 
       const batch = JSON.parse(batchString);
-      const sanitizedBatch = model.sanitizePulledRecordData ? model.sanitizePulledRecordData(batch) : batch;
+      const sanitizedBatch = model.sanitizePulledRecordData
+        ? model.sanitizePulledRecordData(batch)
+        : batch;
 
       await saveChangesForModel(model, sanitizedBatch);
 

@@ -22,8 +22,6 @@ describe('Patient', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-    // set up facility for patient to be marked for sync at
-    await models.Facility.create(fake(models.Facility, { id: config.serverFacilityId }));
     patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());

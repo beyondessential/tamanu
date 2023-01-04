@@ -26,7 +26,7 @@ import {
   DateTimeField,
   TextField,
 } from '../../components/Field';
-import { useApi, useSuggester, useLocationGroupSuggester } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
@@ -84,7 +84,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
 };
 
 const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
-  const locationGroupSuggester = useLocationGroupSuggester();
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   return (
     <FormGrid columns={3}>
