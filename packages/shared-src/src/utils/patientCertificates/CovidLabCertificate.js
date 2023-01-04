@@ -16,6 +16,12 @@ import {
 } from './accessors';
 import { getDisplayDate } from './getDisplayDate';
 
+const template = (templateString, replacements) =>
+  Object.entries(replacements).reduce(
+    (result, [key, replacement]) => result.replace(new RegExp(`\\$${key}\\$`, 'g'), replacement),
+    templateString,
+  );
+
 const columns = [
   {
     key: 'date-of-swab',
@@ -69,10 +75,12 @@ const CertificateTitle = {
   clearance: 'Covid-19 Clearance Certificate',
 };
 
-const getCertificateRemark = patient => ({
+const getCertificateRemark = (patient, getLocalisation) => ({
   test: '',
-  clearance: `This notice certifies that ${patient.firstName || ''} ${patient.lastName ||
-    ''} is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19.`,
+  clearance: template(
+    getLocalisation('templates.covidTestCertificate.clearanceCertRemark'),
+    patient,
+  ),
 });
 
 export const CovidLabCertificate = ({
@@ -101,7 +109,7 @@ export const CovidLabCertificate = ({
       <Box mb={30}>
         <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
       </Box>
-      <P>{getCertificateRemark(patient)[certType] || ''}</P>
+      <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
       <Box />
       <Box>
         <Row>
