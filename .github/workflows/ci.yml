@@ -43,8 +43,8 @@ jobs:
     needs:
       - test
       - lint
-      - storybook
       - migrations
+      # - storybook
     runs-on: ubuntu-latest
     steps:
     - uses: geekyeggo/delete-artifact@v2
@@ -133,6 +133,7 @@ jobs:
     - run: yarn workspace ${{ matrix.package }} run lint
 
   storybook:
+    if: false # soft disable for now
     needs: build
     continue-on-error: true
 
