@@ -191,17 +191,6 @@ function transformPatientData(patient, config) {
   }
 }
 
-export function getValidationCriteriaObject(componentId, config) {
-  if (!config) return {};
-  try {
-    return JSON.parse(config);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn(`Invalid validationCriteria in survey screen component ${componentId}`);
-    return {};
-  }
-}
-
 export function getFormInitialValues(components, patient, currentUser = {}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
