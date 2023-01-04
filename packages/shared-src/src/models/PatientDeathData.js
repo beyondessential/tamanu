@@ -19,7 +19,7 @@ export class PatientDeathData extends Model {
         externalCauseNotes: Sequelize.TEXT,
         fetalOrInfant: Sequelize.BOOLEAN, // true/false/null
         hoursSurvivedSinceBirth: { type: Sequelize.INTEGER, unsigned: true },
-        manner: { type: Sequelize.STRING, allowNull: false },
+        manner: Sequelize.STRING,
         pregnancyContributed: Sequelize.STRING, // yes/no/unknown/null
         recentSurgery: Sequelize.STRING, // yes/no/unknown/null
         stillborn: Sequelize.STRING, // yes/no/unknown/null
