@@ -205,6 +205,10 @@ const templatesSchema = yup
           .string()
           .trim()
           .required(),
+        clearanceCertRemark: yup
+          .string()
+          .trim()
+          .required(),
       })
       .required()
       .noUnknown(),
