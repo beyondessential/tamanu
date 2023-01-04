@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getComponentForQuestionType, getConfigObject, mapOptionsToValues } from '../../utils';
+import {
+  getComponentForQuestionType,
+  getConfigObject,
+  mapOptionsToValues,
+  getValidationCriteriaObject,
+} from '../../utils';
 import { Field } from '../Field';
 
 const Text = styled.div`
@@ -14,12 +19,16 @@ export const SurveyQuestion = ({ component, patient }) => {
     config: componentConfig,
     options: componentOptions,
     text: componentText,
+    validationCriteria,
   } = component;
   const { defaultText, type, defaultOptions, id } = dataElement;
   const configObject = getConfigObject(id, componentConfig);
   const text = componentText || defaultText;
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const FieldComponent = getComponentForQuestionType(type, configObject);
+
+  const validationCriteriaObject = getValidationCriteriaObject(id, validationCriteria);
+  const required = validationCriteriaObject?.mandatory || null;
 
   if (!FieldComponent) return <Text>{text}</Text>;
 
@@ -32,6 +41,7 @@ export const SurveyQuestion = ({ component, patient }) => {
       options={options}
       config={configObject}
       helperText={detail}
+      required={required}
     />
   );
 };
