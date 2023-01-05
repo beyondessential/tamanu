@@ -10,15 +10,15 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 
-const locationSuggester = (api, groupValue) => {
+const locationSuggester = (api, groupValue, enableLocationStatus) => {
   return new Suggester(api, 'location', {
     formatter: ({ name, id, locationGroup, availability }) => {
       return {
         value: id,
         label: name,
         locationGroup,
-        availability,
-        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
+        availability: enableLocationStatus ? availability : null,
+        tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
       };
     },
     baseQueryParameters: { filterByFacility: true, locationGroupId: groupValue },
@@ -48,11 +48,12 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    enableLocationStatus = true,
   }) => {
     const api = useApi();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
-    const suggester = locationSuggester(api, groupId);
+    const suggester = locationSuggester(api, groupId, enableLocationStatus);
     const locationGroupSuggester = useSuggester('facilityLocationGroup');
     const { data } = useLocationSuggestion(locationId);
 

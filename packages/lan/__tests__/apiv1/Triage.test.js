@@ -226,10 +226,11 @@ describe('Triage', () => {
   });
 
   describe('Listing & filtering', () => {
-
     let createTestTriage;
 
     beforeAll(async () => {
+      await models.Triage.truncate({ cascade: true });
+
       // create a few test triages
       const { id: locationId } = await models.Location.create({
         ...fake(models.Location),
