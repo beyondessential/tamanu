@@ -9,6 +9,15 @@ export async function up(query) {
     type: Sequelize.BOOLEAN,
     allowNull: true,
   });
+  await query.addColumn('patient_death_data', 'is_final', {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  });
+  await query.sequelize.query(`
+    UPDATE patient_death_data
+    SET is_final = TRUE;
+  `);
 }
 
 export async function down(query) {
@@ -20,4 +29,5 @@ export async function down(query) {
     type: Sequelize.BOOLEAN,
     allowNull: false,
   });
+  await query.removeColumn('patient_death_data', 'is_final');
 }
