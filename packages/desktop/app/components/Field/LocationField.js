@@ -83,14 +83,13 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
-    // Disable the location field if the location group is not selected yet
-    // const belongsToCurrentFacility = location?.facilityId
-    //   ? facility.id === location.facilityId
-    //   : true;
-    const fakeFacility = 'ref/facility/b'; // TODO remove
-    const belongsToCurrentFacility = fakeFacility ? facility.id === fakeFacility : true; // TODO remove
-    const locationSelectIsDisabled = !groupId || !belongsToCurrentFacility;
-    const locationGroupSelectIsDisabled = !belongsToCurrentFacility;
+    // Disable the location field + location group field if:
+    // 1. In edit mode (already has existing value)
+    // 2. Existing location has different facility than the current facility
+    const existingLocationHasSameFacility =
+      value && location?.facilityId ? facility.id === location.facilityId : true;
+    const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
+    const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
     return (
       <>
