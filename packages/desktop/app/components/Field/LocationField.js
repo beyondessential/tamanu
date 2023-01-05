@@ -168,8 +168,8 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
       <Text {...props}>
-        <span style={{ color: Colors.alert }}>*</span> This location is reserved by another patient.
-        Please ensure the bed is available before confirming.
+        This location is reserved by another patient. Please ensure the bed is available before
+        confirming.
       </Text>
     );
   }
@@ -177,8 +177,8 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
       <Text {...props}>
-        <span style={{ color: Colors.alert }}>*</span> This location is occupied by another patient.
-        Please ensure the bed is available before confirming.
+        This location is occupied by another patient. Please ensure the bed is available before
+        confirming.
       </Text>
     );
   }
