@@ -103,6 +103,7 @@ export const AppointmentForm = props => {
                 component={AutocompleteField}
                 suggester={locationGroupSuggester}
                 required
+                autofill
               />
               <FormSeparatorLine />
               <ConfirmCancelRow

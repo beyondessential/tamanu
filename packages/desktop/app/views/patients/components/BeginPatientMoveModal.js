@@ -40,12 +40,11 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
   const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
   const onSubmit = data => {
     if (data.action === 'plan') {
-      submit(data);
-    } else {
-      // If we're finalising the move, we just directly update the locationId
-      const { plannedLocationId: locationId, ...rest } = data;
-      submit({ locationId, ...rest });
+      return submit(data);
     }
+    // If we're finalising the move, we just directly update the locationId
+    const { plannedLocationId: locationId, ...rest } = data;
+    return submit({ locationId, ...rest });
   };
   return (
     <Modal title="Move patient" open={open} onClose={onClose}>
