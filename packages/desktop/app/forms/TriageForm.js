@@ -16,6 +16,7 @@ import {
   RadioField,
   CheckField,
   LocalisedLocationField,
+  LocationAvailabilityWarningMessage,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
@@ -41,7 +42,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
-  const renderForm = ({ submitForm }) => {
+  const renderForm = ({ submitForm, values }) => {
     return (
       <FormGrid>
         <Field
@@ -59,6 +60,10 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           saveDateAsString
         />
         <Field name="locationId" component={LocalisedLocationField} required />
+        <LocationAvailabilityWarningMessage
+          locationId={values?.locationId}
+          style={{ gridColumn: '2', marginBottom: '-35px', fontSize: '12px' }}
+        />
         <LocalisedField
           name="arrivalModeId"
           component={SuggesterSelectField}
