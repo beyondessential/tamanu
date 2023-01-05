@@ -62,7 +62,12 @@ export const TriageForm = ({ onCancel, editedObject }) => {
         <Field name="locationId" component={LocalisedLocationField} required />
         <LocationAvailabilityWarningMessage
           locationId={values?.locationId}
-          style={{ gridColumn: '2', marginBottom: '-35px', fontSize: '12px' }}
+          style={{
+            gridColumn: '2',
+            marginBottom: '-1.2rem',
+            marginTop: '-1.2rem',
+            fontSize: '12px',
+          }}
         />
         <LocalisedField
           name="arrivalModeId"
