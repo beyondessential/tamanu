@@ -246,17 +246,6 @@ export const getActionsFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationCriteriaObject = (componentId, config) => {
-  if (!config) return {};
-  try {
-    return JSON.parse(config);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn(`Invalid validationCriteria in survey screen component ${componentId}`);
-    return {};
-  }
-};
-
 export const getValidationSchema = surveyData => {
   if (!surveyData) return {};
   const { components } = surveyData;
