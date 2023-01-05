@@ -75,21 +75,10 @@ export const SurveyScreenPaginator = ({
         values={values}
         patient={patient}
         components={screenComponents}
-        onStepForward={async () => {
-          // validateForm will also validate fields on future pages
-          const errors = await validateForm(values);
-          // If there are errors on the current page, don't proceeded to the next page
-          if (
-            Object.keys(errors).filter(x =>
-              screenComponents.map(sc => sc.dataElementId).includes(x),
-            ).length === 0
-          ) {
-            // We might be marking errors on future pages so clear the errors here
-            setErrors({});
-            onStepForward();
-          }
-        }}
+        onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
+        validateForm={validateForm}
+        setErrors={setErrors}
       />
     );
   }
