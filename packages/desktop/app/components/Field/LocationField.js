@@ -69,7 +69,8 @@ export const LocationInput = React.memo(
         onChange({ target: { value: '', name } });
       }
 
-      // Set existing location group if there's any for edit mode
+      // Initialise the location group state
+      // if the form is being opened in edit mode (i.e. there are existing values)
       if (value && !groupId && location?.locationGroup?.id) {
         setGroupId(location.locationGroup.id);
       }
@@ -84,9 +85,10 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
-    // Disable the location field + location group field if:
-    // 1. In edit mode (already has existing value)
-    // 2. Existing location has different facility than the current facility
+    // Disable the location and location group fields if:
+    // 1. In edit mode (form already is initialised with pre-filled values); and
+    // 2. The existing location has a different facility than the current facility
+    // Disable just the location field if location group has not been chosen or pre-filled
     const existingLocationHasSameFacility =
       value && location?.facilityId ? facility.id === location.facilityId : true;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
