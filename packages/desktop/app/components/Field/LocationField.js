@@ -69,10 +69,11 @@ export const LocationInput = React.memo(
         onChange({ target: { value: '', name } });
       }
 
-      if (location?.id && location?.locationGroup?.id) {
+      // Set existing location group if there's any for edit mode
+      if (value && !groupId && location?.locationGroup?.id) {
         setGroupId(location.locationGroup.id);
       }
-    }, [onChange, name, groupId, location?.id, location?.locationGroup]);
+    }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
