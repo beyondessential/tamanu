@@ -9,6 +9,7 @@ import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
+import { useAuth } from '../../contexts/Auth';
 
 const locationSuggester = (api, groupValue, enableLocationStatus) => {
   return new Suggester(api, 'location', {
@@ -51,21 +52,29 @@ export const LocationInput = React.memo(
     enableLocationStatus = true,
   }) => {
     const api = useApi();
+    const { facility } = useAuth();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = locationSuggester(api, groupId, enableLocationStatus);
     const locationGroupSuggester = useSuggester('facilityLocationGroup');
-    const { data } = useLocationSuggestion(locationId);
+    const { data: location } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
-      const isNotSameGroup = data?.locationGroup?.id && data.locationGroup.id !== groupId;
+      const isNotSameGroup =
+        location?.locationGroup?.id && groupId && location.locationGroup.id !== groupId;
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
         onChange({ target: { value: '', name } });
       }
-    }, [onChange, name, groupId, data?.locationGroup]);
+
+      // Initialise the location group state
+      // if the form is being opened in edit mode (i.e. there are existing values)
+      if (value && !groupId && location?.locationGroup?.id) {
+        setGroupId(location.locationGroup.id);
+      }
+    }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
@@ -76,8 +85,14 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
-    // Disable the location field if the location group is not selected yet
-    const locationSelectIsDisabled = !groupId;
+    // Disable the location and location group fields if:
+    // 1. In edit mode (form already is initialised with pre-filled values); and
+    // 2. The existing location has a different facility than the current facility
+    // Disable just the location field if location group has not been chosen or pre-filled
+    const existingLocationHasSameFacility =
+      value && location?.facilityId ? facility.id === location.facilityId : true;
+    const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
+    const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
     return (
       <>
@@ -88,12 +103,12 @@ export const LocationInput = React.memo(
           onChange={handleChangeCategory}
           suggester={locationGroupSuggester}
           value={groupId}
-          disabled={disabled}
+          disabled={locationGroupSelectIsDisabled || disabled}
           autofill
         />
         <AutocompleteInput
           label={label}
-          disabled={locationSelectIsDisabled}
+          disabled={locationSelectIsDisabled || disabled}
           name={name}
           suggester={suggester}
           helperText={helperText}
