@@ -38,7 +38,7 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.DATE,
-    title: 'Date',
+    title: 'Request date',
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
   },
