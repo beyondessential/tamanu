@@ -104,7 +104,7 @@ export const LocationInput = React.memo(
           suggester={locationGroupSuggester}
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
-          autofill
+          autofill={!value} // do not autofill if there is a pre-filled value
         />
         <AutocompleteInput
           label={label}
@@ -117,7 +117,7 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
-          autofill
+          autofill={!value} // do not autofill if there is a pre-filled value
         />
       </>
     );
