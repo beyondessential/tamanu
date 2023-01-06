@@ -24,6 +24,7 @@
           exclude: ^deploy-meta$
           command: ./scripts/build_package_release.sh sync-server
         - name: for meta release
+          tag: ^(dev$|deploy-meta$|master$|ci-)
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
       type: parallel
