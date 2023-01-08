@@ -219,6 +219,7 @@ patientDeath.post(
 
       const [deathData] = await PatientDeathData.upsert({
         id: existingDeathData?.id,
+        isFinal: !isPartialWorkflow,
         antecedentCause1ConditionId: body.antecedentCause1,
         antecedentCause1TimeAfterOnset: body.antecedentCause1Interval,
         antecedentCause2ConditionId: body.antecedentCause2,
