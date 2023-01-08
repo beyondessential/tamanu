@@ -76,6 +76,7 @@ patientDeath.get(
       dateOfBirth: patient.dateOfBirth,
       dateOfDeath: patient.dateOfDeath,
 
+      isFinal: deathData.isFinal,
       manner: deathData.manner,
       causes: {
         primary: deathData.primaryCauseCondition
