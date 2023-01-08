@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '../components';
@@ -28,11 +29,12 @@ export const DeathFormScreen = ({
   onCancel,
 }) => {
   const [showSummary, setShowSummary] = useState(false);
+  const patient = useSelector(state => state.patient);
   const { children } = screenComponent.props;
   const questionComponents = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(questionComponents, values);
   const hasStepBack = screenIndex > 0;
-  const showSaveAndClose = screenIndex === 0;
+  const showSaveAndClose = screenIndex === 0 && !patient.dateOfDeath;
   const Wrapper = showSaveAndClose ? Box : React.Fragment;
 
   // screenComponent is a react element (not a component) so we have to attach the new children manually
