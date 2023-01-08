@@ -1,6 +1,8 @@
 import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { Box, Typography } from '@material-ui/core';
 import { OutlinedButton } from '../Button';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
@@ -23,6 +25,8 @@ import {
   ISSUES_TITLE,
   CARE_PLANS_TITLE,
 } from './paneTitles';
+import { useApi, isErrorUnknownAllow404s } from '../../api';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -95,17 +99,33 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
-const RecordDeathSection = memo(({ patient, readonly }) => {
+const CauseOfDeathButton = memo(({ openModal }) => {
+  return (
+    <OutlinedButton size="small" onClick={openModal}>
+      Cause of death
+    </OutlinedButton>
+  );
+});
+
+const RecordDeathSection = memo(({ patient, openModal }) => {
+  const isPatientDead = Boolean(patient.dateOfDeath);
+  const actionText = isPatientDead ? 'Revert death' : 'Record death';
   const [isModalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const openRevertModal = useCallback(() => setModalOpen(true), [setModalOpen]);
 
   return (
     <>
-      <OutlinedButton disabled={!!patient.dateOfDeath || readonly} size="small" onClick={openModal}>
-        Record death
-      </OutlinedButton>
-      <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
+      <TypographyLink onClick={isPatientDead ? openRevertModal : openModal}>
+        {actionText}
+      </TypographyLink>
+      {/*
+      PLACEHOLDER
+      <RevertDeathModal
+        open={isModalOpen}
+        onClose={closeModal}
+        patient={patient}
+      />
+      */}
     </>
   );
 });
@@ -121,7 +141,7 @@ const Container = styled.div`
 `;
 
 const ListsSection = styled.div`
-  padding: 5px 25px;
+  padding: 5px 25px 25px 25px;
 `;
 
 const Buttons = styled.div`
@@ -138,11 +158,33 @@ const Buttons = styled.div`
   }
 `;
 
+const TypographyLink = styled(Typography)`
+  color: ${Colors.primary};
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  text-decoration: underline;
+  text-align: right;
+  cursor: pointer;
+`;
+
 export const PatientInfoPane = () => {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
+  const api = useApi();
+  const { data: deathData, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
+    api.get(`patient/${patient.id}/death`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
+  );
+
   const readonly = !!patient.death;
   const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
+  const showRecordDeathActions = patientDeathsEnabled && !deathData?.isFinal;
+  const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
+
+  if (isLoading) return <LoadingIndicator />;
 
   return (
     <Container>
@@ -154,10 +196,15 @@ export const PatientInfoPane = () => {
         <PatientIssuesDisplay patient={patient} readonly={readonly} />
         <CarePlanDisplay patient={patient} readonly={readonly} />
         <Buttons>
-          {patientDeathsEnabled && <RecordDeathSection patient={patient} readonly={readonly} />}
+          {showCauseOfDeathButton && <CauseOfDeathButton openModal={openModal} />}
           <PrintSection patient={patient} readonly={readonly} />
         </Buttons>
+        <Box mt={12} />
+        {showRecordDeathActions && <RecordDeathSection patient={patient} openModal={openModal} />}
       </ListsSection>
+      {patientDeathsEnabled && (
+        <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
+      )}
     </Container>
   );
 };
