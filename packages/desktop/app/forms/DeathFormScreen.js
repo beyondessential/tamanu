@@ -43,9 +43,10 @@ export const DeathFormScreen = ({
     props: { ...screenComponent.props, children: visibleQuestions },
   };
 
-  // Inject special value to be used in form validation
+  // Inject special value to be used in form validation and only keep specific fields
   const handleSubmit = event => {
-    setValues({ ...values, isPartialWorkflow: true });
+    const { clinicianId, timeOfDeath } = values;
+    setValues({ clinicianId, timeOfDeath, isPartialWorkflow: true });
     submitForm(event);
   };
 
