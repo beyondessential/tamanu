@@ -3,6 +3,9 @@ import { log } from '../services/logging';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../constants/surveys';
 
 export function getStringValue(type, value) {
+  if (value === null) {
+    return null;
+  }
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
