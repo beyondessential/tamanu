@@ -1,13 +1,12 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useQuery } from '@tanstack/react-query';
 import { reloadPatient } from '../store/patient';
 import { Modal } from './Modal';
 import { DeathForm } from '../forms/DeathForm';
-import { useApi, useSuggester, isErrorUnknownAllow404s } from '../api';
+import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
-export const DeathModal = React.memo(({ open, onClose }) => {
+export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
@@ -15,9 +14,6 @@ export const DeathModal = React.memo(({ open, onClose }) => {
   const icd10Suggester = useSuggester('icd10');
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
-  const { data: deathData } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
-  );
 
   const recordPatientDeath = async data => {
     const patientId = patient.id;

@@ -203,7 +203,7 @@ export const PatientInfoPane = () => {
         {showRecordDeathActions && <RecordDeathSection patient={patient} openModal={openModal} />}
       </ListsSection>
       {patientDeathsEnabled && (
-        <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
+        <DeathModal open={isModalOpen} onClose={closeModal} deathData={deathData} />
       )}
     </Container>
   );
