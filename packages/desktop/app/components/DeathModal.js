@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { reloadPatient } from '../store/patient';
 import { Modal } from './Modal';
 import { DeathForm } from '../forms/DeathForm';
@@ -11,6 +12,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
+  const queryClient = useQueryClient();
   const icd10Suggester = useSuggester('icd10');
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
@@ -18,6 +20,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const recordPatientDeath = async data => {
     const patientId = patient.id;
     await api.post(`patient/${patientId}/death`, data);
+    queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
 
     onClose();
     await dispatch(reloadPatient(patientId));
