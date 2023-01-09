@@ -319,7 +319,6 @@ describe('fijiAspenMediciReport', () => {
   let models;
   let fakedata;
 
-  // Reset everything between each test. Might be innefficient but there's only 2 tests
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
@@ -342,26 +341,44 @@ describe('fijiAspenMediciReport', () => {
       // Dates/times inputted without timezone will be server timezone
       [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 55).replace(' ', 'T'), '2023'],
       [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 53).replace(' ', 'T'), '2023'],
-    ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
-      const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
-        end,
-      )}&encounters=${encodeURIComponent([fakedata.encounterId, 'nonexistant-id'])}`;
-      const response = await app
-        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
-        .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+    ])(
+      'Date filtering: Should return %p result(s) between %p and %s',
+      async (expectedResults, start, end) => {
+        const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
+          end,
+        )}`;
+        const response = await app
+          .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+          .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
-      expect(response).toHaveSucceeded();
-      expect(response.body.data.length).toEqual(expectedResults);
-    });
+        expect(response).toHaveSucceeded();
+        expect(response.body.data.length).toEqual(expectedResults);
+      },
+    );
 
-    it('should filter by encounter id', async () => {
-      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${encodeURIComponent(['nonexistant-id'])}`;
+    it('should filter by encounter id - 0 results', async () => {
+      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${encodeURIComponent([
+        'nonexistant-id',
+      ])}`;
       const response = await app
         .get(`/v1/integration/fijiAspenMediciReport?${query}`)
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
       expect(response).toHaveSucceeded();
       expect(response.body.data.length).toEqual(0);
+    });
+
+    it('should filter by encounter id - 1 result', async () => {
+      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${encodeURIComponent([
+        fakedata.encounterId,
+        'nonexistant-id',
+      ])}`;
+      const response = await app
+        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+        .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.length).toEqual(1);
     });
   });
 
