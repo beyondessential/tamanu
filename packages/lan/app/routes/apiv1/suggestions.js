@@ -178,7 +178,7 @@ createSuggester(
   },
   async location => {
     const availability = await location.getAvailability();
-    const { name, code, id, maxOccupancy } = location;
+    const { name, code, id, maxOccupancy, facilityId } = location;
 
     const lg = await location.getLocationGroup();
     const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
@@ -188,6 +188,7 @@ createSuggester(
       maxOccupancy,
       id,
       availability,
+      facilityId,
       ...(locationGroup && { locationGroup }),
     };
   },
