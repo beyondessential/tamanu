@@ -78,7 +78,7 @@ const CertificateTitle = {
 const getCertificateRemark = (patient, getLocalisation) => ({
   test: '',
   clearance: template(
-    getLocalisation('templates.covidTestCertificate.clearanceCertRemark'),
+    getLocalisation('templates.covidTestCertificate.clearanceCertRemark') ?? '',
     patient,
   ),
 });
