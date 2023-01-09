@@ -46,9 +46,8 @@ export const Table = ({
           <StyledView key={`${column}`}>
             {tableHeader.accessor(column, onPressItem)}
             {cells[column]
-                && rows.map(row => row.cell(
-                  cells[column].find(c => c[row.rowKey] === row.rowTitle),
-                ))}
+              && rows.map(row => row.cell(cells[column]
+                .find(c => c[row.rowKey] === row.rowTitle)))}
           </StyledView>
         ))}
       </RowView>
