@@ -215,3 +215,15 @@ jobs:
 
     - run: yarn test
       working-directory: packages/mobile
+
+  # Dummy job to have a stable name for PR requirements
+  tests-pass:
+    name: Tests pass
+    needs:
+      - test
+      - lint
+      - migrations
+      - test-mobile
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "Tests pass"
