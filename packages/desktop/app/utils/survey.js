@@ -177,17 +177,6 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-export function getValidationCriteriaObject(componentId, config) {
-  if (!config) return {};
-  try {
-    return JSON.parse(config);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn(`Invalid validationCriteria in survey screen component ${componentId}`);
-    return {};
-  }
-}
-
 function transformPatientData(patient, config) {
   const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
@@ -263,9 +252,17 @@ export const getValidationSchema = surveyData => {
   const schema = components.reduce(
     (
       acc,
-      { id: componentId, dataElement, validationCriteria, dataElementId, text: componentText },
+      {
+        id: componentId,
+        dataElement,
+        validationCriteria,
+        config,
+        dataElementId,
+        text: componentText,
+      },
     ) => {
-      const { min, max, mandatory } = getValidationCriteriaObject(componentId, validationCriteria);
+      const { unit = '' } = getConfigObject(componentId, config);
+      const { min, max, mandatory } = getConfigObject(componentId, validationCriteria);
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
       let valueSchema;
@@ -273,10 +270,10 @@ export const getValidationSchema = surveyData => {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
           valueSchema = yup.number().nullable();
           if (min) {
-            valueSchema = valueSchema.min(min, `${text} must be at least ${min}`);
+            valueSchema = valueSchema.min(min, `${text} must be at least ${min}${unit}`);
           }
           if (max) {
-            valueSchema = valueSchema.max(max, `${text} can not exceed ${max}`);
+            valueSchema = valueSchema.max(max, `${text} can not exceed ${max}${unit}`);
           }
           break;
         }

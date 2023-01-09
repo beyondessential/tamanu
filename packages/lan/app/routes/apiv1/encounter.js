@@ -21,6 +21,7 @@ import {
   runPaginatedQuery,
   paginatedGetList,
 } from './crudHelpers';
+import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();
 
@@ -122,7 +123,7 @@ encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get(
   '/:id/labRequests',
-  simpleGetList('LabRequest', 'encounterId', {
+  getLabRequestList('encounterId', {
     additionalFilters: {
       status: {
         [Op.ne]: LAB_REQUEST_STATUSES.DELETED,

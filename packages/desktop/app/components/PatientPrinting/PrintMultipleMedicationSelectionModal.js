@@ -12,7 +12,7 @@ export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose
   );
 };
 
-PrintMultipleMedicationSelectionForm.propTypes = {
+PrintMultipleMedicationSelectionModal.propTypes = {
   encounter: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,

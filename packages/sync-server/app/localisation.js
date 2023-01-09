@@ -16,6 +16,7 @@ const fieldSchema = yup
       then: yup.string().required(),
     }),
     hidden: yup.boolean().required(),
+    required: yup.boolean(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
   .required()
@@ -25,6 +26,7 @@ const unhideableFieldSchema = yup
   .object({
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
+    required: yup.boolean(),
   })
   .required()
   .noUnknown();
@@ -100,6 +102,7 @@ const HIDEABLE_FIELDS = [
   'prescriber',
   'prescriberId',
   'facility',
+  'dischargeDisposition',
 ];
 
 const templatesSchema = yup
@@ -341,7 +344,6 @@ const rootLocalisationSchema = yup
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
-        enableDischargeDisposition: yup.boolean().default(true),
         editDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
       })

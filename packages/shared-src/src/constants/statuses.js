@@ -46,6 +46,13 @@ export const COMMUNICATION_STATUSES = {
   BAD_FORMAT: 'Bad Format',
 };
 
+export const JOB_QUEUE_STATUSES = {
+  QUEUED: 'Queued',
+  STARTED: 'Started',
+  COMPLETED: 'Completed',
+  ERRORED: 'Errored',
+};
+
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
 
 export const PATIENT_MERGE_DELETION_ACTIONS = {

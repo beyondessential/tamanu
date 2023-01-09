@@ -11,6 +11,7 @@ import { InvalidOperationError } from 'shared/errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -62,6 +63,7 @@ export class Encounter extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {

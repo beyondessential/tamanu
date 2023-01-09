@@ -207,7 +207,6 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     }
 
     const data = utils.sheet_to_json(worksheet);
-    surveyRows = surveyRows.concat(importSurveySheet(data, surveyData));
 
     if (md.surveyType === 'vitals') {
       if (
@@ -219,7 +218,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       }
     }
 
-    surveyRows.push(...importSurveySheet(data, surveyData));
+    surveyRows = surveyRows.concat(importSurveySheet(data, surveyData));
 
     stats.push(
       await importRows(context(sheetName), {
