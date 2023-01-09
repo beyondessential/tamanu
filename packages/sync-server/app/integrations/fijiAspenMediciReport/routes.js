@@ -346,6 +346,7 @@ left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) >= :from_date::timestamptz ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) <= :to_date::timestamptz ELSE true END
+AND CASE WHEN (:input_encounter_ids) IS NOT NULL THEN e.id in (:input_encounter_ids) ELSE true END
 order by e.start_date desc
 limit :limit offset :offset;
 `;
@@ -364,8 +365,13 @@ routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
-    const { 'period.start': fromDate, 'period.end': toDate, limit, offset = 0 } = req.query;
-
+    const {
+      'period.start': fromDate,
+      'period.end': toDate,
+      limit,
+      encounters,
+      offset = 0,
+    } = req.query;
     if (!COUNTRY_TIMEZONE) {
       throw new Error('A countryTimeZone must be configured in local.json for this report to run');
     }
@@ -375,6 +381,7 @@ routes.get(
       replacements: {
         from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
         to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
+        input_encounter_ids: encounters ? encounters.split(',') : null,
         billing_type: null,
         timezone_string: COUNTRY_TIMEZONE,
         limit: limit ?? null, // Limit of null means no limit
