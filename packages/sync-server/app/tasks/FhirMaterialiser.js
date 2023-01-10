@@ -43,9 +43,9 @@ export class FhirMaterialiser extends ScheduledTask {
     log.debug('FhirMaterialiser: Running through explicit queue');
     const [completed, failed] = await FhirMaterialiseJob.lockAndRun(
       limit,
-      ({ resource, upstreamId }) => {
+      async ({ resource, upstreamId }) => {
         const Resource = materialisableResources.find(r => r.fhirName === resource);
-        this.materialise(
+        await this.materialise(
           log.child({ nth: total, limit, resource, upstreamId }),
           Resource,
           upstreamId,
