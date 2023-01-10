@@ -2,49 +2,48 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-import { Typography, Box } from '@material-ui/core';
-
-const Table = styled(Box)`
-  border-top: 1px solid black;
-  border-left: 1px solid black;
+const Table = styled.table`
+  border: 1px solid black;
   margin-top: 10px;
   margin-bottom: 16px;
+  border-spacing: 0px;
+  border-collapse: collapse;
+  width: 100%;
 `;
 
-const Row = styled(Box)`
-  display: grid;
-  grid-template-columns: ${props => props.$gridTemplateColumns};
+const Row = styled.tr`
   border-bottom: 1px solid black;
 `;
 
-const Cell = styled(Box)`
+const Header = styled.th`
   border-right: 1px solid black;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-`;
-
-const Text = styled(Typography)`
-  font-size: 14px;
-`;
-const StrongText = styled(Text)`
   font-weight: 600;
 `;
 
-export const ListTable = ({ columns, data, gridTemplateColumns }) => {
+const Cell = styled.td`
+  border-right: 1px solid black;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 14px;
+`;
+
+export const ListTable = ({ columns, data }) => {
   return (
     <Table>
-      <Row $gridTemplateColumns={gridTemplateColumns}>
-        {columns.map(({ title, style = { paddingLeft: '1rem' } }) => (
-          <Cell>
-            <StrongText style={style}>{title}</StrongText>
-          </Cell>
+      <Row>
+        {columns.map(({ key, title, style }) => (
+          <Header key={key} style={{ paddingLeft: '0.5rem', ...style }}>
+            {title}
+          </Header>
         ))}
       </Row>
       {data.map(row => (
-        <Row $gridTemplateColumns={gridTemplateColumns}>
-          {columns.map(({ key, accessor, style = { paddingLeft: '1rem' } }) => (
-            <Cell>
-              <Text style={style}>{accessor ? accessor(row) : row[key]}</Text>
+        <Row key={row.id}>
+          {columns.map(({ key, accessor, style }) => (
+            <Cell key={key} style={{ paddingLeft: '0.5rem', ...style }}>
+              {accessor ? accessor(row) : row[key]}
             </Cell>
           ))}
         </Row>
@@ -56,5 +55,4 @@ export const ListTable = ({ columns, data, gridTemplateColumns }) => {
 ListTable.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
-  gridTemplateColumns: PropTypes.string.isRequired,
 };
