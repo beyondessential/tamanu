@@ -48,11 +48,10 @@ export class CentralServerConnection {
       ...extraHeaders,
     };
     const response = await callWithBackoff(
-      () =>
-        fetchWithTimeout(url, {
-          ...config,
-          headers,
-        }),
+      () => fetchWithTimeout(url, {
+        ...config,
+        headers,
+      }),
       backoff,
     );
 
@@ -174,12 +173,22 @@ export class CentralServerConnection {
     this.token = null;
   }
 
-  throwError(err: Error) {
+  throwError(err: Error): never {
     // emit error after throwing
     setTimeout(() => {
       this.emitter.emit('error', err);
     }, 1);
     throw err;
+  }
+
+  async refresh(): Promise<void> {
+    const data = await this.get('refresh', {});
+    if (!data.token) {
+      // auth failed in some other regard
+      console.warn('Auth failed with an inexplicable error', data);
+      throw new AuthenticationError(generalErrorMessage);
+    }
+    this.setToken(data.token);
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {

@@ -9,6 +9,7 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
+import { refresh } from './refresh';
 import { userMiddleware, userInfo } from './userMiddleware';
 
 export const DEFAULT_JWT_SECRET = config.auth.secret || uuid();
@@ -20,6 +21,7 @@ authModule.use('/changePassword', changePassword);
 authModule.post('/login', login({ secret: DEFAULT_JWT_SECRET }));
 
 authModule.use(userMiddleware({ secret: DEFAULT_JWT_SECRET }));
+authModule.get('/refresh', refresh({ secret: DEFAULT_JWT_SECRET }));
 authModule.get('/user/me', userInfo);
 
 authModule.get('/permissions', asyncHandler(getPermissions));
