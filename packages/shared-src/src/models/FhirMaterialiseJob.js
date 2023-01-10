@@ -60,18 +60,8 @@ export class FhirMaterialiseJob extends Model {
         error: DataTypes.TEXT,
 
         // data fields
-        upstreamId: {
-          type: DataTypes.STRING,
-          validate: {
-            notIn: [[null]], // hack for testing
-          },
-        },
-        resource: {
-          type: DataTypes.STRING,
-          validate: {
-            notIn: [[null]], // hack for testing
-          },
-        },
+        upstreamId: DataTypes.STRING,
+        resource: DataTypes.STRING,
       },
       {
         ...options,
