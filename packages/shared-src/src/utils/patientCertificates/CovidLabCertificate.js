@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
+import { replaceInTemplate } from '../replaceInTemplate'
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -15,12 +16,6 @@ import {
   getTimeOfSwab,
 } from './accessors';
 import { getDisplayDate } from './getDisplayDate';
-
-const template = (templateString, replacements) =>
-  Object.entries(replacements).reduce(
-    (result, [key, replacement]) => result.replace(new RegExp(`\\$${key}\\$`, 'g'), replacement),
-    templateString,
-  );
 
 const columns = [
   {
@@ -77,7 +72,7 @@ const CertificateTitle = {
 
 const getCertificateRemark = (patient, getLocalisation) => ({
   test: '',
-  clearance: template(
+  clearance: replaceInTemplate(
     getLocalisation('templates.covidTestCertificate.clearanceCertRemark') ?? '',
     patient,
   ),
