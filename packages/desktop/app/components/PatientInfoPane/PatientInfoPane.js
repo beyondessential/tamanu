@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useQuery } from '@tanstack/react-query';
+import { useDispatch, useSelector } from 'react-redux';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { OutlinedButton } from '../Button';
@@ -27,6 +27,9 @@ import {
 } from './paneTitles';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { LoadingIndicator } from '../LoadingIndicator';
+import { ConfirmModal } from '../ConfirmModal';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { reloadPatient } from '../../store/patient';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -108,24 +111,38 @@ const CauseOfDeathButton = memo(({ openModal }) => {
 });
 
 const RecordDeathSection = memo(({ patient, openModal }) => {
-  const isPatientDead = Boolean(patient.dateOfDeath);
-  const actionText = isPatientDead ? 'Revert death' : 'Record death';
+  const api = useApi();
+  const dispatch = useDispatch();
+  const { navigateToPatient } = usePatientNavigation();
+  const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
   const openRevertModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const revertDeath = async () => {
+    const patientId = patient.id;
+    await api.post(`patient/${patientId}/revertDeath`);
+    queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
+
+    closeModal();
+    await dispatch(reloadPatient(patientId));
+    navigateToPatient(patientId);
+  };
+
+  const isPatientDead = Boolean(patient.dateOfDeath);
+  const actionText = isPatientDead ? 'Revert death record' : 'Record death';
 
   return (
     <>
       <TypographyLink onClick={isPatientDead ? openRevertModal : openModal}>
         {actionText}
       </TypographyLink>
-      {/*
-      PLACEHOLDER
-      <RevertDeathModal
+      <ConfirmModal
         open={isModalOpen}
-        onClose={closeModal}
-        patient={patient}
+        title="Revert patient death"
+        subText="Are you sure you want to revert the patient death record? This will not reopen any previously closed encounters."
+        onConfirm={revertDeath}
+        onCancel={closeModal}
       />
-      */}
     </>
   );
 });
