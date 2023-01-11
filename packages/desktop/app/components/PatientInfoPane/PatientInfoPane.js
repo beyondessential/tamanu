@@ -110,20 +110,30 @@ const CauseOfDeathButton = memo(({ openModal }) => {
   );
 });
 
+const TypographyLink = styled(Typography)`
+  color: ${Colors.primary};
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  text-decoration: underline;
+  text-align: right;
+  cursor: pointer;
+`;
+
 const RecordDeathSection = memo(({ patient, openModal }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
   const queryClient = useQueryClient();
-  const [isModalOpen, setModalOpen] = useState(false);
-  const openRevertModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const [isRevertModalOpen, setRevertModalOpen] = useState(false);
+  const openRevertModal = useCallback(() => setRevertModalOpen(true), [setRevertModalOpen]);
+  const closeRevertModal = useCallback(() => setRevertModalOpen(false), [setRevertModalOpen]);
   const revertDeath = async () => {
     const patientId = patient.id;
     await api.post(`patient/${patientId}/revertDeath`);
     queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
 
-    closeModal();
+    closeRevertModal();
     await dispatch(reloadPatient(patientId));
     navigateToPatient(patientId);
   };
@@ -137,11 +147,11 @@ const RecordDeathSection = memo(({ patient, openModal }) => {
         {actionText}
       </TypographyLink>
       <ConfirmModal
-        open={isModalOpen}
+        open={isRevertModalOpen}
         title="Revert patient death"
         subText="Are you sure you want to revert the patient death record? This will not reopen any previously closed encounters."
         onConfirm={revertDeath}
-        onCancel={closeModal}
+        onCancel={closeRevertModal}
       />
     </>
   );
@@ -173,16 +183,6 @@ const Buttons = styled.div`
       margin: 0;
     }
   }
-`;
-
-const TypographyLink = styled(Typography)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
-  text-decoration: underline;
-  text-align: right;
-  cursor: pointer;
 `;
 
 export const PatientInfoPane = () => {
