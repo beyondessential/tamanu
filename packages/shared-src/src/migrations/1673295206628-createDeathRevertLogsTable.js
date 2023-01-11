@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 export async function up(query) {
-  await query.createTable('death_revert_log', {
+  await query.createTable('death_revert_logs', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -51,5 +51,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropTable('death_revert_log');
+  await query.dropTable('death_revert_logs');
 }
