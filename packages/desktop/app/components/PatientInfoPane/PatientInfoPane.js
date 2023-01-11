@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { OutlinedButton } from '../Button';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
@@ -27,9 +27,7 @@ import {
 } from './paneTitles';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { LoadingIndicator } from '../LoadingIndicator';
-import { ConfirmModal } from '../ConfirmModal';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { reloadPatient } from '../../store/patient';
+import { RecordDeathSection } from '../RecordDeathSection';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -107,53 +105,6 @@ const CauseOfDeathButton = memo(({ openModal }) => {
     <OutlinedButton size="small" onClick={openModal}>
       Cause of death
     </OutlinedButton>
-  );
-});
-
-const TypographyLink = styled(Typography)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
-  text-decoration: underline;
-  text-align: right;
-  cursor: pointer;
-`;
-
-const RecordDeathSection = memo(({ patient, openModal }) => {
-  const api = useApi();
-  const dispatch = useDispatch();
-  const { navigateToPatient } = usePatientNavigation();
-  const queryClient = useQueryClient();
-  const [isRevertModalOpen, setRevertModalOpen] = useState(false);
-  const openRevertModal = useCallback(() => setRevertModalOpen(true), [setRevertModalOpen]);
-  const closeRevertModal = useCallback(() => setRevertModalOpen(false), [setRevertModalOpen]);
-  const revertDeath = async () => {
-    const patientId = patient.id;
-    await api.post(`patient/${patientId}/revertDeath`);
-    queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
-
-    closeRevertModal();
-    await dispatch(reloadPatient(patientId));
-    navigateToPatient(patientId);
-  };
-
-  const isPatientDead = Boolean(patient.dateOfDeath);
-  const actionText = isPatientDead ? 'Revert death record' : 'Record death';
-
-  return (
-    <>
-      <TypographyLink onClick={isPatientDead ? openRevertModal : openModal}>
-        {actionText}
-      </TypographyLink>
-      <ConfirmModal
-        open={isRevertModalOpen}
-        title="Revert patient death"
-        subText="Are you sure you want to revert the patient death record? This will not reopen any previously closed encounters."
-        onConfirm={revertDeath}
-        onCancel={closeRevertModal}
-      />
-    </>
   );
 });
 
