@@ -40,9 +40,9 @@ export class Location extends BaseModel implements ILocation {
   )
   administeredVaccines: AdministeredVaccine[];
 
-  // @ManyToOne(() => LocationGroup)
-  // locationGroup: LocationGroup;
-  //
-  // @RelationId(({ locationGroup }) => locationGroup)
-  // locationGroupId: string;
+  @ManyToOne(() => LocationGroup)
+  locationGroup: LocationGroup;
+
+  @RelationId(({ locationGroup }) => locationGroup)
+  locationGroupId: string;
 }

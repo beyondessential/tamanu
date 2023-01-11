@@ -58,12 +58,6 @@ const LocationGroupTable = new Table({
   ],
 });
 
-const locationTableForeignKey = new TableForeignKey({
-  columnNames: ['locationGroupId'],
-  referencedColumnNames: ['id'],
-  referencedTableName: 'locationGroup',
-});
-
 const ifNotExist = true;
 
 export class addLocationGroupTable1673396917000 implements MigrationInterface {
@@ -72,16 +66,33 @@ export class addLocationGroupTable1673396917000 implements MigrationInterface {
     await queryRunner.createTable(LocationGroupTable, ifNotExist);
 
     // Add relation from location to locationGroup
-    // await queryRunner.createForeignKey('location', locationTableForeignKey);
+    await queryRunner.addColumn(
+      'location',
+      new TableColumn({
+        name: 'locationGroupId',
+        isNullable: true,
+        type: 'varchar',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'location',
+      new TableForeignKey({
+        columnNames: ['locationGroupId'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'locationGroup',
+      }),
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
     // Drop relation from location to locationGroup
-    // const locationTable = await queryRunner.getTable('location');
-    // const foreignKey = locationTable.foreignKeys.find(
-    //   fk => fk.columnNames.indexOf('locationGroupId') !== -1,
-    // );
-    // await queryRunner.dropForeignKey('location', foreignKey);
+    const locationTable = await queryRunner.getTable('location');
+    const foreignKey = locationTable.foreignKeys.find(
+      fk => fk.columnNames.indexOf('locationGroupId') !== -1,
+    );
+    await queryRunner.dropForeignKey('location', foreignKey);
+    await queryRunner.dropColumn('location', 'locationGroupId');
 
     // Drop locationGroup Table
     await queryRunner.dropTable('locationGroup');

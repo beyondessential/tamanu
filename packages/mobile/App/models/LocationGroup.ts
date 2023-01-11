@@ -26,11 +26,11 @@ export class LocationGroup extends BaseModel implements ILocationGroup {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  // @OneToMany(
-  //   () => Location,
-  //   ({ locationGroup }) => locationGroup,
-  // )
-  // locations: Location[];
+  @OneToMany(
+    () => Location,
+    ({ locationGroup }) => locationGroup,
+  )
+  locations: Location[];
 
   static getTableNameForSync(): string {
     return 'location_groups';
