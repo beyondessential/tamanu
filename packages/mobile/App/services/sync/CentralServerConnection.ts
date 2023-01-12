@@ -20,6 +20,7 @@ export class CentralServerConnection {
   host: string;
 
   token: string | null;
+  refreshToken: string | null;
 
   emitter = mitt();
 
@@ -31,7 +32,7 @@ export class CentralServerConnection {
     path: string,
     query: Record<string, string | number>,
     { backoff, ...config }: FetchOptions = {},
-  ) {
+  ): Promise<any> {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
     }
@@ -84,11 +85,11 @@ export class CentralServerConnection {
     return response.json();
   }
 
-  async get(path: string, query: Record<string, string | number>) {
+  async get(path: string, query: Record<string, string | number>): Promise<any> {
     return this.fetch(path, query, { method: 'GET' });
   }
 
-  async post(path: string, query: Record<string, string | number>, body, options?: FetchOptions) {
+  async post(path: string, query: Record<string, string | number>, body, options?: FetchOptions): Promise<any> {
     return this.fetch(path, query, {
       ...options,
       method: 'POST',
@@ -99,7 +100,7 @@ export class CentralServerConnection {
     });
   }
 
-  async delete(path: string, query: Record<string, string | number>) {
+  async delete(path: string, query: Record<string, string | number>): Promise<any> {
     return this.fetch(path, query, { method: 'DELETE' });
   }
 
@@ -111,7 +112,7 @@ export class CentralServerConnection {
     return this.delete(`sync/${sessionId}`, {});
   }
 
-  async fetchPullCount(sessionId) {
+  async fetchPullCount(sessionId): Promise<number> {
     // poll the pull count endpoint until we get a valid response - it takes a while for
     // setPullFilter to finish populating the snapshot of changes
     const waitTime = 1000; // retry once per second
@@ -173,6 +174,14 @@ export class CentralServerConnection {
     this.token = null;
   }
 
+  setRefreshToken(refreshToken: string): void {
+    this.refreshToken = refreshToken;
+  }
+
+  clearRefreshToken(): void {
+    this.refreshToken = null;
+  }
+
   throwError(err: Error): never {
     // emit error after throwing
     setTimeout(() => {
@@ -182,11 +191,15 @@ export class CentralServerConnection {
   }
 
   async refresh(): Promise<void> {
-    const data = await this.get('refresh', {});
+    const data = await this.post('refresh', {}, { refreshToken: this.refreshToken });
     if (!data.token) {
       // auth failed in some other regard
       console.warn('Auth failed with an inexplicable error', data);
       throw new AuthenticationError(generalErrorMessage);
+    }
+    // TODO: decide logic for revolving refresh token is it every time
+    if (data.refreshToken) {
+      this.setRefreshToken(data.refreshToken);
     }
     this.setToken(data.token);
   }
@@ -200,7 +213,7 @@ export class CentralServerConnection {
         { backoff: { maxAttempts: 1 } },
       );
 
-      if (!data.token || !data.user) {
+      if (!data.token || !data.refreshToken || !data.user) {
         // auth failed in some other regard
         console.warn('Auth failed with an inexplicable error', data);
         throw new AuthenticationError(generalErrorMessage);

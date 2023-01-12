@@ -5,6 +5,7 @@ export type WithAuthStoreProps = WithAuthActions & AuthStateProps;
 export interface WithAuthActions {
   setUser: (payload: IUser) => PayloadAction<IUser>;
   setToken: (payload: string) => PayloadAction<IUser>;
+  setRefreshToken: (payload: string) => PayloadAction<IUser>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
   signOutUser(): () => PayloadAction<void>;
@@ -12,6 +13,7 @@ export interface WithAuthActions {
 
 export interface AuthStateProps {
   token: string;
+  refreshToken: string;
   user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
@@ -19,6 +21,7 @@ export interface AuthStateProps {
 
 const initialState: AuthStateProps = {
   token: null,
+  refreshToken: null,
   user: null,
   signedIn: false,
   isFirstTime: true,
@@ -32,6 +35,12 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         token,
+      };
+    },
+    setRefreshToken(state, { payload: refreshToken }: PayloadAction<string>): AuthStateProps {
+      return {
+        ...state,
+        refreshToken,
       };
     },
     setSignedInStatus(
@@ -65,6 +74,8 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         token: null,
+        // TODO: do we want this
+        refreshToken: null,
       };
     },
   },

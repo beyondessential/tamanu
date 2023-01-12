@@ -42,6 +42,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 const Provider = ({
   setToken,
+  setRefreshToken,
   setUser,
   setSignedInStatus,
   children,
@@ -82,8 +83,9 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user: usr, token } = await backend.auth.remoteSignIn(params);
+    const { user: usr, token, refreshToken } = await backend.auth.remoteSignIn(params);
     setToken(token);
+    setRefreshToken(refreshToken);
     signInAs(usr);
   };
 
@@ -130,8 +132,8 @@ const Provider = ({
 
   // start a session if there's a stored token
   useEffect(() => {
-    if (props.token && props.user) {
-      backend.auth.startSession(props.token);
+    if (props.token && props.refreshToken && props.user) {
+      backend.auth.startSession(props.token, props.refreshToken);
     } else {
       backend.auth.endSession();
     }

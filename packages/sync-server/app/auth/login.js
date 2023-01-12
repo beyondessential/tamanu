@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import ms from 'ms';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
@@ -7,7 +8,7 @@ import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import { getToken, stripUser, findUser } from './utils';
 
-export const login = ({ secret }) =>
+export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body } = req;
     const { email, password, facilityId } = body;
@@ -32,6 +33,12 @@ export const login = ({ secret }) =>
     }
 
     const token = await getToken(user, secret, config.auth.tokenDuration);
+    const refreshToken = await getToken(user, refreshSecret, config.auth.refreshTokenDuration);
+
+    await store.models.RefreshToken.create({
+      token: refreshToken,
+      expiresAt: Date.now() + ms(config.auth.refreshTokenDuration),
+    });
 
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
@@ -43,6 +50,7 @@ export const login = ({ secret }) =>
 
     res.send({
       token,
+      refreshToken,
       user: convertFromDbRecord(stripUser(user)).data,
       permissions,
       facility,
