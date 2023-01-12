@@ -273,7 +273,7 @@ describe('Imaging requests', () => {
     // assert
     expect(result).toHaveSucceeded();
     expect(result.body.results[0]).toMatchObject({
-      description: 'result description',
+      description: 'external result description',
       externalUrl: `https://test.tamanu.io/${resultRow.id}`,
     });
     expect(result.body.results[1]).toMatchObject({
