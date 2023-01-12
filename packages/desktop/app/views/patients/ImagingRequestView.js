@@ -157,7 +157,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
             }
             disabled
           />
-          <DateTimeInput label="Date" value={result.createdAt} disabled />
+          <DateTimeInput label="Completed" value={result.createdAt} disabled />
           {result.externalUrl && (
             <Button color="secondary" onClick={openExternalUrl(result.externalUrl)}>
               View image (external link)
@@ -184,7 +184,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field label="Date" name="newResultDate" saveDateAsString component={DateTimeField} />
+        <Field label="Completed" name="newResultDate" saveDateAsString component={DateTimeField} />
         <Field
           label="Result description"
           name="newResultDescription"
