@@ -5,11 +5,12 @@ import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
-import { importer as programImporter, PERMISSIONS as PROGRAM_PERMISSIONS } from './programImporter';
-import { importer as refdataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './refdataImporter';
+import { programImporter, PERMISSIONS as PROGRAM_PERMISSIONS } from './programImporter';
+import { refDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './refDataImporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { exportRefData } from './exportRefData';
 
 export const adminRoutes = express.Router();
 
@@ -58,12 +59,14 @@ adminRoutes.get(
 
 adminRoutes.post(
   '/importRefData',
-  createDataImporterEndpoint(refdataImporter, REFDATA_PERMISSIONS),
+  createDataImporterEndpoint(refDataImporter, REFDATA_PERMISSIONS),
 );
 
 adminRoutes.post(
   '/importProgram',
   createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
 );
+
+adminRoutes.get('/exportRefData', exportRefData);
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
