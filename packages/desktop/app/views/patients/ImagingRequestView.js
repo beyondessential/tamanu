@@ -180,7 +180,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
         <Field
           label="Completed by"
           name="newResultCompletedBy"
-          placeholder="Search for a practitioner..."
+          placeholder="Search"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
