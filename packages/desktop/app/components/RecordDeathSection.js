@@ -30,7 +30,7 @@ export const RecordDeathSection = memo(({ patient, openModal }) => {
   const revertDeath = async () => {
     const patientId = patient.id;
     await api.post(`patient/${patientId}/revertDeath`);
-    queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
+    queryClient.resetQueries(['patientDeathSummary', patient.id]);
 
     closeRevertModal();
     await dispatch(reloadPatient(patientId));
