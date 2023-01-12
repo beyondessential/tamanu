@@ -151,12 +151,13 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
       {values.results?.map(result => (
         <BottomAlignFormGrid columns={result.externalUrl ? 3 : 2}>
           <TextInput
+            label="Completed by"
             value={
               result.completedBy?.displayName ?? (result.externalUrl && 'External provider') ?? ''
             }
             disabled
           />
-          <DateTimeInput value={result.createdAt} disabled />
+          <DateTimeInput label="Date" value={result.createdAt} disabled />
           {result.externalUrl && (
             <Button color="secondary" onClick={openExternalUrl(result.externalUrl)}>
               View image (external link)
@@ -164,6 +165,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
           )}
 
           <TextInput
+            label="Result description"
             value={result.description}
             multiline
             disabled
@@ -176,17 +178,15 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
       <h4>{values.results?.length > 0 ? 'Add additional result' : 'Add result'}</h4>
       <FormGrid columns={2}>
         <Field
+          label="Completed by"
           name="newResultCompletedBy"
           placeholder="Search for a practitioner..."
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
+        <Field label="Date" name="newResultDate" saveDateAsString component={DateTimeField} />
         <Field
-          name="newResultDate"
-          saveDateAsString
-          component={DateTimeField}
-        />
-        <Field
+          label="Result description"
           name="newResultDescription"
           placeholder="Result description..."
           multiline
