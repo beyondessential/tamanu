@@ -249,7 +249,7 @@ describe('Imaging requests', () => {
     });
     const resultRow = await models.ImagingResult.create({
       imagingRequestId: ir.id,
-      description: 'result description',
+      description: 'external result description',
       externalCode: 'EXT123',
     });
     await models.ImagingResult.create({
