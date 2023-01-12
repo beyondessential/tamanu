@@ -104,7 +104,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
       {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
         values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
         <Field
-          label="Area"
+          label="Facility area"
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
