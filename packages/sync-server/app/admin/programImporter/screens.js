@@ -27,6 +27,7 @@ function makeScreen(questions, componentData) {
       config: qConfig = '',
       calculation = '',
       row,
+      type,
       ...elementData
     } = component;
 
@@ -40,6 +41,7 @@ function makeScreen(questions, componentData) {
         values: {
           id: dataElId,
           defaultOptions: '',
+          type,
           ...elementData,
         },
       },
@@ -58,6 +60,9 @@ function makeScreen(questions, componentData) {
           detail,
           config: qConfig,
           calculation,
+          // Type won't be attached to the survey screen component but
+          // different question types use different validation criteria
+          type,
           ...otherComponentData,
         },
       },

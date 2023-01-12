@@ -141,9 +141,16 @@ export const ProgramDataElement = Base.shape({
   defaultOptions: jsonString(),
 });
 
+// export const SSCValidationCriteria = yup
+//   .object()
+//   .json()
+//   .shape({
+//     mandatory: yup.boolean(),
+//   });
+
 export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
-  validationCriteria: jsonString(),
+  validationCriteria: jsonString(), // SSCValidationCriteria,
   config: jsonString(),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),

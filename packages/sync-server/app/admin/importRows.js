@@ -133,6 +133,16 @@ export async function importRows(
         } else {
           schemaName = 'ReferenceData';
         }
+      } else if (model === 'SurveyScreenComponent') {
+        // The question type is added to the SSC rows in programImporter/screens.js
+        const { type } = values;
+        const specificSchemaName = `SSC${type}`;
+        const specificSchemaExists = !!schemas[specificSchemaName];
+        if (specificSchemaExists) {
+          schemaName = specificSchemaName;
+        } else {
+          schemaName = 'SurveyScreenComponent';
+        }
       } else {
         const specificSchemaExists = !!schemas[model];
         if (specificSchemaExists) {
