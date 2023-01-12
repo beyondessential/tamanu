@@ -20,6 +20,8 @@ export class CentralServerConnection {
   host: string;
 
   token: string | null;
+  expiresAt: number | null;
+
   refreshToken: string | null;
 
   emitter = mitt();
@@ -166,12 +168,14 @@ export class CentralServerConnection {
     );
   }
 
-  setToken(token: string): void {
+  setToken(token: string, expiresAt: number): void {
     this.token = token;
+    this.expiresAt = expiresAt;
   }
 
   clearToken(): void {
     this.token = null;
+    this.expiresAt = null;
   }
 
   setRefreshToken(refreshToken: string): void {
@@ -201,7 +205,7 @@ export class CentralServerConnection {
     if (data.refreshToken) {
       this.setRefreshToken(data.refreshToken);
     }
-    this.setToken(data.token);
+    this.setToken(data.token, data.expiresAt);
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {

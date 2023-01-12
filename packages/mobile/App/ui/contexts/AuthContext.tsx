@@ -83,8 +83,8 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user: usr, token, refreshToken } = await backend.auth.remoteSignIn(params);
-    setToken(token);
+    const { user: usr, token, expiresAt, refreshToken } = await backend.auth.remoteSignIn(params);
+    setToken({token, expiresAt});
     setRefreshToken(refreshToken);
     signInAs(usr);
   };
