@@ -173,7 +173,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
         </BottomAlignFormGrid>
       ))}
 
-      <h4>Add result</h4>
+      <h4>{values.results?.length > 0 ? 'Add additional result' : 'Add result'}</h4>
       <FormGrid columns={2}>
         <Field
           name="newResultCompletedBy"
