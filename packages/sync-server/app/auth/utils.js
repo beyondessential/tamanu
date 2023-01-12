@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import jwt from 'jsonwebtoken';
+import ms from 'ms';
 
 export const stripUser = user => {
   const { password, ...userData } = user;
@@ -14,6 +15,8 @@ export const getToken = async (user, secret, expiry) =>
     secret,
     { expiresIn: expiry },
   );
+
+export const getExpiration = expiresIn => Date.now() - ms(expiresIn);
 
 export const verifyToken = (token, secret) => jwt.verify(token, secret);
 

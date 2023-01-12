@@ -2,7 +2,7 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { BadAuthenticationError } from 'shared/errors';
 import ms from 'ms';
-import { getToken, verifyToken, findUserById } from './utils';
+import { getToken, verifyToken, findUserById, getExpiration } from './utils';
 
 export const refresh = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
@@ -34,20 +34,23 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     const user = await findUserById(store.models, userId);
 
-    const newAccessToken = await getToken(user, secret, config.auth.tokenDuration);
+    const { tokenDuration, refreshTokenDuration } = config.auth;
+
+    const newAccessToken = await getToken(user, secret, tokenDuration);
+    const accessTokenExpiresAt = getExpiration(tokenDuration);
 
     // Refresh Token Rotation
-    const newRefreshToken = await getToken(user, refreshSecret, config.auth.refreshTokenDuration);
+    const newRefreshToken = await getToken(user, refreshSecret, refreshTokenDuration);
+    const refreshTokenExpiresAt = getExpiration(refreshTokenDuration)
     await dbToken.destroy();
     await store.models.RefreshToken.create({
       token: newRefreshToken,
-      userId: user.id,
-      expiresAt: Date.now() + ms(config.auth.refreshTokenDuration),
+      expiresAt: refreshTokenExpiresAt,
     });
 
     res.send({
       token: newAccessToken,
       refreshToken: newRefreshToken,
-      expiresAt: Date.now() + ms(config.auth.tokenDuration),
+      expiresAt: accessTokenExpiresAt,
     });
   });
