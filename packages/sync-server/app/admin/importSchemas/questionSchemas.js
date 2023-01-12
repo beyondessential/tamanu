@@ -3,10 +3,13 @@ import { SurveyScreenComponent /* , SSCValidationCriteria */ } from './baseSchem
 
 const jsonStringShape = (name, objectShape) =>
   yup.string().test('json-shape', value => {
-    if (!value) return true;
+    let parseValue = value;
+    // We usually accept empty strings for configs, but there might be required fields
+    // So attempt the validation with an empty object just in case
+    if (!value) parseValue = '{}';
     let parsedObject = null;
     try {
-      parsedObject = JSON.parse(value);
+      parsedObject = JSON.parse(parseValue);
       // Will throw a validation error if shape doesn't match
       return objectShape.validateSync(parsedObject, { strict: true });
     } catch (e) {
