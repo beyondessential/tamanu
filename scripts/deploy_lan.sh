@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euxo pipefail
-cd "$(dirname "$(realpath "$BASH_SOURCE")")"
+cd "$(realpath $(dirname "$(realpath "$BASH_SOURCE")")/..)"
 
 BUCKET_DIR="${1:?Must pass a bucket directory like dev, staging}"
 ENV_NAME="${2:?Must pass an environment like tamanu-central-server-dev}"
