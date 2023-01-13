@@ -1,6 +1,0 @@
-FROM codeship/aws-deployment
-
-ENV AWS_DEFAULT_REGION=ap-southeast-2 \
-    S3_BUCKET=tamanu-builds
-
-WORKDIR /tamanu
