@@ -1,9 +1,21 @@
 import { inspect } from 'util';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-
-import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
+import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager', () => {
+  let ctx;
+  let FacilitySyncManager;
+  const TEST_SESSION_ID = 'sync123';
+
+  const requireFacilitySyncManager = () => {
+    ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
+  };
+
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    requireFacilitySyncManager();
+  });
+
   describe('triggerSync', () => {
     afterEach(() => {
       FacilitySyncManager.restoreConfig();
@@ -33,7 +45,6 @@ describe('FacilitySyncManager', () => {
       const resolveWhenNonEmpty = [];
       syncManager.syncPromise = jest.fn().mockImplementation(async () => {
         while (resolveWhenNonEmpty.length === 0) {
-
           await sleepAsync(5);
         }
       });
@@ -42,6 +53,180 @@ describe('FacilitySyncManager', () => {
       expect(inspect(promise)).toMatch(/pending/);
       resolveWhenNonEmpty.push(true);
       await promise;
+    });
+  });
+
+  describe('runSync', () => {
+    it('clears all snapshot tables before running', async () => {
+      const dropSchema = jest.fn();
+      const createSchema = jest.fn();
+
+      const syncManager = new FacilitySyncManager({
+        models: ctx.models,
+        sequelize: {
+          getQueryInterface: () => ({
+            dropSchema,
+            createSchema,
+          }),
+          query: () => true,
+        },
+        centralServer: {
+          startSyncSession: () => ({ sessionId: 'sync123', tick: 1 }),
+          endSyncSession: jest.fn(),
+        },
+      });
+
+      jest.spyOn(syncManager, 'runPull').mockImplementation(() => true);
+      jest.spyOn(syncManager, 'runPush').mockImplementation(() => true);
+
+      await syncManager.runSync();
+
+      expect(dropSchema).toBeCalledTimes(1);
+      expect(dropSchema).toBeCalledWith('sync_snapshots');
+      expect(createSchema).toBeCalledTimes(1);
+      expect(createSchema).toBeCalledWith('sync_snapshots', {});
+    });
+  });
+
+  describe('runPush', () => {
+    beforeEach(() => {
+      jest.resetModules();
+    });
+
+    it("snapshots outgoing changes with current 'lastSuccessfulSyncPush'", async () => {
+      await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPush', '10');
+
+      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/snapshotOutgoingChanges'),
+        snapshotOutgoingChanges: jest.fn().mockImplementation(() => []),
+      }));
+
+      requireFacilitySyncManager();
+      const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
+
+      const syncManager = new FacilitySyncManager({
+        models: ctx.models,
+        sequelize: ctx.sequelize,
+        centralServer: {
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: jest.fn(),
+          push: jest.fn(),
+        },
+      });
+
+      await syncManager.runPush(TEST_SESSION_ID, 10);
+
+      expect(snapshotOutgoingChanges).toBeCalledTimes(1);
+      expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), '10');
+    });
+
+    it('push outgoing changes with current sessionId', async () => {
+      const outgoingChanges = [{ test: 'test' }];
+      await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
+
+      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/snapshotOutgoingChanges'),
+        snapshotOutgoingChanges: jest.fn().mockImplementation(() => outgoingChanges),
+      }));
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn().mockImplementation(() => true),
+      }));
+
+      requireFacilitySyncManager();
+      const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+
+      const syncManager = new FacilitySyncManager({
+        models: ctx.models,
+        sequelize: ctx.sequelize,
+        centralServer: {
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: jest.fn(),
+          push: jest.fn(),
+        },
+      });
+
+      await syncManager.runPush(TEST_SESSION_ID, 1);
+
+      expect(pushOutgoingChanges).toBeCalledTimes(1);
+      expect(pushOutgoingChanges).toBeCalledWith(
+        syncManager.centralServer,
+        TEST_SESSION_ID,
+        outgoingChanges,
+      );
+    });
+  });
+
+  describe('runPull', () => {
+    beforeEach(() => {
+      jest.resetModules();
+    });
+
+    it("pull changes with current 'lastSuccessfulSyncPull'", async () => {
+      await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPull', '10');
+
+      jest.doMock('shared/sync', () => ({
+        ...jest.requireActual('shared/sync'),
+        createSnapshotTable: jest.fn(),
+      }));
+      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
+        pullIncomingChanges: jest.fn().mockImplementation(() => []),
+      }));
+
+      requireFacilitySyncManager();
+      const { createSnapshotTable } = require('shared/sync');
+
+      const syncManager = new FacilitySyncManager({
+        models: ctx.models,
+        sequelize: ctx.sequelize,
+        centralServer: {
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: jest.fn(),
+          push: jest.fn(),
+        },
+      });
+
+      await syncManager.runPull(TEST_SESSION_ID);
+
+      expect(createSnapshotTable).toBeCalledTimes(1);
+      expect(createSnapshotTable).toBeCalledWith(ctx.sequelize, TEST_SESSION_ID);
+    });
+
+    it('save changes with current sessionId', async () => {
+      await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
+
+      jest.doMock('shared/sync', () => ({
+        ...jest.requireActual('shared/sync'),
+        createSnapshotTable: jest.fn(),
+        saveIncomingChanges: jest.fn(),
+      }));
+      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
+        pullIncomingChanges: jest.fn().mockImplementation(() => ({ count: 3, tick: 1 })),
+      }));
+
+      requireFacilitySyncManager();
+      const { saveIncomingChanges } = require('shared/sync');
+
+      const syncManager = new FacilitySyncManager({
+        models: ctx.models,
+        sequelize: ctx.sequelize,
+        centralServer: {
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: jest.fn(),
+          push: jest.fn(),
+        },
+      });
+
+      await syncManager.runPull(TEST_SESSION_ID);
+
+      expect(saveIncomingChanges).toBeCalledTimes(1);
+      expect(saveIncomingChanges).toBeCalledWith(
+        ctx.sequelize,
+        expect.any(Object),
+        TEST_SESSION_ID,
+      );
     });
   });
 });
