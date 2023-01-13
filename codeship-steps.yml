@@ -2,7 +2,8 @@
   type: serial
   service: deploy
   encrypted_dockercfg_path: dockercfg.encrypted
-  tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$)
+  # filters commented out for testing on PR
+  #tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$)
   steps:
     - name: copy files
       command: /pre/scripts/copy_files.sh
@@ -64,7 +65,8 @@
               tag: ^(sepi-)
               command: ./scripts/deploy_sync.sh sepi tamanu-central-server-sepi
             - name: onto da
-              tag: ^(da-)
+              # filters commented out for testing on PR
+              #tag: ^(da-)
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: the lan server
           exclude: ^(release-desktop-|deploy-meta$)
@@ -89,7 +91,8 @@
               tag: ^(sepi-)
               command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
             - name: onto da A
-              tag: ^(da-)
+              # filters commented out for testing on PR
+              #tag: ^(da-)
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
             - name: onto uat
               tag: ^uat-
@@ -122,7 +125,8 @@
               tag: ^(master|deploy-meta)$
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
         - name: package server zips
-          tag: ^(master$|dev$|staging-|ci-)
+          # filters commented out for testing on PR
+          #tag: ^(master$|dev$|staging-|ci-)
           type: serial
           steps:
             - name: build central server zip
