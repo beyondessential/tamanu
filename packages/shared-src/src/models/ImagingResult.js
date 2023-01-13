@@ -5,6 +5,7 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
 
 export class ImagingResult extends Model {
   static init(options) {
@@ -21,6 +22,7 @@ export class ImagingResult extends Model {
           allowNull: false,
           defaultValue: 'current',
         },
+        completedAt: dateTimeType('completedAt', { allowNull: false }),
         description: {
           type: DataTypes.TEXT,
           allowNull: false,

@@ -236,8 +236,8 @@ imagingRequest.put(
 
     if (newResultDescription?.length > 0) {
       const newResult = await ImagingResult.create({
-        createdAt: parseISO(newResultDate),
         description: newResultDescription,
+        completedAt: newResultDate,
         completedById: newResultCompletedBy,
         imagingRequestId: imagingRequestObject.id,
       });

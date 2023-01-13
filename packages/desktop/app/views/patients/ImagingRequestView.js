@@ -157,7 +157,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
             }
             disabled
           />
-          <DateTimeInput label="Completed" value={result.createdAt} disabled />
+          <DateTimeInput label="Completed" value={result.completedAt} disabled />
           {result.externalUrl && (
             <Button color="secondary" onClick={openExternalUrl(result.externalUrl)}>
               View image (external link)
