@@ -118,16 +118,26 @@ describe('Auth', () => {
         password: TEST_PASSWORD,
       });
       const originalExpiresAt = loginResponse.body.expiresAt;
+      const originalToken = loginResponse.body.token;
 
       expect(loginResponse).toHaveSucceeded();
       const { refreshToken } = loginResponse.body;
+
+      // Make sure that Date.now used in encrypting new token is different from global mock date
+      // Otherwise the new token will appear the same
+      const dateNowSpy = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() => new Date(originalExpiresAt).getTime() + 1);
 
       const refreshResponse = await baseApp.post('/v1/refresh').send({
         refreshToken,
       });
 
+      dateNowSpy.mockClear();
+
       expect(refreshResponse).toHaveSucceeded();
       expect(refreshResponse.body).toHaveProperty('token');
+      expect(refreshResponse.body.token).not.toEqual(originalToken);
       expect(refreshResponse.body).toHaveProperty('expiresAt');
       expect(refreshResponse.body.expiresAt).toBeGreaterThan(originalExpiresAt);
     });
