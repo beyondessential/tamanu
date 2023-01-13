@@ -16,8 +16,8 @@ import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 const patientMoveActionOptions = [
-  { label: 'Finalise', value: 'finalise' },
   { label: 'Plan', value: 'plan' },
+  { label: 'Finalise', value: 'finalise' },
 ];
 
 const Container = styled.div`
@@ -49,7 +49,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
   return (
     <Modal title="Move patient" open={open} onClose={onClose}>
       <Form
-        initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'finalise' }}
+        initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'plan' }}
         onSubmit={onSubmit}
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
@@ -65,7 +65,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                 />
                 <Field
                   name="action"
-                  label="Would you like to finalise or plan the patient move?"
+                  label="Would you like to plan or finalise the patient move?"
                   component={RadioField}
                   options={patientMoveActionOptions}
                   style={{ gridColumn: '1/-1' }}
