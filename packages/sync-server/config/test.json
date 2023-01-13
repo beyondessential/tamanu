@@ -3,6 +3,10 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
+    "secret": "secret",
+    "refreshSecret": "refreshSecret",
+    "tokenExpiry": "1d",
+    "refreshTokenExpiry": "30d",
     "reportNoUserError": true,
     "useHardcodedPermissions": false
   },
