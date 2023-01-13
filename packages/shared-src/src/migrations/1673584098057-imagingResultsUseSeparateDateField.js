@@ -14,6 +14,11 @@ export async function up(query) {
   await query.changeColumn('imaging_results', 'completed_at', {
     type: DataTypes.DATETIMESTRING,
     allowNull: false,
+    defaultValue: Sequelize.fn(
+      'to_char',
+      Sequelize.fn('current_timestamp', 3),
+      ISO9075_DATE_TIME_FMT,
+    ),
   });
 }
 
