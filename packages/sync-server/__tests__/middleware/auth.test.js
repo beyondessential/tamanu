@@ -57,12 +57,13 @@ describe('Auth', () => {
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
       });
+      expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('refreshToken');
       const { refreshToken } = response.body;
       const refreshTokenRecord = await store.models.RefreshToken.findOne({
         where: { token: refreshToken },
       });
-      expect(refreshTokenRecord).toBeTruthy();
+      expect(refreshTokenRecord).toHaveProperty('token', refreshToken);
     });
 
     it('Should respond with user details with correct credentials', async () => {
@@ -110,6 +111,27 @@ describe('Auth', () => {
     });
   });
 
+  describe('Refresh token', () => {
+    it('Should return a new access token with expiresAt for a valid refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
+      const originalExpiresAt = loginResponse.body.expiresAt;
+
+      expect(loginResponse).toHaveSucceeded();
+      const { refreshToken } = loginResponse.body;
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken,
+      });
+
+      expect(refreshResponse).toHaveSucceeded();
+      expect(refreshResponse.body).toHaveProperty('token');
+      expect(refreshResponse.body).toHaveProperty('expiresAt');
+      expect(refreshResponse.body.expiresAt).toBeGreaterThan(originalExpiresAt);
+    });
+  });
   describe('User management', () => {
     test.todo('Should prevent user creation without appropriate permission');
     test.todo('Should prevent password change without appropriate permission');

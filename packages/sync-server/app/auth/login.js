@@ -33,10 +33,10 @@ export const login = ({ secret, refreshSecret }) =>
 
     const { tokenDuration, refreshTokenDuration } = config.auth;
 
-    const token = await getToken(user, secret, tokenDuration);
+    const token = getToken(user, secret, tokenDuration);
     const expiresAt = getExpiration(tokenDuration);
 
-    const refreshToken = await getToken(user, refreshSecret, refreshTokenDuration);
+    const refreshToken = getToken(user, refreshSecret, refreshTokenDuration);
     const refreshExpiresAt = getExpiration(refreshTokenDuration);
 
     await store.models.RefreshToken.create({

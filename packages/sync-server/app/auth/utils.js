@@ -7,7 +7,7 @@ export const stripUser = user => {
   return userData;
 };
 
-export const getToken = async (user, secret, expiry) =>
+export const getToken = (user, secret, expiry) =>
   jwt.sign(
     {
       userId: user.id,
