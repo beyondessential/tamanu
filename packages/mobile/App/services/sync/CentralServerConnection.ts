@@ -38,6 +38,11 @@ export class CentralServerConnection {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
     }
+
+    if (this.token && this.expiresAt && this.expiresAt < Date.now()) {
+      await this.refresh();
+    }
+
     const queryString = Object.entries(query)
       .map(([k, v]) => `${k}=${v}`)
       .join('&');
@@ -195,6 +200,8 @@ export class CentralServerConnection {
   }
 
   async refresh(): Promise<void> {
+    // Reset expiresAt to prevent multiple refreshes before the first one has completed
+    this.expiresAt = null;
     const data = await this.post('refresh', {}, { refreshToken: this.refreshToken });
     if (!data.token) {
       // auth failed in some other regard

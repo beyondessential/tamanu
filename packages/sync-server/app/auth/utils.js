@@ -16,7 +16,7 @@ export const getToken = async (user, secret, expiry) =>
     { expiresIn: expiry },
   );
 
-export const getExpiration = expiresIn => Date.now() - ms(expiresIn);
+export const getExpiration = expiresIn => Date.now() + ms(expiresIn);
 
 export const verifyToken = (token, secret) => jwt.verify(token, secret);
 

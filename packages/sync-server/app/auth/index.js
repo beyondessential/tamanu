@@ -25,7 +25,7 @@ authModule.post(
 );
 authModule.post(
   '/refresh',
-  refresh({ secret: DEFAULT_JWT_SECRET, refreshSecret: DEFAULT_JWT_REFRESH_SECRET, }),
+  refresh({ secret: DEFAULT_JWT_SECRET, refreshSecret: DEFAULT_JWT_REFRESH_SECRET }),
 );
 
 authModule.use(userMiddleware({ secret: DEFAULT_JWT_SECRET }));

@@ -41,7 +41,7 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     // Refresh Token Rotation
     const newRefreshToken = await getToken(user, refreshSecret, refreshTokenDuration);
-    const refreshTokenExpiresAt = getExpiration(refreshTokenDuration)
+    const refreshTokenExpiresAt = getExpiration(refreshTokenDuration);
     await dbToken.destroy();
     await store.models.RefreshToken.create({
       token: newRefreshToken,
