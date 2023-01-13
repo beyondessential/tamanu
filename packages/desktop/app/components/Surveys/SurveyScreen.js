@@ -34,12 +34,6 @@ export const SurveyScreen = ({
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();
-    } else {
-      // Get the error elements
-      // Errors should already be in page order, fetch the DOM element and scroll to it
-      // const element = document.querySelector(`[name='${pageErrors[0]}']`);
-      // if (!element) return;
-      // element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
