@@ -20,10 +20,11 @@ export const SurveyScreen = ({
   cols = 1,
   validateForm,
   setErrors,
+  errors,
 }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
-    .map(c => <SurveyQuestion component={c} patient={patient} key={c.id} />);
+    .map(c => <SurveyQuestion component={c} patient={patient} key={c.id} errors={errors} />);
 
   const validateAndStep = async () => {
     const formErrors = await validateForm();
@@ -34,11 +35,11 @@ export const SurveyScreen = ({
       setErrors({});
       onStepForward();
     } else {
+      // Get the error elements
       // Errors should already be in page order, fetch the DOM element and scroll to it
-      const element = document.querySelector(`[name='${pageErrors[0]}']`);
-      if (!element) return;
-
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // const element = document.querySelector(`[name='${pageErrors[0]}']`);
+      // if (!element) return;
+      // element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 

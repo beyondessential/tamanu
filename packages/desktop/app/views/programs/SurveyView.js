@@ -33,7 +33,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   );
 
   const renderSurvey = props => {
-    const { submitForm, values, setFieldValue, setValues, validateForm, setErrors } = props;
+    const { submitForm, values, setFieldValue, setValues, validateForm, setErrors, errors } = props;
 
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
@@ -61,6 +61,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
         onCancel={onCancel}
         validateForm={validateForm}
         setErrors={setErrors}
+        errors={errors}
       />
     );
   };
