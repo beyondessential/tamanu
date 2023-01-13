@@ -53,8 +53,7 @@ COPY --from=aws-deployment \
     /usr/bin/
 
 WORKDIR /pre
-COPY scripts/ scripts/
-COPY packages/ packages/
+COPY . .
 
 # Where we'll work, but we'll copy /pre into it at runtime so we can share that
 # space at runtime between steps (CodeShip limitation).
