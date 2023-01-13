@@ -29,12 +29,10 @@ export const SurveyQuestion = ({ component, patient, errors }) => {
   useEffect(() => {
     // if (isValid || !isSubmitting) return;
     const firstErrorKey = Object.keys(errors)[0];
-    if (firstErrorKey === id) {
-      console.log('-- match --', firstErrorKey, id, questionRef);
+    if (firstErrorKey === id && questionRef !== null) {
       questionRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errors]);
+  }, [id, errors, questionRef]);
 
   if (!FieldComponent) return <Text>{text}</Text>;
 
@@ -42,7 +40,6 @@ export const SurveyQuestion = ({ component, patient, errors }) => {
     <Field
       inputRef={node => {
         if (node !== null) {
-          // console.log('node', node);
           setQuestionRef(node);
         }
       }}

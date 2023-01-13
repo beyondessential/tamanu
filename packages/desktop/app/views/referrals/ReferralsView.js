@@ -7,12 +7,11 @@ import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { PatientListingView } from 'desktop/app/views';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { SURVEY_TYPES } from 'shared/constants';
+
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
-
-const referralSurveyId = 'program-tamanuprogram-genericreferral';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -22,11 +21,8 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
   useEffect(() => {
     (async () => {
-      // const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
-      // setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
-      const response = await api.get(`survey/${encodeURIComponent(referralSurveyId)}`);
-      setReferralSurvey(response);
-      setStartTime(getCurrentDateTimeString());
+      const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
+      setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
     })();
   }, [api]);
 
@@ -73,7 +69,6 @@ const ReferralFlow = ({ patient, currentUser }) => {
       </ProgramsPane>
     );
   }
-
   return (
     <SurveyView
       onSubmit={submitReferral}
