@@ -5,7 +5,7 @@ const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 export async function up(query) {
   await query.addColumn('imaging_results', 'completed_at', {
     type: DataTypes.DATETIMESTRING,
-    notNull: false,
+    allowNull: true,
   });
   await query.sequelize.query(`
     UPDATE imaging_results
@@ -13,7 +13,7 @@ export async function up(query) {
   `);
   await query.changeColumn('imaging_results', 'completed_at', {
     type: DataTypes.DATETIMESTRING,
-    notNull: true,
+    allowNull: false,
   });
 }
 
