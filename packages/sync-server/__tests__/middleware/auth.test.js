@@ -41,7 +41,7 @@ describe('Auth', () => {
   afterAll(async () => close());
 
   describe('Logging in', () => {
-    it('Should get a token for correct credentials', async () => {
+    it('Should get an access token with expiresAt for correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
@@ -49,6 +49,20 @@ describe('Auth', () => {
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('token');
+      expect(response.body).toHaveProperty('expiresAt');
+    });
+
+    it('Should issue a refresh token and save it to the database', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
+      expect(response.body).toHaveProperty('refreshToken');
+      const { refreshToken } = response.body;
+      const refreshTokenRecord = await store.models.RefreshToken.findOne({
+        where: { token: refreshToken },
+      });
+      expect(refreshTokenRecord).toBeTruthy();
     });
 
     it('Should respond with user details with correct credentials', async () => {

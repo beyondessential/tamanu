@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-import ms from 'ms';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';

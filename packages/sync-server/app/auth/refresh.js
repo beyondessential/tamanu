@@ -1,7 +1,6 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { BadAuthenticationError } from 'shared/errors';
-import ms from 'ms';
 import { getToken, verifyToken, findUserById, getExpiration } from './utils';
 
 export const refresh = ({ secret, refreshSecret }) =>
