@@ -220,7 +220,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </ListColumn>
         <div>
           <Label>Discharge planning notes:</Label>
-          <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
+          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{discharge?.note}</div>
         </div>
       </Content>
     </SummaryPageContainer>
