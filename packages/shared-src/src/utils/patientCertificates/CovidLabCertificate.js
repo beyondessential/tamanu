@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
-import { replaceInTemplate } from '../replaceInTemplate'
+import { replaceInTemplate } from '../replaceInTemplate';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
