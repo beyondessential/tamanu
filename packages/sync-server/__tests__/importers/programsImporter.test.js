@@ -10,6 +10,13 @@ describe('Programs import', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
+  beforeEach(async () => {
+    const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
+    await Program.destroy({ where: {} });
+    await Survey.destroy({ where: {} });
+    await ProgramDataElement.destroy({ where: {} });
+    await SurveyScreenComponent.destroy({ where: {} });
+  });
   afterAll(async () => {
     await ctx.close();
   });
