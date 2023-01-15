@@ -11,6 +11,7 @@ describe('CentralSyncManager', () => {
   let CentralSyncManager;
 
   const initializeCentralSyncManager = () => {
+    // Have to load test function within test scope so that we can mock dependencies per test case
     ({ CentralSyncManager } = require('../../app/sync/CentralSyncManager'));
     centralSyncManager = new CentralSyncManager(ctx);
   };
@@ -332,9 +333,7 @@ describe('CentralSyncManager', () => {
       const incomingChanges = changes.map(c => ({
         ...c,
         direction: SYNC_SESSION_DIRECTION.INCOMING,
-        updatedAtByFieldSum: c.data.updatedAtByField
-          ? Object.values(c.data.updatedAtByField).reduce((s, v) => s + v)
-          : null,
+        updatedAtByFieldSum: null,
       }));
 
       expect(insertSnapshotRecords).toBeCalledTimes(1);
