@@ -44,6 +44,17 @@ describe('Programs import', () => {
     });
   });
 
+  it('should ignore obsolete surveys worksheets', async () => {
+    const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete', dryRun: true });
+
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toEqual({
+      Program: { created: 1, updated: 0, errored: 0 },
+      Survey: { created: 1, updated: 0, errored: 0 },
+    });
+  });
+
   it('should not write anything for a dry run', async () => {
     const { ProgramDataElement } = ctx.store.models;
     const beforeCount = await ProgramDataElement.count();
