@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { Root } from 'popup-ui';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -9,25 +9,31 @@ import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
 import { LocalisationProvider } from '../../contexts/LocalisationContext';
 import { Core } from './Core';
+import { StyledView } from '~/ui/styled/common';
+import { DetectIdleLayer } from './DetectIdleLayer';
 
 export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef>(null);
   return (
     <SafeAreaProvider>
       <Root>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <NavigationContainer ref={navigationRef}>
-              <LocalisationProvider>
-                <AuthProvider navRef={navigationRef}>
-                  <FacilityProvider>
-                    <Core />
-                  </FacilityProvider>
-                </AuthProvider>
-              </LocalisationProvider>
-            </NavigationContainer>
-          </PersistGate>
-        </Provider>
+        <StyledView>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <NavigationContainer ref={navigationRef}>
+                <LocalisationProvider>
+                  <AuthProvider navRef={navigationRef}>
+                    <FacilityProvider>
+                      <DetectIdleLayer>
+                        <Core />
+                      </DetectIdleLayer>
+                    </FacilityProvider>
+                  </AuthProvider>
+                </LocalisationProvider>
+              </NavigationContainer>
+            </PersistGate>
+          </Provider>
+        </StyledView>
       </Root>
     </SafeAreaProvider>
   );
