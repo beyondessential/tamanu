@@ -70,8 +70,8 @@ class FacilitySyncManager {
     // the first step of sync is to start a session and retrieve the session id
     const { sessionId, tick: newSyncClockTime } = await this.centralServer.startSyncSession();
 
-    await this.runPush(sessionId, newSyncClockTime);
-    await this.runPull(sessionId);
+    await this.pushChanges(sessionId, newSyncClockTime);
+    await this.pullChanges(sessionId);
 
     await this.centralServer.endSyncSession(sessionId);
 
@@ -82,7 +82,7 @@ class FacilitySyncManager {
     await dropSnapshotTable(this.sequelize, sessionId);
   }
 
-  async runPush(sessionId, newSyncClockTime) {
+  async pushChanges(sessionId, newSyncClockTime) {
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncClockTime = await this.models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
 
@@ -114,7 +114,7 @@ class FacilitySyncManager {
     await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);
   }
 
-  async runPull(sessionId) {
+  async pullChanges(sessionId) {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"

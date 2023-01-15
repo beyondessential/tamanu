@@ -7,13 +7,9 @@ describe('FacilitySyncManager', () => {
   let FacilitySyncManager;
   const TEST_SESSION_ID = 'sync123';
 
-  const requireFacilitySyncManager = () => {
-    ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
-  };
-
   beforeAll(async () => {
     ctx = await createTestContext();
-    requireFacilitySyncManager();
+    ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
   });
 
   describe('triggerSync', () => {
@@ -76,8 +72,8 @@ describe('FacilitySyncManager', () => {
         },
       });
 
-      jest.spyOn(syncManager, 'runPull').mockImplementation(() => true);
-      jest.spyOn(syncManager, 'runPush').mockImplementation(() => true);
+      jest.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+      jest.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
 
       await syncManager.runSync();
 
@@ -88,20 +84,20 @@ describe('FacilitySyncManager', () => {
     });
   });
 
-  describe('runPush', () => {
+  describe('pushChanges', () => {
     beforeEach(() => {
       jest.resetModules();
     });
 
-    it("snapshots outgoing changes with current 'lastSuccessfulSyncPush'", async () => {
+    it("snapshots outgoing changes with the current 'lastSuccessfulSyncPush'", async () => {
       await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPush', '10');
 
       jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/snapshotOutgoingChanges'),
         snapshotOutgoingChanges: jest.fn().mockImplementation(() => []),
       }));
 
-      requireFacilitySyncManager();
+      // Have to load test function within test scope so that we can mock dependencies per test case
+      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
       const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
 
       const syncManager = new FacilitySyncManager({
@@ -114,7 +110,7 @@ describe('FacilitySyncManager', () => {
         },
       });
 
-      await syncManager.runPush(TEST_SESSION_ID, 10);
+      await syncManager.pushChanges(TEST_SESSION_ID, 10);
 
       expect(snapshotOutgoingChanges).toBeCalledTimes(1);
       expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), '10');
@@ -133,7 +129,8 @@ describe('FacilitySyncManager', () => {
         pushOutgoingChanges: jest.fn().mockImplementation(() => true),
       }));
 
-      requireFacilitySyncManager();
+      // Have to load test function within test scope so that we can mock dependencies per test case
+      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
       const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
 
       const syncManager = new FacilitySyncManager({
@@ -146,7 +143,7 @@ describe('FacilitySyncManager', () => {
         },
       });
 
-      await syncManager.runPush(TEST_SESSION_ID, 1);
+      await syncManager.pushChanges(TEST_SESSION_ID, 1);
 
       expect(pushOutgoingChanges).toBeCalledTimes(1);
       expect(pushOutgoingChanges).toBeCalledWith(
@@ -157,7 +154,7 @@ describe('FacilitySyncManager', () => {
     });
   });
 
-  describe('runPull', () => {
+  describe('pullChanges', () => {
     beforeEach(() => {
       jest.resetModules();
     });
@@ -174,7 +171,8 @@ describe('FacilitySyncManager', () => {
         pullIncomingChanges: jest.fn().mockImplementation(() => []),
       }));
 
-      requireFacilitySyncManager();
+      // Have to load test function within test scope so that we can mock dependencies per test case
+      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
       const { createSnapshotTable } = require('shared/sync');
 
       const syncManager = new FacilitySyncManager({
@@ -187,7 +185,7 @@ describe('FacilitySyncManager', () => {
         },
       });
 
-      await syncManager.runPull(TEST_SESSION_ID);
+      await syncManager.pullChanges(TEST_SESSION_ID);
 
       expect(createSnapshotTable).toBeCalledTimes(1);
       expect(createSnapshotTable).toBeCalledWith(ctx.sequelize, TEST_SESSION_ID);
@@ -206,7 +204,8 @@ describe('FacilitySyncManager', () => {
         pullIncomingChanges: jest.fn().mockImplementation(() => ({ count: 3, tick: 1 })),
       }));
 
-      requireFacilitySyncManager();
+      // Have to load test function within test scope so that we can mock dependencies per test case
+      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
       const { saveIncomingChanges } = require('shared/sync');
 
       const syncManager = new FacilitySyncManager({
@@ -219,7 +218,7 @@ describe('FacilitySyncManager', () => {
         },
       });
 
-      await syncManager.runPull(TEST_SESSION_ID);
+      await syncManager.pullChanges(TEST_SESSION_ID);
 
       expect(saveIncomingChanges).toBeCalledTimes(1);
       expect(saveIncomingChanges).toBeCalledWith(
