@@ -123,8 +123,8 @@ describe('Auth', () => {
       expect(loginResponse).toHaveSucceeded();
       const { refreshToken } = loginResponse.body;
 
-      // Make sure that Date.now used in encrypting new token is different from global mock date
-      // Otherwise the new token will appear the same
+      // Make sure that Date.now used in signing new token is different from global mock date
+      // Otherwise the new token will appear the identical to the first
       const dateNowSpy = jest
         .spyOn(Date, 'now')
         .mockImplementation(() => new Date(originalExpiresAt).getTime() + 1);
