@@ -23,6 +23,7 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => {
     centralSyncManager.close();
+    ctx.close();
   });
 
   beforeEach(async () => {

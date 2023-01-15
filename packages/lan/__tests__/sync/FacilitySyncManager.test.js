@@ -12,6 +12,10 @@ describe('FacilitySyncManager', () => {
     ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
   });
 
+  afterAll(() => {
+    ctx.close();
+  });
+
   describe('triggerSync', () => {
     afterEach(() => {
       FacilitySyncManager.restoreConfig();
