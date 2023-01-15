@@ -79,10 +79,6 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         token: null,
-        // TODO: Thinking that after idle logout task we should remove this and make sure that
-        // token isn't wiped on client logout
-        // perhaps it would be good to differentiate between an idle
-        // logout and a hard user initiated logout
         refreshToken: null,
       };
     },

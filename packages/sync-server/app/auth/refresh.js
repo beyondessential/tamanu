@@ -18,7 +18,7 @@ export const refresh = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid refresh token');
     }
 
-    if (dbToken.expiresAt < Date.now()) {
+    if (dbToken.expiresAt < new Date()) {
       throw new BadAuthenticationError('Refresh token expired');
     }
 

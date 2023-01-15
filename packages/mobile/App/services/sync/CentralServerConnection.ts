@@ -39,7 +39,8 @@ export class CentralServerConnection {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
     }
 
-    if (this.token && this.expiresAt && this.expiresAt < Date.now()) {
+    if (this.token && this.expiresAt < Date.now()) {
+      this.clearToken();
       await this.refresh();
     }
 
@@ -200,18 +201,13 @@ export class CentralServerConnection {
   }
 
   async refresh(): Promise<void> {
-    // Reset expiresAt to prevent multiple refreshes before the first one has completed
-    this.expiresAt = null;
     const data = await this.post('refresh', {}, { refreshToken: this.refreshToken });
-    if (!data.token) {
+    if (!data.token || !data.refreshToken) {
       // auth failed in some other regard
       console.warn('Auth failed with an inexplicable error', data);
       throw new AuthenticationError(generalErrorMessage);
     }
-    // TODO: decide logic for revolving refresh token is it every time
-    if (data.refreshToken) {
-      this.setRefreshToken(data.refreshToken);
-    }
+    this.setRefreshToken(data.refreshToken);
     this.setToken(data.token, data.expiresAt);
   }
 
