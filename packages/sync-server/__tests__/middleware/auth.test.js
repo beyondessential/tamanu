@@ -141,7 +141,20 @@ describe('Auth', () => {
       expect(refreshResponse.body).toHaveProperty('expiresAt');
       expect(refreshResponse.body.expiresAt).toBeGreaterThan(originalExpiresAt);
     });
+    it('Should reject invalid refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken: 'invalid-token',
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
   });
+
   describe('User management', () => {
     test.todo('Should prevent user creation without appropriate permission');
     test.todo('Should prevent password change without appropriate permission');
