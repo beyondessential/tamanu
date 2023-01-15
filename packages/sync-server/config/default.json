@@ -66,9 +66,10 @@
     ]
   },
   "auth": {
-    // this secret should be set if more than one process of the sync-server is running
+    // these secrets should be set if more than one process of the sync-server is running
     // otherwise, each process will use a different key and tokens won't match
     "secret": null,
+    "refreshSecret": null,
     "saltRounds": 12,
     "tokenDuration": "1h",
     "refreshTokenDuration": "30d",

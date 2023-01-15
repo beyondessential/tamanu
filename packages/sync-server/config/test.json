@@ -5,8 +5,8 @@
   "auth": {
     "secret": "secret",
     "refreshSecret": "refreshSecret",
-    "tokenExpiry": "1d",
-    "refreshTokenExpiry": "30d",
+    "tokenDuration": "1d",
+    "refreshTokenDuration": "30d",
     "reportNoUserError": true,
     "useHardcodedPermissions": false
   },
