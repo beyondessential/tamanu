@@ -92,6 +92,9 @@ class BaseAutocomplete extends Component {
     if (value !== prevProps.value) {
       await this.updateValue();
     }
+    if (value === '') {
+      await this.attemptAutoFill();
+    }
   }
 
   updateValue = async () => {
@@ -102,6 +105,7 @@ class BaseAutocomplete extends Component {
     }
     if (value === '') {
       this.setState({ selectedOption: { value: '', tag: null } });
+      this.attemptAutoFill();
       return;
     }
     const currentOption = await suggester.fetchCurrentOption(value);
@@ -137,7 +141,34 @@ class BaseAutocomplete extends Component {
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
+    if (value === '') {
+      if (await this.attemptAutoFill({ suggestions })) return;
+    }
+
     this.setState({ suggestions });
+  };
+
+  attemptAutoFill = async (overrides = { suggestions: null }) => {
+    const { suggester, options, autofill, name } = this.props;
+    if (!autofill) {
+      return false;
+    }
+    const suggestions =
+      overrides.suggestions || suggester
+        ? await suggester.fetchSuggestions('')
+        : options.filter(x => x.label.toLowerCase().includes(''));
+    if (suggestions.length !== 1) {
+      return false;
+    }
+    const autoSelectOption = suggestions[0];
+    this.setState({
+      selectedOption: {
+        value: autoSelectOption.label,
+        tag: autoSelectOption.tag,
+      },
+    });
+    this.handleSuggestionChange({ value: autoSelectOption.value, name });
+    return true;
   };
 
   handleInputChange = (event, { newValue }) => {
@@ -294,6 +325,7 @@ BaseAutocomplete.propTypes = {
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     }),
   ),
+  autofill: PropTypes.bool,
 };
 
 BaseAutocomplete.defaultProps = {
@@ -307,6 +339,7 @@ BaseAutocomplete.defaultProps = {
   value: '',
   options: [],
   suggester: null,
+  autofill: false,
 };
 
 export const AutocompleteInput = styled(BaseAutocomplete)`

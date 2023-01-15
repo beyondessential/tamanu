@@ -20,7 +20,6 @@ import {
   AutocompleteInput,
   NullableBooleanInput,
   TimeWithUnitInput,
-  TemperatureInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 
@@ -104,21 +103,6 @@ addStories('TimeWithUnitInput', props => (
     {...props}
   />
 ));
-
-addStories('TemperatureInput', props => {
-  const [formValue, setFormValue] = React.useState(0);
-  const onChange = newValue => {
-    setFormValue(newValue);
-  };
-  return (
-    <Container>
-      <Box>
-        <TemperatureInput name="temperature" min={0} onChange={onChange} {...props} />
-        <Box m={3}>Form value: {formValue}</Box>
-      </Box>
-    </Container>
-  );
-});
 
 const TAGS = {
   primary: {

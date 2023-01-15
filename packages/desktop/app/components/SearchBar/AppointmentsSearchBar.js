@@ -3,11 +3,11 @@ import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
-import { useLocationGroupSuggester, useSuggester } from '../../api';
+import { useSuggester } from '../../api';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const locationGroupSuggester = useLocationGroupSuggester();
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   return (
     <CustomisableSearchBar

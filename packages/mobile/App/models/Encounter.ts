@@ -1,4 +1,13 @@
-import { Entity, Column, ManyToOne, OneToMany, Index, RelationId } from 'typeorm/browser';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+} from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 import { BaseModel, IdRelation } from './BaseModel';
@@ -133,6 +142,11 @@ export class Encounter extends BaseModel implements IEncounter {
   )
   vitals: Vitals[];
 
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
+  }
+
   static async getOrCreateCurrentEncounter(
     patientId: string,
     userId: string,
@@ -162,9 +176,22 @@ export class Encounter extends BaseModel implements IEncounter {
     const defaultDepartment = await Department.findOne({
       where: { facility: { id: facilityId } },
     });
+
+    if (!defaultDepartment) {
+      throw new Error(
+        `No default Department is configured for facility: ${facilityId}. You need to update the Department reference data.`,
+      );
+    }
+
     const defaultLocation = await Location.findOne({
       where: { facility: { id: facilityId } },
     });
+
+    if (!defaultLocation) {
+      throw new Error(
+        `No default Location is configured for facility: ${facilityId}. You need to update the Location reference data.`,
+      );
+    }
 
     return Encounter.createAndSaveOne({
       patient: patientId,

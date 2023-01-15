@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
-import { isEqual } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
 import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
@@ -19,8 +18,6 @@ import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
-
-const { serverFacilityId } = config;
 
 const patientRoute = express.Router();
 
@@ -46,15 +43,8 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: {
-        Patient,
-        PatientAdditionalData,
-        PatientBirthData,
-        PatientFacility,
-        PatientSecondaryId,
-      },
+      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
       params,
-      syncManager,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
@@ -63,63 +53,49 @@ patientRoute.put(
       throw new NotFoundError();
     }
 
-    const alreadyMarkedForSync = await PatientFacility.findOne({
-      where: { patientId: patient.id, facilityId: serverFacilityId },
+    req.checkPermission('write', patient);
+
+    await db.transaction(async () => {
+      // First check if displayId changed to create a secondaryId record
+      if (req.body.displayId && req.body.displayId !== patient.displayId) {
+        const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
+          ? 'secondaryIdType-tamanu-display-id'
+          : 'secondaryIdType-nhn';
+        await PatientSecondaryId.create({
+          value: patient.displayId,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          typeId: oldDisplayIdType,
+          patientId: patient.id,
+        });
+      }
+
+      await patient.update(requestBodyToRecord(req.body));
+
+      const patientAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: patient.id },
+      });
+
+      if (!patientAdditionalData) {
+        await PatientAdditionalData.create({
+          ...requestBodyToRecord(req.body),
+          patientId: patient.id,
+        });
+      } else {
+        await patientAdditionalData.update(requestBodyToRecord(req.body));
+      }
+
+      const patientBirth = await PatientBirthData.findOne({
+        where: { patientId: patient.id },
+      });
+      const recordData = requestBodyToRecord(req.body);
+      const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
+
+      if (patientBirth) {
+        await patientBirth.update(patientBirthRecordData);
+      }
+
+      await patient.writeFieldValues(req.body.patientFields);
     });
-    const markingForSync = !alreadyMarkedForSync && isEqual(req.body, { markedForSync: true });
-    if (markingForSync) {
-      // no need to check write permission or update patient record itself,
-      // just create a link between the patient and this facility
-      await PatientFacility.create({
-        patientId: patient.id,
-        facilityId: serverFacilityId,
-      });
-      syncManager.triggerSync();
-    } else {
-      req.checkPermission('write', patient);
-
-      await db.transaction(async () => {
-        // First check if displayId changed to create a secondaryId record
-        if (req.body.displayId && req.body.displayId !== patient.displayId) {
-          const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
-            ? 'secondaryIdType-tamanu-display-id'
-            : 'secondaryIdType-nhn';
-          await PatientSecondaryId.create({
-            value: patient.displayId,
-            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-            typeId: oldDisplayIdType,
-            patientId: patient.id,
-          });
-        }
-
-        await patient.update(requestBodyToRecord(req.body));
-
-        const patientAdditionalData = await PatientAdditionalData.findOne({
-          where: { patientId: patient.id },
-        });
-
-        if (!patientAdditionalData) {
-          await PatientAdditionalData.create({
-            ...requestBodyToRecord(req.body),
-            patientId: patient.id,
-          });
-        } else {
-          await patientAdditionalData.update(requestBodyToRecord(req.body));
-        }
-
-        const patientBirth = await PatientBirthData.findOne({
-          where: { patientId: patient.id },
-        });
-        const recordData = requestBodyToRecord(req.body);
-        const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
-
-        if (patientBirth) {
-          await patientBirth.update(patientBirthRecordData);
-        }
-
-        await patient.writeFieldValues(req.body.patientFields);
-      });
-    }
 
     res.send(dbRecordToResponse(patient));
   }),
@@ -130,7 +106,7 @@ patientRoute.post(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientFacility },
+      models: { Patient, PatientAdditionalData, PatientBirthData },
     } = req;
     req.checkPermission('create', 'Patient');
     const requestData = requestBodyToRecord(req.body);
@@ -149,11 +125,6 @@ patientRoute.post(
         patientId: createdPatient.id,
       });
       await createdPatient.writeFieldValues(req.body.patientFields);
-
-      await PatientFacility.create({
-        patientId: createdPatient.id,
-        facilityId: serverFacilityId,
-      });
 
       if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
         await PatientBirthData.create({

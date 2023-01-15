@@ -91,14 +91,18 @@ describe('FhirMaterialiseJob', () => {
 
       // act
       let ran = false;
-      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(1, () => {
+      let recievedJob = null;
+      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(1, j => {
         ran = true;
+        recievedJob = j;
       });
 
       // assert
-      expect(ran).toEqual(true);
+      expect(recievedJob.upstreamId).toEqual(job.upstreamId);
+      expect(recievedJob.resource).toEqual(job.resource);
       expect(completed).toHaveLength(1);
       expect(failed).toHaveLength(0);
+      expect(ran).toEqual(true);
 
       const found = await FhirMaterialiseJob.findAll({ where: {} }, { raw: true });
       expect(found).toHaveLength(1);

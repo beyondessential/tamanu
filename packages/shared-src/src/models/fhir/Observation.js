@@ -7,6 +7,7 @@ import { arrayOf } from './utils';
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
 import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, IMAGING_REQUEST_STATUS_TYPES } from '../../constants';
 import { Deleted, Invalid } from '../../utils/fhir';
+import { getCurrentDateTimeString, toDateTimeString } from '../../utils/dateTime';
 
 export class FhirObservation extends FhirResource {
   static init(options, models) {
@@ -14,6 +15,7 @@ export class FhirObservation extends FhirResource {
       {
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         basedOn: arrayOf('basedOn', DataTypes.FHIR_REFERENCE),
+        started: DataTypes.DATE,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -33,6 +35,7 @@ export class FhirObservation extends FhirResource {
     return yup.object({
       identifier: yup.array().of(FhirIdentifier.asYup()),
       basedOn: yup.array().of(FhirReference.asYup()),
+      started: yup.date().optional(),
       status: yup.string().required(),
       note: yup.array().of(FhirAnnotation.asYup()),
     });
@@ -97,6 +100,7 @@ export class FhirObservation extends FhirResource {
         imagingRequestId: imagingRequest.id,
         description: results,
         externalCode: imagingAccessCode,
+        completedAt: this.started ? toDateTimeString(this.started) : getCurrentDateTimeString(),
       });
     }
 

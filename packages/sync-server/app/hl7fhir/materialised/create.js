@@ -4,8 +4,6 @@ import * as yup from 'yup';
 import { OperationOutcome } from 'shared/utils/fhir';
 import { FHIR_INTERACTIONS } from 'shared/constants';
 
-import { fhirQueue } from '../../tasks/FhirMaterialiser';
-
 async function mapErr(promise, fn) {
   try {
     return await promise;
@@ -16,6 +14,8 @@ async function mapErr(promise, fn) {
 
 export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
+    const { FhirMaterialiseJob } = req.store.models;
+
     try {
       const validated = await mapErr(
         FhirResource.INTAKE_SCHEMA.shape({
@@ -35,7 +35,7 @@ export function createHandler(FhirResource) {
       const upstream = await resource.pushUpstream();
 
       if (FhirResource.CAN_DO.has(FHIR_INTERACTIONS.INTERNAL.MATERIALISE)) {
-        fhirQueue(FhirResource.fhirName, upstream.id);
+        FhirMaterialiseJob.enqueue({ resource: FhirResource.fhirName, upstreamId: upstream.id });
       }
 
       // in spec, we should Location: to the resource, but we don't have it yet

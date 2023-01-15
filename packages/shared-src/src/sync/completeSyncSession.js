@@ -1,10 +1,10 @@
 import { Op } from 'sequelize';
+import { dropSnapshotTable } from './manageSnapshotTable';
 
 export const completeSyncSession = async (store, sessionId) => {
-  // just delete sync session records, leaving sessions themselves as an artefact that forms a
-  // paper trail
+  // just drop the snapshots, leaving sessions themselves as an artefact that forms a paper trail
   await store.models.SyncSession.update({ completedAt: new Date() }, { where: { id: sessionId } });
-  await store.models.SyncSessionRecord.destroy({ where: { sessionId }, force: true });
+  await dropSnapshotTable(store.sequelize, sessionId);
 };
 
 export const completeInactiveSyncSessions = async (store, lapsedSessionSeconds) => {

@@ -3,8 +3,14 @@ import { PureAbility } from '@casl/ability';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
-
-import { ISurvey, ISurveyResponse, ISurveyScreenComponent, SurveyTypes } from '~/types';
+import { VitalsDataElements } from '/helpers/constants';
+import {
+  ISurvey,
+  ISurveyResponse,
+  ISurveyScreenComponent,
+  IVitalsSurvey,
+  SurveyTypes,
+} from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey')
@@ -22,7 +28,10 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: true })
   name?: string;
 
-  @ManyToOne(() => Program, program => program.surveys)
+  @ManyToOne(
+    () => Program,
+    program => program.surveys,
+  )
   program: Program;
 
   components: any;
@@ -43,6 +52,25 @@ export class Survey extends BaseModel implements ISurvey {
   shouldShowInList(ability: PureAbility): boolean {
     if (this.programId === 'program-hidden_forms') return false;
     return ability.can('submit', this);
+  }
+
+  static async getVitalsSurvey(): Promise<IVitalsSurvey> {
+    const surveyRepo = Database.models.Survey.getRepository();
+    const vitalsSurvey = await surveyRepo.findOne({ where: { surveyType: SurveyTypes.Vitals } });
+
+    const repo = Database.models.SurveyScreenComponent.getRepository();
+    const components = await repo.find({
+      where: { survey: { id: vitalsSurvey.id } },
+      relations: ['dataElement'],
+      order: { screenIndex: 'ASC', componentIndex: 'ASC' },
+    });
+
+    return {
+      dateComponent: components.find(c => c.dataElementId === VitalsDataElements.dateRecorded),
+      components,
+      name: vitalsSurvey.name,
+      id: vitalsSurvey.id,
+    };
   }
 
   static async getResponses(

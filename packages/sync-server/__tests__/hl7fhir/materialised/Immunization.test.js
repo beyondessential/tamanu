@@ -101,7 +101,7 @@ describe(`Materialised FHIR - Immunization`, () => {
   });
   afterAll(() => ctx.close());
 
-  describe('full resource checks', () => {
+  describe('materialise', () => {
     beforeEach(async () => {
       await destroyDatabaseTables(ctx.store.models);
     });
@@ -128,8 +128,6 @@ describe(`Materialised FHIR - Immunization`, () => {
       expect(response.body).toMatchObject({
         resourceType: 'Immunization',
         meta: {
-          // TODO: uncomment when we support versioning
-          // versionId: expect.any(String),
           lastUpdated: format(new Date(administeredVaccine.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         },
         status: 'completed',
@@ -168,6 +166,30 @@ describe(`Materialised FHIR - Immunization`, () => {
             targetDisease: [],
           },
         ],
+      });
+    });
+
+    it('materialises without a recorder', async () => {
+      const { FhirImmunization } = ctx.store.models;
+      const { administeredVaccine } = await createAdministeredVaccineHierarchy(ctx.store.models);
+      administeredVaccine.recorderId = null;
+      await administeredVaccine.save();
+      const mat = await FhirImmunization.materialiseFromUpstream(administeredVaccine.id);
+
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/Immunization/${mat.id}`;
+      const response = await app.get(path);
+
+      expect(response).toHaveSucceeded();
+      expect(response.headers['last-modified']).toBe(
+        formatRFC7231(new Date(administeredVaccine.updatedAt)),
+      );
+      expect(response.body).toMatchObject({
+        resourceType: 'Immunization',
+        meta: {
+          lastUpdated: format(new Date(administeredVaccine.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+        },
+        status: 'completed',
+        performer: [],
       });
     });
 
