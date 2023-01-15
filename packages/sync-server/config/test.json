@@ -5,8 +5,6 @@
   "auth": {
     "secret": "secret",
     "refreshSecret": "refreshSecret",
-    "tokenDuration": "1d",
-    "refreshTokenDuration": "30d",
     "reportNoUserError": true,
     "useHardcodedPermissions": false
   },
