@@ -1,36 +1,6 @@
 import * as yup from 'yup';
-import { SurveyScreenComponent /* , SSCValidationCriteria */ } from './baseSchemas';
-
-const jsonStringShape = (name, objectShape) =>
-  yup.string().test('json-shape', value => {
-    let parseValue = value;
-    // We usually accept empty strings for configs, but there might be required fields
-    // So attempt the validation with an empty object just in case
-    if (!value) parseValue = '{}';
-    let parsedObject = null;
-    try {
-      parsedObject = JSON.parse(parseValue);
-      // Will throw a validation error if shape doesn't match
-      return objectShape.validateSync(parsedObject, { strict: true });
-    } catch (e) {
-      let errors = [];
-      // ValidationError has multiple errors within
-      if (e.errors) {
-        errors = e.errors.map(err => `${name}: ${err}`);
-      } else {
-        // We land here if JSON.parse fails
-        errors = [`${name}: ${e.message}`];
-      }
-      return new yup.ValidationError(errors);
-    }
-  });
-
-const SSCValidationCriteria = yup
-  .object()
-  .shape({
-    mandatory: yup.boolean(),
-  })
-  .noUnknown();
+import { SurveyScreenComponent, baseValidationShape } from './baseSchemas';
+import { configString, validationString } from './jsonString';
 
 const config = yup.object().noUnknown();
 
@@ -39,11 +9,10 @@ const columnReferenceConfig = config.shape({
 });
 
 export const SSCUserData = SurveyScreenComponent.shape({
-  config: jsonStringShape('config', columnReferenceConfig),
+  config: configString(columnReferenceConfig),
 });
 export const SSCPatientData = SurveyScreenComponent.shape({
-  config: jsonStringShape(
-    'config',
+  config: configString(
     columnReferenceConfig.shape({
       writeToPatient: yup
         .object()
@@ -62,17 +31,16 @@ const sourceReferenceConfig = config.shape({
 });
 
 export const SSCSurveyLink = SurveyScreenComponent.shape({
-  config: jsonStringShape('config', sourceReferenceConfig),
+  config: configString(sourceReferenceConfig),
 });
 export const SSCSurveyResult = SurveyScreenComponent.shape({
-  config: jsonStringShape('config', sourceReferenceConfig),
+  config: configString(sourceReferenceConfig),
 });
 export const SSCSurveyAnswer = SurveyScreenComponent.shape({
-  config: jsonStringShape('config', sourceReferenceConfig),
+  config: configString(sourceReferenceConfig),
 });
 export const SSCAutocomplete = SurveyScreenComponent.shape({
-  config: jsonStringShape(
-    'config',
+  config: configString(
     sourceReferenceConfig.shape({
       where: yup
         .object()
@@ -93,7 +61,7 @@ export const SSCAutocomplete = SurveyScreenComponent.shape({
 const numberConfig = config.shape({
   unit: yup.string(),
 });
-const numberValidationCriteria = SSCValidationCriteria.shape({
+const numberValidationCriteria = baseValidationShape.shape({
   min: yup.number(),
   max: yup.number(),
   normalRange: yup.object().shape({
@@ -101,18 +69,16 @@ const numberValidationCriteria = SSCValidationCriteria.shape({
     max: yup.number(),
   }),
 });
-const numberConfigString = jsonStringShape('config', numberConfig);
-const numberValidationString = jsonStringShape('validationCriteria', numberValidationCriteria);
 
 export const SSCNumber = SurveyScreenComponent.shape({
-  config: numberConfigString,
-  validationCriteria: numberValidationString,
+  config: configString(numberConfig),
+  validationCriteria: validationString(numberValidationCriteria),
 });
 export const SSCCalculatedQuestion = SurveyScreenComponent.shape({
-  config: numberConfigString,
-  validationCriteria: numberValidationString,
+  config: configString(numberConfig),
+  validationCriteria: validationString(numberValidationCriteria),
 });
 export const SSCResult = SurveyScreenComponent.shape({
-  config: numberConfigString,
-  validationCriteria: numberValidationString,
+  config: configString(numberConfig),
+  validationCriteria: validationString(numberValidationCriteria),
 });
