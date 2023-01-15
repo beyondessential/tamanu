@@ -175,6 +175,12 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     // don't import questions for obsoleted surveys
     // (or even read their worksheet, or check if it exists)
     if (md.surveyType === 'obsolete') {
+      stats.push(
+        await importRows(context(sheetName), {
+          sheetName,
+          rows: surveyRows,
+        }),
+      );
       continue;
     }
 
