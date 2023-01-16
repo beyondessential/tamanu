@@ -1,5 +1,5 @@
 export async function up(query) {
-  query.sequelize.query(`
+  await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION setting_on(
       path TEXT,
       facility VARCHAR(255) = NULL
@@ -19,5 +19,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  query.sequelize.query(`DROP FUNCTION IF EXISTS setting_on`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS setting_on`);
 }

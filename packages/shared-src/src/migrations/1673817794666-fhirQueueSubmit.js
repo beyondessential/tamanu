@@ -1,5 +1,5 @@
 export async function up(query) {
-  query.sequelize.query(`
+  await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION fhir_job_queue_submit(
       resource_type VARCHAR(255),
       upstream_id VARCHAR(255),
@@ -20,5 +20,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  query.sequelize.query(`DROP FUNCTION IF EXISTS fhir_job_queue_submit`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir_job_queue_submit`);
 }
