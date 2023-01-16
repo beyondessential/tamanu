@@ -89,4 +89,3 @@ export * from './NoteItem';
 export * from './SyncSession';
 
 export * from './fhir';
-export * from './FhirMaterialiseJob';
