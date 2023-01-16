@@ -21,14 +21,14 @@ export async function up(query) {
       allowNull: false,
     },
 
-    // queue-related fields
+    // queue
     priority: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 1000,
     },
     status: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       defaultValue: 'Queued',
       allowNull: false,
     },
@@ -38,18 +38,25 @@ export async function up(query) {
     errored_at: DataTypes.DATE,
     error: DataTypes.TEXT,
 
-    // data fields
+    // routing
     topic: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
-    payload: DataTypes.JSONB,
-  });
+    discriminant: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      unique: true,
+    },
 
-  await query.addIndex(TABLE_NAME, ['topic']);
-  await query.addIndex(TABLE_NAME, ['status']);
-  await query.addIndex(TABLE_NAME, ['priority']);
-  await query.addIndex(TABLE_NAME, ['topic', 'status', 'priority']);
+    // data
+    payload: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: {},
+    }
+  });
 }
 
 export async function down(query) {
