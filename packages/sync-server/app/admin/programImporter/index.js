@@ -172,8 +172,8 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       },
     ];
 
-    // don't import questions for obsoleted surveys
-    // (or even read their worksheet, or check if it exists)
+    // always read obsolete surveys, but only the first rows
+    // this is so we don't miss surveys that have just been obsoleted
     if (md.surveyType === 'obsolete') {
       stats.push(
         await importRows(context(sheetName), {
