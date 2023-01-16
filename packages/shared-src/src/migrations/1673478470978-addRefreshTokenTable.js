@@ -35,10 +35,11 @@ export async function up(query) {
     },
   });
   await query.addIndex('refresh_tokens', {
-    fields: ['refreshId'],
+    fields: ['refresh_id'],
   });
 }
 
 export async function down(query) {
+  await query.removeIndex('refresh_tokens', ['refresh_id']);
   await query.dropTable('refresh_tokens');
 }
