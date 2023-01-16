@@ -36,7 +36,7 @@ export async function up(query) {
       LANGUAGE SQL
       STABLE PARALLEL SAFE
     AS $$
-      SELECT updated_at > current_timestamp() - (setting_get('job.worker.assumeDroppedAfter') ->> 0)::interval
+      SELECT updated_at > current_timestamp() - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
       FROM job_workers
       WHERE id = worker_id
     $$

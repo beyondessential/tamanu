@@ -1,7 +1,6 @@
 const DEFAULT_SETTINGS = {
-  'job.worker.hearbeat': '1 minute',
-  'job.worker.assumeDroppedAfter': '10 minutes',
-  // 'fhir.queue.maxConcurrency': 100,
+  'jobs.worker.hearbeat': '1 minute',
+  'jobs.worker.assumeDroppedAfter': '10 minutes',
 };
 
 export async function up(query) {
