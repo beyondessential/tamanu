@@ -30,42 +30,40 @@ const TriageCell = ({ arrivalTime, children }) => (
   </Tooltip>
 );
 
-export const TriageWaitTimeCell = React.memo(
-  ({ encounterType, triageTime, closedTime, arrivalTime }) => {
-    const [, updateState] = useState({});
+export const TriageWaitTimeCell = ({ encounterType, triageTime, closedTime, arrivalTime }) => {
+  const [, updateState] = useState({});
 
-    // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
-    // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
-    // is undefined
-    const assumedArrivalTime = arrivalTime || triageTime;
+  // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
+  // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
+  // is undefined
+  const assumedArrivalTime = arrivalTime || triageTime;
 
-    // recalculate every 30 seconds
-    useEffect(() => {
-      if (!closedTime) {
-        const interval = setInterval(() => updateState({}), MINUTE * 0.5);
-        return () => clearInterval(interval);
-      }
-      return () => {};
-    }, [closedTime]);
-
-    switch (encounterType) {
-      case ENCOUNTER_TYPES.TRIAGE:
-        return (
-          <TriageCell arrivalTime={assumedArrivalTime}>
-            <div>{getDuration(assumedArrivalTime)}</div>
-            <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
-          </TriageCell>
-        );
-      case ENCOUNTER_TYPES.OBSERVATION:
-      case ENCOUNTER_TYPES.EMERGENCY:
-        return (
-          <TriageCell arrivalTime={arrivalTime}>{`Seen at ${format(
-            new Date(closedTime),
-            'h:mma',
-          )}`}</TriageCell>
-        );
-      default:
-        return <PlainCell>Admitted</PlainCell>;
+  // recalculate every 30 seconds
+  useEffect(() => {
+    if (!closedTime) {
+      const interval = setInterval(() => updateState({}), MINUTE * 0.5);
+      return () => clearInterval(interval);
     }
-  },
-);
+    return () => {};
+  }, [closedTime]);
+
+  switch (encounterType) {
+    case ENCOUNTER_TYPES.TRIAGE:
+      return (
+        <TriageCell arrivalTime={assumedArrivalTime}>
+          <div>{getDuration(assumedArrivalTime)}</div>
+          <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
+        </TriageCell>
+      );
+    case ENCOUNTER_TYPES.OBSERVATION:
+    case ENCOUNTER_TYPES.EMERGENCY:
+      return (
+        <TriageCell arrivalTime={arrivalTime}>{`Seen at ${format(
+          new Date(closedTime),
+          'h:mma',
+        )}`}</TriageCell>
+      );
+    default:
+      return <PlainCell>Admitted</PlainCell>;
+  }
+};
