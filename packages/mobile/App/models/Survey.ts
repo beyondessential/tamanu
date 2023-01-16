@@ -73,10 +73,17 @@ export class Survey extends BaseModel implements ISurvey {
     };
   }
 
-  static async getResponses(surveyId: string): Promise<ISurveyResponse[]> {
+  static async getResponses(
+    surveyId: string,
+    patientId?: string
+  ): Promise<ISurveyResponse[]> {
+    const patientFilter = patientId
+      ? { encounter: { patient: { id: patientId } } }
+      : {};
     const responses = await Database.models.SurveyResponse.find({
       where: {
         survey: surveyId,
+        ...patientFilter,
       },
       relations: ['encounter', 'survey', 'encounter.patient'],
     });
