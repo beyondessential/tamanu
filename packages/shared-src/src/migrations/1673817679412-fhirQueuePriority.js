@@ -4,7 +4,7 @@ const TABLE_NAME = 'fhir_materialise_jobs';
 const COLUMN_NAME = 'priority';
 
 export async function up(query) {
-  await query.addColumnn(TABLE_NAME, COLUMN_NAME, {
+  await query.addColumn(TABLE_NAME, COLUMN_NAME, {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
@@ -12,5 +12,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropColumnn(TABLE_NAME, COLUMN_NAME);
+  await query.dropColumn(TABLE_NAME, COLUMN_NAME);
 }
