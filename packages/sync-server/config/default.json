@@ -162,9 +162,8 @@
       "labTestTypes": []
     },
     "fhirMaterialiser": {
-      "enabled": true, // only when integrations.fhir is on
-      "schedule": "*/1 * * * *",
-      "limit": 100
+      "enabled": true,
+      "schedule": "*/1 * * * *"
     },
     "plannedMoveTimeout": {
       "enabled": true,

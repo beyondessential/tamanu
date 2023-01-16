@@ -15,26 +15,6 @@ const PENDING_RECORDS_WHERE = {
   ],
 };
 
-// postgres doesn't support `UPDATE ... LIMIT n;` so we work around the limitation
-const UPDATE_SQL = `
-UPDATE fhir_materialise_jobs
-SET status = 'Started', started_at = current_timestamp(3)
-WHERE id IN (
-  SELECT id
-  FROM fhir_materialise_jobs
-  WHERE deleted_at IS NULL
-  AND (
-    status = 'Queued'
-    OR (
-      status = 'Started'
-      AND started_at <= current_timestamp(3) - '${TIMEOUT}'::interval
-    )
-  )
-  LIMIT :limit
-)
-RETURNING id, resource, upstream_id AS "upstreamId";
-`;
-
 export class FhirMaterialiseJob extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -96,16 +76,12 @@ export class FhirMaterialiseJob extends Model {
     );
   }
 
-  static async lockAndRun(limit, fn) {
-    if (!Number.isFinite(limit)) {
-      throw new Error('FhirMaterialiseJob: limit must be a number, and finite');
-    }
+  static async lockAndRun(fn) {
     if (typeof fn !== 'function') {
       throw new Error('FhirMaterialiseJob: fn must be a function');
     }
-    const [jobs] = await this.sequelize.query(UPDATE_SQL, {
-      type: QueryTypes.UPDATE,
-      replacements: { limit },
+    const jobs = await this.sequelize.query(`SELECT * FROM fhir_job_queue_grab()`, {
+      type: QueryTypes.SELECT,
     });
     const completed = [];
     const failed = [];
@@ -144,6 +120,10 @@ export class FhirMaterialiseJob extends Model {
   }
 
   static async countQueued() {
-    return this.count({ where: PENDING_RECORDS_WHERE });
+    const [count] = await this.sequelize.query(`SELECT count(*) FROM fhir_job_queue_free()`, {
+      type: QueryTypes.SELECT,
+    });
+
+    return count ?? 0;
   }
 }

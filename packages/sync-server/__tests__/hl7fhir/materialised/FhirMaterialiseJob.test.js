@@ -59,13 +59,13 @@ describe('FhirMaterialiseJob', () => {
 
       // act
       await FhirMaterialiseJob.enqueue(job);
-      await FhirMaterialiseJob.lockAndRun(1, () => {});
+      await FhirMaterialiseJob.lockAndRun(() => {});
       await FhirMaterialiseJob.enqueue(job);
-      await FhirMaterialiseJob.lockAndRun(1, () => {
+      await FhirMaterialiseJob.lockAndRun(() => {
         throw new Error('test error');
       });
       await FhirMaterialiseJob.enqueue(job);
-      await FhirMaterialiseJob.lockAndRun(1, () => {
+      await FhirMaterialiseJob.lockAndRun(() => {
         throw new Error('test error 2');
       });
       await FhirMaterialiseJob.enqueue(job);
@@ -92,7 +92,7 @@ describe('FhirMaterialiseJob', () => {
       // act
       let ran = false;
       let recievedJob = null;
-      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(1, j => {
+      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(j => {
         ran = true;
         recievedJob = j;
       });
@@ -134,7 +134,7 @@ describe('FhirMaterialiseJob', () => {
 
       // act
       let ran = false;
-      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(2, () => {
+      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(() => {
         ran = true;
       });
 
@@ -155,7 +155,7 @@ describe('FhirMaterialiseJob', () => {
       await FhirMaterialiseJob.enqueue(job);
 
       // act
-      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(1, () => {
+      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(() => {
         throw new Error('test that this error is recorded');
       });
 
@@ -183,7 +183,7 @@ describe('FhirMaterialiseJob', () => {
 
       // act
       let runs = 0;
-      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(2, () => {
+      const [completed, failed] = await FhirMaterialiseJob.lockAndRun(() => {
         runs += 1;
       });
 
