@@ -10,7 +10,9 @@ export async function up(query) {
     await query.sequelize.query(`
       INSERT INTO settings (key, value)
       VALUES ('${key}', '${JSON.stringify(value)}')
-      ON CONFLICT (key) WHERE deleted_at IS NULL DO NOTHING
+      ON CONFLICT (key, facility_id, deleted_at)
+        WHERE facility_id IS NULL AND deleted_at IS NULL
+          DO NOTHING
     `);
   }
 }
