@@ -7,7 +7,7 @@ export async function up(query) {
   await query.addColumnn(TABLE_NAME, COLUMN_NAME, {
     type: DataTypes.INTEGER,
     allowNull: false,
-    default: 0,
+    defaultValue: 0,
   });
 }
 
