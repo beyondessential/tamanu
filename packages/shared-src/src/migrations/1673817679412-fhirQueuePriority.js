@@ -12,5 +12,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropColumn(TABLE_NAME, COLUMN_NAME);
+  await query.removeColumn(TABLE_NAME, COLUMN_NAME);
 }

@@ -27,6 +27,6 @@ export async function down(query) {
   }
 
   for (const upstream of UPSTREAMS) {
-    await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir_queue_trigger_${upstream}()}`);
+    await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir_queue_trigger_${upstream}()`);
   }
 }

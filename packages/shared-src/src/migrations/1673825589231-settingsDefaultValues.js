@@ -1,6 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 export async function up(query) {
+  await query.sequelize.query(`ALTER TABLE settings ALTER COLUMN id TYPE uuid USING id::uuid`);
   await query.changeColumn('settings', 'id', {
     type: DataTypes.UUID,
     allowNull: false,
