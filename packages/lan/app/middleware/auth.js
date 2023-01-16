@@ -145,6 +145,9 @@ export async function loginHandler(req, res, next) {
 export async function refreshHandler(req, res) {
   const { user } = req;
 
+  // Run after auth middleware, requires valid token but no other permission
+  req.flagPermissionChecked();
+
   const token = getToken(user);
   res.send({ token });
 }
