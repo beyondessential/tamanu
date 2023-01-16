@@ -32,10 +32,6 @@ export async function up(query) {
       type: Sequelize.DATE,
       defaultValue: Sequelize.NOW,
     },
-    deleted_at: {
-      type: Sequelize.DATE,
-      allowNull: true,
-    },
   });
   await query.addIndex('refresh_tokens', {
     fields: ['refreshId'],
