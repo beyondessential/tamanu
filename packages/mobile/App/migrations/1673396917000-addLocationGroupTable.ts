@@ -1,4 +1,11 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableColumn,
+  TableForeignKey,
+  TableIndex,
+} from 'typeorm';
 
 const BaseColumns = [
   new TableColumn({
@@ -60,10 +67,16 @@ const LocationGroupTable = new Table({
 
 const ifNotExist = true;
 
+const updatedAtSyncTickIndex = {
+  columnNames: ['updatedAtSyncTick'],
+};
+
 export class addLocationGroupTable1673396917000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     // Add locationGroup Table
     await queryRunner.createTable(LocationGroupTable, ifNotExist);
+
+    await queryRunner.createIndex('locationGroup', new TableIndex(updatedAtSyncTickIndex));
 
     // Add relation from location to locationGroup
     await queryRunner.addColumn(
