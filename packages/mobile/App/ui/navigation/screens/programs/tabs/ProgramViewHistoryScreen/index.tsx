@@ -30,9 +30,9 @@ export const ProgramViewHistoryScreen = ({
         return null;
       }
 
-      return models.Survey.getResponses(
+      return models.SurveyResponse.getForPatient(
+        selectedPatient.id,
         surveyId,
-        selectedPatient ? selectedPatient.id : null
       );
     },
     [navigation.isFocused, latestResponseId],
