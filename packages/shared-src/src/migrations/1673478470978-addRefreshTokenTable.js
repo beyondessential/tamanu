@@ -11,6 +11,7 @@ export async function up(query) {
     refreshId: {
       type: Sequelize.TEXT,
       allowNull: false,
+      unique: true,
     },
     userId: {
       type: Sequelize.STRING,

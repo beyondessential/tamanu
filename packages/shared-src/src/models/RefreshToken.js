@@ -7,7 +7,7 @@ export class RefreshToken extends Model {
     super.init(
       {
         id: primaryKey,
-        refreshId: { type: Sequelize.TEXT, allowNull: false },
+        refreshId: { type: Sequelize.TEXT, allowNull: false, unique: true },
         expiresAt: { type: Sequelize.DATE, allowNull: false },
       },
       { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
