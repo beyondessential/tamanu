@@ -7,10 +7,14 @@ export class RefreshToken extends Model {
     super.init(
       {
         id: primaryKey,
-        token: { type: Sequelize.STRING, allowNull: false },
+        refreshId: { type: Sequelize.TEXT, allowNull: false },
         expiresAt: { type: Sequelize.DATE, allowNull: false },
       },
       { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
     );
+  }
+
+  static initRelations(models) {
+    this.belongsTo(models.User, { foreignKey: 'userId' });
   }
 }

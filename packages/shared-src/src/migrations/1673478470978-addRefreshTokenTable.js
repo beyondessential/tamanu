@@ -6,11 +6,19 @@ export async function up(query) {
       type: Sequelize.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.UUIDV4,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
-    token: {
+    refreshId: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
+    userId: {
       type: Sequelize.STRING,
       allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
     expires_at: {
       type: Sequelize.DATE,
@@ -28,6 +36,9 @@ export async function up(query) {
       type: Sequelize.DATE,
       allowNull: true,
     },
+  });
+  await query.addIndex('refresh_tokens', {
+    fields: ['refreshId'],
   });
 }
 
