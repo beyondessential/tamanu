@@ -12,9 +12,11 @@ export async function up(query) {
       PARALLEL SAFE
     AS $$
       SELECT value
-      FROM settings WHERE key = path
-      WHERE deleted_at IS NULL
-      AND (facility_id IS NULL OR facility_id = facility)
+      FROM settings
+      WHERE true
+        AND key = path
+        AND deleted_at IS NULL
+        AND (facility_id IS NULL OR facility_id = facility)
       ORDER BY facility_id DESC LIMIT 1 -- prefer facility-specific setting when both matched
     $$
   `);
