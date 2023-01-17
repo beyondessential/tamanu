@@ -8,7 +8,6 @@ import { useAuth } from '../../contexts/AuthContext';
 
 interface DetectIdleLayerProps {
   children: ReactNode;
-
 }
 
 const ONE_MINUTE = 1000 * 60;
