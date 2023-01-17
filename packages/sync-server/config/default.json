@@ -72,7 +72,6 @@
     "refreshSecret": null,
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "refreshTokenDuration": "30d",
     "reportNoUserError": false,
     "allowDummyToken": false,
     "useHardcodedPermissions": true,
@@ -81,6 +80,11 @@
       "displayName": "Initial Admin",
       "role": "admin",
       "password": "admin"
+    },
+    "refreshToken": {
+      "secret": null,
+      "tokenDuration": "30d",
+      "refreshIdLength": 20
     },
     "resetPassword": {
       "tokenLength": 6,

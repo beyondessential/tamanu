@@ -5,7 +5,7 @@ import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
-import { getToken, stripUser, findUser, getExpiration } from './utils';
+import { getToken, stripUser, findUser, getRandomBase64String } from './utils';
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
@@ -31,17 +31,23 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const { tokenDuration, refreshTokenDuration } = config.auth;
+    const { tokenDuration, saltRounds, refresh } = config.auth;
+    const { tokenDuration: refreshTokenDuration, refreshIdLength } = refresh;
 
     const token = getToken(user, secret, tokenDuration);
-    const expiresAt = getExpiration(tokenDuration);
 
-    const refreshToken = getToken(user, refreshSecret, refreshTokenDuration);
-    const refreshExpiresAt = getExpiration(refreshTokenDuration);
+    const refreshId = getRandomBase64String(refreshIdLength);
+    const hashedRefreshId = await bcrypt.hash(refreshId, saltRounds);
+
+    const refreshToken = getToken(
+      { userId: user.id, refreshId },
+      refreshSecret,
+      refreshTokenDuration,
+    );
 
     await store.models.RefreshToken.create({
-      token: refreshToken,
-      expiresAt: refreshExpiresAt,
+      refreshId: hashedRefreshId,
+      userId: user.id,
     });
 
     // Send some additional data with login to tell the user about
@@ -55,7 +61,6 @@ export const login = ({ secret, refreshSecret }) =>
     res.send({
       token,
       refreshToken,
-      expiresAt,
       user: convertFromDbRecord(stripUser(user)).data,
       permissions,
       facility,

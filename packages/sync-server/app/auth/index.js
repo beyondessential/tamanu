@@ -13,7 +13,7 @@ import { refresh } from './refresh';
 import { userMiddleware, userInfo } from './userMiddleware';
 
 export const DEFAULT_JWT_SECRET = config.auth.secret || uuid();
-export const DEFAULT_JWT_REFRESH_SECRET = config.auth.refreshSecret || uuid();
+export const DEFAULT_JWT_REFRESH_SECRET = config.auth.refreshToken.secret || uuid();
 
 export const authModule = express.Router();
 
