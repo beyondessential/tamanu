@@ -36,8 +36,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
         await Promise.all(
           columnsWithOverrides.map(async c => {
             const headerValue = getHeaderValue(c);
-            const { exportOverrides = {} } = c;
-            if (exportOverrides.asyncExportAccessor) {
+            if (c.asyncExportAccessor) {
               const value = await c.asyncExportAccessor(d);
               dx[headerValue] = value;
               return;
