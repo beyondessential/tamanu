@@ -12,7 +12,7 @@ interface DetectIdleLayerProps {
 }
 
 const ONE_MINUTE = 1000 * 60;
-const UI_EXPIRY_TIME = ONE_MINUTE * 30; // 30 minutes
+const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
