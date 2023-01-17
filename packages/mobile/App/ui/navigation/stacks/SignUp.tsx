@@ -16,9 +16,7 @@ import { ChangePassword } from '../screens/signup/ChangePassword';
 // Contexts
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';
 
-const Stack = createStackNavigator({initialRouteParams: {
-  signedOutFromInactivity: false,
-}});
+const Stack = createStackNavigator();
 
 const TransitionStyle = TransitionPresets.SlideFromRightIOS;
 
