@@ -14,9 +14,9 @@ export const IdleLogoutModal = () => {
   const { onLogout, refreshToken } = useAuth();
   const { getLocalisation } = useLocalisation();
 
-  const { enabled, timeoutDuration, warningPromptDuration, refreshInterval } = getLocalisation(
-    'features.idleTimeout',
-  );
+  // Can't fetch localisation prior to login so add defaults
+  const { enabled = false, timeoutDuration = 0, warningPromptDuration = 0, refreshInterval = 0 } =
+    getLocalisation('features.idleTimeout') || {};
 
   const onIdle = () => {
     // TODO: WAITM-598 Replace this full logout with a login modal
