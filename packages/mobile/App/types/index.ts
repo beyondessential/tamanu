@@ -22,5 +22,6 @@ export * from './IReferral';
 export * from './IPatientAditionalData';
 export * from './IFacility';
 export * from './ILocation';
+export * from './ILocationGroup';
 export * from './IDepartment';
 export * from './DateString';
