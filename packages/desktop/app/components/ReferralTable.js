@@ -8,7 +8,7 @@ import { DropdownButton } from './DropdownButton';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi } from '../api';
+import { useApi, isErrorUnknownAllow404s } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
@@ -110,7 +110,11 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
       }
 
       try {
-        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
+        const user = await api.get(
+          `user/${encodeURIComponent(referralByAnswer.body)}`,
+          {},
+          { isErrorUnknown: isErrorUnknownAllow404s },
+        );
         setName(user.displayName);
       } catch (e) {
         if (e.message === '404') {
