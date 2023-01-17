@@ -34,19 +34,14 @@ export class FhirMaterialiser extends ScheduledTask {
 
   async run() {
     const { FhirMaterialiseJob } = this.models;
-    const { limit } = this.config;
     let total = 0;
-    if (!Number.isFinite(limit)) {
-      throw new Error('config.schedules.fhirMaterialiser.limit must be finite');
-    }
 
     log.debug('FhirMaterialiser: Running through explicit queue');
     const [completed, failed] = await FhirMaterialiseJob.lockAndRun(
-      limit,
       async ({ resource, upstreamId }) => {
         const Resource = materialisableResources.find(r => r.fhirName === resource);
         await this.materialise(
-          log.child({ nth: total, limit, resource, upstreamId }),
+          log.child({ nth: total, resource, upstreamId }),
           Resource,
           upstreamId,
         );
@@ -57,7 +52,6 @@ export class FhirMaterialiser extends ScheduledTask {
     const failedIds = failed.map(f => f.id).join(',');
     if (failed.length > 0) {
       log.error('FhirMaterialiser: FhirMaterialiseJob: Some jobs failed', {
-        limit,
         total,
         failedIds,
         completedIds,
@@ -66,26 +60,9 @@ export class FhirMaterialiser extends ScheduledTask {
       });
     } else {
       log.debug('FhirMaterialiser: FhirMaterialiseJob: All jobs completed successfully', {
-        limit,
         total,
         completedIds,
       });
-    }
-
-    log.debug('FhirMaterialiser: Running through backlog');
-    for (const Resource of materialisableResources) {
-      if (total >= limit) return;
-
-      const missing = await Resource.findMissingRecordsIds(limit - total);
-
-      for (const id of missing) {
-        total += 1;
-        await this.materialise(
-          log.child({ nth: total, limit, resource: Resource.fhirName, upstreamId: id }),
-          Resource,
-          id,
-        );
-      }
     }
 
     log.debug('FhirMaterialiser: Running resolve upstreams procedure');

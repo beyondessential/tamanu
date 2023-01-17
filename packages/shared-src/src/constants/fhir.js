@@ -26,11 +26,13 @@ export const FHIR_INTERACTIONS = {
 export const FHIR_UPSTREAMS = {
   Patient: ['Patient', 'PatientAdditionalData'],
   ServiceRequest: [
+    'ImagingRequest',
+    'ImagingRequestArea',
+    'ImagingAreaExternalCode',
     'Encounter',
     'Facility',
-    'ImagingAreaExternalCode',
-    'ImagingRequestArea',
     'Location',
+    'LocationGroup',
     'Patient',
     'ReferenceData',
     'User',
