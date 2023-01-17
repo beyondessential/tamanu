@@ -12,17 +12,6 @@ const COMPLETE_MESSAGE = `
   or use the Back button to review answers.
 `;
 
-const useCalculatedFormValues = (components, values, setFieldValue) => {
-  useEffect(() => {
-    // recalculate dynamic fields
-    const calculatedValues = runCalculations(components, values);
-    // write values that have changed back into answers
-    Object.entries(calculatedValues)
-      .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v));
-  }, [components, values, setFieldValue]);
-};
-
 const Text = styled.div`
   margin-bottom: 10px;
 `;
@@ -59,8 +48,6 @@ export const SurveyScreenPaginator = ({
   const { components } = survey;
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
 
-  useCalculatedFormValues(components, values, setFieldValue);
-
   const maxIndex = components
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
@@ -71,6 +58,7 @@ export const SurveyScreenPaginator = ({
     return (
       <SurveyScreen
         values={values}
+        setFieldValue={setFieldValue}
         patient={patient}
         components={screenComponents}
         onStepForward={onStepForward}
