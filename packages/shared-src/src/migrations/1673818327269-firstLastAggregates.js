@@ -33,8 +33,8 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.sequelize.query(`DROP AGGREGATE IF EXISTS first`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS first_agg`);
-  await query.sequelize.query(`DROP AGGREGATE IF EXISTS last`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS last_agg`);
+  await query.sequelize.query(`DROP AGGREGATE IF EXISTS first(anyelement)`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS first_agg(anyelement, anyelement)`);
+  await query.sequelize.query(`DROP AGGREGATE IF EXISTS last(anyelement)`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS last_agg(anyelement, anyelement)`);
 }

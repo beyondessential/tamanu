@@ -31,7 +31,7 @@ function buildSettingsRecords(keyPrefix, value, facilityId) {
       .map(([k, v]) => buildSettingsRecords([keyPrefix, k].join('.'), v, facilityId))
       .flat();
   }
-  return [{ key: keyPrefix, value: JSON.stringify(value), facilityId }];
+  return [{ key: keyPrefix, value, facilityId }];
 }
 
 export class Setting extends Model {
@@ -74,7 +74,7 @@ export class Setting extends Model {
 
     const settingsObject = {};
     for (const currentSetting of settings) {
-      setAtPath(settingsObject, currentSetting.key, JSON.parse(currentSetting.value));
+      setAtPath(settingsObject, currentSetting.key, currentSetting.value);
     }
 
     if (key === '') {
