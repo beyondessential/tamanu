@@ -31,8 +31,7 @@ export function runCalculations(components, values) {
         }
         const config = getConfigObject(c.id, c.config);
         if (config.rounding) {
-          value = parseFloat(value);
-          value = value.toFixed(config.rounding);
+          value = parseFloat(parseFloat(value).toFixed(config.rounding));
         }
         inputValues[c.dataElement.code] = value;
         calculatedValues[c.dataElement.id] = value;
