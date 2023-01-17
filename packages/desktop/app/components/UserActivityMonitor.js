@@ -9,7 +9,7 @@ import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
 
-export const IdleLogoutModal = () => {
+export const UserActivityMonitor = () => {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const { onLogout, refreshToken } = useAuth();
   const { getLocalisation } = useLocalisation();

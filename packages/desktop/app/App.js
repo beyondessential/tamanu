@@ -11,7 +11,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
-import { IdleLogoutModal } from './components/IdleLogoutModal';
+import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 const AppContainer = styled.div`
   display: flex;
@@ -42,7 +42,7 @@ export function App({ sidebar, children }) {
             {children}
             <DecisionSupportModal />
             <ForbiddenErrorModal />
-            <IdleLogoutModal />
+            <UserActivityMonitor />
           </AppContentsContainer>
         </ErrorBoundary>
       </PromiseErrorBoundary>
