@@ -3,14 +3,37 @@
  * TODO: Build actual modals: WAITM-598 WAITM-599
  */
 
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useIdleTimer } from 'react-idle-timer';
+import Typography from '@material-ui/core/Typography';
+
 import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
 
+import { Modal } from './Modal';
+import { ModalActionRow } from './ModalActionRow';
+
+const IdleWarningModal = ({ open, duration, onConfirm, onClose }) => {
+  return (
+    <Modal title="Login timeout" open={open}>
+      <Typography>
+        {`Your login is about to expire due to inactivity. You will be logged out in ${duration} seconds.`}
+      </Typography>
+      <ModalActionRow
+        confirmText="Stay logged in"
+        cancelText="Logout"
+        onConfirm={onConfirm}
+        onCancel={onClose}
+      />
+    </Modal>
+  );
+};
+
 export const UserActivityMonitor = () => {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
+  const [showWarning, setShowWarning] = useState(false);
   const { onLogout, refreshToken } = useAuth();
   const { getLocalisation } = useLocalisation();
 
@@ -30,7 +53,7 @@ export const UserActivityMonitor = () => {
   };
 
   const onPrompt = () => {
-    // TODO: WAITM-599 Display idle warning modal
+    setShowWarning(true);
   };
 
   useIdleTimer({
@@ -44,5 +67,12 @@ export const UserActivityMonitor = () => {
     throttle: refreshInterval * 1000,
   });
 
-  return null;
+  return (
+    <IdleWarningModal
+      open={showWarning}
+      duration={warningPromptDuration}
+      onConfirm={() => setShowWarning(false)}
+      onClose={onLogout}
+    />
+  );
 };
