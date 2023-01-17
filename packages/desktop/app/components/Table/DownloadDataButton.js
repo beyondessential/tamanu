@@ -24,15 +24,20 @@ function getHeaderValue(column) {
 
 export function DownloadDataButton({ exportName, columns, data }) {
   const { showSaveDialog, openPath } = useElectron();
+  const columnsWithOverrides = columns.map(c => {
+    const { exportOverrides = {}, ...rest } = c;
+    return { ...rest, ...exportOverrides };
+  });
   const onDownloadData = async () => {
-    const header = columns.map(getHeaderValue);
+    const header = columnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
         const dx = {};
         await Promise.all(
-          columns.map(async c => {
+          columnsWithOverrides.map(async c => {
             const headerValue = getHeaderValue(c);
-            if (c.asyncExportAccessor) {
+            const { exportOverrides = {} } = c;
+            if (exportOverrides.asyncExportAccessor) {
               const value = await c.asyncExportAccessor(d);
               dx[headerValue] = value;
               return;
