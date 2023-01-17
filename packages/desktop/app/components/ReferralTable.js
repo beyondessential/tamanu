@@ -117,7 +117,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
         );
         setName(user.displayName);
       } catch (e) {
-        if (e.message === '404') {
+        if (e.message === 'Facility server error response: 404') {
           setName(referralByAnswer.body);
         } else {
           setName('Unknown');
