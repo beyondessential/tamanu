@@ -60,4 +60,20 @@ describe('Programs import', () => {
       `ENOENT: no such file or directory, open './__tests__/importers/programs-nofile.xlsx'`,
     );
   });
+
+  it('run validation against question configs', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'question-validation',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors.length).toEqual(31);
+    expect(stats).toEqual({
+      Program: { created: 1, updated: 0, errored: 0 },
+      Survey: { created: 2, updated: 0, errored: 0 },
+      ProgramDataElement: { created: 40, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 9, updated: 0, errored: 31 }, // 31 fields in failure test, 9 in success test
+    });
+  });
 });
