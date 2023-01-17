@@ -11,7 +11,8 @@ interface DetectIdleLayerProps {
 
 }
 
-const UI_EXPIRY_TIME = 1000 * 60 * 30; // 30 minutes
+const ONE_MINUTE = 1000 * 60;
+const UI_EXPIRY_TIME = ONE_MINUTE * 30; // 30 minutes
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
@@ -44,10 +45,6 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     if (signedIn) {
       hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
       showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
-    } else {
-      // Removing listeners on logout
-      hideEvent?.remove();
-      showEvent?.remove();
     }
     return () => {
       hideEvent?.remove();
@@ -62,13 +59,8 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
         if (idle > UI_EXPIRY_TIME) {
           handleIdleLogout();
         }
-        setIdle(idle + 1000);
-        console.log('idle timer (ms):', idle);
-      }, 1000);
-    } else {
-      // Removing listeners and resetting idle timer on logout
-      setIdle(0);
-      clearInterval(timer);
+        setIdle(idle + ONE_MINUTE);
+      }, ONE_MINUTE);
     }
     return () => {
       clearInterval(timer);
