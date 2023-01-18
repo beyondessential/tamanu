@@ -49,23 +49,23 @@ export class Setting extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [
-          // overly broad constraint, narrowed by the next two indices
           {
             // settings_alive_key_unique_cnt
+            // overly broad constraint, narrowed by the next two indices
             unique: true,
-            fields: ['key', 'facilityId', 'deletedAt'],
+            fields: ['key', 'facility_id', 'deleted_at'],
           },
           {
             // settings_alive_key_unique_with_facility_idx
             unique: true,
-            fields: ['key', 'facilityId'],
-            where: { deletedAt: null, facilityId: { [Op.ne]: null } },
+            fields: ['key', 'facility_id'],
+            where: { deleted_at: null, facility_id: { [Op.ne]: null } },
           },
           {
             // settings_alive_key_unique_without_facility_idx
             unique: true,
             fields: ['key'],
-            where: { deletedAt: null, facilityId: null },
+            where: { deleted_at: null, facility_id: null },
           },
         ],
       },
@@ -114,7 +114,7 @@ export class Setting extends Model {
     const records = buildSettingsRecords(key, value, facilityId);
     return Promise.all(
       records.map(async r => {
-        // can't use upsert as there is no unique constraint on key/facilityId combo
+        // can't use upsert as sequelize can't parse our triple-index unique constraint
         const existing = await this.findOne({
           where: { key: r.key, facilityId: r.facilityId },
         });
