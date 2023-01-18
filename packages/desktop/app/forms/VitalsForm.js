@@ -8,6 +8,8 @@ import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
 import { getValidationSchema } from '../utils';
+import { ForbiddenError } from '../components/ForbiddenErrorModal';
+import { Modal } from '../components/Modal';
 
 const ErrorMessage = () => {
   return (
@@ -21,7 +23,7 @@ const ErrorMessage = () => {
 };
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject }) => {
-  const { data: vitalsSurvey, isLoading, isError } = useVitalsSurvey();
+  const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurvey();
   const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
 
   if (isLoading) {
@@ -29,6 +31,13 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
   }
 
   if (isError) {
+    if (error.name === 'ForbiddenError') {
+      return (
+        <Modal title="Permission required" open onClose={onClose}>
+          <ForbiddenError onConfirm={onClose} confirmText="Close" />
+        </Modal>
+      );
+    }
     return <ErrorMessage />;
   }
 
