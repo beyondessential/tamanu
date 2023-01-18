@@ -27,7 +27,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     [],
   );
 
-  const handleResetIdle = (): false => {
+  const handleResetIdle = (): boolean => {
     if (signedIn) {
       debouncedResetIdle();
     }
