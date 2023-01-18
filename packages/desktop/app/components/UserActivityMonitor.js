@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useIdleTimer } from 'react-idle-timer';
 import Typography from '@material-ui/core/Typography';
+import styled from 'styled-components';
 
 import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
@@ -14,6 +15,11 @@ import { checkIsLoggedIn } from '../store/auth';
 
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
+
+const WarningModalContainer = styled.div`
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+`;
 
 const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
   const [, updateState] = useState({});
@@ -27,11 +33,14 @@ const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
 
   return (
     <Modal title="Login timeout" open={open}>
-      <Typography>
-        {`Your login is about to expire due to inactivity. You will be logged out in ${Math.ceil(
-          remainingDuration() / 1000,
-        )} seconds.`}
-      </Typography>
+      <WarningModalContainer>
+        <Typography>Your login is about to expire due to inactivity.</Typography>
+        <Typography>
+          You will be logged out in{' '}
+          <span style={{ fontWeight: 'bold' }}>{Math.ceil(remainingDuration() / 1000)}</span>{' '}
+          seconds.
+        </Typography>
+      </WarningModalContainer>
       <ModalActionRow
         confirmText="Stay logged in"
         cancelText="Logout"
