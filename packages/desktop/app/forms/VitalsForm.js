@@ -31,7 +31,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
   }
 
   if (isError) {
-    if (error.name === 'ForbiddenError') {
+    if (error?.name === 'ForbiddenError') {
       return (
         <Modal title="Permission required" open onClose={onClose}>
           <ForbiddenError onConfirm={onClose} confirmText="Close" />
