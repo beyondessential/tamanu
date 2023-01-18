@@ -59,7 +59,7 @@ export * from './FamilyPlanning';
 export * from './Deceased';
 export * from './Vaccine';
 export * from './Pregnancy';
-export * from './SickOrInjured';
+export * from './DiagnosisAndTreatment';
 export * from './History';
 export * from './PatientDetails';
 export * from './LabRequest';

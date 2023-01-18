@@ -9,7 +9,7 @@ import { SearchPatientStack } from './SearchPatient';
 import { VaccineStack } from './VaccineStack';
 import { ProgramStack } from './ProgramStack';
 import { VitalsStack } from './VitalsStack';
-import { SickOrInjuredTabs } from './SickInjuredTabs';
+import { DiagnosisAndTreatmentTabs } from './DiagnosisAndTreatmentTabs';
 import { ReferralStack } from './ReferralStack';
 import { DeceasedStack } from './DeceasedStack';
 import { PatientActionsScreen } from '../screens/patientActions';
@@ -67,7 +67,10 @@ export const HomeStack = (): ReactElement => {
         name={Routes.HomeStack.SearchPatientStack.Index}
         component={SearchPatientStack}
       />
-      <Stack.Screen name={Routes.HomeStack.SickOrInjuredTabs.Index} component={SickOrInjuredTabs} />
+      <Stack.Screen
+        name={Routes.HomeStack.DiagnosisAndTreatmentTabs.Index}
+        component={DiagnosisAndTreatmentTabs}
+      />
       <Stack.Screen name={Routes.HomeStack.ReferralStack.Index} component={ReferralStack} />
       <Stack.Screen name={Routes.HomeStack.DeceasedStack.Index} component={DeceasedStack} />
       <Stack.Screen name={Routes.HomeStack.LabRequestStack.Index} component={LabRequestStack} />
