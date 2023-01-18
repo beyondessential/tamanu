@@ -27,9 +27,9 @@ import { Model } from './Model';
 
 function buildSettingsRecords(keyPrefix, value, facilityId) {
   if (isPlainObject(value)) {
-    return Object.entries(value)
-      .map(([k, v]) => buildSettingsRecords([keyPrefix, k].join('.'), v, facilityId))
-      .flat();
+    return Object.entries(value).flatMap(([k, v]) =>
+      buildSettingsRecords([keyPrefix, k].join('.'), v, facilityId),
+    );
   }
   return [{ key: keyPrefix, value, facilityId }];
 }
@@ -48,9 +48,26 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        // ideally would have a composite unique index here on key/facilityId, but prior to
-        // postgres 15 there's no built in way to have NULL be meaningful in a unique constraint,
-        // and facilityId is nullable
+        indexes: [
+          // overly broad constraint, narrowed by the next two indices
+          {
+            // settings_alive_key_unique_cnt
+            unique: true,
+            fields: ['key', 'facilityId', 'deletedAt'],
+          },
+          {
+            // settings_alive_key_unique_with_facility_idx
+            unique: true,
+            fields: ['key', 'facilityId'],
+            where: { deletedAt: null, facilityId: { [Op.ne]: null } },
+          },
+          {
+            // settings_alive_key_unique_without_facility_idx
+            unique: true,
+            fields: ['key'],
+            where: { deletedAt: null, facilityId: null },
+          },
+        ],
       },
     );
   }
@@ -101,10 +118,13 @@ export class Setting extends Model {
         const existing = await this.findOne({
           where: { key: r.key, facilityId: r.facilityId },
         });
+
+        // need to serialize to JSON manually here as we're not going through the model
         if (existing) {
-          await this.update({ value: r.value }, { where: { id: existing.id } });
+          await this.update({ value: JSON.stringify(r.value) }, { where: { id: existing.id } });
+        } else {
+          await this.create({ ...r, value: JSON.stringify(r.value) });
         }
-        await this.create(r);
       }),
     );
   }

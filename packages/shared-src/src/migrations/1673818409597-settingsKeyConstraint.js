@@ -28,12 +28,12 @@ export async function up(query) {
   await query.sequelize.query(`
     CREATE UNIQUE INDEX settings_alive_key_unique_with_facility_idx
     ON settings (key, facility_id)
-    WHERE facility_id IS NOT NULL AND deleted_at IS NOT NULL
+    WHERE facility_id IS NOT NULL AND deleted_at IS NULL
   `);
   await query.sequelize.query(`
     CREATE UNIQUE INDEX settings_alive_key_unique_without_facility_idx
     ON settings (key)
-    WHERE facility_id IS NULL AND deleted_at IS NOT NULL
+    WHERE facility_id IS NULL AND deleted_at IS NULL
   `);
 }
 
