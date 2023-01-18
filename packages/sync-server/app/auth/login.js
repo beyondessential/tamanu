@@ -10,7 +10,7 @@ import { getToken, stripUser, findUser, getRandomBase64String } from './utils';
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body } = req;
-    const { email, password, facilityId } = body;
+    const { email, password, facilityId, deviceId } = body;
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
@@ -45,10 +45,20 @@ export const login = ({ secret, refreshSecret }) =>
       refreshTokenDuration,
     );
 
-    await store.models.RefreshToken.create({
-      refreshId: hashedRefreshId,
-      userId: user.id,
-    });
+    await store.models.RefreshToken.upsert(
+      {
+        refreshId: hashedRefreshId,
+        userId: user.id,
+        deviceId,
+      },
+      {
+        where: {
+          userId: user.id,
+          deviceId,
+        },
+        fields: ['refreshId'],
+      },
+    );
 
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.

@@ -1,5 +1,6 @@
 import mitt from 'mitt';
 
+import { getUniqueId } from 'react-native-device-info';
 import { readConfig } from '../config';
 import { LoginResponse, SyncRecord, FetchOptions } from './types';
 import {
@@ -18,6 +19,7 @@ const API_VERSION = 1;
 
 export class CentralServerConnection {
   host: string;
+  deviceId: string;
 
   token: string | null;
   expiresAt: number | null;
@@ -28,6 +30,7 @@ export class CentralServerConnection {
 
   connect(host: string): void {
     this.host = host;
+    this.deviceId = getUniqueId();
   }
 
   async fetch(
@@ -216,7 +219,7 @@ export class CentralServerConnection {
       const data = await this.post(
         'login',
         {},
-        { email, password },
+        { email, password, deviceId: this.deviceId },
         { backoff: { maxAttempts: 1 } },
       );
 
