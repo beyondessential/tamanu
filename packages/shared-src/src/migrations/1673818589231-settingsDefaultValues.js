@@ -8,7 +8,7 @@ export async function up(query) {
     primaryKey: true,
     defaultValue: Sequelize.fn('uuid_generate_v4'),
   });
-  
+
   await query.changeColumn('settings', 'created_at', {
     type: DataTypes.DATE,
     defaultValue: Sequelize.fn('current_timestamp', 3),
@@ -27,7 +27,7 @@ export async function down(query) {
     allowNull: false,
     primaryKey: true,
   });
-  
+
   await query.changeColumn('settings', 'created_at', {
     type: DataTypes.DATE,
   });

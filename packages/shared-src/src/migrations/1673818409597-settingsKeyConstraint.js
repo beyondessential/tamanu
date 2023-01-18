@@ -1,5 +1,3 @@
-import { Op } from 'sequelize';
-
 export async function up(query) {
   // Delete all but the most recent setting for each (key, facility_id).
   // This is to get rid of duplicated data from the prior settings update code.
