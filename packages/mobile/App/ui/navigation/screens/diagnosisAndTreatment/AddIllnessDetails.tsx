@@ -130,24 +130,24 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
-                <Field
-                  component={Dropdown}
-                  options={CERTAINTY_OPTIONS}
-                  name="certainty"
-                  label="Certainty"
-                />
-                <SectionHeader h3>Treatment notes</SectionHeader>
-                <Field
-                  component={TextField}
-                  name="reasonForEncounter"
-                  multiline
-                />
-                <Button
-                  marginTop={screenPercentageToDP(1.22, Orientation.Height)}
-                  backgroundColor={theme.colors.PRIMARY_MAIN}
-                  onPress={handleSubmit}
-                  buttonText="Submit"
-                />
+                  <Field
+                    component={Dropdown}
+                    options={CERTAINTY_OPTIONS}
+                    name="certainty"
+                    label="Certainty"
+                  />
+                  <SectionHeader h3>Treatment notes</SectionHeader>
+                  <Field
+                    component={TextField}
+                    name="reasonForEncounter"
+                    multiline
+                  />
+                  <Button
+                    marginTop={screenPercentageToDP(1.22, Orientation.Height)}
+                    backgroundColor={theme.colors.PRIMARY_MAIN}
+                    onPress={handleSubmit}
+                    buttonText="Submit"
+                  />
                 </StyledView>
               </ScrollView>
             </KeyboardAvoidingView>
