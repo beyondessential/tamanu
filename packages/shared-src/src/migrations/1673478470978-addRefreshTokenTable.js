@@ -8,15 +8,15 @@ export async function up(query) {
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
-    refreshId: {
+    refresh_id: {
       type: Sequelize.TEXT,
       allowNull: false,
     },
-    deviceId: {
+    device_id: {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    userId: {
+    user_id: {
       type: Sequelize.STRING,
       allowNull: false,
       references: {
