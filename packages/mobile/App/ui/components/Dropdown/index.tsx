@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, ReactElement } from 'react';
 import { StyledView } from '/styled/common';
-import MultiSelect from 'react-native-multiple-select';
+import MultiSelect, { MultiSelectProps } from 'react-native-multiple-select';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 
@@ -20,24 +20,38 @@ export interface DropdownProps extends BaseInputProps {
   value?: string | string[];
 }
 
-const DEFAULT_STYLE_PROPS = {
-  styleDropdownMenuSubsection: {
-    paddingLeft: 12,
+const STYLE_PROPS: Record<string, MultiSelectProps> = {
+  DEFAULT: {
+    styleDropdownMenuSubsection: {
+      paddingLeft: 12,
+    },
+  },
+  ERROR: {
+    textColor: theme.colors.ERROR,
+    styleInputGroup: {
+      borderColor: theme.colors.ERROR,
+      borderWidth: 1,
+    },
+    styleDropdownMenuSubsection: {
+      paddingLeft: 12,
+      borderRadius: 3,
+      borderColor: theme.colors.ERROR,
+      borderWidth: 1,
+    },
+  },
+  DISABLED: {
+    textColor: theme.colors.DISABLED_GREY,
+    styleDropdownMenuSubsection: {
+      paddingLeft: 12,
+    },
   },
 };
 
-const ERROR_STYLE_PROPS = {
-  textColor: theme.colors.ERROR,
-  styleInputGroup: {
-    borderColor: theme.colors.ERROR,
-    borderWidth: 1,
-  },
-  styleDropdownMenuSubsection: {
-    paddingLeft: 12,
-    borderRadius: 3,
-    borderColor: theme.colors.ERROR,
-    borderWidth: 1,
-  },
+// TODO: Types
+const getStyleProps = (error, disabled): MultiSelectProps => {
+  if (error) return STYLE_PROPS.ERROR;
+  if (disabled) return STYLE_PROPS.DISABLED;
+  return STYLE_PROPS.DEFAULT;
 };
 
 export const Dropdown = React.memo(
@@ -49,6 +63,7 @@ export const Dropdown = React.memo(
     placeholderText = 'Search Items...',
     value = [],
     error,
+    disabled,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
     const componentRef = useRef(null);
@@ -60,6 +75,7 @@ export const Dropdown = React.memo(
       [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
+    if (disabled) return null;
 
     return (
       <StyledView width="100%" marginTop={10}>
@@ -86,7 +102,7 @@ export const Dropdown = React.memo(
           submitButtonText="Confirm selection"
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
-          {...(error ? ERROR_STYLE_PROPS : DEFAULT_STYLE_PROPS)}
+          {...getStyleProps(error, disabled)}
         />
       </StyledView>
     );

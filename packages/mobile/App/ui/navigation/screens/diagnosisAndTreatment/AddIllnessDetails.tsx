@@ -88,7 +88,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
         initialValues={{}}
         validationSchema={IllnessFormSchema}
       >
-        {({ handleSubmit }): ReactElement => (
+        {({ handleSubmit, values }): ReactElement => console.log(values) || (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
             paddingRight={20}
@@ -135,6 +135,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     options={CERTAINTY_OPTIONS}
                     name="certainty"
                     label="Certainty"
+                    disabled={!values?.diagnosis}
                   />
                   <SectionHeader h3>Treatment notes</SectionHeader>
                   <Field
