@@ -28,6 +28,9 @@ export async function up(query) {
       type: Sequelize.DATE,
       allowNull: false,
     },
+    deleted_at: {
+      type: Sequelize.DATE,
+    },
     created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.NOW,

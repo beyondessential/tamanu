@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
+import ms from 'ms';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
@@ -31,12 +32,16 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const { tokenDuration, saltRounds, refresh } = config.auth;
-    const { tokenDuration: refreshTokenDuration, refreshIdLength } = refresh;
+    const {
+      tokenDuration,
+      saltRounds,
+      refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
+    } = config.auth;
 
     const token = getToken(user, secret, tokenDuration);
 
-    const refreshId = getRandomBase64String(refreshIdLength);
+    const refreshId = await getRandomBase64String(refreshIdLength);
+
     const hashedRefreshId = await bcrypt.hash(refreshId, saltRounds);
 
     const refreshToken = getToken(
@@ -48,6 +53,7 @@ export const login = ({ secret, refreshSecret }) =>
     await store.models.RefreshToken.upsert(
       {
         refreshId: hashedRefreshId,
+        expiresAt: Date.now() + ms(refreshTokenDuration),
         userId: user.id,
         deviceId,
       },
@@ -56,7 +62,7 @@ export const login = ({ secret, refreshSecret }) =>
           userId: user.id,
           deviceId,
         },
-        fields: ['refreshId'],
+        fields: ['refreshId', 'expiresAt'],
       },
     );
 
