@@ -1,9 +1,9 @@
 /*
  * NOTE: Currently this component simply holds the idle timer functionality
- * TODO: Build actual modals: WAITM-598 WAITM-599
+ * TODO: Build actual modals: WAITM-598
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useIdleTimer } from 'react-idle-timer';
 import Typography from '@material-ui/core/Typography';
@@ -15,11 +15,22 @@ import { checkIsLoggedIn } from '../store/auth';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 
-const IdleWarningModal = ({ open, duration, onConfirm, onClose }) => {
+const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
+  const [, updateState] = useState({});
+  // Re-render modal on timer so countdown updates correctly
+  useEffect(() => {
+    const interval = setInterval(() => updateState({}), 500);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <Modal title="Login timeout" open={open}>
       <Typography>
-        {`Your login is about to expire due to inactivity. You will be logged out in ${duration} seconds.`}
+        {`Your login is about to expire due to inactivity. You will be logged out in ${Math.ceil(
+          remainingDuration() / 1000,
+        )} seconds.`}
       </Typography>
       <ModalActionRow
         confirmText="Stay logged in"
@@ -56,7 +67,7 @@ export const UserActivityMonitor = () => {
     setShowWarning(true);
   };
 
-  useIdleTimer({
+  const { getRemainingTime } = useIdleTimer({
     onIdle,
     onAction,
     onPrompt,
@@ -70,7 +81,7 @@ export const UserActivityMonitor = () => {
   return (
     <IdleWarningModal
       open={showWarning}
-      duration={warningPromptDuration}
+      remainingDuration={getRemainingTime}
       onConfirm={() => setShowWarning(false)}
       onClose={onLogout}
     />
