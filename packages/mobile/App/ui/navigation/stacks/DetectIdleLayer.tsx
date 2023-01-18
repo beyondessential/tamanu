@@ -27,10 +27,12 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     [],
   );
 
-  const handleResetIdle = (): boolean => {
+  const handleResetIdle = (): false => {
     if (signedIn) {
       debouncedResetIdle();
     }
+    // Returns false to indicate that this component
+    // shouldn't block native components from becoming the JS responder
     return false;
   };
 
@@ -55,10 +57,11 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     let timer;
     if (signedIn) {
       timer = setInterval(() => {
-        if (idle > UI_EXPIRY_TIME) {
+        const newIdle = idle + ONE_MINUTE;
+        setIdle(newIdle);
+        if (newIdle >= UI_EXPIRY_TIME) {
           handleIdleLogout();
         }
-        setIdle(idle + ONE_MINUTE);
       }, ONE_MINUTE);
     }
     return () => {
