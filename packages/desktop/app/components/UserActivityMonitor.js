@@ -1,16 +1,61 @@
 /*
  * NOTE: Currently this component simply holds the idle timer functionality
- * TODO: Build actual modals: WAITM-598 WAITM-599
+ * TODO: Build actual modals: WAITM-598
  */
 
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useIdleTimer } from 'react-idle-timer';
+import Typography from '@material-ui/core/Typography';
+import styled from 'styled-components';
+
 import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
 
+import { Modal } from './Modal';
+import { ModalActionRow } from './ModalActionRow';
+
+const WarningModalContainer = styled.div`
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+`;
+
+const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
+  const [, updateState] = useState({});
+  // Re-render modal on timer so countdown updates correctly
+  useEffect(() => {
+    const interval = setInterval(() => updateState({}), 500);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <Modal title="Login timeout" open={open}>
+      <WarningModalContainer>
+        <Typography>Your login is about to expire due to inactivity.</Typography>
+        <Typography>
+          You will be logged out in{' '}
+          <span style={{ fontWeight: 'bold' }}>
+            {open ? Math.ceil(remainingDuration() / 1000) : '-'}
+          </span>{' '}
+          seconds.
+        </Typography>
+      </WarningModalContainer>
+      <ModalActionRow
+        confirmText="Stay logged in"
+        cancelText="Logout"
+        onConfirm={onConfirm}
+        onCancel={onClose}
+      />
+    </Modal>
+  );
+};
+
 export const UserActivityMonitor = () => {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
+  const [showWarning, setShowWarning] = useState(false);
   const { onLogout, refreshToken } = useAuth();
   const { getLocalisation } = useLocalisation();
 
@@ -30,19 +75,30 @@ export const UserActivityMonitor = () => {
   };
 
   const onPrompt = () => {
-    // TODO: WAITM-599 Display idle warning modal
+    setShowWarning(true);
   };
 
-  useIdleTimer({
+  const { reset, getRemainingTime } = useIdleTimer({
     onIdle,
     onAction,
     onPrompt,
     events: ['keydown', 'mousedown', 'mousemove'],
     startOnMount: enabled,
+    startManually: !enabled, // IdleTimer needs one of the start methods set to true
     timeout: timeoutDuration * 1000,
     promptTimeout: warningPromptDuration * 1000,
     throttle: refreshInterval * 1000,
   });
 
-  return null;
+  return (
+    <IdleWarningModal
+      open={showWarning}
+      remainingDuration={getRemainingTime}
+      onConfirm={() => {
+        setShowWarning(false);
+        reset();
+      }}
+      onClose={onLogout}
+    />
+  );
 };
