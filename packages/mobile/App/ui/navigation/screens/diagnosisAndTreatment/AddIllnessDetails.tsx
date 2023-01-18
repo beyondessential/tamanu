@@ -29,8 +29,8 @@ import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserFi
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const IllnessFormSchema = Yup.object().shape({
-  certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
-  diagnosis: Yup.string().required(),
+  certainty: Yup.mixed().oneOf(Object.values(Certainty)),
+  diagnosis: Yup.string(),
 });
 
 const styles = StyleSheet.create({
@@ -58,16 +58,16 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
         selectedPatient.id,
         user.id,
       );
-
-      await models.Diagnosis.createAndSaveOne({
-        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-        isPrimary: true,
-        encounter: encounter.id,
-        date: getCurrentDateTimeString(),
-        diagnosis,
-        certainty,
-      });
-
+      if (diagnosis) {
+        await models.Diagnosis.createAndSaveOne({
+          // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+          isPrimary: true,
+          encounter: encounter.id,
+          date: getCurrentDateTimeString(),
+          diagnosis,
+          certainty,
+        });
+      }
       navigateToHistory();
     }, [],
   );
