@@ -41,13 +41,13 @@ export async function up(query) {
     },
   });
   await query.addIndex('refresh_tokens', {
-    name: 'refresh_tokens_user_id_refresh_id',
-    fields: ['user_id', 'refresh_id'],
+    name: 'refresh_tokens_user_id_device_id',
+    fields: ['user_id', 'device_id'],
     unique: true,
   });
 }
 
 export async function down(query) {
-  await query.removeIndex('refresh_tokens', 'refresh_tokens_user_id_refresh_id');
+  await query.removeIndex('refresh_tokens', 'refresh_tokens_user_id_device_id');
   await query.dropTable('refresh_tokens');
 }
