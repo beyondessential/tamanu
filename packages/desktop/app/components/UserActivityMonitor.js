@@ -73,6 +73,7 @@ export const UserActivityMonitor = () => {
     onPrompt,
     events: ['keydown', 'mousedown', 'mousemove'],
     startOnMount: enabled,
+    startManually: !enabled, // IdleTimer needs one of the start methods set to true
     timeout: timeoutDuration * 1000,
     promptTimeout: warningPromptDuration * 1000,
     throttle: refreshInterval * 1000,
