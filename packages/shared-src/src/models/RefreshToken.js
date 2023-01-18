@@ -15,7 +15,7 @@ export class RefreshToken extends Model {
         indexes: [
           {
             name: 'refresh_tokens_user_id_refresh_id',
-            fields: ['userId', 'refreshId'],
+            fields: ['user_id', 'refresh_id'],
             unique: true,
           },
         ],
