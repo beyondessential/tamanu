@@ -2,16 +2,15 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import ms from 'ms';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
-import { getToken, stripUser, findUser, getRandomBase64String } from './utils';
+import { getToken, stripUser, findUser, getRandomBase64String, getRandomU32 } from './utils';
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, headers } = req;
     const { email, password, facilityId, deviceId } = body;
 
     if (!email || !password) {
@@ -33,20 +32,40 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
+    const { auth, canonicalHostName } = config;
+
     const {
       tokenDuration,
       saltRounds,
       refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
-    } = config.auth;
+    } = auth;
 
-    const token = getToken(user, secret, tokenDuration);
+    const clientId = headers['x-tamanu-client'];
+
+    const accessTokenJwtId = await getRandomU32();
+    const token = getToken(
+      {
+        userId: user.id,
+        issuer: canonicalHostName,
+        jwtid: accessTokenJwtId,
+        audience: clientId,
+      },
+      secret,
+      tokenDuration,
+    );
 
     const refreshId = await getRandomBase64String(refreshIdLength);
-
     const hashedRefreshId = await bcrypt.hash(refreshId, saltRounds);
 
+    const refreshTokenJwtId = await getRandomU32();
     const refreshToken = getToken(
-      { userId: user.id, refreshId },
+      {
+        userId: user.id,
+        refreshId,
+        issuer: canonicalHostName,
+        audience: clientId,
+        jwtid: refreshTokenJwtId,
+      },
       refreshSecret,
       refreshTokenDuration,
     );

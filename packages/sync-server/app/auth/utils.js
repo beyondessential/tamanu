@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import jwt from 'jsonwebtoken';
-import ms from 'ms';
 import { randomBytes } from 'crypto';
 
 export const stripUser = user => {
@@ -8,14 +7,7 @@ export const stripUser = user => {
   return userData;
 };
 
-export const getToken = (user, secret, expiry) =>
-  jwt.sign(
-    {
-      userId: user.id,
-    },
-    secret,
-    { expiresIn: expiry },
-  );
+export const getToken = (data, secret, expiry) => jwt.sign(data, secret, { expiresIn: expiry });
 
 export const getRandomBase64String = async length => {
   return new Promise((resolve, reject) => {
@@ -26,7 +18,14 @@ export const getRandomBase64String = async length => {
   });
 };
 
-export const getExpiration = expiresIn => Date.now() + ms(expiresIn);
+export const getRandomU32 = async () => {
+  return new Promise((resolve, reject) => {
+    randomBytes(4, (err, buf) => {
+      if (err) reject(err);
+      resolve(buf.readUInt32BE(0, true));
+    });
+  });
+};
 
 export const verifyToken = (token, secret) => jwt.verify(token, secret);
 
