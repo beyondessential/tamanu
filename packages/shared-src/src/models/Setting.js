@@ -112,7 +112,9 @@ export class Setting extends Model {
 
   static async set(key, value, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
-    return Promise.all(
+
+    // create or update records
+    await Promise.all(
       records.map(async r => {
         // can't use upsert as sequelize can't parse our triple-index unique constraint
         const existing = await this.findOne({
@@ -126,6 +128,27 @@ export class Setting extends Model {
           await this.create({ ...r, value: JSON.stringify(r.value) });
         }
       }),
+    );
+
+    // delete any records that are no longer needed
+    await this.update(
+      {
+        deletedAt: Sequelize.fn('current_timestamp', 3),
+      },
+      {
+        where: {
+          key: {
+            [Op.and]: {
+              [Op.or]: {
+                [Op.eq]: key,
+                [Op.like]: `${key}.%`,
+              },
+              [Op.notIn]: records.map(r => r.key),
+            },
+          },
+          facilityId,
+        },
+      },
     );
   }
 }
