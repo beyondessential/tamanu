@@ -7,10 +7,21 @@ export class RefreshToken extends Model {
     super.init(
       {
         id: primaryKey,
-        refreshId: { type: Sequelize.TEXT, allowNull: false, unique: true },
+        refreshId: { type: Sequelize.TEXT, allowNull: false },
+        deviceId: { type: Sequelize.TEXT, allowNull: false },
         expiresAt: { type: Sequelize.DATE, allowNull: false },
       },
-      { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
+      {
+        indexes: [
+          {
+            name: 'refresh_tokens_user_id_refresh_id',
+            fields: ['userId', 'refreshId'],
+            unique: true,
+          },
+        ],
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        ...options,
+      },
     );
   }
 
