@@ -33,7 +33,10 @@ export const Core: FunctionComponent<any> = () => {
       initialRouteName={initialRouteName}
     >
       <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
-      <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
+      <Stack.Screen
+        name={Routes.SignUpStack.Index}
+        component={SignUpStack}
+        initialParams={{ signedOutFromInactivity: false }} />
       <Stack.Screen name={Routes.SignUpStack.SelectFacility} component={SelectFacilityScreen} />
       <Stack.Screen
         options={noSwipeGestureOnNavigator}
