@@ -37,7 +37,9 @@ const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
         <Typography>Your login is about to expire due to inactivity.</Typography>
         <Typography>
           You will be logged out in{' '}
-          <span style={{ fontWeight: 'bold' }}>{Math.ceil(remainingDuration() / 1000)}</span>{' '}
+          <span style={{ fontWeight: 'bold' }}>
+            {open ? Math.ceil(remainingDuration() / 1000) : '-'}
+          </span>{' '}
           seconds.
         </Typography>
       </WarningModalContainer>
@@ -76,7 +78,7 @@ export const UserActivityMonitor = () => {
     setShowWarning(true);
   };
 
-  const { getRemainingTime } = useIdleTimer({
+  const { reset, getRemainingTime } = useIdleTimer({
     onIdle,
     onAction,
     onPrompt,
@@ -92,7 +94,10 @@ export const UserActivityMonitor = () => {
     <IdleWarningModal
       open={showWarning}
       remainingDuration={getRemainingTime}
-      onConfirm={() => setShowWarning(false)}
+      onConfirm={() => {
+        setShowWarning(false);
+        reset();
+      }}
       onClose={onLogout}
     />
   );
