@@ -45,13 +45,13 @@ const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
   return secondPart
     ? {
-        title: firstPart,
-        textBody: secondPart,
-      }
+      title: firstPart,
+      textBody: secondPart,
+    }
     : {
-        title: '',
-        textBody: firstPart,
-      };
+      title: '',
+      textBody: firstPart,
+    };
 };
 
 const showPatientWarningPopups = (issues: IPatientIssue[]): void =>

@@ -169,6 +169,7 @@ export const noteTypes = [
   { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
   { value: NOTE_TYPES.OTHER, label: 'Other' },
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
+  { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
 ];
 
 export const encounterOptions = [

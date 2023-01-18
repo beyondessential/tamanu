@@ -257,5 +257,7 @@ export class Encounter extends BaseModel implements IEncounter {
     'completedReferrals',
     'labRequests',
     'labRequests.tests',
+    'notePages',
+    'notePages.noteItems',
   ];
 }

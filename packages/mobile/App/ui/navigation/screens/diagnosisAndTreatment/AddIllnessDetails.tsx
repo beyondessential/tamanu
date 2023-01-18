@@ -13,10 +13,7 @@ import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 
-import {
-  screenPercentageToDP,
-  Orientation,
-} from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -51,43 +48,45 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const user = useSelector(authUserSelector);
 
-  const onRecordIllness = useCallback(
-    async ({ diagnosis, certainty }: any): Promise<any> => {
-      // TODO: persist fields other than diagnosis and certainty
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-      );
-      if (diagnosis) {
-        await models.Diagnosis.createAndSaveOne({
-          // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-          isPrimary: true,
-          encounter: encounter.id,
-          date: getCurrentDateTimeString(),
-          diagnosis,
-          certainty,
-        });
-      }
-      navigateToHistory();
-    }, [],
-  );
+  const onRecordIllness = useCallback(async ({ diagnosis, certainty, clinicalNote }: any): Promise<
+  any
+  > => {
+    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      selectedPatient.id,
+      user.id,
+    );
+    if (diagnosis) {
+      await models.Diagnosis.createAndSaveOne({
+        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+        isPrimary: true,
+        encounter: encounter.id,
+        date: getCurrentDateTimeString(),
+        diagnosis,
+        certainty,
+      });
+    }
+    if (clinicalNote) {
+      await models.N.createAndSaveOne({
+        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+        isPrimary: true,
+        encounter: encounter.id,
+        date: getCurrentDateTimeString(),
+        diagnosis,
+        certainty,
+      });
+    }
+    navigateToHistory();
+  }, []);
 
-  const icd10Suggester = new Suggester(
-    models.ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.ICD10,
-      },
+  const icd10Suggester = new Suggester(models.ReferenceData, {
+    where: {
+      type: ReferenceDataType.ICD10,
     },
-  );
+  });
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik
-        onSubmit={onRecordIllness}
-        initialValues={{}}
-        validationSchema={IllnessFormSchema}
-      >
+      <Formik onSubmit={onRecordIllness} initialValues={{}} validationSchema={IllnessFormSchema}>
         {({ handleSubmit, values }): ReactElement => console.log(values) || (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
@@ -106,22 +105,12 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 scrollToOverflowEnabled
                 overScrollMode="always"
               >
-                <StyledView
-                >
+                <StyledView>
                   <SectionHeader h3>INFORMATION</SectionHeader>
                 </StyledView>
-                <StyledView
-                  justifyContent="space-between"
-                >
-                  <CurrentUserField
-                    name="examiner"
-                    label="Examiner"
-                  />
-                  <Field
-                    component={TextField}
-                    name="labRequest"
-                    label="Test Results"
-                  />
+                <StyledView justifyContent="space-between">
+                  <CurrentUserField name="examiner" label="Examiner" />
+                  <Field component={TextField} name="labRequest" label="Test Results" />
                   <Field
                     component={AutocompleteModalField}
                     placeholder="Search diagnoses"
@@ -138,11 +127,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     disabled={!values?.diagnosis}
                   />
                   <SectionHeader h3>Treatment notes</SectionHeader>
-                  <Field
-                    component={TextField}
-                    name="reasonForEncounter"
-                    multiline
-                  />
+                  <Field component={TextField} name="clinicalNote" multiline />
                   <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     backgroundColor={theme.colors.PRIMARY_MAIN}
@@ -153,7 +138,8 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
               </ScrollView>
             </KeyboardAvoidingView>
           </FullView>
-        )}
+        )
+        }
       </Formik>
     </FullView>
   );
