@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import ms from 'ms';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { BadAuthenticationError } from 'shared/errors';
@@ -50,10 +51,13 @@ export const login = ({ secret, refreshSecret }) =>
       refreshTokenDuration,
     );
 
+    // Extract expiry as set by jwt.sign
+    const { exp } = jwt.decode(refreshToken);
+
     await store.models.RefreshToken.upsert(
       {
         refreshId: hashedRefreshId,
-        expiresAt: Date.now() + ms(refreshTokenDuration),
+        expiresAt: exp,
         userId: user.id,
         deviceId,
       },
@@ -62,7 +66,6 @@ export const login = ({ secret, refreshSecret }) =>
           userId: user.id,
           deviceId,
         },
-        fields: ['refreshId', 'expiresAt'],
       },
     );
 
