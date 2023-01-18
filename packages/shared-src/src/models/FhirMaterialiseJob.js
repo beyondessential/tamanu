@@ -1,4 +1,5 @@
 import Sequelize, { Op, DataTypes, QueryTypes } from 'sequelize';
+import { log } from 'shared/services/logging';
 import { Model } from './Model';
 import { JOB_QUEUE_STATUSES, SYNC_DIRECTIONS } from '../constants';
 
@@ -31,7 +32,7 @@ WHERE id IN (
   )
   LIMIT :limit
 )
-RETURNING *;
+RETURNING id, resource, upstream_id AS "upstreamId";
 `;
 
 export class FhirMaterialiseJob extends Model {
@@ -81,6 +82,10 @@ export class FhirMaterialiseJob extends Model {
   }
 
   static async enqueueMultiple(jobs) {
+    log.debug('FhirMaterialiseJob: Enqueuing jobs', {
+      count: jobs.length,
+      jobs: JSON.stringify(jobs),
+    });
     await this.bulkCreate(
       jobs.map(({ upstreamId, resource }) => ({
         upstreamId,
@@ -104,6 +109,10 @@ export class FhirMaterialiseJob extends Model {
     });
     const completed = [];
     const failed = [];
+    log.debug('FhirMaterialiseJob.lockAndRun: running jobs', {
+      count: jobs.length,
+      jobIds: JSON.stringify(jobs),
+    });
     for (const job of jobs) {
       try {
         await fn(job);
