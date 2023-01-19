@@ -10,7 +10,7 @@ import { getToken, stripUser, findUser, getRandomBase64String, getRandomU32 } fr
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body, headers } = req;
+    const { store, body } = req;
     const { email, password, facilityId, deviceId } = body;
 
     if (!email || !password) {
@@ -40,7 +40,7 @@ export const login = ({ secret, refreshSecret }) =>
       refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
     } = auth;
 
-    const clientId = headers['x-tamanu-client'];
+    const clientId = req.header('X-Tamanu-Client');
 
     const accessTokenJwtId = await getRandomU32();
     const token = getToken(
