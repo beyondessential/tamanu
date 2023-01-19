@@ -24,13 +24,14 @@ function getHeaderValue(column) {
 
 export function DownloadDataButton({ exportName, columns, data }) {
   const { showSaveDialog, openPath } = useElectron();
+  const exportableColumns = columns.filter(c => c.isExportable !== false);
   const onDownloadData = async () => {
-    const header = columns.map(getHeaderValue);
+    const header = exportableColumns.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
         const dx = {};
         await Promise.all(
-          columns.map(async c => {
+          exportableColumns.map(async c => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
               const value = await c.asyncExportAccessor(d);
