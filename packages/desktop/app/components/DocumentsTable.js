@@ -10,11 +10,21 @@ import { ConfirmModal } from './ConfirmModal';
 import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
 import { notify, notifySuccess, notifyError } from '../utils';
+import { DocumentPreviewModal } from './DocumentPreview';
+
+const DOCUMENT_ACTIONS = {
+  DELETE: 'delete',
+  VIEW: 'view',
+};
 
 // eslint-disable-next-line no-unused-vars
-const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
+const ActionDropdown = React.memo(({ row, onDownload, onClickDelete, onClickView }) => {
   // { row, onDownload, onClickDelete }
   const actions = [
+    {
+      label: 'View',
+      onClick: () => onClickView(row),
+    },
     {
       label: 'Download',
       onClick: () => onDownload(row),
@@ -50,22 +60,33 @@ export const DocumentsTable = React.memo(
     const api = useApi();
 
     // Confirm delete modal will be open/close if it has a document ID
-    const [selectedDocumentId, setSelectedDocumentId] = useState(null);
-    const onClose = useCallback(() => setSelectedDocumentId(null), []);
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [documentAction, setDocumentAction] = useState(null);
+    const onClose = useCallback(() => {
+      setSelectedDocument(null);
+      setDocumentAction(null);
+    }, []);
 
     // Deletes selected document on confirmation (TBD)
     const onConfirmDelete = useCallback(() => {
       // Only perform deletion if there is internet connection
       if (canInvokeDocumentAction()) {
-        console.log('Delete document TBD', selectedDocumentId); // eslint-disable-line no-console
+        console.log('Delete document TBD', selectedDocument); // eslint-disable-line no-console
       }
 
       // Close modal either way
       onClose();
-    }, [selectedDocumentId, onClose, canInvokeDocumentAction]);
+    }, [selectedDocument, onClose, canInvokeDocumentAction]);
 
     // Callbacks invoked inside getActions
-    const onClickDelete = useCallback(id => setSelectedDocumentId(id), []);
+    const onClickDelete = useCallback(row => {
+      setSelectedDocument(row);
+      setDocumentAction(DOCUMENT_ACTIONS.DELETE);
+    }, []);
+    const onClickView = useCallback(row => {
+      setSelectedDocument(row);
+      setDocumentAction(DOCUMENT_ACTIONS.VIEW);
+    }, []);
     const onDownload = useCallback(
       async row => {
         // Modal error will be set and shouldn't continue download
@@ -117,13 +138,18 @@ export const DocumentsTable = React.memo(
           key: 'actions',
           title: 'Actions',
           accessor: row => (
-            <ActionDropdown row={row} onDownload={onDownload} onClickDelete={onClickDelete} />
+            <ActionDropdown
+              row={row}
+              onDownload={onDownload}
+              onClickDelete={onClickDelete}
+              onClickView={onClickView}
+            />
           ),
           dontCallRowInput: true,
           sortable: false,
         },
       ],
-      [onDownload, onClickDelete],
+      [onDownload, onClickDelete, onClickView],
     );
 
     return (
@@ -138,13 +164,19 @@ export const DocumentsTable = React.memo(
           elevated={elevated}
         />
         <ConfirmModal
-          open={selectedDocumentId !== null}
+          open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.DELETE}
           title="Delete document"
           text="WARNING: This action is irreversible!"
           subText="Are you sure you want to delete this document?"
           onConfirm={onConfirmDelete}
           onCancel={onClose}
           ConfirmButton={DeleteButton}
+        />
+        <DocumentPreviewModal
+          open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.VIEW}
+          title={selectedDocument?.name}
+          attachmentId={selectedDocument?.attachmentId}
+          onClose={onClose}
         />
       </>
     );
