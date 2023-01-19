@@ -76,7 +76,7 @@ export const login = ({ secret, refreshSecret }) =>
     await store.models.RefreshToken.upsert(
       {
         refreshId: hashedRefreshId,
-        expiresAt: exp,
+        expiresAt: new Date(exp * 1000),
         userId: user.id,
         deviceId,
       },
