@@ -78,7 +78,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const newRefreshToken = getToken(
       {
         userId: user.id,
-        newRefreshId,
+        refreshId: newRefreshId,
       },
       refreshSecret,
       {
