@@ -88,7 +88,7 @@ export const refresh = ({ secret, refreshSecret }) =>
       },
     );
     // Extract expiry as set by jwt.sign
-    const { exp } = jwt.decode(refreshToken);
+    const { exp } = jwt.decode(newRefreshToken);
 
     await store.models.RefreshToken.upsert(
       {
