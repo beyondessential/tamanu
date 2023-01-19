@@ -55,9 +55,9 @@ export const login = ({ secret, refreshSecret }) =>
     );
 
     const refreshId = await getRandomBase64String(refreshIdLength);
+    const refreshTokenJwtId = await getRandomU32();
     const hashedRefreshId = await bcrypt.hash(refreshId, saltRounds);
 
-    const refreshTokenJwtId = await getRandomU32();
     const refreshToken = getToken(
       {
         userId: user.id,
