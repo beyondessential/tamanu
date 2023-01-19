@@ -61,15 +61,14 @@ export const refresh = ({ secret, refreshSecret }) =>
       {
         userId: user.id,
         issuer: canonicalHostName,
-        jwtid: accessTokenJwtId,
         audience: clientId,
+        jwtid: accessTokenJwtId,
       },
       secret,
       tokenDuration,
     );
 
     // rotate refresh token
-
     const newRefreshId = await getRandomBase64String(refreshIdLength);
     const refreshTokenJwtId = await getRandomU32();
     const hashedRefreshId = await bcrypt.hash(newRefreshId, saltRounds);

@@ -10,6 +10,9 @@ export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
 
+    const { canonicalHostName, auth } = config;
+    const { allowDummyToken } = auth;
+
     // get token
     const { authorization } = headers;
     if (!authorization) {
@@ -22,15 +25,17 @@ export const userMiddleware = ({ secret }) =>
       throw new BadAuthenticationError('Only Bearer token is supported');
     }
 
-    if (config.auth.allowDummyToken && token === FAKE_TOKEN) {
+    if (allowDummyToken && token === FAKE_TOKEN) {
       req.user = await findUser(store.models, config.auth.initialUser.email);
       next();
       return;
     }
 
+    const clientId = req.header('X-Tamanu-Client');
+
     let contents = null;
     try {
-      contents = verifyToken(token, secret);
+      contents = verifyToken(token, secret, { issuer: canonicalHostName, audience: clientId });
     } catch (e) {
       throw new BadAuthenticationError('Invalid token');
     }

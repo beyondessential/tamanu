@@ -27,7 +27,7 @@ export const getRandomU32 = async () => {
   });
 };
 
-export const verifyToken = (token, secret) => jwt.verify(token, secret);
+export const verifyToken = (token, secret, options) => jwt.verify(token, secret, options);
 
 export const findUser = async (models, email) => {
   const user = await models.User.scope('withPassword').findOne({
