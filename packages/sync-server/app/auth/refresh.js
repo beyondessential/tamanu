@@ -60,12 +60,14 @@ export const refresh = ({ secret, refreshSecret }) =>
     const token = getToken(
       {
         userId: user.id,
-        issuer: canonicalHostName,
-        audience: clientId,
-        jwtid: accessTokenJwtId,
       },
       secret,
-      tokenDuration,
+      {
+        expiresIn: tokenDuration,
+        audience: clientId,
+        issuer: canonicalHostName,
+        jwtid: accessTokenJwtId,
+      },
     );
 
     // rotate refresh token
@@ -77,14 +79,15 @@ export const refresh = ({ secret, refreshSecret }) =>
       {
         userId: user.id,
         newRefreshId,
-        issuer: canonicalHostName,
-        audience: clientId,
-        jwtid: refreshTokenJwtId,
       },
       refreshSecret,
-      refreshTokenDuration,
+      {
+        expiresIn: refreshTokenDuration,
+        audience: clientId,
+        issuer: canonicalHostName,
+        jwtid: refreshTokenJwtId,
+      },
     );
-
     // Extract expiry as set by jwt.sign
     const { exp } = jwt.decode(refreshToken);
 

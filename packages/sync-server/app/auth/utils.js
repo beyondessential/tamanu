@@ -7,7 +7,7 @@ export const stripUser = user => {
   return userData;
 };
 
-export const getToken = (data, secret, expiry) => jwt.sign(data, secret, { expiresIn: expiry });
+export const getToken = (data, secret, options) => jwt.sign(data, secret, options);
 
 export const getRandomBase64String = async length => {
   return new Promise((resolve, reject) => {

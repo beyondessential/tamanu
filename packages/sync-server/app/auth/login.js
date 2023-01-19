@@ -46,12 +46,14 @@ export const login = ({ secret, refreshSecret }) =>
     const token = getToken(
       {
         userId: user.id,
-        issuer: canonicalHostName,
-        jwtid: accessTokenJwtId,
-        audience: clientId,
       },
       secret,
-      tokenDuration,
+      {
+        expiresIn: tokenDuration,
+        audience: clientId,
+        issuer: canonicalHostName,
+        jwtid: accessTokenJwtId,
+      },
     );
 
     const refreshId = await getRandomBase64String(refreshIdLength);
@@ -62,12 +64,14 @@ export const login = ({ secret, refreshSecret }) =>
       {
         userId: user.id,
         refreshId,
-        issuer: canonicalHostName,
-        audience: clientId,
-        jwtid: refreshTokenJwtId,
       },
       refreshSecret,
-      refreshTokenDuration,
+      {
+        expiresIn: refreshTokenDuration,
+        audience: clientId,
+        issuer: canonicalHostName,
+        jwtid: refreshTokenJwtId,
+      },
     );
 
     // Extract expiry as set by jwt.sign
