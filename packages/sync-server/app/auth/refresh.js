@@ -31,7 +31,6 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     const { userId, refreshId } = contents;
 
-    // Do we need to do this - i guess it gives us assurance that user exists
     const user = await findUserById(store.models, userId);
 
     const dbEntry = await store.models.RefreshToken.findOne({
