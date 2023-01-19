@@ -20,7 +20,7 @@ export async function down(query) {
   await query.addColumn('patient_additional_data', 'id', {
     type: Sequelize.TEXT,
     allowNull: false,
-    defaultValue: Sequelize.fn('uuid_generate_v4')
+    defaultValue: Sequelize.fn('uuid_generate_v4'),
   });
   await query.sequelize.query(`
     ALTER TABLE patient_additional_data DROP CONSTRAINT patient_additional_data_pkey;
