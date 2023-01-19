@@ -1,9 +1,28 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { ISurveyResponseAnswer, ValidationCriteria } from '~/types';
 
-export const VitalsTableCell = ({ data }: PropsWithChildren<any>): JSX.Element => {
+interface VitalsTableCellProps {
+  data?: ISurveyResponseAnswer;
+  validationCriteria: ValidationCriteria
+}
+
+const checkNeedsAttention = (
+  value: string,
+  validationCriteria: ValidationCriteria = {},
+) : boolean => {
+  const { normalRange } = validationCriteria;
+  const fValue = parseFloat(value);
+  if (!normalRange || Number.isNaN(fValue)) return false;
+  return fValue > normalRange.max || fValue < normalRange.min;
+};
+
+export const VitalsTableCell = ({
+  data,
+  validationCriteria = {},
+}: VitalsTableCellProps) : JSX.Element => {
   const cellValue = data?.body || '';
   return (
     <StyledView
@@ -19,7 +38,8 @@ export const VitalsTableCell = ({ data }: PropsWithChildren<any>): JSX.Element =
         color={theme.colors.TEXT_DARK}
         textAlign="center"
       >
-        {cellValue}
+        {cellValue}{checkNeedsAttention(cellValue, validationCriteria)
+        && <StyledText color={theme.colors.ALERT}>*</StyledText>}
       </StyledText>
     </StyledView>
   );

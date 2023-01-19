@@ -19,6 +19,13 @@ export enum SurveyTypes {
   Vitals = 'vitals',
 }
 
+export type ValidationCriteria = {
+  min?: number;
+  max?: number;
+  mandatory?: boolean;
+  normalRange?: { min: number; max: number };
+}
+
 export interface ISurveyScreenComponent {
   id: ID;
 
@@ -41,6 +48,7 @@ export interface ISurveyScreenComponent {
   source?: string;
 
   getConfigObject();
+  getValidationCriteriaObject: () => ValidationCriteria;
   getOptions();
 }
 

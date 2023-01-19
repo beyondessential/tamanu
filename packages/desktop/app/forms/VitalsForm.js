@@ -7,7 +7,7 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
-import { getValidationSchema } from '../utils';
+import { getFormInitialValues, getValidationSchema } from '../utils';
 import { ForbiddenError } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
 
@@ -22,7 +22,7 @@ const ErrorMessage = () => {
   );
 };
 
-export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject }) => {
+export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurvey();
   const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
 
@@ -51,7 +51,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-        ...editedObject,
+        ...getFormInitialValues(vitalsSurvey.components, patient),
       }}
       validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};
@@ -63,12 +63,14 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
 
         return errors;
       }}
-      render={({ submitForm }) => {
+      render={({ submitForm, values, setFieldValue }) => {
         return (
           <SurveyScreen
             components={vitalsSurvey.components}
             patient={patient}
             cols={2}
+            values={values}
+            setFieldValue={setFieldValue}
             submitButton={
               <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
             }
@@ -83,9 +85,4 @@ VitalsForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
-  editedObject: PropTypes.shape({}),
-};
-
-VitalsForm.defaultProps = {
-  editedObject: null,
 };

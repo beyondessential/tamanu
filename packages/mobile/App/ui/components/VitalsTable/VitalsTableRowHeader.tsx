@@ -3,11 +3,11 @@ import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-interface Props {
+interface VitalsTableRowHeaderProps {
   title: string;
 }
 
-export const VitalsTableRowHeader: React.FC<Props> = ({ title }) => (
+export const VitalsTableRowHeader = ({ title }: VitalsTableRowHeaderProps) : JSX.Element => (
   <StyledView
     width={screenPercentageToDP(31.63, Orientation.Width)}
     borderRightWidth={1}
