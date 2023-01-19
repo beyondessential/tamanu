@@ -4,7 +4,9 @@
   },
   "auth": {
     "secret": "secret",
-    "refreshSecret": "refreshSecret",
+    "refreshToken": {
+      "secret": "refreshSecret"
+    },
     "reportNoUserError": true,
     "useHardcodedPermissions": false
   },
