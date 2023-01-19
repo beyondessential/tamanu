@@ -35,7 +35,6 @@ export interface SyncRecordData {
 
 export interface LoginResponse {
   token: string;
-  expiresAt: number;
   refreshToken: string;
   user: IUser;
   localisation: object;

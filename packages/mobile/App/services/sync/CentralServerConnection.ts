@@ -22,8 +22,6 @@ export class CentralServerConnection {
   deviceId: string;
 
   token: string | null;
-  expiresAt: number | null;
-
   refreshToken: string | null;
 
   emitter = mitt();
@@ -40,11 +38,6 @@ export class CentralServerConnection {
   ) {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
-    }
-
-    if (this.token && this.expiresAt < Date.now()) {
-      this.clearToken();
-      await this.refresh();
     }
 
     const queryString = Object.entries(query)
@@ -177,14 +170,12 @@ export class CentralServerConnection {
     );
   }
 
-  setToken(token: string, expiresAt: number): void {
+  setToken(token: string): void {
     this.token = token;
-    this.expiresAt = expiresAt;
   }
 
   clearToken(): void {
     this.token = null;
-    this.expiresAt = null;
   }
 
   setRefreshToken(refreshToken: string): void {
@@ -204,14 +195,14 @@ export class CentralServerConnection {
   }
 
   async refresh(): Promise<void> {
-    const data = await this.post('refresh', {}, { refreshToken: this.refreshToken });
+    const data = await this.post('refresh', {}, { refreshToken: this.refreshToken, deviceId: this.deviceId });
     if (!data.token || !data.refreshToken) {
       // auth failed in some other regard
       console.warn('Auth failed with an inexplicable error', data);
       throw new AuthenticationError(generalErrorMessage);
     }
     this.setRefreshToken(data.refreshToken);
-    this.setToken(data.token, data.expiresAt);
+    this.setToken(data.token);
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
