@@ -52,7 +52,7 @@ export const login = ({ secret, refreshSecret }) =>
         expiresIn: tokenDuration,
         audience: clientId,
         issuer: canonicalHostName,
-        jwtid: accessTokenJwtId,
+        jwtid: `${accessTokenJwtId}`,
       },
     );
 
@@ -70,7 +70,7 @@ export const login = ({ secret, refreshSecret }) =>
         expiresIn: refreshTokenDuration,
         audience: clientId,
         issuer: canonicalHostName,
-        jwtid: refreshTokenJwtId,
+        jwtid: `${refreshTokenJwtId}`,
       },
     );
 

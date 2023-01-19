@@ -66,7 +66,7 @@ export const refresh = ({ secret, refreshSecret }) =>
         expiresIn: tokenDuration,
         audience: clientId,
         issuer: canonicalHostName,
-        jwtid: accessTokenJwtId,
+        jwtid: `${accessTokenJwtId}`,
       },
     );
 
@@ -85,7 +85,7 @@ export const refresh = ({ secret, refreshSecret }) =>
         expiresIn: refreshTokenDuration,
         audience: clientId,
         issuer: canonicalHostName,
-        jwtid: refreshTokenJwtId,
+        jwtid: `${refreshTokenJwtId}`,
       },
     );
     // Extract expiry as set by jwt.sign
