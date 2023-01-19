@@ -251,7 +251,8 @@ export class TamanuApi {
     }
     const message = error?.message || response.status;
     if (showUnknownErrorToast && isErrorUnknown(error, response)) {
-      notifyError(['Network request failed', `Path: ${path}`, `Message: ${message}`]);
+      // disabled for v1.24.0 release but should be re-enabled on dev
+      // notifyError(['Network request failed', `Path: ${path}`, `Message: ${message}`]);
     }
     throw new Error(`Facility server error response: ${message}`);
   }
