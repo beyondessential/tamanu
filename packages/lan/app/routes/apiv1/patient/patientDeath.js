@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from 'shared/errors';
+import { InvalidOperationError, NotFoundError } from 'shared/errors';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import * as yup from 'yup';
 
 export const patientDeath = express.Router();
@@ -271,6 +272,45 @@ patientDeath.post(
           await encounter.dischargeWithDischarger(doc, body.timeOfDeath);
         }
       }
+    });
+
+    res.send({
+      data: {},
+    });
+  }),
+);
+
+patientDeath.post(
+  '/:id/revertDeath',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Patient');
+    req.checkPermission('create', 'PatientDeath');
+
+    const {
+      db,
+      models: { Patient, PatientDeathData, DeathRevertLog },
+      params: { id: patientId },
+    } = req;
+
+    const patient = await Patient.findByPk(patientId);
+    if (!patient) throw new NotFoundError('Patient not found');
+
+    const deathData = await PatientDeathData.findOne({
+      where: { patientId: patient.id },
+    });
+    if (!deathData) throw new NotFoundError('Death data not found');
+    if (deathData.isFinal)
+      throw new InvalidOperationError('Death data is final and cannot be reverted.');
+
+    await transactionOnPostgres(db, async () => {
+      await DeathRevertLog.create({
+        revertTime: getCurrentDateTimeString(),
+        deathDataId: deathData.id,
+        patientId,
+        revertedById: req.user.id,
+      });
+      await patient.update({ dateOfDeath: null });
+      await deathData.destroy();
     });
 
     res.send({
