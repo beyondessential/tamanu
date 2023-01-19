@@ -19,7 +19,7 @@ const TypographyLink = styled(Typography)`
   cursor: pointer;
 `;
 
-export const RecordDeathSection = memo(({ patient, openModal }) => {
+export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
@@ -42,7 +42,7 @@ export const RecordDeathSection = memo(({ patient, openModal }) => {
 
   return (
     <>
-      <TypographyLink onClick={isPatientDead ? openRevertModal : openModal}>
+      <TypographyLink onClick={isPatientDead ? openRevertModal : openDeathModal}>
         {actionText}
       </TypographyLink>
       <ConfirmModal

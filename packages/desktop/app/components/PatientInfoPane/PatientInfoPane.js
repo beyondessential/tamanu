@@ -168,7 +168,9 @@ export const PatientInfoPane = () => {
           <PrintSection patient={patient} readonly={readonly} />
         </Buttons>
         <Box mt={12} />
-        {showRecordDeathActions && <RecordDeathSection patient={patient} openModal={openModal} />}
+        {showRecordDeathActions && (
+          <RecordDeathSection patient={patient} openDeathModal={openModal} />
+        )}
       </ListsSection>
       {patientDeathsEnabled && (
         <DeathModal open={isModalOpen} onClose={closeModal} deathData={deathData} />
