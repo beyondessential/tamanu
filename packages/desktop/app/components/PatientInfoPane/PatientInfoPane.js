@@ -111,6 +111,8 @@ const CauseOfDeathButton = memo(({ openModal }) => {
 const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   position: relative;
   background: ${Colors.white};
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
@@ -119,6 +121,9 @@ const Container = styled.div`
 `;
 
 const ListsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
   padding: 5px 25px 25px 25px;
 `;
 
@@ -167,7 +172,6 @@ export const PatientInfoPane = () => {
           {showCauseOfDeathButton && <CauseOfDeathButton openModal={openModal} />}
           <PrintSection patient={patient} readonly={readonly} />
         </Buttons>
-        <Box mt={12} />
         {showRecordDeathActions && (
           <RecordDeathSection patient={patient} openDeathModal={openModal} />
         )}
