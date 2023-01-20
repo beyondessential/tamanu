@@ -70,6 +70,37 @@ describe('Programs import', () => {
     });
   });
 
+  it('should delete survey questions', async () => {
+    const { Survey } = ctx.store.models;
+    
+    const getComponents = async () => {
+      const survey = await Survey.findByPk('program-testprogram-deletion');
+      expect(survey).toBeTruthy();
+      return await survey.getComponents(); 
+    };
+
+    {
+      const { errors, stats } = await doImport({ file: 'deleteQuestions' });
+      expect(errors).toBeEmpty();
+    }
+
+    // find imported ssc
+    const componentsBefore = await getComponents();
+    expect(componentsBefore).toHaveLength(3);
+
+    {
+      const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
+      expect(errors).toBeEmpty();
+    }
+
+    const componentsAfter = await getComponents();
+    // of the three in the import doc:
+    //  - one is not deleted
+    //  - one is set to visibilityStatus = 'deleted'
+    //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
+    expect(componentsAfter).toHaveLength(1);  
+  });
+
   it('should not write anything for a dry run', async () => {
     const { ProgramDataElement } = ctx.store.models;
     const beforeCount = await ProgramDataElement.count();
