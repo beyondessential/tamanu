@@ -232,7 +232,7 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (response.status === 401 && this.onAuthFailure) {
+    if (response.status === 401 && endpoint !== 'login' && this.onAuthFailure) {
       clearLocalStorage();
       const message = 'Your session has expired. Please log in again.';
       this.onAuthFailure(message);
@@ -251,7 +251,8 @@ export class TamanuApi {
     }
     const message = error?.message || response.status;
     if (showUnknownErrorToast && isErrorUnknown(error, response)) {
-      notifyError(['Network request failed', `Path: ${path}`, `Message: ${message}`]);
+      // disabled for v1.24.0 release but should be re-enabled on dev
+      // notifyError(['Network request failed', `Path: ${path}`, `Message: ${message}`]);
     }
     throw new Error(`Facility server error response: ${message}`);
   }

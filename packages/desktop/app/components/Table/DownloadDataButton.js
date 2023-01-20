@@ -24,17 +24,19 @@ function getHeaderValue(column) {
 
 export function DownloadDataButton({ exportName, columns, data }) {
   const { showSaveDialog, openPath } = useElectron();
-  const columnsWithOverrides = columns.map(c => {
-    const { exportOverrides = {}, ...rest } = c;
-    return { ...rest, ...exportOverrides };
-  });
+  const exportableColumnsWithOverrides = columns
+    .filter(c => c.isExportable !== false)
+    .map(c => {
+      const { exportOverrides = {}, ...rest } = c;
+      return { ...rest, ...exportOverrides };
+    });
   const onDownloadData = async () => {
-    const header = columnsWithOverrides.map(getHeaderValue);
+    const header = exportableColumnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
         const dx = {};
         await Promise.all(
-          columnsWithOverrides.map(async c => {
+          exportableColumnsWithOverrides.map(async c => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
               const value = await c.asyncExportAccessor(d);
