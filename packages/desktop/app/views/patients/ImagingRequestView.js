@@ -181,7 +181,11 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="newResultDate" saveDateAsString component={DateTimeField} />
+        <Field
+          name="newResultDate"
+          saveDateAsString
+          component={DateTimeField}
+        />
         <Field
           name="newResultDescription"
           placeholder="Result description..."
