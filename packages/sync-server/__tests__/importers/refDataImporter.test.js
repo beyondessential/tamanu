@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
@@ -238,6 +239,10 @@ describe('Permissions import', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
+  beforeEach(async () => {
+    const { Permission } = ctx.store.models;
+    await Permission.destroy({ where: {} });
+  });
   afterAll(async () => {
     await ctx.close();
   });
@@ -261,6 +266,14 @@ describe('Permissions import', () => {
       Role: { created: 3, updated: 0, errored: 0 },
       Permission: { created: 35, updated: 0, errored: 0 },
     });
+  });
+
+  it('should properly import rows with object ID', async () => {
+    const { Permission } = ctx.store.models;
+    await doImport({ file: 'valid' });
+
+    const permissionsCount = await Permission.count({ where: { objectId: { [Op.ne]: null } } });
+    expect(permissionsCount).toEqual(6);
   });
 
   it('should not write anything for a dry run', async () => {
