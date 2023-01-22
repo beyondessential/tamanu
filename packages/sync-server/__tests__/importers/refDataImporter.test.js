@@ -259,7 +259,7 @@ describe('Permissions import', () => {
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
       Role: { created: 3, updated: 0, errored: 0 },
-      Permission: { created: 29, updated: 0, errored: 0 },
+      Permission: { created: 35, updated: 0, errored: 0 },
     });
   });
 
