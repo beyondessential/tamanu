@@ -9,10 +9,10 @@ export class PatientAdditionalData extends Model {
     super.init(
       {
         id: {
+          // patient additional data records use a patient_id as the primary key, acting as a
+          // db-level enforcement of one per patient, and simplifying sync
           type: `TEXT GENERATED ALWAYS AS ("patient_id")`,
           set() {
-            // patient additional data records use a patient_id as the primary key, acting as a
-            // db-level enforcement of one per patient, and simplifying sync
             // any sets of the convenience generated "id" field can be ignored, so do nothing here
           },
         },

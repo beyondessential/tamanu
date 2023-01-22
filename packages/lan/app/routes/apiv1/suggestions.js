@@ -178,7 +178,7 @@ createSuggester(
   },
   async location => {
     const availability = await location.getAvailability();
-    const { name, code, id, maxOccupancy } = location;
+    const { name, code, id, maxOccupancy, facilityId } = location;
 
     const lg = await location.getLocationGroup();
     const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
@@ -188,6 +188,7 @@ createSuggester(
       maxOccupancy,
       id,
       availability,
+      facilityId,
       ...(locationGroup && { locationGroup }),
     };
   },
@@ -197,6 +198,11 @@ createSuggester(
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
+
+// Location groups filtered by facility. Used in the survey form autocomplete
+createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
+  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+);
 
 createSuggester(
   'survey',

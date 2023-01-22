@@ -13,6 +13,7 @@ import {
   AutocompleteField,
   TextField,
   FormGroup,
+  LocationField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -31,7 +32,6 @@ export const ProcedureForm = React.memo(
     editedObject,
     anaestheticSuggester,
     procedureSuggester,
-    locationSuggester,
     practitionerSuggester,
   }) => (
     <Form
@@ -41,7 +41,7 @@ export const ProcedureForm = React.memo(
         const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
-          return 'Create';
+          return 'Submit';
         };
 
         const isCompleted = !!values.completed;
@@ -61,11 +61,11 @@ export const ProcedureForm = React.memo(
                 </div>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
-                    name="locationId"
-                    label="Procedure location"
+                    name="physicianId"
+                    label="Clinician"
                     required
                     component={AutocompleteField}
-                    suggester={locationSuggester}
+                    suggester={practitionerSuggester}
                   />
                   <Field
                     name="date"
@@ -73,6 +73,14 @@ export const ProcedureForm = React.memo(
                     saveDateAsString
                     required
                     component={DateField}
+                  />
+                  <Field
+                    locationGroupLabel="Procedure area"
+                    label="Procedure location"
+                    name="locationId"
+                    enableLocationStatus={false}
+                    required
+                    component={LocationField}
                   />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
@@ -84,19 +92,7 @@ export const ProcedureForm = React.memo(
                   />
                   <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
                 </FormGrid>
-                <Field
-                  name="physicianId"
-                  label="Physician"
-                  required
-                  component={AutocompleteField}
-                  suggester={practitionerSuggester}
-                />
-                <Field
-                  name="assistantId"
-                  label="Assistant"
-                  component={AutocompleteField}
-                  suggester={practitionerSuggester}
-                />
+
                 <Field
                   name="anaesthetistId"
                   label="Anaesthetist"
@@ -110,6 +106,12 @@ export const ProcedureForm = React.memo(
                   suggester={anaestheticSuggester}
                   rows={4}
                   style={{ gridColumn: 'span 2' }}
+                />
+                <Field
+                  name="assistantId"
+                  label="Assistant"
+                  component={AutocompleteField}
+                  suggester={practitionerSuggester}
                 />
                 <Field
                   name="note"
@@ -152,7 +154,7 @@ export const ProcedureForm = React.memo(
         date: yup.date().required(),
         startTime: yup.date(),
         endTime: yup.date(),
-        physicianId: foreignKey('Physician must be selected'),
+        physicianId: foreignKey('Clinician must be selected'),
         assistantId: optionalForeignKey(),
         anaesthetistId: optionalForeignKey(),
         anaestheticId: optionalForeignKey(),

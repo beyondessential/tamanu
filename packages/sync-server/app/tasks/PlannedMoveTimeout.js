@@ -90,7 +90,5 @@ export class PlannedMoveTimeout extends ScheduledTask {
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
-
-    log.info('PlannedMoveTimeout finished running');
   }
 }

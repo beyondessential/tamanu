@@ -174,7 +174,7 @@ const Loader = styled(Box)`
 export const ModalLoader = ({ loadingText }) => (
   <Loader>
     <CircularProgress size="5rem" />
-    <Typography>{loadingText}</Typography>
+    {loadingText && <Typography>{loadingText}</Typography>}
   </Loader>
 );
 

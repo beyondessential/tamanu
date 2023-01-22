@@ -5,6 +5,7 @@ import { buildAbilityForUser } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { ForbiddenError } from 'shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import { notifyError } from '../utils';
 
 const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS } = LOCAL_STORAGE_KEYS;
 
@@ -81,6 +82,20 @@ function clearLocalStorage() {
   localStorage.removeItem(LOCALISATION);
   localStorage.removeItem(SERVER);
   localStorage.removeItem(PERMISSIONS);
+}
+
+export function isErrorUnknownDefault(error, response) {
+  if (!response || typeof response.status !== 'number') {
+    return true;
+  }
+  return response.status >= 400;
+}
+
+export function isErrorUnknownAllow404s(error, response) {
+  if (response?.status === 404) {
+    return false;
+  }
+  return isErrorUnknownDefault(error, response);
 }
 
 export class TamanuApi {
@@ -177,9 +192,16 @@ export class TamanuApi {
     if (!this.host) {
       throw new Error("TamanuApi can't be used until the host is set");
     }
-    const { headers, returnResponse = false, ...otherConfig } = config;
+    const {
+      headers,
+      returnResponse = false,
+      showUnknownErrorToast = false,
+      isErrorUnknown = isErrorUnknownDefault,
+      ...otherConfig
+    } = config;
     const queryString = qs.stringify(query || {});
-    const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
+    const path = `${endpoint}${query ? `?${queryString}` : ''}`;
+    const url = `${this.prefix}/${path}`;
     const response = await fetchOrThrowIfUnavailable(url, {
       headers: {
         ...this.authHeader,
@@ -210,9 +232,11 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (response.status === 401 && this.onAuthFailure) {
+    if (response.status === 401 && endpoint !== 'login' && this.onAuthFailure) {
       clearLocalStorage();
-      this.onAuthFailure('Your session has expired. Please log in again.');
+      const message = 'Your session has expired. Please log in again.';
+      this.onAuthFailure(message);
+      throw new Error(message);
     }
 
     // handle version incompatibility
@@ -226,11 +250,15 @@ export class TamanuApi {
       }
     }
     const message = error?.message || response.status;
+    if (showUnknownErrorToast && isErrorUnknown(error, response)) {
+      // disabled for v1.24.0 release but should be re-enabled on dev
+      // notifyError(['Network request failed', `Path: ${path}`, `Message: ${message}`]);
+    }
     throw new Error(`Facility server error response: ${message}`);
   }
 
-  async get(endpoint, query, options = {}) {
-    return this.fetch(endpoint, query, { method: 'GET', ...options });
+  async get(endpoint, query, { showUnknownErrorToast = true, ...options } = {}) {
+    return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
   }
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {

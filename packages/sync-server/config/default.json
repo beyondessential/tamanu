@@ -114,6 +114,10 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "patientMergeMaintainer": {
+      // once an hour at minute 12
+      "schedule": "12 * * * *"
+    },
     "certificateNotificationProcessor": {
       // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
@@ -574,6 +578,11 @@
         "locationGroupId": {
           "shortLabel": "Area",
           "longLabel": "Area"
+        },
+        "dischargeDisposition": {
+          "shortLabel": "Discharge disposition",
+          "longLabel": "Discharge disposition",
+          "hidden": true
         }
       },
       "features": {
@@ -584,7 +593,6 @@
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
-        "enableDischargeDisposition": false,
         "editDisplayId": false,
         "patientPlannedMove": false
       },
@@ -710,7 +718,9 @@
     "dataDictionaries": {
       "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
-      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
+      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
+      "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
+      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html"
     }
   },
   "s3": {},
@@ -719,6 +729,13 @@
     "diskPath": "C:/",
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 16
+    }
+  },
+  // Note: this config should be duplicated on the lan server if the same behavior is
+  // desired for "this facility" and "all facilities"
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": []
     }
   },
   "questionCodeIds": {

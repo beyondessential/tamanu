@@ -26,17 +26,30 @@ const NotesBox = styled(Box)`
   padding-top: 0.5rem;
   margin-bottom: 16px;
   border: 1px solid black;
-  height: 75px;
+  height: ${props => (props.$height ? props.$height : '75px')};
+  min-height: ${props => (props.$minHeight ? props.$minHeight : '150px')};
   text-overflow: ellipsis;
   overflow: hidden;
 `;
 
-export const NotesSection = ({ notes = [], title = 'Notes:', boldTitle }) => (
-  <>
-    <Text $boldTitle={boldTitle}>{title}</Text>
-    <NotesBox>{notes.map(note => note.content).join(' ')}</NotesBox>
-  </>
-);
+export const NotesSection = ({
+  notes = [],
+  title = 'Notes:',
+  height,
+  emptyMinHeight,
+  boldTitle,
+  separator = ' ',
+}) => {
+  const noteContentList = notes.map(note => note.content);
+  return (
+    <>
+      <Text $boldTitle={boldTitle}>{title}</Text>
+      <NotesBox $height={height} $minHeight={noteContentList.length ? '0px' : emptyMinHeight}>
+        {separator ? noteContentList.join(separator) : noteContentList}
+      </NotesBox>
+    </>
+  );
+};
 
 export const LocalisedLabel = ({ name, children, size }) => (
   <LocalisedCertificateLabel margin="9px" name={name} size={size}>

@@ -56,25 +56,28 @@ const columns = [
     key: 'medication',
     title: 'Medication',
     accessor: ({ medication }) => (medication || {}).name,
+    style: { width: '31.25%' },
   },
   {
     key: 'prescription',
     title: 'Instructions',
+    style: { width: '31.25%' },
   },
   {
     key: 'route',
     title: 'Route',
     accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
+    style: { width: '12.5%' },
   },
   {
     key: 'quantity',
     title: 'Quantity',
-    style: { textAlign: 'center' },
+    style: { textAlign: 'center', width: '12.5%' },
   },
   {
     key: 'repeats',
     title: 'Repeats',
-    style: { textAlign: 'center' },
+    style: { textAlign: 'center', width: '12.5%' },
   },
 ];
 
@@ -114,11 +117,7 @@ export const MultiplePrescriptionPrintout = React.memo(
           </StyledDiv>
         </RowContainer>
 
-        <ListTable
-          data={prescriptions}
-          columns={columns}
-          gridTemplateColumns="5fr 5fr 2fr 2fr 2fr"
-        />
+        <ListTable data={prescriptions} columns={columns} />
         <StyledNotesSectionWrapper>
           <NotesSection title="Notes" boldTitle />
         </StyledNotesSectionWrapper>

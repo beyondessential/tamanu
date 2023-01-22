@@ -81,15 +81,10 @@ patientRelations.get(
           d.id AS "definitionId",
           v.value
         FROM patient_field_definitions d
-        LEFT JOIN LATERAL (
-          SELECT value
-          FROM patient_field_values v
-          WHERE v.definition_id = d.id
-            AND v.patient_id = :patientId
-          -- TODO: order by logical clock
-          ORDER BY updated_at DESC LIMIT 1
-        ) v ON true
-        WHERE d.visibility_status NOT IN (:hiddenStatuses);
+        JOIN patient_field_values v
+        ON v.definition_id = d.id
+        WHERE v.patient_id = :patientId
+        AND d.visibility_status NOT IN (:hiddenStatuses);
       `,
       {
         replacements: {
@@ -136,7 +131,7 @@ patientRelations.get(
             include: [
               [
                 Sequelize.literal(
-                  `COALESCE((SELECT 
+                  `COALESCE((SELECT
                     sra.body
                   FROM survey_response_answers sra
                    LEFT JOIN program_data_elements pde ON sra.data_element_id = pde.id

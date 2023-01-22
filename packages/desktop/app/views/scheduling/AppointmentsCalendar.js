@@ -5,7 +5,7 @@ import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
-import { toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
@@ -14,7 +14,7 @@ import { Button } from '../../components/Button';
 import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
-import { useApi, useLocationGroupSuggester } from '../../api';
+import { useApi, useSuggester } from '../../api';
 
 const LeftContainer = styled.div`
   min-height: 100vh;
@@ -74,7 +74,7 @@ const TodayButton = styled(Button)`
 
 export const AppointmentsCalendar = () => {
   const api = useApi();
-  const locationGroupSuggester = useLocationGroupSuggester();
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   const [date, setDate] = useState(new Date());
   const [filterValue, setFilterValue] = useState('');

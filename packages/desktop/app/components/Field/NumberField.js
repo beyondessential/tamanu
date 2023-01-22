@@ -26,5 +26,5 @@ NumberInput.propTypes = {
 
 NumberInput.defaultProps = {
   name: null,
-  value: 0,
+  value: null,
 };
