@@ -2,26 +2,16 @@ import React from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { ISurveyResponseAnswer, ValidationCriteria } from '~/types';
+import { ISurveyResponseAnswer } from '~/types';
 
 interface VitalsTableCellProps {
   data?: ISurveyResponseAnswer;
-  validationCriteria: ValidationCriteria
+  needsAttention: boolean,
 }
-
-const checkNeedsAttention = (
-  value: string,
-  validationCriteria: ValidationCriteria = {},
-) : boolean => {
-  const { normalRange } = validationCriteria;
-  const fValue = parseFloat(value);
-  if (!normalRange || Number.isNaN(fValue)) return false;
-  return fValue > normalRange.max || fValue < normalRange.min;
-};
 
 export const VitalsTableCell = ({
   data,
-  validationCriteria = {},
+  needsAttention,
 }: VitalsTableCellProps) : JSX.Element => {
   const cellValue = data?.body || '';
   return (
@@ -38,7 +28,7 @@ export const VitalsTableCell = ({
         color={theme.colors.TEXT_DARK}
         textAlign="center"
       >
-        {cellValue}{checkNeedsAttention(cellValue, validationCriteria)
+        {cellValue}{needsAttention
         && <StyledText color={theme.colors.ALERT}>*</StyledText>}
       </StyledText>
     </StyledView>
