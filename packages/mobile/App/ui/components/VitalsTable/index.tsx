@@ -21,14 +21,14 @@ interface VitalsTableProps {
 const checkNeedsAttention = (
   value: string,
   validationCriteria: ValidationCriteria = {},
-) : boolean => {
+): boolean => {
   const { normalRange } = validationCriteria;
   const fValue = parseFloat(value);
   if (!normalRange || Number.isNaN(fValue)) return false;
   return fValue > normalRange.max || fValue < normalRange.min;
 };
 
-export const VitalsTable = memo(({ data, columns }: VitalsTableProps) : JSX.Element => {
+export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Element => {
   const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
   const [showNeedsAttentionInfo, setShowNeedsAttentionInfo] = useState(false);
 
@@ -46,7 +46,7 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps) : JSX.Elem
   );
 
   return (
-    <>
+    <StyledView height="100%" background={theme.colors.BACKGROUND_GREY}>
       <Table
         Title={VitalsTableTitle}
         tableHeader={vitalsTableHeader}
@@ -55,8 +55,13 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps) : JSX.Elem
           return {
             rowKey: 'dataElementId',
             rowTitle: r.dataElementId,
-            rowHeader: () => <VitalsTableRowHeader title={r.dataElement.name} />,
-            cell: (cellData): JSX.Element => {
+            rowHeader: (i) => (
+              <VitalsTableRowHeader
+                title={r.dataElement.name}
+                isOdd={i % 2 === 0}
+              />
+            ),
+            cell: (cellData, i): JSX.Element => {
               const needsAttention = checkNeedsAttention(cellData?.body || '', rowValidationCriteria);
               if (needsAttention && !showNeedsAttentionInfo) setShowNeedsAttentionInfo(true);
               return (
@@ -64,6 +69,7 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps) : JSX.Elem
                   data={cellData}
                   key={cellData?.id || r.id}
                   needsAttention={needsAttention}
+                  isOdd={i % 2 === 0}
                 />
               );
             },
@@ -74,9 +80,12 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps) : JSX.Elem
       />
       {showNeedsAttentionInfo && (
         <StyledView padding={10}>
-          <StyledText color={theme.colors.ALERT}>*Vital needs attention</StyledText>
+          <StyledText
+            fontWeight={500}
+            color={theme.colors.ALERT}>*Vital needs attention
+          </StyledText>
         </StyledView>
       )}
-    </>
+    </StyledView>
   );
 });
