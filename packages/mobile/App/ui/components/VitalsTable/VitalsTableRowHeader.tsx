@@ -20,7 +20,8 @@ export const VitalsTableRowHeader = ({ title, isOdd }: VitalsTableRowHeaderProps
   >
     <StyledText
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-      color={theme.colors.TEXT_SUPER_DARK}
+      color={theme.colors.TEXT_DARK}
+      fontWeight={500}
     >
       {title}
     </StyledText>

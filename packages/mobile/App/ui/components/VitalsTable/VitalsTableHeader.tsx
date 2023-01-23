@@ -15,9 +15,9 @@ export const vitalsTableHeader: TableHeader = {
       height={screenPercentageToDP(6.86, Orientation.Height)}
       justifyContent="center"
       alignItems="center"
-      borderColor={theme.colors.BOX_OUTLINE}
-      // borderBottomWidth={1}
       background={theme.colors.WHITE}
+      borderColor={theme.colors.BOX_OUTLINE}
+      borderBottomWidth={1}
     >
       <StyledText
         fontSize={screenPercentageToDP(1.45, Orientation.Height)}
