@@ -27,8 +27,8 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   // actually import the program to the database
   const { programId, programName } = programMetadata;
   stats.push(
-    await importRows(createContext('metadata'), {
-      sheetName: 'metadata',
+    await importRows(createContext('Metadata'), {
+      sheetName: 'Metadata',
       rows: [
         {
           model: 'Program',
@@ -79,7 +79,8 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   for (const survey of surveysToImport) {
     try {
       const context = createContext(survey.name);
-      const result = await importSurvey(context, createSurveyInfo, workbook, survey);
+      const surveyInfo = createSurveyInfo(survey);
+      const result = await importSurvey(context, workbook, surveyInfo);
       stats.push(result);
     } catch (e) {
       errors.push(e);

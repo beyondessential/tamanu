@@ -84,6 +84,8 @@ export function readMetadata(metadataSheet) {
   const programId = `program-${idify(metadata.programCode)}`;
 
   const createSurveyInfo = surveySheet => ({
+    ...surveySheet,
+    sheetName: surveySheet.name,
     id: `${programId}-${idify(surveySheet.code)}`,
     name: `${prefix}${surveySheet.name}`,
     programId,
