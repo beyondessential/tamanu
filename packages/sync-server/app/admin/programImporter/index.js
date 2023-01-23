@@ -5,7 +5,7 @@ import { Op } from 'sequelize';
 import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
 import { validateQuestions } from './validateQuestions';
 
-import { ValidationError } from '../errors';
+import { ImporterMetadataError, ValidationError } from '../errors';
 import { importRows } from '../importRows';
 
 import { idify } from './idify';
@@ -22,11 +22,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   log.debug('Checking for metadata sheet');
   const metadataSheet = workbook.Sheets.Metadata;
   if (!metadataSheet) {
-    throw new ValidationError(
-      'Metadata',
-      -2,
-      'A program workbook must have a sheet named Metadata',
-    );
+    throw new ImporterMetadataError('A program workbook must have a sheet named Metadata');
   }
 
   // The Metadata sheet follows this structure:
@@ -55,11 +51,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     }
 
     // we've exhausted the search
-    throw new ValidationError(
-      'Metadata',
-      0,
-      "A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell in the first 10 rows",
-    );
+    throw new ImporterMetadataError("A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell in the first 10 rows");
   })();
 
   log.debug('Check where we are importing');
@@ -73,22 +65,18 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
 
   if (!importingToHome) {
     if (!host.match(/(localhost|dev|demo|staging)/)) {
-      throw new ValidationError(
-        'Metadata',
-        headerRow,
-        `This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`,
-      );
+      throw new ImporterMetadataError(`This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`);
     }
   }
 
   log.debug('Check code/name presence');
 
   if (!programMetadata.programCode) {
-    throw new ValidationError('Metadata', headerRow, 'A program must have a code');
+    throw new ImporterMetadataError('A program must have a code');
   }
 
   if (!programMetadata.programName) {
-    throw new ValidationError('Metadata', headerRow, 'A program must have a name');
+    throw new ImporterMetadataError('A program must have a name');
   }
 
   // Use a country prefix (eg "(Samoa)" if we're importing to a server other
@@ -191,7 +179,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       });
       if (vitalsCount > 0) {
         errors.push(
-          new ValidationError(sheetName, -2, 'Only one vitals survey may exist at a time'),
+          new ImporterMetadataError('Only one vitals survey may exist at a time'),
         );
         continue;
       }
@@ -203,11 +191,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     if (!worksheet) {
       const keys = Object.keys(workbook.Sheets);
       errors.push(
-        new ValidationError(
-          sheetName,
-          -2,
-          `Sheet named "${sheetName}" was not found in the workbook. (found: ${keys})`,
-        ),
+        new ImporterMetadataError(`Sheet named "${sheetName}" was not found in the workbook. (found: ${keys})`),
       );
       continue;
     }
