@@ -5,8 +5,6 @@ import { ImporterMetadataError } from '../errors';
 
 import { idify } from './idify';
 
-export const PERMISSIONS = ['Program', 'Survey'];
-
 function checkHomeServer(homeServer) {
   log.debug('Check where we are importing');
 

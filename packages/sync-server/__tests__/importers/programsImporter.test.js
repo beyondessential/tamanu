@@ -101,7 +101,7 @@ describe('Programs import', () => {
         file: 'vitals-missing-qs',
         dryRun: true,
       });
-      expect(errors).toContainValidationError('Vitals', 0, 'Vitals survey missing required questions');
+      expect(errors).toContainValidationError('Vitals', 0, 'Survey missing required questions');
     });
 
     it('Should refuse to import more than one vitals survey', async () => {
