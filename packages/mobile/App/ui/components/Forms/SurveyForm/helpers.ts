@@ -86,10 +86,10 @@ function getFieldValidator(
       const { min, max } = validationCriteria;
       let numberSchema = Yup.number();
       if (typeof min === 'number' && !Number.isNaN(min)) {
-        numberSchema = numberSchema.min(min, 'Outside acceptable range');
+        numberSchema = numberSchema.min(min, 'Outside accepted range');
       }
       if (typeof max === 'number' && !Number.isNaN(max)) {
-        numberSchema = numberSchema.max(max, 'Outside acceptable range');
+        numberSchema = numberSchema.max(max, 'Outside accepted range');
       }
       return numberSchema;
     }
