@@ -22,7 +22,7 @@ export const VitalsTableCell = ({
       justifyContent="center"
       alignItems="center"
       flexDirection="row"
-      background={isOdd ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE }
+      background={isOdd ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE}
     >
       <StyledText
         fontSize={screenPercentageToDP(1.57, Orientation.Height)}
