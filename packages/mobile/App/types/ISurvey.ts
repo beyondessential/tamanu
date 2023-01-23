@@ -24,7 +24,11 @@ export type ValidationCriteria = {
   max?: number;
   mandatory?: boolean;
   normalRange?: { min: number; max: number };
-}
+};
+
+export type SurveyScreenComponentConfig = {
+  rounding?: number;
+};
 
 export interface ISurveyScreenComponent {
   id: ID;
@@ -35,7 +39,7 @@ export interface ISurveyScreenComponent {
   surveyId?: string;
   dataElement?: IProgramDataElement;
   dataElementId?: string;
-
+  config: SurveyScreenComponentConfig;
   screenIndex?: number;
   componentIndex?: number;
   text?: string;
