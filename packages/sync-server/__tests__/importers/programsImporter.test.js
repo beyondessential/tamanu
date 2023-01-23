@@ -34,8 +34,8 @@ describe('Programs import', () => {
   it('should succeed with valid data', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
 
-    expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
+    expect(didntSendReason).toEqual('dryRun');
     expect(stats).toEqual({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 1, updated: 0, errored: 0 },
@@ -47,8 +47,8 @@ describe('Programs import', () => {
   it('should ignore obsolete surveys worksheets', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete', dryRun: true });
 
-    expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
+    expect(didntSendReason).toEqual('dryRun');
     expect(stats).toEqual({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 1, updated: 0, errored: 0 },
@@ -59,8 +59,8 @@ describe('Programs import', () => {
     await doImport({ file: 'valid', dryRun: false });
     const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete', dryRun: true });
 
-    expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
+    expect(didntSendReason).toEqual('dryRun');
     expect(stats).toEqual({
       Program: { created: 0, updated: 1, errored: 0 },
       Survey: { created: 0, updated: 1, errored: 0 },
