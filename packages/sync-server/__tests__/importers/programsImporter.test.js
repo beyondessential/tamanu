@@ -90,4 +90,16 @@ describe('Programs import', () => {
       `ENOENT: no such file or directory, open './__tests__/importers/programs-nofile.xlsx'`,
     );
   });
+
+  describe('Vitals survey', () => {
+    
+    it('Should detect if the mandatory vitals questions are missing', async () => {
+
+    });
+
+    it('Should refuse to import more than one vitals survey', async () => {
+
+    });
+
+  });
 });
