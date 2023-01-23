@@ -240,8 +240,9 @@ describe('Permissions import', () => {
     ctx = await createTestContext();
   });
   beforeEach(async () => {
-    const { Permission } = ctx.store.models;
-    await Permission.destroy({ where: {} });
+    const { Permission, Role } = ctx.store.models;
+    await Permission.destroy({ where: {}, force: true });
+    await Role.destroy({ where: {}, force: true });
   });
   afterAll(async () => {
     await ctx.close();
@@ -357,5 +358,16 @@ describe('Permissions import', () => {
     const afterReinstate = await Permission.findOne({ where, paranoid: false });
     expect(afterReinstate).toBeTruthy();
     expect(afterReinstate.deletedAt).toEqual(null);
+  });
+
+  it('should not import rows specified in pages other than "Permissions"', async () => {
+    const { didntSendReason, errors, stats } = await doImport({ file: 'old-format', dryRun: true });
+
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toEqual({
+      Role: { created: 3, updated: 0, errored: 0 },
+      Permission: { created: 3, updated: 0, errored: 0 },
+    });
   });
 });
