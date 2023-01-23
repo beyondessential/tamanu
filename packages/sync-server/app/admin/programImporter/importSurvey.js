@@ -5,7 +5,7 @@ import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
 import { ImporterMetadataError, ValidationError } from '../errors';
 import { importRows } from '../importRows';
 
-import { importSurveySheet } from './importSurveySheet';
+import { readSurveyQuestions } from './readSurveyQuestions';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
@@ -68,7 +68,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
     );
   }
 
-  const questionRecords = importSurveySheet(data, surveyInfo);
+  const questionRecords = readSurveyQuestions(data, surveyInfo);
 
   return await importRows(context, {
     sheetName,
