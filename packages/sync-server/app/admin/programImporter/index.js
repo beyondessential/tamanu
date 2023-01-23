@@ -44,7 +44,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   const { createSurveyInfo, headerRowIndex } = programMetadata;
   const surveyMetadata = utils.sheet_to_json(workbook.Sheets.Metadata, { range: headerRowIndex });
 
-  const shouldImportSurvey = ({ status = '', name, code }, row) => {
+  const shouldImportSurvey = ({ status = '', name, code }, rowIndex) => {
     // check against whitelist
     if (whitelist && whitelist.length > 0) {
       if (!whitelist.some(x => x === name || x === code)) {
@@ -64,22 +64,24 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       default:
         throw new ValidationError(
           'Metadata',
-          row,
+          rowIndex + headerRowIndex,
           `Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`,
         );
     }
   };
 
-  log.debug('Loop over surveys', { count: surveyMetadata.length });
+  const surveysToImport = surveyMetadata.filter(shouldImportSurvey)
+  log.debug('Loop over surveys', { countInWorkbook: surveyMetadata.length, count: surveysToImport.length });
 
   // then loop over each survey defined in metadata and import it
-  for (const md of surveyMetadata.filter(shouldImportSurvey)) {
+  for (const survey of surveysToImport) {
     try {
+      const context = createContext(survey.name);
       const result = await importSurvey(
-        createContext(md.name), 
+        context, 
         createSurveyInfo, 
         workbook, 
-        md,
+        survey,
       );
       stats.push(result);
     } catch(e) {

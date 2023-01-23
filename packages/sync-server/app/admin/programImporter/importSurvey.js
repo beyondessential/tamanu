@@ -5,10 +5,10 @@ import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
 import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
+import { SURVEY_TYPES } from 'shared/constants';
 import { importSurveySheet } from './importSurveySheet';
 
 export const PERMISSIONS = ['Program', 'Survey'];
-const VITALS_SURVEY_TYPE = 'vitals';
 
 export async function importSurvey(context, createSurveyInfo, workbook, md) {
   const sheetName = md.name;
@@ -34,13 +34,13 @@ export async function importSurvey(context, createSurveyInfo, workbook, md) {
   }
 
   // There should only be one instance of a vitals survey
-  if (md.surveyType === VITALS_SURVEY_TYPE) {
+  if (md.surveyType === SURVEY_TYPES.VITALS) {
     const vitalsCount = await models.Survey.count({
       where: { 
         id: {
           [Op.not]: surveyData.id
-        }, 
-        survey_type: VITALS_SURVEY_TYPE
+        },
+        survey_type: SURVEY_TYPES.VITALS,
       },
     });
     if (vitalsCount > 0) {
@@ -59,7 +59,7 @@ export async function importSurvey(context, createSurveyInfo, workbook, md) {
   const data = utils.sheet_to_json(worksheet);
 
   // check that each mandatory question ID has a corresponding row in the import sheet
-  const requiredFields = (md.surveyType === VITALS_SURVEY_TYPE) ? Object.values(VITALS_DATA_ELEMENT_IDS) : [];
+  const requiredFields = (md.surveyType === SURVEY_TYPES.VITALS) ? Object.values(VITALS_DATA_ELEMENT_IDS) : [];
   const hasQuestion = (id) => data.some(q => q.id === id);
   const missingFields = requiredFields.filter(rf => !hasQuestion(rf));
   if (missingFields.length > 0) {
