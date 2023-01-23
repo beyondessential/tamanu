@@ -78,6 +78,7 @@ export function readMetadata(metadataSheet) {
 
   // Use a country prefix (eg "(Samoa)" if we're importing to a server other
   // than the home server.
+  const { country } = metadata;
   const prefix = !importingToHome && country ? `(${country}) ` : '';
 
   const programName = `${prefix}${metadata.programName}`;

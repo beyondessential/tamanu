@@ -21,7 +21,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   // don't bother importing questions from obsoleted surveys
   if (surveyType === SURVEY_TYPES.OBSOLETE) {
-    return await importRows(context, {
+    return importRows(context, {
       sheetName,
       rows: [surveyRecord],
     });
@@ -29,8 +29,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   // There should only be one instance of a vitals survey
   if (surveyType === SURVEY_TYPES.VITALS) {
-    const allSurveys = await models.Survey.findAll();
-    const vitalsCount = await models.Survey.findAll({
+    const vitalsCount = await models.Survey.count({
       where: {
         id: {
           [Op.not]: surveyInfo.id,
@@ -38,7 +37,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
         survey_type: SURVEY_TYPES.VITALS,
       },
     });
-    if (vitalsCount.length > 0) {
+    if (vitalsCount > 0) {
       throw new ImporterMetadataError('Only one vitals survey may exist at a time');
     }
   }
@@ -70,7 +69,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   const questionRecords = readSurveyQuestions(data, surveyInfo);
 
-  return await importRows(context, {
+  return importRows(context, {
     sheetName,
     rows: [surveyRecord, ...questionRecords],
   });

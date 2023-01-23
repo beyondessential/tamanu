@@ -40,7 +40,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   );
 
   // read metadata table starting at header row
-  const { createSurveyInfo, headerRowIndex } = programMetadata;
+  const { createSurveyInfo, headerRowIndex, importingToHome } = programMetadata;
   const surveyMetadata = utils.sheet_to_json(workbook.Sheets.Metadata, { range: headerRowIndex });
 
   const shouldImportSurvey = ({ status = '', name, code }, rowIndex) => {
