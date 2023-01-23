@@ -22,7 +22,6 @@
               command: ./scripts/build_package_release.sh lan
             - name: package windows release
               tag: ^(master$|dev$|staging-|ci-)
-              service: app-without-db
               command: ./scripts/build_server_zip.sh lan ./deploy
         - name: for desktop installer
           exclude: ^deploy-meta$
@@ -35,7 +34,6 @@
               command: ./scripts/build_package_release.sh sync-server
             - name: package windows release
               tag: ^(master$|dev$|staging-|ci-)
-              service: app-without-db
               command: ./scripts/build_server_zip.sh sync-server ./deploy
         - name: for meta release
           tag: ^(dev$|deploy-meta$|master$|ci-)
