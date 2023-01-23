@@ -9,7 +9,7 @@ import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, IMAGING_REQUEST_STATUS_TYPES } from
 import { Deleted, Invalid } from '../../utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '../../utils/dateTime';
 
-export class FhirObservation extends FhirResource {
+export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
     super.init(
       {
@@ -41,6 +41,8 @@ export class FhirObservation extends FhirResource {
     });
   }
 
+  // This is currently very hardcoded for Aspen's use case.
+  // We'll need to make it more generic at some point, but not today!
   async pushUpstream() {
     const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
 
@@ -76,7 +78,7 @@ export class FhirObservation extends FhirResource {
     }
 
     if (this.status !== 'final') {
-      throw new Invalid(`Observation status must be 'final'`, {
+      throw new Invalid(`ImagingStudy status must be 'final'`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
