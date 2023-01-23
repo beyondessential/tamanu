@@ -12,10 +12,10 @@ describe('Programs import', () => {
   });
   beforeEach(async () => {
     const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
-    await Program.destroy({ where: {} });
-    await Survey.destroy({ where: {} });
-    await ProgramDataElement.destroy({ where: {} });
-    await SurveyScreenComponent.destroy({ where: {} });
+    await SurveyScreenComponent.destroy({ where: {}, force: true });
+    await ProgramDataElement.destroy({ where: {}, force: true });
+    await Survey.destroy({ where: {}, force: true });
+    await Program.destroy({ where: {}, force: true });
   });
   afterAll(async () => {
     await ctx.close();
