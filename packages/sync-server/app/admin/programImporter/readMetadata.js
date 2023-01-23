@@ -20,7 +20,9 @@ function checkHomeServer(homeServer) {
 
   if (!importingToHome) {
     if (!host.match(/(localhost|dev|demo|staging)/)) {
-      throw new ImporterMetadataError(`This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`);
+      throw new ImporterMetadataError(
+        `This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`,
+      );
     }
   }
 
@@ -59,7 +61,9 @@ export function readMetadata(metadataSheet) {
     }
 
     // we've exhausted the search
-    throw new ImporterMetadataError("A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell in the first 10 rows");
+    throw new ImporterMetadataError(
+      "A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell in the first 10 rows",
+    );
   })();
 
   if (!metadata.programCode) {
@@ -75,11 +79,11 @@ export function readMetadata(metadataSheet) {
   // Use a country prefix (eg "(Samoa)" if we're importing to a server other
   // than the home server.
   const prefix = !importingToHome && country ? `(${country}) ` : '';
-  
+
   const programName = `${prefix}${metadata.programName}`;
   const programId = `program-${idify(metadata.programCode)}`;
 
-  const createSurveyInfo = (surveySheet) => ({
+  const createSurveyInfo = surveySheet => ({
     id: `${programId}-${idify(surveySheet.code)}`,
     name: `${prefix}${surveySheet.name}`,
     programId,

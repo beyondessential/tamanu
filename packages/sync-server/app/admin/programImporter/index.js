@@ -10,7 +10,6 @@ import { importSurvey } from './importSurvey';
 export const PERMISSIONS = ['Program', 'Survey'];
 
 export async function importer({ errors, models, stats, file, whitelist = [] }) {
-
   const createContext = sheetName => ({
     errors,
     log: log.child({
@@ -70,21 +69,19 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     }
   };
 
-  const surveysToImport = surveyMetadata.filter(shouldImportSurvey)
-  log.debug('Loop over surveys', { countInWorkbook: surveyMetadata.length, count: surveysToImport.length });
+  const surveysToImport = surveyMetadata.filter(shouldImportSurvey);
+  log.debug('Loop over surveys', {
+    countInWorkbook: surveyMetadata.length,
+    count: surveysToImport.length,
+  });
 
   // then loop over each survey defined in metadata and import it
   for (const survey of surveysToImport) {
     try {
       const context = createContext(survey.name);
-      const result = await importSurvey(
-        context, 
-        createSurveyInfo, 
-        workbook, 
-        survey,
-      );
+      const result = await importSurvey(context, createSurveyInfo, workbook, survey);
       stats.push(result);
-    } catch(e) {
+    } catch (e) {
       errors.push(e);
     }
   }
