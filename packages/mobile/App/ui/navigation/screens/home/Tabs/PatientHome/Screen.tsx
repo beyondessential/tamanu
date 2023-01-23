@@ -13,7 +13,6 @@ import { Button } from '/components/Button';
 import {
   BackButton,
   SearchButton,
-  DotsMenuButton,
   VisitTypeButtonList,
   PatientMenuButtons,
 } from './CustomComponents';
