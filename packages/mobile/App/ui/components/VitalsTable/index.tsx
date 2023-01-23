@@ -41,7 +41,7 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Eleme
   }
 
   // Date is the column so remove it from rows
-  const rows = vitalsSurvey.components.filter(
+  const components = vitalsSurvey.components.filter(
     c => c.dataElementId !== VitalsDataElements.dateRecorded,
   );
 
@@ -50,14 +50,16 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Eleme
       <Table
         Title={VitalsTableTitle}
         tableHeader={vitalsTableHeader}
-        rows={rows.map(r => {
-          const rowValidationCriteria = r.getValidationCriteriaObject();
+        rows={components.map(component => {
+          const rowValidationCriteria = component.getValidationCriteriaObject();
+          const { dataElement } = component;
+          const { name, id } = dataElement;
           return {
             rowKey: 'dataElementId',
-            rowTitle: r.dataElementId,
+            rowTitle: id,
             rowHeader: (i) => (
               <VitalsTableRowHeader
-                title={r.dataElement.name}
+                title={name}
                 isOdd={i % 2 === 0}
               />
             ),
@@ -67,7 +69,7 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Eleme
               return (
                 <VitalsTableCell
                   data={cellData}
-                  key={cellData?.id || r.id}
+                  key={cellData?.id || id}
                   needsAttention={needsAttention}
                   isOdd={i % 2 === 0}
                 />
