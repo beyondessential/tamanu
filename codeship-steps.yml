@@ -16,13 +16,27 @@
       steps:
         - name: for lan
           exclude: ^deploy-meta$
-          command: ./scripts/build_package_release.sh lan
+          type: serial
+          steps:
+            - name: build linux release
+              command: ./scripts/build_package_release.sh lan
+            - name: package windows release
+              tag: ^(master$|dev$|staging-|ci-)
+              service: app-without-db
+              command: ./scripts/build_server_zip.sh lan ./deploy
         - name: for desktop installer
           exclude: ^deploy-meta$
           command: ./scripts/build_desktop.sh build-only
         - name: for sync release
           exclude: ^deploy-meta$
-          command: ./scripts/build_package_release.sh sync-server
+          type: serial
+          steps:
+            - name: build linux release
+              command: ./scripts/build_package_release.sh sync-server
+            - name: package windows release
+              tag: ^(master$|dev$|staging-|ci-)
+              service: app-without-db
+              command: ./scripts/build_server_zip.sh sync-server ./deploy
         - name: for meta release
           tag: ^(dev$|deploy-meta$|master$|ci-)
           command: ./scripts/build_package_release.sh meta-server
@@ -127,15 +141,6 @@
             - name: onto prod
               tag: ^(master|deploy-meta)$
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
-        - name: package server zips
-          tag: ^(master$|dev$|staging-|ci-)
-          service: app-without-db
-          type: serial
-          steps:
-            - name: build central server zip
-              command: ./scripts/build_server_zip.sh sync-server ./deploy
-            - name: build facility server zip
-              command: ./scripts/build_server_zip.sh lan ./deploy
         - name: upload all artefacts to s3
           exclude: ^(release-desktop-|deploy-meta$)
           service: awsdeployment
