@@ -85,7 +85,8 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Eleme
                 />
               ),
               cell: (cellData, i): JSX.Element => {
-                const needsAttention = checkNeedsAttention(cellData?.body || '', rowValidationCriteria);
+                const value = cellData?.body || '';
+                const needsAttention = checkNeedsAttention(value, rowValidationCriteria);
                 if (needsAttention && !showNeedsAttentionInfo) setShowNeedsAttentionInfo(true);
                 return (
                   <VitalsTableCell
