@@ -2,7 +2,7 @@ import { utils } from 'xlsx';
 import { Op } from 'sequelize';
 import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
 
-import { ImporterMetadataError } from '../errors';
+import { ImporterMetadataError, ValidationError } from '../errors';
 import { importRows } from '../importRows';
 
 import { importSurveySheet } from './importSurveySheet';
@@ -10,6 +10,7 @@ import { importSurveySheet } from './importSurveySheet';
 export const PERMISSIONS = ['Program', 'Survey'];
 
 export async function importSurvey(context, workbook, surveyInfo) {
+  const { models } = context;
   const { sheetName, surveyType, code } = surveyInfo;
 
   const surveyRecord = {
@@ -28,7 +29,8 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   // There should only be one instance of a vitals survey
   if (surveyType === SURVEY_TYPES.VITALS) {
-    const vitalsCount = await models.Survey.count({
+    const allSurveys = await models.Survey.findAll();
+    const vitalsCount = await models.Survey.findAll({
       where: {
         id: {
           [Op.not]: surveyInfo.id,
@@ -36,7 +38,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
         survey_type: SURVEY_TYPES.VITALS,
       },
     });
-    if (vitalsCount > 0) {
+    if (vitalsCount.length > 0) {
       throw new ImporterMetadataError('Only one vitals survey may exist at a time');
     }
   }
@@ -59,8 +61,10 @@ export async function importSurvey(context, workbook, surveyInfo) {
   const hasQuestion = id => data.some(q => q.id === id);
   const missingFields = requiredFields.filter(rf => !hasQuestion(rf));
   if (missingFields.length > 0) {
-    throw new ImporterMetadataError(
-      `Survey ${sheetName} missing required questions: ${missingFields.join(', ')}`,
+    throw new ValidationError(
+      sheetName,
+      -2,
+      `Vitals survey missing required questions: ${missingFields.join(', ')}`,
     );
   }
 

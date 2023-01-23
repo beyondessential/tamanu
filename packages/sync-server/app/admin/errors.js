@@ -38,7 +38,7 @@ export class WorkSheetError extends DataImportError {}
 
 export class ImporterMetadataError extends DataImportError {
   constructor(error) {
-    super('Metadata', -2, error);
+    super('metadata', -2, error);
   }
 }
 

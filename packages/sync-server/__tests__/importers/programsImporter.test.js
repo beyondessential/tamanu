@@ -1,6 +1,9 @@
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
+import { fake } from 'shared/test-helpers/fake';
+import { SURVEY_TYPES } from 'shared/constants';
+import './matchers';
 
 // the importer can take a little while
 jest.setTimeout(30000);
@@ -94,12 +97,42 @@ describe('Programs import', () => {
   describe('Vitals survey', () => {
     
     it('Should detect if the mandatory vitals questions are missing', async () => {
-
+      const { errors } = await doImport({
+        file: 'vitals-missing-qs',
+        dryRun: true,
+      });
+      expect(errors).toContainValidationError('Vitals', 0, 'Vitals survey missing required questions');
     });
 
     it('Should refuse to import more than one vitals survey', async () => {
+      const { Program, Survey } = ctx.store.models;
+      const program = await Program.create(fake(Program));
+      await Survey.create({ 
+        ...fake(Survey),
+        surveyType: SURVEY_TYPES.VITALS, 
+        programId: program.id,
+      });
 
+      const { errors } = await doImport({
+        file: 'vitals-valid',
+        dryRun: true,
+      });
+      expect(errors).toContainValidationError('metadata', 0, 'Only one vitals survey');
     });
 
+    it('Should import a valid vitals survey', async () => {
+      const { errors, stats, didntSendReason } = await doImport({
+        file: 'vitals-valid',
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+      expect(didntSendReason).toEqual('dryRun');
+      expect(stats).toEqual({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 1, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 16, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+      });
+    });
   });
 });
