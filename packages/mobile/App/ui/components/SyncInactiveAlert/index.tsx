@@ -31,7 +31,7 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
       <StyledView
         padding={screenPercentageToDP(3.6, Orientation.Width)}
         background={theme.colors.WHITE}
-        height={screenPercentageToDP(30, Orientation.Height)}
+        height={screenPercentageToDP(50, Orientation.Height)}
         paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
         borderRadius={5}
       >
@@ -69,10 +69,12 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
           fontSize={screenPercentageToDP(4, Orientation.Width)}
           fontWeight={600}
           color={theme.colors.TEXT_SUPER_DARK}
+          marginBottom={screenPercentageToDP(3.2, Orientation.Height)}
         >
           {user.email}
         </StyledText>
         <Form
+          
           initialValues={{
             password: '',
           }}
@@ -92,7 +94,7 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
               />
               <Button
                 marginTop={20}
-                backgroundColor={theme.colors.SECONDARY_MAIN}
+                backgroundColor={theme.colors.PRIMARY_MAIN}
                 onPress={handleSubmit}
                 loadingAction={isSubmitting}
                 textColor={theme.colors.TEXT_SUPER_DARK}
