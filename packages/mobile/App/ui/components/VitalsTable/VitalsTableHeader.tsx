@@ -5,19 +5,23 @@ import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import styled from 'styled-components';
 import { TableHeader } from '../Table';
+
+const VitalsHeaderWrapper = styled(StyledView)`
+  width: ${screenPercentageToDP(23.68, Orientation.Width)}px;
+  height: ${screenPercentageToDP(6.86, Orientation.Height)}px;
+  justify-content: center;
+  align-items: center;
+  background: ${theme.colors.WHITE};
+  border-color: ${theme.colors.BOX_OUTLINE};
+  border-bottom-width: 1px;
+`;
 
 export const vitalsTableHeader: TableHeader = {
   key: 'date',
   accessor: (date) => (
-    <StyledView
-      width={screenPercentageToDP(23.68, Orientation.Width)}
-      height={screenPercentageToDP(6.86, Orientation.Height)}
-      justifyContent="center"
-      alignItems="center"
-      background={theme.colors.WHITE}
-      borderColor={theme.colors.BOX_OUTLINE}
-      borderBottomWidth={1}
+    <VitalsHeaderWrapper
     >
       <StyledText
         fontSize={screenPercentageToDP(1.45, Orientation.Height)}
@@ -33,6 +37,6 @@ export const vitalsTableHeader: TableHeader = {
       >
         {formatDate(parseISO(date), DateFormats.TIME)}
       </StyledText>
-    </StyledView>
+    </VitalsHeaderWrapper>
   ),
 };

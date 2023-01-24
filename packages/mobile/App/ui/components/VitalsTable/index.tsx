@@ -12,6 +12,7 @@ import { theme } from '~/ui/styled/theme';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 import { ValidationCriteria } from '~/types';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 interface VitalsTableProps {
   data: TableCells<PatientVitalsProps>;
@@ -47,42 +48,65 @@ export const VitalsTable = memo(({ data, columns }: VitalsTableProps): JSX.Eleme
 
   return (
     <StyledView height="100%" background={theme.colors.BACKGROUND_GREY}>
-      <Table
-        Title={VitalsTableTitle}
-        tableHeader={vitalsTableHeader}
-        rows={components.map(component => {
-          const rowValidationCriteria = component.getValidationCriteriaObject();
-          const { dataElement } = component;
-          const { name, id } = dataElement;
-          return {
-            rowKey: 'dataElementId',
-            rowTitle: id,
-            rowHeader: (i) => (
-              <VitalsTableRowHeader
-                title={name}
-                isOdd={i % 2 === 0}
-              />
-            ),
-            cell: (cellData, i): JSX.Element => {
-              const needsAttention = checkNeedsAttention(cellData?.body || '', rowValidationCriteria);
-              if (needsAttention && !showNeedsAttentionInfo) setShowNeedsAttentionInfo(true);
-              return (
-                <VitalsTableCell
-                  data={cellData}
-                  key={cellData?.id || id}
-                  needsAttention={needsAttention}
+      <StyledView
+        borderBottomWidth={1}
+        borderColor={theme.colors.BOX_OUTLINE}
+        background={theme.colors.WHITE}
+      >
+        {/* Lines extending to end page underneath vitals entry so
+        table doesn't cut off if only one or two vital rows */}
+        {Array.from({ length: components.length + 1 }).fill(0).map((_, i) => (
+          <StyledView
+            marginTop={3}
+            position="absolute"
+            borderBottomWidth={i ? 0 : 1}
+            borderColor={theme.colors.BOX_OUTLINE}
+            left={screenPercentageToDP(31.63, Orientation.Width)}
+            top={screenPercentageToDP(6.46, Orientation.Height) * i}
+            height={screenPercentageToDP(6.46, Orientation.Height)}
+            zIndex={0}
+            width="100%"
+            background={i % 2 === 0 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY} />
+        ))}
+        <Table
+          Title={VitalsTableTitle}
+          tableHeader={vitalsTableHeader}
+          rows={components.map(component => {
+            const rowValidationCriteria = component.getValidationCriteriaObject();
+            const { dataElement } = component;
+            const { name, id } = dataElement;
+            return {
+              rowKey: 'dataElementId',
+              rowTitle: id,
+              rowHeader: (i) => (
+                <VitalsTableRowHeader
+                  title={name}
                   isOdd={i % 2 === 0}
                 />
-              );
-            },
-          };
-        })}
-        columns={columns}
-        cells={data}
-      />
+              ),
+              cell: (cellData, i): JSX.Element => {
+                const value = cellData?.body || '';
+                const needsAttention = checkNeedsAttention(value, rowValidationCriteria);
+                if (needsAttention && !showNeedsAttentionInfo) setShowNeedsAttentionInfo(true);
+                return (
+                  <VitalsTableCell
+                    data={cellData}
+                    key={cellData?.id || id}
+                    needsAttention={needsAttention}
+                    isOdd={i % 2 === 0}
+                  />
+                );
+              },
+            };
+          })}
+          columns={columns}
+          cells={data}
+        />
+      </StyledView>
       {showNeedsAttentionInfo && (
-        <StyledView padding={10}>
+        <StyledView background={theme.colors.BACKGROUND_GREY} padding={10}>
           <StyledText
+            fontSize={screenPercentageToDP(1.57, Orientation.Height)}
             fontWeight={500}
             color={theme.colors.ALERT}>*Vital needs attention
           </StyledText>
