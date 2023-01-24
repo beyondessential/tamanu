@@ -1,7 +1,8 @@
 import { log } from 'shared/services/logging';
 import config from 'config';
+import { utils } from 'xlsx';
 
-import { ImporterMetadataError } from '../errors';
+import { ImporterMetadataError, ValidationError } from '../errors';
 
 import { idify } from './idify';
 
@@ -74,28 +75,47 @@ export function readMetadata(metadataSheet) {
 
   const importingToHome = checkHomeServer(metadata.homeServer);
 
-  // Use a country prefix (eg "(Samoa)" if we're importing to a server other
-  // than the home server.
+  // Use a country prefix if we're importing to a server other than the home server.
+  // eg a program will import as "(Samoa) NCD Screening" on the dev server, but
+  // just "NCD Screening" on the Samoa server. Same goes for surveys.
   const { country } = metadata;
   const prefix = !importingToHome && country ? `(${country}) ` : '';
 
   const programName = `${prefix}${metadata.programName}`;
   const programId = `program-${idify(metadata.programCode)}`;
 
-  const createSurveyInfo = surveySheet => ({
-    ...surveySheet,
-    sheetName: surveySheet.name,
-    id: `${programId}-${idify(surveySheet.code)}`,
-    name: `${prefix}${surveySheet.name}`,
-    programId,
-  });
+  const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRowIndex })
+    .map(row => ({
+      ...row,
+      sheetName: row.name,
+      id: `${programId}-${idify(row.code)}`,
+      name: `${prefix}${row.name}`,
+      programId,
+    }))
+    .filter(({ status, name }, rowIndex) => {
+      // check against home server & publication status
+      switch (status || 'draft') {
+        case 'publish':
+          return true;
+        case 'hidden':
+          return false;
+        case 'draft':
+          // import drafts only to non-home servers (ie dev servers)
+          return !importingToHome;
+        default:
+          throw new ValidationError(
+            'Metadata',
+            rowIndex + headerRowIndex,
+            `Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`,
+          );
+      }
+    });
 
   return {
-    ...metadata,
-    importingToHome,
-    headerRowIndex,
-    programName,
-    programId,
-    createSurveyInfo,
+    programRecord: {
+      name: programName,
+      id: programId,
+    },
+    surveyMetadata,
   };
 }
