@@ -1,6 +1,6 @@
 {
   "name": "lan",
-  "version": "1.23.1",
+  "version": "1.24.0",
   "description": "Lan server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -96,7 +96,6 @@
     "tiny-async-pool": "^1.2.0",
     "umzug": "^2.3.0",
     "uuid": "^8.1.0",
-    "wayfarer": "^7.0.1",
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "xlsx": "^0.16.9",

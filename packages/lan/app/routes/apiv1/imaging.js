@@ -7,6 +7,7 @@ import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { getNoteWithType, mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
+import { getImagingProvider } from '../../integrations/imaging';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -16,6 +17,44 @@ const SNAKE_CASE_COLUMN_NAMES = {
   id: 'ImagingRequest.id',
   name: 'name',
 };
+
+async function renderResults(models, imagingRequest) {
+  const results = imagingRequest.results
+    ?.filter(result => !result.deletedAt)
+    .map(result => result.get({ plain: true }));
+  if (!results || results.length === 0) return results;
+
+  const imagingProvider = await getImagingProvider(models);
+  if (imagingProvider) {
+    const urls = await Promise.all(
+      imagingRequest.results.map(async result => {
+        // catch all errors so we never fail to show the request if the external provider errors
+        try {
+          const url = await imagingProvider.getUrlForResult(result);
+          if (!url) return null;
+
+          return { resultId: result.id, url };
+        } catch (err) {
+          return { resultId: result.id, err };
+        }
+      }),
+    );
+
+    for (const result of results) {
+      const externalResult = urls.find(url => url?.resultId === result.id);
+      if (!externalResult) continue;
+
+      const { url, err } = externalResult;
+      if (url) {
+        result.externalUrl = url;
+      } else {
+        result.externalError = err?.toString() ?? 'Unknown error';
+      }
+    }
+  }
+
+  return results.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+}
 
 // Filtering functions for sequelize queries
 const caseInsensitiveFilter = getCaseInsensitiveFilter(SNAKE_CASE_COLUMN_NAMES);
@@ -53,12 +92,31 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingResult, User, ReferenceData },
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
-      include: ImagingRequest.getFullReferenceAssociations(),
+      include: [
+        {
+          model: User,
+          as: 'requestedBy',
+        },
+        {
+          model: ReferenceData,
+          as: 'areas',
+        },
+        {
+          model: ImagingResult,
+          as: 'results',
+          include: [
+            {
+              model: User,
+              as: 'completedBy',
+            },
+          ],
+        },
+      ],
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
@@ -93,6 +151,7 @@ imagingRequest.get(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
+      results: await renderResults(req.models, imagingRequestObject),
     });
   }),
 );
@@ -101,10 +160,18 @@ imagingRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingResult },
       params: { id },
       user,
-      body: { areas, note, areaNote, ...imagingRequestData },
+      body: {
+        areas,
+        note,
+        areaNote,
+        newResultCompletedBy,
+        newResultDate,
+        newResultDescription,
+        ...imagingRequestData
+      },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id);
@@ -167,13 +234,26 @@ imagingRequest.put(
       }
     }
 
-    // Convert Sequelize model to use a custom object as response
-    const responseObject = {
+    if (newResultDescription?.length > 0) {
+      const newResult = await ImagingResult.create({
+        description: newResultDescription,
+        completedAt: newResultDate,
+        completedById: newResultCompletedBy,
+        imagingRequestId: imagingRequestObject.id,
+      });
+
+      if (imagingRequestObject.results) {
+        imagingRequestObject.results.push(newResult);
+      } else {
+        imagingRequestObject.results = [newResult];
+      }
+    }
+
+    res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-    };
-
-    res.send(responseObject);
+      results: await renderResults(req.models, imagingRequestObject),
+    });
   }),
 );
 

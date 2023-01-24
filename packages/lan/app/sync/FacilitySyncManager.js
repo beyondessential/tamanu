@@ -1,14 +1,22 @@
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
-import { getModelsForDirection, saveIncomingChanges } from 'shared/sync';
+import {
+  createSnapshotTable,
+  dropSnapshotTable,
+  dropAllSnapshotTables,
+  getModelsForDirection,
+  saveIncomingChanges,
+} from 'shared/sync';
 import { injectConfig } from 'shared/utils/withConfig';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
-export @injectConfig class FacilitySyncManager {
+export
+@injectConfig
+class FacilitySyncManager {
   models = null;
 
   sequelize = null;
@@ -54,8 +62,7 @@ export @injectConfig class FacilitySyncManager {
     }
 
     // clear previous temp data, in case last session errored out or server was restarted
-    await this.models.SyncSessionRecord.truncate({ cascade: true, force: true });
-    await this.models.SyncSession.truncate({ cascade: true, force: true });
+    await dropAllSnapshotTables(this.sequelize);
 
     const startTime = new Date();
     log.info(`FacilitySyncManager.runSync: began sync run`);
@@ -82,7 +89,6 @@ export @injectConfig class FacilitySyncManager {
     const outgoingChanges = await snapshotOutgoingChanges(
       this.sequelize,
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-      sessionId,
       pushSince,
     );
     if (outgoingChanges.length > 0) {
@@ -102,16 +108,13 @@ export @injectConfig class FacilitySyncManager {
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
     const pullSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPull')) || -1;
-    await this.models.SyncSession.create({
-      id: sessionId,
-      startTime,
-      lastConnectionTime: startTime,
-    });
+
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
+    await createSnapshotTable(this.sequelize, sessionId);
     const { count: incomingChangesCount, tick: pullTick } = await pullIncomingChanges(
       this.centralServer,
-      this.models,
+      this.sequelize,
       sessionId,
       pullSince,
     );
@@ -120,7 +123,7 @@ export @injectConfig class FacilitySyncManager {
       if (incomingChangesCount > 0) {
         log.debug(`FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount} changes`);
         await saveIncomingChanges(
-          this.models,
+          this.sequelize,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
           sessionId,
         );
@@ -140,7 +143,6 @@ export @injectConfig class FacilitySyncManager {
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
 
     // clear temp data stored for persist
-    await this.models.SyncSessionRecord.truncate({ cascade: true, force: true });
-    await this.models.SyncSession.truncate({ cascade: true, force: true });
+    await dropSnapshotTable(this.sequelize, sessionId);
   }
 }

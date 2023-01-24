@@ -1,0 +1,217 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - dev
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  NODE_OPTIONS: "--max-old-space-size=6144"
+  NODE_ENV: test
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu
+        node:
+          - 16.x
+    name: Build shared os=${{ matrix.os }} node=${{ matrix.node }}
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - uses: ./.github/actions/build-shared
+      with:
+        node: ${{ matrix.node }}
+
+  clean:
+    # ignore lint or storybook failures when deciding whether to run cleanup.
+    # not running it absolutely always lets us retry particular test jobs without
+    # having to re-run the whole workflow!
+    if: always() && needs.test.result == 'success' && needs.migrations.result == 'success'
+    needs:
+      - test
+      - lint
+      - migrations
+      # - storybook
+    runs-on: ubuntu-latest
+    steps:
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: shared_*
+
+  test:
+    needs: build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          # - macos
+          - ubuntu
+          # - windows
+        node:
+          - '16.x'
+        postgres:
+          # - '12'
+          - '14'
+        package:
+          - desktop
+          - lan
+          - meta-server
+          - shared-src
+          - sync-server
+
+    name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - name: Get prebuilt shared
+      uses: ./.github/actions/get-shared
+      with:
+        node: ${{ matrix.node }}
+
+    - name: Install and start postgres ${{ matrix.postgres }} if needed
+      if: matrix.package == 'sync-server' || matrix.package == 'lan'
+      run: .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }} ${{ matrix.package }}
+
+    - if: matrix.package == 'sync-server' || matrix.package == 'lan'
+      run: yarn workspace ${{ matrix.package }} run test --shard 1/3
+    - if: matrix.package == 'sync-server' || matrix.package == 'lan'
+      run: yarn workspace ${{ matrix.package }} run test --shard 2/3
+    - if: matrix.package == 'sync-server' || matrix.package == 'lan'
+      run: yarn workspace ${{ matrix.package }} run test --shard 3/3
+
+    - if: "!(matrix.package == 'sync-server' || matrix.package == 'lan')"
+      run: yarn workspace ${{ matrix.package }} run test
+
+  lint:
+    needs: build
+    continue-on-error: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '16.x'
+        package:
+          - lan
+          - meta-server
+          - shared-src
+          - sync-server
+
+    name: Lint ${{ matrix.package }} node=${{ matrix.node }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - name: Get prebuilt shared
+      uses: ./.github/actions/get-shared
+      with:
+        node: ${{ matrix.node }}
+
+    - run: yarn workspace ${{ matrix.package }} run lint
+
+  ## disable for now as it's broken
+  # storybook:
+  #   needs: build
+  #   continue-on-error: true
+  #
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       node:
+  #         - '16.x'
+  #
+  #   name: Test storybook node=${{ matrix.node }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Use Node.js ${{ matrix.node }}
+  #     uses: actions/setup-node@v3
+  #     with:
+  #       node-version: ${{ matrix.node }}
+  #       cache: yarn
+  #   - name: Get prebuilt shared
+  #     uses: ./.github/actions/get-shared
+  #     with:
+  #       node: ${{ matrix.node }}
+  #
+  #   - run: yarn workspace desktop run verify-storybook
+
+  migrations:
+    needs: build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '16.x'
+        postgres:
+          - '12'
+          - '14'
+
+    name: Test migrations node=${{ matrix.node }} pg=${{ matrix.postgres }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - name: Get prebuilt shared
+      uses: ./.github/actions/get-shared
+      with:
+        node: ${{ matrix.node }}
+
+    - name: Install and start postgres ${{ matrix.postgres }}
+      run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
+
+    - run: scripts/apply_and_revert_sync_server_migrations.sh
+
+  test-mobile:
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '16.x'
+
+    name: Test mobile node=${{ matrix.node }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+
+    - run: yarn install --frozen-lockfile
+      working-directory: packages/mobile
+
+    - run: yarn test
+      working-directory: packages/mobile

@@ -48,9 +48,9 @@ export const Routes = {
       SyncData: '',
       More: '',
     },
-    CheckUpStack: {
+    VitalsStack: {
       Index: '',
-      CheckUpTabs: {
+      VitalsTabs: {
         Index: '',
         AddDetails: '',
         ViewHistory: '',

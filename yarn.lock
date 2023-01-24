@@ -4665,6 +4665,11 @@
     prop-types "^15.0"
     react "^16.13.1"
 
+"@bgotink/kdl@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@bgotink/kdl/-/kdl-0.1.6.tgz#d73988e3d4266fe56d71723d59c5727e0f4d4560"
+  integrity sha512-7xLM6wg76hnMdLi+mBZe1KcAwav2Q4U4XGSbS9fAHHmRvK0ntQTqm4ryYXrWjSncYIfz2u1mLMvMQQ1+EcgKLA==
+
 "@casl/ability@^4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@casl/ability/-/ability-4.1.0.tgz#5c542bc39d64050f9e707aacf8b8a5ad4156dbd6"
@@ -4907,6 +4912,11 @@
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
+
+"@iarna/toml@3":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-3.0.0.tgz#ccde5292fe9d348bbe93fe90d579fc442b72b0b3"
+  integrity sha512-td6ZUkz2oS3VeleBcN+m//Q6HlCFCPrnI0FZhrt/h4XqLEdOyYp2u21nd8MdsR+WJy5r9PTDaHTDDfhf4H4l6Q==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -10866,11 +10876,6 @@ convert-source-map@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-2.0.0.tgz#4b560f649fc4e918dd0ab75cf4961e8bc882d82a"
   integrity sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==
-
-convert@^4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/convert/-/convert-4.7.0.tgz#6ee60f00df08804fbc8788e7c932a02438331186"
-  integrity sha512-gNw8PJT4d15V2W9GZe55PrWarBFVUI1j6JdL0dqSyIw6lYjGzuF1J+p/djW30mao/qySpU7A2eN2wa2JBbm8jw==
 
 cookie-signature@1.0.6:
   version "1.0.6"
@@ -18752,6 +18757,11 @@ ms@2.1.2, ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
+ms@^2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
+  integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
+
 multicast-dns-service-types@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/multicast-dns-service-types/-/multicast-dns-service-types-1.1.0.tgz#899f11d9686e5e05cb91b35d5f0e63b773cfc901"
@@ -18820,11 +18830,6 @@ nano@^6.4.4:
     errs "^0.3.2"
     lodash.isempty "^4.4.0"
     request "^2.85.0"
-
-nanoassert@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/nanoassert/-/nanoassert-1.1.0.tgz#4f3152e09540fde28c76f44b19bbcd1d5a42478d"
-  integrity sha1-TzFS4JVA/eKMdvRLGbvNHVpCR40=
 
 nanoclone@^0.2.1:
   version "0.2.1"
@@ -25967,13 +25972,6 @@ watchpack@^2.3.1:
   dependencies:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
-
-wayfarer@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/wayfarer/-/wayfarer-7.0.1.tgz#17a64d351d49f9d3d6c508155867df7658184ce3"
-  integrity sha512-yf+kAlOYnJRjLxflLy+1+xEclb6222EAVvAjSY+Yz2qAIDrXeN5wLl/G302Mwv3E0KMg1HT/WDGsvSymX0U7Rw==
-  dependencies:
-    nanoassert "^1.1.0"
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"

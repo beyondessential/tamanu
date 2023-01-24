@@ -74,6 +74,13 @@
       "schedule": "1 0 * * *"
     }
   },
+  // Note: this config should be duplicated on the sync server if the same behavior is
+  // desired for "this facility" and "all facilities"
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": []
+    }
+  },
   "questionCodeIds": {
     "passport": "pde-FijCOVRDT005",
     "nationalityId": "pde-PalauCOVSamp7"
