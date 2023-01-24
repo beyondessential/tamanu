@@ -84,7 +84,8 @@ export function readMetadata(metadataSheet) {
   const programName = `${prefix}${metadata.programName}`;
   const programId = `program-${idify(metadata.programCode)}`;
 
-  const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRowIndex })
+  const surveyMetadata = utils
+    .sheet_to_json(metadataSheet, { range: headerRowIndex })
     .map(row => ({
       ...row,
       sheetName: row.name,
