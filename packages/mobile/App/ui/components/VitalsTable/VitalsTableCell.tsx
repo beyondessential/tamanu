@@ -2,11 +2,11 @@ import React from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { ISurveyResponseAnswer, SurveyScreenComponentConfig } from '~/types';
+import { ISurveyResponseAnswer, SurveyScreenConfig } from '~/types';
 
 interface VitalsTableCellProps {
   data?: ISurveyResponseAnswer;
-  config?: SurveyScreenComponentConfig;
+  config?: SurveyScreenConfig;
   needsAttention: boolean;
   isOdd: boolean;
 }

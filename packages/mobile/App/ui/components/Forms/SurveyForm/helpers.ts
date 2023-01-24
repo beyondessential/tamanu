@@ -4,7 +4,7 @@ import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
 import { getAgeFromDate } from '~/ui/helpers/date';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
-import { IPatient, ISurveyScreenComponent, IUser, ValidationCriteria } from '~/types';
+import { IPatient, ISurveyScreenComponent, IUser, SurveyScreenValidationCriteria } from '~/types';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -71,7 +71,7 @@ export function getFormInitialValues(
 
 function getFieldValidator(
   dataElement,
-  validationCriteria: ValidationCriteria,
+  validationCriteria: SurveyScreenValidationCriteria,
 ): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema | Yup.NumberSchema {
   switch (dataElement.type) {
     case FieldTypes.INSTRUCTION:
