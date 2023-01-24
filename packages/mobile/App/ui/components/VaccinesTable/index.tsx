@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
@@ -22,7 +22,7 @@ export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
-}: VaccinesTableProps): ReactElement => {
+}: VaccinesTableProps) : JSX.Element => {
   const isFocused = useIsFocused();
 
   const [scheduledVaccines, error] = useBackendEffect(
@@ -45,7 +45,7 @@ export const VaccinesTable = ({
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
     rowTitle: scheduledVaccine.label,
     rowKey: 'label',
-    rowHeader: (): ReactElement => (
+    rowHeader: () => (
       <VaccineRowHeader
         key={scheduledVaccine.id}
         title={scheduledVaccine.label}
@@ -79,7 +79,8 @@ export const VaccinesTable = ({
     cells[scheduledVaccine.schedule] = [
       ...(cells[scheduledVaccine.schedule] || []),
       {
-        scheduledVaccine: scheduledVaccine as IScheduledVaccine, // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
+        scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+        // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
         vaccineStatus,
         administeredVaccine,
         patientAdministeredVaccines,

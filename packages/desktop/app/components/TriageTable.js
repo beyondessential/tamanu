@@ -30,6 +30,7 @@ const useColumns = () => {
         }
       },
       accessor: TriageWaitTimeCell,
+      isExportable: false,
     },
     { key: 'chiefComplaint', title: 'Chief complaint' },
     { key: 'displayId' },

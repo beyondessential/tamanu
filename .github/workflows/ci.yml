@@ -218,6 +218,7 @@ jobs:
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
+    if: always() # always run even if dependencies fail
     name: Tests pass
     needs:
       - test
@@ -226,4 +227,6 @@ jobs:
       - test-mobile
     runs-on: ubuntu-latest
     steps:
-    - run: echo "Tests pass"
+    # fail if ANY dependency has failed or been skipped or cancelled
+    - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')"
+      run: exit 1

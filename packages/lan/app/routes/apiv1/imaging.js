@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -236,8 +236,8 @@ imagingRequest.put(
 
     if (newResultDescription?.length > 0) {
       const newResult = await ImagingResult.create({
-        createdAt: parseISO(newResultDate),
         description: newResultDescription,
+        completedAt: newResultDate,
         completedById: newResultCompletedBy,
         imagingRequestId: imagingRequestObject.id,
       });

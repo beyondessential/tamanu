@@ -26,7 +26,7 @@ const encounterColumns = [
   { key: 'labRequestType', title: 'Type', accessor: getRequestType, sortable: false },
   { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
   { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
-  { key: 'requestedDate', title: 'Date', accessor: getDate, sortable: false },
+  { key: 'requestedDate', title: 'Request date', accessor: getDate, sortable: false },
   { key: 'priority', title: 'Priority', accessor: getPriority },
   { key: 'laboratory', title: 'Laboratory', accessor: getLaboratory },
 ];

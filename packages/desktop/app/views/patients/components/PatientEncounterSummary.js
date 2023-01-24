@@ -113,7 +113,7 @@ const DataStatusMessage = ({ message }) => (
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
   const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`),
+    api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
   );
 
   if (isLoading) {
