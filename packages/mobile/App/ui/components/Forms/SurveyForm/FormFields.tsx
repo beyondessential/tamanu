@@ -12,7 +12,6 @@ import { Button } from '../../Button';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 
 const SurveyQuestionErrorView = ({ error }): ReactElement => (
   <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
@@ -20,12 +19,16 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
   </TouchableWithoutFeedback>
 );
 
+type AddDetailsFormFieldsValues = {
+  [key: string]: any;
+}
+
 interface AddDetailsFormFieldsProps {
   components: ISurveyScreenComponent[];
-  values: any;
+  values: AddDetailsFormFieldsValues;
   patient: any;
   note: string;
-  errors: FormikErrors;
+  errors: FormikErrors<AddDetailsFormFieldsValues>;
 }
 
 export const FormFields = ({

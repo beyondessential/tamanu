@@ -29,7 +29,7 @@ export class CentralServerConnection {
 
   async fetch(
     path: string,
-    query: Record<string, string | number>,
+    query: Record<string, string | number | boolean>,
     { backoff, ...config }: FetchOptions = {},
   ) {
     if (!this.host) {
@@ -48,11 +48,10 @@ export class CentralServerConnection {
       ...extraHeaders,
     };
     const response = await callWithBackoff(
-      () =>
-        fetchWithTimeout(url, {
-          ...config,
-          headers,
-        }),
+      () => fetchWithTimeout(url, {
+        ...config,
+        headers,
+      }),
       backoff,
     );
 
@@ -85,7 +84,7 @@ export class CentralServerConnection {
     return response.json();
   }
 
-  async get(path: string, query: Record<string, string | number>) {
+  async get(path: string, query: Record<string, string | number | boolean>) {
     return this.fetch(path, query, { method: 'GET' });
   }
 

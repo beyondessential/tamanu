@@ -204,6 +204,7 @@ export const StyledText = styled.Text<StyledTextProps>`
 interface StyledImageProps {
   height?: string | number;
   width?: string | number;
+  textAlign?: string
 }
 
 export const StyledImage = styled.Image<StyledImageProps>`
@@ -213,7 +214,7 @@ export const StyledImage = styled.Image<StyledImageProps>`
 
 interface StyledTouchableOpacityProps extends StyledViewProps {
   children?: ReactNode | Element[];
-  onPress: Function;
+  onPress: () => void;
 }
 
 export const StyledTouchableOpacity = styled.TouchableOpacity<

@@ -16,34 +16,36 @@ interface VitalsTableProps {
   columns: string[];
 }
 
-export const VitalsTable = memo(({ data, columns }: VitalsTableProps) : JSX.Element => {
-  const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
+export const VitalsTable = memo(
+  ({ data, columns }: VitalsTableProps): JSX.Element => {
+    const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
 
-  if (!vitalsSurvey) {
-    return <LoadingScreen />;
-  }
+    if (!vitalsSurvey) {
+      return <LoadingScreen />;
+    }
 
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
+    if (error) {
+      return <ErrorScreen error={error} />;
+    }
 
-  // Date is the column so remove it from rows
-  const rows = vitalsSurvey.components.filter(
-    c => c.dataElementId !== VitalsDataElements.dateRecorded,
-  );
+    // Date is the column so remove it from rows
+    const rows = vitalsSurvey.components.filter(
+      c => c.dataElementId !== VitalsDataElements.dateRecorded,
+    );
 
-  return (
-    <>
-      <Table
-        Title={VitalsTableTitle}
-        tableHeader={vitalsTableHeader}
-        rows={vitalsTableRows(rows)}
-        columns={columns}
-        cells={data}
-      />
-      <StyledView padding={10}>
-        <StyledText color={theme.colors.ALERT}>*Vital needs attention</StyledText>
-      </StyledView>
-    </>
-  );
-});
+    return (
+      <>
+        <Table
+          Title={VitalsTableTitle}
+          tableHeader={vitalsTableHeader}
+          rows={vitalsTableRows(rows)}
+          columns={columns}
+          cells={data}
+        />
+        <StyledView padding={10}>
+          <StyledText color={theme.colors.ALERT}>*Vital needs attention</StyledText>
+        </StyledView>
+      </>
+    );
+  },
+);
