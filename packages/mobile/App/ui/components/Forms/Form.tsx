@@ -14,7 +14,7 @@ type FormProps<T extends InitialValuesProps> = {
   validationSchema: ValidationSchema;
   onSubmit: onSubmit<T>;
   children: (props: FormikProps<T>) => ReactElement;
-  validate: any;
+  validate?: any;
 };
 
 export function Form<T>({

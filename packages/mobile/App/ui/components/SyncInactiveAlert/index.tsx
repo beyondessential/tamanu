@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import {
-  StyledText,
-  StyledTouchableOpacity,
-  StyledView,
-} from '~/ui/styled/common';
+import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import Modal from 'react-native-modal';
 import { theme } from '~/ui/styled/theme';
 import { Alert, AlertSeverity } from '../Alert';
 import { CrossIcon } from '../Icons';
+import { useSelector } from 'react-redux';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import * as Yup from 'yup';
+import { Form } from '../Forms/Form';
+import { Field } from '../Forms/FormField';
+import { TextField } from '../TextField/TextField';
+import { Button } from '../Button';
 
 interface AuthenticationModelProps {
   open: boolean;
   onClose: () => void;
 }
 
+type AuthenticationValues = {
+  password: string;
+};
+
 export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
+  const user = useSelector(authUserSelector);
+  const handleSignIn = async (payload: AuthenticationValues) => {};
   if (!open) return null;
   return (
     <Modal isVisible={open} onBackdropPress={onClose}>
@@ -31,16 +40,16 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
             <StyledTouchableOpacity onPress={onClose}>
               <CrossIcon
                 fill={theme.colors.TEXT_SUPER_DARK}
-                size={screenPercentageToDP(3, Orientation.Height)}
+                size={screenPercentageToDP(2.9, Orientation.Height)}
               />
             </StyledTouchableOpacity>
           </StyledView>
         </StyledView>
         <StyledText
-          fontSize={screenPercentageToDP(5, Orientation.Width)}
-          fontWeight={500}
+          fontSize={screenPercentageToDP(4.8, Orientation.Width)}
+          fontWeight={600}
           color={theme.colors.TEXT_SUPER_DARK}
-          marginBottom={screenPercentageToDP(2.43, Orientation.Height)}
+          marginBottom={screenPercentageToDP(3.2, Orientation.Height)}
           textAlign="center"
         >
           Reconnect sync
@@ -49,9 +58,51 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
           fontSize={screenPercentageToDP(3.6, Orientation.Width)}
           color={theme.colors.TEXT_SUPER_DARK}
           textAlign="center"
+          paddingLeft={screenPercentageToDP(9, Orientation.Width)}
+          paddingRight={screenPercentageToDP(9, Orientation.Width)}
+          marginBottom={screenPercentageToDP(3.2, Orientation.Height)}
         >
           Your sync connection has timed out. Please enter your password to reconnect.
         </StyledText>
+        <StyledText
+          textAlign="center"
+          fontSize={screenPercentageToDP(4, Orientation.Width)}
+          fontWeight={600}
+          color={theme.colors.TEXT_SUPER_DARK}
+        >
+          {user.email}
+        </StyledText>
+        <Form
+          initialValues={{
+            password: '',
+          }}
+          validationSchema={Yup.object().shape({
+            password: Yup.string().required('Password is required'),
+          })}
+          onSubmit={handleSignIn}
+        >
+          {({ handleSubmit, isSubmitting }): JSX.Element => (
+            <StyledView>
+              <Field
+                name="password"
+                autoCapitalize="none"
+                component={TextField}
+                label="Password"
+                secure
+              />
+              <Button
+                marginTop={20}
+                backgroundColor={theme.colors.SECONDARY_MAIN}
+                onPress={handleSubmit}
+                loadingAction={isSubmitting}
+                textColor={theme.colors.TEXT_SUPER_DARK}
+                fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+                fontWeight={500}
+                buttonText="Sign in"
+              />
+            </StyledView>
+          )}
+        </Form>
       </StyledView>
     </Modal>
   );
