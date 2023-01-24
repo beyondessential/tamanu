@@ -19,23 +19,25 @@ export enum SurveyTypes {
   Vitals = 'vitals',
 }
 
-export type ValidationCriteria = {
+export type SurveyScreenValidationCriteria = {
   min?: number;
   max?: number;
   mandatory?: boolean;
   normalRange?: { min: number; max: number };
-}
+};
+
+export type SurveyScreenConfig = {
+  rounding?: number;
+  column?: string;
+};
 
 export interface ISurveyScreenComponent {
   id: ID;
-
   required: boolean;
-
   survey?: ISurvey;
   surveyId?: string;
   dataElement?: IProgramDataElement;
   dataElementId?: string;
-
   screenIndex?: number;
   componentIndex?: number;
   text?: string;
@@ -46,9 +48,8 @@ export interface ISurveyScreenComponent {
   options?: string;
   calculation?: string;
   source?: string;
-
-  getConfigObject();
-  getValidationCriteriaObject: () => ValidationCriteria;
+  getConfigObject: () => SurveyScreenConfig;
+  getValidationCriteriaObject: () => SurveyScreenValidationCriteria;
   getOptions();
 }
 
