@@ -23,7 +23,7 @@ import { IPatient } from '~/types';
 import { joinNames, getGender } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
-import { SyncInactiveBanner } from './CustomComponents/SyncInactiveBanner';
+import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -96,7 +96,7 @@ export const Screen = ({
       <StyledView flex={1} background={theme.colors.BACKGROUND_GREY}>
         <PatientMenuButtons list={patientMenuButtons} />
         <VisitTypeButtonList list={visitTypeButtons} />
-        <SyncInactiveBanner />
+        <SyncInactiveAlert />
       </StyledView>
     </StyledSafeAreaView>
   </FullView>
