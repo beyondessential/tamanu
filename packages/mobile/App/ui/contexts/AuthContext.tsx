@@ -20,6 +20,7 @@ import { IUser, SyncConnectionParameters } from '~/types';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
+import { User } from '~/models/User';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -30,6 +31,7 @@ interface AuthContextData {
   ability: PureAbility;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
+  reconnectWithPassword: (params: {password: string}) => Promise<void>;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   checkFirstSession: () => boolean;
@@ -51,9 +53,10 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const backend = useContext(BackendContext);
   const checkFirstSession = (): boolean => props.isFirstTime;
-  const [user, setUserData] = useState();
+  const [user, setUserData] = useState<User>();
   const [ability, setAbility] = useState(null);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
+  const [preventSignOutOnFailure, setPreventSignOutOnFailure] = useState(false);
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -80,6 +83,19 @@ const Provider = ({
     const usr = await backend.auth.localSignIn(params);
     signInAs(usr);
   };
+
+  const reconnectWithPassword = async (params: {password: string}): Promise<void> => {
+    const serverLocation = await readConfig('syncServerLocation');
+    const payload = {
+      email: user?.email,
+      server: serverLocation,
+      password: params.password
+    }
+    setPreventSignOutOnFailure(true);
+
+    await backend.auth.remoteSignIn(payload);
+   
+  }
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user: usr, token } = await backend.auth.remoteSignIn(params);
@@ -147,14 +163,19 @@ const Provider = ({
   // sign user out if an auth error was thrown
   useEffect(() => {
     const handler = (err: Error): void => {
+      console.log('whats going on', preventSignOutOnFailure)
+      if (!preventSignOutOnFailure) {
       console.log(`signing out user with token ${props.token}: received auth error:`, err);
       signOut();
+      } else {
+        setPreventSignOutOnFailure(true)
+      }
     };
     backend.auth.emitter.on('authError', handler);
     return () => {
       backend.auth.emitter.off('authError', handler);
     };
-  }, [backend, props.token]);
+  }, [backend, props.token, preventSignOutOnFailure]);
 
   return (
     <AuthContext.Provider
@@ -162,6 +183,7 @@ const Provider = ({
         setUserFirstSignIn,
         signIn,
         signOut,
+        reconnectWithPassword,
         isUserAuthenticated,
         checkFirstSession,
         user,

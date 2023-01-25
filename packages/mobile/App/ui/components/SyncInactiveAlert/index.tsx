@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import Modal from 'react-native-modal';
@@ -13,7 +13,6 @@ import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { readConfig } from '~/services/config';
 
 interface AuthenticationModelProps {
   open: boolean;
@@ -25,32 +24,34 @@ type AuthenticationValues = {
 };
 
 export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
+  const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
   const authCtx = useAuth();
-  const handleSignIn = async (payload: AuthenticationValues) => {
-    const { password } = payload;
-    try {
 
-      const serverLocation = await readConfig('syncServerLocation');
-      const values = {
-        password,
-        email: user.email,
-        server: serverLocation,
-      }
-      await authCtx.signIn(values)
-      // on success
-    } catch(err) {
-      // on error
+  const handleSignIn = async (payload: AuthenticationValues) => {
+    try {
+      await authCtx.reconnectWithPassword(payload);
+      onClose();
+    } catch (err) {
+      setErrorMessage(err.message);
     }
-    
   };
+  
+  useEffect(() => {
+    if (errorMessage) {
+      setErrorMessage(null)
+    }
+  },[open])
+
   if (!open) return null;
+
+
   return (
     <Modal isVisible={open} onBackdropPress={onClose}>
       <StyledView
         padding={screenPercentageToDP(3.6, Orientation.Width)}
         background={theme.colors.WHITE}
-        height={screenPercentageToDP(50, Orientation.Height)}
+        height={screenPercentageToDP(errorMessage ? 55 : 50, Orientation.Height)}
         paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
         borderRadius={5}
       >
@@ -110,18 +111,31 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
                 label="Password"
                 secure
               />
-              <StyledView marginTop={screenPercentageToDP(3.2, Orientation.Height)} alignItems='center'>
-              <Button
-                backgroundColor={theme.colors.PRIMARY_MAIN}
-                onPress={handleSubmit}
-                loadingAction={isSubmitting}
-                textColor={theme.colors.WHITE}
-                width={screenPercentageToDP(50, Orientation.Width)}
-                fontSize={screenPercentageToDP('1.94', Orientation.Height)}
-                fontWeight={500}
-                buttonText="Submit"
+              <StyledView
+                marginTop={screenPercentageToDP(3.2, Orientation.Height)}
+                alignItems="center"
+              >
+                {errorMessage && (
+                  <StyledText
+                    color={theme.colors.ALERT}
+                    marginBottom={screenPercentageToDP(3.2, Orientation.Height)}
+                    fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+                    textAlign="center"
+                  >
+                    {errorMessage}
+                  </StyledText>
+                )}
+                <Button
+                  backgroundColor={theme.colors.PRIMARY_MAIN}
+                  onPress={handleSubmit}
+                  loadingAction={isSubmitting}
+                  textColor={theme.colors.WHITE}
+                  width={screenPercentageToDP(50, Orientation.Width)}
+                  fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+                  fontWeight={500}
+                  buttonText="Submit"
                 />
-                </StyledView>
+              </StyledView>
             </StyledView>
           )}
         </Form>
@@ -154,7 +168,10 @@ export const SyncInactiveAlert = (): JSX.Element => {
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
-      <AuthenticationModal open={openAuthenticationModel} onClose={handleCloseModal} />
+      <AuthenticationModal
+        open={openAuthenticationModel}
+        onClose={handleCloseModal}
+      />
     </>
   );
 };
