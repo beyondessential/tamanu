@@ -228,6 +228,7 @@ class BaseAutocomplete extends Component {
 
   renderInputComponent = inputProps => {
     const { label, required, className, infoTooltip, tag, value, ...other } = inputProps;
+
     return (
       <OuterLabelFieldWrapper
         label={label}
@@ -271,6 +272,7 @@ class BaseAutocomplete extends Component {
       error,
       helperText,
       placeholder = 'Search...',
+      inputRef,
     } = this.props;
 
     return (
@@ -297,6 +299,7 @@ class BaseAutocomplete extends Component {
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
+            inputRef,
           }}
         />
       </>

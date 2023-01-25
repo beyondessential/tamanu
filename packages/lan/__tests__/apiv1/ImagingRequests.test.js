@@ -249,7 +249,7 @@ describe('Imaging requests', () => {
     });
     const resultRow = await models.ImagingResult.create({
       imagingRequestId: ir.id,
-      description: 'result description',
+      description: 'external result description',
       externalCode: 'EXT123',
     });
     await models.ImagingResult.create({
@@ -273,7 +273,7 @@ describe('Imaging requests', () => {
     // assert
     expect(result).toHaveSucceeded();
     expect(result.body.results[0]).toMatchObject({
-      description: 'result description',
+      description: 'external result description',
       externalUrl: `https://test.tamanu.io/${resultRow.id}`,
     });
     expect(result.body.results[1]).toMatchObject({

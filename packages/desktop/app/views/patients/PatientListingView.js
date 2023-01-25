@@ -44,7 +44,7 @@ const LISTING_COLUMNS = [
   status,
 ];
 
-const LocationCell = React.memo(({ locationName, plannedLocationName, style }) => (
+const LocationCell = ({ locationName, plannedLocationName, style }) => (
   <div style={{ minWidth: 180, ...style }}>
     {locationName}
     {plannedLocationName && (
@@ -53,7 +53,7 @@ const LocationCell = React.memo(({ locationName, plannedLocationName, style }) =
       </Typography>
     )}
   </div>
-));
+);
 
 const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName }) => (
   <LocationCell

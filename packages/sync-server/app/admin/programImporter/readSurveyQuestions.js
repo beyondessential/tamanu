@@ -99,7 +99,7 @@ function splitIntoScreens(questions) {
   });
 }
 
-export function importSurveySheet(data, survey) {
+export function readSurveyQuestions(data, survey) {
   const questions = data.map(importDataElement).filter(q => q.code);
   const screens = splitIntoScreens(questions);
 

@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 
 import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
-import { ISurveyScreenComponent } from '~/types';
+import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey_screen_component')
@@ -76,6 +76,18 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn(`Invalid config in survey screen component ${this.id}`);
+      return {};
+    }
+  }
+
+  getValidationCriteriaObject(): SurveyScreenValidationCriteria {
+    if (!this.validationCriteria) return {};
+
+    try {
+      return JSON.parse(this.validationCriteria);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn(`Invalid validationCriteria in survey screen component ${this.id}`);
       return {};
     }
   }
