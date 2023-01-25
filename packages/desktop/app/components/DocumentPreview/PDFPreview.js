@@ -3,56 +3,45 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
 import { useApi } from '../../api';
+import { PDFPage } from './PDFPage';
 
 export default function PDFPreview({ attachmentId }) {
-  const canvasRef = useRef();
   pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
   const api = useApi();
-  const [pdfData, setPdfData] = useState();
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const renderPage = useCallback(
-    (pageNumber, pdf = pdfData) =>
-      pdf &&
-      pdf.getPage(pageNumber).then(page => {
-        const viewport = page.getViewport({ scale: 1 });
-        const canvas = canvasRef.current;
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        const renderContext = {
-          canvasContext: canvas.getContext('2d'),
-          viewport,
-        };
-        page.render(renderContext);
-      }),
-    [pdfData],
-  );
-
-  useEffect(() => {
-    renderPage(currentPage, pdfData);
-  }, [pdfData, currentPage, renderPage]);
+  // const [pdfData, setPdfData] = useState();
+  const [pages, setPages] = useState([]);
+  const [pageCount, setPageCount] = useState();
 
   useEffect(() => {
     (async () => {
+      if (!attachmentId) {
+        return;
+      }
       const { data } = await api.get(`attachment/${attachmentId}`, { base64: true });
       const raw = Uint8Array.from(atob(data), c => c.charCodeAt(0));
       const loadingTask = pdfjsLib.getDocument(raw);
       loadingTask.promise.then(
-        loadedPdf => {
-          setPdfData(loadedPdf);
+        async loadedPdf => {
+          setPageCount(loadedPdf.numPages);
+          const loadedPages = [];
+          for (let pageIndex = 0; pageIndex < loadedPdf.numPages; ++pageIndex) {
+            loadedPages.push(await loadedPdf.getPage(pageIndex + 1));
+          }
+          setPages(loadedPages);
         },
         error => {
           throw new Error(error);
         },
       );
     })();
-  }, [attachmentId, api]);
+  }, [attachmentId, api, pageCount]);
 
-  const nextPage = () =>
-    pdfData && currentPage < pdfData.numPages && setCurrentPage(currentPage + 1);
-
-  const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
-
-  return <canvas ref={canvasRef} />;
+  return (
+    <>
+      {pages.map(p => (
+        <PDFPage page={p} />
+      ))}
+    </>
+  );
 }
