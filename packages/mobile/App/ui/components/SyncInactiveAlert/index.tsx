@@ -12,6 +12,8 @@ import { Form } from '../Forms/Form';
 import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { readConfig } from '~/services/config';
 
 interface AuthenticationModelProps {
   open: boolean;
@@ -24,7 +26,24 @@ type AuthenticationValues = {
 
 export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
   const user = useSelector(authUserSelector);
-  const handleSignIn = async (payload: AuthenticationValues) => {};
+  const authCtx = useAuth();
+  const handleSignIn = async (payload: AuthenticationValues) => {
+    const { password } = payload;
+    try {
+
+      const serverLocation = await readConfig('syncServerLocation');
+      const values = {
+        password,
+        email: user.email,
+        server: serverLocation,
+      }
+      await authCtx.signIn(values)
+      // on success
+    } catch(err) {
+      // on error
+    }
+    
+  };
   if (!open) return null;
   return (
     <Modal isVisible={open} onBackdropPress={onClose}>
@@ -74,7 +93,6 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
           {user.email}
         </StyledText>
         <Form
-          
           initialValues={{
             password: '',
           }}
@@ -92,16 +110,18 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
                 label="Password"
                 secure
               />
+              <StyledView marginTop={screenPercentageToDP(3.2, Orientation.Height)} alignItems='center'>
               <Button
-                marginTop={20}
                 backgroundColor={theme.colors.PRIMARY_MAIN}
                 onPress={handleSubmit}
                 loadingAction={isSubmitting}
-                textColor={theme.colors.TEXT_SUPER_DARK}
+                textColor={theme.colors.WHITE}
+                width={screenPercentageToDP(50, Orientation.Width)}
                 fontSize={screenPercentageToDP('1.94', Orientation.Height)}
                 fontWeight={500}
-                buttonText="Sign in"
-              />
+                buttonText="Submit"
+                />
+                </StyledView>
             </StyledView>
           )}
         </Form>
