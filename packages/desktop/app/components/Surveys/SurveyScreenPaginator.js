@@ -44,6 +44,9 @@ export const SurveyScreenPaginator = ({
   onCancel,
   setFieldValue,
   patient,
+  validateForm,
+  setErrors,
+  errors,
 }) => {
   const { components } = survey;
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
@@ -63,6 +66,9 @@ export const SurveyScreenPaginator = ({
         components={screenComponents}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
+        validateForm={validateForm}
+        setErrors={setErrors}
+        errors={errors}
       />
     );
   }

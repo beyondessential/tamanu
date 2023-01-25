@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 
 import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
-import { ISurveyScreenComponent, ValidationCriteria } from '~/types';
+import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey_screen_component')
@@ -80,7 +80,7 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
     }
   }
 
-  getValidationCriteriaObject(): ValidationCriteria {
+  getValidationCriteriaObject(): SurveyScreenValidationCriteria {
     if (!this.validationCriteria) return {};
 
     try {

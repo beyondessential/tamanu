@@ -232,7 +232,7 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (response.status === 401 && this.onAuthFailure) {
+    if (response.status === 401 && endpoint !== 'login' && this.onAuthFailure) {
       clearLocalStorage();
       const message = 'Your session has expired. Please log in again.';
       this.onAuthFailure(message);

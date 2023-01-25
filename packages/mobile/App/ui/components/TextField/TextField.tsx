@@ -10,6 +10,7 @@ import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import { TextErrorMessage } from './TextFieldError';
 export interface RefObject<T> {
   readonly current: T | null;
 }
@@ -97,6 +98,7 @@ export const TextField = React.memo(
             ? screenPercentageToDP('13.36', Orientation.Height)
             : screenPercentageToDP('6.68', Orientation.Height)
         }
+        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
         width="100%"
       >
         <InputContainer
@@ -145,6 +147,11 @@ export const TextField = React.memo(
             onSubmitEditing={onSubmitEditing}
           />
         </InputContainer>
+        {error && (
+          <TextErrorMessage>
+            {error}
+          </TextErrorMessage>
+        )}
       </StyledView>
     );
   },

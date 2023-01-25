@@ -7,13 +7,15 @@ import { arrayOf } from './utils';
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
 import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, IMAGING_REQUEST_STATUS_TYPES } from '../../constants';
 import { Deleted, Invalid } from '../../utils/fhir';
+import { getCurrentDateTimeString, toDateTimeString } from '../../utils/dateTime';
 
-export class FhirObservation extends FhirResource {
+export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
     super.init(
       {
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         basedOn: arrayOf('basedOn', DataTypes.FHIR_REFERENCE),
+        started: DataTypes.DATE,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -33,11 +35,14 @@ export class FhirObservation extends FhirResource {
     return yup.object({
       identifier: yup.array().of(FhirIdentifier.asYup()),
       basedOn: yup.array().of(FhirReference.asYup()),
+      started: yup.date().optional(),
       status: yup.string().required(),
       note: yup.array().of(FhirAnnotation.asYup()),
     });
   }
 
+  // This is currently very hardcoded for Aspen's use case.
+  // We'll need to make it more generic at some point, but not today!
   async pushUpstream() {
     const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
 
@@ -73,7 +78,7 @@ export class FhirObservation extends FhirResource {
     }
 
     if (this.status !== 'final') {
-      throw new Invalid(`Observation status must be 'final'`, {
+      throw new Invalid(`ImagingStudy status must be 'final'`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
@@ -97,6 +102,7 @@ export class FhirObservation extends FhirResource {
         imagingRequestId: imagingRequest.id,
         description: results,
         externalCode: imagingAccessCode,
+        completedAt: this.started ? toDateTimeString(this.started) : getCurrentDateTimeString(),
       });
     }
 
