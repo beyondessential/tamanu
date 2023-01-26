@@ -399,3 +399,8 @@ export const DRUG_ROUTE_VALUE_TO_LABEL = {
   topical: 'Topical',
   vaginal: 'Vaginal',
 };
+
+export const SUPPORTED_DOCUMENT_TYPES = {
+  PDF: 'PDF',
+  JPEG: 'JPEG',
+};
