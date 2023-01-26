@@ -17,7 +17,7 @@ const STAT_KEYS = Object.keys(BASE_STAT_ROW);
 
 /* eslint-disable no-param-reassign */
 export function updateStat(stats, key, field, incr = 1) {
-  stats[key] = stats[key] || { ... BASE_STAT_ROW };
+  stats[key] = stats[key] || { ...BASE_STAT_ROW };
   stats[key][field] += incr;
 }
 /* eslint-enable no-param-reassign */
@@ -32,7 +32,7 @@ export function coalesceStats(statGroups) {
           existing[k] = (existing[k] || 0) + (stats[k] || 0);
         });
       } else {
-        allStats[key] = { ...stats };
+        allStats[key] = { ...BASE_STAT_ROW, ...stats };
       }
     }
   }
