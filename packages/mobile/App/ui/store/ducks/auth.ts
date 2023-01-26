@@ -7,7 +7,16 @@ export interface WithAuthActions {
   setToken: (payload: string) => PayloadAction<IUser>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
+  setCentralServerConnectionStatus: (
+    payload: CentralServerConnectionStatus,
+  ) => PayloadAction<CentralServerConnectionStatus>;
   signOutUser(): () => PayloadAction<void>;
+}
+
+export enum CentralServerConnectionStatus {
+  Disconnected = 'disconnected',
+  Connected = 'connected',
+  Error = 'error',
 }
 
 export interface AuthStateProps {
@@ -15,6 +24,7 @@ export interface AuthStateProps {
   user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
+  centralServerConnectionStatus: CentralServerConnectionStatus;
 }
 
 const initialState: AuthStateProps = {
@@ -22,6 +32,7 @@ const initialState: AuthStateProps = {
   user: null,
   signedIn: false,
   isFirstTime: true,
+  centralServerConnectionStatus: CentralServerConnectionStatus.Disconnected,
 };
 
 export const PatientSlice = createSlice({
@@ -34,28 +45,19 @@ export const PatientSlice = createSlice({
         token,
       };
     },
-    setSignedInStatus(
-      state,
-      { payload: signInStatus }: PayloadAction<boolean>,
-    ): AuthStateProps {
+    setSignedInStatus(state, { payload: signInStatus }: PayloadAction<boolean>): AuthStateProps {
       return {
         ...state,
         signedIn: signInStatus,
       };
     },
-    setFirstSignIn(
-      state,
-      { payload: firstSignIn }: PayloadAction<boolean>,
-    ): AuthStateProps {
+    setFirstSignIn(state, { payload: firstSignIn }: PayloadAction<boolean>): AuthStateProps {
       return {
         ...state,
         isFirstTime: firstSignIn,
       };
     },
-    setUser(
-      state,
-      { payload: user }: PayloadAction<IUser>,
-    ): AuthStateProps {
+    setUser(state, { payload: user }: PayloadAction<IUser>): AuthStateProps {
       return {
         ...state,
         user,
@@ -65,6 +67,15 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         token: null,
+      };
+    },
+    setCentralServerConnectionStatus(
+      state,
+      { payload: centralServerConnectionStatus }: PayloadAction<CentralServerConnectionStatus>,
+    ): AuthStateProps {
+      return {
+        ...state,
+        centralServerConnectionStatus,
       };
     },
   },

@@ -13,7 +13,7 @@ import { compose } from 'redux';
 import { PureAbility } from '@casl/ability';
 import { readConfig } from '~/services/config';
 import { withAuth } from '~/ui/containers/Auth';
-import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
+import { CentralServerConnectionStatus, WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
@@ -31,9 +31,10 @@ interface AuthContextData {
   ability: PureAbility;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
-  reconnectWithPassword: (params: {password: string}) => Promise<void>;
+  reconnectWithPassword: (params: { password: string }) => Promise<void>;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
+  setCentralServerConnectionStatus: (status: CentralServerConnectionStatus) => void;
   checkFirstSession: () => boolean;
   requestResetPassword: (params: ResetPasswordFormModel) => void;
   resetPasswordLastEmailUsed: string;
@@ -46,6 +47,7 @@ const Provider = ({
   setToken,
   setUser,
   setSignedInStatus,
+  setCentralServerConnectionStatus,
   children,
   signOutUser,
   navRef,
@@ -84,18 +86,17 @@ const Provider = ({
     signInAs(usr);
   };
 
-  const reconnectWithPassword = async (params: {password: string}): Promise<void> => {
+  const reconnectWithPassword = async (params: { password: string }): Promise<void> => {
     const serverLocation = await readConfig('syncServerLocation');
     const payload = {
       email: user?.email,
       server: serverLocation,
-      password: params.password
-    }
+      password: params.password,
+    };
     setPreventSignOutOnFailure(true);
 
     await backend.auth.remoteSignIn(payload);
-   
-  }
+  };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user: usr, token } = await backend.auth.remoteSignIn(params);
@@ -147,8 +148,10 @@ const Provider = ({
   // start a session if there's a stored token
   useEffect(() => {
     if (props.token && props.user) {
+      setCentralServerConnectionStatus(CentralServerConnectionStatus.Connected);
       backend.auth.startSession(props.token);
     } else {
+      setCentralServerConnectionStatus(CentralServerConnectionStatus.Disconnected);
       backend.auth.endSession();
     }
   }, [backend, props.token, props.user]);
@@ -160,15 +163,14 @@ const Provider = ({
     }
   }, []);
 
-  // sign user out if an auth error was thrown
+  // Sign user out if an auth error was thrown
+  // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
     const handler = (err: Error): void => {
-      console.log('whats going on', preventSignOutOnFailure)
       if (!preventSignOutOnFailure) {
-      console.log(`signing out user with token ${props.token}: received auth error:`, err);
-      signOut();
+        signOut();
       } else {
-        setPreventSignOutOnFailure(true)
+        setPreventSignOutOnFailure(true);
       }
     };
     backend.auth.emitter.on('authError', handler);
@@ -181,6 +183,7 @@ const Provider = ({
     <AuthContext.Provider
       value={{
         setUserFirstSignIn,
+        setCentralServerConnectionStatus,
         signIn,
         signOut,
         reconnectWithPassword,

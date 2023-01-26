@@ -6,7 +6,7 @@ import { theme } from '~/ui/styled/theme';
 import { Alert, AlertSeverity } from '../Alert';
 import { CrossIcon } from '../Icons';
 import { useSelector } from 'react-redux';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { authCentralServerConnectionStatusSelector, authUserSelector } from '~/ui/helpers/selectors';
 import * as Yup from 'yup';
 import { Form } from '../Forms/Form';
 import { Field } from '../Forms/FormField';
@@ -26,8 +26,8 @@ type AuthenticationValues = {
 export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
+  const centralServerConnectionStatus = useSelector(authCentralServerConnectionStatusSelector);
   const authCtx = useAuth();
-
   const handleSignIn = async (payload: AuthenticationValues) => {
     try {
       await authCtx.reconnectWithPassword(payload);

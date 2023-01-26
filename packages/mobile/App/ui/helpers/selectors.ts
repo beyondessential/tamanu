@@ -10,3 +10,8 @@ export const authUserSelector = createSelector(
   (state: ReduxStoreProps) => state.auth.user,
   user => user,
 );
+
+export const authCentralServerConnectionStatusSelector = createSelector(
+  (state: ReduxStoreProps) => state.auth.centralServerConnectionStatus,
+  centralServerConnectionStatus => centralServerConnectionStatus,
+);
