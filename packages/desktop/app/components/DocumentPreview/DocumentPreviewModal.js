@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
+import PhotoPreview from './PhotoPreview';
 import { Button } from '../Button';
 
 const DownloadButton = ({ onClick }) => {
@@ -13,7 +14,14 @@ const DownloadButton = ({ onClick }) => {
   );
 };
 
-export const DocumentPreviewModal = ({ open, title, attachmentId, onClose, onDownload }) => {
+export const DocumentPreviewModal = ({
+  open,
+  title,
+  attachmentId,
+  documentType,
+  onClose,
+  onDownload,
+}) => {
   const [scrollPage, setScrollPage] = useState(1);
   const [pageCount, setPageCount] = useState();
 
@@ -21,17 +29,24 @@ export const DocumentPreviewModal = ({ open, title, attachmentId, onClose, onDow
     <Modal
       open={open}
       title={title}
-      subtitle={`Page ${scrollPage} of ${pageCount}`}
-      additionalActions={[<DownloadButton onClick={onDownload} />]}
-      onClose={onClose}
+      subtitle={documentType === 'PDF' ? `Page ${scrollPage} of ${pageCount}` : null}
+      additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
+      onClose={() => {
+        setScrollPage(1);
+        onClose();
+      }}
     >
-      <PDFPreview
-        attachmentId={attachmentId}
-        pageCount={pageCount}
-        setPageCount={setPageCount}
-        scrollPage={scrollPage}
-        setScrollPage={setScrollPage}
-      />
+      {documentType === 'PDF' ? (
+        <PDFPreview
+          attachmentId={attachmentId}
+          pageCount={pageCount}
+          setPageCount={setPageCount}
+          scrollPage={scrollPage}
+          setScrollPage={setScrollPage}
+        />
+      ) : (
+        <PhotoPreview attachmentId={attachmentId} />
+      )}
     </Modal>
   );
 };

@@ -18,7 +18,7 @@ function getScrollPage(element, pageCount) {
     return NaN;
   }
   const height = element.scrollHeight - element.clientHeight;
-  return Math.ceil((element.scrollTop / height) * pageCount);
+  return element.scrollTop > 0 ? Math.ceil((element.scrollTop / height) * pageCount) : 1;
 }
 
 export default function PDFPreview({
@@ -79,8 +79,9 @@ export default function PDFPreview({
 
   return (
     <PDFDocument ref={scrollRef}>
-      {pages.map(p => (
-        <PDFPage page={p} />
+      {pages.map((p, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <PDFPage page={p} key={i} />
       ))}
     </PDFDocument>
   );

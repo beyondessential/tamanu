@@ -45,21 +45,17 @@ const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView 
     */
   ];
 
-  return (
-    <ButtonRow>
-      {actions.map(action => (
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={action.icon}
-          onClick={action.onClick}
-          key={action.key}
-        >
-          {action.label}
-        </Button>
-      ))}
-    </ButtonRow>
-  );
+  return actions.map(action => (
+    <Button
+      variant="outlined"
+      size="small"
+      startIcon={action.icon}
+      onClick={action.onClick}
+      key={action.key}
+    >
+      {action.label}
+    </Button>
+  ));
 });
 
 const getType = ({ type }) => {
@@ -193,6 +189,7 @@ export const DocumentsTable = React.memo(
           open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.VIEW}
           title={selectedDocument?.name}
           attachmentId={selectedDocument?.attachmentId}
+          documentType={getType({ type: selectedDocument?.type })}
           onClose={onClose}
           onDownload={() => onDownload(selectedDocument)}
         />
