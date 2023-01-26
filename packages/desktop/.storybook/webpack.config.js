@@ -18,17 +18,10 @@ const webpack = require('webpack')
  * @see https://storybook.js.org/docs/react/configure/webpack#using-your-existing-config
  */
 module.exports = async ({ config }) => {
-  config.resolve.fallback = {
-    ...config.resolve.fallback,
-      fs: false,
-      stream: false,
-      zlib: false,
-      events: false
-  }
   /**
-   * Pretty odd workaround but prevented me from changing parent configs
+   * Pretty odd workaround but prevented changing more core configs
    *  @see https://github.com/vercel/next.js/issues/28774#issuecomment-1264555395 for similar issue
-   * */
+  */
 
   config.plugins.push(
     new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
@@ -39,8 +32,7 @@ module.exports = async ({ config }) => {
     ...config.resolve.fallback,
       fs: false,
       stream: false,
-      zlib: false,
-      events: false
+      zlib: false
   }
   config.resolve.alias = {
     ...config.resolve.alias,
