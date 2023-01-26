@@ -174,6 +174,7 @@ imagingRequest.put(
       },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
+
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');

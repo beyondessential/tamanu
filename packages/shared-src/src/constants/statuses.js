@@ -2,11 +2,13 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
   IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
 };
 
 export const IMAGING_REQUEST_STATUS_LABELS = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: 'Cancelled',
   [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
 };
 

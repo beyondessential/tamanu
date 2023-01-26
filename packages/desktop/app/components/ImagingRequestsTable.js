@@ -1,37 +1,56 @@
 import React, { useCallback } from 'react';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-
-import { IMAGING_REQUEST_STATUS_LABELS } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-
-import { IMAGING_REQUEST_COLORS } from '../constants';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
+import { StatusTag } from './Tag';
 
-const StatusLabel = styled.div`
-  background: ${p => p.color};
-  border-radius: 0.3rem;
-  padding: 0.3rem;
-`;
+export const IMAGING_REQUEST_CONFIG = {
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: {
+    label: 'Pending',
+    color: '#CB6100',
+    background: '#FAF0E6',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: {
+    label: 'Completed',
+    color: '#19934E',
+    background: '#DEF0EE',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: {
+    label: 'In progress',
+    color: '#888888;',
+    background: '#ECE6FA',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: {
+    label: 'Cancelled',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
+  unknown: {
+    label: 'Unknown',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
+};
 
 const StatusDisplay = React.memo(({ status }) => (
-  <StatusLabel color={IMAGING_REQUEST_COLORS[status] || IMAGING_REQUEST_COLORS.unknown}>
-    {IMAGING_REQUEST_STATUS_LABELS[status] || 'Unknown'}
-  </StatusLabel>
+  <StatusTag $background={IMAGING_REQUEST_CONFIG[status]}>
+    {IMAGING_REQUEST_CONFIG[status] || 'Unknown'}
+  </StatusTag>
 ));
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getRequestType = imagingTypes => ({ imagingType }) =>
-  imagingTypes[imagingType]?.label || 'Unknown'(imagingType || {}).name || 'Unknown';
+  imagingTypes[imagingType]?.label || `Unknown ${imagingType?.name || null}` || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
 
 export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters }) => {

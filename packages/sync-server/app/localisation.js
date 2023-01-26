@@ -321,6 +321,12 @@ const rootLocalisationSchema = yup
         label: yup.string().required(),
       }),
     ),
+    imagingRequestCancellationReasons: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
     triageCategories: yup
       .array(
         yup.object({
