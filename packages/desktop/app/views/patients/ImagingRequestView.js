@@ -6,10 +6,9 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-
+import { CancelModal } from '../../components/CancelModal';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -30,6 +29,7 @@ import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { SimpleTopBar } from '../../components';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
@@ -72,11 +72,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
           />
         )}
       </Modal>
-      <Button
-        variant="outlined"
-        onClick={openModal}
-        style={{ marginRight: '0.5rem', marginBottom: '30px' }}
-      >
+      <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
         Print request
       </Button>
     </>
@@ -281,16 +277,22 @@ export const ImagingRequestView = () => {
   };
 
   if (patient.loading) return <LoadingIndicator />;
+
   return (
-    <ContentPane>
-      <PrintButton imagingRequest={imagingRequest} patient={patient} />
-      <ImagingRequestInfoPane
-        imagingRequest={imagingRequest}
-        onSubmit={onSubmit}
-        practitionerSuggester={practitionerSuggester}
-        locationSuggester={locationSuggester}
-        imagingTypes={imagingTypes}
-      />
-    </ContentPane>
+    <>
+      <SimpleTopBar title="Imaging request">
+        <CancelModal buttonText="Cancel request" imagingRequest={imagingRequest} />
+        <PrintButton imagingRequest={imagingRequest} patient={patient} />
+      </SimpleTopBar>
+      <ContentPane>
+        <ImagingRequestInfoPane
+          imagingRequest={imagingRequest}
+          onSubmit={onSubmit}
+          practitionerSuggester={practitionerSuggester}
+          locationSuggester={locationSuggester}
+          imagingTypes={imagingTypes}
+        />
+      </ContentPane>
+    </>
   );
 };
