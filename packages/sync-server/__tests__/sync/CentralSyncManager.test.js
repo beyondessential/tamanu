@@ -199,7 +199,6 @@ describe('CentralSyncManager', () => {
         // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
         expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
         expect(encounterIds).not.toEqual(expect.arrayContaining([encounter3.id]));
-
       });
     });
 
@@ -507,7 +506,6 @@ describe('CentralSyncManager', () => {
 
         it('syncs all lab requests when enabled', async () => {
           // Enable syncAllLabRequests
-
           await models.Setting.create({
             facilityId: facility.id,
             key: 'syncAllLabRequests',
@@ -529,10 +527,7 @@ describe('CentralSyncManager', () => {
 
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-          // Test if the outgoingChanges also sync the lab requests
-          expect([...new Set(outgoingChanges.map(r => r.recordType))]).toEqual(
-            expect.arrayContaining(['lab_requests']),
-          );
+          // Test if the outgoingChanges contain the lab requests
           expect(outgoingChanges.map(r => r.recordId)).toEqual(
             expect.arrayContaining([labRequest1.id, labRequest2.id]),
           );
@@ -544,6 +539,27 @@ describe('CentralSyncManager', () => {
             facilityId: facility.id,
             key: 'syncAllLabRequests',
             value: false,
+          });
+
+          // Create marked for sync patient to test if lab request still sync through normal full sync
+          const fullSyncedPatient = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const fullSyncedPatientEncounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: fullSyncedPatient.id,
+          });
+          const fullSyncedPatientLabRequest = await models.LabRequest.create({
+            ...(await randomLabRequest(models, {
+              patientId: fullSyncedPatientEncounter.id,
+              encounterId: fullSyncedPatientEncounter.id,
+              status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+            })),
+          });
+          await models.PatientFacility.create({
+            id: models.PatientFacility.generateId(),
+            patientId: fullSyncedPatient.id,
+            facilityId: facility.id,
           });
 
           initializeCentralSyncManager();
@@ -561,12 +577,13 @@ describe('CentralSyncManager', () => {
 
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-          // Test if the outgoingChanges also sync the lab requests
-          expect([...new Set(outgoingChanges.map(r => r.recordType))]).not.toEqual(
-            expect.arrayContaining(['lab_requests']),
-          );
+          // Test if the outgoingChanges dont contain the lab requests of the patients that are not marked for synced
           expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
             expect.arrayContaining([labRequest1.id, labRequest2.id]),
+          );
+          // Test if the outgoingChanges contain the lab requests of the patients that are marked for synced
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
+            expect.arrayContaining([fullSyncedPatientLabRequest.id]),
           );
         });
       });
@@ -575,8 +592,10 @@ describe('CentralSyncManager', () => {
         let facility;
         let encounter1;
         let encounter2;
+        let fullSyncedPatient;
         let administeredVaccine1;
         let administeredVaccine2;
+        let fullSyncedAdministeredVaccine3;
 
         beforeEach(async () => {
           await models.Facility.truncate({ cascade: true, force: true });
@@ -589,7 +608,7 @@ describe('CentralSyncManager', () => {
           await models.AdministeredVaccine.truncate({ cascade: true, force: true });
 
           facility = await models.Facility.create(fake(models.Facility));
-          const [vaccineOne, vaccineTwo] = await Promise.all([
+          const [vaccineOne, vaccineTwo, vaccineThree] = await Promise.all([
             models.ReferenceData.create({
               ...fakeReferenceData(),
               id: 'drug-COVAX',
@@ -604,8 +623,18 @@ describe('CentralSyncManager', () => {
               type: 'drug',
               name: 'PFIZER',
             }),
+            models.ReferenceData.create({
+              ...fakeReferenceData(),
+              id: 'drug-test-2',
+              code: 'test2',
+              type: 'drug',
+              name: 'Test 2',
+            }),
           ]);
           const { id: patientId } = await models.Patient.create(fake(models.Patient));
+          fullSyncedPatient = await models.Patient.create({
+            ...fake(models.Patient),
+          });
           const { id: examinerId } = await models.User.create(fakeUser());
           const { id: departmentId } = await models.Department.create({
             ...fake(models.Department),
@@ -632,7 +661,11 @@ describe('CentralSyncManager', () => {
             examinerId,
             endDate: null,
           });
-          const [scheduleOne, scheduleTwo] = await Promise.all([
+          const fullSyncedPatientEncounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: fullSyncedPatient.id,
+          });
+          const [scheduleOne, scheduleTwo, scheduleThree] = await Promise.all([
             models.ScheduledVaccine.create({
               ...fake(models.ScheduledVaccine),
               vaccineId: vaccineOne.id,
@@ -640,6 +673,10 @@ describe('CentralSyncManager', () => {
             models.ScheduledVaccine.create({
               ...fake(models.ScheduledVaccine),
               vaccineId: vaccineTwo.id,
+            }),
+            models.ScheduledVaccine.create({
+              ...fake(models.ScheduledVaccine),
+              vaccineId: vaccineThree.id,
             }),
           ]);
           [administeredVaccine1, administeredVaccine2] = await Promise.all([
@@ -660,6 +697,15 @@ describe('CentralSyncManager', () => {
               encounterId: encounter2.id,
             }),
           ]);
+
+          fullSyncedAdministeredVaccine3 = await models.AdministeredVaccine.create({
+            ...fake(models.AdministeredVaccine),
+            status: 'GIVEN',
+            date: new Date(),
+            recorderId: examinerId,
+            scheduledVaccineId: scheduleThree.id,
+            encounterId: fullSyncedPatientEncounter.id,
+          });
         });
 
         it('syncs the configured vaccine encounters when it is enabled and client is mobile', async () => {
@@ -686,21 +732,23 @@ describe('CentralSyncManager', () => {
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
           // Test if the outgoingChanges also sync the configured vaccines and the associated encounters
-          expect([...new Set(outgoingChanges.map(r => r.recordType))]).toEqual(
-            expect.arrayContaining(['encounters', 'administered_vaccines']),
-          );
           expect(outgoingChanges.map(r => r.recordId)).toEqual(
             expect.arrayContaining([administeredVaccine1.id, administeredVaccine2.id]),
           );
         });
 
         it('does not sync any vaccine encounters when it is disabled and client is mobile', async () => {
-          // Create the vaccines to be tested
           initializeCentralSyncManager();
 
-          // Turn on syncAllEncountersForTheseVaccines config
+          // Turn off syncAllEncountersForTheseVaccines config
           CentralSyncManager.overrideConfig({
             sync: { syncAllEncountersForTheseVaccines: [] },
+          });
+
+          await models.PatientFacility.create({
+            id: models.PatientFacility.generateId(),
+            patientId: fullSyncedPatient.id,
+            facilityId: facility.id,
           });
 
           const { sessionId } = await centralSyncManager.startSession();
@@ -717,12 +765,13 @@ describe('CentralSyncManager', () => {
 
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-          // Test if the outgoingChanges also sync the configured vaccines and the associated encounters
-          expect([...new Set(outgoingChanges.map(r => r.recordType))]).not.toEqual(
-            expect.arrayContaining(['encounters', 'administered_vaccines']),
-          );
+          // Test if the outgoingChanges do not contain the configured vaccines and the associated encounters
           expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
             expect.arrayContaining([administeredVaccine1.id, administeredVaccine2.id]),
+          );
+          // Test if the outgoingChanges still contain the vaccine that belong to a marked for sync patient
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
+            expect.arrayContaining([fullSyncedAdministeredVaccine3.id]),
           );
         });
       });
