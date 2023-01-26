@@ -71,7 +71,7 @@ describe('FacilitySyncManager', () => {
           query: () => true,
         },
         centralServer: {
-          startSyncSession: () => ({ sessionId: 'sync123', tick: 1 }),
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
         },
       });
@@ -120,7 +120,7 @@ describe('FacilitySyncManager', () => {
       expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), '10');
     });
 
-    it('push outgoing changes with current sessionId', async () => {
+    it('pushes outgoing changes with current sessionId', async () => {
       const outgoingChanges = [{ test: 'test' }];
       await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
 

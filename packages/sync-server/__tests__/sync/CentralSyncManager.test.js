@@ -93,7 +93,7 @@ describe('CentralSyncManager', () => {
       expect(syncSession2.completedAt).not.toBeUndefined();
     });
 
-    it('throws error when connect to a session that already ended', async () => {
+    it('throws an error when connecting to a session that already ended', async () => {
       const { sessionId } = await centralSyncManager.startSession();
       await centralSyncManager.endSession(sessionId);
       await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow();
@@ -125,7 +125,7 @@ describe('CentralSyncManager', () => {
   });
 
   describe('setupSnapshot', () => {
-    describe('snapshot process', () => {
+    describe('handles snapshot process', () => {
       it('returns all encounters for marked-for-sync patients', async () => {
         const OLD_SYNC_TICK = 10;
         const NEW_SYNC_TICK = 20;
@@ -136,6 +136,9 @@ describe('CentralSyncManager', () => {
           ...fake(models.Patient),
         });
         const patient2 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const patient3 = await models.Patient.create({
           ...fake(models.Patient),
         });
         const facility = await models.Facility.create({
@@ -157,6 +160,10 @@ describe('CentralSyncManager', () => {
         const encounter2 = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId: patient2.id,
+        });
+        const encounter3 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient3.id,
         });
 
         await models.LocalSystemFact.set('currentSyncTick', NEW_SYNC_TICK);
@@ -191,10 +198,12 @@ describe('CentralSyncManager', () => {
 
         // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
         expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
+        expect(encounterIds).not.toEqual(expect.arrayContaining([encounter3.id]));
+
       });
     });
 
-    describe('concurrent transactions', () => {
+    describe('handles concurrent transactions', () => {
       const prepareRecordsForSync = async () => {
         // Pre insert the records below for snapshotting later
         const facility = await models.Facility.create(fake(models.Facility));
@@ -434,7 +443,7 @@ describe('CentralSyncManager', () => {
       });
     });
 
-    describe('SYNC configurations', () => {
+    describe('handles SYNC configurations', () => {
       describe('syncAllLabRequests', () => {
         let facility;
         let labRequest1;
