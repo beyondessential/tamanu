@@ -7,8 +7,9 @@ import { useBackend } from '~/ui/hooks';
 import { StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { AutocompleteModalField } from './AutocompleteModalField';
+import { SurveyScreenConfig } from '~/types';
 
-const useFilterByResource = ({ source, scope }) => {
+const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();
 
   if (source === 'LocationGroup') {
