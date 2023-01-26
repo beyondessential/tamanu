@@ -1,8 +1,23 @@
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from 'shared/sync';
-import { fake, fakeUser } from 'shared/test-helpers/fake';
+import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpers/fake';
 import { createDummyEncounter } from 'shared/demoData/patients';
+import { randomLabRequest } from 'shared/demoData';
+import { sleepAsync } from 'shared/utils/sleepAsync';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { createTestContext } from '../utilities';
+import { importerTransaction } from '../../app/admin/importerEndpoint';
+import { importer } from '../../app/admin/refdataImporter';
+
+const doImport = (options, models) => {
+  const { file, ...opts } = options;
+  return importerTransaction({
+    importer,
+    file: `./__tests__/sync/testData/${file}.xlsx`,
+    models,
+    ...opts,
+  });
+};
 
 describe('CentralSyncManager', () => {
   let ctx;
@@ -27,6 +42,7 @@ describe('CentralSyncManager', () => {
   });
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     initializeCentralSyncManager();
   });
 
@@ -106,199 +122,601 @@ describe('CentralSyncManager', () => {
       });
       expect(changes.length).toBe(1);
     });
-
-    it('returns all encounters for marked-for-sync patients', async () => {
-      const OLD_SYNC_TICK = 10;
-      const NEW_SYNC_TICK = 20;
-
-      // ~ ~ ~ Set up old data
-      await models.LocalSystemFact.set('currentSyncTick', OLD_SYNC_TICK);
-      const patient1 = await models.Patient.create({
-        ...fake(models.Patient),
-      });
-      const patient2 = await models.Patient.create({
-        ...fake(models.Patient),
-      });
-      const facility = await models.Facility.create({
-        ...fake(models.Facility),
-      });
-      await models.User.create(fakeUser());
-      await models.Department.create({
-        ...fake(models.Department),
-        facilityId: facility.id,
-      });
-      await models.Location.create({
-        ...fake(models.Location),
-        facilityId: facility.id,
-      });
-      const encounter1 = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient1.id,
-      });
-      const encounter2 = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient2.id,
-      });
-
-      await models.LocalSystemFact.set('currentSyncTick', NEW_SYNC_TICK);
-
-      // ~ ~ ~ Set up data for marked for sync patients
-      await models.PatientFacility.create({
-        id: models.PatientFacility.generateId(),
-        patientId: patient1.id,
-        facilityId: facility.id,
-      });
-      await models.PatientFacility.create({
-        id: models.PatientFacility.generateId(),
-        patientId: patient2.id,
-        facilityId: facility.id,
-      });
-
-      const { sessionId } = await centralSyncManager.startSession();
-
-      await centralSyncManager.setupSnapshot(
-        sessionId,
-        {
-          since: 15,
-          facilityId: facility.id,
-        },
-        () => true,
-      );
-
-      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const encounterIds = outgoingChanges
-        .filter(c => c.recordType === 'encounters')
-        .map(c => c.recordId);
-
-      // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
-      expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
-    });
   });
 
   describe('setupSnapshot', () => {
-    beforeEach(async () => {
-      jest.resetModules();
-    });
+    describe('snapshot process', () => {
+      it('returns all encounters for marked-for-sync patients', async () => {
+        const OLD_SYNC_TICK = 10;
+        const NEW_SYNC_TICK = 20;
 
-    describe('invokes with correct session config', () => {
-      it('sets up snapshots with syncAllEncountersForTheseVaccines = true in sessionConfig when it is turned on and client is mobile', async () => {
-        const facility = await models.Facility.create(fake(models.Facility));
-        const { sessionId } = await centralSyncManager.startSession();
-
-        jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-          snapshotOutgoingChanges: jest.fn(),
-        }));
-
-        initializeCentralSyncManager();
-        CentralSyncManager.overrideConfig({
-          sync: { syncAllEncountersForTheseVaccines: ['test1', 'test2'] },
+        // ~ ~ ~ Set up old data
+        await models.LocalSystemFact.set('currentSyncTick', OLD_SYNC_TICK);
+        const patient1 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const patient2 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const facility = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        await models.User.create(fakeUser());
+        await models.Department.create({
+          ...fake(models.Department),
+          facilityId: facility.id,
+        });
+        await models.Location.create({
+          ...fake(models.Location),
+          facilityId: facility.id,
+        });
+        const encounter1 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient1.id,
+        });
+        const encounter2 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient2.id,
         });
 
-        const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
+        await models.LocalSystemFact.set('currentSyncTick', NEW_SYNC_TICK);
+
+        // ~ ~ ~ Set up data for marked for sync patients
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patient1.id,
+          facilityId: facility.id,
+        });
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patient2.id,
+          facilityId: facility.id,
+        });
+
+        const { sessionId } = await centralSyncManager.startSession();
+
         await centralSyncManager.setupSnapshot(
           sessionId,
           {
             since: 15,
+            facilityId: facility.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const encounterIds = outgoingChanges
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
+
+        // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
+        expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
+      });
+    });
+
+    describe('concurrent transactions', () => {
+      const prepareRecordsForSync = async () => {
+        // Pre insert the records below for snapshotting later
+        const facility = await models.Facility.create(fake(models.Facility));
+        const program = await models.Program.create({
+          id: 'test-program-1',
+          name: 'Program',
+        });
+        const survey = await models.Survey.create({
+          id: 'test-survey-1',
+          programId: program.id,
+        });
+
+        return [facility, program, survey];
+      };
+
+      const prepareMockedModelQueryPromise = async () => {
+        // Build the fakeModelPromise so that it can block the snapshotting process,
+        // then we can insert some new records while snapshotting is happening
+        let resolveMockedModelQueryPromise;
+        const mockedModelQueryPromise = new Promise(resolve => {
+          resolveMockedModelQueryPromise = async () => resolve([undefined, 0]);
+        });
+        const MockedModel = {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          associations: [],
+          getAttributes() {
+            return {
+              id: {},
+              name: {},
+            };
+          },
+          sequelize: {
+            async query() {
+              return mockedModelQueryPromise;
+            },
+          },
+        };
+
+        // Initialize CentralSyncManager with MockedModel
+        ctx.store.models = {
+          MockedModel,
+          ...models,
+        };
+
+        ({ CentralSyncManager } = require('../../app/sync/CentralSyncManager'));
+        centralSyncManager = new CentralSyncManager(ctx);
+
+        return resolveMockedModelQueryPromise;
+      };
+
+      beforeEach(async () => {
+        await models.Facility.truncate({ cascade: true, force: true });
+        await models.Program.truncate({ cascade: true, force: true });
+        await models.Survey.truncate({ cascade: true, force: true });
+        await models.ProgramDataElement.truncate({ cascade: true, force: true });
+        await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
+        await models.ReferenceData.truncate({ cascade: true, force: true });
+        await models.User.truncate({ cascade: true, force: true });
+      });
+
+      afterEach(async () => {
+        // Revert to the original models
+        ctx.store.models = models;
+      });
+
+      it('excludes manually inserted records when main snapshot transaction already started', async () => {
+        const { sessionId } = await centralSyncManager.startSession();
+        const [facility, program, survey] = await prepareRecordsForSync();
+
+        // Build the fakeModelPromise so that it can block the snapshotting process,
+        // then we can insert some new records while snapshotting is happening
+        const resolveMockedModelQueryPromise = await prepareMockedModelQueryPromise();
+
+        // Start the snapshot process
+        const snapshot = centralSyncManager.setupSnapshot(
+          sessionId,
+          {
+            since: 1,
             facilityId: facility.id,
             isMobile: true,
           },
           () => true,
         );
 
-        expect(snapshotOutgoingChanges).toBeCalledWith(
-          expect.any(Object),
-          15,
-          expect.any(Array),
-          sessionId,
-          facility.id,
-          expect.objectContaining({ syncAllEncountersForTheseVaccines: ['test1', 'test2'] }),
-        );
-      });
+        // wait until setupSnapshot() reach and block the snapshotting process inside the wrapper transaction,
+        await sleepAsync(1000);
 
-      it('sets up snapshots with syncAllEncountersForTheseVaccines = false in sessionConfig when it is turned on but client is not mobile', async () => {
-        const facility = await models.Facility.create(fake(models.Facility));
-        const { sessionId } = await centralSyncManager.startSession();
-
-        jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-          snapshotOutgoingChanges: jest.fn(),
-        }));
-
-        initializeCentralSyncManager();
-        CentralSyncManager.overrideConfig({
-          sync: { syncAllEncountersForTheseVaccines: ['test1', 'test2'] },
+        // Insert the records just before we release the lock,
+        // meaning that we're inserting the records below in the middle of the snapshotting process,
+        const survey2 = await models.Survey.create({
+          id: 'test-survey-2',
+          programId: program.id,
+        });
+        const dataElement = await models.ProgramDataElement.create({
+          name: 'Profile picture',
+          defaultText: 'abcd',
+          code: 'ProfilePhoto',
+          type: 'Photo',
+        });
+        await models.SurveyScreenComponent.create({
+          dataElementId: dataElement.id,
+          surveyId: survey2.id,
+          componentIndex: 0,
+          text: 'Photo',
+          screenIndex: 0,
         });
 
-        const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
-        await centralSyncManager.setupSnapshot(
+        // Now release the lock to see if the snapshot captures the newly inserted records above
+        await resolveMockedModelQueryPromise();
+        await sleepAsync(20);
+
+        await snapshot;
+
+        // Check if only 3 pre inserted records were snapshotted
+        // and not the ones that were inserted in the middle of the snapshot process
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        expect(outgoingChanges.length).toBe(3);
+        expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
+          [facility, program, survey].map(r => r.id).sort(),
+        );
+
+        // Revert the models
+        ctx.store.models = models;
+      });
+
+      it('excludes imported records when main snapshot transaction already started', async () => {
+        const { sessionId } = await centralSyncManager.startSession();
+        const [facility, program, survey] = await prepareRecordsForSync();
+        // Build the fakeModelPromise so that it can block the snapshotting process,
+        // then we can insert some new records while snapshotting is happening
+        const resolveMockedModelQueryPromise = await prepareMockedModelQueryPromise();
+
+        // Start the snapshot process
+        const snapshot = centralSyncManager.setupSnapshot(
           sessionId,
           {
-            since: 15,
+            since: 1,
             facilityId: facility.id,
-            isMobile: false,
+            isMobile: true,
           },
           () => true,
         );
 
-        expect(snapshotOutgoingChanges).toBeCalledWith(
-          expect.any(Object),
-          15,
-          expect.any(Array),
-          sessionId,
-          facility.id,
-          expect.objectContaining({ syncAllEncountersForTheseVaccines: [] }),
+        // wait until setupSnapshot() reach and block the snapshotting process inside the wrapper transaction,
+        await sleepAsync(1000);
+
+        // Insert the records just before we release the lock,
+        // meaning that we're inserting the records below in the middle of the snapshotting process,
+        await doImport({ file: 'refdata-valid', dryRun: false }, models);
+
+        // Now release the lock to see if the snapshot captures the newly inserted records above
+        await resolveMockedModelQueryPromise();
+        await sleepAsync(20);
+
+        await snapshot;
+
+        // Check if only 3 pre inserted records were snapshotted
+        // and not the ones that were inserted in the middle of the snapshot process
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        expect(outgoingChanges.length).toBe(3);
+        expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
+          [facility, program, survey].map(r => r.id).sort(),
+        );
+      });
+
+      it('excludes inserted records from another sync session when snapshot transaction already started', async () => {
+        const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
+        const [facility, program, survey] = await prepareRecordsForSync();
+        // Build the fakeModelPromise so that it can block the snapshotting process,
+        // then we can insert some new records while snapshotting is happening
+        const resolveMockedModelQueryPromise = await prepareMockedModelQueryPromise();
+
+        // Start the snapshot process
+        const snapshot = centralSyncManager.setupSnapshot(
+          sessionIdOne,
+          {
+            since: 1,
+            facilityId: facility.id,
+            isMobile: true,
+          },
+          () => true,
+        );
+
+        // wait until setupSnapshot() reach and block the snapshotting process inside the wrapper transaction,
+        await sleepAsync(1000);
+
+        const survey1 = fakeSurvey();
+        const survey2 = fakeSurvey();
+        const survey3 = fakeSurvey();
+
+        const changes = [
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'surveys',
+            recordId: survey1.id,
+            data: survey1,
+          },
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'surveys',
+            recordId: survey2.id,
+            data: survey2,
+          },
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'surveys',
+            recordId: survey3.id,
+            data: survey2,
+          },
+        ];
+
+        const { sessionId: sessionIdTwo } = await centralSyncManager.startSession();
+        await centralSyncManager.addIncomingChanges(
+          sessionIdTwo,
+          changes,
+          { pushedSoFar: 3, totalToPush: 3 },
+          ['surveys'],
+        );
+
+        // Now release the lock to see if the snapshot captures the newly inserted records above
+        await resolveMockedModelQueryPromise();
+        await sleepAsync(20);
+
+        await snapshot;
+
+        // Check if only 3 pre inserted records were snapshotted
+        // and not the ones that were inserted in the middle of the snapshot process
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionIdOne, {});
+
+        expect(outgoingChanges.length).toBe(3);
+        expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
+          [facility, program, survey].map(r => r.id).sort(),
         );
       });
     });
 
-    it('fully syncs marked-for-sync patients by detecting patient_facility records', async () => {
-      const OLD_SYNC_TICK = 10;
-      const NEW_SYNC_TICK = 20;
+    describe('SYNC configurations', () => {
+      describe('syncAllLabRequests', () => {
+        let facility;
+        let labRequest1;
+        let labRequest2;
 
-      await models.LocalSystemFact.set('currentSyncTick', OLD_SYNC_TICK);
+        beforeEach(async () => {
+          await models.Facility.truncate({ cascade: true, force: true });
+          await models.Program.truncate({ cascade: true, force: true });
+          await models.ReferenceData.truncate({ cascade: true, force: true });
+          await models.User.truncate({ cascade: true, force: true });
+          await models.Patient.truncate({ cascade: true, force: true });
+          await models.Encounter.truncate({ cascade: true, force: true });
+          await models.LabRequest.truncate({ cascade: true, force: true });
 
-      const facility = await models.Facility.create(fake(models.Facility));
-      const patient1 = await models.Patient.create(fake(models.Patient));
-      const patient2 = await models.Patient.create(fake(models.Patient));
+          // Create the lab requests to be tested
+          facility = await models.Facility.create(fake(models.Facility));
+          await models.User.create(fakeUser());
+          await models.Department.create({
+            ...fake(models.Department),
+            facilityId: facility.id,
+          });
+          await models.Location.create({
+            ...fake(models.Location),
+            facilityId: facility.id,
+          });
+          const patient1 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const patient2 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const encounter1 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient1.id,
+          });
+          const encounter2 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient2.id,
+          });
+          await models.ReferenceData.create({
+            id: 'test1',
+            type: 'labTestCategory',
+            code: 'test1',
+            name: 'Test 1',
+          });
+          labRequest1 = await models.LabRequest.create({
+            ...(await randomLabRequest(models, {
+              patientId: patient1.id,
+              encounterId: encounter1.id,
+              status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+            })),
+          });
+          labRequest2 = await models.LabRequest.create({
+            ...(await randomLabRequest(models, {
+              patientId: patient2.id,
+              encounterId: encounter2.id,
+              status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+            })),
+          });
+        });
 
-      await models.LocalSystemFact.set('currentSyncTick', NEW_SYNC_TICK);
+        it('syncs all lab requests when enabled', async () => {
+          // Enable syncAllLabRequests
 
-      await models.PatientFacility.create({
-        id: models.PatientFacility.generateId(),
-        patientId: patient1.id,
-        facilityId: facility.id,
+          await models.Setting.create({
+            facilityId: facility.id,
+            key: 'syncAllLabRequests',
+            value: true,
+          });
+
+          initializeCentralSyncManager();
+
+          const { sessionId } = await centralSyncManager.startSession();
+
+          await centralSyncManager.setupSnapshot(
+            sessionId,
+            {
+              since: 1,
+              facilityId: facility.id,
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+          // Test if the outgoingChanges also sync the lab requests
+          expect([...new Set(outgoingChanges.map(r => r.recordType))]).toEqual(
+            expect.arrayContaining(['lab_requests']),
+          );
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
+            expect.arrayContaining([labRequest1.id, labRequest2.id]),
+          );
+        });
+
+        it('does not sync all lab requests when enabled', async () => {
+          // Disable syncAllLabRequests
+          await models.Setting.create({
+            facilityId: facility.id,
+            key: 'syncAllLabRequests',
+            value: false,
+          });
+
+          initializeCentralSyncManager();
+
+          const { sessionId } = await centralSyncManager.startSession();
+
+          await centralSyncManager.setupSnapshot(
+            sessionId,
+            {
+              since: 1,
+              facilityId: facility.id,
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+          // Test if the outgoingChanges also sync the lab requests
+          expect([...new Set(outgoingChanges.map(r => r.recordType))]).not.toEqual(
+            expect.arrayContaining(['lab_requests']),
+          );
+          expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
+            expect.arrayContaining([labRequest1.id, labRequest2.id]),
+          );
+        });
       });
-      await models.PatientFacility.create({
-        id: models.PatientFacility.generateId(),
-        patientId: patient2.id,
-        facilityId: facility.id,
+
+      describe('syncAllEncountersForTheseVaccines', () => {
+        let facility;
+        let encounter1;
+        let encounter2;
+        let administeredVaccine1;
+        let administeredVaccine2;
+
+        beforeEach(async () => {
+          await models.Facility.truncate({ cascade: true, force: true });
+          await models.Program.truncate({ cascade: true, force: true });
+          await models.ReferenceData.truncate({ cascade: true, force: true });
+          await models.Patient.truncate({ cascade: true, force: true });
+          await models.User.truncate({ cascade: true, force: true });
+          await models.Encounter.truncate({ cascade: true, force: true });
+          await models.ScheduledVaccine.truncate({ cascade: true, force: true });
+          await models.AdministeredVaccine.truncate({ cascade: true, force: true });
+
+          facility = await models.Facility.create(fake(models.Facility));
+          const [vaccineOne, vaccineTwo] = await Promise.all([
+            models.ReferenceData.create({
+              ...fakeReferenceData(),
+              id: 'drug-COVAX',
+              code: 'COVAX',
+              type: 'drug',
+              name: 'COVAX',
+            }),
+            models.ReferenceData.create({
+              ...fakeReferenceData(),
+              id: 'drug-COVID-19-Pfizer',
+              code: 'PFIZER',
+              type: 'drug',
+              name: 'PFIZER',
+            }),
+          ]);
+          const { id: patientId } = await models.Patient.create(fake(models.Patient));
+          const { id: examinerId } = await models.User.create(fakeUser());
+          const { id: departmentId } = await models.Department.create({
+            ...fake(models.Department),
+            facilityId: facility.id,
+          });
+          const { id: locationId } = await models.Location.create({
+            ...fake(models.Location),
+            facilityId: facility.id,
+          });
+
+          encounter1 = await models.Encounter.create({
+            ...fake(models.Encounter),
+            departmentId,
+            locationId,
+            patientId,
+            examinerId,
+            endDate: null,
+          });
+          encounter2 = await models.Encounter.create({
+            ...fake(models.Encounter),
+            departmentId,
+            locationId,
+            patientId,
+            examinerId,
+            endDate: null,
+          });
+          const [scheduleOne, scheduleTwo] = await Promise.all([
+            models.ScheduledVaccine.create({
+              ...fake(models.ScheduledVaccine),
+              vaccineId: vaccineOne.id,
+            }),
+            models.ScheduledVaccine.create({
+              ...fake(models.ScheduledVaccine),
+              vaccineId: vaccineTwo.id,
+            }),
+          ]);
+          [administeredVaccine1, administeredVaccine2] = await Promise.all([
+            models.AdministeredVaccine.create({
+              ...fake(models.AdministeredVaccine),
+              status: 'GIVEN',
+              date: new Date(),
+              recorderId: examinerId,
+              scheduledVaccineId: scheduleOne.id,
+              encounterId: encounter1.id,
+            }),
+            models.AdministeredVaccine.create({
+              ...fake(models.AdministeredVaccine),
+              status: 'GIVEN',
+              date: new Date(),
+              recorderId: examinerId,
+              scheduledVaccineId: scheduleTwo.id,
+              encounterId: encounter2.id,
+            }),
+          ]);
+        });
+
+        it('syncs the configured vaccine encounters when it is enabled and client is mobile', async () => {
+          // Create the vaccines to be tested
+          initializeCentralSyncManager();
+
+          // Turn on syncAllEncountersForTheseVaccines config
+          CentralSyncManager.overrideConfig({
+            sync: { syncAllEncountersForTheseVaccines: ['drug-COVAX', 'drug-COVID-19-Pfizer'] },
+          });
+
+          const { sessionId } = await centralSyncManager.startSession();
+
+          await centralSyncManager.setupSnapshot(
+            sessionId,
+            {
+              since: 1,
+              facilityId: facility.id,
+              isMobile: true,
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+          // Test if the outgoingChanges also sync the configured vaccines and the associated encounters
+          expect([...new Set(outgoingChanges.map(r => r.recordType))]).toEqual(
+            expect.arrayContaining(['encounters', 'administered_vaccines']),
+          );
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
+            expect.arrayContaining([administeredVaccine1.id, administeredVaccine2.id]),
+          );
+        });
+
+        it('does not sync any vaccine encounters when it is disabled and client is mobile', async () => {
+          // Create the vaccines to be tested
+          initializeCentralSyncManager();
+
+          // Turn on syncAllEncountersForTheseVaccines config
+          CentralSyncManager.overrideConfig({
+            sync: { syncAllEncountersForTheseVaccines: [] },
+          });
+
+          const { sessionId } = await centralSyncManager.startSession();
+
+          await centralSyncManager.setupSnapshot(
+            sessionId,
+            {
+              since: 1,
+              facilityId: facility.id,
+              isMobile: true,
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+          // Test if the outgoingChanges also sync the configured vaccines and the associated encounters
+          expect([...new Set(outgoingChanges.map(r => r.recordType))]).not.toEqual(
+            expect.arrayContaining(['encounters', 'administered_vaccines']),
+          );
+          expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
+            expect.arrayContaining([administeredVaccine1.id, administeredVaccine2.id]),
+          );
+        });
       });
-
-      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-        snapshotOutgoingChanges: jest.fn(),
-      }));
-
-      initializeCentralSyncManager();
-
-      const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
-      const { sessionId } = await centralSyncManager.startSession();
-
-      await centralSyncManager.setupSnapshot(
-        sessionId,
-        {
-          since: 15,
-          facilityId: facility.id,
-        },
-        () => true,
-      );
-
-      expect(snapshotOutgoingChanges).toBeCalledWith(
-        expect.any(Object),
-        -1,
-        expect.arrayContaining([patient1.id, patient2.id]),
-        sessionId,
-        facility.id,
-        expect.any(Object),
-      );
     });
   });
 
