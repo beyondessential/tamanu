@@ -177,6 +177,7 @@ export const DocumentsTable = React.memo(
           title={selectedDocument?.name}
           attachmentId={selectedDocument?.attachmentId}
           onClose={onClose}
+          onDownload={() => onDownload(selectedDocument)}
         />
       </>
     );
