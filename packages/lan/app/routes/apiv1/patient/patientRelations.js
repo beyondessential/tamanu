@@ -8,7 +8,6 @@ import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from '../c
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
-import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -28,7 +27,7 @@ patientRelations.get(
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
       endDate: 'end_date',
-      facilityName: 'facility_name'
+      facilityName: 'facility_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
@@ -57,13 +56,13 @@ patientRelations.get(
           ${open ? 'AND end_date IS NULL' : ''}
         ${sortKey ? `ORDER BY ${sortKey} ${order.toUpperCase()}` : ''}
       `,
-      {patientId: params.id},
-      query
-    )
+      { patientId: params.id },
+      query,
+    );
 
     res.send({
-      count,
-      data
+      count: parseInt(count, 10),
+      data,
     });
   }),
 );
