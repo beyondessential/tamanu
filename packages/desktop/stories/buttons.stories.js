@@ -18,7 +18,7 @@ export default {
       control: 'boolean',
     },
   },
-  title: 'Button',
+  title: 'Buttons/Button',
   component: Button,
 };
 
