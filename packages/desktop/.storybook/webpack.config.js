@@ -5,6 +5,7 @@
  */
 
 const path = require('path');
+const webpack = require('webpack')
 
 /**
  * The doc doesn't really mention using webpack.config.js, but .storybook/main.js instead.
@@ -17,25 +18,35 @@ const path = require('path');
  * @see https://storybook.js.org/docs/react/configure/webpack#using-your-existing-config
  */
 module.exports = async ({ config }) => {
+  config.resolve.fallback = {
+    ...config.resolve.fallback,
+      fs: false,
+      stream: false,
+      zlib: false,
+      events: false
+  }
   /**
-   * Fixes npm packages that depend on `fs` module, etc.
-   *
-   * E.g: "winston" would fail to load without this, because it relies on fs, which isn't available during browser build.
-   *
-   * @see https://github.com/storybookjs/storybook/issues/4082#issuecomment-495370896
-   */
-  config.node = {
-    fs: 'empty',
-    tls: 'empty',
-    net: 'empty',
-    module: 'empty',
-    console: true,
-  };
+   * Pretty odd workaround but prevented me from changing parent configs
+   *  @see https://github.com/vercel/next.js/issues/28774#issuecomment-1264555395 for similar issue
+   * */
 
+  config.plugins.push(
+    new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+      resource.request = resource.request.replace(/^node:/, '')
+    })
+  )
+  config.resolve.fallback = {
+    ...config.resolve.fallback,
+      fs: false,
+      stream: false,
+      zlib: false,
+      events: false
+  }
   config.resolve.alias = {
     ...config.resolve.alias,
-    yargs: path.resolve(__dirname, 'moduleMock.js'),
-    child_process: path.resolve(__dirname, 'moduleMock.js'),
+    electron: require.resolve('./__mocks__/electron.js'),
+    yargs: path.resolve(__dirname, './__mocks__/module.js'),
+    child_process: path.resolve(__dirname, './__mocks__/module.js'),
   };
 
   return config;
