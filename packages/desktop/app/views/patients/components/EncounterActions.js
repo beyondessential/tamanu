@@ -13,6 +13,7 @@ import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button, connectRoutedModal } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
+import { EncounterRecordModal } from '../../../components/PatientPrinting/EncounterRecordModal';
 
 const EncounterActionDropdown = ({ encounter }) => {
   const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
@@ -27,12 +28,18 @@ const EncounterActionDropdown = ({ encounter }) => {
   const onCancelLocationChange = () => navigateToEncounter(encounter.id, 'cancelMove');
   const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onViewSummary = () => navigateToSummary();
+  const onViewEncounterRecord = () => navigateToEncounter(encounter.id, 'encounterRecord');
 
   if (encounter.endDate) {
     return (
-      <Button variant="outlined" color="primary" onClick={onViewSummary}>
-        View discharge summary
-      </Button>
+      <>
+        <Button variant="outlined" color="primary" onClick={onViewSummary}>
+          View discharge summary
+        </Button>
+        <Button variant="text" color="primary" onClick={onViewEncounterRecord}>
+          Encounter Record
+        </Button>
+      </>
     );
   }
 
@@ -143,6 +150,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
     params,
   ])(FinalisePatientMoveModal);
 
+  const RoutedEncounterRecordModal = useMemo(
+    () => getConnectRoutedModal(params, 'encounterRecord'),
+    [params],
+  )(EncounterRecordModal);
+
   const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
 
   return (
@@ -156,6 +168,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <RoutedBeginMoveModal encounter={encounter} />
       <RoutedFinaliseMoveModal encounter={encounter} />
       <RoutedCancelMoveModal encounter={encounter} />
+      <RoutedEncounterRecordModal encounter={encounter} />
     </>
   );
 });
