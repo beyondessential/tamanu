@@ -18,6 +18,11 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
+const STATUSES_TO_DELETE = [
+  'deleted',
+  'hidden',
+];
+
 function makeScreen(questions, componentData) {
   return questions.flatMap((component, i) => {
     const {
@@ -27,11 +32,14 @@ function makeScreen(questions, componentData) {
       config: qConfig = '',
       calculation = '',
       row,
+      visibilityStatus,
       ...elementData
     } = component;
 
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
+
+    const deletedAt = (STATUSES_TO_DELETE.includes(visibilityStatus)) ? Date.now() : null;
 
     return [
       {
@@ -59,6 +67,7 @@ function makeScreen(questions, componentData) {
           config: qConfig,
           calculation,
           ...otherComponentData,
+          deletedAt,
         },
       },
     ];
