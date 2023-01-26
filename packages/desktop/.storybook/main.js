@@ -5,6 +5,7 @@ module.exports = {
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-actions',
+    '@storybook/addon-controls',
   ],
   stories: ['../stories/**/*.stories.@(js|mdx)'],
   core: {

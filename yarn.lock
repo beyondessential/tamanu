@@ -3485,6 +3485,24 @@
     util-deprecate "^1.0.2"
     uuid-browser "^3.1.0"
 
+"@storybook/addon-controls@^6.5.15":
+  version "6.5.15"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-controls/-/addon-controls-6.5.15.tgz#2a1f590d5624f658561b8e0ff144667248baf907"
+  integrity sha512-q5y0TvD0stvQoJZ2PnFmmKIRNSOI4/k2NKyZq//J2cBUBcP1reYlFxdsNwLZWmAFpSIkc2+nsliEzNxU1WByoA==
+  dependencies:
+    "@storybook/addons" "6.5.15"
+    "@storybook/api" "6.5.15"
+    "@storybook/client-logger" "6.5.15"
+    "@storybook/components" "6.5.15"
+    "@storybook/core-common" "6.5.15"
+    "@storybook/csf" "0.0.2--canary.4566f4d.1"
+    "@storybook/node-logger" "6.5.15"
+    "@storybook/store" "6.5.15"
+    "@storybook/theming" "6.5.15"
+    core-js "^3.8.2"
+    lodash "^4.17.21"
+    ts-dedent "^2.0.0"
+
 "@storybook/addon-links@^6.5.15":
   version "6.5.15"
   resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.5.15.tgz#97508726090a006f6c042a687ec89496c96436c4"

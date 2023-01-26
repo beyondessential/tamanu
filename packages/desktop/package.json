@@ -125,6 +125,7 @@
     "@beyondessential/eslint-config-js": "^1.1.0",
     "@emotion/core": "^10.0.9",
     "@react-pdf/renderer": "^2.1.1",
+    "@storybook/addon-controls": "^6.5.15",
     "@storybook/addon-actions": "^6.5.15",
     "@storybook/addon-links": "^6.5.15",
     "@storybook/addons": "^6.5.15",
