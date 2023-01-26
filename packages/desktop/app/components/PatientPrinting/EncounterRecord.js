@@ -21,9 +21,7 @@ const TableName = styled(Typography)`
 `;
 
 const FieldValue = styled(LocalisedLabel)`
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 14px;
+  color: !red;
 `;
 
 const Divider = styled.hr`
@@ -101,6 +99,7 @@ const columns = {
 
 export const EncounterRecord = React.memo(({ patient, encounter, certificateData }) => {
   const { firstName, lastName, dateOfBirth, sex, displayId, villageId } = patient;
+  const { department, examiner, reasonForEncounter, startDate, endDate, encounterType } = encounter;
   const { title, subTitle, logo } = certificateData;
   return (
     <CertificateWrapper>
@@ -132,18 +131,18 @@ export const EncounterRecord = React.memo(({ patient, encounter, certificateData
       <Divider />
       <RowContainer>
         <div>
-          <LocalisedLabel name="facility">facility</LocalisedLabel>
-          <LocalisedLabel name="supervisingClinician">doctor</LocalisedLabel>
+          <LocalisedLabel name="facility">{department.facilityId}</LocalisedLabel>
+          <LocalisedLabel name="supervisingClinician">{examiner.displayName}</LocalisedLabel>
           <LocalisedLabel name="dischargingClinician">doctor</LocalisedLabel>
-          <LocalisedLabel name="reasonForEncounter">this is a message</LocalisedLabel>
+          <LocalisedLabel name="reasonForEncounter">{reasonForEncounter}</LocalisedLabel>
         </div>
         <div>
-          <LocalisedLabel name="department">department</LocalisedLabel>
+          <LocalisedLabel name="department">{department.name}</LocalisedLabel>
           <LocalisedLabel name="dateOfAdmission">
-            <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+            <DateDisplay date={startDate} showDate={false} showExplicitDate />
           </LocalisedLabel>
           <LocalisedLabel name="dateOfDischarge">
-            <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+            <DateDisplay date={endDate} showDate={false} showExplicitDate />
           </LocalisedLabel>
         </div>
       </RowContainer>
