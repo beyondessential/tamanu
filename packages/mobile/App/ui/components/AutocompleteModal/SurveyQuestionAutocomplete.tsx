@@ -12,9 +12,10 @@ import { SurveyScreenConfig } from '~/types';
 const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();
 
-  if (source === 'LocationGroup') {
-    return scope === 'allFacilities' ? {} : { facility: facilityId };
+  if (source === 'LocationGroup' && scope !== 'allFacilities') {
+    return { facility: facilityId };
   }
+
   return {};
 };
 
