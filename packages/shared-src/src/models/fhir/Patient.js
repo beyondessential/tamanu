@@ -14,7 +14,10 @@ import {
 } from '../../constants';
 import {
   FhirAddress,
+  FhirCodeableConcept,
+  FhirCoding,
   FhirContactPoint,
+  FhirExtension,
   FhirHumanName,
   FhirIdentifier,
   FhirPatientLink,
@@ -25,6 +28,7 @@ export class FhirPatient extends FhirResource {
   static init(options, models) {
     super.init(
       {
+        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION),
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         active: {
           type: Sequelize.BOOLEAN,
@@ -71,6 +75,7 @@ export class FhirPatient extends FhirResource {
     upstream.additionalData = first;
 
     this.set({
+      extension: extension(upstream),
       identifier: identifiers(upstream),
       active: activeFromVisibility(upstream),
       name: names(upstream),
@@ -167,6 +172,43 @@ export class FhirPatient extends FhirResource {
 
 function compactBy(array, access = identity) {
   return array.filter(access);
+}
+
+function nzEthnicity(patient) {
+  function getEthnicity(ethnicityId) {
+    switch (ethnicityId) {
+      case 'ethnicity-Fiji':
+        return { code: '36111', display: 'Fijian/iTaukei' };
+      case 'ethnicity-FID':
+        return { code: '43112', display: 'Fijian Indian' };
+      case null:
+        return { code: '99999', display: 'Not Stated' };
+      default:
+        return { code: '61199', display: 'Other Ethnicity nec' };
+    }
+  }
+
+  if (!config.localisation.data.features.fhirNewZealandEthnicity) return [];
+  const { code, display } = getEthnicity(patient?.additionalData?.ethnicityId);
+
+  return [
+    new FhirExtension({
+      url: 'http://hl7.org.nz/fhir/StructureDefinition/nz-ethnicity',
+      valueCodeableConcept: new FhirCodeableConcept({
+        coding: [
+          new FhirCoding({
+            system: config.hl7.dataDictionaries.ethnicityId,
+            code,
+            display,
+          }),
+        ],
+      }),
+    }),
+  ];
+}
+
+function extension(patient) {
+  return [...nzEthnicity(patient)];
 }
 
 function identifiers(patient) {
