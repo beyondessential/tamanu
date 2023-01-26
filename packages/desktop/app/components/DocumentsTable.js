@@ -2,10 +2,11 @@ import React, { useCallback, useState, useMemo } from 'react';
 import { extension } from 'mime-types';
 import { promises as asyncFs } from 'fs';
 
+import GetAppIcon from '@material-ui/icons/GetApp';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { DropdownButton } from './DropdownButton';
-import { DeleteButton } from './Button';
+import { DeleteButton, Button } from './Button';
+import { ButtonRow } from './ButtonRow';
 import { ConfirmModal } from './ConfirmModal';
 import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
@@ -18,15 +19,17 @@ const DOCUMENT_ACTIONS = {
 };
 
 // eslint-disable-next-line no-unused-vars
-const ActionDropdown = React.memo(({ row, onDownload, onClickDelete, onClickView }) => {
+const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView }) => {
   // { row, onDownload, onClickDelete }
   const actions = [
     {
+      key: 'view',
       label: 'View',
       onClick: () => onClickView(row),
     },
     {
-      label: 'Download',
+      key: 'download',
+      icon: <GetAppIcon />,
       onClick: () => onDownload(row),
     },
     // Currently delete and attach to care plan aren't built, so we'll hide them
@@ -42,7 +45,21 @@ const ActionDropdown = React.memo(({ row, onDownload, onClickDelete, onClickView
     */
   ];
 
-  return <DropdownButton actions={actions} variant="outlined" size="small" />;
+  return (
+    <ButtonRow>
+      {actions.map(action => (
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={action.icon}
+          onClick={action.onClick}
+          key={action.key}
+        >
+          {action.label}
+        </Button>
+      ))}
+    </ButtonRow>
+  );
 });
 
 const getType = ({ type }) => {
@@ -138,7 +155,7 @@ export const DocumentsTable = React.memo(
           key: 'actions',
           title: 'Actions',
           accessor: row => (
-            <ActionDropdown
+            <ActionButtons
               row={row}
               onDownload={onDownload}
               onClickDelete={onClickDelete}

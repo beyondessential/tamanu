@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Modal } from '../Modal';
@@ -13,13 +13,25 @@ const DownloadButton = ({ onClick }) => {
   );
 };
 
-export const DocumentPreviewModal = ({ open, title, attachmentId, onClose, onDownload }) => (
-  <Modal
-    open={open}
-    title={title}
-    additionalActions={[<DownloadButton onClick={onDownload} />]}
-    onClose={onClose}
-  >
-    <PDFPreview attachmentId={attachmentId} />
-  </Modal>
-);
+export const DocumentPreviewModal = ({ open, title, attachmentId, onClose, onDownload }) => {
+  const [scrollPage, setScrollPage] = useState(1);
+  const [pageCount, setPageCount] = useState();
+
+  return (
+    <Modal
+      open={open}
+      title={title}
+      subtitle={`Page ${scrollPage} of ${pageCount}`}
+      additionalActions={[<DownloadButton onClick={onDownload} />]}
+      onClose={onClose}
+    >
+      <PDFPreview
+        attachmentId={attachmentId}
+        pageCount={pageCount}
+        setPageCount={setPageCount}
+        scrollPage={scrollPage}
+        setScrollPage={setScrollPage}
+      />
+    </Modal>
+  );
+};

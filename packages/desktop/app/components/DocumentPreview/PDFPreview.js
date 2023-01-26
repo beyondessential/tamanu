@@ -1,17 +1,39 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
+import styled from 'styled-components';
 import { useApi } from '../../api';
 import { PDFPage } from './PDFPage';
 
-export default function PDFPreview({ attachmentId }) {
+// Prevent the modal header scrolling away by making the preview scrollable
+const PDFDocument = styled.div`
+  overflow-y: scroll;
+  max-height: 75vh;
+`;
+
+// Calculate which page we're scrolled to "Page X of Y"
+function getScrollPage(element, pageCount) {
+  if (!element) {
+    return NaN;
+  }
+  const height = element.scrollHeight - element.clientHeight;
+  return Math.ceil((element.scrollTop / height) * pageCount);
+}
+
+export default function PDFPreview({
+  attachmentId,
+  pageCount,
+  setPageCount,
+  scrollPage,
+  setScrollPage,
+}) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
   const api = useApi();
-  // const [pdfData, setPdfData] = useState();
   const [pages, setPages] = useState([]);
-  const [pageCount, setPageCount] = useState();
+
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -35,13 +57,31 @@ export default function PDFPreview({ attachmentId }) {
         },
       );
     })();
-  }, [attachmentId, api, pageCount]);
+  }, [attachmentId, api, pageCount, setPageCount]);
+
+  useEffect(() => {
+    const node = scrollRef.current;
+    const reportScroll = e => {
+      setScrollPage(getScrollPage(e.target, pageCount));
+    };
+    if (node !== null) {
+      node.addEventListener('scroll', reportScroll, { passive: true });
+      if (Number.isNaN(scrollPage)) {
+        setScrollPage(getScrollPage(node, pageCount));
+      }
+    }
+    return () => {
+      if (node !== null) {
+        node.removeEventListener('scroll', reportScroll);
+      }
+    };
+  }, [scrollPage, setScrollPage, pageCount]);
 
   return (
-    <>
+    <PDFDocument ref={scrollRef}>
       {pages.map(p => (
         <PDFPage page={p} />
       ))}
-    </>
+    </PDFDocument>
   );
 }
