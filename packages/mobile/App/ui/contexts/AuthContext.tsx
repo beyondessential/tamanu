@@ -95,7 +95,7 @@ const Provider = ({
     };
     setPreventSignOutOnFailure(true);
 
-    await backend.auth.remoteSignIn(payload);
+    await remoteSignIn(payload);
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
@@ -147,6 +147,7 @@ const Provider = ({
 
   // start a session if there's a stored token
   useEffect(() => {
+
     if (props.token && props.user) {
       setCentralConnectionStatus(CentralConnectionStatus.Connected);
       backend.auth.startSession(props.token);

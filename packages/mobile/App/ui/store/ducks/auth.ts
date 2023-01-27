@@ -16,7 +16,7 @@ export interface WithAuthActions {
 export enum CentralConnectionStatus {
   Disconnected = 'disconnected',
   Connected = 'connected',
-  Error = 'error',
+  Error = 'error'
 }
 
 export interface AuthStateProps {
