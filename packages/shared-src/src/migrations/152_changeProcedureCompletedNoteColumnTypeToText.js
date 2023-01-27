@@ -7,9 +7,13 @@ export async function up(query) {
   });
 }
 
+// The following query results in loss of data
+// (all characters past the 256th character)
 export async function down(query) {
-  await query.changeColumn('procedures', 'completed_note', {
-    type: Sequelize.STRING,
-    allowNull: true,
-  });
+  await query.sequelize.query(`
+    ALTER TABLE procedures
+    ALTER COLUMN completed_note
+    TYPE VARCHAR(255)
+    USING note::VARCHAR(255)
+  `)
 }
