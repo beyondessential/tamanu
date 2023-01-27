@@ -17,6 +17,7 @@ import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { CentralServerConnectionStatus } from '~/ui/store/ducks/auth';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 interface AuthenticationModelProps {
   open: boolean;
@@ -150,6 +151,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const [openAuthenticationModel, setOpenAuthenticationModel] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const netInfo = useNetInfo();
   const centralServerConnectionStatus = useSelector(authCentralServerConnectionStatusSelector);
 
   const handleClose = (): void => setOpen(false);
@@ -158,13 +160,17 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
   useEffect(() => {
-    if (centralServerConnectionStatus === CentralServerConnectionStatus.Disconnected) {
+    if (
+      centralServerConnectionStatus === CentralServerConnectionStatus.Disconnected &&
+      // Reconnection with central is not possible if there is no internet connection
+      netInfo.isInternetReachable
+    ) {
       handleOpen();
     }
     if (centralServerConnectionStatus === CentralServerConnectionStatus.Connected) {
       handleClose();
     }
-  }, [centralServerConnectionStatus]);
+  }, [centralServerConnectionStatus, netInfo.isInternetReachable]);
 
   return (
     <>
