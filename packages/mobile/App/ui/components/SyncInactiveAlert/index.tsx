@@ -161,13 +161,16 @@ export const SyncInactiveAlert = (): JSX.Element => {
 
   useEffect(() => {
     if (
-      centralServerConnectionStatus === CentralServerConnectionStatus.Disconnected &&
+      centralServerConnectionStatus === CentralServerConnectionStatus.Disconnected
       // Reconnection with central is not possible if there is no internet connection
-      netInfo.isInternetReachable
     ) {
-      handleOpen();
+      if (netInfo.isInternetReachable) {
+        handleOpen();
+      } else if (open) {
+        handleClose();
+      }
     }
-    if (centralServerConnectionStatus === CentralServerConnectionStatus.Connected) {
+    if (centralServerConnectionStatus === CentralServerConnectionStatus.Connected && open) {
       handleClose();
     }
   }, [centralServerConnectionStatus, netInfo.isInternetReachable]);
