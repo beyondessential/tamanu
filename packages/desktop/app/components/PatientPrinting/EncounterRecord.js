@@ -11,10 +11,19 @@ import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
 
 // STYLES
+const CompactListTable = styled(ListTable)`
+  td,
+  th {
+    font-size: 10px;
+    line-height: 12px;
+    text-align: left;
+  }
+`;
+
 const Table = styled.table`
   border: 1px solid black;
-  margin-top: 10px;
-  margin-bottom: 16px;
+  margin-top: 8px;
+  margin-bottom: 8px;
   border-spacing: 0px;
   border-collapse: collapse;
   width: 100%;
@@ -27,8 +36,10 @@ const Row = styled.tr`
 const Cell = styled.td`
   border-right: 1px solid black;
   padding-top: 0.5rem;
+  padding-left: 0.5rem;
   padding-bottom: 0.5rem;
-  font-size: 14px;
+  font-size: 10px;
+  line-height: 12px;
 `;
 
 const RowContainer = styled.div`
@@ -39,10 +50,13 @@ const RowContainer = styled.div`
   }
 `;
 
-const TableName = styled(Typography)`
+const SummaryHeading = styled(Typography)`
   font-weight: 600;
   font-size: 12px;
   line-height: 14px;
+`;
+
+const TableHeading = styled(SummaryHeading)`
   margin-left: 3px;
 `;
 
@@ -84,9 +98,6 @@ const columns = {
     },
   ],
 
-  // this is a different form of table. likely will need to be done differently
-  notes: [],
-
   procedures: [
     {
       key: 'procedure',
@@ -107,13 +118,13 @@ const columns = {
       key: 'testType',
       title: 'Test Type',
       accessor: ({ tests }) => tests.map(test => test.labTestType.name).join(', '),
-      style: { width: '60%' },
+      style: { width: '40%' },
     },
     {
       key: 'testCategory',
       title: 'Test Category',
       accessor: ({ category }) => (category || {}).name,
-      style: { width: '20%' },
+      style: { width: '40%' },
     },
     {
       key: 'requestDate',
@@ -128,13 +139,13 @@ const columns = {
       key: 'imagingType',
       title: 'Imaging request type',
       accessor: ({ imagingType }) => imagingType || {},
-      style: { width: '60%' },
+      style: { width: '30%' },
     },
     {
       key: 'areaToBeImaged',
       title: 'Area to be imaged',
       accessor: '',
-      style: { width: '20%' },
+      style: { width: '50%' },
     },
     {
       key: 'requestDate',
@@ -149,19 +160,19 @@ const columns = {
       key: 'medication',
       title: 'Medication',
       accessor: ({ medication }) => (medication || {}).name,
-      style: { width: '60%' },
+      style: { width: '40%' },
     },
     {
       key: 'insructions',
       title: 'Instructions',
       accessor: ({ prescription }) => prescription || {},
-      style: { width: '20%' },
+      style: { width: '30%' },
     },
     {
       key: 'route',
       title: 'Route',
       accessor: ({ route }) => route || {},
-      style: { width: '20%' },
+      style: { width: '10%' },
     },
     {
       key: 'prescriptionDate',
@@ -178,8 +189,6 @@ export const EncounterRecord = React.memo(
     const { department, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
-    console.log(notes);
-
     return (
       <CertificateWrapper>
         <PrintLetterhead
@@ -189,7 +198,7 @@ export const EncounterRecord = React.memo(
           pageTitle="Patient Encounter Record"
         />
 
-        <TableName>Patient Details</TableName>
+        <SummaryHeading>Patient Details</SummaryHeading>
         <Divider />
         <RowContainer>
           <div>
@@ -208,7 +217,7 @@ export const EncounterRecord = React.memo(
           </div>
         </RowContainer>
 
-        <TableName>Encounter Details</TableName>
+        <SummaryHeading>Encounter Details</SummaryHeading>
         <Divider />
         <RowContainer>
           <div>
@@ -236,36 +245,35 @@ export const EncounterRecord = React.memo(
           </div>
         </RowContainer>
 
-        <TableName>Diagnoses</TableName>
-        <ListTable data={encounter.diagnoses} columns={columns.diagnoses} />
+        <TableHeading>Diagnoses</TableHeading>
+        <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
 
-        <TableName>Notes</TableName>
-        <Table>
-          {notes.data.map(note => (
-            <>
+        <TableHeading>Notes</TableHeading>
+        {notes.data.map(note => (
+          <>
+            <Table>
               <Row>
-                <Cell>Note Type</Cell>
-                <Cell>Date</Cell>
+                <Cell>{note.noteType}</Cell>
+                <Cell>{note.date}</Cell>
               </Row>
-              <br />
               <Row>
-                <Cell colSpan={2}>The quick brown fox jumped over the lazy dog</Cell>
+                <Cell colSpan={2}>{note.noteItems[0].content}</Cell>
               </Row>
-            </>
-          ))}
-        </Table>
+            </Table>
+          </>
+        ))}
 
-        <TableName>Procedures</TableName>
-        <ListTable data={encounter.procedures} columns={columns.procedures} />
+        <TableHeading>Procedures</TableHeading>
+        <CompactListTable data={encounter.procedures} columns={columns.procedures} />
 
-        <TableName>Lab Requests</TableName>
-        <ListTable data={labRequests.data} columns={columns.labRequests} />
+        <TableHeading>Lab Requests</TableHeading>
+        <CompactListTable data={labRequests.data} columns={columns.labRequests} />
 
-        <TableName>Imaging Requests</TableName>
-        <ListTable data={imagingRequests.data} columns={columns.imagingRequests} />
+        <TableHeading>Imaging Requests</TableHeading>
+        <CompactListTable data={imagingRequests.data} columns={columns.imagingRequests} />
 
-        <TableName>Medications</TableName>
-        <ListTable data={encounter.medications} columns={columns.medications} />
+        <TableHeading>Medications</TableHeading>
+        <CompactListTable data={encounter.medications} columns={columns.medications} />
       </CertificateWrapper>
     );
   },

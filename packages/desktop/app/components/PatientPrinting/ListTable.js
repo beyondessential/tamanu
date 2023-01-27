@@ -29,9 +29,9 @@ const Cell = styled.td`
   font-size: 14px;
 `;
 
-export const ListTable = ({ columns, data }) => {
+export const ListTable = ({ columns, data, className }) => {
   return (
-    <Table>
+    <Table className={className}>
       <Row>
         {columns.map(({ key, title, style }) => (
           <Header key={key} style={{ paddingLeft: '0.5rem', ...style }}>
