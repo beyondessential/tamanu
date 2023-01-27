@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
+import { push } from 'connected-react-router';
+import { LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
@@ -30,6 +31,11 @@ import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
+import { CancelModal } from '../../components/CancelModal';
+import { SimpleTopBar } from '../../components';
+import { useLocalisation } from '../../contexts/Localisation';
+import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { LAB_REQUEST_STATUSES } from 'shared-src/src/constants';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -300,7 +306,10 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
     <TextInput value={labRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
     <TextInput value={(labRequest.priority || {}).name} label="Priority" />
-    <TextInput value={LAB_REQUEST_STATUS_LABELS[labRequest.status] || 'Unknown'} label="Status" />
+    <TextInput
+      value={LAB_REQUEST_STATUS_CONFIG[labRequest.status].label || 'Unknown'}
+      label="Status"
+    />
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} saveDateAsString label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} saveDateAsString label="Sample date" />
@@ -311,30 +320,64 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
 export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
+  const params = useParams();
+  const api = useApi();
+  const dispatch = useDispatch();
+  const { getLocalisation } = useLocalisation();
+  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
   const patient = useSelector(state => state.patient);
 
-  const updateLabReq = useCallback(
-    async data => {
-      await updateLabRequest(labRequest.id, data);
-      navigateToLabRequest(labRequest.id);
-    },
-    [labRequest, updateLabRequest, navigateToLabRequest],
-  );
-  const refreshLabRequest = useCallback(async () => {
+  const updateLabReq = async data => {
+    await updateLabRequest(labRequest.id, data);
+    navigateToLabRequest(labRequest.id);
+  };
+
+  const refreshLabRequest = async () => {
     await loadLabRequest(labRequest.id);
     navigateToLabRequest(labRequest.id);
-  }, [labRequest.id, loadLabRequest, navigateToLabRequest]);
+  };
+
+  const onConfirmCancel = async (reason, isReasonForDelete) => {
+    const reasonText = cancellationReasonOptions.find(x => x.value === reason).label;
+    const note = `Request cancelled. Reason: ${reasonText}`;
+    const status = isReasonForDelete
+      ? LAB_REQUEST_STATUSES.DELETED
+      : LAB_REQUEST_STATUSES.CANCELLED;
+    await api.put(`labRequest/${labRequest.id}`, {
+      status,
+      note,
+    });
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.LABS}`,
+      ),
+    );
+  };
 
   if (isLoading) return <LoadingIndicator />;
 
+  const isCancelled = labRequest.status === LAB_REQUEST_STATUSES.CANCELLED;
+
   return (
     <div>
-      <ContentPane>
+      <SimpleTopBar title="Imaging request">
+        {!isCancelled && (
+          <CancelModal
+            title="Cancel imaging request"
+            helperText="This reason will permanently delete the imaging request record"
+            buttonText="Cancel request"
+            bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+            options={cancellationReasonOptions}
+            onConfirm={onConfirmCancel}
+          />
+        )}
         <LabRequestActionDropdown
           labRequest={labRequest}
           patient={patient}
           updateLabReq={updateLabReq}
         />
+      </SimpleTopBar>
+      <ContentPane>
         <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
       </ContentPane>
       <ContentPane>
