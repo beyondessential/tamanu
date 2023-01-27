@@ -51,8 +51,8 @@ export const NotesSection = ({
   );
 };
 
-export const LocalisedLabel = ({ name, children, size }) => (
-  <LocalisedCertificateLabel margin="9px" name={name} size={size}>
+export const LocalisedLabel = ({ name, children, size, className }) => (
+  <LocalisedCertificateLabel margin="9px" name={name} size={size} className={className}>
     {children}
   </LocalisedCertificateLabel>
 );

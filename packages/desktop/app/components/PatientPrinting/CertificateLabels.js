@@ -8,15 +8,21 @@ const Text = styled(Typography)`
   margin-bottom: ${props => props.$margin};
 `;
 
-export const CertificateLabel = ({ name, children, margin = '20px', size = '12px' }) => (
-  <Text $margin={margin} $size={size}>
+export const CertificateLabel = ({ name, children, margin = '20px', size = '12px', className }) => (
+  <Text $margin={margin} $size={size} className={className}>
     <strong>{name}: </strong>
     {children}
   </Text>
 );
 
-export const LocalisedCertificateLabel = ({ name, children, margin = '20px', size = '12px' }) => (
-  <Text $margin={margin} $size={size}>
+export const LocalisedCertificateLabel = ({
+  name,
+  children,
+  margin = '20px',
+  size = '12px',
+  className,
+}) => (
+  <Text $margin={margin} $size={size} className={className}>
     <strong>
       <LocalisedText path={`fields.${name}.longLabel`} />:{' '}
     </strong>

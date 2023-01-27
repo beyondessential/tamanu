@@ -1,40 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { EncounterRecord } from './EncounterRecord';
 import { Modal } from '../Modal';
 import { useCertificate } from '../../utils/useCertificate';
 import { usePatientData } from '../../api/queries/usePatientData';
+import { useLabRequests } from '../../api/queries/useLabRequests';
+import { useImagingRequests } from '../../api/queries/useImagingRequests';
+import { useEncounterNotes } from '../../api/queries/useEncounterNotes';
 // import { FacilityAndSyncVersionIncompatibleError } from 'shared/errors';
-// import { DEPARTMENTS } from 'shared/demoData/departments';
 import { LoadingIndicator } from '../LoadingIndicator';
-// import { useApi } from '../../api';
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const patientQuery = usePatientData(encounter.patientId);
   const certificateData = useCertificate();
+
+  const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
 
-  // ----Encounter Summary
-  // Facility
-  // department
-  // supervising clinician
-  // date of admission
-  // discharging clinician - STILL TO DO
-  // date of discharge - STILL TO DO
-  // reason for encounter
-  // encounter type
-  console.log(encounter);
-  // diagnoses
+  const labRequestsQuery = useLabRequests(encounter.id, {
+    includeNotePages: 'true',
+    order: 'asc',
+    orderBy: 'requestedDate',
+  });
+  const labRequests = labRequestsQuery.data;
 
-  // notes
+  const imagingRequestsQuery = useImagingRequests(encounter.id);
+  const imagingRequests = imagingRequestsQuery.data;
 
-  // procedures
-
-  // lab requests
-
-  // imaging requests
-
-  // medications
+  const notesQuery = useEncounterNotes(encounter.id);
+  const notes = notesQuery.data;
 
   return (
     <Modal title="Encounter Record" open={open} onClose={onClose} maxWidth="md">
@@ -45,6 +38,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           patient={patient}
           encounter={encounter}
           certificateData={certificateData}
+          labRequests={labRequests}
+          imagingRequests={imagingRequests}
+          notes={notes}
         />
       )}
     </Modal>

@@ -9,6 +9,7 @@ import { DateDisplay } from '../DateDisplay';
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
+import { useLabRequests } from '../../api/queries/useLabRequests';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -67,15 +68,12 @@ const COLUMNS = [
 export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
   const [labRequestsData, setLabRequestsData] = useState([]);
-  const api = useApi();
-  const { data, error, isLoading } = useQuery(['labRequests', encounter.id], () =>
-    api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
-      includeNotePages: 'true',
-      status: 'reception_pending',
-      order: 'asc',
-      orderBy: 'requestedDate',
-    }),
-  );
+  const { data, error, isLoading } = useLabRequests(encounter.id, {
+    includeNotePages: 'true',
+    status: 'reception_pending',
+    order: 'asc',
+    orderBy: 'requestedDate',
+  });
 
   useEffect(() => {
     const allLabRequests = data?.data || [];
