@@ -133,7 +133,7 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
                   loadingAction={isSubmitting}
                   textColor={theme.colors.WHITE}
                   width={screenPercentageToDP(50, Orientation.Width)}
-                  fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+                  fontSize={screenPercentageToDP(1.94, Orientation.Height)}
                   fontWeight={500}
                   buttonText="Submit"
                 />
@@ -149,7 +149,9 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
 export const SyncInactiveAlert = (): JSX.Element => {
   const [openAuthenticationModel, setOpenAuthenticationModel] = useState(false);
   const [open, setOpen] = useState(false);
+
   const centralServerConnectionStatus = useSelector(authCentralServerConnectionStatusSelector);
+
   const handleClose = (): void => setOpen(false);
   const handleOpen = (): void => setOpen(true);
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
