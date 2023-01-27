@@ -31,6 +31,7 @@ patientRelations.get(
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
+    const sortDirection = (order.toLowerCase() === 'asc') ? 'ASC' : 'DESC';
 
     const { count, data } = await runPaginatedQuery(
       db,
@@ -54,7 +55,7 @@ patientRelations.get(
         WHERE
           patient_id = :patientId
           ${open ? 'AND end_date IS NULL' : ''}
-        ${sortKey ? `ORDER BY ${sortKey} ${order.toUpperCase()}` : ''}
+        ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
       { patientId: params.id },
       query,
