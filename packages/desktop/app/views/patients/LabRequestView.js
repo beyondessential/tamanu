@@ -238,11 +238,49 @@ const PrintModal = ({ labRequest, patient, open, onClose }) => {
   );
 };
 
+const ImagingRequestCancelModal = ({ open, onClose, labRequestId, updateLabReq }) => {
+  const params = useParams();
+  const api = useApi();
+  const dispatch = useDispatch();
+  const { getLocalisation } = useLocalisation();
+  const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
+
+  const onConfirmCancel = async (reason, isReasonForDelete) => {
+    const reasonText = cancellationReasonOptions.find(x => x.value === reason)?.label;
+    const note = `Request cancelled. Reason: ${reasonText}`;
+    const status = isReasonForDelete
+      ? LAB_REQUEST_STATUSES.DELETED
+      : LAB_REQUEST_STATUSES.CANCELLED;
+    await api.put(`labRequest/${labRequestId}`, {
+      status,
+      note,
+    });
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.LABS}`,
+      ),
+    );
+  };
+
+  return (
+    <CancelModal
+      title="Cancel lab request"
+      open={open}
+      onClose={onClose}
+      options={cancellationReasonOptions}
+      helperText="This reason will permanently delete the imaging request record"
+      bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+      onConfirm={onConfirmCancel}
+    />
+  );
+};
+
 const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   const { modal } = useParams();
   const [statusModalOpen, setStatusModalOpen] = useState(modal === 'status');
   const [printModalOpen, setPrintModalOpen] = useState(modal === 'print');
   const [labModalOpen, setLabModalOpen] = useState(modal === 'laboratory');
+  const [cancelModalOpen, setCancelModalOpen] = useState(modal === 'cancel');
   const [deleteModalOpen, setDeleteModalOpen] = useState(modal === 'delete');
 
   const api = useApi();
@@ -264,6 +302,10 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
     { label: 'Print lab request', onClick: () => setPrintModalOpen(true) },
     { label: 'Change laboratory', onClick: () => setLabModalOpen(true) },
   ];
+
+  if (labRequest.status !== LAB_REQUEST_STATUSES.CANCELLED) {
+    actions.push({ label: 'Cancel request', onClick: () => setCancelModalOpen(true) });
+  }
 
   if (!hasTests) {
     actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
@@ -295,6 +337,13 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={labModalOpen}
         onClose={() => setLabModalOpen(false)}
       />
+      <ImagingRequestCancelModal
+        updateLabReq={updateLabReq}
+        labRequestId={labRequest.id}
+        open={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+      />
+
       <DropdownButton style={{ marginBottom: '30px' }} actions={actions} />
     </>
   );
@@ -307,7 +356,7 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
     <TextInput value={labRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
     <TextInput value={(labRequest.priority || {}).name} label="Priority" />
     <TextInput
-      value={LAB_REQUEST_STATUS_CONFIG[labRequest.status].label || 'Unknown'}
+      value={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
       label="Status"
     />
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
@@ -320,11 +369,7 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
 export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
-  const params = useParams();
-  const api = useApi();
-  const dispatch = useDispatch();
-  const { getLocalisation } = useLocalisation();
-  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
+
   const patient = useSelector(state => state.patient);
 
   const updateLabReq = async data => {
@@ -337,40 +382,11 @@ export const LabRequestView = () => {
     navigateToLabRequest(labRequest.id);
   };
 
-  const onConfirmCancel = async (reason, isReasonForDelete) => {
-    const reasonText = cancellationReasonOptions.find(x => x.value === reason).label;
-    const note = `Request cancelled. Reason: ${reasonText}`;
-    const status = isReasonForDelete
-      ? LAB_REQUEST_STATUSES.DELETED
-      : LAB_REQUEST_STATUSES.CANCELLED;
-    await api.put(`labRequest/${labRequest.id}`, {
-      status,
-      note,
-    });
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.LABS}`,
-      ),
-    );
-  };
-
   if (isLoading) return <LoadingIndicator />;
-
-  const isCancelled = labRequest.status === LAB_REQUEST_STATUSES.CANCELLED;
 
   return (
     <div>
-      <SimpleTopBar title="Imaging request">
-        {!isCancelled && (
-          <CancelModal
-            title="Cancel imaging request"
-            helperText="This reason will permanently delete the imaging request record"
-            buttonText="Cancel request"
-            bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
-            options={cancellationReasonOptions}
-            onConfirm={onConfirmCancel}
-          />
-        )}
+      <SimpleTopBar title="Lab request">
         <LabRequestActionDropdown
           labRequest={labRequest}
           patient={patient}

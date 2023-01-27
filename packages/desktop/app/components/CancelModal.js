@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Modal } from './Modal';
-import { Button } from './Button';
 import { ConfirmCancelRow } from './ButtonRow';
 import { SelectInput } from './Field';
 import { BodyText } from './Typography';
@@ -20,20 +19,12 @@ const Wrapper = styled.div`
 `;
 
 export const CancelModal = React.memo(
-  ({ title, bodyText, onConfirm, options, helperText, buttonText }) => {
-    const [open, setOpen] = useState(false);
+  ({ title, bodyText, onConfirm, options, helperText, open, onClose }) => {
     const [reason, setReason] = useState(null);
     const isReasonForDelete = reason === 'duplicate' || reason === 'entered-in-error';
 
-    const onClose = () => {
-      setOpen(false);
-    };
-
     return (
       <>
-        <Button variant="text" onClick={() => setOpen(true)}>
-          {buttonText}
-        </Button>
         <Modal width="sm" title={title} onClose={onClose} open={open}>
           <ModalBody>
             <BodyText>{bodyText}</BodyText>
