@@ -13,7 +13,7 @@ TARGET_PATH="${2-.}"
 # copy folder before modifying so we don't break the linux release
 cp -r "./packages/$WORKSPACE/$LINUX_RELEASE_FOLDER" "./packages/$WORKSPACE/$WINDOWS_RELEASE_FOLDER"
 
-# get rid of node_modules from the linux release
+# get rid of node_modules from the copied linux release
 pushd "./packages/$WORKSPACE/$WINDOWS_RELEASE_FOLDER"
 mv ./node_modules/shared .
 rm -rf node_modules
