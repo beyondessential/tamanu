@@ -19,6 +19,11 @@ export class AuthService {
   constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
     this.centralServer = centralServer;
+
+    this.centralServer.emitter.on('centralConnectionStatusChange', (status) => {
+      this.emitter.emit('centralConnectionStatusChange', status)
+    });
+
     this.centralServer.emitter.on('error', (err) => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);

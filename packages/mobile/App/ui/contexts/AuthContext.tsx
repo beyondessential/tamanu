@@ -166,16 +166,21 @@ const Provider = ({
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
-    const handler = (err: Error): void => {
+    const errHandler = (err: Error): void => {
       if (!preventSignOutOnFailure) {
         signOut();
       } else {
         setPreventSignOutOnFailure(true);
       }
     };
-    backend.auth.emitter.on('authError', handler);
+    const centralStatusChangeHandler = (status: CentralServerConnectionStatus) => {
+      setCentralServerConnectionStatus(status)
+    }
+    backend.auth.emitter.on('authError', errHandler);
+    backend.auth.emitter.on('centralConnectionStatusChange', centralStatusChangeHandler)
     return () => {
-      backend.auth.emitter.off('authError', handler);
+      backend.auth.emitter.off('authError', errHandler);
+      backend.auth.emitter.off('centralConnectionStatusChange', centralStatusChangeHandler)
     };
   }, [backend, props.token, preventSignOutOnFailure]);
 

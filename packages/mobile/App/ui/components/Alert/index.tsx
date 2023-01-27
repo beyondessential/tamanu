@@ -13,6 +13,8 @@ export enum AlertSeverity {
 type SyncInactiveBannerProps = {
   severity?: AlertSeverity;
   children: ReactNode;
+  open: boolean;
+  onClose: () => void;
 };
 
 const SEVERITY_TO_COLORS: {
@@ -38,13 +40,12 @@ const SEVERITY_TO_COLORS: {
 export const Alert = ({
   severity = AlertSeverity.Info,
   children,
+  open,
+  onClose
 }: SyncInactiveBannerProps): JSX.Element => {
-  const [open, setOpen] = useState(true);
   const { background, color } = SEVERITY_TO_COLORS[severity];
 
   if (!open) return null;
-
-  const handleDismiss = (): void => setOpen(false);
 
   return (
     <StyledView
@@ -65,7 +66,7 @@ export const Alert = ({
       >
         {children}
         <StyledView flexGrow={1} />
-        <StyledTouchableOpacity width={20} onPress={handleDismiss}>
+        <StyledTouchableOpacity width={20} onPress={onClose}>
           <CrossIcon fill={color} size={screenPercentageToDP(3, Orientation.Width)} />
         </StyledTouchableOpacity>
       </StyledView>

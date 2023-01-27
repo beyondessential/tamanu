@@ -13,6 +13,7 @@ import {
 import { version } from '/root/package.json';
 
 import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
+import { CentralServerConnectionStatus } from '~/ui/store/ducks/auth';
 
 const API_VERSION = 1;
 
@@ -57,7 +58,10 @@ export class CentralServerConnection {
 
     if (response.status === 401) {
       const isLogin = path.startsWith('login');
-      throw new AuthenticationError(
+      if (!isLogin) {
+        this.emitter.emit('centralConnectionStatusChange', CentralServerConnectionStatus.Disconnected);
+      }
+       throw new AuthenticationError(
         path.startsWith('login') ? invalidUserCredentialsMessage : invalidTokenMessage,
       );
     }

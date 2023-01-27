@@ -6,13 +6,17 @@ import { theme } from '~/ui/styled/theme';
 import { Alert, AlertSeverity } from '../Alert';
 import { CrossIcon } from '../Icons';
 import { useSelector } from 'react-redux';
-import { authCentralServerConnectionStatusSelector, authUserSelector } from '~/ui/helpers/selectors';
+import {
+  authCentralServerConnectionStatusSelector,
+  authUserSelector,
+} from '~/ui/helpers/selectors';
 import * as Yup from 'yup';
 import { Form } from '../Forms/Form';
 import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { CentralServerConnectionStatus } from '~/ui/store/ducks/auth';
 
 interface AuthenticationModelProps {
   open: boolean;
@@ -26,7 +30,6 @@ type AuthenticationValues = {
 export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
-  const centralServerConnectionStatus = useSelector(authCentralServerConnectionStatusSelector);
   const authCtx = useAuth();
   const handleSignIn = async (payload: AuthenticationValues) => {
     try {
@@ -36,15 +39,14 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
       setErrorMessage(err.message);
     }
   };
-  
+
   useEffect(() => {
     if (errorMessage) {
-      setErrorMessage(null)
+      setErrorMessage(null);
     }
-  },[open])
+  }, [open]);
 
   if (!open) return null;
-
 
   return (
     <Modal isVisible={open} onBackdropPress={onClose}>
@@ -146,18 +148,32 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
 
 export const SyncInactiveAlert = (): JSX.Element => {
   const [openAuthenticationModel, setOpenAuthenticationModel] = useState(false);
-  const handleShowModal = (): void => setOpenAuthenticationModel(true);
+  const [open, setOpen] = useState(false);
+  const centralServerConnectionStatus = useSelector(authCentralServerConnectionStatusSelector);
+  const handleClose = (): void => setOpen(false);
+  const handleOpen = (): void => setOpen(true);
+  const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
+
+  useEffect(() => {
+    if (centralServerConnectionStatus === CentralServerConnectionStatus.Disconnected) {
+      handleOpen();
+    }
+    if (centralServerConnectionStatus === CentralServerConnectionStatus.Connected) {
+      handleClose();
+    }
+  }, [centralServerConnectionStatus]);
+
   return (
     <>
-      <Alert severity={AlertSeverity.Info}>
+      <Alert open={open} onClose={handleClose} severity={AlertSeverity.Info}>
         <StyledText
           color={theme.colors.PRIMARY_MAIN}
           fontSize={screenPercentageToDP(1.68, Orientation.Height)}
         >
           Sync inactive.
         </StyledText>
-        <StyledTouchableOpacity onPress={handleShowModal}>
+        <StyledTouchableOpacity onPress={handleOpenModal}>
           <StyledText
             marginLeft={screenPercentageToDP(1, Orientation.Width)}
             color={theme.colors.PRIMARY_MAIN}
@@ -168,10 +184,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
-      <AuthenticationModal
-        open={openAuthenticationModel}
-        onClose={handleCloseModal}
-      />
+      <AuthenticationModal open={openAuthenticationModel} onClose={handleCloseModal} />
     </>
   );
 };
