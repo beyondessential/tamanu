@@ -646,7 +646,7 @@
           "label": "STAT"
         }
       ],
-      "imagingRequestCancellationReasons": [{
+      "imagingCancellationReasons": [{
         "value": "clinical",
         "label": "Clinical reason"
       },{

@@ -321,12 +321,31 @@ const rootLocalisationSchema = yup
         label: yup.string().required(),
       }),
     ),
-    imagingRequestCancellationReasons: yup.array(
-      yup.object({
-        value: yup.string().required(),
-        label: yup.string().required(),
+    imagingCancellationReasons: yup
+      .array(
+        yup.object({
+          value: yup.string().required(),
+          label: yup.string().required(),
+        }),
+      )
+      .test({
+        name: 'imagingCancellationReasons',
+        test(conf, ctx) {
+          const values = conf.map(x => x.value);
+          if (!values.includes('duplicate')) {
+            return ctx.createError({
+              message: 'imagingCancellationReasons must include an option with value = clinic',
+            });
+          }
+          if (!values.includes('entered-in-error')) {
+            return ctx.createError({
+              message:
+                'imagingCancellationReasons must include an option with value = entered-in-error',
+            });
+          }
+          return true;
+        },
       }),
-    ),
     triageCategories: yup
       .array(
         yup.object({

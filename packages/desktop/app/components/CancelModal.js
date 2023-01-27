@@ -47,7 +47,7 @@ export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
   const { getLocalisation } = useLocalisation();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState(null);
-  const options = getLocalisation('imagingRequestCancellationReasons') || [];
+  const options = getLocalisation('imagingCancellationReasons') || [];
 
   const onConfirm = async () => {
     const reasonText = options.find(x => x.value === reason);
