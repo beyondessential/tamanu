@@ -81,8 +81,8 @@ const PrintButton = ({ imagingRequest, patient }) => {
 
 const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
-  // const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-  const isCancelled = false;
+  const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+
   return (
     <FormGrid columns={3}>
       <TextInput value={imagingRequest.id} label="Request ID" disabled />
@@ -205,8 +205,7 @@ const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
-    // const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-    const isCancelled = false;
+    const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
 
     return (
       <Formik
@@ -281,9 +280,27 @@ export const ImagingRequestView = () => {
 
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
+  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
 
   const onSubmit = async data => {
     await api.put(`imagingRequest/${imagingRequest.id}`, data);
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
+      ),
+    );
+  };
+
+  const onConfirmCancel = async (reason, isReasonForDelete) => {
+    const reasonText = cancellationReasonOptions.find(x => x.value === reason);
+    const note = `Request cancelled. Reason: ${reasonText}`;
+    const status = isReasonForDelete
+      ? IMAGING_REQUEST_STATUS_TYPES.DELETED
+      : IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    await api.put(`imagingRequest/${imagingRequest.id}`, {
+      status,
+      note,
+    });
     dispatch(
       push(
         `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
@@ -299,7 +316,14 @@ export const ImagingRequestView = () => {
     <>
       <SimpleTopBar title="Imaging request">
         {!isCancelled && (
-          <CancelModal buttonText="Cancel request" imagingRequest={imagingRequest} />
+          <CancelModal
+            title="Cancel imaging request"
+            helperText="This reason will permanently delete the imaging request record"
+            buttonText="Cancel request"
+            bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+            options={cancellationReasonOptions}
+            onConfirm={onConfirmCancel}
+          />
         )}
         <PrintButton imagingRequest={imagingRequest} patient={patient} />
       </SimpleTopBar>

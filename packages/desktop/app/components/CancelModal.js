@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { ConfirmCancelRow } from './ButtonRow';
 import { SelectInput } from './Field';
-import { useLocalisation } from '../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from '../views/patients/encounterTabNames';
-import { useApi } from '../api';
 import { BodyText } from './Typography';
 
 const ModalBody = styled.div`
@@ -26,62 +19,42 @@ const Wrapper = styled.div`
   max-width: 350px;
 `;
 
-export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
-  const api = useApi();
-  const dispatch = useDispatch();
-  const params = useParams();
-  const { getLocalisation } = useLocalisation();
-  const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState(null);
-  const options = getLocalisation('imagingCancellationReasons') || [];
-  const isReasonForDelete = reason === 'duplicate' || reason === 'entered-in-error';
+export const CancelModal = React.memo(
+  ({ title, bodyText, onConfirm, options, helperText, buttonText }) => {
+    const [open, setOpen] = useState(false);
+    const [reason, setReason] = useState(null);
+    const isReasonForDelete = reason === 'duplicate' || reason === 'entered-in-error';
 
-  const onConfirm = async () => {
-    const reasonText = options.find(x => x.value === reason);
-    const note = `Request cancelled. Reason: ${reasonText}`;
-    const status = isReasonForDelete
-      ? IMAGING_REQUEST_STATUS_TYPES.DELETED
-      : IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-    await api.put(`imagingRequest/${imagingRequest.id}`, {
-      status,
-      note,
-    });
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
-      ),
-    );
-  };
-  const onClose = () => {
-    setOpen(false);
-  };
-  return (
-    <>
-      <Button variant="text" onClick={() => setOpen(true)}>
-        {buttonText}
-      </Button>
-      <Modal width="sm" title="Cancel imaging request" onClose={onClose} open={open}>
-        <ModalBody>
-          <BodyText>
-            Please select reason for cancelling imaging request and click &apos;Confirm&apos;
-          </BodyText>
-          <Wrapper>
-            <SelectInput
-              label="Reason for cancellation"
-              name="reasonForCancellation"
-              options={options}
-              value={reason}
-              onChange={({ target: { value } }) => setReason(value)}
-              helperText={
-                isReasonForDelete
-                  ? 'This reason will permanently delete the imaging request record'
-                  : null
-              }
+    const onClose = () => {
+      setOpen(false);
+    };
+
+    return (
+      <>
+        <Button variant="text" onClick={() => setOpen(true)}>
+          {buttonText}
+        </Button>
+        <Modal width="sm" title={title} onClose={onClose} open={open}>
+          <ModalBody>
+            <BodyText>{bodyText}</BodyText>
+            <Wrapper>
+              <SelectInput
+                label="Reason for cancellation"
+                name="reasonForCancellation"
+                options={options}
+                value={reason}
+                onChange={({ target: { value } }) => setReason(value)}
+                helperText={isReasonForDelete ? helperText : null}
+              />
+            </Wrapper>
+            <ConfirmCancelRow
+              onCancel={onClose}
+              onConfirm={() => onConfirm(reason, isReasonForDelete)}
+              cancelText="Close"
             />
-          </Wrapper>
-          <ConfirmCancelRow onCancel={onClose} onConfirm={onConfirm} cancelText="Close" />
-        </ModalBody>
-      </Modal>
-    </>
-  );
-});
+          </ModalBody>
+        </Modal>
+      </>
+    );
+  },
+);
