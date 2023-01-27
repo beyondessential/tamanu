@@ -3,6 +3,7 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
+  DELETED: 'deleted',
 };
 
 export const IMAGING_REQUEST_STATUS_LABELS = {

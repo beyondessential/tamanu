@@ -2,7 +2,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
-import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
+import {
+  NOTE_TYPES,
+  AREA_TYPE_TO_IMAGING_TYPE,
+  IMAGING_AREA_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+} from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { getNoteWithType, mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
@@ -393,7 +398,9 @@ globalImagingRequests.get(
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows.map(x => x.get({ plain: true }));
+    const data = rows
+      .map(x => x.get({ plain: true }))
+      .filter(x => x.status !== IMAGING_REQUEST_STATUS_TYPES.DELETED);
     res.send({
       count,
       data,

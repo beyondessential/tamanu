@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -25,7 +25,7 @@ export const IMAGING_REQUEST_CONFIG = {
   },
   [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: {
     label: 'In progress',
-    color: '#888888;',
+    color: '#4101C9;',
     background: '#ECE6FA',
   },
   [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: {
@@ -40,11 +40,14 @@ export const IMAGING_REQUEST_CONFIG = {
   },
 };
 
-const StatusDisplay = React.memo(({ status }) => (
-  <StatusTag $background={IMAGING_REQUEST_CONFIG[status]}>
-    {IMAGING_REQUEST_CONFIG[status] || 'Unknown'}
-  </StatusTag>
-));
+const StatusDisplay = React.memo(({ status }) => {
+  const { background, color, label } = IMAGING_REQUEST_CONFIG[status];
+  return (
+    <StatusTag $background={background} $color={color}>
+      {label}
+    </StatusTag>
+  );
+});
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;

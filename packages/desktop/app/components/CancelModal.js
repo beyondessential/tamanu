@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
@@ -10,6 +11,34 @@ import { SelectInput } from './Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../views/patients/encounterTabNames';
 import { useApi } from '../api';
+import { BodyText } from './Typography';
+
+const ModalBody = styled.div`
+  margin-top: 30px;
+
+  .MuiTypography-root {
+    margin-bottom: 30px;
+  }
+`;
+
+const Wrapper = styled.div`
+  margin: 0 auto 50px;
+  max-width: 350px;
+`;
+
+const getHelperTextByReason = reason => {
+  switch (reason) {
+    case 'duplicate':
+    case 'entered-in-error':
+      return 'This reason will permanently delete the imaging request record';
+    default:
+      return null;
+  }
+};
+
+const getNoteByReason = reason => {
+  return `Request cancelled. Reason: ${reason}`;
+};
 
 export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
   const api = useApi();
@@ -21,11 +50,14 @@ export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
   const options = getLocalisation('imagingRequestCancellationReasons') || [];
 
   const onConfirm = async () => {
-    console.log('reason...', reason);
-    console.log('confirm...', imagingRequest);
-
+    const reasonText = options.find(x => x.value === reason);
+    const status =
+      reason === 'duplicate' || reason === 'entered-in-error'
+        ? IMAGING_REQUEST_STATUS_TYPES.DELETED
+        : IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
     await api.put(`imagingRequest/${imagingRequest.id}`, {
-      status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      status,
+      note: getNoteByReason(reasonText.label),
     });
     // Todo: investigate refactoring url util?
     dispatch(
@@ -43,15 +75,22 @@ export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
         {buttonText}
       </Button>
       <Modal width="sm" title="Cancel imaging request" onClose={onClose} open={open}>
-        <div>Please select reason for cancelling imaging request and click Confirm</div>
-        <SelectInput
-          label="Reason for cancellation"
-          name="reasonForCancellation"
-          options={options}
-          value={reason}
-          onChange={({ target: { value } }) => setReason(value)}
-        />
-        <ConfirmCancelRow onCancel={onClose} onConfirm={onConfirm} cancelText="Close" />
+        <ModalBody>
+          <BodyText>
+            Please select reason for cancelling imaging request and click &apos;Confirm&apos;
+          </BodyText>
+          <Wrapper>
+            <SelectInput
+              label="Reason for cancellation"
+              name="reasonForCancellation"
+              options={options}
+              value={reason}
+              onChange={({ target: { value } }) => setReason(value)}
+              helperText={getHelperTextByReason(reason)}
+            />
+          </Wrapper>
+          <ConfirmCancelRow onCancel={onClose} onConfirm={onConfirm} cancelText="Close" />
+        </ModalBody>
       </Modal>
     </>
   );

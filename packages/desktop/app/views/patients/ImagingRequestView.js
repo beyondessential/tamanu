@@ -81,7 +81,8 @@ const PrintButton = ({ imagingRequest, patient }) => {
 
 const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
-
+  // const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+  const isCancelled = false;
   return (
     <FormGrid columns={3}>
       <TextInput value={imagingRequest.id} label="Request ID" disabled />
@@ -95,7 +96,13 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         label="Priority"
         disabled
       />
-      <Field name="status" label="Status" component={SelectField} options={STATUS_OPTIONS} />
+      <Field
+        name="status"
+        label="Status"
+        component={SelectField}
+        options={isCancelled ? [{ value: 'cancelled', label: 'Cancelled' }] : STATUS_OPTIONS}
+        disabled={isCancelled}
+      />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
       {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
         values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
@@ -198,6 +205,8 @@ const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
+    // const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    const isCancelled = false;
 
     return (
       <Formik
@@ -244,7 +253,13 @@ const ImagingRequestInfoPane = React.memo(
                   }}
                 />
               )}
-              <ButtonRow>{dirty && <Button type="submit">Save</Button>}</ButtonRow>
+              <ButtonRow style={{ marginTop: 20 }}>
+                {!isCancelled && (
+                  <Button disabled={!dirty} type="submit">
+                    Save
+                  </Button>
+                )}
+              </ButtonRow>
             </Form>
           );
         }}
@@ -278,10 +293,14 @@ export const ImagingRequestView = () => {
 
   if (patient.loading) return <LoadingIndicator />;
 
+  const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+
   return (
     <>
       <SimpleTopBar title="Imaging request">
-        <CancelModal buttonText="Cancel request" imagingRequest={imagingRequest} />
+        {!isCancelled && (
+          <CancelModal buttonText="Cancel request" imagingRequest={imagingRequest} />
+        )}
         <PrintButton imagingRequest={imagingRequest} patient={patient} />
       </SimpleTopBar>
       <ContentPane>
