@@ -7,13 +7,13 @@ export interface WithAuthActions {
   setToken: (payload: string) => PayloadAction<IUser>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
-  setCentralServerConnectionStatus: (
-    payload: CentralServerConnectionStatus,
-  ) => PayloadAction<CentralServerConnectionStatus>;
+  setCentralConnectionStatus: (
+    payload: CentralConnectionStatus,
+  ) => PayloadAction<CentralConnectionStatus>;
   signOutUser(): () => PayloadAction<void>;
 }
 
-export enum CentralServerConnectionStatus {
+export enum CentralConnectionStatus {
   Disconnected = 'disconnected',
   Connected = 'connected',
   Error = 'error',
@@ -24,7 +24,7 @@ export interface AuthStateProps {
   user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
-  centralServerConnectionStatus: CentralServerConnectionStatus;
+  centralConnectionStatus: CentralConnectionStatus;
 }
 
 const initialState: AuthStateProps = {
@@ -32,7 +32,7 @@ const initialState: AuthStateProps = {
   user: null,
   signedIn: false,
   isFirstTime: true,
-  centralServerConnectionStatus: CentralServerConnectionStatus.Disconnected,
+  centralConnectionStatus: CentralConnectionStatus.Disconnected,
 };
 
 export const PatientSlice = createSlice({
@@ -69,13 +69,13 @@ export const PatientSlice = createSlice({
         token: null,
       };
     },
-    setCentralServerConnectionStatus(
+    setCentralConnectionStatus(
       state,
-      { payload: centralServerConnectionStatus }: PayloadAction<CentralServerConnectionStatus>,
+      { payload: centralConnectionStatus }: PayloadAction<CentralConnectionStatus>,
     ): AuthStateProps {
       return {
         ...state,
-        centralServerConnectionStatus,
+        centralConnectionStatus,
       };
     },
   },

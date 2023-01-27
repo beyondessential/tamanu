@@ -13,7 +13,7 @@ import { compose } from 'redux';
 import { PureAbility } from '@casl/ability';
 import { readConfig } from '~/services/config';
 import { withAuth } from '~/ui/containers/Auth';
-import { CentralServerConnectionStatus, WithAuthStoreProps } from '~/ui/store/ducks/auth';
+import { CentralConnectionStatus, WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
@@ -34,7 +34,7 @@ interface AuthContextData {
   reconnectWithPassword: (params: { password: string }) => Promise<void>;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
-  setCentralServerConnectionStatus: (status: CentralServerConnectionStatus) => void;
+  setCentralConnectionStatus: (status: CentralConnectionStatus) => void;
   checkFirstSession: () => boolean;
   requestResetPassword: (params: ResetPasswordFormModel) => void;
   resetPasswordLastEmailUsed: string;
@@ -47,7 +47,7 @@ const Provider = ({
   setToken,
   setUser,
   setSignedInStatus,
-  setCentralServerConnectionStatus,
+  setCentralConnectionStatus,
   children,
   signOutUser,
   navRef,
@@ -148,10 +148,10 @@ const Provider = ({
   // start a session if there's a stored token
   useEffect(() => {
     if (props.token && props.user) {
-      setCentralServerConnectionStatus(CentralServerConnectionStatus.Connected);
+      setCentralConnectionStatus(CentralConnectionStatus.Connected);
       backend.auth.startSession(props.token);
     } else {
-      setCentralServerConnectionStatus(CentralServerConnectionStatus.Disconnected);
+      setCentralConnectionStatus(CentralConnectionStatus.Disconnected);
       backend.auth.endSession();
     }
   }, [backend, props.token, props.user]);
@@ -175,8 +175,8 @@ const Provider = ({
         signOut();
       }
     };
-    const centralStatusChangeHandler = (status: CentralServerConnectionStatus) => {
-      setCentralServerConnectionStatus(status)
+    const centralStatusChangeHandler = (status: CentralConnectionStatus) => {
+      setCentralConnectionStatus(status)
     }
     backend.auth.emitter.on('authError', errHandler);
     backend.auth.emitter.on('centralConnectionStatusChange', centralStatusChangeHandler)
@@ -190,7 +190,7 @@ const Provider = ({
     <AuthContext.Provider
       value={{
         setUserFirstSignIn,
-        setCentralServerConnectionStatus,
+        setCentralConnectionStatus,
         signIn,
         signOut,
         reconnectWithPassword,

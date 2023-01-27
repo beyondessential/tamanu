@@ -7,7 +7,7 @@ import { Alert, AlertSeverity } from '../Alert';
 import { CrossIcon } from '../Icons';
 import { useSelector } from 'react-redux';
 import {
-  authCentralServerConnectionStatusSelector,
+  authCentralConnectionStatusSelector,
   authUserSelector,
 } from '~/ui/helpers/selectors';
 import * as Yup from 'yup';
@@ -16,7 +16,7 @@ import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { CentralServerConnectionStatus } from '~/ui/store/ducks/auth';
+import { CentralConnectionStatus } from '~/ui/store/ducks/auth';
 import { useNetInfo } from '@react-native-community/netinfo';
 
 interface AuthenticationModelProps {
@@ -152,7 +152,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const [open, setOpen] = useState(false);
 
   const netInfo = useNetInfo();
-  const centralServerConnectionStatus = useSelector(authCentralServerConnectionStatusSelector);
+  const centralConnectionStatus = useSelector(authCentralConnectionStatusSelector);
 
   const handleClose = (): void => setOpen(false);
   const handleOpen = (): void => setOpen(true);
@@ -161,7 +161,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
 
   useEffect(() => {
     if (
-      centralServerConnectionStatus === CentralServerConnectionStatus.Disconnected
+      centralConnectionStatus === CentralConnectionStatus.Disconnected
       // Reconnection with central is not possible if there is no internet connection
     ) {
       if (netInfo.isInternetReachable) {
@@ -170,10 +170,10 @@ export const SyncInactiveAlert = (): JSX.Element => {
         handleClose();
       }
     }
-    if (centralServerConnectionStatus === CentralServerConnectionStatus.Connected && open) {
+    if (centralConnectionStatus === CentralConnectionStatus.Connected && open) {
       handleClose();
     }
-  }, [centralServerConnectionStatus, netInfo.isInternetReachable]);
+  }, [centralConnectionStatus, netInfo.isInternetReachable]);
 
   return (
     <>
