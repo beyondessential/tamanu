@@ -15,5 +15,5 @@ export async function down(query) {
     ALTER COLUMN completed_note
     TYPE VARCHAR(255)
     USING note::VARCHAR(255)
-  `)
+  `);
 }
