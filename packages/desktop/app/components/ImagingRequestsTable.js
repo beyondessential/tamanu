@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -12,36 +12,8 @@ import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { StatusTag } from './Tag';
 
-export const IMAGING_REQUEST_CONFIG = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: {
-    label: 'Pending',
-    color: '#CB6100',
-    background: '#FAF0E6',
-  },
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: {
-    label: 'Completed',
-    color: '#19934E',
-    background: '#DEF0EE',
-  },
-  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: {
-    label: 'In progress',
-    color: '#4101C9;',
-    background: '#ECE6FA',
-  },
-  [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: {
-    label: 'Cancelled',
-    color: '#444444;',
-    background: '#EDEDED',
-  },
-  unknown: {
-    label: 'Unknown',
-    color: '#444444;',
-    background: '#EDEDED',
-  },
-};
-
 const StatusDisplay = React.memo(({ status }) => {
-  const { background, color, label } = IMAGING_REQUEST_CONFIG[status];
+  const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
   return (
     <StatusTag $background={background} $color={color}>
       {label}

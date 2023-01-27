@@ -292,7 +292,7 @@ export const ImagingRequestView = () => {
   };
 
   const onConfirmCancel = async (reason, isReasonForDelete) => {
-    const reasonText = cancellationReasonOptions.find(x => x.value === reason);
+    const reasonText = cancellationReasonOptions.find(x => x.value === reason).label;
     const note = `Request cancelled. Reason: ${reasonText}`;
     const status = isReasonForDelete
       ? IMAGING_REQUEST_STATUS_TYPES.DELETED
