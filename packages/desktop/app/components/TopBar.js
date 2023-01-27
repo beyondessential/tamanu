@@ -84,6 +84,18 @@ export const SimpleTopBar = React.memo(({ title, children, className }) => (
   </AppBar>
 ));
 
+SimpleTopBar.propTypes = {
+  title: PropTypes.string,
+  subTitle: PropTypes.string,
+  className: PropTypes.string,
+};
+
+SimpleTopBar.defaultProps = {
+  title: null,
+  subTitle: null,
+  className: '',
+};
+
 const Container = styled.div`
   display: flex;
   align-items: center;

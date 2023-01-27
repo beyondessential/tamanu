@@ -26,20 +26,6 @@ const Wrapper = styled.div`
   max-width: 350px;
 `;
 
-const getHelperTextByReason = reason => {
-  switch (reason) {
-    case 'duplicate':
-    case 'entered-in-error':
-      return 'This reason will permanently delete the imaging request record';
-    default:
-      return null;
-  }
-};
-
-const getNoteByReason = reason => {
-  return `Request cancelled. Reason: ${reason}`;
-};
-
 export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
   const api = useApi();
   const dispatch = useDispatch();
@@ -48,18 +34,18 @@ export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState(null);
   const options = getLocalisation('imagingCancellationReasons') || [];
+  const isReasonForDelete = reason === 'duplicate' || reason === 'entered-in-error';
 
   const onConfirm = async () => {
     const reasonText = options.find(x => x.value === reason);
-    const status =
-      reason === 'duplicate' || reason === 'entered-in-error'
-        ? IMAGING_REQUEST_STATUS_TYPES.DELETED
-        : IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    const note = `Request cancelled. Reason: ${reasonText}`;
+    const status = isReasonForDelete
+      ? IMAGING_REQUEST_STATUS_TYPES.DELETED
+      : IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
     await api.put(`imagingRequest/${imagingRequest.id}`, {
       status,
-      note: getNoteByReason(reasonText.label),
+      note,
     });
-    // Todo: investigate refactoring url util?
     dispatch(
       push(
         `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
@@ -86,7 +72,11 @@ export const CancelModal = React.memo(({ imagingRequest, buttonText }) => {
               options={options}
               value={reason}
               onChange={({ target: { value } }) => setReason(value)}
-              helperText={getHelperTextByReason(reason)}
+              helperText={
+                isReasonForDelete
+                  ? 'This reason will permanently delete the imaging request record'
+                  : null
+              }
             />
           </Wrapper>
           <ConfirmCancelRow onCancel={onClose} onConfirm={onConfirm} cancelText="Close" />
