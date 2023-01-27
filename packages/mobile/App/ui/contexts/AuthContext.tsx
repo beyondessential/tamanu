@@ -167,10 +167,12 @@ const Provider = ({
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
     const errHandler = (err: Error): void => {
-      if (!preventSignOutOnFailure) {
-        signOut();
+      if (preventSignOutOnFailure) {
+        // reset flag to prevent sign out being
+        // skipped on subsequent failed authentications
+        setPreventSignOutOnFailure(true)
       } else {
-        setPreventSignOutOnFailure(true);
+        signOut();
       }
     };
     const centralStatusChangeHandler = (status: CentralServerConnectionStatus) => {
