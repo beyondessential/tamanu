@@ -31,7 +31,7 @@ patientRelations.get(
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
-    const sortDirection = (order.toLowerCase() === 'asc') ? 'ASC' : 'DESC';
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const { count, data } = await runPaginatedQuery(
       db,

@@ -7,15 +7,21 @@ import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
-const getDate = ({ startDate, endDate }) => <><DateDisplay date={startDate} />{' - '}{endDate ? <DateDisplay date={endDate} /> : 'Current'}</>;
+const getDate = ({ startDate, endDate }) => (
+  <>
+    <DateDisplay date={startDate} />
+    {' - '}
+    {endDate ? <DateDisplay date={endDate} /> : 'Current'}
+  </>
+);
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
 const getDescription = ({ reasonForEncounter }) => <div>{reasonForEncounter}</div>;
-const getFacility = ({ facilityName }) => <div>{facilityName}</div>
+const getFacility = ({ facilityName }) => <div>{facilityName}</div>;
 
 const columns = [
   { key: 'startDate', title: 'Date', accessor: getDate },
   { key: 'encounterType', title: 'Type', accessor: getType, sortable: false },
-  { key: 'facilityName', title: 'Facility', accessor: getFacility},
+  { key: 'facilityName', title: 'Facility', accessor: getFacility },
   { key: 'reasonForEncounter', title: 'Description', accessor: getDescription, sortable: false },
 ];
 

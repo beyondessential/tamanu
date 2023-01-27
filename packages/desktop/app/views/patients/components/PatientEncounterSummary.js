@@ -208,7 +208,10 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
     <Container patientStatus={patientStatus}>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">Type:</BoldTitle>
-        <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}{location?.facility?.name ? ` | ${location?.facility?.name}` : ''}</Title>
+        <Title variant="h3">
+          {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
+          {location?.facility?.name ? ` | ${location?.facility?.name}` : ''}
+        </Title>
         <div style={{ flexGrow: 1 }} />
         <Button onClick={() => viewEncounter(id)} size="small">
           View encounter
