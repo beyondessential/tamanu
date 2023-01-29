@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { runCalculations } from 'shared/utils/calculations';
 import { Typography } from '@material-ui/core';
 import { usePaginatedForm } from '../Field';
 import { SurveyScreen } from './SurveyScreen';

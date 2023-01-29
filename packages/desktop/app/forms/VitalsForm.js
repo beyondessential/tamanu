@@ -12,7 +12,8 @@ import { ForbiddenError } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../contexts/Auth';
 
-const ErrorMessage = () => {
+// eslint-disable-next-line no-unused-vars
+const ErrorMessage = ({ error }) => {
   return (
     <Box p={5} mb={4}>
       <Alert severity="error">
@@ -42,7 +43,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   }
 
   if (isError) {
-    return <ErrorMessage />;
+    return <ErrorMessage error={error} />;
   }
 
   const handleSubmit = data => {
