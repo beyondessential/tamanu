@@ -52,7 +52,7 @@ Open the project .workspace file inside the ios folder with your xcode and after
 #### Android Studio
 
 Open Android Studio and select to "Open an existing Android Studio project" and then choose the android file inside the tamanu App folder.
-Why for it to link and build.
+Wait for it to link and build.
 
 ## Running
 
@@ -137,6 +137,7 @@ To bump the version, edit it in `package.json`, and remember to increment the pa
 
 1. upload file in diawi.com
 2. share app with the team!
+
 #### Releasing
 
 App Center will build an apk and app bundle on every commit to dev and master. It is also connected directly to Google Play, making distribution easy _if_ you are releasing to all countries at once.
