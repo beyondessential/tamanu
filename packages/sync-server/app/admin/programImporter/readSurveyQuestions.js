@@ -29,14 +29,16 @@ function makeScreen(questions, componentData) {
       config: qConfig = '',
       calculation = '',
       row,
-      visibilityStatus,
+      visibilityStatus = '',
       ...elementData
     } = component;
 
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
 
-    const deletedAt = STATUSES_TO_DELETE.includes(visibilityStatus) ? Date.now() : null;
+    const deletedAt = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
+      ? Date.now()
+      : null;
 
     return [
       {
