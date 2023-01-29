@@ -14,6 +14,7 @@ function getEthnicity(ethnicityId) {
   }
 }
 
+// overrideConfig parameter is just for testing and isn't intended to be used in live code
 export function nzEthnicity(patient, overrideConfig = config) {
   if (!overrideConfig.localisation.data.features.fhirNewZealandEthnicity) return [];
   const { code, display } = getEthnicity(patient?.additionalData?.ethnicityId);
