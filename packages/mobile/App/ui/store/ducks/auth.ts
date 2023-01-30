@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IUser } from '~/types';
+import { CentralConnectionStatus, IUser } from '~/types';
 
 export type WithAuthStoreProps = WithAuthActions & AuthStateProps;
 export interface WithAuthActions {
@@ -11,12 +11,6 @@ export interface WithAuthActions {
     payload: CentralConnectionStatus,
   ) => PayloadAction<CentralConnectionStatus>;
   signOutUser(): () => PayloadAction<void>;
-}
-
-export enum CentralConnectionStatus {
-  Disconnected = 'disconnected',
-  Connected = 'connected',
-  Error = 'error'
 }
 
 export interface AuthStateProps {

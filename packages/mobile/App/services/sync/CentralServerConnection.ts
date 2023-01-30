@@ -62,7 +62,7 @@ export class CentralServerConnection {
         this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Disconnected);
       }
        throw new AuthenticationError(
-        path.startsWith('login') ? invalidUserCredentialsMessage : invalidTokenMessage,
+       isLogin ? invalidUserCredentialsMessage : invalidTokenMessage,
       );
     }
 

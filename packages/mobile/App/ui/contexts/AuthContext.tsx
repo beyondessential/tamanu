@@ -16,7 +16,7 @@ import { withAuth } from '~/ui/containers/Auth';
 import { CentralConnectionStatus, WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { IUser, SyncConnectionParameters } from '~/types';
+import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
@@ -31,7 +31,7 @@ interface AuthContextData {
   ability: PureAbility;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
-  reconnectWithPassword: (params: { password: string }) => Promise<void>;
+  reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   setCentralConnectionStatus: (status: CentralConnectionStatus) => void;
@@ -86,7 +86,7 @@ const Provider = ({
     signInAs(usr);
   };
 
-  const reconnectWithPassword = async (params: { password: string }): Promise<void> => {
+  const reconnectWithPassword = async (params: ReconnectWithPasswordParameters): Promise<void> => {
     const serverLocation = await readConfig('syncServerLocation');
     const payload = {
       email: user?.email,
