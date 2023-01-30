@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -14,6 +16,19 @@ import { Button, connectRoutedModal } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/EncounterRecordModal';
+import { Colors } from '../../../constants';
+
+const TypographyLink = styled(Typography)`
+  color: ${Colors.primary};
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  text-decoration: underline;
+  text-align: right;
+  cursor: pointer;
+  padding-top: 10px;
+  margin-top: auto;
+`;
 
 const EncounterActionDropdown = ({ encounter }) => {
   const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
@@ -32,14 +47,13 @@ const EncounterActionDropdown = ({ encounter }) => {
 
   if (encounter.endDate) {
     return (
-      <>
+      <div>
         <Button variant="outlined" color="primary" onClick={onViewSummary}>
           View discharge summary
         </Button>
-        <Button variant="text" color="primary" onClick={onViewEncounterRecord}>
-          Encounter Record
-        </Button>
-      </>
+        <br />
+        <TypographyLink onClick={onViewEncounterRecord}>Encounter Record</TypographyLink>
+      </div>
     );
   }
 
