@@ -10,6 +10,9 @@ import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
 import { noteTypes } from '../../constants';
+import { useLocalisation } from '../../contexts/Localisation';
+
+import { ImagingRequestAreas } from './ImagingRequestAreas';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -23,10 +26,10 @@ const CompactListTable = styled(ListTable)`
 
 const Table = styled.table`
   border: 1px solid black;
-  margin-top: 8px;
-  margin-bottom: 8px;
   border-spacing: 0px;
   border-collapse: collapse;
+  margin-top: 10px;
+  margin-bottom: 16px;
   width: 100%;
 `;
 
@@ -41,6 +44,10 @@ const Cell = styled.td`
   padding-bottom: 0.5rem;
   font-size: 10px;
   line-height: 12px;
+`;
+
+const BoldText = styled.strong`
+  font-weight: 600;
 `;
 
 const RowContainer = styled.div`
@@ -73,7 +80,7 @@ const DisplayValue = styled(CertificateLabel)`
 `;
 
 const Divider = styled.hr`
-  border: 0.5px solid #000000;
+  border-bottom: 0.5px solid #000000;
 `;
 
 // COLUMN LAYOUTS
@@ -139,13 +146,13 @@ const columns = {
     {
       key: 'imagingType',
       title: 'Imaging request type',
-      accessor: ({ imagingType }) => imagingType || {},
+      accessor: ({ imagingName }) => (imagingName || {}).label,
       style: { width: '30%' },
     },
     {
       key: 'areaToBeImaged',
       title: 'Area to be imaged',
-      accessor: '',
+      accessor: ({ id }) => <ImagingRequestAreas imagingRequestId={id} /> || {},
       style: { width: '50%' },
     },
     {
@@ -199,6 +206,13 @@ export const EncounterRecord = React.memo(
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate } = encounter;
     const { title, subTitle, logo } = certificateData;
+
+    const { getLocalisation } = useLocalisation();
+    const imagingTypes = getLocalisation('imagingTypes') || {};
+    const updatedImagingRequests = imagingRequests.data.map(imagingRequest => ({
+      ...imagingRequest,
+      imagingName: imagingTypes[imagingRequest.imagingType],
+    }));
 
     return (
       <CertificateWrapper>
@@ -264,14 +278,14 @@ export const EncounterRecord = React.memo(
           <>
             <Table>
               <Row>
-                <Cell>{noteTypes.find(x => x.value === note.noteType).label}</Cell>
+                <Cell width="45%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
                 <Cell>{note.date}</Cell>
               </Row>
               <Row>
                 <Cell colSpan={2}>
                   {note.noteItems.map(noteItem => (
                     <>
-                      {noteItem.date}: {noteItem.content}
+                      <BoldText>{noteItem.date}:</BoldText> {noteItem.content}
                       <br />
                     </>
                   ))}
@@ -288,7 +302,7 @@ export const EncounterRecord = React.memo(
         <CompactListTable data={labRequests.data} columns={columns.labRequests} />
 
         <TableHeading>Imaging Requests</TableHeading>
-        <CompactListTable data={imagingRequests.data} columns={columns.imagingRequests} />
+        <CompactListTable data={updatedImagingRequests} columns={columns.imagingRequests} />
 
         <TableHeading>Medications</TableHeading>
         <CompactListTable data={encounter.medications} columns={columns.medications} />

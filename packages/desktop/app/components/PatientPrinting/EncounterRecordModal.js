@@ -21,7 +21,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   const padDataQuery = usePatientAdditionalData(patient?.id);
   const padData = padDataQuery.data;
-  console.log(padData);
 
   const labRequestsQuery = useLabRequests(encounter.id, {
     includeNotePages: 'true',
@@ -38,13 +37,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   const dishchargeQuery = useEncounterDischarge(encounter.id);
   const discharge = dishchargeQuery.data;
-
-  // TODO figure out how to enter actual data once patient query complete
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery.name;
-
-  // console.log(patient);
-  // console.log(encounter);
 
   return (
     <Modal title="Encounter Record" open={open} onClose={onClose} printable maxWidth="md">
