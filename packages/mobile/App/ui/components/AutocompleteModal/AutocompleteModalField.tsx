@@ -21,8 +21,8 @@ export const AutocompleteModalField = ({
   onChange,
   suggester,
   modalRoute,
-  marginTop,
   error,
+  marginTop = 0,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(placeholder);
@@ -31,11 +31,10 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void =>
-    navigation.navigate(modalRoute, {
-      callback: onPress,
-      suggester,
-    });
+  const openModal = (): void => navigation.navigate(modalRoute, {
+    callback: onPress,
+    suggester,
+  });
 
   useEffect(() => {
     if (!suggester) return;
@@ -48,12 +47,13 @@ export const AutocompleteModalField = ({
 
   return (
     <Button
-      marginTop={marginTop ?? screenPercentageToDP(1.22, Orientation.Height)}
+      marginTop={marginTop}
       backgroundColor={theme.colors.WHITE}
       textColor="#888888"
       buttonText={label}
+      height={screenPercentageToDP(6.68, Orientation.Height)}
       justifyContent="flex-start"
-      borderRadius={1}
+      borderRadius={3}
       borderStyle="solid"
       borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
       borderWidth={1}

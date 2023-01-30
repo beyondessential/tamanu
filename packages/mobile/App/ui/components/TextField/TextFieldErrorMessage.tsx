@@ -12,6 +12,6 @@ const StyledErrorMessage = styled(StyledText)`
     padding-left: ${screenPercentageToDP(1, Orientation.Width)};
 `;
 
-export const TextErrorMessage = ({ children }: { children: string }): JSX.Element => (
+export const TextFieldErrorMessage = ({ children }: { children: string }): JSX.Element => (
   <StyledErrorMessage>{children}</StyledErrorMessage>
 );

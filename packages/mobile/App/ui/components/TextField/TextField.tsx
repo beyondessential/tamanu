@@ -10,7 +10,7 @@ import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { TextErrorMessage } from './TextFieldError';
+import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 export interface RefObject<T> {
   readonly current: T | null;
 }
@@ -148,9 +148,9 @@ export const TextField = React.memo(
           />
         </InputContainer>
         {error && (
-          <TextErrorMessage>
+          <TextFieldErrorMessage>
             {error}
-          </TextErrorMessage>
+          </TextFieldErrorMessage>
         )}
       </StyledView>
     );
