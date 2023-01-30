@@ -60,7 +60,7 @@ export const SSCAutocomplete = SurveyScreenComponent.shape({
 
 const numberConfig = config.shape({
   unit: yup.string(),
-  rounding: yup.number(),
+  rounding: yup.string(),
 });
 const numberValidationCriteria = baseValidationShape.shape({
   min: yup.number(),
