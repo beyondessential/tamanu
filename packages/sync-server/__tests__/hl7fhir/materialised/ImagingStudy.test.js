@@ -6,7 +6,7 @@ import { fakeUUID } from 'shared/utils/generateId';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
-describe(`Materialised FHIR - Observation`, () => {
+describe(`Materialised FHIR - ImagingStudy`, () => {
   let ctx;
   let app;
   let resources;
@@ -61,7 +61,7 @@ describe(`Materialised FHIR - Observation`, () => {
   afterAll(() => ctx.close());
 
   describe('create', () => {
-    const PATH = `/v1/integration/${INTEGRATION_ROUTE}/Observation`;
+    const PATH = `/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`;
 
     let encounter;
     beforeEach(async () => {
@@ -87,7 +87,7 @@ describe(`Materialised FHIR - Observation`, () => {
       );
     });
 
-    it('creates a result from an observation', () =>
+    it('creates a result from an ImagingStudy', () =>
       showError(async () => {
         // arrange
         const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
@@ -108,7 +108,7 @@ describe(`Materialised FHIR - Observation`, () => {
 
         // act
         const response = await app.post(PATH).send({
-          resourceType: 'Observation',
+          resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
             {
@@ -138,7 +138,7 @@ describe(`Materialised FHIR - Observation`, () => {
         expect(ires.description).toEqual('This is a note\n\nThis is another note');
       }));
 
-    it('updates a result from an observation', () =>
+    it('updates a result from an ImagingStudy', () =>
       showError(async () => {
         // arrange
         const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
@@ -166,7 +166,7 @@ describe(`Materialised FHIR - Observation`, () => {
 
         // act
         const response = await app.post(PATH).send({
-          resourceType: 'Observation',
+          resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
             {
@@ -196,7 +196,7 @@ describe(`Materialised FHIR - Observation`, () => {
     describe('errors', () => {
       it('returns invalid if the resourceType does not match', async () => {
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/Observation`).send({
+        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
           resourceType: 'Patient',
         });
 
@@ -210,7 +210,7 @@ describe(`Materialised FHIR - Observation`, () => {
               code: 'invalid',
               diagnostics: expect.any(String),
               details: {
-                text: "must be 'Observation'",
+                text: "must be 'ImagingStudy'",
               },
             },
           ],
@@ -237,8 +237,8 @@ describe(`Materialised FHIR - Observation`, () => {
         await FhirServiceRequest.resolveUpstreams();
 
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/Observation`).send({
-          resourceType: 'Observation',
+        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
+          resourceType: 'ImagingStudy',
           status: 'pending',
           identifier: [
             {
@@ -268,7 +268,7 @@ describe(`Materialised FHIR - Observation`, () => {
               code: 'value',
               diagnostics: expect.any(String),
               details: {
-                text: "Observation status must be 'final'",
+                text: "ImagingStudy status must be 'final'",
               },
             },
           ],
@@ -278,8 +278,8 @@ describe(`Materialised FHIR - Observation`, () => {
 
       it('returns invalid structure if the service request id is missing', async () => {
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/Observation`).send({
-          resourceType: 'Observation',
+        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
+          resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
             {
@@ -313,8 +313,8 @@ describe(`Materialised FHIR - Observation`, () => {
         const srId = fakeUUID();
 
         // act
-        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/Observation`).send({
-          resourceType: 'Observation',
+        const response = await app.post(`/v1/integration/${INTEGRATION_ROUTE}/ImagingStudy`).send({
+          resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
             {

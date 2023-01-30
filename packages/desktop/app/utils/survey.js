@@ -269,10 +269,10 @@ export const getValidationSchema = surveyData => {
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
           valueSchema = yup.number().nullable();
-          if (min) {
+          if (typeof min === 'number' && !isNaN(min)) {
             valueSchema = valueSchema.min(min, `${text} must be at least ${min}${unit}`);
           }
-          if (max) {
+          if (typeof max === 'number' && !isNaN(max)) {
             valueSchema = valueSchema.max(max, `${text} can not exceed ${max}${unit}`);
           }
           break;
@@ -291,7 +291,12 @@ export const getValidationSchema = surveyData => {
           valueSchema = yup.mixed();
           break;
       }
-      return { ...acc, [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired']() };
+      return {
+        ...acc,
+        [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
+          mandatory ? `${dataElement.name} is a required field` : null,
+        ),
+      };
     },
     {},
   );
