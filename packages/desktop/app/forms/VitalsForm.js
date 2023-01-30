@@ -8,12 +8,16 @@ import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
+import { ForbiddenError } from '../components/ForbiddenErrorModal';
+import { Modal } from '../components/Modal';
+import { useAuth } from '../contexts/Auth';
 
-const ErrorMessage = () => {
+// eslint-disable-next-line no-unused-vars
+const ErrorMessage = ({ error }) => {
   return (
     <Box p={5} mb={4}>
       <Alert severity="error">
-        <AlertTitle>Error: Can not load vitals form</AlertTitle>
+        <AlertTitle>Error: Cannot load vitals form</AlertTitle>
         Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly.
       </Alert>
     </Box>
@@ -21,15 +25,25 @@ const ErrorMessage = () => {
 };
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
-  const { data: vitalsSurvey, isLoading, isError } = useVitalsSurvey();
+  const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurvey();
   const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
+  const { ability } = useAuth();
+  const canCreateVitals = ability.can('create', 'Vitals');
 
   if (isLoading) {
     return <ModalLoader />;
   }
 
+  if (!canCreateVitals) {
+    return (
+      <Modal title="Permission required" open onClose={onClose}>
+        <ForbiddenError onConfirm={onClose} confirmText="Close" />
+      </Modal>
+    );
+  }
+
   if (isError) {
-    return <ErrorMessage />;
+    return <ErrorMessage error={error} />;
   }
 
   const handleSubmit = data => {

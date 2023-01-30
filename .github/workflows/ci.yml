@@ -114,6 +114,7 @@ jobs:
         node:
           - '16.x'
         package:
+          - desktop
           - lan
           - meta-server
           - shared-src

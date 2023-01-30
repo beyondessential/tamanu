@@ -104,7 +104,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
       {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
         values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
         <Field
-          label="Area"
+          label="Facility area"
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -151,12 +151,13 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
       {values.results?.map(result => (
         <BottomAlignFormGrid columns={result.externalUrl ? 3 : 2}>
           <TextInput
+            label="Completed by"
             value={
               result.completedBy?.displayName ?? (result.externalUrl && 'External provider') ?? ''
             }
             disabled
           />
-          <DateTimeInput value={result.createdAt} disabled />
+          <DateTimeInput label="Completed" value={result.completedAt} disabled />
           {result.externalUrl && (
             <Button color="secondary" onClick={openExternalUrl(result.externalUrl)}>
               View image (external link)
@@ -164,6 +165,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
           )}
 
           <TextInput
+            label="Result description"
             value={result.description}
             multiline
             disabled
@@ -173,20 +175,18 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
         </BottomAlignFormGrid>
       ))}
 
-      <h4>Add result</h4>
+      <h4>{values.results?.length > 0 ? 'Add additional result' : 'Add result'}</h4>
       <FormGrid columns={2}>
         <Field
+          label="Completed by"
           name="newResultCompletedBy"
-          placeholder="Search for a practitioner..."
+          placeholder="Search"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
+        <Field label="Completed" name="newResultDate" saveDateAsString component={DateTimeField} />
         <Field
-          name="newResultDate"
-          saveDateAsString
-          component={DateTimeField}
-        />
-        <Field
+          label="Result description"
           name="newResultDescription"
           placeholder="Result description..."
           multiline

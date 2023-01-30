@@ -169,7 +169,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         subject: {
           reference: `Patient/${resources.pat.id}`,
           type: 'Patient',
-          display: resources.patient.displayId,
+          display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
         occurrenceDateTime: format(
           dateTimeStringIntoCountryTimezone('2022-03-04 15:30:00'),
@@ -321,7 +321,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               subject: {
                 reference: `Patient/${resources.pat.id}`,
                 type: 'Patient',
-                display: resources.patient.displayId,
+                display: `${resources.patient.firstName} ${resources.patient.lastName}`,
               },
               occurrenceDateTime: format(
                 dateTimeStringIntoCountryTimezone('2023-11-12 13:14:15'),

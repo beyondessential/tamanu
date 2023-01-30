@@ -17,6 +17,8 @@ const TypographyLink = styled(Typography)`
   text-decoration: underline;
   text-align: right;
   cursor: pointer;
+  padding-top: 10px;
+  margin-top: auto;
 `;
 
 export const RecordDeathSection = memo(({ patient, openDeathModal }) => {

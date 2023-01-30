@@ -7,7 +7,6 @@ import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
-import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 

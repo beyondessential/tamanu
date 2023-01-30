@@ -18,7 +18,6 @@ const TitleContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  flex-grow: 1;
   border-bottom: 1px solid #ebebeb;
   padding-bottom: 0.5rem;
 `;

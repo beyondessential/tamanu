@@ -16,8 +16,8 @@ export class Procedure extends Model {
         date: dateTimeType('date', { allowNull: false }),
         endTime: dateTimeType('endTime'),
         startTime: dateTimeType('startTime'),
-        note: Sequelize.STRING,
-        completedNote: Sequelize.STRING,
+        note: Sequelize.TEXT,
+        completedNote: Sequelize.TEXT,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
