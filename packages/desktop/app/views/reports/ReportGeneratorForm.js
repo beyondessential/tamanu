@@ -276,7 +276,9 @@ export const ReportGeneratorForm = () => {
               onClose={() => {
                 setRequestError(null);
               }}
-            >{`Error: ${requestError}`}</Alert>
+            >
+              {`Error: ${requestError}`}
+            </Alert>
           )}
           {successMessage && (
             <Alert
