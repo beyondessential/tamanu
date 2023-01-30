@@ -28,6 +28,10 @@ const TypographyLink = styled(Typography)`
   cursor: pointer;
   padding-top: 10px;
   margin-top: auto;
+  transition: 0.5s;
+  &:hover {
+    color: ${Colors.primaryDark};
+  }
 `;
 
 const EncounterActionDropdown = ({ encounter }) => {
