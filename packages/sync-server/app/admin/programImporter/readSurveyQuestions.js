@@ -1,4 +1,4 @@
-const STATUSES_TO_DELETE = ['deleted', 'hidden'];
+const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
 
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
