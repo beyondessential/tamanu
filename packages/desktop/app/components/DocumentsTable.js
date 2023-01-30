@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
+import styled from 'styled-components';
 import { extension } from 'mime-types';
 import { promises as asyncFs } from 'fs';
 
@@ -6,7 +7,6 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DeleteButton, Button } from './Button';
-import { ButtonRow } from './ButtonRow';
 import { ConfirmModal } from './ConfirmModal';
 import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
@@ -18,22 +18,14 @@ const DOCUMENT_ACTIONS = {
   VIEW: 'view',
 };
 
+const ActionsContainer = styled.div`
+  white-space: nowrap;
+`;
+
 // eslint-disable-next-line no-unused-vars
 const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView }) => {
-  // { row, onDownload, onClickDelete }
-  const actions = [
-    {
-      key: 'view',
-      label: 'View',
-      onClick: () => onClickView(row),
-    },
-    {
-      key: 'download',
-      icon: <GetAppIcon />,
-      onClick: () => onDownload(row),
-    },
-    // Currently delete and attach to care plan aren't built, so we'll hide them
-    /*
+  // Currently delete and attach to care plan aren't built, so we'll hide them
+  /*
     {
       label: 'Delete',
       onClick: () => onClickDelete(row.id),
@@ -43,19 +35,23 @@ const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView 
       onClick: () => console.log('clicked attach to care plan'),
     },
     */
-  ];
 
-  return actions.map(action => (
-    <Button
-      variant="outlined"
-      size="small"
-      startIcon={action.icon}
-      onClick={action.onClick}
-      key={action.key}
-    >
-      {action.label}
-    </Button>
-  ));
+  return (
+    <ActionsContainer>
+      <Button variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
+        View
+      </Button>
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={() => onDownload(row)}
+        key="download"
+        startIcon={<GetAppIcon />}
+      >
+        Download
+      </Button>
+    </ActionsContainer>
+  );
 });
 
 const getType = ({ type }) => {
