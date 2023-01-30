@@ -41,6 +41,15 @@ module.exports = async ({ config }) => {
     fs: false,
     stream: false,
     zlib: false,
+    dgram: false,
+    net: false,
+    tls: false,
+    util: false,
+    https: false,
+    crypto: false,
+    assert: false,
+    http: false,
+    path: false
   };
   config.resolve.alias = {
     ...config.resolve.alias,
