@@ -12,7 +12,7 @@ const Actions = styled(Box)`
   align-items: center;
 
   button ~ button {
-    margin-left: 12px;
+    margin-left: 20px;
   }
 `;
 
