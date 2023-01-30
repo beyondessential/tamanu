@@ -13,7 +13,7 @@ import {
 import { version } from '/root/package.json';
 
 import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
-import { CentralConnectionStatus } from '~/ui/store/ducks/auth';
+import { CentralConnectionStatus } from '~/types';
 
 const API_VERSION = 1;
 

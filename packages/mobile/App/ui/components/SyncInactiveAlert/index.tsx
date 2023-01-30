@@ -16,8 +16,8 @@ import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { CentralConnectionStatus } from '~/ui/store/ducks/auth';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { CentralConnectionStatus } from '~/types';
 
 interface AuthenticationModelProps {
   open: boolean;

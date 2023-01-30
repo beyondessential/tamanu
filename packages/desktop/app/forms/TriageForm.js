@@ -12,9 +12,7 @@ import {
   SuggesterSelectField,
   DateTimeField,
   AutocompleteField,
-  TextField,
   RadioField,
-  CheckField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
 } from '../components/Field';
@@ -99,34 +97,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           <Box mt={1} mb={2}>
             <Field name="vitals" patient={patient} component={NestedVitalsModal} />
           </Box>
-          <Field
-            name="checkLostConsciousness"
-            label="Did the patient receive a blow to the head or lose consciousness at any time?"
-            component={CheckField}
-          />
-          <Field
-            name="checkPregnant"
-            label="Is the patient pregnant (or could they possibly be pregnant)?"
-            component={CheckField}
-          />
-          <Field
-            name="checkDrugsOrAlcohol"
-            label="Has the patient had any alcohol or other drugs recently?"
-            component={CheckField}
-          />
-          <Field
-            name="checkCrime"
-            label="Has a crime possibly been committed?"
-            helperText="(if so, please follow additional reporting procedures as per department protocols)"
-            component={CheckField}
-          />
-          <Field
-            name="medicineNotes"
-            label="Have any medicines been taken in the last 12 hours? (include time taken if known)"
-            component={TextField}
-            multiline
-            rows={3}
-          />
         </FormGrid>
         <Field
           name="practitionerId"
@@ -141,16 +111,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   };
 
   const onSubmit = async values => {
-    // These fields are just stored in the database as a single freetext note, so assign
-    // strings and concatenate
-    const notes = [
-      values.checkLostConsciousness && 'Patient received a blow to the head or lost consciousness',
-      values.checkPregnant && 'Patient is pregnant (or possibly pregnant)',
-      values.checkDrugsOrAlcohol && 'Patient has had drugs or alcohol',
-      values.checkCrime && 'A crime has possibly been committed',
-      values.medicineNotes,
-    ];
-
     // Convert the vitals to a surveyResponse submission format
     let updatedVitals = null;
     if (values.vitals) {
@@ -167,10 +127,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
 
     const updatedValues = {
       ...values,
-      notes: notes
-        .map(x => x && x.trim())
-        .filter(x => x)
-        .join('\n'),
       vitals: updatedVitals,
     };
 

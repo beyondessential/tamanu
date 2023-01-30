@@ -10,8 +10,8 @@ export type TableHeader = {
 export type TableRow = {
   rowKey: string;
   rowTitle: string;
-  rowHeader: () => JSX.Element;
-  cell: (cellContent: any) => JSX.Element;
+  rowHeader: (i: number) => JSX.Element;
+  cell: (cellContent: any, i: number) => JSX.Element;
 };
 
 export type TableCells<T> = {
@@ -38,7 +38,7 @@ export const Table = ({
   <RowView>
     <StyledView>
       <Title />
-      {rows.map(r => r.rowHeader())}
+      {rows.map((r, i) => r.rowHeader(i))}
     </StyledView>
     <ScrollView bounces={false} scrollEnabled showsHorizontalScrollIndicator horizontal>
       <RowView>
@@ -46,8 +46,8 @@ export const Table = ({
           <StyledView key={`${column}`}>
             {tableHeader.accessor(column, onPressItem)}
             {cells[column]
-              && rows.map(row => row.cell(cells[column]
-                .find(c => c[row.rowKey] === row.rowTitle)))}
+              && rows.map((row, i) => row.cell(cells[column]
+                .find(c => c[row.rowKey] === row.rowTitle), i))}
           </StyledView>
         ))}
       </RowView>

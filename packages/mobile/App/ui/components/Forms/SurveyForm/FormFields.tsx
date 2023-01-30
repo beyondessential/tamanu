@@ -73,7 +73,13 @@ export const FormFields = ({
           </StyledText>
         ) : null}
         <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-          <SurveyQuestion key={component.id} component={component} patient={patient} />
+          <SurveyQuestion
+            key={component.id}
+            component={component}
+            patient={patient}
+            errors={errors}
+            scrollViewRef={scrollViewRef}
+          />
         </ErrorBoundary>
       </React.Fragment>
     ));

@@ -5,22 +5,23 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 interface VitalsTableRowHeaderProps {
   title: string;
+  isOdd: boolean;
 }
 
-export const VitalsTableRowHeader = ({ title }: VitalsTableRowHeaderProps) : JSX.Element => (
+export const VitalsTableRowHeader = ({ title, isOdd }: VitalsTableRowHeaderProps) : JSX.Element => (
   <StyledView
     width={screenPercentageToDP(31.63, Orientation.Width)}
     borderRightWidth={1}
     borderColor={theme.colors.BOX_OUTLINE}
-    background={theme.colors.BACKGROUND_GREY}
-    borderBottomWidth={1}
     paddingLeft={screenPercentageToDP(3.64, Orientation.Width)}
-    height={screenPercentageToDP(5.46, Orientation.Height)}
+    height={screenPercentageToDP(6.46, Orientation.Height)}
     justifyContent="center"
+    background={isOdd ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE}
   >
     <StyledText
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-      color={theme.colors.TEXT_SUPER_DARK}
+      color={theme.colors.TEXT_DARK}
+      fontWeight={500}
     >
       {title}
     </StyledText>

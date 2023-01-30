@@ -13,10 +13,10 @@ import { compose } from 'redux';
 import { PureAbility } from '@casl/ability';
 import { readConfig } from '~/services/config';
 import { withAuth } from '~/ui/containers/Auth';
-import { CentralConnectionStatus, WithAuthStoreProps } from '~/ui/store/ducks/auth';
+import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
+import { CentralConnectionStatus, IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
@@ -32,6 +32,7 @@ interface AuthContextData {
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
+  signOutClient: (signedOutFromInactivity: boolean) => void;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   setCentralConnectionStatus: (status: CentralConnectionStatus) => void;
@@ -122,6 +123,12 @@ const Provider = ({
   const signOut = (): void => {
     backend.stopSyncService(); // we deliberately don't await this
     signOutUser();
+    signOutClient(false);
+  };
+
+  // Sign out UI while preserving sync service
+  const signOutClient = (signedOutFromInactivity: boolean): void => {
+    setSignedInStatus(false);
     const currentRoute = navRef.current?.getCurrentRoute().name;
     const signUpRoutes = [
       Routes.SignUpStack.Index,
@@ -131,7 +138,12 @@ const Provider = ({
     if (!signUpRoutes.includes(currentRoute)) {
       navRef.current?.reset({
         index: 0,
-        routes: [{ name: Routes.SignUpStack.Index }],
+        routes: [{
+          name: Routes.SignUpStack.Index,
+          params: {
+            signedOutFromInactivity,
+          },
+        }],
       });
     }
   };
@@ -195,6 +207,7 @@ const Provider = ({
         signIn,
         signOut,
         reconnectWithPassword,
+        signOutClient,
         isUserAuthenticated,
         checkFirstSession,
         user,

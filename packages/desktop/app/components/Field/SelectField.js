@@ -68,6 +68,7 @@ export const SelectInput = ({
   onChange,
   name,
   helperText,
+  inputRef,
   ...props
 }) => {
   const handleChange = useCallback(
@@ -149,7 +150,7 @@ export const SelectInput = ({
   const selectedOption = options.find(option => value === option.value) ?? '';
 
   return (
-    <OuterLabelFieldWrapper label={label} {...props}>
+    <OuterLabelFieldWrapper label={label} ref={inputRef} {...props}>
       <StyledFormControl {...props}>
         <Select
           value={selectedOption}

@@ -36,6 +36,12 @@ export class UpsertionError extends DataImportError {}
 export class ValidationError extends DataImportError {}
 export class WorkSheetError extends DataImportError {}
 
+export class ImporterMetadataError extends DataImportError {
+  constructor(error) {
+    super('metadata', -2, error);
+  }
+}
+
 export class DryRun extends Error {
   constructor() {
     super('Dry run: rollback');
