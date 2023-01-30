@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Platform, KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
+import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,

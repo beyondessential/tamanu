@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { KeyboardType, Platform, ReturnKeyTypeOptions } from 'react-native';
+import { KeyboardType, ReturnKeyTypeOptions } from 'react-native';
 import {
   TextInputMaskTypeProp,
   TextInputMaskOptionProp,

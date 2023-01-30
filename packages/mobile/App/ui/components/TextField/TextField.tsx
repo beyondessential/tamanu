@@ -2,7 +2,6 @@ import React, { useCallback, useState, useRef, useMemo } from 'react';
 import {
   KeyboardType,
   StyleSheet,
-  Platform,
   ReturnKeyTypeOptions,
 } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
