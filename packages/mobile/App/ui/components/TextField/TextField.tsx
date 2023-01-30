@@ -87,7 +87,6 @@ export const TextField = React.memo(
     const inputMarginTop = useMemo(() => {
       if (multiline) return 0;
       if (!label) return screenPercentageToDP(0.8, Orientation.Height);
-      if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
       return screenPercentageToDP(1.5, Orientation.Height);
     }, []);
 
@@ -105,11 +104,7 @@ export const TextField = React.memo(
           disabled={disabled}
           hasValue={value && value.length > 0}
           error={error}
-          paddingLeft={
-            Platform.OS === 'ios'
-              ? screenPercentageToDP(2.0, Orientation.Width)
-              : screenPercentageToDP(1.5, Orientation.Width)
-          }
+          paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
         >
           {!multiline && label && (
             <TextFieldLabel
