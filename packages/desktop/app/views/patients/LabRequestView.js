@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
-import { LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
@@ -34,8 +33,6 @@ import { getCompletedDate, getMethod } from '../../utils/lab';
 import { CancelModal } from '../../components/CancelModal';
 import { SimpleTopBar } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
-import { LAB_REQUEST_STATUSES } from 'shared-src/src/constants';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -76,6 +73,7 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
     [setActiveTest],
   );
 
+  const isReadOnly = labRequest.status === LAB_REQUEST_STATUSES.CANCELLED;
   const sexAppropriateColumns = columns(patient.sex);
 
   return (
@@ -85,6 +83,7 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
         labRequest={labRequest}
         labTest={activeTest}
         onClose={closeModal}
+        isReadOnly={isReadOnly}
       />
       <DataFetchingTable
         columns={sexAppropriateColumns}
@@ -238,10 +237,7 @@ const PrintModal = ({ labRequest, patient, open, onClose }) => {
   );
 };
 
-const ImagingRequestCancelModal = ({ open, onClose, labRequestId, updateLabReq }) => {
-  const params = useParams();
-  const api = useApi();
-  const dispatch = useDispatch();
+const ImagingRequestCancelModal = ({ open, onClose, updateLabReq }) => {
   const { getLocalisation } = useLocalisation();
   const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
 
@@ -251,15 +247,10 @@ const ImagingRequestCancelModal = ({ open, onClose, labRequestId, updateLabReq }
     const status = isReasonForDelete
       ? LAB_REQUEST_STATUSES.DELETED
       : LAB_REQUEST_STATUSES.CANCELLED;
-    await api.put(`labRequest/${labRequestId}`, {
+    await updateLabReq({
       status,
       note,
     });
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.LABS}`,
-      ),
-    );
   };
 
   return (
@@ -344,41 +335,62 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         onClose={() => setCancelModalOpen(false)}
       />
 
-      <DropdownButton style={{ marginBottom: '30px' }} actions={actions} />
+      <DropdownButton actions={actions} />
     </>
   );
 };
 
-const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
-  <FormGrid columns={3}>
-    <TextInput value={labRequest.displayId} label="Request ID" />
-    <TextInput value={(labRequest.category || {}).name} label="Request type" />
-    <TextInput value={labRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
-    <TextInput value={(labRequest.priority || {}).name} label="Priority" />
-    <TextInput
-      value={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
-      label="Status"
-    />
-    <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
-    <DateInput value={labRequest.requestedDate} saveDateAsString label="Requested date" />
-    <DateTimeInput value={labRequest.sampleTime} saveDateAsString label="Sample date" />
-    <LabRequestNoteForm labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
-  </FormGrid>
-);
+const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => {
+  const isReadOnly = labRequest.status === LAB_REQUEST_STATUSES.CANCELLED;
+  return (
+    <FormGrid columns={3}>
+      <TextInput value={labRequest.displayId} label="Request ID" disabled={isReadOnly} />
+      <TextInput
+        value={(labRequest.category || {}).name}
+        label="Request type"
+        disabled={isReadOnly}
+      />
+      <TextInput
+        value={labRequest.urgent ? 'Urgent' : 'Standard'}
+        label="Urgency"
+        disabled={isReadOnly}
+      />
+      <TextInput value={(labRequest.priority || {}).name} label="Priority" disabled={isReadOnly} />
+      <TextInput
+        value={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+        label="Status"
+        disabled={isReadOnly}
+      />
+      <TextInput
+        value={(labRequest.laboratory || {}).name}
+        label="Laboratory"
+        disabled={isReadOnly}
+      />
+      <DateInput
+        value={labRequest.requestedDate}
+        saveDateAsString
+        label="Requested date"
+        disabled={isReadOnly}
+      />
+      <DateTimeInput
+        value={labRequest.sampleTime}
+        saveDateAsString
+        label="Sample date"
+        disabled={isReadOnly}
+      />
+      <LabRequestNoteForm labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
+    </FormGrid>
+  );
+};
 
 export const LabRequestView = () => {
-  const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
+  const { isLoading, labRequest, updateLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
 
   const patient = useSelector(state => state.patient);
 
   const updateLabReq = async data => {
     await updateLabRequest(labRequest.id, data);
-    navigateToLabRequest(labRequest.id);
-  };
-
-  const refreshLabRequest = async () => {
-    await loadLabRequest(labRequest.id);
     navigateToLabRequest(labRequest.id);
   };
 
@@ -394,7 +406,7 @@ export const LabRequestView = () => {
         />
       </SimpleTopBar>
       <ContentPane>
-        <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
+        <LabRequestInfoPane labRequest={labRequest} />
       </ContentPane>
       <ContentPane>
         <ResultsPane labRequest={labRequest} patient={patient} />
