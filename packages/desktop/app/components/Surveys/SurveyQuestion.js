@@ -27,7 +27,7 @@ export const SurveyQuestion = ({ component, patient, errors }) => {
   const required = validationCriteriaObject?.mandatory || null;
 
   useEffect(() => {
-    if (Object.keys(errors).length === 0) {
+    if (!errors || Object.keys(errors).length === 0) {
       return;
     }
 
