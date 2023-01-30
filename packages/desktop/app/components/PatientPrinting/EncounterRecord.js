@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 
 import { LocalisedLabel } from './SimplePrintout';
 import { PrintLetterhead } from './PrintLetterhead';
@@ -9,6 +9,7 @@ import { DateDisplay } from '../DateDisplay';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
+import { noteTypes } from '../../constants';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -184,9 +185,19 @@ const columns = {
 };
 
 export const EncounterRecord = React.memo(
-  ({ patient, encounter, certificateData, labRequests, imagingRequests, notes }) => {
-    const { firstName, lastName, dateOfBirth, sex, displayId, villageId } = patient;
-    const { department, examiner, reasonForEncounter, startDate, endDate } = encounter;
+  ({
+    patient,
+    encounter,
+    certificateData,
+    labRequests,
+    imagingRequests,
+    notes,
+    discharge,
+    village,
+    pad,
+  }) => {
+    const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
+    const { department, location, examiner, reasonForEncounter, startDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
     return (
@@ -212,8 +223,8 @@ export const EncounterRecord = React.memo(
           </div>
           <div>
             <LocalisedDisplayValue name="displayId">{displayId}</LocalisedDisplayValue>
-            <LocalisedDisplayValue name="streetVillage">123 street</LocalisedDisplayValue>
-            <LocalisedDisplayValue name="villageName">{villageId}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="streetVillage">{pad.streetVillage}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="villageName">{village}</LocalisedDisplayValue>
           </div>
         </RowContainer>
 
@@ -221,12 +232,12 @@ export const EncounterRecord = React.memo(
         <Divider />
         <RowContainer>
           <div>
-            <LocalisedDisplayValue name="facility">{department.facilityId}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
             <DisplayValue name="Supervising clinician" size="10px">
               {examiner.displayName}
             </DisplayValue>
             <DisplayValue name="Discharging clinician" size="10px">
-              doctor
+              {discharge.discharger.displayName}
             </DisplayValue>
             <DisplayValue name="Reason for encounter" size="10px">
               {reasonForEncounter}
@@ -240,7 +251,7 @@ export const EncounterRecord = React.memo(
               <DateDisplay date={startDate} showDate={false} showExplicitDate />
             </DisplayValue>
             <DisplayValue name="Date of discharge" size="10px">
-              <DateDisplay date={endDate} showDate={false} showExplicitDate />
+              <DateDisplay date={discharge.createdAt} showDate={false} showExplicitDate />
             </DisplayValue>
           </div>
         </RowContainer>
@@ -253,11 +264,18 @@ export const EncounterRecord = React.memo(
           <>
             <Table>
               <Row>
-                <Cell>{note.noteType}</Cell>
+                <Cell>{noteTypes.find(x => x.value === note.noteType).label}</Cell>
                 <Cell>{note.date}</Cell>
               </Row>
               <Row>
-                <Cell colSpan={2}>{note.noteItems[0].content}</Cell>
+                <Cell colSpan={2}>
+                  {note.noteItems.map(noteItem => (
+                    <>
+                      {noteItem.date}: {noteItem.content}
+                      <br />
+                    </>
+                  ))}
+                </Cell>
               </Row>
             </Table>
           </>
