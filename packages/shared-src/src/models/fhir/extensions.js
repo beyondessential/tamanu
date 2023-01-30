@@ -1,5 +1,5 @@
-import config from 'config';
 import { FhirCodeableConcept, FhirCoding, FhirExtension } from 'shared/services/fhirTypes';
+import { withConfig } from 'shared/utils/withConfig';
 
 function getEthnicity(ethnicityId) {
   switch (ethnicityId) {
@@ -14,9 +14,8 @@ function getEthnicity(ethnicityId) {
   }
 }
 
-// overrideConfig parameter is just for testing and isn't intended to be used in live code
-export function nzEthnicity(patient, overrideConfig = config) {
-  if (!overrideConfig.localisation.data.features.fhirNewZealandEthnicity) return [];
+export const nzEthnicity = withConfig((patient, config) => {
+  if (!config.localisation.data.features.fhirNewZealandEthnicity) return [];
   const { code, display } = getEthnicity(patient?.additionalData?.ethnicityId);
 
   return [
@@ -33,4 +32,4 @@ export function nzEthnicity(patient, overrideConfig = config) {
       }),
     }),
   ];
-}
+});

@@ -20,7 +20,7 @@ describe('New Zealand ethnicity extension', () => {
       hl7: config.hl7,
       localisation: { data: { features: { fhirNewZealandEthnicity: true, ano: true } } },
     };
-    const extension = nzEthnicity(patient, mockConfig);
+    const extension = nzEthnicity.overrideConfig(patient, mockConfig);
     expect(valueAsFhir(extension)).toMatchObject([
       {
         url: 'http://hl7.org.nz/fhir/StructureDefinition/nz-ethnicity',
