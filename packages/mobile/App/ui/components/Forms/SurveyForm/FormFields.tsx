@@ -12,7 +12,6 @@ import { Button } from '../../Button';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 
 const SurveyQuestionErrorView = ({ error }): ReactElement => (
   <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
@@ -70,7 +69,13 @@ export const FormFields = ({
           </StyledText>
         ) : null}
         <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-          <SurveyQuestion key={component.id} component={component} patient={patient} />
+          <SurveyQuestion
+            key={component.id}
+            component={component}
+            patient={patient}
+            errors={errors}
+            scrollViewRef={scrollViewRef}
+          />
         </ErrorBoundary>
       </React.Fragment>
     ));

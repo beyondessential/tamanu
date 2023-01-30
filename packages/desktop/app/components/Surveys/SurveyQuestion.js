@@ -27,7 +27,10 @@ export const SurveyQuestion = ({ component, patient, errors }) => {
   const required = validationCriteriaObject?.mandatory || null;
 
   useEffect(() => {
-    // if (isValid || !isSubmitting) return;
+    if (Object.keys(errors).length === 0) {
+      return;
+    }
+
     const firstErrorKey = Object.keys(errors)[0];
     if (firstErrorKey === id && questionRef !== null) {
       questionRef.scrollIntoView({ behavior: 'smooth', block: 'center' });

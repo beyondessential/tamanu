@@ -110,7 +110,7 @@ export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectS
 
     if (!validator) return acc;
     if (validationCriteria.mandatory) {
-      acc[propName] = validator.required();
+      acc[propName] = validator.required(`${dataElement.name} is a required field`);
     } else {
       acc[propName] = validator.nullable();
     }
