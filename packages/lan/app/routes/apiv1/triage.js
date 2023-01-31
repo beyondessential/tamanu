@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
 
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 
@@ -18,7 +18,7 @@ triage.put('/:id', simplePut('Triage'));
 triage.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, db } = req;
     const { vitals, notes } = req.body;
 
     req.checkPermission('create', 'Triage');
@@ -29,9 +29,16 @@ triage.post(
     const triageRecord = await models.Triage.create(req.body);
 
     if (vitals) {
-      await models.Vitals.create({
-        ...vitals,
+      const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
+      const updatedBody = {
+        locationId: vitals.locationId || (await getDefaultId('location')),
+        departmentId: vitals.departmentId || (await getDefaultId('department')),
         encounterId: triageRecord.encounterId,
+        userId: req.user.id,
+        ...vitals,
+      };
+      await db.transaction(async () => {
+        return models.SurveyResponse.createWithAnswers(updatedBody);
       });
     }
 
@@ -63,6 +70,7 @@ const sortKeys = {
   sex: 'patients.sex',
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
+  locationGroupName: 'location_group_name',
 };
 
 triage.get(
@@ -90,6 +98,7 @@ triage.get(
           encounters.id as encounter_id,
           patients.*,
           location.name AS location_name,
+          location_group.name AS location_group_name,
           complaint.name AS chief_complaint
         FROM triages
           LEFT JOIN encounters
@@ -98,16 +107,15 @@ triage.get(
            ON (encounters.patient_id = patients.id)
           LEFT JOIN locations AS location
            ON (encounters.location_id = location.id)
+          LEFT JOIN location_groups AS location_group
+            ON (location_group.id = location.location_group_id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
         WHERE true
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
-          AND (
-            encounters.encounter_type = 'triage'
-            OR encounters.encounter_type = 'observation'
-          )
-        ORDER BY encounter_type = 'observation' ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
+          AND encounters.encounter_type IN (:triageEncounterTypes)
+        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
         model: Triage,
@@ -115,6 +123,12 @@ triage.get(
         mapToModel: true,
         replacements: {
           facility: config.serverFacilityId,
+          triageEncounterTypes: [
+            ENCOUNTER_TYPES.TRIAGE,
+            ENCOUNTER_TYPES.OBSERVATION,
+            ENCOUNTER_TYPES.EMERGENCY,
+          ],
+          seenEncounterTypes: [ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY],
         },
       },
     );

@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
@@ -81,15 +81,10 @@ patientRelations.get(
           d.id AS "definitionId",
           v.value
         FROM patient_field_definitions d
-        LEFT JOIN LATERAL (
-          SELECT value
-          FROM patient_field_values v
-          WHERE v.definition_id = d.id
-            AND v.patient_id = :patientId
-          -- TODO: order by logical clock
-          ORDER BY updated_at DESC LIMIT 1
-        ) v ON true
-        WHERE d.visibility_status NOT IN (:hiddenStatuses);
+        JOIN patient_field_values v
+        ON v.definition_id = d.id
+        WHERE v.patient_id = :patientId
+        AND d.visibility_status NOT IN (:hiddenStatuses);
       `,
       {
         replacements: {
@@ -108,12 +103,20 @@ patientRelations.get(
   }),
 );
 
+const REFERRAL_SORT_KEYS = {
+  date: Sequelize.literal('"surveyResponse.submissionDate"'),
+  referralType: Sequelize.col('surveyResponse.survey.name'),
+  status: Sequelize.col('status'),
+};
+
 patientRelations.get(
   '/:id/referrals',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, query } = req;
+    const { order = 'asc', orderBy = 'date' } = query;
     req.checkPermission('list', 'SurveyResponse');
-
+    const sortKey = REFERRAL_SORT_KEYS[orderBy] || REFERRAL_SORT_KEYS.date;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const patientReferrals = await models.Referral.findAll({
       include: [
         {
@@ -124,6 +127,21 @@ patientRelations.get(
         },
         {
           association: 'surveyResponse',
+          attributes: {
+            include: [
+              [
+                Sequelize.literal(
+                  `COALESCE((SELECT
+                    sra.body
+                  FROM survey_response_answers sra
+                   LEFT JOIN program_data_elements pde ON sra.data_element_id = pde.id
+                  WHERE "surveyResponse".id = sra.response_id
+                    AND pde.type = 'SubmissionDate'), "surveyResponse".end_time)`,
+                ),
+                'submissionDate',
+              ],
+            ],
+          },
           include: [
             {
               association: 'answers',
@@ -144,11 +162,20 @@ patientRelations.get(
           ],
         },
       ],
+      order: [[sortKey, sortDirection]],
     });
 
     res.send({ count: patientReferrals.length, data: patientReferrals });
   }),
 );
+
+const PROGRAM_RESPONSE_SORT_KEYS = {
+  endTime: 'end_time',
+  submittedBy: 'submitted_by',
+  programName: 'program_name',
+  surveyName: 'survey_name',
+  resultText: 'result_text',
+};
 
 patientRelations.get(
   '/:id/programResponses',
@@ -156,7 +183,9 @@ patientRelations.get(
     const { db, models, params, query } = req;
     req.checkPermission('list', 'SurveyResponse');
     const patientId = params.id;
-    const { surveyId, surveyType = 'programs' } = query;
+    const { surveyId, surveyType = 'programs', order = 'asc', orderBy = 'endTime' } = query;
+    const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -197,6 +226,7 @@ patientRelations.get(
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
+        ORDER BY ${sortKey} ${sortDirection}
       `,
       { patientId, surveyId, surveyType },
       query,

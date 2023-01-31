@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { push } from 'connected-react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   Form,
@@ -15,12 +15,15 @@ import {
   TextField,
   RadioField,
   CheckField,
+  LocalisedLocationField,
+  LocationAvailabilityWarningMessage,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
+import { getActionsFromData, getAnswersFromData } from '../utils';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -36,13 +39,10 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   const patient = useSelector(state => state.patient);
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
-  const renderForm = ({ submitForm }) => {
+  const renderForm = ({ submitForm, values }) => {
     return (
       <FormGrid>
         <Field
@@ -59,12 +59,15 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           component={DateTimeField}
           saveDateAsString
         />
-        <Field
-          name="locationId"
-          label="Location"
-          required
-          component={AutocompleteField}
-          suggester={locationSuggester}
+        <Field name="locationId" component={LocalisedLocationField} required />
+        <LocationAvailabilityWarningMessage
+          locationId={values?.locationId}
+          style={{
+            gridColumn: '2',
+            marginBottom: '-1.2rem',
+            marginTop: '-1.2rem',
+            fontSize: '12px',
+          }}
         />
         <LocalisedField
           name="arrivalModeId"
@@ -94,7 +97,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
             suggester={triageReasonSuggester}
           />
           <Box mt={1} mb={2}>
-            <Field name="vitals" component={NestedVitalsModal} />
+            <Field name="vitals" patient={patient} component={NestedVitalsModal} />
           </Box>
           <Field
             name="checkLostConsciousness"
@@ -148,12 +151,27 @@ export const TriageForm = ({ onCancel, editedObject }) => {
       values.medicineNotes,
     ];
 
+    // Convert the vitals to a surveyResponse submission format
+    let updatedVitals = null;
+    if (values.vitals) {
+      const { survey, ...data } = values.vitals;
+      updatedVitals = {
+        surveyId: survey.id,
+        startTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTimeString(),
+        patientId: patient.id,
+        answers: getAnswersFromData(data, survey),
+        actions: getActionsFromData(data, survey),
+      };
+    }
+
     const updatedValues = {
       ...values,
       notes: notes
         .map(x => x && x.trim())
         .filter(x => x)
         .join('\n'),
+      vitals: updatedVitals,
     };
 
     await api.post('triage', {

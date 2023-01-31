@@ -1,14 +1,24 @@
 import React, { useCallback } from 'react';
+import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import Typography from '@material-ui/core/Typography';
 
 import { getErrorMessage, removeForbiddenError } from '../store/specialModals';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 
-const COPY_TEXT = `You don't have permission to perform this action, please contact your system administrator if you believe you should have permission.`;
+export const FORBIDDEN_ERROR_MESSAGE = `You don't have permission to perform this action, please contact your system administrator if you believe you should have permission.`;
 
+const StyledTypography = styled.p`
+  margin: 60px 20px;
+`;
+
+export const ForbiddenError = ({ onConfirm, confirmText }) => (
+  <>
+    <StyledTypography gutterBottom>{FORBIDDEN_ERROR_MESSAGE}</StyledTypography>
+    <ModalActionRow onConfirm={onConfirm} confirmText={confirmText} />
+  </>
+);
 export const ForbiddenErrorModal = () => {
   const history = useHistory();
   const errorMessage = useSelector(getErrorMessage);
@@ -27,8 +37,7 @@ export const ForbiddenErrorModal = () => {
 
   return (
     <Modal title="Forbidden" open onClose={handleClose}>
-      <Typography gutterBottom>{COPY_TEXT}</Typography>
-      <ModalActionRow onConfirm={handleConfirm} confirmText="Navigate back" />
+      <ForbiddenError onConfirm={handleConfirm} confirmText="Navigate back" />
     </Modal>
   );
 };

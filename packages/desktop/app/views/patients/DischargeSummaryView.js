@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import Box from '@material-ui/core/Box';
 
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants';
+
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi } from '../../api';
@@ -14,6 +16,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
+import { getFullLocationName } from '../../utils/location';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -75,11 +78,13 @@ const DiagnosesList = ({ diagnoses }) => {
     return <span>N/A</span>;
   }
 
-  return diagnoses.map(item => (
-    <li>
-      {item.diagnosis.name} (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
-    </li>
-  ));
+  return diagnoses
+    .filter(({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty))
+    .map(item => (
+      <li>
+        {item.diagnosis.name} (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
+      </li>
+    ));
 };
 
 const ProceduresList = ({ procedures }) => {
@@ -154,15 +159,15 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
       <Content>
         <div>
           <Label>Admission date: </Label>
-          <DateDisplay date={startDate} />
+          <DateDisplay date={startDate} showTime />
         </div>
         <div>
           <Label>Discharge date: </Label>
-          <DateDisplay date={endDate} />
+          <DateDisplay date={endDate} showTime />
         </div>
         <div>
           <Label>Department: </Label>
-          {location && location.name}
+          {getFullLocationName(location)}
         </div>
         {discharge && (
           <div>
@@ -215,7 +220,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </ListColumn>
         <div>
           <Label>Discharge planning notes:</Label>
-          <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
+          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{discharge?.note}</div>
         </div>
       </Content>
     </SummaryPageContainer>

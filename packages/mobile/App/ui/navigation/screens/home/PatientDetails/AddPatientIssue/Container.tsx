@@ -34,7 +34,7 @@ const Container = ({
         note,
         recordedDate: formatISO9075(new Date()),
         type: PatientIssueType.Issue,
-        patient: { id: selectedPatient.id },
+        patient: selectedPatient.id,
       });
       navigateToDetails();
     },

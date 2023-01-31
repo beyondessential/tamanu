@@ -29,7 +29,7 @@
     },    
     "resolveJsonModule": true,
     "jsx": "react",
-    "lib": ["es6"],
+    "lib": ["es2019"],
     "moduleResolution": "node",    
     "noEmit": true,
     "skipLibCheck": true,

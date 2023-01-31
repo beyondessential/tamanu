@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
@@ -33,17 +35,11 @@ export class DocumentMetadata extends Model {
       },
       {
         ...options,
-        /* 
-          DocumentMetadata must be associated to a patient or an encounter, but never both.
-          Because of this, it can't have default channels or otherwise it might
-          create foreign key errors with encounters (since it's possible that
-          the associated encounter doesn't exist in a particular lan server).
-          This gets resolved by including the model inside Encounter includedRelations
-          and nesting it under Patient to cover the ones related to patients.
-        */
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'documentMetadata'),
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
@@ -61,5 +57,21 @@ export class DocumentMetadata extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    const join = buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']);
+    return `
+      ${join}
+      WHERE (
+        encounters.patient_id IN (:patientIds)
+        OR
+        ${this.tableName}.patient_id IN (:patientIds)
+      )
+      AND ${this.tableName}.updated_at_sync_tick > :since
+    `;
   }
 }

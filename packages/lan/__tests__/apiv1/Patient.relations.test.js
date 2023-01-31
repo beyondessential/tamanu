@@ -1,8 +1,17 @@
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import {
+  createDummyEncounter,
+  createDummyPatient,
+  randomReferenceId,
+} from 'shared/demoData/patients';
 import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
+import { Chance } from 'chance';
+import { fake } from 'shared/test-helpers/fake';
+import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 import { createTestContext } from '../utilities';
 
-describe('Patient', () => {
+const chance = new Chance();
+
+describe('Patient relations', () => {
   let app = null;
   let baseApp = null;
   let models = null;
@@ -15,6 +24,223 @@ describe('Patient', () => {
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
+  const setupSurvey = async ({
+    surveyName = chance.word(),
+    programName = chance.word(),
+    submissionDate = null,
+    endTime = getCurrentDateTimeString(),
+    patientId,
+    withReferral,
+  } = {}) => {
+    let patient = { id: patientId };
+    if (!patientId) {
+      patient = await models.Patient.create(await createDummyPatient(models));
+    }
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const program = await models.Program.create({
+      name: programName,
+    });
+    const survey = await models.Survey.create({
+      programId: program.id,
+      name: surveyName,
+    });
+
+    const surveyResponse = await models.SurveyResponse.create({
+      surveyId: survey.id,
+      encounterId: encounter.id,
+      endTime,
+    });
+
+    const dataElement =
+      withReferral &&
+      (await models.ProgramDataElement.create({
+        ...fake(models.ProgramDataElement),
+        type: 'SubmissionDate',
+      }));
+
+    const surveyResponseAnswer =
+      withReferral &&
+      (await models.SurveyResponseAnswer.create({
+        ...fake(models.SurveyResponseAnswer),
+        dataElementId: dataElement.id,
+        responseId: surveyResponse.id,
+        body: submissionDate,
+      }));
+
+    const referral =
+      withReferral &&
+      (await models.Referral.create({
+        initiatingEncounterId: encounter.id,
+        surveyResponseId: surveyResponse.id,
+      }));
+
+    return { patient, encounter, surveyResponse, program, surveyResponseAnswer, referral };
+  };
+
+  describe('programResponses', () => {
+    it('should return empty list if no programResponses', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const response = await app.get(`/v1/patient/${patient.id}/programResponses`);
+      expect(response.body).toEqual({ count: 0, data: [] });
+    });
+
+    it('should return list of programResponses', async () => {
+      const { patient } = await setupSurvey({
+        surveyName: 'test-survey-name',
+      });
+      const response = await app.get(`/v1/patient/${patient.id}/programResponses`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].surveyName).toEqual('test-survey-name');
+    });
+
+    it('should order by endTime asc by default', async () => {
+      const { patient } = await setupSurvey({
+        endTime: '2019-01-01 00:00:00',
+      });
+      await setupSurvey({
+        endTime: '2019-01-03 00:00:00',
+        patientId: patient.id,
+      });
+      await setupSurvey({
+        endTime: '2019-01-02 00:00:00',
+        patientId: patient.id,
+      });
+      const response = await app.get(`/v1/patient/${patient.id}/programResponses`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(3);
+      expect(response.body.data).toHaveLength(3);
+      expect(response.body.data.map(x => x.endTime)).toEqual([
+        '2019-01-01 00:00:00',
+        '2019-01-02 00:00:00',
+        '2019-01-03 00:00:00',
+      ]);
+    });
+
+    it('should order using query when provided', async () => {
+      const { patient } = await setupSurvey({
+        surveyName: 'survey-a',
+      });
+      await setupSurvey({
+        surveyName: 'survey-c',
+        patientId: patient.id,
+      });
+      await setupSurvey({
+        surveyName: 'survey-b',
+        patientId: patient.id,
+      });
+      const response = await app.get(
+        `/v1/patient/${patient.id}/programResponses?orderBy=surveyName&order=asc`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(3);
+      expect(response.body.data).toHaveLength(3);
+      expect(response.body.data.map(x => x.surveyName)).toEqual([
+        'survey-a',
+        'survey-b',
+        'survey-c',
+      ]);
+    });
+  });
+
+  describe('referrals', () => {
+    it('should return empty list if no referrals', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      expect(response.body).toEqual({ count: 0, data: [] });
+    });
+
+    it('should return list of referrals', async () => {
+      const { patient, referral } = await setupSurvey({ withReferral: true });
+      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].id).toEqual(referral.id);
+    });
+    it('should return submissionDate', async () => {
+      const { patient, surveyResponseAnswer, referral } = await setupSurvey({
+        withReferral: true,
+        submissionDate: '2020-01-01',
+      });
+
+      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].id).toEqual(referral.id);
+      expect(response.body.data[0].surveyResponse.submissionDate).toEqual(
+        surveyResponseAnswer.body,
+      );
+    });
+    it('should use endTime if no SubmissionDate answer', async () => {
+      const { patient, surveyResponse, referral } = await setupSurvey({
+        withReferral: true,
+      });
+      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].id).toEqual(referral.id);
+      expect(response.body.data[0].surveyResponse.submissionDate).toEqual(surveyResponse.endTime);
+    });
+    it('should order by submissionDate asc by default', async () => {
+      const { patient } = await setupSurvey({
+        withReferral: true,
+        submissionDate: '2019-01-01',
+      });
+      await setupSurvey({
+        withReferral: true,
+        submissionDate: '2019-01-03',
+        patientId: patient.id,
+      });
+      await setupSurvey({
+        withReferral: true,
+        submissionDate: '2019-01-02',
+        patientId: patient.id,
+      });
+      const response = await app.get(`/v1/patient/${patient.id}/referrals`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(3);
+      expect(response.body.data).toHaveLength(3);
+      expect(response.body.data.map(x => x.surveyResponse.submissionDate)).toEqual([
+        '2019-01-01',
+        '2019-01-02',
+        '2019-01-03',
+      ]);
+    });
+    it('should order by referralType survey name', async () => {
+      const { patient } = await setupSurvey({
+        withReferral: true,
+        surveyName: 'name-c',
+      });
+      await setupSurvey({
+        withReferral: true,
+        surveyName: 'name-a',
+        patientId: patient.id,
+      });
+      await setupSurvey({
+        withReferral: true,
+        surveyName: 'name-b',
+        patientId: patient.id,
+      });
+      const response = await app.get(
+        `/v1/patient/${patient.id}/referrals?orderBy=referralType&order=asc`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(3);
+      expect(response.body.data).toHaveLength(3);
+      expect(response.body.data.map(x => x.surveyResponse.survey.name)).toEqual([
+        'name-a',
+        'name-b',
+        'name-c',
+      ]);
+    });
+  });
 
   describe('issues', () => {
     it('should get an empty list of patient issues', async () => {
@@ -287,17 +513,12 @@ describe('Patient', () => {
         name: 'Test Field 1',
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         categoryId: category1.id,
-        options: ['Oldest', 'Newest', 'Other'],
+        options: ['Expected', 'Unexpected', 'Other'],
       });
 
       const patient = await Patient.create(await createDummyPatient(models));
       await PatientFieldValue.create({
-        value: 'Oldest',
-        definitionId: definition1.id,
-        patientId: patient.id,
-      });
-      await PatientFieldValue.create({
-        value: 'Newest',
+        value: 'Expected',
         definitionId: definition1.id,
         patientId: patient.id,
       });
@@ -315,7 +536,7 @@ describe('Patient', () => {
       // Assert
       expect(result).toHaveSucceeded();
       expect(result.body.data).toMatchObject({
-        [definition1.id]: 'Newest',
+        [definition1.id]: 'Expected',
       });
     });
 

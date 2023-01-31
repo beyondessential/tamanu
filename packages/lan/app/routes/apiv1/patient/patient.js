@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
-import { isEqual } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
 import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
@@ -48,6 +48,7 @@ patientRoute.put(
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
+
     if (!patient) {
       throw new NotFoundError();
     }
@@ -75,14 +76,10 @@ patientRoute.put(
       });
 
       if (!patientAdditionalData) {
-        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-        if (!isEqual(req.body, { markedForSync: true })) {
-          await PatientAdditionalData.create({
-            ...requestBodyToRecord(req.body),
-            patientId: patient.id,
-          });
-        }
+        await PatientAdditionalData.create({
+          ...requestBodyToRecord(req.body),
+          patientId: patient.id,
+        });
       } else {
         await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
@@ -137,6 +134,7 @@ patientRoute.post(
       }
       return createdPatient;
     });
+
     res.send(dbRecordToResponse(patientRecord));
   }),
 );
@@ -202,7 +200,10 @@ patientRoute.get(
       where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
       include: [
         ...EncounterMedication.getFullReferenceAssociations(),
-        { association: 'encounter', include: [{ association: 'location' }] },
+        {
+          association: 'encounter',
+          include: [{ association: 'location', include: ['locationGroup'] }],
+        },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
       limit: rowsPerPage,
@@ -275,6 +276,12 @@ patientRoute.get(
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
           ON (location.id = encounters.location_id)
+        LEFT JOIN location_groups AS location_group
+          ON (location_group.id = location.location_group_id)
+        LEFT JOIN locations AS planned_location
+          ON (planned_location.id = encounters.planned_location_id)
+        LEFT JOIN location_groups AS planned_location_group
+          ON (planned_location.location_group_id = planned_location_group.id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
         LEFT JOIN (
@@ -285,6 +292,8 @@ patientRoute.get(
           GROUP BY patient_id
         ) psi
           ON (patients.id = psi.patient_id)
+        LEFT JOIN patient_facilities
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -297,6 +306,7 @@ patientRoute.get(
         }),
         filterParams,
       );
+    filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
@@ -321,8 +331,14 @@ patientRoute.get(
           department.name AS department_name,
           location.id AS location_id,
           location.name AS location_name,
+          location_group.name AS location_group_name,
+          planned_location_group.name AS planned_location_group_name,
+          planned_location.id AS planned_location_id,
+          planned_location.name AS planned_location_name,
+          encounters.planned_location_start_time,
           village.id AS village_id,
-          village.name AS village_name
+          village.name AS village_name,
+          patient_facilities.patient_id IS NOT NULL as marked_for_sync
         ${from}
 
         ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST

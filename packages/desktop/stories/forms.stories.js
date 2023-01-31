@@ -15,7 +15,6 @@ import {
 } from 'shared/demoData';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
-import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { ImmunisationForm } from '../app/forms/ImmunisationForm';
@@ -24,7 +23,6 @@ import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
-import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
@@ -166,10 +164,6 @@ storiesOf('Forms', module).add('DischargeForm', () => (
   />
 ));
 
-storiesOf('Forms', module).add('VitalsForm', () => (
-  <VitalsForm onSubmit={action('submit')} onCancel={action('cancel')} />
-));
-
 storiesOf('Forms', module).add('NewPatientForm', () => (
   <NewPatientForm
     onSubmit={action('submit')}
@@ -244,15 +238,6 @@ storiesOf('Forms', module).add('MedicationForm', () => (
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
     drugSuggester={drugSuggester}
-  />
-));
-
-storiesOf('Forms', module).add('ReferralForm', () => (
-  <ReferralForm
-    onSubmit={action('submit')}
-    onCancel={action('cancel')}
-    practitionerSuggester={practitionerSuggester}
-    icd10Suggester={icd10Suggester}
   />
 ));
 

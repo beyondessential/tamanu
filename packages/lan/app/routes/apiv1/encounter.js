@@ -1,12 +1,13 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
@@ -20,6 +21,7 @@ import {
   runPaginatedQuery,
   paginatedGetList,
 } from './crudHelpers';
+import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();
 
@@ -115,13 +117,13 @@ encounter.post(
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
-encounterRelations.get('/:id/vitals', simpleGetList('Vitals', 'encounterId'));
+encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
 encounterRelations.get(
   '/:id/labRequests',
-  simpleGetList('LabRequest', 'encounterId', {
+  getLabRequestList('encounterId', {
     additionalFilters: {
       status: {
         [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
@@ -162,12 +164,23 @@ encounterRelations.get(
   }),
 );
 
+const PROGRAM_RESPONSE_SORT_KEYS = {
+  endTime: 'end_time',
+  submittedBy: 'submitted_by',
+  programName: 'program_name',
+  surveyName: 'survey_name',
+  resultText: 'result_text',
+};
+
 encounterRelations.get(
   '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
+    const { order = 'asc', orderBy = 'endTime' } = query;
+    const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -206,10 +219,107 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = 'programs'
+        ORDER BY ${sortKey} ${sortDirection}
       `,
       { encounterId },
       query,
     );
+
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/vitals',
+  asyncHandler(async (req, res) => {
+    const { db, params, query } = req;
+    req.checkPermission('list', 'Vitals');
+    req.checkPermission('list', 'SurveyResponse');
+    const encounterId = params.id;
+    const { order = 'DESC' } = query;
+    // The LIMIT and OFFSET occur in an unusual place in this query
+    // So we can't run it through the generic runPaginatedQuery function
+    const countResult = await db.query(
+      `
+        SELECT COUNT(1) AS count
+        FROM
+          survey_response_answers
+        INNER JOIN
+          survey_responses response
+        ON
+          response.id = response_id
+        WHERE
+          data_element_id = :dateDataElement
+        AND
+          body IS NOT NULL
+        AND
+          response.encounter_id = :encounterId
+      `,
+      {
+        replacements: {
+          encounterId,
+          dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+    const { count } = countResult[0];
+    if (count === 0) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+      return;
+    }
+
+    const { page = 0, rowsPerPage = 10 } = query;
+
+    const result = await db.query(
+      `
+        SELECT
+          JSONB_BUILD_OBJECT(
+            'dataElementId', answer.data_element_id,
+            'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
+        FROM
+          survey_response_answers answer
+        INNER JOIN
+          survey_screen_components ssc
+        ON
+          ssc.data_element_id = answer.data_element_id
+        INNER JOIN
+          (SELECT
+            response_id, body
+          FROM
+            survey_response_answers
+          INNER JOIN
+            survey_responses response
+          ON
+            response.id = response_id
+          WHERE
+            data_element_id = :dateDataElement
+          AND
+            body IS NOT NULL
+          AND
+            response.encounter_id = :encounterId
+            ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
+        ON date.response_id = answer.response_id
+        GROUP BY answer.data_element_id 
+        `,
+      {
+        replacements: {
+          encounterId,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+          dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    const data = result.map(r => r.result);
 
     res.send({
       count: parseInt(count, 10),

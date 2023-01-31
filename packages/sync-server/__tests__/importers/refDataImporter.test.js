@@ -99,6 +99,23 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
   });
 
+  it('should validate locations', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-locations',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError('location', 2, 'code is a required field');
+    expect(errors).toContainValidationError('location', 3, 'name is a required field');
+    expect(errors).toContainValidationError('location', 4, 'facilityId is a required field');
+    expect(errors).toContainValidationError('location', 5, 'maxOccupancy above 1 is unimplemented');
+    expect(errors).toContainValidationError(
+      'location',
+      6,
+      'maxOccupancy must be 1 or null for unrestricted occupancy',
+    );
+  });
+
   // as example of non-refdata import
   it('should validate users', async () => {
     const { didntSendReason, errors } = await doImport({
@@ -305,7 +322,7 @@ describe('Permissions import', () => {
     const { Permission } = ctx.store.models;
 
     const where = {
-      noun: 'RevokeTest'
+      noun: 'RevokeTest',
     };
 
     const beforeImport = await Permission.findOne({ where });
@@ -328,7 +345,5 @@ describe('Permissions import', () => {
     const afterReinstate = await Permission.findOne({ where, paranoid: false });
     expect(afterReinstate).toBeTruthy();
     expect(afterReinstate.deletedAt).toEqual(null);
-
   });
-
 });

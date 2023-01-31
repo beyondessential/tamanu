@@ -1,8 +1,10 @@
 import { Sequelize } from 'sequelize';
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientAllergy extends Model {
   static init({ primaryKey, ...options }) {
@@ -17,9 +19,10 @@ export class PatientAllergy extends Model {
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'allergy'),
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
@@ -31,4 +34,6 @@ export class PatientAllergy extends Model {
   static getListReferenceAssociations() {
     return ['allergy'];
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

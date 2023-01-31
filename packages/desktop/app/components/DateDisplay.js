@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
-import { parseDate } from 'shared-src/src/utils/dateTime';
+import { parseDate } from 'shared/utils/dateTime';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
@@ -10,6 +10,9 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
   return new Date(date).toLocaleString(getLocale(), formatOptions);
 };
+
+export const formatShortest = date =>
+  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
 
 export const formatShort = date =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
@@ -30,7 +33,7 @@ const formatShortExplicit = date =>
   }); // "4 Mar 2019"
 
 // long format date is displayed on hover
-const formatLong = date =>
+export const formatLong = date =>
   intlFormatDate(
     date,
     {

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { REFERRAL_STATUSES } from 'shared/constants';
+import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Referral extends Model {
@@ -14,7 +14,7 @@ export class Referral extends Model {
           defaultValue: REFERRAL_STATUSES.PENDING,
         },
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
@@ -35,5 +35,16 @@ export class Referral extends Model {
       foreignKey: 'surveyResponseId',
       as: 'surveyResponse',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return `
+      JOIN encounters ON referrals.initiating_encounter_id = encounters.id
+      WHERE encounters.patient_id IN (:patientIds)
+      AND ${this.tableName}.updated_at_sync_tick > :since
+    `;
   }
 }

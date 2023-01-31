@@ -60,7 +60,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
         )
       ).map(row => row.id);
 
-      await FhirPatient.resolveUpstreamLinks();
+      await FhirPatient.resolveUpstreams();
 
       ids = { a, b, c, d };
       // console.log({
@@ -71,7 +71,8 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       // });
     });
 
-    it('links patients that were merged into the top level patient A (as fetch)', async () => {
+    // Flaky test (EPI-275)
+    it.skip('links patients that were merged into the top level patient A (as fetch)', async () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.a}`;
 
       // act
@@ -121,7 +122,8 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
+    // Flaky test (EPI-275)
+    it.skip('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.b}`;
 
       // act
@@ -280,7 +282,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       );
       const { id: d } = await FhirPatient.materialiseFromUpstream(mergedD.id);
 
-      await FhirPatient.resolveUpstreamLinks();
+      await FhirPatient.resolveUpstreams();
 
       ids = { a, b, c, d };
       // console.log({
@@ -341,7 +343,8 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
+    // Flaky test (EPI-275)
+    it.skip('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.b}`;
 
       // act

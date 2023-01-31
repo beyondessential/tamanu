@@ -1,9 +1,11 @@
 import { Sequelize } from 'sequelize';
 
 import { InvalidOperationError } from 'shared/errors';
-import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
+
+import { SYNC_DIRECTIONS, IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -31,7 +33,8 @@ export class ImagingRequest extends Model {
           defaultValue: getCurrentDateTimeString,
         }),
 
-        results: {
+        // moved into ImagingResults.description
+        legacyResults: {
           type: Sequelize.TEXT,
           defaultValue: '',
         },
@@ -42,6 +45,7 @@ export class ImagingRequest extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveValidRequestStatusType() {
             if (!ALL_IMAGING_REQUEST_STATUS_TYPES.includes(this.status)) {
@@ -59,7 +63,7 @@ export class ImagingRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['requestedBy', 'areas'];
+    return ['requestedBy', 'areas', 'results'];
   }
 
   static initRelations(models) {
@@ -78,13 +82,19 @@ export class ImagingRequest extends Model {
       as: 'completedBy',
     });
 
+    this.belongsTo(models.LocationGroup, {
+      as: 'locationGroup',
+      foreignKey: 'locationGroupId',
+    });
+
+    // Imaging Requests are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'location',
     });
 
     this.belongsToMany(models.ReferenceData, {
-      through: models.ImagingRequestAreas,
+      through: models.ImagingRequestArea,
       as: 'areas',
       foreignKey: 'imagingRequestId',
     });
@@ -97,5 +107,17 @@ export class ImagingRequest extends Model {
         recordType: this.name,
       },
     });
+
+    this.hasMany(models.ImagingResult, {
+      foreignKey: 'imagingRequestId',
+      as: 'results',
+    });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 }
