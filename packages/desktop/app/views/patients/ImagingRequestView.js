@@ -269,6 +269,7 @@ const ImagingRequestInfoPane = React.memo(
 
 export const ImagingRequestView = () => {
   const api = useApi();
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const params = useParams();
   const imagingRequest = useSelector(state => state.imagingRequest);
@@ -316,15 +317,19 @@ export const ImagingRequestView = () => {
     <>
       <SimpleTopBar title="Imaging request">
         {!isCancelled && (
-          <CancelModal
-            title="Cancel imaging request"
-            helperText="This reason will permanently delete the imaging request record"
-            buttonText="Cancel request"
-            bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
-            options={cancellationReasonOptions}
-            onConfirm={onConfirmCancel}
-          />
+          <Button variant="text" onClick={() => setOpen(true)}>
+            Cancel request
+          </Button>
         )}
+        <CancelModal
+          title="Cancel imaging request"
+          helperText="This reason will permanently delete the imaging request record"
+          bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+          options={cancellationReasonOptions}
+          open={open}
+          onClose={() => setOpen(false)}
+          onConfirm={onConfirmCancel}
+        />
         <PrintButton imagingRequest={imagingRequest} patient={patient} />
       </SimpleTopBar>
       <ContentPane>
