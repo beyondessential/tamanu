@@ -346,6 +346,7 @@ const rootLocalisationSchema = yup
         enableCovidClearanceCertificate: yup.boolean().required(),
         editDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
+        fhirNewZealandEthnicity: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

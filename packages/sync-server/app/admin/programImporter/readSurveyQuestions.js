@@ -1,3 +1,5 @@
+const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
+
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
 }
@@ -27,11 +29,16 @@ function makeScreen(questions, componentData) {
       config: qConfig = '',
       calculation = '',
       row,
+      visibilityStatus = '',
       ...elementData
     } = component;
 
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
+
+    const deletedAt = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
+      ? Date.now()
+      : null;
 
     return [
       {
@@ -59,6 +66,7 @@ function makeScreen(questions, componentData) {
           config: qConfig,
           calculation,
           ...otherComponentData,
+          deletedAt,
         },
       },
     ];
