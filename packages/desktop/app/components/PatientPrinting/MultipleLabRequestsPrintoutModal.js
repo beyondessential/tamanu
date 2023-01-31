@@ -48,6 +48,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
         <MultipleLabRequestsPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
+          encounterData={encounter}
           labRequests={labRequests}
         />
       )}
