@@ -118,7 +118,7 @@ export const MultipleLabRequestsPrintout = React.memo(
 
         <RowContainer>
           <StyledDiv>
-            <CertificateLabel name="Date" size="14px">
+            <CertificateLabel name="Print date" size="14px">
               <DateDisplay date={getCurrentDateString()} />
             </CertificateLabel>
           </StyledDiv>
