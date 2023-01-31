@@ -9,7 +9,7 @@ import { DateDisplay } from '../DateDisplay';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
-import { noteTypes } from '../../constants';
+import { noteTypes, DRUG_ROUTE_VALUE_TO_LABEL, CERTAINTY_OPTIONS_BY_VALUE } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
 
 import { ImagingRequestAreas } from './ImagingRequestAreas';
@@ -48,6 +48,7 @@ const Cell = styled.td`
 
 const BoldText = styled.strong`
   font-weight: 600;
+  margin-right: 3px;
 `;
 
 const RowContainer = styled.div`
@@ -95,13 +96,13 @@ const columns = {
     {
       key: 'certainty',
       title: 'Certainty',
-      accessor: ({ certainty }) => certainty || {},
+      accessor: ({ certainty }) => CERTAINTY_OPTIONS_BY_VALUE[certainty].label || {},
       style: { width: '20%' },
     },
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) => date || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
       style: { width: '20%' },
     },
   ],
@@ -116,7 +117,7 @@ const columns = {
     {
       key: 'procedureDate',
       title: 'Procedure Date',
-      accessor: ({ date }) => date || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
       style: { width: '20%' },
     },
   ],
@@ -137,7 +138,7 @@ const columns = {
     {
       key: 'requestDate',
       title: 'Request Date',
-      accessor: ({ requestedDate }) => requestedDate || {},
+      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate /> || {},
       style: { width: '20%' },
     },
   ],
@@ -158,7 +159,7 @@ const columns = {
     {
       key: 'requestDate',
       title: 'Request Date',
-      accessor: ({ requestedDate }) => requestedDate || {},
+      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate /> || {},
       style: { width: '20%' },
     },
   ],
@@ -179,13 +180,13 @@ const columns = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => route || {},
+      accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || {},
       style: { width: '10%' },
     },
     {
       key: 'prescriptionDate',
       title: 'Prescription Date',
-      accessor: ({ date }) => date || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
       style: { width: '20%' },
     },
   ],
@@ -213,6 +214,8 @@ export const EncounterRecord = React.memo(
       ...imagingRequest,
       imagingName: imagingTypes[imagingRequest.imagingType],
     }));
+
+    console.log(CERTAINTY_OPTIONS_BY_VALUE);
 
     return (
       <CertificateWrapper>
@@ -278,14 +281,21 @@ export const EncounterRecord = React.memo(
           <>
             <Table>
               <Row>
-                <Cell width="45%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
-                <Cell>{note.date}</Cell>
+                <Cell width="45%">
+                  <BoldText>{noteTypes.find(x => x.value === note.noteType).label}</BoldText>
+                </Cell>
+                <Cell>
+                  <DateDisplay date={note.date} showDate />
+                </Cell>
               </Row>
               <Row>
                 <Cell colSpan={2}>
                   {note.noteItems.map(noteItem => (
                     <>
-                      <BoldText>{noteItem.date}:</BoldText> {noteItem.content}
+                      <BoldText>
+                        <DateDisplay date={noteItem.date} showDate showTime />
+                      </BoldText>
+                      {noteItem.content}
                       <br />
                     </>
                   ))}
