@@ -12,6 +12,7 @@ import { useReferenceData } from '../../api/queries/useReferenceData';
 import { usePatientAdditionalData } from '../../api/queries/usePatientAdditionalData';
 // import { FacilityAndSyncVersionIncompatibleError } from 'shared/errors';
 import { LoadingIndicator } from '../LoadingIndicator';
+import { Colors } from '../../constants';
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const certificateData = useCertificate();
@@ -33,15 +34,48 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const imagingRequests = imagingRequestsQuery.data;
 
   const notesQuery = useEncounterNotes(encounter.id);
-  const notes = notesQuery.data;
+  const notes = notesQuery?.data?.data;
+
+  // TODO FILTER OUT THE NOTE ITEMS THAT HAVE BEEN EDITED
+  // const revisedByIds = [];
+  // if (notes)
+  //   notes.map(note => {
+  //     let filteredNoteItems = [];
+  //     note.noteItems.forEach(noteItem => {
+  //       if (noteItem.revisedById) revisedByIds.push(noteItem.revisedById);
+  //     });
+  //     filteredNoteItems = note.noteItems.filter(noteItem => {
+  //       return !revisedByIds.includes(noteItem.id);
+  //     });
+  //     return filteredNoteItems;
+  //   });
+
+  // Filter out the system notes
+  const filteredNotes = notes?.filter(note => {
+    return note.noteType !== 'system';
+  });
+
+  const systemNotes = notes?.filter(note => {
+    return note.noteType === 'system';
+  });
+
+  console.log(systemNotes);
 
   const dishchargeQuery = useEncounterDischarge(encounter.id);
   const discharge = dishchargeQuery.data;
+
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery.name;
 
   return (
-    <Modal title="Encounter Record" open={open} onClose={onClose} printable maxWidth="md">
+    <Modal
+      title="Encounter Record"
+      color={Colors.white}
+      open={open}
+      onClose={onClose}
+      printable
+      maxWidth="md"
+    >
       {!patientQuery.isSuccess ? (
         <LoadingIndicator />
       ) : (
@@ -51,7 +85,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           certificateData={certificateData}
           labRequests={labRequests}
           imagingRequests={imagingRequests}
-          notes={notes}
+          notes={filteredNotes}
           discharge={discharge}
           village={village}
           pad={padData}

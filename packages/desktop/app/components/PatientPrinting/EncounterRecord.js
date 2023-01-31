@@ -84,6 +84,13 @@ const Divider = styled.hr`
   border-bottom: 0.5px solid #000000;
 `;
 
+const ChildNote = styled.div`
+  margin-top: 10px;
+  &:nth-of-type(1) {
+    margin-top: 0;
+  }
+`;
+
 // COLUMN LAYOUTS
 const columns = {
   diagnoses: [
@@ -215,8 +222,6 @@ export const EncounterRecord = React.memo(
       imagingName: imagingTypes[imagingRequest.imagingType],
     }));
 
-    console.log(encounter);
-
     return (
       <CertificateWrapper>
         <PrintLetterhead
@@ -276,35 +281,6 @@ export const EncounterRecord = React.memo(
         <TableHeading>Diagnoses</TableHeading>
         <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
 
-        <TableHeading>Notes</TableHeading>
-        {notes.data.map(note => (
-          <>
-            <Table>
-              <Row>
-                <Cell width="45%">
-                  <BoldText>{noteTypes.find(x => x.value === note.noteType).label}</BoldText>
-                </Cell>
-                <Cell>
-                  <DateDisplay date={note.date} showDate />
-                </Cell>
-              </Row>
-              <Row>
-                <Cell colSpan={2}>
-                  {note.noteItems.map(noteItem => (
-                    <>
-                      <BoldText>
-                        <DateDisplay date={noteItem.date} showDate showTime />
-                      </BoldText>
-                      {noteItem.content}
-                      <br />
-                    </>
-                  ))}
-                </Cell>
-              </Row>
-            </Table>
-          </>
-        ))}
-
         <TableHeading>Procedures</TableHeading>
         <CompactListTable data={encounter.procedures} columns={columns.procedures} />
 
@@ -316,6 +292,38 @@ export const EncounterRecord = React.memo(
 
         <TableHeading>Medications</TableHeading>
         <CompactListTable data={encounter.medications} columns={columns.medications} />
+
+        <TableHeading>Notes</TableHeading>
+        {notes.map(note => (
+          <>
+            <Table>
+              <Row>
+                <Cell width="10%">
+                  <BoldText>Note Type</BoldText>
+                </Cell>
+                <Cell width="35%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
+                <Cell>
+                  <DateDisplay date={note.date} showDate showTime />
+                </Cell>
+              </Row>
+              <Row>
+                <Cell colSpan={3}>
+                  {note.noteItems.map(noteItem => {
+                    return (
+                      <ChildNote>
+                        <BoldText>
+                          <DateDisplay date={noteItem.date} showDate showTime />
+                        </BoldText>
+                        {noteItem.content}
+                        <br />
+                      </ChildNote>
+                    );
+                  })}
+                </Cell>
+              </Row>
+            </Table>
+          </>
+        ))}
       </CertificateWrapper>
     );
   },
