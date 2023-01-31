@@ -39,7 +39,7 @@ describe('Programs import', () => {
 
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 1, updated: 0, errored: 0 },
       ProgramDataElement: { created: 21, updated: 0, errored: 0 },
@@ -52,7 +52,7 @@ describe('Programs import', () => {
 
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 1, updated: 0, errored: 0 },
     });
@@ -64,10 +64,49 @@ describe('Programs import', () => {
 
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Program: { created: 0, updated: 1, errored: 0 },
       Survey: { created: 0, updated: 1, errored: 0 },
     });
+  });
+
+  it('should delete survey questions', async () => {
+    const { Survey } = ctx.store.models;
+    
+    const getComponents = async () => {
+      const survey = await Survey.findByPk('program-testprogram-deletion');
+      expect(survey).toBeTruthy();
+      return await survey.getComponents(); 
+    };
+
+    {
+      const { errors, stats } = await doImport({ file: 'deleteQuestions' });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        ProgramDataElement: { created: 3 }, 
+        SurveyScreenComponent: { created: 3 },
+      })
+    }
+
+    // find imported ssc
+    const componentsBefore = await getComponents();
+    expect(componentsBefore).toHaveLength(3);
+
+    {
+      const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        ProgramDataElement: { updated: 3 }, // deleter should NOT delete underlying PDEs
+        SurveyScreenComponent: { deleted: 2, updated: 1 },
+      })
+    }
+
+    const componentsAfter = await getComponents();
+    // of the three in the import doc:
+    //  - one is not deleted
+    //  - one is set to visibilityStatus = 'deleted'
+    //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
+    expect(componentsAfter).toHaveLength(1);  
   });
 
   it('should not write anything for a dry run', async () => {
@@ -142,7 +181,7 @@ describe('Programs import', () => {
       });
       expect(errors).toBeEmpty();
       expect(didntSendReason).toEqual('dryRun');
-      expect(stats).toEqual({
+      expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 1, updated: 0, errored: 0 },
         ProgramDataElement: { created: 16, updated: 0, errored: 0 },
