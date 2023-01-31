@@ -100,7 +100,11 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         name="status"
         label="Status"
         component={SelectField}
-        options={isCancelled ? [{ value: 'cancelled', label: 'Cancelled' }] : STATUS_OPTIONS}
+        options={
+          isCancelled
+            ? [{ value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED, label: 'Cancelled' }]
+            : STATUS_OPTIONS
+        }
         disabled={isCancelled}
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
