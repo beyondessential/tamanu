@@ -205,7 +205,7 @@ export const EncounterRecord = React.memo(
     pad,
   }) => {
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
-    const { department, location, examiner, reasonForEncounter, startDate } = encounter;
+    const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
     const { getLocalisation } = useLocalisation();
@@ -215,7 +215,7 @@ export const EncounterRecord = React.memo(
       imagingName: imagingTypes[imagingRequest.imagingType],
     }));
 
-    console.log(CERTAINTY_OPTIONS_BY_VALUE);
+    console.log(encounter);
 
     return (
       <CertificateWrapper>
@@ -268,7 +268,7 @@ export const EncounterRecord = React.memo(
               <DateDisplay date={startDate} showDate={false} showExplicitDate />
             </DisplayValue>
             <DisplayValue name="Date of discharge" size="10px">
-              <DateDisplay date={discharge.createdAt} showDate={false} showExplicitDate />
+              <DateDisplay date={endDate} showDate={false} showExplicitDate />
             </DisplayValue>
           </div>
         </RowContainer>
