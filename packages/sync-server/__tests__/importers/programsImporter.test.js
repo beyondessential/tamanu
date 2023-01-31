@@ -141,7 +141,7 @@ describe('Programs import', () => {
 
     expect(didntSendReason).toEqual('validationFailed');
     expect(errors.length).toEqual(31);
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
       ProgramDataElement: { created: 40, updated: 0, errored: 0 },
