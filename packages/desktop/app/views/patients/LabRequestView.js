@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
@@ -237,16 +237,24 @@ const PrintModal = ({ labRequest, patient, open, onClose }) => {
   );
 };
 
-const ImagingRequestCancelModal = ({ open, onClose, updateLabReq }) => {
+const LabRequestCancelModal = ({ open, onClose, updateLabReq, labRequestId }) => {
+  const api = useApi();
   const { getLocalisation } = useLocalisation();
   const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
 
   const onConfirmCancel = async (reason, isReasonForDelete) => {
     const reasonText = cancellationReasonOptions.find(x => x.value === reason)?.label;
-    const note = `Request cancelled. Reason: ${reasonText}`;
+    const note = `Request cancelled. Reason: ${reasonText}.`;
     const status = isReasonForDelete
       ? LAB_REQUEST_STATUSES.DELETED
       : LAB_REQUEST_STATUSES.CANCELLED;
+
+    await api.post(`labRequest/${labRequestId}/notes`, {
+      content: note,
+      authorId: api.user.id,
+      noteType: NOTE_TYPES.OTHER,
+    });
+
     await updateLabReq({
       status,
       note,
@@ -259,8 +267,8 @@ const ImagingRequestCancelModal = ({ open, onClose, updateLabReq }) => {
       open={open}
       onClose={onClose}
       options={cancellationReasonOptions}
-      helperText="This reason will permanently delete the imaging request record"
-      bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+      helperText="This reason will permanently delete the lab request record"
+      bodyText="Please select reason for cancelling lab request and click 'Confirm'"
       onConfirm={onConfirmCancel}
     />
   );
@@ -328,14 +336,14 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={labModalOpen}
         onClose={() => setLabModalOpen(false)}
       />
-      <ImagingRequestCancelModal
+      <LabRequestCancelModal
         updateLabReq={updateLabReq}
         labRequestId={labRequest.id}
         open={cancelModalOpen}
         onClose={() => setCancelModalOpen(false)}
       />
 
-      <DropdownButton actions={actions} />
+      <DropdownButton actions={actions} variant="outlined" />
     </>
   );
 };
