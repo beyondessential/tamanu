@@ -31,7 +31,7 @@ encounter.post('/$', simplePost('Encounter'));
 encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { db, models, params } = req;
+    const { db, models, user, params } = req;
     const { referralId, id } = params;
     req.checkPermission('read', 'Encounter');
     const object = await models.Encounter.findByPk(id);
@@ -62,7 +62,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await object.update(req.body);
+      await object.update(req.body, user);
     });
 
     res.send(object);
@@ -201,7 +201,7 @@ encounterRelations.get(
         SELECT
           survey_responses.*,
           surveys.name as survey_name,
-          programs.name as program_name, 
+          programs.name as program_name,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by
         FROM
           survey_responses
@@ -306,7 +306,7 @@ encounterRelations.get(
             response.encounter_id = :encounterId
             ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
-        GROUP BY answer.data_element_id 
+        GROUP BY answer.data_element_id
         `,
       {
         replacements: {
