@@ -66,6 +66,16 @@ export async function up(query) {
   `);
 
   await query.sequelize.query(`
+    CREATE OR REPLACE FUNCTION job_worker_garbage_collect()
+      LANGUAGE SQL
+      VOLATILE PARALLEL UNSAFE
+    AS $$
+      DELETE FROM job_workers
+      WHERE updated_at < current_timestamp() - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
+    $$
+  `);
+
+  await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION job_worker_is_alive(
       IN worker_id UUID,
       OUT alive BOOLEAN
@@ -82,9 +92,10 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_worker_is_alive`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_worker_deregister`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_worker_heartbeat`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_worker_register`);
+  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_is_alive');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_garbage_collect');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_deregister');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_heartbeat');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_register');
   await query.dropTable(TABLE_NAME);
 }
