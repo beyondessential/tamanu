@@ -11,6 +11,7 @@ import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
 import { noteTypes, DRUG_ROUTE_VALUE_TO_LABEL, CERTAINTY_OPTIONS_BY_VALUE } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useImagingRequest } from '../../api/queries/useImagingRequest';
 
 import { ImagingRequestAreas } from './ImagingRequestAreas';
 
@@ -93,6 +94,37 @@ const ChildNote = styled.div`
 
 // COLUMN LAYOUTS
 const columns = {
+  encounterTypes: [
+    {
+      key: 'encounterType',
+      title: 'Type',
+      style: { width: '70%' },
+    },
+    {
+      key: 'dateTime',
+      title: 'Date & Time',
+      style: { width: '30%' },
+    },
+  ],
+
+  locations: [
+    {
+      key: 'area',
+      title: 'Area',
+      style: { width: '30%' },
+    },
+    {
+      key: 'location',
+      title: 'Location',
+      style: { width: '40%' },
+    },
+    {
+      key: 'dateTime',
+      title: 'Date & Time',
+      style: { width: '30%' },
+    },
+  ],
+
   diagnoses: [
     {
       key: 'diagnoses',
@@ -134,18 +166,29 @@ const columns = {
       key: 'testType',
       title: 'Test Type',
       accessor: ({ tests }) => tests.map(test => test.labTestType.name).join(', '),
-      style: { width: '40%' },
+      style: { width: '20%' },
     },
     {
       key: 'testCategory',
       title: 'Test Category',
       accessor: ({ category }) => (category || {}).name,
-      style: { width: '40%' },
+      style: { width: '20%' },
+    },
+    {
+      key: 'requestingClinician',
+      title: 'Requesting Clinician',
+      accessor: ({ requestedBy }) => (requestedBy || {}).displayName,
+      style: { width: '20%' },
     },
     {
       key: 'requestDate',
       title: 'Request Date',
       accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate /> || {},
+      style: { width: '20%' },
+    },
+    {
+      key: 'completedDate',
+      title: 'Completed Date',
       style: { width: '20%' },
     },
   ],
@@ -155,18 +198,29 @@ const columns = {
       key: 'imagingType',
       title: 'Imaging request type',
       accessor: ({ imagingName }) => (imagingName || {}).label,
-      style: { width: '30%' },
+      style: { width: '20%' },
     },
     {
       key: 'areaToBeImaged',
       title: 'Area to be imaged',
       accessor: ({ id }) => <ImagingRequestAreas imagingRequestId={id} /> || {},
-      style: { width: '50%' },
+      style: { width: '20%' },
+    },
+    {
+      key: 'requestingClinician',
+      title: 'Requesting Clinician',
+      accessor: ({ requestedBy }) => (requestedBy || {}).displayName,
+      style: { width: '20%' },
     },
     {
       key: 'requestDate',
       title: 'Request Date',
       accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate /> || {},
+      style: { width: '20%' },
+    },
+    {
+      key: 'completedDate',
+      title: 'Completed Date',
       style: { width: '20%' },
     },
   ],
@@ -176,7 +230,7 @@ const columns = {
       key: 'medication',
       title: 'Medication',
       accessor: ({ medication }) => (medication || {}).name,
-      style: { width: '40%' },
+      style: { width: '20%' },
     },
     {
       key: 'insructions',
@@ -191,6 +245,12 @@ const columns = {
       style: { width: '10%' },
     },
     {
+      key: 'prescriber',
+      title: 'Prescriber',
+      accessor: ({ prescriber }) => (prescriber || {}).displayName,
+      style: { width: '20%' },
+    },
+    {
       key: 'prescriptionDate',
       title: 'Prescription Date',
       accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
@@ -198,6 +258,41 @@ const columns = {
     },
   ],
 };
+
+// DUMMY DATA TODO REMOVED
+
+const encounterTypesData = [
+  {
+    encounterType: 'Triage',
+    dateTime: '12/12/2019 12:00',
+  },
+  {
+    encounterType: 'Active ED',
+    dateTime: '12/12/2019 15:00',
+  },
+  {
+    encounterType: 'Hospital Admission',
+    dateTime: '12/12/2019 18:00',
+  },
+];
+
+const locationHistoryData = [
+  {
+    area: 'Ward 1',
+    location: 'Bed 1',
+    dateTime: '12/12/2019 12:00',
+  },
+  {
+    area: 'Ward 1',
+    location: 'Bed 1',
+    dateTime: '12/12/2019 12:00',
+  },
+  {
+    area: 'Ward 1',
+    location: 'Bed 1',
+    dateTime: '12/12/2019 12:00',
+  },
+];
 
 export const EncounterRecord = React.memo(
   ({
@@ -207,6 +302,7 @@ export const EncounterRecord = React.memo(
     labRequests,
     imagingRequests,
     notes,
+    editedNoteIds,
     discharge,
     village,
     pad,
@@ -266,7 +362,7 @@ export const EncounterRecord = React.memo(
             </DisplayValue>
           </div>
           <div>
-            <DisplayValue name="Department" size="10px">
+            <DisplayValue name="Discharging department" size="10px">
               {department.name}
             </DisplayValue>
             <DisplayValue name="Date of admission" size="10px">
@@ -278,12 +374,19 @@ export const EncounterRecord = React.memo(
           </div>
         </RowContainer>
 
+        <TableHeading>Encounter Types</TableHeading>
+        <CompactListTable data={encounterTypesData} columns={columns.encounterTypes} />
+
+        <TableHeading>Diagnoses</TableHeading>
+        <CompactListTable data={locationHistoryData} columns={columns.locations} />
+
         <TableHeading>Diagnoses</TableHeading>
         <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
 
         <TableHeading>Procedures</TableHeading>
         <CompactListTable data={encounter.procedures} columns={columns.procedures} />
 
+        {/* TODO seperate individual tests */}
         <TableHeading>Lab Requests</TableHeading>
         <CompactListTable data={labRequests.data} columns={columns.labRequests} />
 
@@ -309,13 +412,15 @@ export const EncounterRecord = React.memo(
               <Row>
                 <Cell colSpan={3}>
                   {note.noteItems.map(noteItem => {
-                    return (
+                    return editedNoteIds.includes(noteItem.id) ? (
+                      <></>
+                    ) : (
                       <ChildNote>
                         <BoldText>
                           <DateDisplay date={noteItem.date} showDate showTime />
+                          {noteItem.revisedById ? ' (edited)' : ''}
                         </BoldText>
                         {noteItem.content}
-                        <br />
                       </ChildNote>
                     );
                   })}

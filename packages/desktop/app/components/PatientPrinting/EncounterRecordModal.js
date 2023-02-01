@@ -36,36 +36,35 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;
 
-  // TODO FILTER OUT THE NOTE ITEMS THAT HAVE BEEN EDITED
-  // const revisedByIds = [];
-  // if (notes)
-  //   notes.map(note => {
-  //     let filteredNoteItems = [];
-  //     note.noteItems.forEach(noteItem => {
-  //       if (noteItem.revisedById) revisedByIds.push(noteItem.revisedById);
-  //     });
-  //     filteredNoteItems = note.noteItems.filter(noteItem => {
-  //       return !revisedByIds.includes(noteItem.id);
-  //     });
-  //     return filteredNoteItems;
-  //   });
+  // Get the ids of the notes that have been edited - TODO this filtering should really be done here rather than on the front end
+  const editedNoteIds = [];
+  if (notes) {
+    notes.forEach(note => {
+      note.noteItems.forEach(noteItem => {
+        if (noteItem.revisedById) {
+          editedNoteIds.push(noteItem.revisedById);
+        }
+      });
+    });
+  }
 
   // Filter out the system notes
   const filteredNotes = notes?.filter(note => {
     return note.noteType !== 'system';
   });
 
-  const systemNotes = notes?.filter(note => {
-    return note.noteType === 'system';
-  });
-
-  console.log(systemNotes);
+  // const systemNotes = notes?.filter(note => {
+  //   return note.noteType === 'system';
+  // });
 
   const dishchargeQuery = useEncounterDischarge(encounter.id);
   const discharge = dishchargeQuery.data;
 
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery.name;
+
+  // if (encounter) console.log(encounter);
+  if (imagingRequests) console.log(imagingRequests);
 
   return (
     <Modal
@@ -86,6 +85,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           labRequests={labRequests}
           imagingRequests={imagingRequests}
           notes={filteredNotes}
+          editedNoteIds={editedNoteIds}
           discharge={discharge}
           village={village}
           pad={padData}
