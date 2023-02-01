@@ -148,5 +148,7 @@ export async function down(query) {
   await query.sequelize.query(`DROP INDEX IF EXISTS job_grab_idx`);
   await query.sequelize.query(`DROP FUNCTION IF EXISTS job_backlog`);
   await query.sequelize.query(`DROP FUNCTION IF EXISTS job_grab`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_error`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_complete`);
   await query.sequelize.query(`DROP FUNCTION IF EXISTS job_submit`);
 }
