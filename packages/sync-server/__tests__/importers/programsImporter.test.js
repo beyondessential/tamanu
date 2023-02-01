@@ -1,8 +1,8 @@
+import { fake } from 'shared/test-helpers/fake';
+import { SURVEY_TYPES } from 'shared/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
-import { fake } from 'shared/test-helpers/fake';
-import { SURVEY_TYPES } from 'shared/constants';
 import './matchers';
 
 // the importer can take a little while
@@ -133,8 +133,23 @@ describe('Programs import', () => {
     );
   });
 
+  it('run validation against question configs', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'question-validation',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors.length).toEqual(31);
+    expect(stats).toMatchObject({
+      Program: { created: 1, updated: 0, errored: 0 },
+      Survey: { created: 2, updated: 0, errored: 0 },
+      ProgramDataElement: { created: 40, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 9, updated: 0, errored: 31 }, // 31 fields in failure test, 9 in success test
+    });
+  });
+
   describe('Vitals survey', () => {
-    
     it('Should detect if the mandatory vitals questions are missing', async () => {
       const { errors } = await doImport({
         file: 'vitals-missing-qs',
@@ -146,9 +161,9 @@ describe('Programs import', () => {
     it('Should refuse to import more than one vitals survey', async () => {
       const { Program, Survey } = ctx.store.models;
       const program = await Program.create(fake(Program));
-      await Survey.create({ 
+      await Survey.create({
         ...fake(Survey),
-        surveyType: SURVEY_TYPES.VITALS, 
+        surveyType: SURVEY_TYPES.VITALS,
         programId: program.id,
       });
 
