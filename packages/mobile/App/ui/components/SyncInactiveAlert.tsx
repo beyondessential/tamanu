@@ -28,7 +28,7 @@ type AuthenticationValues = {
   password: string;
 };
 
-export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
+const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
   const authCtx = useAuth();
