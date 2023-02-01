@@ -75,12 +75,34 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/push',
     asyncHandler(async (req, res) => {
-      const { params, body, query } = req;
+      const { params, body } = req;
       const { sessionId } = params;
-      const { changes, tablesToInclude } = body;
-      await syncManager.addIncomingChanges(sessionId, changes, query, tablesToInclude);
+      const { changes } = body;
+      await syncManager.addIncomingChanges(sessionId, changes);
       log.info(`POST to ${sessionId} : ${changes.length} records`);
       res.json({});
+    }),
+  );
+
+  // mark push completed, so server will persist changes to db
+  syncRoutes.post(
+    '/:sessionId/push/complete',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { sessionId } = params;
+      await syncManager.completePush(sessionId);
+      res.json({});
+    }),
+  );
+
+  // check if push is complete, so client can poll while server asynchronously persists changes
+  syncRoutes.get(
+    '/:sessionId/push/complete',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { sessionId } = params;
+      const isComplete = await syncManager.checkPushComplete(sessionId);
+      res.json(isComplete);
     }),
   );
 

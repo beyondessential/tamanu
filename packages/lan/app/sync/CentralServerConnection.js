@@ -232,12 +232,27 @@ export class CentralServerConnection {
     return this.fetch(path);
   }
 
-  async push(sessionId, changes, { pushedSoFar, totalToPush }) {
-    const path = `sync/${sessionId}/push?${objectToQueryString({
-      pushedSoFar,
-      totalToPush,
-    })}`;
+  async push(sessionId, changes) {
+    const path = `sync/${sessionId}/push`;
     return this.fetch(path, { method: 'POST', body: { changes } });
+  }
+
+  async completePush(sessionId) {
+    // first off, mark the push as complete on central
+    await this.fetch(`sync/${sessionId}/push/complete`, { method: 'POST' });
+
+    // now poll the complete check endpoint until we get a valid response - it takes a while for
+    // the pushed changes to finish persisting to the central database
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const pushComplete = await this.fetch(`sync/${sessionId}/push/complete`);
+      if (pushComplete) {
+        return;
+      }
+      await sleepAsync(waitTime);
+    }
+    throw new Error(`Sync push did not respond as complete after ${maxAttempts} attempts`);
   }
 
   async whoami() {

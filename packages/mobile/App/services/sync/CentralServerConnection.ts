@@ -152,18 +152,26 @@ export class CentralServerConnection {
     return this.get(`sync/${sessionId}/pull`, query);
   }
 
-  async push(
-    sessionId: string,
-    changes,
-    pageNumber: number,
-    totalPages: number,
-    tableNames: string[],
-  ) {
-    return this.post(
-      `sync/${sessionId}/push`,
-      { pageNumber, totalPages },
-      { changes, tablesToInclude: tableNames },
-    );
+  async push(sessionId: string, changes): Promise<void> {
+    return this.post(`sync/${sessionId}/push`, {}, { changes });
+  }
+
+  async completeSyncSession(sessionId: string): Promise<void> {
+    // first off, mark the push as complete on central
+    await this.post(`sync/${sessionId}/push/complete`, {}, {});
+
+    // now poll the complete check endpoint until we get a valid response - it takes a while for
+    // the pushed changes to finish persisting to the central database
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const isComplete = await this.get(`sync/${sessionId}/push/complete`, {});
+      if (isComplete) {
+        return;
+      }
+      await sleepAsync(waitTime);
+    }
+    throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
   }
 
   setToken(token: string): void {

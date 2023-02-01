@@ -1,10 +1,7 @@
 import { SyncRecord } from '../types';
-import { SYNC_DIRECTIONS } from '../../../models/types';
-import { MODELS_MAP } from '../../../models/modelsMap';
 
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
-import { getModelsForDirection } from './getModelsForDirection';
 
 /**
  * Push outgoing changes in batches
@@ -15,7 +12,6 @@ import { getModelsForDirection } from './getModelsForDirection';
  */
 export const pushOutgoingChanges = async (
   centralServer: CentralServerConnection,
-  outgoingModels: typeof MODELS_MAP,
   sessionId: string,
   changes: SyncRecord[],
   progressCallback: (total: number, progressCount: number) => void,
@@ -28,13 +24,7 @@ export const pushOutgoingChanges = async (
     const endOfPage = Math.min(startOfPage + limit, changes.length);
     const page = changes.slice(startOfPage, endOfPage);
     const startTime = Date.now();
-    await centralServer.push(
-      sessionId,
-      page,
-      endOfPage,
-      changes.length,
-      Object.values(outgoingModels).map(m => m.getTableNameForSync()),
-    );
+    await centralServer.push(sessionId, page);
     const endTime = Date.now();
 
     startOfPage = endOfPage;
@@ -43,4 +33,5 @@ export const pushOutgoingChanges = async (
 
     progressCallback(changes.length, pushedRecordsCount);
   }
+  await centralServer.completeSyncSession(sessionId);
 };
