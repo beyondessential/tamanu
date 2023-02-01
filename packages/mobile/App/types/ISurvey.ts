@@ -29,11 +29,11 @@ export type SurveyScreenValidationCriteria = {
 export type SurveyScreenConfig = {
   rounding?: number;
   column?: string;
+  source?: string;
+  scope?: string;
   writeToPatient?: {
     fieldType: string;
   }
-  source?: string;
-  scope?: string;
 };
 
 export interface ISurveyScreenComponent {

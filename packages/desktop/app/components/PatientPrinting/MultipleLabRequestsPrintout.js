@@ -129,7 +129,6 @@ export const MultipleLabRequestsPrintout = React.memo(
           </StyledDiv>
           <StyledDiv>
             <LocalisedLabel name="locationId" size="14px">
-              {getFullLocationName(encounterData.location)}
               {getFullLocationName(encounterData?.location)}
             </LocalisedLabel>
           </StyledDiv>
