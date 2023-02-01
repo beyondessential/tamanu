@@ -18,6 +18,7 @@ const LAB_REQUEST_STATUSES = [
 ];
 
 export async function down(query) {
+  await query.sequelize.query('DROP TYPE "enum_lab_request_logs_status"');
   return query.changeColumn('lab_request_logs', 'status', {
     type: DataTypes.ENUM(LAB_REQUEST_STATUSES),
   });
