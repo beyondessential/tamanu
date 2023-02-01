@@ -1,8 +1,8 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { CrossIcon } from '../Icons';
+import { CrossIcon } from './Icons';
 
 export enum AlertSeverity {
   Info = 'info',

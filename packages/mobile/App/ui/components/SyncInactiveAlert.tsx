@@ -3,18 +3,18 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import Modal from 'react-native-modal';
 import { theme } from '~/ui/styled/theme';
-import { Alert, AlertSeverity } from '../Alert';
-import { CrossIcon } from '../Icons';
+import { Alert, AlertSeverity } from './Alert';
+import { CrossIcon } from './Icons';
 import { useSelector } from 'react-redux';
 import {
   authCentralConnectionStatusSelector,
   authUserSelector,
 } from '~/ui/helpers/selectors';
 import * as Yup from 'yup';
-import { Form } from '../Forms/Form';
-import { Field } from '../Forms/FormField';
-import { TextField } from '../TextField/TextField';
-import { Button } from '../Button';
+import { Form } from './Forms/Form';
+import { Field } from './Forms/FormField';
+import { TextField } from './TextField/TextField';
+import { Button } from './Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { CentralConnectionStatus } from '~/types';
@@ -46,8 +46,6 @@ export const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps)
       setErrorMessage(null);
     }
   }, [open]);
-
-  if (!open) return null;
 
   return (
     <Modal isVisible={open} onBackdropPress={onClose}>
