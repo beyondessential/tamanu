@@ -12,12 +12,12 @@ export async function up(query) {
     },
     created_at: {
       type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
       type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
 

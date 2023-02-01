@@ -12,12 +12,12 @@ export async function up(query) {
     },
     created_at: {
       type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
       type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     metadata: {
@@ -49,7 +49,7 @@ export async function up(query) {
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
-      UPDATE job_workers SET updated_at = current_timestamp(3) WHERE id = worker_id
+      UPDATE job_workers SET updated_at = now() WHERE id = worker_id
     $$
   `);
 
@@ -71,7 +71,7 @@ export async function up(query) {
       VOLATILE PARALLEL UNSAFE
     AS $$
       DELETE FROM job_workers
-      WHERE updated_at < current_timestamp() - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
+      WHERE updated_at < now() - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
     $$
   `);
 
@@ -84,7 +84,7 @@ export async function up(query) {
       LANGUAGE SQL
       STABLE PARALLEL SAFE
     AS $$
-      SELECT updated_at > current_timestamp() - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
+      SELECT updated_at > now() - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
       FROM job_workers
       WHERE id = worker_id
     $$
