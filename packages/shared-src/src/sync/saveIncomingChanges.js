@@ -1,8 +1,11 @@
+import { trace } from '@opentelemetry/api';
 import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
-import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
-import { log } from 'shared/services/logging/log';
+
+import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
+import { log, spanWrapFn } from '../services/logging';
+
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';
@@ -86,6 +89,8 @@ const saveChangesForModelInBatches = async (
   recordType,
   isCentralServer,
 ) => {
+  const span = trace.getActiveSpan();
+
   const syncRecordsCount = await countSyncSnapshotRecords(
     sequelize,
     sessionId,
@@ -93,11 +98,14 @@ const saveChangesForModelInBatches = async (
     model.tableName,
   );
   log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
-
+  
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
+  span.addEvent('recordCount', { count: syncRecordsCount, batchCount });
+  
   let fromId;
 
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+    span.addEvent('batchStart', { batchIndex, batchCount, fromId });
     const batchRecords = await findSyncSnapshotRecords(
       sequelize,
       sessionId,
@@ -109,9 +117,19 @@ const saveChangesForModelInBatches = async (
     fromId = batchRecords[batchRecords.length - 1].id;
 
     try {
-      await saveChangesForModel(model, batchRecords, isCentralServer);
+      await spanWrapFn(
+        'saveChangesForModel',
+        () => saveChangesForModel(model, batchRecords, isCentralServer),
+        {
+          'app.sync.sessionId': sessionId,
+          'app.sync.model': model.tableName,
+          'app.sync.batchCount': batchRecords.length,
+        },
+      );
+      span.addEvent('batchDone', { batchIndex, batchCount });
     } catch (error) {
       log.error(`Failed to save changes for ${model.name}`);
+      span.recordException(error);
       throw error;
     }
   }
@@ -126,12 +144,14 @@ export const saveIncomingChanges = async (
   const sortedModels = sortInDependencyOrder(pulledModels);
 
   for (const model of sortedModels) {
-    await saveChangesForModelInBatches(
-      model,
-      sequelize,
-      sessionId,
-      model.tableName,
-      isCentralServer,
+    await spanWrapFn(
+      'saveChangesForModelInBatches',
+      () =>
+        saveChangesForModelInBatches(model, sequelize, sessionId, model.tableName, isCentralServer),
+      {
+        'app.sync.sessionId': sessionId,
+        'app.sync.model': model.tableName,
+      },
     );
   }
 };
