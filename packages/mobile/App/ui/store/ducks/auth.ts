@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IUser } from '~/types';
+import { CentralConnectionStatus, IUser } from '~/types';
 
 export type WithAuthStoreProps = WithAuthActions & AuthStateProps;
 export interface WithAuthActions {
@@ -7,6 +7,9 @@ export interface WithAuthActions {
   setToken: (payload: string) => PayloadAction<IUser>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
+  setCentralConnectionStatus: (
+    payload: CentralConnectionStatus,
+  ) => PayloadAction<CentralConnectionStatus>;
   signOutUser(): () => PayloadAction<void>;
 }
 
@@ -15,6 +18,7 @@ export interface AuthStateProps {
   user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
+  centralConnectionStatus: CentralConnectionStatus;
 }
 
 const initialState: AuthStateProps = {
@@ -22,6 +26,7 @@ const initialState: AuthStateProps = {
   user: null,
   signedIn: false,
   isFirstTime: true,
+  centralConnectionStatus: CentralConnectionStatus.Disconnected,
 };
 
 export const PatientSlice = createSlice({
@@ -34,28 +39,19 @@ export const PatientSlice = createSlice({
         token,
       };
     },
-    setSignedInStatus(
-      state,
-      { payload: signInStatus }: PayloadAction<boolean>,
-    ): AuthStateProps {
+    setSignedInStatus(state, { payload: signInStatus }: PayloadAction<boolean>): AuthStateProps {
       return {
         ...state,
         signedIn: signInStatus,
       };
     },
-    setFirstSignIn(
-      state,
-      { payload: firstSignIn }: PayloadAction<boolean>,
-    ): AuthStateProps {
+    setFirstSignIn(state, { payload: firstSignIn }: PayloadAction<boolean>): AuthStateProps {
       return {
         ...state,
         isFirstTime: firstSignIn,
       };
     },
-    setUser(
-      state,
-      { payload: user }: PayloadAction<IUser>,
-    ): AuthStateProps {
+    setUser(state, { payload: user }: PayloadAction<IUser>): AuthStateProps {
       return {
         ...state,
         user,
@@ -65,6 +61,15 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         token: null,
+      };
+    },
+    setCentralConnectionStatus(
+      state,
+      { payload: centralConnectionStatus }: PayloadAction<CentralConnectionStatus>,
+    ): AuthStateProps {
+      return {
+        ...state,
+        centralConnectionStatus,
       };
     },
   },

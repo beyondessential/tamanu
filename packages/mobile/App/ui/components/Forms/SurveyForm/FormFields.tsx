@@ -12,6 +12,7 @@ import { Button } from '../../Button';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
+import { GenericFormValues } from '~/models/Forms';
 
 const SurveyQuestionErrorView = ({ error }): ReactElement => (
   <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
@@ -19,12 +20,12 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
   </TouchableWithoutFeedback>
 );
 
-interface AddDetailsFormFieldsProps {
+interface FormFieldsProps {
   components: ISurveyScreenComponent[];
-  values: any;
+  values: GenericFormValues;
   patient: any;
   note: string;
-  errors: FormikErrors;
+  errors: FormikErrors<GenericFormValues>;
 }
 
 export const FormFields = ({
@@ -33,7 +34,7 @@ export const FormFields = ({
   note,
   patient,
   errors,
-}: AddDetailsFormFieldsProps): ReactElement => {
+}: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
 
