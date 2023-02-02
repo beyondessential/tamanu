@@ -5,7 +5,7 @@ import Divider from '@material-ui/core/Divider';
 
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
-import { NotesSection, LocalisedLabel } from './SimplePrintout';
+import { LocalisedLabel } from './SimplePrintout';
 import { DateDisplay } from '../DateDisplay';
 import { PrintLetterhead } from './PrintLetterhead';
 import { CertificateWrapper } from './CertificateWrapper';
@@ -14,29 +14,22 @@ import { PatientDetailPrintout } from './PatientDetailPrintout';
 import { CertificateLabel } from './CertificateLabels';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
+import { NotesPagesSection } from './NotesPagesSection';
 
 const RowContainer = styled.div`
   display: flex;
   justify-content: flex-start;
 `;
 
-const StyledDivider = styled(Divider)`
+// TODO: deduplicate
+export const StyledDivider = styled(Divider)`
   margin-top: 20px;
   margin-bottom: 20px;
   background-color: ${Colors.darkestText};
 `;
 
-const StyledNotesSectionWrapper = styled.div`
-  margin-top: 30px;
-  margin-bottom: 40px;
-`;
-
 const StyledDiv = styled.div`
   ${props => (props.$marginLeft ? `margin-left: ${props.$marginLeft}px;` : '')}
-`;
-
-const StyledLabRequestId = styled.b`
-  margin-right: 10px;
 `;
 
 const columns = [
@@ -87,26 +80,7 @@ export const MultipleLabRequestsPrintout = React.memo(
   ({ patientData, labRequests, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
     const { facility } = useAuth();
-    const notes = labRequests
-      .map(labRequest => {
-        const labRequestNotes = labRequest.notePages
-          .map(({ noteItems }) => noteItems[0]?.content)
-          .join(', ');
-
-        if (!labRequestNotes) {
-          return null;
-        }
-
-        return {
-          content: (
-            <p>
-              <StyledLabRequestId>{labRequest.displayId}</StyledLabRequestId>
-              {labRequestNotes}
-            </p>
-          ),
-        };
-      })
-      .filter(note => !!note);
+    const idsAndNotePages = labRequests.map(lr => [lr.displayId, lr.notePages]);
 
     return (
       <CertificateWrapper>
@@ -129,9 +103,7 @@ export const MultipleLabRequestsPrintout = React.memo(
         </RowContainer>
 
         <ListTable data={labRequests} columns={columns} />
-        <StyledNotesSectionWrapper>
-          <NotesSection title="Notes" notes={notes} height="auto" separator={null} boldTitle />
-        </StyledNotesSectionWrapper>
+        <NotesPagesSection idsAndNotePages={idsAndNotePages} />
       </CertificateWrapper>
     );
   },

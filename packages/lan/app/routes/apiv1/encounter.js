@@ -136,7 +136,55 @@ encounterRelations.get(
   '/:id/documentMetadata',
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
-encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
+encounterRelations.get(
+  '/:id/imagingRequests',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { ImagingRequest } = models;
+    const { id: encounterId } = params;
+    const {
+      order = 'ASC',
+      orderBy = 'createdAt',
+      rowsPerPage,
+      page,
+      includeNotePages = false,
+    } = query;
+
+    req.checkPermission('list', 'ImagingRequest');
+
+    const associations = ImagingRequest.getListReferenceAssociations(models) || [];
+
+    const baseQueryOptions = {
+      where: { encounterId },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      include: associations,
+    };
+
+    const count = await ImagingRequest.count({
+      ...baseQueryOptions,
+    });
+
+    const objects = await ImagingRequest.findAll({
+      ...baseQueryOptions,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = await Promise.all(
+      objects.map(async ir => {
+        const notePages = await this.getNotePages({
+          include: [{ association: 'noteItems' }],
+        });
+        return {
+          ...ir.forResponse(),
+          ...(includeNotePages ? await ir.extractNotes(notePages) : undefined),
+        };
+      }),
+    );
+
+    res.send({ count, data });
+  }),
+);
 
 encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 

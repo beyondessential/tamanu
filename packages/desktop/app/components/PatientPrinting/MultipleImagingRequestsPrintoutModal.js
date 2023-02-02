@@ -1,8 +1,14 @@
 import React from 'react';
 import { Colors } from '../../constants';
 import { Modal } from '../Modal';
+import { MultipleImagingRequestsPrintout } from './MultipleImagingRequestsPrintout';
 
-export const MultipleImagingRequestsPrintoutModal = ({ open, onClose }) => {
+export const MultipleImagingRequestsPrintoutModal = ({
+  open,
+  onClose,
+  encounter,
+  imagingRequests,
+}) => {
   return (
     <Modal
       title="Print imaging requests"
@@ -12,7 +18,7 @@ export const MultipleImagingRequestsPrintoutModal = ({ open, onClose }) => {
       color={Colors.white}
       printable
     >
-      <h2>TODO</h2>
+      <MultipleImagingRequestsPrintout encounter={encounter} imagingRequests={imagingRequests} />
     </Modal>
   );
 };

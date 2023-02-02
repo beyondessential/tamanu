@@ -10,6 +10,7 @@ import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsP
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { getImagingRequestType } from '../../utils/getImagingRequestType';
+import { getAreaNote } from '../../utils/areaNote';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const COLUMN_KEYS = {
@@ -60,7 +61,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
     },
     {
       key: COLUMN_KEYS.REQUESTED_DATE,
-      title: 'Date & time',
+      title: 'Request date',
       sortable: false,
       accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
     },
@@ -82,12 +83,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
       key: COLUMN_KEYS.AREAS,
       title: 'Areas to be imaged',
       sortable: false,
-      accessor: ({ category }) => {
-        if (category?.areas) {
-          return category.areas.map(({ name, id }) => <div key={id}>{name}</div>);
-        }
-        return category?.areaNote || '';
-      },
+      accessor: getAreaNote,
     },
   ];
 

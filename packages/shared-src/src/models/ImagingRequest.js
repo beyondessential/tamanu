@@ -1,8 +1,13 @@
 import { Sequelize } from 'sequelize';
 
 import { InvalidOperationError } from 'shared/errors';
-
-import { SYNC_DIRECTIONS, IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
+import {
+  SYNC_DIRECTIONS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TYPES,
+  NOTE_TYPES,
+} from 'shared/constants';
+import { getNoteWithType } from 'shared/utils/notePages';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -62,6 +67,34 @@ export class ImagingRequest extends Model {
     );
   }
 
+  async extractNotes() {
+    console.log(this);
+    const notePages =
+      this.notePages ||
+      (await this.getNotePages({
+        include: [{ association: 'noteItems' }],
+      }));
+    const extractWithType = async type => {
+      const notePage = getNoteWithType(notePages, type);
+      if (!notePage) {
+        return '';
+      }
+      let { noteItems } = notePage;
+      if (!Array.isArray(noteItems)) {
+        noteItems = await notePage.getNoteItems();
+      }
+      if (noteItems?.length === 0) {
+        return '';
+      }
+      return noteItems[0].content;
+    };
+    return {
+      note: await extractWithType(NOTE_TYPES.OTHER),
+      areaNote: await extractWithType(NOTE_TYPES.AREA_TO_BE_IMAGED),
+      notePages,
+    };
+  }
+
   static getListReferenceAssociations() {
     return ['requestedBy', 'areas', 'results'];
   }
@@ -106,6 +139,7 @@ export class ImagingRequest extends Model {
       scope: {
         recordType: this.name,
       },
+      // scope: Sequelize.literal(`"notePages".record_type = '${this.name}'`),
     });
 
     this.hasMany(models.ImagingResult, {

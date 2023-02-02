@@ -13,7 +13,15 @@ const RowContainer = styled.div`
 `;
 
 export const PatientDetailPrintout = React.memo(({ patientData }) => {
-  const { firstName, lastName, dateOfBirth, sex, displayId, additionalData, village } = patientData;
+  const {
+    firstName,
+    lastName,
+    dateOfBirth,
+    sex,
+    displayId,
+    additionalData = {},
+    village = {},
+  } = patientData;
   const { streetVillage } = additionalData;
   const { name: villageName } = village;
 
