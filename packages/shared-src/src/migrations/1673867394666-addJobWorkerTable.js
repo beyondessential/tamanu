@@ -45,7 +45,7 @@ export async function up(query) {
     CREATE OR REPLACE FUNCTION job_worker_heartbeat(
       IN worker_id UUID
     )
-      RETURNS NULL ON NULL INPUT
+      RETURNS void
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
@@ -57,7 +57,7 @@ export async function up(query) {
     CREATE OR REPLACE FUNCTION job_worker_deregister(
       IN worker_id UUID
     )
-      RETURNS NULL ON NULL INPUT
+      RETURNS void
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
@@ -67,6 +67,7 @@ export async function up(query) {
 
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION job_worker_garbage_collect()
+      RETURNS void
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$

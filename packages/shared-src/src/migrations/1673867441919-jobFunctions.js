@@ -23,14 +23,16 @@ export async function up(query) {
       IN job_id UUID,
       IN by_worker_id UUID
     )
+      RETURNS void
       RETURNS NULL ON NULL INPUT
       LANGUAGE PLPGSQL
       VOLATILE PARALLEL UNSAFE
     AS $$
     BEGIN
       IF job_worker_is_alive(by_worker_id) THEN
-        IF SELECT worker_id = by_worker_id FROM jobs WHERE id = job_id THEN
-          PERFORM DELETE FROM jobs WHERE id = job_id;
+        SELECT 1 FROM jobs WHERE id = job_id AND worker_id = by_worker_id;
+        IF FOUND THEN
+          DELETE FROM jobs WHERE id = job_id;
         ELSE
           RAISE EXCEPTION 'job % is not owned by worker %', job_id, by_worker_id;
         END IF;
@@ -47,18 +49,20 @@ export async function up(query) {
       IN by_worker_id UUID,
       IN error TEXT
     )
+      RETURNS void
       RETURNS NULL ON NULL INPUT
       LANGUAGE PLPGSQL
       VOLATILE PARALLEL UNSAFE
     AS $$
     BEGIN
       IF job_worker_is_alive(by_worker_id) THEN
-        IF SELECT worker_id = by_worker_id FROM jobs WHERE id = job_id THEN
-          PERFORM UPDATE jobs
+        SELECT 1 FROM jobs WHERE id = job_id AND worker_id = by_worker_id;
+        IF FOUND THEN
+          UPDATE jobs
           SET
             status = 'Errored',
-            updated_at = current_timestamp(3),
-            errored_at = current_timestamp(3),
+            updated_at = now(),
+            errored_at = now(),
             error = error,
             discriminant = uuid_generate_v4() || '::' || discriminant -- prevent future jobs from matching
           WHERE id = job_id;
@@ -97,11 +101,11 @@ export async function up(query) {
         LIMIT 1;
 
         IF job_id IS NOT NULL THEN
-          PERFORM UPDATE jobs
+          UPDATE jobs
           SET
             status = 'Started',
-            updated_at = current_timestamp(3),
-            started_at = current_timestamp(3),
+            updated_at = now(),
+            started_at = now(),
             worker_id = with_worker
           WHERE id = job_id;
         END IF;
@@ -127,7 +131,7 @@ export async function up(query) {
         SELECT COUNT(*) INTO count
         FROM jobs
         WHERE topic = for_topic
-        AND status = 'Queued' OR (status = 'Started' AND NOT job_worker_is_alive(worker_id)));
+        AND status = 'Queued' OR (status = 'Started' AND NOT job_worker_is_alive(worker_id));
       ELSE
         SELECT COUNT(*) INTO count
         FROM jobs
