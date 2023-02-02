@@ -122,10 +122,10 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { title, subTitle, logo } = useCertificate();
 
   const { getLocalisation } = useLocalisation();
-  const dischargeDispositionVisible = !getLocalisation('fields.dischargeDisposition.hidden');
+  const dischargeDispositionVisible =
+    getLocalisation('fields.dischargeDisposition.hidden') === false;
 
   const patient = useSelector(state => state.patient);
-
   const {
     diagnoses,
     procedures,
