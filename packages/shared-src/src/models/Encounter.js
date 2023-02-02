@@ -316,7 +316,11 @@ export class Encounter extends Model {
       noteType: NOTE_TYPES.SYSTEM,
       date,
     });
-    await notePage.createNoteItem({ content, date, authorId: user?.id });
+    await notePage.createNoteItem({
+      content,
+      date,
+      ...(user?.id && { authorId: user?.id }),
+    });
   }
 
   async getLinkedTriage() {
