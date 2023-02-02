@@ -1,5 +1,4 @@
 import React from 'react';
-import { Location } from 'shared/models/Location';
 
 import { EncounterRecord } from './EncounterRecord';
 import { Modal } from '../Modal';
@@ -79,44 +78,39 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const village = villageQuery.name;
 
   // TODO NEED TO TURN NOTES INTO USABLE OBJECTS
-  const locationExtractorPattern = /^Changed location from (?<from>.*) to (?<to>.*)/;
-  const departmentExtractorPattern = /^Changed department from (?<from>.*) to (?<to>.*)/;
+  const getPlaceHistoryFromNotes = (changeNotes, encounterData) => {
+    const matcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
+    if (changeNotes[0].noteItems[0].content.match(matcher)) {
+      const {
+        groups: { from },
+      } = changeNotes[0].noteItems[0].content.match(matcher);
 
-  const patternsForPlaceTypes = {
-    department: departmentExtractorPattern,
-    location: locationExtractorPattern,
-  };
+      const history = [
+        {
+          to: from,
+          date: encounterData.startDate,
+        },
+        ...changeNotes[0].noteItems.map(({ content, date }) => {
+          const {
+            groups: { to },
+          } = content.match(matcher);
+          return { to, date };
+        }),
+      ];
+      return history;
+    }
 
-  const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
-    const matcher = patternsForPlaceTypes[placeType];
-    const {
-      groups: { from },
-    } = changeNotes[0].noteItems[0].content.match(matcher);
-
-    const history = [
-      {
-        to: from,
-        date: encounterData.startDate,
-      },
-      ...changeNotes[0].noteItems.map(({ content, date }) => {
-        const {
-          groups: { to },
-        } = content.match(matcher);
-        return { to, date };
-      }),
-    ];
-
-    return history;
+    return [];
   };
   let locationHistory = [];
   if (systemNotes) {
-    locationHistory = getPlaceHistoryFromNotes(systemNotes, encounter, 'location');
+    locationHistory = getPlaceHistoryFromNotes(systemNotes, encounter);
   }
 
   const encounterTypes = systemNotes?.map(note => {
     return {
       encounterType: note.noteItems[0].content,
-      dateTime: note.date,
+      date: note.date,
     };
   });
 

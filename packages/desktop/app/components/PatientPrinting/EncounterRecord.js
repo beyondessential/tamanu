@@ -101,8 +101,9 @@ const columns = {
       style: { width: '70%' },
     },
     {
-      key: 'dateTime',
+      key: 'date',
       title: 'Date & time moved',
+      date: ({ date }) => <DateDisplay date={date} showDate showTime />,
       style: { width: '30%' },
     },
   ],
@@ -123,7 +124,7 @@ const columns = {
     {
       key: 'date',
       title: 'Date & time moved',
-      date: ({ date }) => date || {},
+      date: ({ date }) => <DateDisplay date={date} showDate showTime />,
       style: { width: '30%' },
     },
   ],
@@ -345,60 +346,117 @@ export const EncounterRecord = React.memo(
           </div>
         </RowContainer>
 
-        <TableHeading>Encounter Types</TableHeading>
-        <CompactListTable data={encounterTypes} columns={columns.encounterTypes} />
-
-        <TableHeading>Locations</TableHeading>
-        <CompactListTable data={locationHistory} columns={columns.locations} />
-
-        <TableHeading>Diagnoses</TableHeading>
-        <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
-
-        <TableHeading>Procedures</TableHeading>
-        <CompactListTable data={encounter.procedures} columns={columns.procedures} />
-
-        <TableHeading>Lab Requests</TableHeading>
-        <CompactListTable data={labRequests.data} columns={columns.labRequests} />
-
-        <TableHeading>Imaging Requests</TableHeading>
-        <CompactListTable data={updatedImagingRequests} columns={columns.imagingRequests} />
-
-        <TableHeading>Medications</TableHeading>
-        <CompactListTable data={encounter.medications} columns={columns.medications} />
-
-        <TableHeading>Notes</TableHeading>
-        {notes.map(note => (
+        {encounterTypes.length > 0 ? (
           <>
-            <Table>
-              <Row>
-                <Cell width="10%">
-                  <BoldText>Note Type</BoldText>
-                </Cell>
-                <Cell width="35%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
-                <Cell>
-                  <DateDisplay date={note.date} showDate showTime />
-                </Cell>
-              </Row>
-              <Row>
-                <Cell colSpan={3}>
-                  {note.noteItems.map(noteItem => {
-                    return editedNoteIds.includes(noteItem.id) ? (
-                      <></>
-                    ) : (
-                      <ChildNote>
-                        <BoldText>
-                          <DateDisplay date={noteItem.date} showDate showTime />
-                          {noteItem.revisedById ? ' (edited)' : ''}
-                        </BoldText>
-                        {noteItem.content}
-                      </ChildNote>
-                    );
-                  })}
-                </Cell>
-              </Row>
-            </Table>
+            <TableHeading>Encounter Types</TableHeading>
+            <CompactListTable data={encounterTypes} columns={columns.encounterTypes} />
           </>
-        ))}
+        ) : (
+          <></>
+        )}
+
+        {locationHistory.length > 0 ? (
+          <>
+            <TableHeading>Locations</TableHeading>
+            <CompactListTable data={locationHistory} columns={columns.locations} />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {encounter.diagnoses.length > 0 ? (
+          <>
+            <TableHeading>Diagnoses</TableHeading>
+            <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {encounter.procedures.length > 0 ? (
+          <>
+            <TableHeading>Procedures</TableHeading>
+            <CompactListTable data={encounter.procedures} columns={columns.procedures} />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {encounter.procedures.length > 0 ? (
+          <>
+            <TableHeading>Procedures</TableHeading>
+            <CompactListTable data={encounter.procedures} columns={columns.procedures} />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {labRequests.length > 0 ? (
+          <>
+            <TableHeading>Lab Requests</TableHeading>
+            <CompactListTable data={labRequests.data} columns={columns.labRequests} />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {updatedImagingRequests.length > 0 ? (
+          <>
+            <TableHeading>Imaging Requests</TableHeading>
+            <CompactListTable data={updatedImagingRequests} columns={columns.imagingRequests} />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {encounter.medications.length > 0 ? (
+          <>
+            <TableHeading>Medications</TableHeading>
+            <CompactListTable data={encounter.medications} columns={columns.medications} />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {notes.length > 0 ? (
+          <>
+            <TableHeading>Notes</TableHeading>
+            {notes.map(note => (
+              <>
+                <Table>
+                  <Row>
+                    <Cell width="10%">
+                      <BoldText>Note Type</BoldText>
+                    </Cell>
+                    <Cell width="35%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
+                    <Cell>
+                      <DateDisplay date={note.date} showDate showTime />
+                    </Cell>
+                  </Row>
+                  <Row>
+                    <Cell colSpan={3}>
+                      {note.noteItems.map(noteItem => {
+                        return editedNoteIds.includes(noteItem.id) ? (
+                          <></>
+                        ) : (
+                          <ChildNote>
+                            <BoldText>
+                              <DateDisplay date={noteItem.date} showDate showTime />
+                              {noteItem.revisedById ? ' (edited)' : ''}
+                            </BoldText>
+                            {noteItem.content}
+                          </ChildNote>
+                        );
+                      })}
+                    </Cell>
+                  </Row>
+                </Table>
+              </>
+            ))}
+          </>
+        ) : (
+          <></>
+        )}
       </CertificateWrapper>
     );
   },
