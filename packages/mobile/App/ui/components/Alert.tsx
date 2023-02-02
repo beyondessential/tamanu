@@ -50,7 +50,6 @@ export const Alert = ({
   return (
     <StyledView
       padding={screenPercentageToDP(3.6, Orientation.Width)}
-      marginTop={screenPercentageToDP(5, Orientation.Height)}
     >
       <StyledView
         width="100%"

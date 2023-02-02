@@ -39,7 +39,7 @@ export const PatientCard = ({
       <styles.StyledCardContainer>
         <RowView
           justifyContent="space-between"
-          height={screenPercentageToDP(5.46, Orientation.Height)}
+          height={screenPercentageToDP(4.46, Orientation.Height)}
           width="100%"
         >
           <UserAvatar
