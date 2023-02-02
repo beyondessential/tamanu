@@ -80,8 +80,6 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
     return null;
   }
 
-  console.log(user);
-
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
       <FullView>

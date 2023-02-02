@@ -26,7 +26,7 @@ interface SignInFormModelValues {
 }
 
 const signInValidationSchema = Yup.object().shape({
-  email: Yup.string().email(),
+  email: Yup.string().email('Must be a valid email address'),
   // .required(),
   password: Yup.string(), //.required(),
   server: Yup.string(),
