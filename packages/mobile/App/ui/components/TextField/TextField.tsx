@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Platform,
   ReturnKeyTypeOptions,
+  TextInput,
 } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
@@ -17,7 +18,7 @@ export interface RefObject<T> {
 
 export interface TextFieldProps extends BaseInputProps {
   value: string;
-  onChange: (text: any) => void;
+  onChange: (text: string) => void;
   isOpen?: boolean;
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
@@ -33,7 +34,7 @@ export interface TextFieldProps extends BaseInputProps {
   onBlur?: () => void;
   charLimit?: number;
   blurOnSubmit?: boolean;
-  inputRef?: RefObject<any>;
+  inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
 }
 
