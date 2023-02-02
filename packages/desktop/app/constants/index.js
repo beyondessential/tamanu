@@ -3,7 +3,6 @@ import { capitalize } from 'lodash';
 import { createValueIndex } from 'shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
-  IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
@@ -70,13 +69,6 @@ export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: '#caf',
   [LAB_REQUEST_STATUSES.VERIFIED]: '#5af',
   [LAB_REQUEST_STATUSES.PUBLISHED]: '#afa',
-  unknown: '#333',
-};
-
-export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#faa',
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
-  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
   unknown: '#333',
 };
 

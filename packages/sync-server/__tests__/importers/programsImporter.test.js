@@ -72,20 +72,20 @@ describe('Programs import', () => {
 
   it('should delete survey questions', async () => {
     const { Survey } = ctx.store.models;
-    
+
     const getComponents = async () => {
       const survey = await Survey.findByPk('program-testprogram-deletion');
       expect(survey).toBeTruthy();
-      return await survey.getComponents(); 
+      return await survey.getComponents();
     };
 
     {
       const { errors, stats } = await doImport({ file: 'deleteQuestions' });
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
-        ProgramDataElement: { created: 3 }, 
+        ProgramDataElement: { created: 3 },
         SurveyScreenComponent: { created: 3 },
-      })
+      });
     }
 
     // find imported ssc
@@ -98,7 +98,7 @@ describe('Programs import', () => {
       expect(stats).toMatchObject({
         ProgramDataElement: { updated: 3 }, // deleter should NOT delete underlying PDEs
         SurveyScreenComponent: { deleted: 2, updated: 1 },
-      })
+      });
     }
 
     const componentsAfter = await getComponents();
@@ -106,7 +106,7 @@ describe('Programs import', () => {
     //  - one is not deleted
     //  - one is set to visibilityStatus = 'deleted'
     //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
-    expect(componentsAfter).toHaveLength(1);  
+    expect(componentsAfter).toHaveLength(1);
   });
 
   it('should not write anything for a dry run', async () => {
@@ -172,6 +172,14 @@ describe('Programs import', () => {
         dryRun: true,
       });
       expect(errors).toContainValidationError('metadata', 0, 'Only one vitals survey');
+    });
+
+    it('Should reject a vitals survey with isSensitive set to true', async () => {
+      const { errors } = await doImport({
+        file: 'vitals-sensitive-true',
+        dryRun: true,
+      });
+      expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
     });
 
     it('Should import a valid vitals survey', async () => {
