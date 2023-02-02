@@ -296,24 +296,18 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
     })();
   }, [api, labRequestId, setHasTests]);
 
-  let actions;
+  const actions = [
+    { label: 'Change status', onClick: () => setStatusModalOpen(true) },
+    { label: 'Print lab request', onClick: () => setPrintModalOpen(true) },
+    { label: 'Change laboratory', onClick: () => setLabModalOpen(true) },
+  ];
 
-  if (status === LAB_REQUEST_STATUSES.CANCELLED) {
-    actions = [{ label: 'Print lab request', onClick: () => setPrintModalOpen(true) }];
-  } else {
-    actions = [
-      { label: 'Change status', onClick: () => setStatusModalOpen(true) },
-      { label: 'Print lab request', onClick: () => setPrintModalOpen(true) },
-      { label: 'Change laboratory', onClick: () => setLabModalOpen(true) },
-    ];
+  if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
+    actions.push({ label: 'Cancel request', onClick: () => setCancelModalOpen(true) });
+  }
 
-    if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
-      actions.push({ label: 'Cancel request', onClick: () => setCancelModalOpen(true) });
-    }
-
-    if (!hasTests) {
-      actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
-    }
+  if (!hasTests) {
+    actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
   }
 
   return (
@@ -348,8 +342,10 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={cancelModalOpen}
         onClose={() => setCancelModalOpen(false)}
       />
-
-      <DropdownButton actions={actions} variant="outlined" />
+      {/*  Hide all actions if the lab request is cancelled */}
+      {status !== LAB_REQUEST_STATUSES.CANCELLED && (
+        <DropdownButton actions={actions} variant="outlined" />
+      )}
     </>
   );
 };
