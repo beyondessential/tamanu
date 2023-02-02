@@ -50,10 +50,13 @@ const saveDeletes = async (model, recordIds) => {
 };
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
+  const span = trace.getActiveSpan();
+
   const sanitizeData = d =>
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
+  span.addEvent('split');
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   const existingRecords = await model.findByIds(idsForUpsert);
@@ -75,10 +78,15 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
 
   // run each import process
   log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
+  span.addEvent('create', { count: recordsForCreate.length });
   await saveCreates(model, recordsForCreate);
+
   log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
+  span.addEvent('update', { count: recordsForUpdate.length });
   await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
+
   log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
+  span.addEvent('delete', { count: idsForDelete.length });
   await saveDeletes(model, idsForDelete);
 };
 
