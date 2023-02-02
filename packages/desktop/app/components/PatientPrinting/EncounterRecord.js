@@ -11,7 +11,6 @@ import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
 import { noteTypes, DRUG_ROUTE_VALUE_TO_LABEL, CERTAINTY_OPTIONS_BY_VALUE } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useImagingRequest } from '../../api/queries/useImagingRequest';
 
 import { ImagingRequestAreas } from './ImagingRequestAreas';
 
@@ -98,29 +97,33 @@ const columns = {
     {
       key: 'encounterType',
       title: 'Type',
+      accessor: ({ encounterType }) => 'TEST DATA' || {},
       style: { width: '70%' },
     },
     {
       key: 'dateTime',
-      title: 'Date & Time',
+      title: 'Date & time moved',
       style: { width: '30%' },
     },
   ],
 
   locations: [
     {
-      key: 'area',
+      key: 'to',
       title: 'Area',
+      accessor: ({ to }) => to.split(',')[0] || {},
       style: { width: '30%' },
     },
     {
       key: 'location',
       title: 'Location',
+      accessor: ({ to }) => to.split(',')[1].trim() || {},
       style: { width: '40%' },
     },
     {
-      key: 'dateTime',
-      title: 'Date & Time',
+      key: 'date',
+      title: 'Date & time moved',
+      date: ({ date }) => date || {},
       style: { width: '30%' },
     },
   ],
@@ -165,30 +168,31 @@ const columns = {
     {
       key: 'testType',
       title: 'Test Type',
-      accessor: ({ tests }) => tests.map(test => test.labTestType.name).join(', '),
+      // accessor: ({ tests }) => tests.map(test => test.labTestType.name).join(', '),
       style: { width: '20%' },
     },
     {
       key: 'testCategory',
       title: 'Test Category',
-      accessor: ({ category }) => (category || {}).name,
+      // accessor: ({ category }) => (category || {}).name,
       style: { width: '20%' },
     },
     {
       key: 'requestingClinician',
       title: 'Requesting Clinician',
-      accessor: ({ requestedBy }) => (requestedBy || {}).displayName,
+      // accessor: ({ requestedBy }) => (requestedBy || {}).displayName,
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
       title: 'Request Date',
-      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate /> || {},
+      accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed Date',
+      accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate /> || {},
       style: { width: '20%' },
     },
   ],
@@ -259,46 +263,13 @@ const columns = {
   ],
 };
 
-// DUMMY DATA TODO REMOVED
-
-const encounterTypesData = [
-  {
-    encounterType: 'Triage',
-    dateTime: '12/12/2019 12:00',
-  },
-  {
-    encounterType: 'Active ED',
-    dateTime: '12/12/2019 15:00',
-  },
-  {
-    encounterType: 'Hospital Admission',
-    dateTime: '12/12/2019 18:00',
-  },
-];
-
-const locationHistoryData = [
-  {
-    area: 'Ward 1',
-    location: 'Bed 1',
-    dateTime: '12/12/2019 12:00',
-  },
-  {
-    area: 'Ward 1',
-    location: 'Bed 1',
-    dateTime: '12/12/2019 12:00',
-  },
-  {
-    area: 'Ward 1',
-    location: 'Bed 1',
-    dateTime: '12/12/2019 12:00',
-  },
-];
-
 export const EncounterRecord = React.memo(
   ({
     patient,
     encounter,
     certificateData,
+    encounterTypes,
+    locationHistory,
     labRequests,
     imagingRequests,
     notes,
@@ -331,9 +302,9 @@ export const EncounterRecord = React.memo(
         <Divider />
         <RowContainer>
           <div>
-            <LocalisedDisplayValue name="firstName">
+            <DisplayValue name="Full Name">
               {firstName} {lastName}
-            </LocalisedDisplayValue>
+            </DisplayValue>
             <LocalisedDisplayValue name="dateOfBirth">
               <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
             </LocalisedDisplayValue>
@@ -375,10 +346,10 @@ export const EncounterRecord = React.memo(
         </RowContainer>
 
         <TableHeading>Encounter Types</TableHeading>
-        <CompactListTable data={encounterTypesData} columns={columns.encounterTypes} />
+        <CompactListTable data={encounterTypes} columns={columns.encounterTypes} />
 
-        <TableHeading>Diagnoses</TableHeading>
-        <CompactListTable data={locationHistoryData} columns={columns.locations} />
+        <TableHeading>Locations</TableHeading>
+        <CompactListTable data={locationHistory} columns={columns.locations} />
 
         <TableHeading>Diagnoses</TableHeading>
         <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
@@ -386,7 +357,6 @@ export const EncounterRecord = React.memo(
         <TableHeading>Procedures</TableHeading>
         <CompactListTable data={encounter.procedures} columns={columns.procedures} />
 
-        {/* TODO seperate individual tests */}
         <TableHeading>Lab Requests</TableHeading>
         <CompactListTable data={labRequests.data} columns={columns.labRequests} />
 
