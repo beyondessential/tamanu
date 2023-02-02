@@ -69,7 +69,6 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
   }
 
   return (
-    <>
       <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
         <FullView>
           <StatusBar barStyle="light-content" />
@@ -126,7 +125,6 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
           </StyledView>
         </FullView>
       </StyledSafeAreaView>
-    </>
   );
 };
 
