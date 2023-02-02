@@ -17,6 +17,7 @@ import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { getFullLocationName } from '../../utils/location';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -120,6 +121,9 @@ const MedicationsList = ({ medications }) => {
 const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { title, subTitle, logo } = useCertificate();
 
+  const { getLocalisation } = useLocalisation();
+  const dischargeDispositionVisible = !getLocalisation('fields.dischargeDisposition.hidden');
+
   const patient = useSelector(state => state.patient);
 
   const {
@@ -169,7 +173,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <Label>Department: </Label>
           {getFullLocationName(location)}
         </div>
-        {discharge && (
+        {discharge && dischargeDispositionVisible && (
           <div>
             <Label>Discharge disposition: </Label>
             {discharge.disposition?.name}
