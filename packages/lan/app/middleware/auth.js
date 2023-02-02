@@ -1,3 +1,4 @@
+import { trace, propagation, context } from '@opentelemetry/api';
 import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
@@ -180,7 +181,20 @@ export const authMiddleware = async (req, res, next) => {
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
-    next();
+
+    const spanAttributes = {
+      'enduser.id': req.user.id,
+      'enduser.role': req.user.role,
+    };
+
+    trace.getActiveSpan().setAttributes(spanAttributes);
+    context.with(
+      propagation.setBaggage(
+        context.active(),
+        propagation.createBaggage(spanAttributes),
+      ),
+      () => next(),
+    );
   } catch (e) {
     next(e);
   }

@@ -1,3 +1,4 @@
+import { trace, propagation, context } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
@@ -45,7 +46,16 @@ export const userMiddleware = ({ secret }) =>
 
     req.user = stripUser(user);
 
-    next();
+    const spanAttributes = {
+      'app.user.id': req.user.id,
+      'app.user.role': req.user.role,
+    };
+
+    trace.getActiveSpan().setAttributes(spanAttributes);
+    context.with(
+      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+      () => next(),
+    );
   });
 
 export const userInfo = asyncHandler(async (req, res) => {
