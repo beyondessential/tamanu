@@ -27,13 +27,13 @@ const RegisterPatientButton = (): ReactElement => {
       paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
       paddingBottom={screenPercentageToDP(3.03, Orientation.Height)}
       paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-      paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
+      paddingRight={screenPercentageToDP(4.09, Orientation.Width)}
     >
       <RowView width="100%" justifyContent="space-between">
         <StyledTouchableOpacity onPress={onNavigateToRegisterPatient}>
           <StyledView
-            height={screenPercentageToDP(23.08, Orientation.Height)}
-            width={screenPercentageToDP(43.79, Orientation.Width)}
+            height={screenPercentageToDP(21.08, Orientation.Height)}
+            width={screenPercentageToDP(40.79, Orientation.Width)}
             background={theme.colors.WHITE}
             borderRadius={5}
             paddingLeft={15}

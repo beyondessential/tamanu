@@ -175,7 +175,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
 
   return (
     <>
-      <Alert open={open} onClose={handleClose} severity={AlertSeverity.Info}>
+      <Alert open={true} onClose={handleClose} severity={AlertSeverity.Info}>
         <StyledText
           color={theme.colors.PRIMARY_MAIN}
           fontSize={screenPercentageToDP(1.68, Orientation.Height)}
