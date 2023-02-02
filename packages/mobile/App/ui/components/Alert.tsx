@@ -53,7 +53,7 @@ export const Alert = ({
     >
       <StyledView
         width="100%"
-        height={screenPercentageToDP(6.6, Orientation.Height)}
+        height={screenPercentageToDP(6, Orientation.Height)}
         background={background}
         borderRadius={3}
         borderWidth={1}
