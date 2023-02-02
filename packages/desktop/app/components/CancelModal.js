@@ -10,6 +10,7 @@ const ModalBody = styled.div`
   margin-top: 30px;
 
   .MuiTypography-root {
+    top: -10px;
     margin-bottom: 30px;
   }
 `;
@@ -18,6 +19,7 @@ const Wrapper = styled.div`
   margin: 0 auto 50px;
   max-width: 350px;
 `;
+
 const isReasonForDelete = reason => reason === 'duplicate' || reason === 'entered-in-error';
 
 export const CancelModal = React.memo(
