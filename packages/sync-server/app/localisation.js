@@ -334,7 +334,7 @@ const rootLocalisationSchema = yup
           const values = conf.map(x => x.value);
           if (!values.includes('duplicate')) {
             return ctx.createError({
-              message: 'imagingCancellationReasons must include an option with value = clinic',
+              message: 'imagingCancellationReasons must include an option with value = duplicate',
             });
           }
           if (!values.includes('entered-in-error')) {

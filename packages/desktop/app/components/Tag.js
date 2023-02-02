@@ -19,8 +19,8 @@ export const Tag = styled.div`
 export const StatusTag = styled.div`
   position: relative;
   display: inline-block;
-  background: ${p => (p.$background ? p.$background : DEFAULTS.background)};
-  color: ${p => (p.$color ? p.$color : DEFAULTS.color)};
+  background: ${p => p.$background || DEFAULTS.background};
+  color: ${p => p.$color || DEFAULTS.color};
   padding: 6px 13px;
   border-radius: 20px;
   font-weight: 400;

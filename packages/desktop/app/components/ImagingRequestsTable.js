@@ -25,7 +25,7 @@ const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || '
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getRequestType = imagingTypes => ({ imagingType }) =>
-  imagingTypes[imagingType]?.label || `Unknown ${imagingType?.name || null}` || 'Unknown';
+  imagingTypes[imagingType]?.label || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
 
 export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters }) => {

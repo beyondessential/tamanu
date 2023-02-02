@@ -386,7 +386,10 @@ globalImagingRequests.get(
 
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
-      where: imagingRequestFilters,
+      where: {
+        ...imagingRequestFilters,
+        status: { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
+      },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, encounter, areas],
       limit: rowsPerPage,
@@ -398,9 +401,7 @@ globalImagingRequests.get(
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows
-      .map(x => x.get({ plain: true }))
-      .filter(x => x.status !== IMAGING_REQUEST_STATUS_TYPES.DELETED);
+    const data = rows.map(x => x.get({ plain: true }));
     res.send({
       count,
       data,
