@@ -74,6 +74,8 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       onSubmit={onSubmitSurvey}
       render={renderSurvey}
       validationSchema={validationSchema}
+      validateOnChange
+      validateOnBlur
     />
   );
 
