@@ -156,7 +156,7 @@ export class CentralServerConnection {
     return this.post(`sync/${sessionId}/push`, {}, { changes });
   }
 
-  async completeSyncSession(sessionId: string): Promise<void> {
+  async completePush(sessionId: string): Promise<void> {
     // first off, mark the push as complete on central
     await this.post(`sync/${sessionId}/push/complete`, {}, {});
 

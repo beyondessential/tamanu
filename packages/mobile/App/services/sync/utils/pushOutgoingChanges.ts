@@ -33,5 +33,5 @@ export const pushOutgoingChanges = async (
 
     progressCallback(changes.length, pushedRecordsCount);
   }
-  await centralServer.completeSyncSession(sessionId);
+  await centralServer.completePush(sessionId);
 };
