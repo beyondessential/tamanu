@@ -171,7 +171,7 @@ export class CentralServerConnection {
       }
       await sleepAsync(waitTime);
     }
-    throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
+    throw new Error(`Could not fetch if push has been completed after ${maxAttempts} attempts`);
   }
 
   setToken(token: string): void {
