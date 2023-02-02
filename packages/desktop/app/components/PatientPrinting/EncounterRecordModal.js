@@ -48,6 +48,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const imagingRequestsQuery = useImagingRequests(encounter.id);
   const imagingRequests = imagingRequestsQuery.data;
 
+  const dishchargeQuery = useEncounterDischarge(encounter.id);
+  const discharge = dishchargeQuery.data;
+
+  const villageQuery = useReferenceData(patient?.villageId);
+  const village = villageQuery.name;
+
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;
 
@@ -71,26 +77,19 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return note.noteType === 'system';
   });
 
-  const dishchargeQuery = useEncounterDischarge(encounter.id);
-  const discharge = dishchargeQuery.data;
-
-  const villageQuery = useReferenceData(patient?.villageId);
-  const village = villageQuery.name;
-
   // TODO NEED TO TURN NOTES INTO USABLE OBJECTS
-  const getPlaceHistoryFromNotes = (changeNotes, encounterData) => {
-    const matcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
-    if (changeNotes[0].noteItems[0].content.match(matcher)) {
+  const getPlaceHistoryFromNotes = (locationNotes, encounterData) => {
+    if (locationNotes.length > 0 && locationNotes[0].noteItems[0].content.match(matcher)) {
       const {
         groups: { from },
-      } = changeNotes[0].noteItems[0].content.match(matcher);
+      } = locationNotes[0].noteItems[0].content.match(matcher);
 
       const history = [
         {
           to: from,
           date: encounterData.startDate,
         },
-        ...changeNotes[0].noteItems.map(({ content, date }) => {
+        ...locationNotes[0]?.noteItems.map(({ content, date }) => {
           const {
             groups: { to },
           } = content.match(matcher);
@@ -100,12 +99,23 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       return history;
     }
 
-    return [];
+    return [
+      {
+        to: `${encounterData.location.locationGroup.name}, ${encounterData.location.name}`,
+        date: encounterData.startDate,
+      },
+    ];
   };
-  let locationHistory = [];
-  if (systemNotes) {
-    locationHistory = getPlaceHistoryFromNotes(systemNotes, encounter);
-  }
+
+  const matcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
+
+  const locationSystemNotes = systemNotes?.filter(note => {
+    return note.noteItems[0].content.match(matcher);
+  });
+
+  const locationHistory = locationSystemNotes
+    ? getPlaceHistoryFromNotes(locationSystemNotes, encounter)
+    : [];
 
   const encounterTypes = systemNotes?.map(note => {
     return {
