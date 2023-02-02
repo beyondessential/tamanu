@@ -8,6 +8,7 @@ import {
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
@@ -136,7 +137,16 @@ encounterRelations.get(
   '/:id/documentMetadata',
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
-encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
+encounterRelations.get(
+  '/:id/imagingRequests',
+  simpleGetList('ImagingRequest', 'encounterId', {
+    additionalFilters: {
+      status: {
+        [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+      },
+    },
+  }),
+);
 
 encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 
