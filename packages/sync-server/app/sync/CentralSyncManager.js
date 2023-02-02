@@ -1,3 +1,4 @@
+import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
@@ -95,6 +96,12 @@ export class CentralSyncManager {
       { startedAtTick: tick },
       { where: { id: syncSession.id } },
     );
+    trace.getActiveSpan().setAttributes({
+      'app.sync.sessionId': syncSession.id,
+      'app.sync.tick': tick,
+    });
+
+    return { sessionId: syncSession.id, tick };
   }
 
   async connectToSession(sessionId) {
@@ -109,6 +116,10 @@ export class CentralSyncManager {
       throw new Error(errorMessageFromSession(session));
     }
     await session.update({ lastConnectionTime: Date.now() });
+
+    trace.getActiveSpan().setAttributes({
+      'app.sync.sessionId': sessionId,
+    });
 
     return session;
   }
