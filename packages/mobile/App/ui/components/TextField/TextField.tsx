@@ -4,20 +4,21 @@ import {
   StyleSheet,
   Platform,
   ReturnKeyTypeOptions,
+  TextInput,
 } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { TextErrorMessage } from './TextFieldError';
+import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 export interface RefObject<T> {
   readonly current: T | null;
 }
 
 export interface TextFieldProps extends BaseInputProps {
   value: string;
-  onChange: (text: any) => void;
+  onChange: (text: string) => void;
   isOpen?: boolean;
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
@@ -33,7 +34,7 @@ export interface TextFieldProps extends BaseInputProps {
   onBlur?: () => void;
   charLimit?: number;
   blurOnSubmit?: boolean;
-  inputRef?: RefObject<any>;
+  inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
 }
 
@@ -148,9 +149,9 @@ export const TextField = React.memo(
           />
         </InputContainer>
         {error && (
-          <TextErrorMessage>
+          <TextFieldErrorMessage>
             {error}
-          </TextErrorMessage>
+          </TextFieldErrorMessage>
         )}
       </StyledView>
     );

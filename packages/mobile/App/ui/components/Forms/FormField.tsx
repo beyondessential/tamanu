@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { ReactNode } from 'react';
 import { Field as FormikField, useField } from 'formik';
 
 export interface FieldProps {
-  component: Component<any> | Function;
+  component: ReactNode
   name: string;
   label?: string;
   type?: string;

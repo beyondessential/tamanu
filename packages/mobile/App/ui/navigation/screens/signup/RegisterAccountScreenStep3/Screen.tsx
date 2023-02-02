@@ -18,22 +18,22 @@ import { theme } from '/styled/theme';
 //Helpers
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 // protocols
-import { RegisterAccountFormStep3Props } from '../../../../contexts/RegisterAccountContext';
+import { RegisterAccountFormStep3FormValues } from '../../../../contexts/RegisterAccountContext';
 import { UserIconContainer } from '../common';
 
 interface ScreenProps {
   navigateToIntro: () => void;
-  step3FormProps: RegisterAccountFormStep3Props;
+  step3FormValues: RegisterAccountFormStep3FormValues;
   iconSize: Value<number>;
   titleFont: Value<number>;
   iconContainerPosition: Value<number>;
   navigateFormStepBack: () => void;
-  onSubmitForm: (values: RegisterAccountFormStep3Props) => void;
+  onSubmitForm: (values: RegisterAccountFormStep3FormValues) => void;
 }
 
 export const Screen: FunctionComponent<ScreenProps> = ({
   navigateToIntro,
-  step3FormProps,
+  step3FormValues,
   navigateFormStepBack,
   iconSize,
   titleFont,
@@ -70,7 +70,7 @@ export const Screen: FunctionComponent<ScreenProps> = ({
       </CenterView>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <RegisterAccountFormStep03
-          formState={step3FormProps}
+          formState={step3FormValues}
           onSubmit={onSubmitForm}
           navigateFormStepBack={navigateFormStepBack}
         />
