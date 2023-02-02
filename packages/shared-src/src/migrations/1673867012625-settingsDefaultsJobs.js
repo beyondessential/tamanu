@@ -1,9 +1,14 @@
+import config from 'config';
+
 const DEFAULT_SETTINGS = {
   'jobs.worker.hearbeat': '1 minute',
   'jobs.worker.assumeDroppedAfter': '10 minutes',
 };
 
 export async function up(query) {
+  // only write defaults to central
+  if (config?.serverFacilityId) return;
+
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
     await query.sequelize.query(`
       INSERT INTO settings (key, value)
