@@ -40,10 +40,10 @@ export class Setting extends Model {
       {
         id: primaryKey,
         key: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: false,
         },
-        value: Sequelize.TEXT,
+        value: Sequelize.JSONB,
       },
       {
         ...options,
