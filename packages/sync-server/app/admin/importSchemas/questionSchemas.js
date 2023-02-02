@@ -21,6 +21,7 @@ export const SSCPatientData = SurveyScreenComponent.shape({
           isAdditionalData: yup.boolean(),
           fieldType: yup.string(),
         })
+        .noUnknown()
         .default(null),
     }),
   ),
@@ -65,10 +66,13 @@ const numberConfig = config.shape({
 const numberValidationCriteria = baseValidationShape.shape({
   min: yup.number(),
   max: yup.number(),
-  normalRange: yup.object().shape({
-    min: yup.number(),
-    max: yup.number(),
-  }),
+  normalRange: yup
+    .object()
+    .shape({
+      min: yup.number(),
+      max: yup.number(),
+    })
+    .noUnknown(),
 });
 
 export const SSCNumber = SurveyScreenComponent.shape({
