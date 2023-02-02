@@ -25,7 +25,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   const response = await fetch(`${META_SERVER}/servers`);
   const servers: Server[] = await response.json();
 
-  return servers.map(s => ({ label: s.name, value: s.host }));
+  return [...servers.map(s => ({ label: s.name, value: s.host })), {label: 'daniel', value: 'http://192.168.178.62:3000'}];
 };
 
 export const ServerSelector = ({ onChange, label, value }): ReactElement => {
