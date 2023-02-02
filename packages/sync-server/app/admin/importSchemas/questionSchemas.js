@@ -1,10 +1,8 @@
 import * as yup from 'yup';
-import { SurveyScreenComponent, baseValidationShape } from './baseSchemas';
+import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
 import { configString, validationString } from './jsonString';
 
-const config = yup.object().noUnknown();
-
-const columnReferenceConfig = config.shape({
+const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),
 });
 
@@ -27,7 +25,7 @@ export const SSCPatientData = SurveyScreenComponent.shape({
   ),
 });
 
-const sourceReferenceConfig = config.shape({
+const sourceReferenceConfig = baseConfigShape.shape({
   source: yup.string().required(),
 });
 
@@ -59,7 +57,7 @@ export const SSCAutocomplete = SurveyScreenComponent.shape({
   ),
 });
 
-const numberConfig = config.shape({
+const numberConfig = baseConfigShape.shape({
   unit: yup.string(),
   rounding: yup.number(),
 });
