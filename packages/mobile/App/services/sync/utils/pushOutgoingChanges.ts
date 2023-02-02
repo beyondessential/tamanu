@@ -1,4 +1,5 @@
 import { SyncRecord } from '../types';
+import { MODELS_MAP } from '../../../models/modelsMap';
 
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
@@ -12,6 +13,7 @@ import { calculatePageLimit } from './calculatePageLimit';
  */
 export const pushOutgoingChanges = async (
   centralServer: CentralServerConnection,
+  outgoingModels: typeof MODELS_MAP,
   sessionId: string,
   changes: SyncRecord[],
   progressCallback: (total: number, progressCount: number) => void,
@@ -33,5 +35,8 @@ export const pushOutgoingChanges = async (
 
     progressCallback(changes.length, pushedRecordsCount);
   }
-  await centralServer.completePush(sessionId);
+  await centralServer.completePush(
+    sessionId,
+    Object.values(outgoingModels).map(m => m.getTableNameForSync()),
+  );
 };

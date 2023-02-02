@@ -290,11 +290,13 @@ class CentralSyncManager {
     );
   }
 
-  async persistIncomingChanges(sessionId) {
+  async persistIncomingChanges(sessionId, tablesToInclude) {
     const { sequelize, models } = this.store;
     await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date() });
 
-    const modelsToInclude = getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+    const modelsToInclude = tablesToInclude
+      ? filterModelsFromName(models, tablesToInclude)
+      : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
 
     // commit the changes to the db
     await sequelize.transaction(async () => {
@@ -340,12 +342,12 @@ class CentralSyncManager {
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
-  async completePush(sessionId) {
+  async completePush(sessionId, tablesToInclude) {
     await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
-    this.persistIncomingChanges(sessionId);
+    this.persistIncomingChanges(sessionId, tablesToInclude);
   }
 
   async checkPushComplete(sessionId) {

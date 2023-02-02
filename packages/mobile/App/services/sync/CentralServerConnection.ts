@@ -156,9 +156,9 @@ export class CentralServerConnection {
     return this.post(`sync/${sessionId}/push`, {}, { changes });
   }
 
-  async completePush(sessionId: string): Promise<void> {
+  async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.post(`sync/${sessionId}/push/complete`, {}, {});
+    await this.post(`sync/${sessionId}/push/complete`, {}, { tablesToInclude });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database

@@ -88,9 +88,10 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/push/complete',
     asyncHandler(async (req, res) => {
-      const { params } = req;
+      const { params, body } = req;
       const { sessionId } = params;
-      await syncManager.completePush(sessionId);
+      const { tablesToInclude } = body;
+      await syncManager.completePush(sessionId, tablesToInclude);
       res.json({});
     }),
   );
