@@ -3,7 +3,6 @@ import React, { ReactElement } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
-import { IPatient } from '~/types';
 import { withPatient } from '~/ui/containers/Patient';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { PatientCard } from '/components/PatientCard';
