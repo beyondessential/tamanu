@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from 'config';
-import { createTestContext } from '../utilities';
+import { createTestContext, withDate } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
@@ -152,29 +152,38 @@ describe('Auth', () => {
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
       });
-      const originalExpiresAt = loginResponse.body.expiresAt;
-      const originalToken = loginResponse.body.token;
 
       expect(loginResponse).toHaveSucceeded();
-      const { refreshToken } = loginResponse.body;
-
+      const { token, refreshToken } = loginResponse.body;
       // Make sure that Date.now used in signing new token is different from global mock date
       // Otherwise the new token will appear the identical to the first
-      const dateNowSpy = jest
-        .spyOn(Date, 'now')
-        .mockImplementation(() => new Date(originalExpiresAt).getTime() + 1);
 
-      const refreshResponse = await baseApp.post('/v1/refresh').send({
-        refreshToken,
-      });
-
-      dateNowSpy.mockClear();
+      // Bump time forwards from mocked time
+      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+        baseApp.post('/v1/refresh').send({
+          refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        }),
+      );
 
       expect(refreshResponse).toHaveSucceeded();
       expect(refreshResponse.body).toHaveProperty('token');
-      expect(refreshResponse.body.token).not.toEqual(originalToken);
-      expect(refreshResponse.body).toHaveProperty('expiresAt');
-      expect(refreshResponse.body.expiresAt).toBeGreaterThan(originalExpiresAt);
+
+      const oldTokenContents = jwt.decode(token);
+      const newTokenContents = jwt.decode(refreshResponse.body.token);
+
+      expect(newTokenContents).toEqual({
+        aud: 'Tamanu Mobile',
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      expect(newTokenContents.jti).not.toEqual(oldTokenContents.jti);
+      expect(newTokenContents.iat).toBeGreaterThan(oldTokenContents.iat);
+      expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
     });
     it('Should reject invalid refresh token', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({

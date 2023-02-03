@@ -1,4 +1,4 @@
-import config from 'config'
+import config from 'config';
 import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';
@@ -168,7 +168,7 @@ export async function withDate(fakeDate, fn) {
         return fakeDate.valueOf();
       }
     };
-    await fn();
+    return await fn();
   } finally {
     global.Date = OldDate;
   }
