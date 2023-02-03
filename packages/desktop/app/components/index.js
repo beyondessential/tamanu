@@ -4,7 +4,6 @@ export * from './ButtonRow';
 export * from './Card';
 export * from './ContentPane';
 export * from './DateDisplay';
-export * from './DeathCertificateModal';
 export * from './Dialog';
 export * from './Field';
 export * from './FormSeparatorLine';

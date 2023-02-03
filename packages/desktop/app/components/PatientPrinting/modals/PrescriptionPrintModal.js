@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-import { PrescriptionPrintout } from './PrescriptionPrintout';
-import { Modal } from '../Modal';
-import { useCertificate } from '../../utils/useCertificate';
-import { LoadingIndicator } from '../LoadingIndicator';
-import { useApi } from '../../api';
+import { Modal } from '../../Modal';
+import { useCertificate } from '../../../utils/useCertificate';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { useApi } from '../../../api';
+
+import { PrescriptionPrintout } from '../printouts/PrescriptionPrintout';
 
 export const PrescriptionPrintModal = ({ medication, open, onClose }) => {
   const certificateData = useCertificate();

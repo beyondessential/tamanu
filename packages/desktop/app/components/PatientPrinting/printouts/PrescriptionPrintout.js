@@ -2,13 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
 
-import { NotesSection, LocalisedLabel } from './SimplePrintout';
-import { PrintLetterhead } from './PrintLetterhead';
-import { CertificateWrapper } from './CertificateWrapper';
-import { DateDisplay } from '../DateDisplay';
-import { PatientBarcode } from './PatientBarcode';
-import { GridTable } from './GridTable';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { DateDisplay } from '../../DateDisplay';
+import { capitaliseFirstLetter } from '../../../utils/capitalise';
+
+import { NotesSection, LocalisedLabel } from './reusable/SimplePrintout';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { PatientBarcode } from './reusable/PatientBarcode';
+import { GridTable } from './reusable/GridTable';
 
 const RowContainer = styled.div`
   display: flex;

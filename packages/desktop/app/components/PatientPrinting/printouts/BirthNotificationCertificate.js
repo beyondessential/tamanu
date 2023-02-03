@@ -2,13 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Divider from '@material-ui/core/Divider';
+import { Typography, Box } from '@material-ui/core';
 
 import { ageInYears, getCurrentDateString } from 'shared/utils/dateTime';
 
-import { Typography, Box } from '@material-ui/core';
-import { DateDisplay } from '../DateDisplay';
-import { PrintLetterhead } from './PrintLetterhead';
-import { CertificateWrapper } from './CertificateWrapper';
+import { DateDisplay } from '../../DateDisplay';
 import {
   Colors,
   BIRTH_DELIVERY_TYPE_OPTIONS,
@@ -17,7 +15,10 @@ import {
   ATTENDANT_OF_BIRTH_OPTIONS,
   sexOptions,
   maritalStatusOptions,
-} from '../../constants';
+} from '../../../constants';
+
+import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { CertificateWrapper } from './reusable/CertificateWrapper';
 
 const TopSection = styled.div`
   margin-top: 10px;

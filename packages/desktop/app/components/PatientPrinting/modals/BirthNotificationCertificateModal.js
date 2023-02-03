@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Modal } from '../Modal';
-import { useAuth } from '../../contexts/Auth';
-import { useApi, isErrorUnknownAllow404s } from '../../api';
-import { LoadingIndicator } from '../LoadingIndicator';
-import { useCertificate } from '../../utils/useCertificate';
-import { usePatientAdditionalData } from '../../api/queries';
-import { BirthNotificationCertificate } from './BirthNotificationCertificate';
+
+import { Modal } from '../../Modal';
+import { useAuth } from '../../../contexts/Auth';
+import { useApi, isErrorUnknownAllow404s } from '../../../api';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { useCertificate } from '../../../utils/useCertificate';
+import { usePatientAdditionalData } from '../../../api/queries';
+
+import { BirthNotificationCertificate } from '../printouts/BirthNotificationCertificate';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: parentDataIsLoading } = useQuery(

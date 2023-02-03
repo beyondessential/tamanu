@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { SimplePrintout } from './SimplePrintout';
-import { DateDisplay } from '../DateDisplay';
+import { SimplePrintout } from './reusable/SimplePrintout';
+import { DateDisplay } from '../../DateDisplay';
 
 export const LabRequestPrintout = React.memo(
   ({ labRequestData, patientData, encounterData, certificateData }) => {

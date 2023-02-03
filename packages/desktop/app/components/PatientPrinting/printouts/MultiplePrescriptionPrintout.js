@@ -6,15 +6,16 @@ import Divider from '@material-ui/core/Divider';
 
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
-import { NotesSection, LocalisedLabel } from './SimplePrintout';
-import { DateDisplay } from '../DateDisplay';
-import { PrintLetterhead } from './PrintLetterhead';
-import { CertificateWrapper } from './CertificateWrapper';
-import { ListTable } from './ListTable';
-import { PatientDetailPrintout } from './PatientDetailPrintout';
-import { CertificateLabel } from './CertificateLabels';
-import { useAuth } from '../../contexts/Auth';
-import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../constants';
+import { DateDisplay } from '../../DateDisplay';
+import { useAuth } from '../../../contexts/Auth';
+import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../../constants';
+
+import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
+import { NotesSection, LocalisedLabel } from './reusable/SimplePrintout';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { ListTable } from './reusable/ListTable';
+import { CertificateLabel } from './reusable/CertificateLabels';
 
 const RowContainer = styled.div`
   display: flex;

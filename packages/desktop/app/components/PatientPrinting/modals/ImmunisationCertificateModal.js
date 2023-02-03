@@ -1,13 +1,16 @@
 import React, { useEffect, useCallback, useState } from 'react';
+
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils/patientCertificates';
-import { Modal } from './Modal';
-import { useApi } from '../api';
-import { EmailButton } from './Email/EmailButton';
-import { useCertificate } from '../utils/useCertificate';
-import { PDFViewer, printPDF } from './PatientPrinting/PDFViewer';
-import { useLocalisation } from '../contexts/Localisation';
-import { usePatientAdditionalData } from '../api/queries';
+
+import { Modal } from '../../Modal';
+import { useApi } from '../../../api';
+import { EmailButton } from '../../Email/EmailButton';
+import { useCertificate } from '../../../utils/useCertificate';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { usePatientAdditionalData } from '../../../api/queries';
+
+import { PDFViewer, printPDF } from '../reusable/PDFViewer';
 
 export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();

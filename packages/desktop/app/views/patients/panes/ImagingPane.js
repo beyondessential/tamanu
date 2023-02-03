@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
-import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting/PrintMultipleImagingRequestsSelectionModal';
+import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TableButtonRow, Button } from '../../../components';
 import { TabPane } from '../components';
 

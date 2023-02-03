@@ -2,25 +2,37 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal } from '../Modal';
-import { MultipleLabRequestsPrintout } from './MultipleLabRequestsPrintout';
-import { LoadingIndicator } from '../LoadingIndicator';
-import { useCertificate } from '../../utils/useCertificate';
-import { useApi } from '../../api';
-import { Colors } from '../../constants';
+import { Modal } from '../../Modal';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { useCertificate } from '../../../utils/useCertificate';
+import { useApi } from '../../../api';
+import { Colors } from '../../../constants';
 
-export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
+import { MultiplePrescriptionPrintout } from '../printouts/MultiplePrescriptionPrintout';
+
+export const MultiplePrescriptionPrintoutModal = ({
+  encounter,
+  prescriberId,
+  prescriptions,
+  open,
+  onClose,
+}) => {
   const certificateData = useCertificate();
   const api = useApi();
 
   const { data: patient, isLoading: patientLoading } = useQuery(
     ['patient', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}`),
+    () => api.get(`patient/${encounter.patientId}`),
+  );
+
+  const { data: prescriber, isLoading: prescriberLoading } = useQuery(
+    ['prescriber', prescriberId],
+    () => api.get(`user/${prescriberId}`),
   );
 
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
     ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
+    () => api.get(`patient/${encounter.patientId}/additionalData`),
   );
 
   const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
@@ -35,29 +47,31 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
 
   return (
     <Modal
-      title="Print lab requests"
+      title="Print prescriptions"
       width="md"
       open={open}
       onClose={onClose}
       color={Colors.white}
       printable
     >
-      {patientLoading || additionalDataLoading || villageLoading ? (
+      {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultipleLabRequestsPrintout
+        <MultiplePrescriptionPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
-          labRequests={labRequests}
+          prescriber={prescriber}
+          prescriptions={prescriptions}
         />
       )}
     </Modal>
   );
 };
 
-MultipleLabRequestsPrintoutModal.propTypes = {
+MultiplePrescriptionPrintoutModal.propTypes = {
   encounter: PropTypes.object.isRequired,
-  labRequests: PropTypes.array.isRequired,
+  prescriberId: PropTypes.string.isRequired,
+  prescriptions: PropTypes.array.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };

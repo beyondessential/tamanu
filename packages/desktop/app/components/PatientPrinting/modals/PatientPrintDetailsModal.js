@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
-import { Modal } from '../Modal';
-import { Button } from '../Button';
-import { Colors } from '../../constants';
-import { useApi, isErrorUnknownAllow404s } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
+import { Modal } from '../../Modal';
+import { Button } from '../../Button';
+import { Colors } from '../../../constants';
+import { useApi, isErrorUnknownAllow404s } from '../../../api';
+import { useLocalisation } from '../../../contexts/Localisation';
 
-import { PatientIDCardPage } from './PatientIDCardPage';
-import { PatientStickerLabelPage } from './PatientStickerLabelPage';
+import { PatientIDCardPage } from '../reusable/PatientIDCardPage';
+import { PatientStickerLabelPage } from '../reusable/PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';

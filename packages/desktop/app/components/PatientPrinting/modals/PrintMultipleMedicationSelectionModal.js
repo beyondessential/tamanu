@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Modal } from '../Modal';
+import { Modal } from '../../Modal';
 import { PrintMultipleMedicationSelectionForm } from './PrintMultipleMedicationSelectionForm';
 
 export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose }) => {

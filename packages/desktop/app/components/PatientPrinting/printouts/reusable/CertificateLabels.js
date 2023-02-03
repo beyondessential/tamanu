@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { LocalisedText } from '../LocalisedText';
+import { LocalisedText } from '../../../LocalisedText';
 
 const Text = styled(Typography)`
   font-size: ${props => props.$size};

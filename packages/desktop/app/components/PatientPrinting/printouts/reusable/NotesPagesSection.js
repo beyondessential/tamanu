@@ -14,7 +14,10 @@ const StyledId = styled.b`
 export const NotesPagesSection = ({ idsAndNotePages }) => {
   const notes = idsAndNotePages
     .map(([id, notePages]) => {
-      const content = notePages.map(({ noteItems }) => noteItems[0]?.content).join(', ');
+      const content = notePages
+        .filter(np => np?.noteItems?.length > 0)
+        .map(({ noteItems }) => noteItems[0].content)
+        .join(', ');
       if (!content) {
         return null;
       }

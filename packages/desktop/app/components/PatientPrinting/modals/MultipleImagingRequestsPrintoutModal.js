@@ -1,7 +1,9 @@
 import React from 'react';
-import { Colors } from '../../constants';
-import { Modal } from '../Modal';
-import { MultipleImagingRequestsPrintout } from './MultipleImagingRequestsPrintout';
+
+import { Colors } from '../../../constants';
+import { Modal } from '../../Modal';
+
+import { MultipleImagingRequestsPrintout } from '../printouts/MultipleImagingRequestsPrintout';
 
 export const MultipleImagingRequestsPrintoutModal = ({
   open,

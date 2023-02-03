@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+import { DateDisplay } from '../../../DateDisplay';
+import { capitaliseFirstLetter } from '../../../../utils/capitalise';
+
 import { LocalisedLabel } from './SimplePrintout';
-import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const RowContainer = styled.div`
   display: flex;

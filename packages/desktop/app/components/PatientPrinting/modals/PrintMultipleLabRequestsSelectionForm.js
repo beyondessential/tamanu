@@ -2,13 +2,14 @@ import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
-import { Table, useSelectableColumn } from '../Table';
-import { OuterLabelFieldWrapper } from '../Field';
-import { ConfirmCancelRow } from '../ButtonRow';
-import { DateDisplay } from '../DateDisplay';
+import { Table, useSelectableColumn } from '../../Table';
+import { OuterLabelFieldWrapper } from '../../Field';
+import { ConfirmCancelRow } from '../../ButtonRow';
+import { DateDisplay } from '../../DateDisplay';
+import { useApi } from '../../../api';
+import { Colors } from '../../../constants';
+
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
-import { useApi } from '../../api';
-import { Colors } from '../../constants';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',

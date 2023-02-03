@@ -172,12 +172,9 @@ encounterRelations.get(
 
     const data = await Promise.all(
       objects.map(async ir => {
-        const notePages = await this.getNotePages({
-          include: [{ association: 'noteItems' }],
-        });
         return {
           ...ir.forResponse(),
-          ...(includeNotePages ? await ir.extractNotes(notePages) : undefined),
+          ...(includeNotePages ? await ir.extractNotes() : undefined),
         };
       }),
     );

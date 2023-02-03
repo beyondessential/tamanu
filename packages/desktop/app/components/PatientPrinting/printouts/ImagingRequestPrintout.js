@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { SimplePrintout } from './SimplePrintout';
-import { useLocalisation } from '../../contexts/Localisation';
-import { DateDisplay } from '../DateDisplay';
+import { SimplePrintout } from './reusable/SimplePrintout';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { DateDisplay } from '../../DateDisplay';
 
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {

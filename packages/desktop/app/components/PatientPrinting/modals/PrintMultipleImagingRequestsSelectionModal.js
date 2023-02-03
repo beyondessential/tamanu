@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Modal } from '../Modal';
+import { Modal } from '../../Modal';
 import { PrintMultipleImagingRequestsSelectionForm } from './PrintMultipleImagingRequestsSelectionForm';
 
 export const PrintMultipleImagingRequestsSelectionModal = ({ encounter, open, onClose }) => {

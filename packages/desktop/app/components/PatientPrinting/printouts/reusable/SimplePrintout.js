@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-
 import { Typography, Box } from '@material-ui/core';
+
+import { DateDisplay } from '../../../DateDisplay';
+import { capitaliseFirstLetter } from '../../../../utils/capitalise';
+
 import { PrintLetterhead } from './PrintLetterhead';
 import { CertificateWrapper } from './CertificateWrapper';
 import { LocalisedCertificateLabel } from './CertificateLabels';
-import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
-
 import { GridTable } from './GridTable';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const Text = styled(Typography)`
   ${props => (props.$boldTitle ? 'font-weight: 500;' : '')}

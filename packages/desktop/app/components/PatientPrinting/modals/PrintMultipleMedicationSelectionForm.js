@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 
-import { Table, useSelectableColumn } from '../Table';
-import { TextInput, SelectInput, AutocompleteInput, OuterLabelFieldWrapper } from '../Field';
-import { ConfirmCancelRow } from '../ButtonRow';
-import { DateDisplay } from '../DateDisplay';
+import { Table, useSelectableColumn } from '../../Table';
+import { TextInput, SelectInput, AutocompleteInput, OuterLabelFieldWrapper } from '../../Field';
+import { ConfirmCancelRow } from '../../ButtonRow';
+import { DateDisplay } from '../../DateDisplay';
+import { useApi, useSuggester } from '../../../api';
+import { useAuth } from '../../../contexts/Auth';
+import { Colors } from '../../../constants';
+
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
-import { useApi, useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
 
 const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 

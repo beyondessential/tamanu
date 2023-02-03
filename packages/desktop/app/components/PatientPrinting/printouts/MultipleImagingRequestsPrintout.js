@@ -3,19 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 
 import { NOTE_TYPES } from 'shared/constants';
 
-import { CertificateWrapper } from './CertificateWrapper';
-import { PrintLetterhead } from './PrintLetterhead';
-import { PatientDetailPrintout } from './PatientDetailPrintout';
-import { ListTable } from './ListTable';
-import { LoadingIndicator } from '../LoadingIndicator';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { useCertificate } from '../../../utils/useCertificate';
+import { useApi } from '../../../api';
+import { DateDisplay } from '../../DateDisplay';
+import { getImagingRequestType } from '../../../utils/getImagingRequestType';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { getAreaNote } from '../../../utils/areaNote';
+
 import { StyledDivider } from './MultipleLabRequestsPrintout';
-import { useCertificate } from '../../utils/useCertificate';
-import { useApi } from '../../api';
-import { DateDisplay } from '../DateDisplay';
-import { getImagingRequestType } from '../../utils/getImagingRequestType';
-import { useLocalisation } from '../../contexts/Localisation';
-import { getAreaNote } from '../../utils/areaNote';
-import { NotesPagesSection } from './NotesPagesSection';
+import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
+import { ListTable } from './reusable/ListTable';
+import { NotesPagesSection } from './reusable/NotesPagesSection';
 
 const COLUMN_KEYS = {
   ID: 'id',
@@ -75,7 +76,7 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
   }
   const idsAndNotePages = imagingRequests.map(ir => [
     ir.id,
-    ir.notePages.map(np => np.noteType === NOTE_TYPES.OTHER),
+    ir.notePages.filter(np => np.noteType === NOTE_TYPES.OTHER),
   ]);
   return (
     <CertificateWrapper>

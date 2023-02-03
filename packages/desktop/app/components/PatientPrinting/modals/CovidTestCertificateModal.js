@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { Modal } from '../Modal';
-import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
-import { EmailButton } from '../Email/EmailButton';
-import { PDFViewer, printPDF } from './PDFViewer';
-import { useCertificate } from '../../utils/useCertificate';
-import { usePatientAdditionalData } from '../../api/queries';
+
+import { Modal } from '../../Modal';
+import { useApi } from '../../../api';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { EmailButton } from '../../Email/EmailButton';
+import { useCertificate } from '../../../utils/useCertificate';
+import { usePatientAdditionalData } from '../../../api/queries';
+
+import { PDFViewer, printPDF } from '../reusable/PDFViewer';
 
 export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);

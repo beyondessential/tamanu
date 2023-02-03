@@ -3,12 +3,8 @@ import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
-import {
-  DateDisplay,
-  Button,
-  DeathCertificateModal,
-  ButtonWithPermissionCheck,
-} from '../../../components';
+import { DateDisplay, Button, ButtonWithPermissionCheck } from '../../../components';
+import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';

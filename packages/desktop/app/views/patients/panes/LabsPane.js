@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { LabRequestsTable } from '../../../components/LabRequestsTable';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
-import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting/PrintMultipleLabRequestsSelectionModal';
+import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {

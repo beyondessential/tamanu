@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { SEX_VALUE_INDEX } from '../../constants';
-import { useElectron } from '../../contexts/Electron';
+
+import { SEX_VALUE_INDEX } from '../../../../constants';
+import { useElectron } from '../../../../contexts/Electron';
+import { DateDisplay } from '../../../DateDisplay';
+import { useLocalisation } from '../../../../contexts/Localisation';
 
 import { PrintPortal } from './PrintPortal';
-import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
-import { useLocalisation } from '../../contexts/Localisation';
 
 const Sticker = styled.div`
   font-family: monospace;

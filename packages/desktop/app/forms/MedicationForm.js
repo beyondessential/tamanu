@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { DropdownButton } from '../components/DropdownButton';
-import { PrescriptionPrintModal } from '../components/PatientPrinting/PrescriptionPrintModal';
+import { PrescriptionPrintModal } from '../components/PatientPrinting';
 import {
   FormGrid,
   Button,

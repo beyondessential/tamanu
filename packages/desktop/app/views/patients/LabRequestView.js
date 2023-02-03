@@ -22,7 +22,7 @@ import {
 } from '../../components/Field';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
 import { ConfirmModal } from '../../components/ConfirmModal';
-import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
+import { LabRequestPrintout } from '../../components/PatientPrinting';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
