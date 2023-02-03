@@ -364,6 +364,7 @@ left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 
 WHERE true
   AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')
+  AND e.end_date IS NOT NULL
   AND (e.end_date::timestamp at time zone $timezone_string) >= $from_date::timestamptz
   AND (e.end_date::timestamp at time zone $timezone_string) <= $to_date::timestamptz
   AND CASE WHEN coalesce(array_length($input_encounter_ids::varchar[], 1), 0) != 0

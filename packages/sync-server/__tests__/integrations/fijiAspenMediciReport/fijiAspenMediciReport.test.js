@@ -125,6 +125,20 @@ const fakeAllData = async models => {
       dateOfBirth: '1952-10-12',
     }),
   );
+  // open encounter
+  await models.Encounter.create(
+    fake(models.Encounter, {
+      patientId: patient.id,
+      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      reasonForEncounter: 'Severe Migrane',
+      patientBillingTypeId,
+      locationId: location1Id,
+      departmentId,
+      examinerId,
+    }),
+  );
+  // closed encounter
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
