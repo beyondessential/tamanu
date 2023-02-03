@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { runCalculations } from 'shared/utils/calculations';
 import styled from 'styled-components';
 import { checkVisibility } from '../../utils';
@@ -22,6 +22,38 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
   }, [components, values, setFieldValue]);
 };
 
+const useScrollToFirstError = () => {
+  const questionRefs = useRef(null);
+
+  function getQuestionMap() {
+    if (!questionRefs.current) {
+      // Initialize the Map on first usage.
+      questionRefs.current = new Map();
+    }
+    return questionRefs.current;
+  }
+
+  const scrollToQuestion = questionId => {
+    const map = getQuestionMap();
+    const node = map.get(questionId);
+    node.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  };
+
+  const setQuestionToRef = dataElementId => node => {
+    const map = getQuestionMap();
+    if (node) {
+      map.set(dataElementId, node);
+    } else {
+      map.delete(dataElementId);
+    }
+  };
+
+  return { setQuestionToRef, scrollToQuestion };
+};
+
 export const SurveyScreen = ({
   components,
   values = {},
@@ -35,11 +67,19 @@ export const SurveyScreen = ({
   setErrors,
   errors,
 }) => {
+  const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(components, values, setFieldValue);
 
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
-    .map(c => <SurveyQuestion component={c} patient={patient} key={c.id} errors={errors} />);
+    .map(c => (
+      <SurveyQuestion
+        component={c}
+        patient={patient}
+        key={c.id}
+        inputRef={setQuestionToRef(c.dataElementId)}
+      />
+    ));
 
   const validateAndStep = async () => {
     const formErrors = await validateForm();
@@ -49,6 +89,11 @@ export const SurveyScreen = ({
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();
+    } else {
+      const firstErroredQuestion = components.find(({ dataElementId }) =>
+        pageErrors.includes(dataElementId),
+      );
+      scrollToQuestion(firstErroredQuestion.dataElementId);
     }
   };
 

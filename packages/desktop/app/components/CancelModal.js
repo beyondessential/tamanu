@@ -19,40 +19,34 @@ const Wrapper = styled.div`
   margin: 0 auto 50px;
   max-width: 350px;
 `;
-
 const isReasonForDelete = reason => reason === 'duplicate' || reason === 'entered-in-error';
 
 export const CancelModal = React.memo(
-  ({ title, bodyText, onConfirm, options, helperText, open, onClose }) => {
-    return (
-      <>
-        <Modal width="sm" title={title} onClose={onClose} open={open}>
-          <Form
-            onSubmit={({ reasonForCancellation }) =>
-              onConfirm(reasonForCancellation, isReasonForDelete(reasonForCancellation))
-            }
-            initialValues={{}}
-            validationSchema={yup.object().shape({
-              reasonForCancellation: yup.string().required(),
-            })}
-            render={({ values, submitForm }) => (
-              <ModalBody>
-                <BodyText>{bodyText}</BodyText>
-                <Wrapper>
-                  <Field
-                    component={SelectField}
-                    label="Reason for cancellation"
-                    name="reasonForCancellation"
-                    options={options}
-                    helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}
-                  />
-                </Wrapper>
-                <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} cancelText="Close" />
-              </ModalBody>
-            )}
-          />
-        </Modal>
-      </>
-    );
-  },
+  ({ title, bodyText, onConfirm, options, helperText, open, onClose }) => (
+    <Modal width="sm" title={title} onClose={onClose} open={open}>
+      <Form
+        onSubmit={({ reasonForCancellation }) =>
+          onConfirm(reasonForCancellation, isReasonForDelete(reasonForCancellation))
+        }
+        validationSchema={yup.object().shape({
+          reasonForCancellation: yup.string().required(),
+        })}
+        render={({ values, submitForm }) => (
+          <ModalBody>
+            <BodyText>{bodyText}</BodyText>
+            <Wrapper>
+              <Field
+                component={SelectField}
+                label="Reason for cancellation"
+                name="reasonForCancellation"
+                options={options}
+                helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}
+              />
+            </Wrapper>
+            <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} cancelText="Close" />
+          </ModalBody>
+        )}
+      />
+    </Modal>
+  ),
 );

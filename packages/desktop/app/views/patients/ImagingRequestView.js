@@ -315,12 +315,14 @@ export const ImagingRequestView = () => {
 
   if (patient.loading) return <LoadingIndicator />;
 
-  const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+  const isCancellable =
+    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.CANCELLED &&
+    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
 
   return (
     <>
       <SimpleTopBar title="Imaging request">
-        {!isCancelled && (
+        {isCancellable && (
           <Button variant="text" onClick={() => setOpen(true)}>
             Cancel request
           </Button>

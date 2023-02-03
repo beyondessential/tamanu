@@ -13,23 +13,23 @@ import { theme } from '/styled/theme';
 import { CrossIcon } from '/components/Icons';
 import { RegisterAccountFormStep01 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep01';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { RegisterAccountFormStep1Props } from '../../../../contexts/RegisterAccountContext';
+import { RegisterAccountFormStep1FormValues } from '../../../../contexts/RegisterAccountContext';
 import { StepMarker } from '/components/StepMarker';
 import { UserIconContainer } from '../common';
 
 interface ScreenProps {
   navigateToIntro: () => void;
-  step1FormProps: RegisterAccountFormStep1Props;
+  step1FormValues: RegisterAccountFormStep1FormValues;
   iconSize: Animated.Value<number>;
   titleFont: Animated.Value<number>;
   iconContainerPosition: Animated.Value<number>;
-  onSubmitForm: (values: RegisterAccountFormStep1Props) => void;
+  onSubmitForm: (values: RegisterAccountFormStep1FormValues) => void;
 }
 
 export const Screen: FC<ScreenProps> = React.memo(
   ({
     navigateToIntro,
-    step1FormProps,
+    step1FormValues,
     iconSize,
     titleFont,
     onSubmitForm,
@@ -62,7 +62,7 @@ export const Screen: FC<ScreenProps> = React.memo(
         </CenterView>
         <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
           <RegisterAccountFormStep01
-            formState={step1FormProps}
+            formState={step1FormValues}
             onSubmit={onSubmitForm}
           />
         </KeyboardAvoidingView>

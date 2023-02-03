@@ -1,3 +1,5 @@
+const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
+
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
 }
@@ -27,11 +29,17 @@ function makeScreen(questions, componentData) {
       config: qConfig = '',
       calculation = '',
       row,
+      type,
+      visibilityStatus = '',
       ...elementData
     } = component;
 
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
+
+    const deletedAt = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
+      ? Date.now()
+      : null;
 
     return [
       {
@@ -40,6 +48,7 @@ function makeScreen(questions, componentData) {
         values: {
           id: dataElId,
           defaultOptions: '',
+          type,
           ...elementData,
         },
       },
@@ -58,7 +67,11 @@ function makeScreen(questions, componentData) {
           detail,
           config: qConfig,
           calculation,
+          // Type won't be attached to the survey screen component but
+          // different question types use different validation criteria
+          type,
           ...otherComponentData,
+          deletedAt,
         },
       },
     ];

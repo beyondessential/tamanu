@@ -88,6 +88,7 @@ const ResultsPane = React.memo(({ labRequest, patient, isReadOnly }) => {
         columns={sexAppropriateColumns}
         endpoint={`labRequest/${labRequest.id}/tests`}
         onRowClick={openModal}
+        initialSort={{ order: 'asc', orderBy: 'id' }}
       />
     </>
   );
