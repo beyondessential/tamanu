@@ -1,3 +1,4 @@
+import config from 'config'
 import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';
@@ -5,7 +6,6 @@ import 'jest-expect-message';
 import * as jestExtendedMatchers from 'jest-extended';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
-
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
@@ -127,8 +127,11 @@ export async function createTestContext() {
     const agent = supertest.agent(expressApp);
     const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
       expiresIn: '1d',
+      audience: 'Tamanu Mobile',
+      issuer: config.canonicalHostName,
     });
     agent.set('authorization', `Bearer ${token}`);
+    agent.set('X-Tamanu-Client', 'Tamanu Mobile');
     agent.user = user;
     return agent;
   };
