@@ -155,10 +155,8 @@ describe('Auth', () => {
 
       expect(loginResponse).toHaveSucceeded();
       const { token, refreshToken } = loginResponse.body;
-      // Make sure that Date.now used in signing new token is different from global mock date
-      // Otherwise the new token will appear the identical to the first
 
-      // Bump time forwards from mocked time
+      // Make sure that Date used in signing new token is different from global mock date
       const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
         baseApp.post('/v1/refresh').send({
           refreshToken,
@@ -184,6 +182,53 @@ describe('Auth', () => {
       expect(newTokenContents.jti).not.toEqual(oldTokenContents.jti);
       expect(newTokenContents.iat).toBeGreaterThan(oldTokenContents.iat);
       expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
+    });
+    it('Should return a rotated refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(loginResponse).toHaveSucceeded();
+      const { refreshToken, user } = loginResponse.body;
+
+      // Make sure that Date used in signing new token is different from global mock date
+      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+        baseApp.post('/v1/refresh').send({
+          refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        }),
+      );
+
+      expect(refreshResponse).toHaveSucceeded();
+      expect(refreshResponse.body).toHaveProperty('refreshToken');
+
+      const newRefreshTokenContents = jwt.decode(refreshResponse.body.refreshToken);
+      const oldRefreshTokenContents = jwt.decode(refreshToken);
+
+      expect(newRefreshTokenContents).toEqual({
+        aud: 'Tamanu Mobile',
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        refreshId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      expect(newRefreshTokenContents.jti).not.toEqual(oldRefreshTokenContents.jti);
+      expect(newRefreshTokenContents.iat).toBeGreaterThan(oldRefreshTokenContents.iat);
+      expect(newRefreshTokenContents.exp).toBeGreaterThan(oldRefreshTokenContents.exp);
+
+      const refreshTokenRecord = await store.models.RefreshToken.findOne({
+        where: { deviceId: TEST_DEVICE_ID, userId: user.id },
+      });
+      expect(refreshTokenRecord).not.toBeNull();
+      expect(refreshTokenRecord).toHaveProperty('refreshId');
+      expect(
+        bcrypt.compare(newRefreshTokenContents.refreshId, refreshTokenRecord.refreshId),
+      ).resolves.toBe(true);
     });
     it('Should reject invalid refresh token', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
