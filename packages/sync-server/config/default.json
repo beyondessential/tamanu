@@ -624,7 +624,8 @@
           "healthFacility": "State level"
         },
         "covidTestCertificate": {
-          "laboratoryName": "Approved test provider"
+          "laboratoryName": "Approved test provider",
+          "clearanceCertRemark": "This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue."
         },
         "plannedMoveTimeoutHours": 24
       },
