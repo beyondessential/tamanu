@@ -1,4 +1,6 @@
 import { Op, Transaction } from 'sequelize';
+import _config from 'config';
+
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
@@ -15,7 +17,8 @@ import {
   saveIncomingChanges,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
+import { uuidToFairlyUniqueInteger } from 'shared/utils';
+
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
@@ -27,9 +30,9 @@ const errorMessageFromSession = session =>
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
 
-export
-@injectConfig
-class CentralSyncManager {
+export class CentralSyncManager {
+  config = _config;
+
   currentSyncTick;
 
   store;
@@ -43,6 +46,14 @@ class CentralSyncManager {
       this.constructor.config.sync.lapsedSessionCheckFrequencySeconds * 1000,
     );
     ctx.onClose(this.close);
+  }
+
+  static overrideConfig(override) {
+    this.config = override;
+  }
+
+  static restoreConfig() {
+    this.config = _config.default;
   }
 
   close = () => clearInterval(this.purgeInterval);
