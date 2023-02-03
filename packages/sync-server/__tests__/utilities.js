@@ -119,7 +119,9 @@ export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
-  const baseApp = supertest(appServer);
+  const baseApp = supertest.agent(appServer);
+
+  baseApp.set('X-Tamanu-Client', 'Tamanu Mobile');
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);

@@ -45,14 +45,11 @@ describe('Auth', () => {
 
   describe('Logging in', () => {
     it('Should get a valid access token for correct credentials', async () => {
-      const response = await baseApp
-        .post('/v1/login')
-        .set('X-Tamanu-Client', 'Tamanu Mobile')
-        .send({
-          email: TEST_EMAIL,
-          password: TEST_PASSWORD,
-          deviceId: TEST_DEVICE_ID,
-        });
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('token');
@@ -69,14 +66,11 @@ describe('Auth', () => {
     });
 
     it('Should issue a refresh token and save hashed refreshId to the database', async () => {
-      const response = await baseApp
-        .post('/v1/login')
-        .set('X-Tamanu-Client', 'Tamanu Mobile')
-        .send({
-          email: TEST_EMAIL,
-          password: TEST_PASSWORD,
-          deviceId: TEST_DEVICE_ID,
-        });
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('refreshToken');
 
@@ -103,14 +97,11 @@ describe('Auth', () => {
     });
 
     it('Should respond with user details with correct credentials', async () => {
-      const response = await baseApp
-        .post('/v1/login')
-        .set('X-Tamanu-Client', 'Tamanu Mobile')
-        .send({
-          email: TEST_EMAIL,
-          password: TEST_PASSWORD,
-          deviceId: TEST_DEVICE_ID,
-        });
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('user.id');
@@ -125,6 +116,7 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
 
       expect(response).toHaveSucceeded();
@@ -138,6 +130,7 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: '',
+        deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
     });
@@ -146,6 +139,7 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: 'not the password',
+        deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
     });
@@ -156,6 +150,7 @@ describe('Auth', () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
       const originalExpiresAt = loginResponse.body.expiresAt;
       const originalToken = loginResponse.body.token;
@@ -185,6 +180,7 @@ describe('Auth', () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
       expect(loginResponse).toHaveSucceeded();
 
@@ -205,6 +201,7 @@ describe('Auth', () => {
     const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
     });
 
     expect(response).toHaveSucceeded();
@@ -224,6 +221,7 @@ describe('Auth', () => {
     const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
     });
 
     expect(response).toHaveSucceeded();
