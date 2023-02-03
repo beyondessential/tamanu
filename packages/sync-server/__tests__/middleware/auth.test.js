@@ -1,8 +1,8 @@
 import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
-import { createTestContext } from '../utilities';
 import jwt from 'jsonwebtoken';
 import config from 'config';
+import { createTestContext } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
@@ -68,18 +68,38 @@ describe('Auth', () => {
       });
     });
 
-    it('Should issue a refresh token and save it to the database', async () => {
-      const response = await baseApp.post('/v1/login').send({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      });
+    it('Should issue a refresh token and save hashed refreshId to the database', async () => {
+      const response = await baseApp
+        .post('/v1/login')
+        .set('X-Tamanu-Client', 'Tamanu Mobile')
+        .send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+          deviceId: TEST_DEVICE_ID,
+        });
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('refreshToken');
-      const { refreshToken } = response.body;
-      const refreshTokenRecord = await store.models.RefreshToken.findOne({
-        where: { token: refreshToken },
+
+      const { refreshToken, user } = response.body;
+
+      const contents = jwt.decode(refreshToken);
+
+      expect(contents).toEqual({
+        aud: 'Tamanu Mobile',
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        refreshId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
       });
-      expect(refreshTokenRecord).toHaveProperty('token', refreshToken);
+
+      const refreshTokenRecord = await store.models.RefreshToken.findOne({
+        where: { deviceId: TEST_DEVICE_ID, userId: user.id },
+      });
+      expect(refreshTokenRecord).not.toBeNull();
+      expect(refreshTokenRecord).toHaveProperty('refreshId');
+      expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(true);
     });
 
     it('Should respond with user details with correct credentials', async () => {
