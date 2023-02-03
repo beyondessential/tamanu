@@ -21,7 +21,7 @@ notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone :timezone_string
+        'noteDate', ni."date"::timestamp at time zone $timezone_string
       ) 
     ) aggregated_notes
   from note_pages np
@@ -64,7 +64,7 @@ procedure_info as (
       json_build_object(
         'name', proc.name,
         'code', proc.code,
-        'date', date::timestamp at time zone :timezone_string,
+        'date', date::timestamp at time zone $timezone_string,
         'location', loc.name,
         'notes', p.note,
         'completedNotes', completed_note
@@ -158,7 +158,7 @@ encounter_notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone :timezone_string
+        'noteDate', ni."date"::timestamp at time zone $timezone_string
       ) order by ni.date desc
     ) "Notes"
   from note_pages np
@@ -193,17 +193,17 @@ department_info as (
     case when count("from") = 0
       then json_build_array(json_build_object(
         'department', d.name,
-        'assignedTime', e.start_date::timestamp at time zone :timezone_string
+        'assignedTime', e.start_date::timestamp at time zone $timezone_string
       ))
       else 
         array_to_json(json_build_object(
           'department', first_from, --first "from" from note
-          'assignedTime', e.start_date::timestamp at time zone :timezone_string
+          'assignedTime', e.start_date::timestamp at time zone $timezone_string
         ) ||
         array_agg(
           json_build_object(
             'department', "to",
-            'assignedTime', nh.date::timestamp at time zone :timezone_string
+            'assignedTime', nh.date::timestamp at time zone $timezone_string
           ) ORDER BY nh.date
         ))
     end department_history
@@ -230,17 +230,17 @@ location_info as (
     case when count("from") = 0
       then json_build_array(json_build_object(
         'location', coalesce(lg.name || ', ', '' ) || l.name,
-        'assignedTime', e.start_date::timestamp at time zone :timezone_string
+        'assignedTime', e.start_date::timestamp at time zone $timezone_string
       ))
       else 
         array_to_json(json_build_object(
           'location', first_from, --first "from" from note
-          'assignedTime', e.start_date::timestamp at time zone :timezone_string
+          'assignedTime', e.start_date::timestamp at time zone $timezone_string
         ) ||
         array_agg(
           json_build_object(
             'location', "to",
-            'assignedTime', nh.date::timestamp at time zone :timezone_string
+            'assignedTime', nh.date::timestamp at time zone $timezone_string
           ) ORDER BY nh.date
         ))
     end location_history
@@ -304,8 +304,8 @@ extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
 billing.name "patientBillingType",
 e.id "encounterId",
-e.start_date::timestamp at time zone :timezone_string "encounterStartDate",
-e.end_date::timestamp at time zone :timezone_string "encounterEndDate",
+e.start_date::timestamp at time zone $timezone_string "encounterStartDate",
+e.end_date::timestamp at time zone $timezone_string "encounterEndDate",
 case e.encounter_type
   when 'admission' then 'AR-DRG'
   when 'imaging' then 'AR-DRG'
@@ -363,10 +363,10 @@ left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 
 WHERE true
   AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')  
-  AND (e.start_date::timestamp at time zone :timezone_string) >= $from_date::timestamptz
-  AND (e.start_date::timestamp at time zone :timezone_string) <= $to_date::timestamptz
-  AND CASE WHEN ($input_encounter_ids) IS NOT NULL
-    THEN e.id in ($input_encounter_ids)
+  AND (e.start_date::timestamp at time zone $timezone_string) >= $from_date::timestamptz
+  AND (e.start_date::timestamp at time zone $timezone_string) <= $to_date::timestamptz
+  AND CASE WHEN coalesce(array_length($input_encounter_ids::varchar[], 1), 0) != 0
+    THEN e.id = ANY(SELECT unnest($input_encounter_ids::varchar[]))
   ELSE
     true
   END
@@ -405,12 +405,10 @@ routes.get(
       bind: {
         from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
         to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
-        input_encounter_ids: encounters ? encounters.split(',') : null,
+        input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
         limit: limit ?? null, // Limit of null means no limit
         offset, // Should still be able to offset even with no limit
-      },
-      replacements: {
         timezone_string: COUNTRY_TIMEZONE,
       },
     });
