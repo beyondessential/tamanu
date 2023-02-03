@@ -97,7 +97,7 @@ const columns = {
     {
       key: 'encounterType',
       title: 'Type',
-      accessor: ({ encounterType }) => 'TEST DATA' || {},
+      accessor: ({ to }) => to.charAt(0).toUpperCase() + to.slice(1) || {},
       style: { width: '70%' },
     },
     {
@@ -269,7 +269,7 @@ export const EncounterRecord = React.memo(
     patient,
     encounter,
     certificateData,
-    encounterTypes,
+    encounterTypeHistory,
     locationHistory,
     labRequests,
     imagingRequests,
@@ -346,10 +346,10 @@ export const EncounterRecord = React.memo(
           </div>
         </RowContainer>
 
-        {encounterTypes.length > 0 ? (
+        {encounterTypeHistory.length > 0 ? (
           <>
             <TableHeading>Encounter Types</TableHeading>
-            <CompactListTable data={encounterTypes} columns={columns.encounterTypes} />
+            <CompactListTable data={encounterTypeHistory} columns={columns.encounterTypes} />
           </>
         ) : (
           <></>

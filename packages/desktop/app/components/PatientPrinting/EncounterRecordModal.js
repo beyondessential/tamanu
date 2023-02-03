@@ -14,6 +14,51 @@ import { usePatientAdditionalData } from '../../api/queries/usePatientAdditional
 import { LoadingIndicator } from '../LoadingIndicator';
 import { Colors } from '../../constants';
 
+const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
+const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
+
+// TODO this is missing the current location and encounter Type
+const extractNoteData = (notes, encounterData, matcher) => {
+  if (notes.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
+    const {
+      groups: { from },
+    } = notes[0].noteItems[0].content.match(matcher);
+
+    const history = [
+      {
+        to: from,
+        date: encounterData.startDate,
+      },
+      ...notes[0]?.noteItems.map(({ content, date }) => {
+        const {
+          groups: { to },
+        } = content.match(matcher);
+        return { to, date };
+      }),
+    ];
+    return history;
+  }
+  // TODO this only applies to location
+  if (matcher === locationNoteMatcher) {
+    return [
+      {
+        to: `${encounterData.location.locationGroup.name}, ${encounterData.location.name}`,
+        date: encounterData.startDate,
+      },
+    ];
+  }
+  if (matcher === encounterTypeNoteMatcher) {
+    return [
+      {
+        to: encounterData.encounterType,
+        date: encounterData.startDate,
+      },
+    ];
+  }
+
+  return [];
+};
+
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const certificateData = useCertificate();
 
@@ -72,57 +117,24 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const filteredNotes = notes?.filter(note => {
     return note.noteType !== 'system';
   });
-
   const systemNotes = notes?.filter(note => {
     return note.noteType === 'system';
   });
 
-  // TODO NEED TO TURN NOTES INTO USABLE OBJECTS
-  const getPlaceHistoryFromNotes = (locationNotes, encounterData) => {
-    if (locationNotes.length > 0 && locationNotes[0].noteItems[0].content.match(matcher)) {
-      const {
-        groups: { from },
-      } = locationNotes[0].noteItems[0].content.match(matcher);
-
-      const history = [
-        {
-          to: from,
-          date: encounterData.startDate,
-        },
-        ...locationNotes[0]?.noteItems.map(({ content, date }) => {
-          const {
-            groups: { to },
-          } = content.match(matcher);
-          return { to, date };
-        }),
-      ];
-      return history;
-    }
-
-    return [
-      {
-        to: `${encounterData.location.locationGroup.name}, ${encounterData.location.name}`,
-        date: encounterData.startDate,
-      },
-    ];
-  };
-
-  const matcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
-
+  // TODO MISSING THE FIRST ENRTY OF THESE TABLES
   const locationSystemNotes = systemNotes?.filter(note => {
-    return note.noteItems[0].content.match(matcher);
+    return note.noteItems[0].content.match(locationNoteMatcher);
   });
-
   const locationHistory = locationSystemNotes
-    ? getPlaceHistoryFromNotes(locationSystemNotes, encounter)
+    ? extractNoteData(locationSystemNotes, encounter, locationNoteMatcher)
     : [];
 
-  const encounterTypes = systemNotes?.map(note => {
-    return {
-      encounterType: note.noteItems[0].content,
-      date: note.date,
-    };
+  const encounterTypeSystemNotes = systemNotes?.filter(note => {
+    return note.noteItems[0].content.match(encounterTypeNoteMatcher);
   });
+  const encounterTypeHistory = encounterTypeSystemNotes
+    ? extractNoteData(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
+    : [];
 
   return (
     <Modal
@@ -140,7 +152,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           patient={patient}
           encounter={encounter}
           certificateData={certificateData}
-          encounterTypes={encounterTypes}
+          encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
           labRequests={updatedLabRequests}
           imagingRequests={imagingRequests}
