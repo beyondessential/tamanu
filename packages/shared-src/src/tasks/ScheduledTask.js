@@ -33,7 +33,7 @@ export class ScheduledTask {
     return null;
   }
 
-  async runImmediately() {    
+  async runImmediately() {
     async function inner(name, span) {
       for (const subtask of this.subtasks) {
         const outcome = await subtask.runImmediately();
@@ -91,19 +91,19 @@ export class ScheduledTask {
 
         const durationMs = Date.now() - this.start;
         this.log.info(`ScheduledTask: ${name}: Succeeded`, { id: runId, durationMs });
-        
+
         span.addEvent('success');
         span.setStatus({ code: SpanStatusCode.OK });
-        
+
         return true;
       } catch (e) {
         const durationMs = Date.now() - this.start;
         this.log.error(`ScheduledTask: ${name}: Failed`, { id: runId, durationMs });
         this.log.error(e.stack);
-        
+
         span.recordException(e);
         span.setStatus({ code: SpanStatusCode.ERROR });
-        
+
         return false;
       } finally {
         this.start = null;

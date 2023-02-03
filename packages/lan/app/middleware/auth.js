@@ -189,10 +189,7 @@ export const authMiddleware = async (req, res, next) => {
 
     trace.getActiveSpan()?.setAttributes(spanAttributes);
     context.with(
-      propagation.setBaggage(
-        context.active(),
-        propagation.createBaggage(spanAttributes),
-      ),
+      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
       () => next(),
     );
   } catch (e) {

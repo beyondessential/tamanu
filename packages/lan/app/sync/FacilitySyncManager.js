@@ -11,6 +11,7 @@ import {
   waitForPendingEditsUsingSyncTick,
 } from 'shared/sync';
 
+import { spanWrapFn } from 'shared/services/logging/honeycomb';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';

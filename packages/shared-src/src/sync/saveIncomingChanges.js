@@ -106,10 +106,10 @@ const saveChangesForModelInBatches = async (
     model.tableName,
   );
   log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
-  
+
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
   span.addEvent('recordCount', { count: syncRecordsCount, batchCount });
-  
+
   let fromId;
 
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
