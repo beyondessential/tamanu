@@ -263,6 +263,22 @@ describe('Auth', () => {
         });
       expect(refreshResponse).toHaveRequestError();
     });
+    it('Should fail if refresh token requested from different device', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const { refreshToken } = loginResponse.body;
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken,
+        deviceId: 'different-device',
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
   });
 
   describe('User management', () => {
