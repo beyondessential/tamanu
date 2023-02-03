@@ -407,6 +407,7 @@ describe('fijiAspenMediciReport', () => {
         // Note that seconds is the highest level of precision - so the milliseconds are truncated
         encounterStartDate: '2022-06-09T00:02:54.000Z',
         encounterEndDate: '2022-06-12T00:02:54.000Z',
+        dischargeDate: '2022-06-12T00:02:54.000Z',
         encounterType: 'AR-DRG',
         reasonForEncounter: 'Severe Migrane',
 

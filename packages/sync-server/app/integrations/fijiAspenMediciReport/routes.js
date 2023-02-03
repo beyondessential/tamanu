@@ -306,6 +306,7 @@ billing.name "patientBillingType",
 e.id "encounterId",
 e.start_date::timestamp at time zone $timezone_string "encounterStartDate",
 e.end_date::timestamp at time zone $timezone_string "encounterEndDate",
+e.end_date::timestamp at time zone $timezone_string "dischargeDate",
 case e.encounter_type
   when 'admission' then 'AR-DRG'
   when 'imaging' then 'AR-DRG'
