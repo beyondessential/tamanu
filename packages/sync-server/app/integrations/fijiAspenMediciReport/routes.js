@@ -13,6 +13,7 @@ const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
 const reportQuery = `
 with
+
 notes_info as (
   select
     record_id,
@@ -27,6 +28,7 @@ notes_info as (
   join note_items ni on ni.note_page_id = np.id
   group by record_id
 ),
+
 lab_test_info as (
   select 
     lab_request_id,
@@ -39,6 +41,7 @@ lab_test_info as (
   left join lab_test_types ltt on ltt.id = lt.lab_test_type_id
   group by lab_request_id 
 ),
+
 lab_request_info as (
   select 
     encounter_id,
@@ -53,6 +56,7 @@ lab_request_info as (
   left join notes_info ni on ni.record_id = lr.id
   group by encounter_id
 ),
+
 procedure_info as (
   select
     encounter_id,
@@ -71,6 +75,7 @@ procedure_info as (
   left join locations loc on loc.id = location_id
   group by encounter_id 
 ),
+
 medications_info as (
   select
     encounter_id,
@@ -86,6 +91,7 @@ medications_info as (
   join reference_data medication on medication.id = em.medication_id
   group by encounter_id
 ),
+
 diagnosis_info as (
   select
     encounter_id,
@@ -102,6 +108,7 @@ diagnosis_info as (
   where certainty not in ('disproven', 'error')
   group by encounter_id
 ),
+
 vaccine_info as (
   select
     encounter_id,
@@ -117,6 +124,7 @@ vaccine_info as (
   join reference_data drug on drug.id = sv.vaccine_id 
   group by encounter_id
 ),
+
 imaging_areas_by_request as (
   select
     imaging_request_id,
@@ -125,6 +133,7 @@ imaging_areas_by_request as (
   left join reference_data area on area.id =  ira.area_id
   group by imaging_request_id
 ),
+
 imaging_info as (
   select
     ir.encounter_id,
@@ -140,8 +149,9 @@ imaging_info as (
   left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
   group by encounter_id
 ),
-encounter_notes_info as (
+
 -- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
+encounter_notes_info as (
   select
     record_id encounter_id,
     json_agg(
@@ -156,6 +166,7 @@ encounter_notes_info as (
   where note_type != 'system'
   group by record_id
 ),
+
 note_history as (
   select
     record_id encounter_id,
@@ -175,6 +186,7 @@ note_history as (
   where note_type = 'system'
   and ni.content ~ 'Changed (.*) from (.*) to (.*)'
 ),
+
 department_info as (
   select 
     e.id encounter_id,
@@ -211,6 +223,7 @@ department_info as (
   on e.id = first_from.enc_id
   group by e.id, d.name, e.start_date, first_from
 ),
+
 location_info as (
   select 
     e.id encounter_id,
@@ -248,6 +261,7 @@ location_info as (
   on e.id = first_from.enc_id
   group by e.id, l.name, lg.name, e.start_date, first_from
 ),
+
 triage_info as (
   select
     encounter_id,
@@ -263,6 +277,7 @@ triage_info as (
   lateral (select floor(total_minutes / 60) hours) hours,
   lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
 ),
+
 discharge_disposition_info as (
   select
     encounter_id,
@@ -279,7 +294,8 @@ discharge_disposition_info as (
         LIMIT 1)
   join reference_data disposition on disposition.id = d.disposition_id
 )
-select
+
+SELECT
 p.display_id "patientId",
 p.first_name "firstname",
 p.last_name "lastname",
@@ -327,6 +343,7 @@ pi."Procedures" as "procedures",
 lri."Lab requests" "labRequests",
 ii."Imaging requests" "imagingRequests",
 ni."Notes" notes
+
 from patients p
 join encounters e on e.patient_id = p.id
 left join reference_data billing on billing.id = e.patient_billing_type_id
@@ -343,12 +360,30 @@ left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
-where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) >= :from_date::timestamptz ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) <= :to_date::timestamptz ELSE true END
-AND CASE WHEN (:input_encounter_ids) IS NOT NULL THEN e.id in (:input_encounter_ids) ELSE true END
-order by e.start_date desc
-limit :limit offset :offset;
+
+WHERE true
+  AND coalesce(billing.id, '-') LIKE coalesce(:billing_type, '%%')
+  AND CASE
+    WHEN :from_date IS NOT NULL
+      THEN (e.start_date::timestamp at time zone :timezone_string) >= :from_date::timestamptz
+    ELSE
+      true
+  END
+  AND CASE
+    WHEN :to_date IS NOT NULL
+      THEN (e.start_date::timestamp at time zone :timezone_string) <= :to_date::timestamptz
+    ELSE
+      true
+  END
+  AND CASE
+    WHEN (:input_encounter_ids) IS NOT NULL
+      THEN e.id in (:input_encounter_ids)
+    ELSE
+      true
+    END
+
+ORDER BY e.start_date DESC
+LIMIT :limit OFFSET :offset;
 `;
 
 const parseDateParam = date => {
