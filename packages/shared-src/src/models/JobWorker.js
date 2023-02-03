@@ -30,7 +30,8 @@ export class JobWorker extends Model {
       type: QueryTypes.SELECT,
       bind: { metadata },
     });
-    return workerId;
+
+    return JobWorker.findByPk(workerId);
   }
  
   static async clearDead() {
