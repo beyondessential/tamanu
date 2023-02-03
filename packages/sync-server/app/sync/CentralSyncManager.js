@@ -31,7 +31,15 @@ const errorMessageFromSession = session =>
 // changes in the database when a sync fails on the facility server end
 
 export class CentralSyncManager {
-  config = _config;
+  static config = _config;
+
+  static overrideConfig(override) {
+    this.config = override;
+  }
+
+  static restoreConfig() {
+    this.config = _config;
+  }
 
   currentSyncTick;
 
@@ -46,14 +54,6 @@ export class CentralSyncManager {
       this.constructor.config.sync.lapsedSessionCheckFrequencySeconds * 1000,
     );
     ctx.onClose(this.close);
-  }
-
-  static overrideConfig(override) {
-    this.config = override;
-  }
-
-  static restoreConfig() {
-    this.config = _config.default;
   }
 
   close = () => clearInterval(this.purgeInterval);

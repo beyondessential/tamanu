@@ -15,7 +15,15 @@ import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
 export class FacilitySyncManager {
-  config = _config;
+  static config = _config;
+
+  static overrideConfig(override) {
+    this.config = override;
+  }
+
+  static restoreConfig() {
+    this.config = _config;
+  }
 
   models = null;
 
@@ -29,14 +37,6 @@ export class FacilitySyncManager {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
-  }
-
-  static overrideConfig(override) {
-    this.config = override;
-  }
-
-  static restoreConfig() {
-    this.config = _config.default;
   }
 
   async triggerSync() {
