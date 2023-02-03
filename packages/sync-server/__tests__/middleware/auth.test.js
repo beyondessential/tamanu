@@ -1,9 +1,12 @@
 import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
 import { createTestContext } from '../utilities';
+import jwt from 'jsonwebtoken';
+import config from 'config';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
+const TEST_DEVICE_ID = 'test-device-id';
 const TEST_FACILITY = {
   id: 'testfacilityid',
   code: 'testfacilitycode',
@@ -41,15 +44,28 @@ describe('Auth', () => {
   afterAll(async () => close());
 
   describe('Logging in', () => {
-    it('Should get an access token with expiresAt for correct credentials', async () => {
-      const response = await baseApp.post('/v1/login').send({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      });
+    it('Should get a valid access token for correct credentials', async () => {
+      const response = await baseApp
+        .post('/v1/login')
+        .set('X-Tamanu-Client', 'Tamanu Mobile')
+        .send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+          deviceId: TEST_DEVICE_ID,
+        });
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('token');
-      expect(response.body).toHaveProperty('expiresAt');
+      const contents = jwt.decode(response.body.token);
+
+      expect(contents).toEqual({
+        aud: 'Tamanu Mobile',
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
     });
 
     it('Should issue a refresh token and save it to the database', async () => {
