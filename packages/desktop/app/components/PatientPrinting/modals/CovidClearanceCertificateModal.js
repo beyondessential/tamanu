@@ -10,7 +10,7 @@ import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalData } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../reusable/PDFViewer';
+import { PDFViewer, printPDF } from '../PDFViewer';
 
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);

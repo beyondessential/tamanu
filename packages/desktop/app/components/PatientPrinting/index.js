@@ -7,6 +7,5 @@ export * from './modals/ImmunisationCertificateModal';
 
 export * from './printouts/LabRequestPrintout';
 export * from './printouts/ImagingRequestPrintout';
-
 export { PrintLetterhead } from './printouts/reusable/PrintLetterhead';
-export { PrintPortal } from './printouts/reusable/PrintPortal';
+export { PrintPortal } from './PrintPortal';

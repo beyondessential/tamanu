@@ -10,7 +10,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalData } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../reusable/PDFViewer';
+import { PDFViewer, printPDF } from '../PDFViewer';
 
 export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
