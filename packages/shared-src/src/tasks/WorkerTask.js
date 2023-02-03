@@ -2,7 +2,7 @@ import { ScheduledTask } from './ScheduledTask';
 import { log } from '../services/logging';
 
 export class WorkerTask extends ScheduledTask {
-  constructor(context, topic, workerId, schedule, maxConcurrency = 1) {
+  constructor(context, topic, workerId, schedule, maxConcurrency) {
     super(schedule, log);
     this.models = context.models;
     this.sequelize = context.sequelize;
