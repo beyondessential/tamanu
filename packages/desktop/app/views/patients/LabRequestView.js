@@ -242,12 +242,19 @@ const LabRequestCancelModal = ({ open, onClose, updateLabReq, labRequestId }) =>
   const { getLocalisation } = useLocalisation();
   const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
 
-  const onConfirmCancel = async (reason, isReasonForDelete) => {
-    const reasonText = cancellationReasonOptions.find(x => x.value === reason)?.label;
+  const onConfirmCancel = async ({ reasonForCancellation }) => {
+    const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation)
+      ?.label;
     const note = `Request cancelled. Reason: ${reasonText}.`;
-    const status = isReasonForDelete
-      ? LAB_REQUEST_STATUSES.DELETED
-      : LAB_REQUEST_STATUSES.CANCELLED;
+
+    let status;
+    if (reasonForCancellation === 'duplicate') {
+      status = LAB_REQUEST_STATUSES.DELETED;
+    } else if (reasonForCancellation === 'entered-in-error') {
+      status = LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
+    } else {
+      status = LAB_REQUEST_STATUSES.CANCELLED;
+    }
 
     await api.post(`labRequest/${labRequestId}/notes`, {
       content: note,
@@ -406,6 +413,7 @@ export const LabRequestView = () => {
 
   const isReadOnly =
     labRequest.status === LAB_REQUEST_STATUSES.CANCELLED ||
+    labRequest.status === LAB_REQUEST_STATUSES.ENTERED_IN_ERROR ||
     labRequest.status === LAB_REQUEST_STATUSES.DELETED;
 
   return (

@@ -296,12 +296,19 @@ export const ImagingRequestView = () => {
     );
   };
 
-  const onConfirmCancel = async (reason, isReasonForDelete) => {
-    const reasonText = cancellationReasonOptions.find(x => x.value === reason).label;
+  const onConfirmCancel = async ({ reasonForCancellation }) => {
+    const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
     const note = `Request cancelled. Reason: ${reasonText}`;
-    const status = isReasonForDelete
-      ? IMAGING_REQUEST_STATUS_TYPES.DELETED
-      : IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+
+    let status;
+    if (reasonForCancellation === 'duplicate') {
+      status = IMAGING_REQUEST_STATUS_TYPES.DELETED;
+    } else if (reasonForCancellation === 'entered-in-error') {
+      status = IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR;
+    } else {
+      status = IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    }
+
     await api.put(`imagingRequest/${imagingRequest.id}`, {
       status,
       note,
@@ -317,6 +324,7 @@ export const ImagingRequestView = () => {
 
   const isCancellable =
     imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.CANCELLED &&
+    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR &&
     imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
 
   return (

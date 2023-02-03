@@ -46,6 +46,11 @@ export const LAB_REQUEST_STATUS_CONFIG = {
     color: '#444444;',
     background: '#EDEDED',
   },
+  [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
+    label: 'Deleted',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
   unknown: {
     label: 'Unknown',
     color: '#444444;',
@@ -54,7 +59,11 @@ export const LAB_REQUEST_STATUS_CONFIG = {
 };
 
 export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
-  .filter(status => status !== LAB_REQUEST_STATUSES.DELETED)
+  .filter(
+    x =>
+      x !== IMAGING_REQUEST_STATUS_TYPES.DELETED &&
+      x !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+  )
   .map(s => ({
     label: LAB_REQUEST_STATUS_CONFIG[s].label,
     value: s,

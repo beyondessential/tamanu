@@ -25,9 +25,7 @@ export const CancelModal = React.memo(
   ({ title, bodyText, onConfirm, options, helperText, open, onClose }) => (
     <Modal width="sm" title={title} onClose={onClose} open={open}>
       <Form
-        onSubmit={({ reasonForCancellation }) =>
-          onConfirm(reasonForCancellation, isReasonForDelete(reasonForCancellation))
-        }
+        onSubmit={onConfirm}
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required(),
         })}

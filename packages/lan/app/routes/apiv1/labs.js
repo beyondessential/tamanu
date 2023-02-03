@@ -74,6 +74,9 @@ labRequest.get(
       makeFilter(true, 'lab_requests.status != :deleted', () => ({
         deleted: LAB_REQUEST_STATUSES.DELETED,
       })),
+      makeFilter(true, 'lab_requests.status != :deleted', () => ({
+        deleted: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+      })),
       makeSimpleTextFilter('status', 'lab_requests.status'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
       makeSimpleTextFilter('category', 'category.name'),

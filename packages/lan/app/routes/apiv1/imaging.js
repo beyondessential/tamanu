@@ -388,7 +388,12 @@ globalImagingRequests.get(
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: {
         ...imagingRequestFilters,
-        status: { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
+        status: {
+          [Op.and]: {
+            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+          },
+        },
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, encounter, areas],
@@ -401,9 +406,7 @@ globalImagingRequests.get(
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows
-      .map(x => x.get({ plain: true }))
-      .filter(x => x.status !== IMAGING_REQUEST_STATUS_TYPES.DELETED);
+    const data = rows.map(x => x.get({ plain: true }));
     res.send({
       count,
       data,

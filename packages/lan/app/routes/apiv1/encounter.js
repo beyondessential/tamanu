@@ -127,7 +127,10 @@ encounterRelations.get(
   getLabRequestList('encounterId', {
     additionalFilters: {
       status: {
-        [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+        [Op.and]: {
+          [Op.ne]: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+          [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+        },
       },
     },
   }),
@@ -142,7 +145,10 @@ encounterRelations.get(
   simpleGetList('ImagingRequest', 'encounterId', {
     additionalFilters: {
       status: {
-        [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        [Op.and]: {
+          [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+          [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        },
       },
     },
   }),
