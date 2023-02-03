@@ -123,7 +123,9 @@ export async function createTestContext() {
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await getToken(user, DEFAULT_JWT_SECRET, '1d');
+    const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
+      expiresIn: '1d',
+    });
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;

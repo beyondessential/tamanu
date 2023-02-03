@@ -103,10 +103,14 @@ describe('Auth', () => {
     });
 
     it('Should respond with user details with correct credentials', async () => {
-      const response = await baseApp.post('/v1/login').send({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      });
+      const response = await baseApp
+        .post('/v1/login')
+        .set('X-Tamanu-Client', 'Tamanu Mobile')
+        .send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+          deviceId: TEST_DEVICE_ID,
+        });
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('user.id');
