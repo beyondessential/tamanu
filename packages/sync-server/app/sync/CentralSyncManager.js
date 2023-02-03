@@ -96,7 +96,7 @@ export class CentralSyncManager {
       { startedAtTick: tick },
       { where: { id: syncSession.id } },
     );
-    trace.getActiveSpan().setAttributes({
+    trace.getActiveSpan()?.setAttributes({
       'app.sync.sessionId': syncSession.id,
       'app.sync.tick': tick,
     });
@@ -117,7 +117,7 @@ export class CentralSyncManager {
     }
     await session.update({ lastConnectionTime: Date.now() });
 
-    trace.getActiveSpan().setAttributes({
+    trace.getActiveSpan()?.setAttributes({
       'app.sync.sessionId': sessionId,
     });
 

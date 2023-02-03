@@ -51,7 +51,7 @@ export const userMiddleware = ({ secret }) =>
       'app.user.role': req.user.role,
     };
 
-    trace.getActiveSpan().setAttributes(spanAttributes);
+    trace.getActiveSpan()?.setAttributes(spanAttributes);
     context.with(
       propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
       () => next(),

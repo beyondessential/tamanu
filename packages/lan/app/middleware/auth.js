@@ -187,7 +187,7 @@ export const authMiddleware = async (req, res, next) => {
       'enduser.role': req.user.role,
     };
 
-    trace.getActiveSpan().setAttributes(spanAttributes);
+    trace.getActiveSpan()?.setAttributes(spanAttributes);
     context.with(
       propagation.setBaggage(
         context.active(),
