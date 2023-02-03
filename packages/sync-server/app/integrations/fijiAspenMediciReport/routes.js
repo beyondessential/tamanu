@@ -362,25 +362,14 @@ left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 
 WHERE true
-  AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')
-  AND CASE
-    WHEN $from_date IS NOT NULL
-      THEN (e.start_date::timestamp at time zone :timezone_string) >= $from_date::timestamptz
-    ELSE
-      true
+  AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')  
+  AND (e.start_date::timestamp at time zone :timezone_string) >= $from_date::timestamptz
+  AND (e.start_date::timestamp at time zone :timezone_string) <= $to_date::timestamptz
+  AND CASE WHEN ($input_encounter_ids) IS NOT NULL
+    THEN e.id in ($input_encounter_ids)
+  ELSE
+    true
   END
-  AND CASE
-    WHEN $to_date IS NOT NULL
-      THEN (e.start_date::timestamp at time zone :timezone_string) <= $to_date::timestamptz
-    ELSE
-      true
-  END
-  AND CASE
-    WHEN ($input_encounter_ids) IS NOT NULL
-      THEN e.id in ($input_encounter_ids)
-    ELSE
-      true
-    END
 
 ORDER BY e.start_date DESC
 LIMIT $limit OFFSET $offset;
