@@ -332,15 +332,15 @@ describe('fijiAspenMediciReport', () => {
     it.each([
       // [ expectedResults, period.start, period.end ]
       [1, '2022-06-09', '2022-10-09'],
-      [0, '2022-06-10', '2022-10-09'],
-      [0, '2022-06-09T00:02:53-02:00', '2022-10-09'],
-      [1, '2022-06-09T00:02:53Z', '2022-10-09'],
-      [0, '2022-06-09T00:02:55Z', '2022-10-09'],
-      [1, '2022-06-09T00:02:55+01:00', '2022-10-09'],
-      [0, '2022-06-09T00:02:53-01:00', '2022-10-09'],
-      // Dates/times inputted without timezone will be server timezone
-      [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 55).replace(' ', 'T'), '2023'],
-      [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 53).replace(' ', 'T'), '2023'],
+      [0, '2022-06-15', '2022-10-09'],
+      [0, '2022-06-12T00:02:53-02:00', '2022-10-09'],
+      [1, '2022-06-12T00:02:53Z', '2022-10-09'],
+      [0, '2022-06-12T00:02:55Z', '2022-10-09'],
+      [1, '2022-06-12T00:02:55+01:00', '2022-10-09'],
+      [0, '2022-06-12T00:02:53-01:00', '2022-10-09'],
+      // Dates/times input without timezone will be server timezone
+      [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'), '2023'],
+      [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'), '2023'],
     ])(
       'Date filtering: Should return %p result(s) between %p and %s',
       async (expectedResults, start, end) => {
