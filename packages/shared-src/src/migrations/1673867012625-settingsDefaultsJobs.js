@@ -3,6 +3,8 @@ import config from 'config';
 const DEFAULT_SETTINGS = {
   'jobs.worker.hearbeat': '1 minute',
   'jobs.worker.assumeDroppedAfter': '10 minutes',
+  'jobs.topics.default.schedule': '* * * * *', // once a minute
+  'jobs.topics.default.maxConcurrency': 10,
 };
 
 export async function up(query) {
