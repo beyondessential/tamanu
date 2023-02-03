@@ -176,7 +176,7 @@ class CentralSyncManager {
       );
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-      const { syncAllLabRequests } = await models.Setting.forFacility(facilityId);
+      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile

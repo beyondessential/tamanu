@@ -106,10 +106,6 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async forFacility(facilityId) {
-    return this.get('', facilityId);
-  }
-
   static async set(key, value, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
