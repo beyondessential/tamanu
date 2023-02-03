@@ -290,8 +290,43 @@ class CentralSyncManager {
     );
   }
 
-  async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }, tablesToInclude) {
-    const { models, sequelize } = this.store;
+  async persistIncomingChanges(sessionId, tablesToInclude) {
+    const { sequelize, models } = this.store;
+    await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date() });
+
+    const modelsToInclude = tablesToInclude
+      ? filterModelsFromName(models, tablesToInclude)
+      : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+
+    // commit the changes to the db
+    await sequelize.transaction(async () => {
+      // we tick-tock the global clock to make sure there is a unique tick for these changes, and
+      // to acquire a lock on the sync time row in the local system facts table, so that no sync
+      // pull snapshot can start while this save is still in progress
+      // the pull snapshot starts by updating the current time, so this locks that out while the
+      // save transaction happens, to avoid the snapshot missing records that get during this save
+      // but aren't visible in the db to be snapshot until the transaction commits, so would
+      // otherwise be completely skipped over by that sync client
+      const { tock } = await this.tickTockGlobalClock();
+      await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
+      // store the sync tick on save with the incoming changes, so they can be compared for
+      // edits with the outgoing changes
+      await updateSnapshotRecords(
+        sequelize,
+        sessionId,
+        { savedAtSyncTick: tock },
+        { direction: SYNC_SESSION_DIRECTION.INCOMING },
+      );
+    });
+    // mark persisted so that client polling "completePush" can stop
+    await models.SyncSession.update(
+      { persistCompletedAt: new Date() },
+      { where: { id: sessionId } },
+    );
+  }
+
+  async addIncomingChanges(sessionId, changes) {
+    const { sequelize } = this.store;
     await this.connectToSession(sessionId);
     const incomingSnapshotRecords = changes.map(c => ({
       ...c,
@@ -305,35 +340,22 @@ class CentralSyncManager {
       `CentralSyncManager.addIncomingChanges: Adding ${incomingSnapshotRecords.length} changes for ${sessionId}`,
     );
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
+  }
 
-    if (pushedSoFar === totalToPush) {
-      const modelsToInclude = tablesToInclude
-        ? filterModelsFromName(models, tablesToInclude)
-        : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+  async completePush(sessionId, tablesToInclude) {
+    await this.connectToSession(sessionId);
 
-      // commit the changes to the db
-      await sequelize.transaction(async () => {
-        // we tick-tock the global clock to make sure there is a unique tick for these changes, and
-        // to acquire a lock on the sync time row in the local system facts table, so that no sync
-        // pull snapshot can start while this save is still in progress
-        // the pull snapshot starts by updating the current time, so this locks that out while the
-        // save transaction happens, to avoid the snapshot missing records that get during this save
-        // but aren't visible in the db to be snapshot until the transaction commits, so would
-        // otherwise be completely skipped over by that sync client
-        const { tock } = await this.tickTockGlobalClock();
-        await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
-        // store the sync tick on save with the incoming changes, so they can be compared for
-        // edits with the outgoing changes
-        await updateSnapshotRecords(
-          sequelize,
-          sessionId,
-          { savedAtSyncTick: tock },
-          { direction: SYNC_SESSION_DIRECTION.INCOMING },
-        );
-      });
-      await models.SyncSession.addDebugInfo(sessionId, {
-        pushCompletedAt: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-      });
+    // don't await persisting, the client should asynchronously poll as it may take longer than
+    // the http request timeout
+    this.persistIncomingChanges(sessionId, tablesToInclude);
+  }
+
+  async checkPushComplete(sessionId) {
+    const session = await this.connectToSession(sessionId);
+    // respond with whether the push is properly complete, i.e. has been persisted to the db tables
+    if (!session.persistCompletedAt) {
+      return false;
     }
+    return true;
   }
 }

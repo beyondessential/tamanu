@@ -10,6 +10,7 @@ export class SyncSession extends Model {
         startTime: { type: DataTypes.DATE },
         lastConnectionTime: { type: DataTypes.DATE },
         snapshotCompletedAt: { type: DataTypes.DATE },
+        persistCompletedAt: { type: DataTypes.DATE },
         completedAt: { type: DataTypes.DATE },
         error: { type: DataTypes.TEXT },
         debugInfo: { type: DataTypes.JSON },
