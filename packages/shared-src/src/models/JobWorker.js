@@ -33,26 +33,22 @@ export class JobWorker extends Model {
 
     return JobWorker.findByPk(workerId);
   }
- 
+
   static async clearDead() {
     await this.sequelize.query('SELECT job_worker_garbage_collect()');
   }
-  
+
   async heartbeat() {
     await this.sequelize.query('SELECT job_worker_heartbeat($workerId)', {
       type: QueryTypes.SELECT,
       bind: { workerId: this.id },
     });
   }
-  
+
   async deregister() {
     await this.sequelize.query('SELECT job_worker_deregister($workerId)', {
       type: QueryTypes.SELECT,
       bind: { workerId: this.id },
     });
-  }
-
-  grabJob(topic) {
-    return Job.grab(this.id, topic);
   }
 }
