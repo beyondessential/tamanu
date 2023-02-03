@@ -177,13 +177,3 @@ export const ModalLoader = ({ loadingText }) => (
     {loadingText && <Typography>{loadingText}</Typography>}
   </Loader>
 );
-
-export const connectRoutedModal = (baseRoute, suffix) =>
-  connect(
-    state => ({
-      open: getCurrentRoute(state).startsWith(`${baseRoute}/${suffix}`),
-    }),
-    dispatch => ({
-      onClose: () => dispatch(push(baseRoute)),
-    }),
-  );
