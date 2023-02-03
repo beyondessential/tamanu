@@ -240,7 +240,27 @@ describe('Auth', () => {
 
       const refreshResponse = await baseApp.post('/v1/refresh').send({
         refreshToken: 'invalid-token',
+        deviceId: TEST_DEVICE_ID,
       });
+      expect(refreshResponse).toHaveRequestError();
+    });
+    it('Should fail if refresh token requested from different audience', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const { refreshToken } = loginResponse.body;
+
+      const refreshResponse = await baseApp
+        .post('/v1/refresh')
+        .set('X-Tamanu-Client', 'Tamanu Desktop')
+        .send({
+          refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        });
       expect(refreshResponse).toHaveRequestError();
     });
   });
