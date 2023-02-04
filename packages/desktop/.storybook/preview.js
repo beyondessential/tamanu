@@ -8,7 +8,7 @@ import React, { useEffect } from 'react';
 import { initStore } from '../app/store';
 import { theme } from '../app/theme';
 import { API } from '../app/api/singletons';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import {Buffer} from 'buffer'
 
@@ -24,6 +24,7 @@ const queryClient = new QueryClient({
     },
   },
 });
+
 
 export const decorators = [
   Story => {
