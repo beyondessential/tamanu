@@ -34,7 +34,7 @@
     "test": "echo 'No tests on desktop'",
     "reinstall": "rm -rf ../../**/node_modules && yarn",
     "storybook": "start-storybook -p 6006",
-    "verify-storybook": "start-storybook --ci --smoke-test",
+    "verify-storybook": "cross-env NODE_ENV=test start-storybook --ci --smoke-test",
     "build-storybook": "build-storybook"
   },
   "browserslist": "electron 1.6",
