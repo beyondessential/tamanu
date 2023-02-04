@@ -11,4 +11,8 @@ module.exports = {
   core: {
     builder: 'webpack5',
   },
+  env: (config) => ({
+    ...config,
+   NODE_ENV: 'test',
+  }),
 };

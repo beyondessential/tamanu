@@ -27,7 +27,6 @@ module.exports = async ({ config }) => {
       resource.request = resource.request.replace(/^node:/, '');
     }),
   );
-
   config.resolve.fallback = {
     ...config.resolve.fallback,
     os: false,
