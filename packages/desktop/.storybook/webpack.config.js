@@ -22,11 +22,13 @@ module.exports = async ({ config }) => {
    * Pretty odd workaround but prevented changing more core configs
    *  @see https://github.com/vercel/next.js/issues/28774#issuecomment-1264555395 for similar issue
    */
+  process.env.NODE_ENV='test'
   config.plugins.push(
     new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
       resource.request = resource.request.replace(/^node:/, '');
     }),
   );
+
   config.resolve.fallback = {
     ...config.resolve.fallback,
     os: false,

@@ -1,3 +1,5 @@
+const webpack = require("webpack");
+
 module.exports = {
   features: {
     babelModeV7: true,
@@ -10,5 +12,5 @@ module.exports = {
   stories: ['../stories/**/*.stories.@(js|mdx)'],
   core: {
     builder: 'webpack5',
-  }
+  },
 };
