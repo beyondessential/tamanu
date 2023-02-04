@@ -4,13 +4,17 @@ import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { DummyElectronProvider } from '../app/contexts/Electron';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { initStore } from '../app/store';
 import { theme } from '../app/theme';
 import { API } from '../app/api/singletons';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
+import { ConnectedRouter } from 'connected-react-router';
+import {Buffer} from 'buffer'
 
-const { store } = initStore(API);
+window.Buffer = Buffer
+
+const { store, history } = initStore(API);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,20 +26,24 @@ const queryClient = new QueryClient({
 });
 
 export const decorators = [
-  Story => (
-    <Provider store={store}>
-      <StylesProvider injectFirst>
-        <MuiThemeProvider theme={theme}>
-          <ThemeProvider theme={theme}>
-            <QueryClientProvider client={queryClient}>
-              <DummyElectronProvider>
-                <CssBaseline />
-                <Story />
-              </DummyElectronProvider>
-            </QueryClientProvider>
-          </ThemeProvider>
-        </MuiThemeProvider>
-      </StylesProvider>
-    </Provider>
-  ),
+  Story => {
+    return (
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <StylesProvider injectFirst>
+            <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
+                <QueryClientProvider client={queryClient}>
+                  <DummyElectronProvider>
+                    <CssBaseline />
+                    <Story />
+                  </DummyElectronProvider>
+                </QueryClientProvider>
+              </ThemeProvider>
+            </MuiThemeProvider>
+          </StylesProvider>
+        </ConnectedRouter>
+      </Provider>
+    );
+  },
 ];

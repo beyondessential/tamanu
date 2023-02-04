@@ -27,32 +27,19 @@ module.exports = async ({ config }) => {
       resource.request = resource.request.replace(/^node:/, '');
     }),
   );
-  config.plugins.push(
-    new webpack.DefinePlugin({
-      process: {
-        env: {
-          NODE_ENV: JSON.stringify('test'),
-        }
-      }
-    }),
-  );
+
   config.resolve.fallback = {
     ...config.resolve.fallback,
+    os: false,
     fs: false,
-    stream: false,
-    zlib: false,
-    dgram: false,
-    net: false,
-    tls: false,
-    util: false,
-    https: false,
-    crypto: false,
-    assert: false,
     http: false,
-    path: false
+    stream: require.resolve('stream-browserify'),
+    zlib: require.resolve('browserify-zlib'),
   };
   config.resolve.alias = {
     ...config.resolve.alias,
+    sequelize: path.resolve(__dirname, './__mocks__/sequelize.js'),
+    config: path.resolve(__dirname, './__mocks__/config.js'),
     electron: require.resolve('./__mocks__/electron.js'),
     yargs: path.resolve(__dirname, './__mocks__/module.js'),
     child_process: path.resolve(__dirname, './__mocks__/module.js'),

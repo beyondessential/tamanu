@@ -5,7 +5,7 @@ import { push } from 'connected-react-router';
 import { List, Divider, Box, Typography, Avatar, Button } from '@material-ui/core';
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { Colors } from '../../constants';
-import { version } from '../../../package.json';
+import pkg from '../../../package.json';
 import { Translated } from '../Translated';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -177,7 +177,7 @@ export const Sidebar = React.memo(({ items }) => {
             <UserName>{currentUser?.displayName}</UserName>
             <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>
             <Box display="flex" justifyContent="space-between">
-              <Version>Version {version}</Version>
+              <Version>Version {pkg.version}</Version>
               <LogoutButton
                 type="button"
                 onClick={onLogout}
