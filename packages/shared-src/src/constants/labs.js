@@ -1,5 +1,3 @@
-import { IMAGING_REQUEST_STATUS_TYPES } from './statuses';
-
 export const LAB_REQUEST_STATUSES = {
   RECEPTION_PENDING: 'reception_pending',
   RESULTS_PENDING: 'results_pending',
@@ -8,6 +6,7 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
   CANCELLED: 'cancelled',
   DELETED: 'deleted',
+  ENTERED_IN_ERROR: 'entered-in-error',
 };
 
 export const LAB_REQUEST_STATUS_CONFIG = {
@@ -46,8 +45,8 @@ export const LAB_REQUEST_STATUS_CONFIG = {
     color: '#444444;',
     background: '#EDEDED',
   },
-  [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
-    label: 'Deleted',
+  [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: {
+    label: 'Entered in error',
     color: '#444444;',
     background: '#EDEDED',
   },
@@ -59,11 +58,7 @@ export const LAB_REQUEST_STATUS_CONFIG = {
 };
 
 export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
-  .filter(
-    x =>
-      x !== IMAGING_REQUEST_STATUS_TYPES.DELETED &&
-      x !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-  )
+  .filter(x => x !== LAB_REQUEST_STATUSES.DELETED && x !== LAB_REQUEST_STATUSES.ENTERED_IN_ERROR)
   .map(s => ({
     label: LAB_REQUEST_STATUS_CONFIG[s].label,
     value: s,

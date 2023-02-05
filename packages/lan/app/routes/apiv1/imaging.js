@@ -207,7 +207,8 @@ imagingRequest.put(
       if (otherNotePage) {
         const otherNoteItems = await otherNotePage.getNoteItems();
         const otherNoteItem = otherNoteItems[0];
-        await otherNoteItem.update({ content: note });
+        const newNote = `${otherNoteItem.content}. ${note}`;
+        await otherNoteItem.update({ content: newNote });
         notes.note = otherNoteItem.content;
       } else {
         const notePage = await imagingRequestObject.createNotePage({

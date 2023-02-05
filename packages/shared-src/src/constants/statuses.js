@@ -34,7 +34,7 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
-    label: 'Deleted',
+    label: 'Entered in Error',
     color: '#444444;',
     background: '#EDEDED',
   },

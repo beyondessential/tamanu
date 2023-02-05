@@ -81,7 +81,11 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) 
             disabled={isReadOnly}
             saveDateAsString
           />
-          <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
+          <ConfirmCancelRow
+            onConfirm={submitForm}
+            onCancel={onClose}
+            confirmDisabled={isReadOnly}
+          />
         </FormGrid>
       )}
       initialValues={labTest}
