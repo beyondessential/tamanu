@@ -69,6 +69,8 @@ export class Form extends React.PureComponent {
       const formErrors = await validateForm(values);
       if (Object.entries(formErrors).length) {
         this.setErrors(formErrors);
+        // Set submitting false before throwing the error so that the form is reset
+        // for future form submissions
         setSubmitting(false);
         throw new ValidationError('Form was not filled out correctly');
       }
@@ -81,7 +83,6 @@ export class Form extends React.PureComponent {
         ...rest,
         setErrors: this.setErrors,
       });
-      setSubmitting(false);
       if (onSuccess) {
         onSuccess(result);
       }
