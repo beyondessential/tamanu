@@ -35,6 +35,8 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
         {
           includeNotePages: 'true',
           status: 'reception_pending',
+          orderBy: 'requestedDate',
+          order: 'ASC',
         },
       );
       return result.data;
