@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { useSelector } from 'react-redux';
 
 import { CheckInModal } from './CheckInModal';
 import { TriageModal } from './TriageModal';
@@ -15,10 +14,9 @@ const MODAL_STATES = {
 
 // Self-contained wrapper logic for 3 different modals
 // you should be able to use it as a regular modal.
-export const EncounterModal = React.memo(({ open, onClose, referral, patientBillingTypeId }) => {
+export const EncounterModal = React.memo(({ open, onClose, onSubmitEncounter, noRedirectOnSubmit, referral, patient, patientBillingTypeId }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.SELECT_OPEN);
   const [encounterType, setEncounterType] = useState(null);
-  const patient = useSelector(state => state.patient);
 
   const onCloseModal = useCallback(() => {
     // Reset to default state
@@ -50,6 +48,7 @@ export const EncounterModal = React.memo(({ open, onClose, referral, patientBill
       <CheckInModal
         open={modalStatus === MODAL_STATES.ENCOUNTER_OPEN}
         onClose={onCloseModal}
+        onSubmitEncounter={onSubmitEncounter}
         encounterType={encounterType}
         patientId={patient.id}
         patientBillingTypeId={patientBillingTypeId}
@@ -57,6 +56,8 @@ export const EncounterModal = React.memo(({ open, onClose, referral, patientBill
       />
       <TriageModal
         open={modalStatus === MODAL_STATES.TRIAGE_OPEN}
+        onSubmitEncounter={onSubmitEncounter}
+        noRedirectOnSubmit={noRedirectOnSubmit}
         onClose={onCloseModal}
         patient={patient}
       />

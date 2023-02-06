@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Select from 'react-select';
@@ -6,13 +8,15 @@ import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
-import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
+import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
 import { Colors, appointmentStatusOptions } from '../../constants';
 import { useApi } from '../../api';
+import { useQuery } from '@tanstack/react-query';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
+import { EncounterModal } from '../EncounterModal';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -23,6 +27,11 @@ const Heading = styled.div`
 const PatientInfoContainer = styled.div`
   border: 2px solid ${Colors.outline};
   padding: 1rem 0.75rem;
+
+  &:hover {
+    background-color: ${Colors.veryLightBlue};
+    cursor: pointer;
+  }
 `;
 
 const PatientNameRow = styled.div`
@@ -46,6 +55,7 @@ const PatientInfoValue = styled.td`
 
 const PatientInfo = ({ patient }) => {
   const api = useApi();
+  const dispatch = useDispatch();
   const { id, displayId, sex, dateOfBirth, village } = patient;
   const [additionalData, setAdditionalData] = useState();
   useEffect(() => {
@@ -54,13 +64,16 @@ const PatientInfo = ({ patient }) => {
       setAdditionalData(data);
     })();
   }, [id, api]);
+
+  const patientInfoContainerOnClick = useCallback(() => dispatch(push(`/patients/all/${id}`)), []);
+
   return (
-    <PatientInfoContainer>
+    <PatientInfoContainer onClick={patientInfoContainerOnClick}>
       <PatientNameRow>
         <PatientName>
           <PatientNameDisplay patient={patient} />
         </PatientName>
-        <InvertedDisplayIdLabel>{displayId}</InvertedDisplayIdLabel>
+        <TextDisplayIdLabel>{displayId}</TextDisplayIdLabel>
       </PatientNameRow>
       <table>
         <tbody>
@@ -161,10 +174,19 @@ const StyledIconButton = styled(IconButton)`
 export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const api = useApi();
   const { id, type, status, clinician, patient, locationGroup } = appointment;
+  const { data: currentEncounter, error: currentEncounterError, isLoading: currentEncounterLoading } = useQuery(['currentEncounter', patient.id], () =>
+    api.get(`patient/${patient.id}/currentEncounter`),
+  );
+  const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
+    ['additionalData', patient.id],
+    () => api.get(`patient/${patient.id}/additionalData`),
+  );
   const [statusOption, setStatusOption] = useState(
     appointmentStatusOptions.find(option => option.value === status),
   );
   const [appointmentModal, setAppointmentModal] = useState(false);
+  const [encounterModal, setEncounterModal] = useState(false);
+  const [createdEncounter, setCreatedEncounter] = useState();
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelConfirmed, setCancelConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -179,6 +201,18 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     });
     onUpdated();
   };
+
+  const onOpenAppointmentModal = useCallback(() => setAppointmentModal(true), []);
+  const onCloseAppointmentModal = useCallback(() => setAppointmentModal(false), []);
+  const onOpenEncounterModal = useCallback(() => setEncounterModal(true), []);
+  const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
+  const onSubmitEncounterModal = useCallback(async (encounter) => {
+    setStatusOption(appointmentStatusOptions.find(options => options.value === APPOINTMENT_STATUSES.ARRIVED));
+    setCreatedEncounter(encounter);
+    onCloseEncounterModal();
+    await updateAppointmentStatus(APPOINTMENT_STATUSES.ARRIVED);
+  }, []);
+
   return (
     <Container>
       <CloseButtonSection>
@@ -209,6 +243,38 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             setStatusOption(selectedOption);
             await updateAppointmentStatus(selectedOption.value);
           }}
+          styles={{
+            valueContainer: (baseStyles, state) => ({
+              ...baseStyles,
+              color: Colors.white,
+            }),
+            dropdownIndicator: (baseStyles, state) => ({
+              ...baseStyles,
+              color: Colors.white,
+            }),
+            singleValue: (baseStyles, state) => ({
+              ...baseStyles,
+              color: Colors.white,
+            }),
+            control: (baseStyles, state) => ({
+              ...baseStyles,
+              backgroundColor: Colors.primary,
+              color: Colors.white,
+              borderColor: 'transparent',
+            }),
+            menu: (baseStyles, state) => ({
+              ...baseStyles,
+              backgroundColor: Colors.primary,
+              color: Colors.white,
+              // borderColor: state.isFocused ? 'black' : baseStyles.borderColor,
+            }),
+            option: (baseStyles, state) => ({
+              ...baseStyles,
+              backgroundColor: (state.isSelected || state.isFocused) && Colors.veryLightBlue,
+              color: (state.isSelected || state.isFocused) && Colors.darkText,
+              // borderColor: state.isSelected ? 'black' : baseStyles.borderColor,
+            }),
+          }}
         />
       </FirstRow>
       <Section>
@@ -223,21 +289,40 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       <Button
         variant="outlined"
         color="primary"
-        onClick={() => {
-          setAppointmentModal(true);
-        }}
+        onClick={onOpenAppointmentModal}
       >
         Reschedule
       </Button>
+      {
+        !currentEncounter &&
+        !currentEncounterError &&
+        !currentEncounterLoading &&
+        !createdEncounter &&
+        <Button
+          variant="text"
+          color="primary"
+          // disableRipple
+          // disableFocusRipple
+          onClick={onOpenEncounterModal}
+        >
+          <u>Admit or check-in</u>
+        </Button>
+      }
       <AppointmentModal
         open={appointmentModal}
-        onClose={() => {
-          setAppointmentModal(false);
-        }}
+        onClose={onCloseAppointmentModal}
         appointment={appointment}
         onSuccess={() => {
           onUpdated();
         }}
+      />
+      <EncounterModal
+        open={encounterModal}
+        onClose={onCloseEncounterModal}
+        onSubmitEncounter={onSubmitEncounterModal}
+        noRedirectOnSubmit
+        patient={patient}
+        patientBillingTypeId={additionalData?.patientBillingTypeId}
       />
       <CancelAppointmentModal
         appointment={appointment}

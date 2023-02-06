@@ -40,6 +40,7 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
       <EncounterModal
         open={isModalOpen}
         onClose={onCloseModal}
+        patient={patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
       />
     </>

@@ -53,7 +53,7 @@ const DETAILS_FIELD_DEFINITIONS = [
   ['dateOfBirth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
 ];
 
-export const TriageModal = React.memo(({ open, patient, onClose }) => {
+export const TriageModal = React.memo(({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit }) => {
   const { displayId } = patient;
   const { getLocalisation } = useLocalisation();
 
@@ -73,7 +73,7 @@ export const TriageModal = React.memo(({ open, patient, onClose }) => {
         <Grid>{detailsFields}</Grid>
         <DisplayIdLabel>{displayId}</DisplayIdLabel>
       </PatientDetails>
-      <TriageForm onCancel={onClose} patient={patient} />
+      <TriageForm onSubmitEncounter={onSubmitEncounter} noRedirectOnSubmit={noRedirectOnSubmit} onCancel={onClose} patient={patient} />
     </Modal>
   );
 });
