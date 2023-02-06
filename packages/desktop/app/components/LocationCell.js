@@ -12,3 +12,11 @@ export const LocationCell = ({ locationName, plannedLocationName, style }) => (
     )}
   </div>
 );
+
+export const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName }) => (
+  <LocationCell
+    locationName={locationGroupName}
+    plannedLocationName={plannedLocationGroupName}
+    style={{ minWidth: 150 }}
+  />
+);
