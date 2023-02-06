@@ -7,12 +7,12 @@ import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
+import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
 import { Colors, appointmentStatusOptions } from '../../constants';
 import { useApi } from '../../api';
-import { useQuery } from '@tanstack/react-query';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
@@ -174,7 +174,11 @@ const StyledIconButton = styled(IconButton)`
 export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const api = useApi();
   const { id, type, status, clinician, patient, locationGroup } = appointment;
-  const { data: currentEncounter, error: currentEncounterError, isLoading: currentEncounterLoading } = useQuery(['currentEncounter', patient.id], () =>
+  const {
+    data: currentEncounter,
+    error: currentEncounterError,
+    isLoading: currentEncounterLoading,
+  } = useQuery(['currentEncounter', patient.id], () =>
     api.get(`patient/${patient.id}/currentEncounter`),
   );
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
@@ -206,8 +210,10 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const onCloseAppointmentModal = useCallback(() => setAppointmentModal(false), []);
   const onOpenEncounterModal = useCallback(() => setEncounterModal(true), []);
   const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
-  const onSubmitEncounterModal = useCallback(async (encounter) => {
-    setStatusOption(appointmentStatusOptions.find(options => options.value === APPOINTMENT_STATUSES.ARRIVED));
+  const onSubmitEncounterModal = useCallback(async encounter => {
+    setStatusOption(
+      appointmentStatusOptions.find(options => options.value === APPOINTMENT_STATUSES.ARRIVED),
+    );
     setCreatedEncounter(encounter);
     onCloseEncounterModal();
     await updateAppointmentStatus(APPOINTMENT_STATUSES.ARRIVED);
@@ -286,28 +292,23 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         <Heading>Area</Heading>
         {locationGroup.name}
       </Section>
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={onOpenAppointmentModal}
-      >
+      <Button variant="outlined" color="primary" onClick={onOpenAppointmentModal}>
         Reschedule
       </Button>
-      {
-        !currentEncounter &&
+      {!currentEncounter &&
         !currentEncounterError &&
         !currentEncounterLoading &&
-        !createdEncounter &&
-        <Button
-          variant="text"
-          color="primary"
-          // disableRipple
-          // disableFocusRipple
-          onClick={onOpenEncounterModal}
-        >
-          <u>Admit or check-in</u>
-        </Button>
-      }
+        !createdEncounter && (
+          <Button
+            variant="text"
+            color="primary"
+            // disableRipple
+            // disableFocusRipple
+            onClick={onOpenEncounterModal}
+          >
+            <u>Admit or check-in</u>
+          </Button>
+        )}
       <AppointmentModal
         open={appointmentModal}
         onClose={onCloseAppointmentModal}

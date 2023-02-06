@@ -16,14 +16,13 @@ export const CheckInModal = React.memo(
 
     const onCreateEncounter = useCallback(
       async data => {
-
         onClose();
         const newEncounter = {
           patientId,
           referralId: referral?.id,
           ...data,
         };
-        if(typeof onSubmitEncounter === 'function'){
+        if (typeof onSubmitEncounter === 'function') {
           onSubmitEncounter(newEncounter);
         }
         await createEncounter(newEncounter);
@@ -37,7 +36,13 @@ export const CheckInModal = React.memo(
     );
 
     return (
-      <Modal title={`Admit or check-in | ${props?.encounterType === ENCOUNTER_TYPES.ADMISSION ? 'Hospital admission' : ''}${props?.encounterType === ENCOUNTER_TYPES.CLINIC ? 'Clinic' : ''}`} open={open} onClose={onClose}>
+      <Modal
+        title={`Admit or check-in | ${
+          props?.encounterType === ENCOUNTER_TYPES.ADMISSION ? 'Hospital admission' : ''
+        }${props?.encounterType === ENCOUNTER_TYPES.CLINIC ? 'Clinic' : ''}`}
+        open={open}
+        onClose={onClose}
+      >
         <EncounterForm
           onSubmit={onCreateEncounter}
           onCancel={onClose}

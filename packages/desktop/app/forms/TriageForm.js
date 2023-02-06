@@ -31,7 +31,13 @@ const InfoPopupLabel = React.memo(() => (
   </span>
 ));
 
-export const TriageForm = ({ onCancel, onSubmitEncounter, noRedirectOnSubmit, patient, editedObject }) => {
+export const TriageForm = ({
+  onCancel,
+  onSubmitEncounter,
+  noRedirectOnSubmit,
+  patient,
+  editedObject,
+}) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
@@ -135,16 +141,15 @@ export const TriageForm = ({ onCancel, onSubmitEncounter, noRedirectOnSubmit, pa
       patientId: patient.id,
     };
 
-    if(typeof onSubmitEncounter === 'function'){
+    if (typeof onSubmitEncounter === 'function') {
       onSubmitEncounter(newTriage);
     }
 
     await api.post('triage', newTriage);
 
-    if(!noRedirectOnSubmit){
+    if (!noRedirectOnSubmit) {
       dispatch(push('/patients/emergency'));
     }
-
   };
 
   return (
