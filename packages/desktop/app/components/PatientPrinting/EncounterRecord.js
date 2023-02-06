@@ -12,10 +12,11 @@ import { CertificateLabel } from './CertificateLabels';
 import { noteTypes, DRUG_ROUTE_VALUE_TO_LABEL, CERTAINTY_OPTIONS_BY_VALUE } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
 
-import { ImagingRequestAreas } from './ImagingRequestAreas';
+import { ImagingRequestData } from './ImagingRequestData';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
+  margin: 0;
   td,
   th {
     font-size: 10px;
@@ -28,9 +29,8 @@ const Table = styled.table`
   border: 1px solid black;
   border-spacing: 0px;
   border-collapse: collapse;
-  margin-top: 10px;
-  margin-bottom: 16px;
   width: 100%;
+  margin-bottom: 10px;
 `;
 
 const Row = styled.tr`
@@ -63,25 +63,34 @@ const SummaryHeading = styled(Typography)`
   font-weight: 600;
   font-size: 12px;
   line-height: 14px;
+  margin-top: 5px;
+  margin-bottom: 4px;
 `;
 
 const TableHeading = styled(SummaryHeading)`
   margin-left: 3px;
+  margin-top: 15px;
+  margin-bottom: 5px;
 `;
 
 const LocalisedDisplayValue = styled(LocalisedLabel)`
   font-size: 10px;
   line-height: 12px;
+  margin-bottom: 5px;
 `;
 
 const DisplayValue = styled(CertificateLabel)`
   font-size: 10px;
   line-height: 12px;
   margin-bottom: 9px;
+  margin-bottom: 5px;
 `;
 
-const Divider = styled.hr`
+const Divider = styled.div`
   border-bottom: 0.5px solid #000000;
+  height: 0;
+  margin: 0;
+  margin-bottom: 6px;
 `;
 
 const ChildNote = styled.div`
@@ -208,7 +217,7 @@ const columns = {
     {
       key: 'areaToBeImaged',
       title: 'Area to be imaged',
-      accessor: ({ id }) => <ImagingRequestAreas imagingRequestId={id} /> || {},
+      accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="areas" /> || {},
       style: { width: '20%' },
     },
     {
@@ -226,6 +235,8 @@ const columns = {
     {
       key: 'completedDate',
       title: 'Completed Date',
+      accessor: ({ id }) =>
+        <ImagingRequestData imagingRequestId={id} dataType="completedDate" /> || {},
       style: { width: '20%' },
     },
   ],
@@ -382,16 +393,7 @@ export const EncounterRecord = React.memo(
           <></>
         )}
 
-        {encounter.procedures.length > 0 ? (
-          <>
-            <TableHeading>Procedures</TableHeading>
-            <CompactListTable data={encounter.procedures} columns={columns.procedures} />
-          </>
-        ) : (
-          <></>
-        )}
-
-        {labRequests.length > 0 ? (
+        {labRequests.data.length > 0 ? (
           <>
             <TableHeading>Lab Requests</TableHeading>
             <CompactListTable data={labRequests.data} columns={columns.labRequests} />
@@ -435,19 +437,15 @@ export const EncounterRecord = React.memo(
                   </Row>
                   <Row>
                     <Cell colSpan={3}>
-                      {note.noteItems.map(noteItem => {
-                        return editedNoteIds.includes(noteItem.id) ? (
-                          <></>
-                        ) : (
-                          <ChildNote>
-                            <BoldText>
-                              <DateDisplay date={noteItem.date} showDate showTime />
-                              {noteItem.revisedById ? ' (edited)' : ''}
-                            </BoldText>
-                            {noteItem.content}
-                          </ChildNote>
-                        );
-                      })}
+                      {note.noteItems.map(noteItem => (
+                        <ChildNote>
+                          <BoldText>
+                            <DateDisplay date={noteItem.date} showDate showTime />
+                            {noteItem.revisedById ? ' (edited)' : ''}
+                          </BoldText>
+                          {noteItem.content}
+                        </ChildNote>
+                      ))}
                     </Cell>
                   </Row>
                 </Table>

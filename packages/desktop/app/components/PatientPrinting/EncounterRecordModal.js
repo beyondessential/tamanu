@@ -14,10 +14,9 @@ import { usePatientAdditionalData } from '../../api/queries/usePatientAdditional
 import { LoadingIndicator } from '../LoadingIndicator';
 import { Colors } from '../../constants';
 
+// TAKES A GROUP OF ENCOUNTER/LOCATION SYSTEM NOTES AND TURNS IT INTO AN OBJECT WITH EITHER LOCATION OR ENCOUNTER TYPE HISTORY DATA TO BE DISPLAYED
 const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
 const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
-
-// TODO this is missing the current location and encounter Type on some
 const extractNoteData = (notes, encounterData, matcher) => {
   if (notes.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
     const {
@@ -89,7 +88,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       });
     });
   }
-  // TODO NEED TO GET THE COMPLETED DATE FOR THIS
+
   const imagingRequestsQuery = useImagingRequests(encounter.id);
   const imagingRequests = imagingRequestsQuery.data;
 
@@ -114,9 +113,14 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
 
-  const filteredNotes = notes?.filter(note => {
-    return note.noteType !== 'system';
+  const filteredNotes = notes?.map(note => {
+    const updatedNote = note;
+    updatedNote.noteItems = updatedNote.noteItems.filter(noteItem => {
+      return !editedNoteIds.includes(noteItem.id);
+    });
+    return updatedNote;
   });
+
   const systemNotes = notes?.filter(note => {
     return note.noteType === 'system';
   });
