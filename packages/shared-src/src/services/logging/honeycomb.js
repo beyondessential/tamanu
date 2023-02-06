@@ -25,7 +25,11 @@ function setupHoneycomb() {
     apiKey,
     serviceName,
     sampleRate,
-    instrumentations: [getNodeAutoInstrumentations()],
+    instrumentations: [getNodeAutoInstrumentations({
+      '@opentelemetry/instrumentation-pg': {
+        enhancedDatabaseReporting: process.env.NODE_ENV !== 'production',
+      }
+    })],
     resource: new Resource({
       'net.host.name': os.hostname(),
       'process.id': shortid.generate(),
