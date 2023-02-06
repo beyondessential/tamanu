@@ -8,5 +8,5 @@ export const ImagingRequestAreas = ({ imagingRequestId }) => {
   const areas = imagingRequest?.areas?.length
     ? imagingRequest?.areas.map(area => area.name).join(', ')
     : imagingRequest?.areaNote;
-  return <p>{areas}</p>;
+  return <p style={{ margin: '0' }}>{areas}</p>;
 };
