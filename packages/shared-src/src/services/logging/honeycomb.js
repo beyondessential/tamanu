@@ -25,11 +25,24 @@ function setupHoneycomb() {
     apiKey,
     serviceName,
     sampleRate,
-    instrumentations: [getNodeAutoInstrumentations({
-      '@opentelemetry/instrumentation-pg': {
-        enhancedDatabaseReporting: process.env.NODE_ENV !== 'production',
-      }
-    })],
+    instrumentations: [
+      getNodeAutoInstrumentations({
+        '@opentelemetry/instrumentation-pg': {
+          enhancedDatabaseReporting: process.env.NODE_ENV !== 'production',
+          requestHook: (span, { query }) => {
+            if (
+              process.env.NODE_ENV === 'production' &&
+              (span.name.startsWith('pg.query:UPDATE') ||
+                span.name.startsWith('pg.query:INSERT') ||
+                query.text.startsWith('INSERT') ||
+                query.text.startsWith('UPDATE'))
+            ) {
+              span.setAttribute('db.statement', 'REDACTED UPDATE/INSERT');
+            }
+          },
+        },
+      }),
+    ],
     resource: new Resource({
       'net.host.name': os.hostname(),
       'process.id': shortid.generate(),
