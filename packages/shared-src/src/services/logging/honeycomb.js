@@ -46,9 +46,9 @@ function setupHoneycomb() {
     resource: new Resource({
       'net.host.name': os.hostname(),
       'process.id': shortid.generate(),
-      'service.deployment': deployment,
-      'service.environment': process.env.NODE_ENV,
-      'service.facility': facilityId,
+      'deployment.name': deployment,
+      'deployment.environment': process.env.NODE_ENV,
+      'deployment.facility': facilityId,
       'service.type': serverType,
       'service.version': version,
     }),
