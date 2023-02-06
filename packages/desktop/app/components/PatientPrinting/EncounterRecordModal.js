@@ -17,7 +17,7 @@ import { Colors } from '../../constants';
 const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
 const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
 
-// TODO this is missing the current location and encounter Type
+// TODO this is missing the current location and encounter Type on some
 const extractNoteData = (notes, encounterData, matcher) => {
   if (notes.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
     const {
@@ -29,16 +29,16 @@ const extractNoteData = (notes, encounterData, matcher) => {
         to: from,
         date: encounterData.startDate,
       },
-      ...notes[0]?.noteItems.map(({ content, date }) => {
+      ...notes?.map(({ noteItems }) => {
         const {
           groups: { to },
-        } = content.match(matcher);
+        } = noteItems[0].content.match(matcher);
+        const { date } = noteItems[0];
         return { to, date };
       }),
     ];
     return history;
   }
-  // TODO this only applies to location
   if (matcher === locationNoteMatcher) {
     return [
       {
@@ -121,7 +121,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return note.noteType === 'system';
   });
 
-  // TODO MISSING THE FIRST ENRTY OF THESE TABLES
   const locationSystemNotes = systemNotes?.filter(note => {
     return note.noteItems[0].content.match(locationNoteMatcher);
   });
