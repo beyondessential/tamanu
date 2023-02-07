@@ -16,10 +16,11 @@ const legacyNames = {
 
 const { apiKey, enabled } = config?.honeycomb || {};
 
+const dataset = serviceName(context);
 const honeyApi = new Libhoney({
   writeKey: apiKey,
-  dataset: serviceName(context),
-  disabled: !(apiKey && enabled),
+  dataset,
+  disabled: !(apiKey && enabled && dataset),
 });
 
 class HoneycombTransport extends Transport {

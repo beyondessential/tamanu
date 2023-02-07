@@ -19,7 +19,8 @@ export const SemanticAttributes = {
 export function serviceContext() {
   const { serverType = 'unknown', version = '0.0.0' } = global?.serverInfo || {};
   const deploymentHost = config?.canonicalHostName || config?.sync?.host;
-  const deployment = new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
+  const deployment =
+    deploymentHost && new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
   const facilityId = config?.serverFacilityId?.replace(/([^a-z0-9]+|^(ref\/)?facility[-/])/gi, '');
 
   return {
@@ -34,6 +35,8 @@ export function serviceContext() {
 }
 
 export function serviceName(context) {
+  if (!context[SERVICE_TYPE.DEPLOYMENT_NAME]) return null;
+
   return [
     context[SemanticAttributes.DEPLOYMENT_NAME],
     context[SemanticAttributes.SERVICE_TYPE],
