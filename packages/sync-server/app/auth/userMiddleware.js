@@ -51,6 +51,7 @@ export const userMiddleware = ({ secret }) =>
       'app.user.role': req.user.role,
     };
 
+    // eslint-disable-next-line no-unused-expressions
     trace.getActiveSpan()?.setAttributes(spanAttributes);
     context.with(
       propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),

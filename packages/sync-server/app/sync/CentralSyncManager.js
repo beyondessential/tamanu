@@ -96,6 +96,7 @@ export class CentralSyncManager {
       { startedAtTick: tick },
       { where: { id: syncSession.id } },
     );
+    // eslint-disable-next-line no-unused-expressions
     trace.getActiveSpan()?.setAttributes({
       'app.sync.sessionId': syncSession.id,
       'app.sync.tick': tick,
@@ -117,6 +118,7 @@ export class CentralSyncManager {
     }
     await session.update({ lastConnectionTime: Date.now() });
 
+    // eslint-disable-next-line no-unused-expressions
     trace.getActiveSpan()?.setAttributes({
       'app.sync.sessionId': sessionId,
     });

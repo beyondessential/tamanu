@@ -56,6 +56,7 @@ export class ScheduledTask {
 
       try {
         span.addEvent('checkQueue');
+        // eslint-disable-next-line no-shadow
         const queueCount = await spanWrapFn('countQueue', span => this.countQueue(span));
         if (queueCount === null) {
           // Not a queue-based task (countQueue was not overridden)
@@ -84,6 +85,7 @@ export class ScheduledTask {
       this.start = Date.now();
 
       try {
+        // eslint-disable-next-line no-shadow
         await spanWrapFn('run', async span => {
           this.currentlyRunningTask = true;
           await this.run(span);
@@ -122,6 +124,7 @@ export class ScheduledTask {
       } catch (e) {
         span.recordException(e);
         span.setStatus({ code: SpanStatusCode.ERROR });
+        return false;
       } finally {
         span.end();
       }

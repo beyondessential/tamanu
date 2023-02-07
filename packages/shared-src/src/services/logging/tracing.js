@@ -7,10 +7,10 @@ import { ENV, serviceContext, serviceName } from './context';
 
 function setupTracing() {
   const { apiKey, sampleRate = 1, enabled } = config?.honeycomb || {};
-  if (!enabled || !apiKey) return;
+  if (!enabled || !apiKey) return null;
 
   const context = serviceContext();
-  if (!context) return;
+  if (!context) return null;
 
   const sdk = new HoneycombSDK({
     apiKey,
