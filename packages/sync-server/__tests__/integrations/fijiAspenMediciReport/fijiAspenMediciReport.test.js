@@ -396,6 +396,15 @@ describe('fijiAspenMediciReport', () => {
     });
   });
 
+  it('should produce reports without any params', async () => {
+    const response = await app
+      .get('/v1/integration/fijiAspenMediciReport')
+      .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body.data.length).toEqual(2);
+  });
+
   it(`Should produce a simple report`, async () => {
     const { patient, encounterId } = fakedata;
     // act
