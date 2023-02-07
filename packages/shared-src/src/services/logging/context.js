@@ -35,7 +35,7 @@ export function serviceContext() {
 }
 
 export function serviceName(context) {
-  if (!context[SERVICE_TYPE.DEPLOYMENT_NAME]) return null;
+  if (!context[SemanticAttributes.DEPLOYMENT_NAME]) return null;
 
   return [
     context[SemanticAttributes.DEPLOYMENT_NAME],
