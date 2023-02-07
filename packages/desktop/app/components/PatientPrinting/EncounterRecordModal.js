@@ -10,6 +10,7 @@ import { useEncounterNotes } from '../../api/queries/useEncounterNotes';
 import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
 import { useReferenceData } from '../../api/queries/useReferenceData';
 import { usePatientAdditionalData } from '../../api/queries/usePatientAdditionalData';
+import { useLocalisation } from '../../contexts/Localisation';
 // import { FacilityAndSyncVersionIncompatibleError } from 'shared/errors';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { Colors } from '../../constants';
@@ -92,6 +93,13 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const imagingRequestsQuery = useImagingRequests(encounter.id);
   const imagingRequests = imagingRequestsQuery.data;
 
+  const { getLocalisation } = useLocalisation();
+  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const updatedImagingRequests = imagingRequests?.data.map(imagingRequest => ({
+    ...imagingRequest,
+    imagingName: imagingTypes[imagingRequest.imagingType],
+  }));
+
   const dishchargeQuery = useEncounterDischarge(encounter.id);
   const discharge = dishchargeQuery.data;
 
@@ -125,6 +133,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     };
   });
 
+  // TODO need to remove duplicate note updates
   const filteredNotes = updatedNotes?.map(note => {
     const noteCopy = note;
     noteCopy.noteItems = noteCopy.noteItems.filter(noteItem => {
@@ -188,7 +197,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
           labRequests={updatedLabRequests}
-          imagingRequests={imagingRequests}
+          imagingRequests={updatedImagingRequests}
           notes={orderedNotes}
           discharge={discharge}
           village={village}
