@@ -46,10 +46,12 @@ export const userMiddleware = ({ secret }) =>
 
     req.user = stripUser(user);
 
-    const spanAttributes = {
-      'app.user.id': req.user.id,
-      'app.user.role': req.user.role,
-    };
+    const spanAttributes = req.user
+      ? {
+          'app.user.id': req.user.id,
+          'app.user.role': req.user.role,
+        }
+      : {};
 
     // eslint-disable-next-line no-unused-expressions
     trace.getActiveSpan()?.setAttributes(spanAttributes);
