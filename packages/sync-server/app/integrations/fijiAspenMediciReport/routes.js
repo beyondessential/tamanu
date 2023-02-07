@@ -373,7 +373,7 @@ WHERE true
     true
   END
 
-ORDER BY e.start_date DESC
+ORDER BY e.end_date DESC
 LIMIT $limit OFFSET $offset;
 `;
 
