@@ -233,7 +233,7 @@ export class MobileSyncManager {
     const tablesForFullResync = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
-    const { count: incomingChangesCount, tick: safePullTick } = await pullIncomingChanges(
+    const { totalToPull, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       sessionId,
       pullSince,
@@ -243,7 +243,7 @@ export class MobileSyncManager {
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
 
-    console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${incomingChangesCount} changes`);
+    console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${totalToPull} changes`);
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
@@ -252,13 +252,8 @@ export class MobileSyncManager {
     // Save all incoming changes in 1 transaction so that the whole sync session save
     // either fail 100% or succeed 100%, no partial save.
     await Database.client.transaction(async () => {
-      if (incomingChangesCount > 0) {
-        await saveIncomingChanges(
-          sessionId,
-          incomingChangesCount,
-          incomingModels,
-          this.updateProgress,
-        );
+      if (totalToPull > 0) {
+        await saveIncomingChanges(sessionId, totalToPull, incomingModels, this.updateProgress);
       }
 
       if (tablesForFullResync) {
@@ -269,13 +264,13 @@ export class MobileSyncManager {
       // if updating the cursor fails, we want to roll back the rest of the saves
       // so that we don't end up detecting them as needing a sync up
       // to the central server when we attempt to resync from the same old cursor
-      await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, safePullTick);
+      await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
     });
 
-    this.lastSyncPulledRecordsCount = incomingChangesCount;
+    this.lastSyncPulledRecordsCount = totalToPull;
 
     console.log(
-      `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${incomingChangesCount}`,
+      `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${totalToPull}`,
     );
   }
 }

@@ -104,6 +104,20 @@ export class CentralServerConnection {
     return this.fetch(path, query, { method: 'DELETE' });
   }
 
+  async pollUntilTrue(endpoint: string): Promise<void> {
+    // poll the provided endpoint until we get a valid response
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const response = await this.get(endpoint, {});
+      if (response) {
+        return response;
+      }
+      await sleepAsync(waitTime);
+    }
+    throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
+  }
+
   async startSyncSession() {
     return this.post('sync', {}, {});
   }
@@ -112,27 +126,12 @@ export class CentralServerConnection {
     return this.delete(`sync/${sessionId}`, {});
   }
 
-  async fetchPullCount(sessionId) {
-    // poll the pull count endpoint until we get a valid response - it takes a while for
-    // setPullFilter to finish populating the snapshot of changes
-    const waitTime = 1000; // retry once per second
-    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const count = await this.get(`sync/${sessionId}/pull/count`, {});
-      if (count !== null) {
-        return count;
-      }
-      await sleepAsync(waitTime);
-    }
-    throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
-  }
-
-  async setPullFilter(
+  async initiatePull(
     sessionId: string,
     since: number,
     tableNames: string[],
     tablesForFullResync: string[],
-  ) {
+  ): Promise<{ totalToPull: number; pullUntil: number }> {
     const facilityId = await readConfig('facilityId', '');
     const body = {
       since,
@@ -141,7 +140,14 @@ export class CentralServerConnection {
       tablesForFullResync,
       isMobile: true,
     };
-    return this.post(`sync/${sessionId}/pullFilter`, {}, body, {});
+    await this.post(`sync/${sessionId}/pullFilter`, {}, body, {});
+
+    // poll the pull count endpoint until we get a valid response - it takes a while for
+    // setPullFilter to finish populating the snapshot of changes
+    await this.pollUntilTrue(`sync/${sessionId}/pull/count`);
+
+    // finally, fetch the count of changes to pull and sync tick the pull runs up until
+    return this.get(`sync/${sessionId}/pull/metadata`, {});
   }
 
   async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
