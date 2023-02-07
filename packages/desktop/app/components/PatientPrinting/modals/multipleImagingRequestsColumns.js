@@ -47,7 +47,7 @@ const COMMON_COLUMNS = [
     key: COLUMN_KEYS.URGENT,
     title: 'Urgent',
     sortable: false,
-    accessor: ({ priority }) => (priority === 'Urgent' ? 'Yes' : 'No'),
+    accessor: ({ priority }) => (priority?.toLowerCase() === 'urgent' ? 'Yes' : 'No'),
     form: { hidden: true },
     printout: { widthProportion: 3 },
   },
