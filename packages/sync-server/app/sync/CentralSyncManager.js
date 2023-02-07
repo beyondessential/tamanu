@@ -298,31 +298,36 @@ class CentralSyncManager {
       ? filterModelsFromName(models, tablesToInclude)
       : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
 
-    // commit the changes to the db
-    await sequelize.transaction(async () => {
-      // we tick-tock the global clock to make sure there is a unique tick for these changes, and
-      // to acquire a lock on the sync time row in the local system facts table, so that no sync
-      // pull snapshot can start while this save is still in progress
-      // the pull snapshot starts by updating the current time, so this locks that out while the
-      // save transaction happens, to avoid the snapshot missing records that get during this save
-      // but aren't visible in the db to be snapshot until the transaction commits, so would
-      // otherwise be completely skipped over by that sync client
-      const { tock } = await this.tickTockGlobalClock();
-      await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
-      // store the sync tick on save with the incoming changes, so they can be compared for
-      // edits with the outgoing changes
-      await updateSnapshotRecords(
-        sequelize,
-        sessionId,
-        { savedAtSyncTick: tock },
-        { direction: SYNC_SESSION_DIRECTION.INCOMING },
+    try {
+      // commit the changes to the db
+      await sequelize.transaction(async () => {
+        // we tick-tock the global clock to make sure there is a unique tick for these changes, and
+        // to acquire a lock on the sync time row in the local system facts table, so that no sync
+        // pull snapshot can start while this save is still in progress
+        // the pull snapshot starts by updating the current time, so this locks that out while the
+        // save transaction happens, to avoid the snapshot missing records that get during this save
+        // but aren't visible in the db to be snapshot until the transaction commits, so would
+        // otherwise be completely skipped over by that sync client
+        const { tock } = await this.tickTockGlobalClock();
+        await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
+        // store the sync tick on save with the incoming changes, so they can be compared for
+        // edits with the outgoing changes
+        await updateSnapshotRecords(
+          sequelize,
+          sessionId,
+          { savedAtSyncTick: tock },
+          { direction: SYNC_SESSION_DIRECTION.INCOMING },
+        );
+      });
+      // mark persisted so that client polling "completePush" can stop
+      await models.SyncSession.update(
+        { persistCompletedAt: new Date() },
+        { where: { id: sessionId } },
       );
-    });
-    // mark persisted so that client polling "completePush" can stop
-    await models.SyncSession.update(
-      { persistCompletedAt: new Date() },
-      { where: { id: sessionId } },
-    );
+    } catch (error) {
+      log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
+      await models.SyncSession.update({ error: error.message }, { where: { id: sessionId } });
+    }
   }
 
   async addIncomingChanges(sessionId, changes) {
