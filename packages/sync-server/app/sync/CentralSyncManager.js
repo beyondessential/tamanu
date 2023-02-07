@@ -292,6 +292,7 @@ class CentralSyncManager {
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
+    await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
     const { pullUntil } = session;
     return { totalToPull, pullUntil };
   }
@@ -309,7 +310,12 @@ class CentralSyncManager {
 
   async persistIncomingChanges(sessionId, tablesToInclude) {
     const { sequelize, models } = this.store;
-    await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date() });
+    const totalPushed = await countSyncSnapshotRecords(
+      sequelize,
+      sessionId,
+      SYNC_SESSION_DIRECTION.INCOMING,
+    );
+    await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date(), totalPushed });
 
     const modelsToInclude = tablesToInclude
       ? filterModelsFromName(models, tablesToInclude)
