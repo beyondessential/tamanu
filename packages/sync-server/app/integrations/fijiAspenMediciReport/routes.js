@@ -394,7 +394,7 @@ routes.get(
     const {
       'period.start': fromDate,
       'period.end': toDate,
-      limit,
+      limit = 100,
       encounters,
       offset = 0,
     } = req.query;
@@ -409,7 +409,7 @@ routes.get(
         to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
-        limit: limit ?? null, // Limit of null means no limit
+        limit,
         offset, // Should still be able to offset even with no limit
         timezone_string: COUNTRY_TIMEZONE,
       },
