@@ -101,7 +101,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;
 
-  // Get the ids of the notes that have been edited - TODO this filtering should really be done here rather than on the front end
+  // Get the ids of the notes that have been edited
   const editedNoteIds = [];
   if (notes) {
     notes.forEach(note => {
@@ -113,12 +113,42 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
 
-  const filteredNotes = notes?.map(note => {
-    const updatedNote = note;
-    updatedNote.noteItems = updatedNote.noteItems.filter(noteItem => {
+  const updatedNotes = notes?.map(note => {
+    return {
+      ...note,
+      noteItems: note.noteItems.map(noteItem => {
+        return {
+          ...noteItem,
+          originalNote: note.noteItems.find(item => item.id === noteItem.revisedById),
+        };
+      }),
+    };
+  });
+
+  const filteredNotes = updatedNotes?.map(note => {
+    const noteCopy = note;
+    noteCopy.noteItems = noteCopy.noteItems.filter(noteItem => {
       return !editedNoteIds.includes(noteItem.id);
     });
-    return updatedNote;
+    return noteCopy;
+  });
+
+  const orderedNotes = filteredNotes?.map(note => {
+    return {
+      ...note,
+      noteItems: note.noteItems.sort((a, b) => {
+        if (a.originalNote && b.originalNote) {
+          return new Date(a.originalNote.date) - new Date(b.originalNote.date);
+        }
+        if (a.originalNote) {
+          return new Date(a.originalNote.date) - new Date(b.date);
+        }
+        if (b.originalNote) {
+          return new Date(a.date) - new Date(b.originalNote.date);
+        }
+        return new Date(a.date) - new Date(b.date);
+      }),
+    };
   });
 
   const systemNotes = notes?.filter(note => {
@@ -159,8 +189,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           locationHistory={locationHistory}
           labRequests={updatedLabRequests}
           imagingRequests={imagingRequests}
-          notes={filteredNotes}
-          editedNoteIds={editedNoteIds}
+          notes={orderedNotes}
           discharge={discharge}
           village={village}
           pad={padData}
