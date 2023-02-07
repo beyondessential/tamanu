@@ -1,75 +1,36 @@
-import { HoneycombSDK } from '@honeycombio/opentelemetry-node';
-import { trace } from '@opentelemetry/api';
-import { Resource } from '@opentelemetry/resources';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import Transport from 'winston-transport';
+import Libhoney from 'libhoney';
 import config from 'config';
-import shortid from 'shortid';
-import os from 'os';
+import { serviceContext, serviceName } from './context';
 
-function setupHoneycomb() {
-  const { apiKey, sampleRate = 1, enabled } = config?.honeycomb || {};
+const context = serviceContext();
+const legacyNames = {
+  deployment: context[SemanticAttributes.DEPLOYMENT_NAME],
+  facilityId: context[SemanticAttributes.DEPLOYMENT_FACILITY],
+  nodeEnv: context[SemanticAttributes.DEPLOYMENT_ENVIRONMENT],
+  processId: context[SemanticAttributes.PROCESS_ID],
+  hostname: context[SemanticAttributes.NET_HOST_NAME],
+  version: context[SemanticAttributes.SERVICE_VERSION],
+  serverType: context[SemanticAttributes.SERVICE_TYPE],
+};
 
-  if (!enabled || !apiKey) {
-    return;
+const { apiKey, enabled } = config?.honeycomb || {};
+
+const honeyApi = new Libhoney({
+  writeKey: apiKey,
+  dataset: serviceName(context),
+  disabled: !(apiKey && enabled),
+});
+
+class HoneycombTransport extends Transport {
+  log(info, callback) {
+    const event = honeyApi.newEvent();
+    event.add(info);
+    event.add(context);
+    event.add(legacyNames);
+    event.send();
+    callback();
   }
-
-  const { serverType, version } = global.serverInfo;
-  const deploymentHost = config?.canonicalHostName || config?.sync?.host;
-  const deployment = new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
-  const facilityId = config?.serverFacilityId?.replace(/([^a-z0-9]+|^(ref\/)?facility[-/])/gi, '');
-
-  let serviceName = `${deployment}-${serverType}`;
-  if (facilityId) serviceName += `-${facilityId}`;
-
-  const honey = new HoneycombSDK({
-    apiKey,
-    serviceName,
-    sampleRate,
-    instrumentations: [
-      getNodeAutoInstrumentations({
-        '@opentelemetry/instrumentation-pg': {
-          enhancedDatabaseReporting: process.env.NODE_ENV !== 'production',
-          requestHook: (span, { query }) => {
-            if (
-              process.env.NODE_ENV === 'production' &&
-              (span.name.startsWith('pg.query:UPDATE') ||
-                span.name.startsWith('pg.query:INSERT') ||
-                query.text.startsWith('INSERT') ||
-                query.text.startsWith('UPDATE'))
-            ) {
-              span.setAttribute('db.statement', 'REDACTED UPDATE/INSERT');
-            }
-          },
-        },
-      }),
-    ],
-    resource: new Resource({
-      'net.host.name': os.hostname(),
-      'process.id': shortid.generate(),
-      'deployment.name': deployment,
-      'deployment.environment': process.env.NODE_ENV,
-      'deployment.facility': facilityId,
-      'service.type': serverType,
-      'service.version': version,
-    }),
-  });
-
-  honey.start();
-  return honey;
 }
 
-export const honey = setupHoneycomb();
-export const getTracer = (name = 'tamanu') => trace.getTracer(name);
-export const spanWrapFn = async (name, fn, attributes = {}, tracer = 'tamanu') =>
-  getTracer(tracer).startActiveSpan(name, async span => {
-    span.setAttribute('code.function', name);
-    span.setAttributes(attributes);
-    try {
-      return await fn(span);
-    } catch (e) {
-      span.recordException(e);
-      throw e;
-    } finally {
-      span.end();
-    }
-  });
+export const honeycombTransport = new HoneycombTransport();
