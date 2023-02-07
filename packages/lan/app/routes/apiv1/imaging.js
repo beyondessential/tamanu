@@ -2,7 +2,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
-import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
+import {
+  NOTE_TYPES,
+  AREA_TYPE_TO_IMAGING_TYPE,
+  IMAGING_AREA_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+} from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { getNoteWithType } from 'shared/utils/notePages';
@@ -151,6 +156,7 @@ imagingRequest.put(
       },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
+
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
@@ -359,7 +365,10 @@ globalImagingRequests.get(
 
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
-      where: imagingRequestFilters,
+      where: {
+        ...imagingRequestFilters,
+        status: { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
+      },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, encounter, areas],
       limit: rowsPerPage,

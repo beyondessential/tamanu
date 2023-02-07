@@ -27,7 +27,7 @@ export function ensureRequiredQuestionsPresent(surveyInfo, questionRecords) {
   }
 }
 
-export async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
+async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
   const vitalsCount = await models.Survey.count({
     where: {
       id: {
@@ -39,4 +39,15 @@ export async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
   if (vitalsCount > 0) {
     throw new ImporterMetadataError('Only one vitals survey may exist at a time');
   }
+}
+
+function ensureVitalsSurveyNonSensitive(surveyInfo) {
+  if (surveyInfo.isSensitive) {
+    throw new ImporterMetadataError('Vitals survey can not be sensitive');
+  }
+}
+
+export async function validateVitalsSurvey(context, surveyInfo) {
+  await ensureOnlyOneVitalsSurveyExists(context, surveyInfo);
+  ensureVitalsSurveyNonSensitive(surveyInfo);
 }

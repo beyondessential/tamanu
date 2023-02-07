@@ -8,6 +8,7 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 import { DateDisplay } from '../../DateDisplay';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
+import { getFullLocationName } from '../../../utils/location';
 
 import { LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
@@ -19,7 +20,7 @@ import { NotesPagesSection } from './reusable/NotesPagesSection';
 
 const RowContainer = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-around;
 `;
 
 // TODO: deduplicate
@@ -78,7 +79,7 @@ const columns = [
 ];
 
 export const MultipleLabRequestsPrintout = React.memo(
-  ({ patientData, labRequests, certificateData }) => {
+  ({ patientData, labRequests, encounterData, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
     const { facility } = useAuth();
     const idsAndNotePages = labRequests.map(lr => [lr.displayId, lr.notePages]);
@@ -92,13 +93,18 @@ export const MultipleLabRequestsPrintout = React.memo(
 
         <RowContainer>
           <StyledDiv>
-            <CertificateLabel margin="9px" name="Date" size="14px">
+            <CertificateLabel name="Print date" size="14px">
               <DateDisplay date={getCurrentDateString()} />
             </CertificateLabel>
           </StyledDiv>
-          <StyledDiv $marginLeft="150">
+          <StyledDiv>
             <LocalisedLabel name="facility" size="14px">
               {facility.name}
+            </LocalisedLabel>
+          </StyledDiv>
+          <StyledDiv>
+            <LocalisedLabel name="locationId" size="14px">
+              {getFullLocationName(encounterData?.location)}
             </LocalisedLabel>
           </StyledDiv>
         </RowContainer>
