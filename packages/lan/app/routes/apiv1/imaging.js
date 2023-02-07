@@ -389,12 +389,18 @@ globalImagingRequests.get(
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: {
         ...imagingRequestFilters,
-        status: {
-          [Op.and]: {
-            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        [Op.and]: [
+          {
+            status: {
+              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+            },
           },
-        },
+          {
+            status: {
+              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+            },
+          },
+        ],
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, encounter, areas],
