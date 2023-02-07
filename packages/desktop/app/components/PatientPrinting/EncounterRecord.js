@@ -10,7 +10,6 @@ import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
 import { noteTypes, DRUG_ROUTE_VALUE_TO_LABEL, CERTAINTY_OPTIONS_BY_VALUE } from '../../constants';
-import { useLocalisation } from '../../contexts/Localisation';
 
 import { ImagingRequestData } from './ImagingRequestData';
 
@@ -178,19 +177,16 @@ const columns = {
     {
       key: 'testType',
       title: 'Test Type',
-      // accessor: ({ tests }) => tests.map(test => test.labTestType.name).join(', '),
       style: { width: '20%' },
     },
     {
       key: 'testCategory',
       title: 'Test Category',
-      // accessor: ({ category }) => (category || {}).name,
       style: { width: '20%' },
     },
     {
       key: 'requestingClinician',
       title: 'Requesting Clinician',
-      // accessor: ({ requestedBy }) => (requestedBy || {}).displayName,
       style: { width: '20%' },
     },
     {
@@ -293,13 +289,6 @@ export const EncounterRecord = React.memo(
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
-    const { getLocalisation } = useLocalisation();
-    const imagingTypes = getLocalisation('imagingTypes') || {};
-    const updatedImagingRequests = imagingRequests.data.map(imagingRequest => ({
-      ...imagingRequest,
-      imagingName: imagingTypes[imagingRequest.imagingType],
-    }));
-
     return (
       <CertificateWrapper>
         <PrintLetterhead
@@ -401,10 +390,10 @@ export const EncounterRecord = React.memo(
           <></>
         )}
 
-        {updatedImagingRequests.length > 0 ? (
+        {imagingRequests.length > 0 ? (
           <>
             <TableHeading>Imaging Requests</TableHeading>
-            <CompactListTable data={updatedImagingRequests} columns={columns.imagingRequests} />
+            <CompactListTable data={imagingRequests} columns={columns.imagingRequests} />
           </>
         ) : (
           <></>
@@ -425,28 +414,34 @@ export const EncounterRecord = React.memo(
             {notes.map(note => (
               <>
                 <Table>
-                  <Row>
-                    <Cell width="10%">
-                      <BoldText>Note Type</BoldText>
-                    </Cell>
-                    <Cell width="35%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
-                    <Cell>
-                      <DateDisplay date={note.date} showDate showTime />
-                    </Cell>
-                  </Row>
-                  <Row>
-                    <Cell colSpan={3}>
-                      {note.noteItems.map(noteItem => (
-                        <ChildNote>
-                          <BoldText>
-                            <DateDisplay date={noteItem.date} showDate showTime />
-                            {noteItem.revisedById ? ' (edited)' : ''}
-                          </BoldText>
-                          {noteItem.content}
-                        </ChildNote>
-                      ))}
-                    </Cell>
-                  </Row>
+                  <thead>
+                    <Row>
+                      <Cell width="10%">
+                        <BoldText>Note Type</BoldText>
+                      </Cell>
+                      <Cell width="35%">
+                        {noteTypes.find(x => x.value === note.noteType).label}
+                      </Cell>
+                      <Cell>
+                        <DateDisplay date={note.date} showDate showTime />
+                      </Cell>
+                    </Row>
+                  </thead>
+                  <tbody>
+                    <Row>
+                      <Cell colSpan={3}>
+                        {note.noteItems.map(noteItem => (
+                          <ChildNote>
+                            <BoldText>
+                              <DateDisplay date={noteItem.date} showDate showTime />
+                              {noteItem.revisedById ? ' (edited)' : ''}
+                            </BoldText>
+                            {noteItem.content}
+                          </ChildNote>
+                        ))}
+                      </Cell>
+                    </Row>
+                  </tbody>
                 </Table>
               </>
             ))}
