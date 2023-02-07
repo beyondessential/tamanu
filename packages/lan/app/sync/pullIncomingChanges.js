@@ -59,5 +59,5 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     limit = calculatePageLimit(limit, pullTime);
   }
 
-  return { totalToPull, pullUntil };
+  return { totalPulled: totalToPull, pullUntil };
 };

@@ -20,7 +20,7 @@ export const buildSyncRoutes = ctx => {
 
   // set the since and facilityId for a pull session
   syncRoutes.post(
-    '/:sessionId/pullFilter',
+    '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
       const { params, body } = req;
       const {
@@ -34,7 +34,7 @@ export const buildSyncRoutes = ctx => {
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
-      await syncManager.setPullFilter(params.sessionId, {
+      await syncManager.initiatePull(params.sessionId, {
         since,
         facilityId,
         tablesToInclude,

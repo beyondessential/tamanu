@@ -112,7 +112,7 @@ class FacilitySyncManager {
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
-    const { totalToPull, pullUntil } = await pullIncomingChanges(
+    const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       this.sequelize,
       sessionId,
@@ -120,8 +120,8 @@ class FacilitySyncManager {
     );
 
     await this.sequelize.transaction(async () => {
-      if (totalToPull > 0) {
-        log.debug(`FacilitySyncManager.runSync: Saving a total of ${totalToPull} changes`);
+      if (totalPulled > 0) {
+        log.debug(`FacilitySyncManager.runSync: Saving a total of ${totalPulled} changes`);
         await saveIncomingChanges(
           this.sequelize,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),

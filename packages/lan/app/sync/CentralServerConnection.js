@@ -220,10 +220,10 @@ export class CentralServerConnection {
     // first, set the pull filter on the central server, which will kick of a snapshot of changes
     // to pull
     const body = { since, facilityId: config.serverFacilityId };
-    await this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
+    await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // then, poll the pull ready endpoint until we get a valid response - it takes a while for
-    // setPullFilter to finish populating the snapshot of changes
+    // pull/initiate to finish populating the snapshot of changes
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the metadata for the changes we're about to pull

@@ -135,7 +135,7 @@ class CentralSyncManager {
   }
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
-  async setPullFilter(sessionId, params) {
+  async initiatePull(sessionId, params) {
     // first check if the snapshot is already being processed, to throw a sane error if (for some
     // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
     const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
@@ -182,7 +182,7 @@ class CentralSyncManager {
         where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug(
-        `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
+        `CentralSyncManager.initiatePull: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
       );
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
@@ -258,7 +258,7 @@ class CentralSyncManager {
       // time throughout the snapshot process
       await session.update({ snapshotCompletedAt: new Date() });
     } catch (error) {
-      log.error('CentralSyncManager.setPullFilter encountered an error', error);
+      log.error('CentralSyncManager.initiatePull encountered an error', error);
       await session.update({ error: error.message });
     } finally {
       await unmarkSnapshotAsProcessing();

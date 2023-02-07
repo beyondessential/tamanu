@@ -140,10 +140,10 @@ export class CentralServerConnection {
       tablesForFullResync,
       isMobile: true,
     };
-    await this.post(`sync/${sessionId}/pullFilter`, {}, body, {});
+    await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
 
     // poll the pull count endpoint until we get a valid response - it takes a while for
-    // setPullFilter to finish populating the snapshot of changes
+    // pull/initiate to finish populating the snapshot of changes
     await this.pollUntilTrue(`sync/${sessionId}/pull/count`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
