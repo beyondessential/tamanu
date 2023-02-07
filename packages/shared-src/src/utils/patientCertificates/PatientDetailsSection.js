@@ -38,14 +38,18 @@ export const PatientDetailsSection = ({
 
             return (
               <Col key={key}>
-                <P>{`${label}: ${value}`}</P>
+                <P mb={5}>
+                  <P bold>{label}:</P> {value}
+                </P>
               </Col>
             );
           })}
         </Row>
         {uvci && (
           <Row>
-            <P>UVCI: {uvci}</P>
+            <P>
+              <P bold>UVCI:</P> {uvci}
+            </P>
           </Row>
         )}
       </Col>
