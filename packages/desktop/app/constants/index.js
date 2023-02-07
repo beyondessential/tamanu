@@ -14,7 +14,6 @@ import {
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
-  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
 import {
