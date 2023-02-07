@@ -34,24 +34,36 @@ export const buildSyncRoutes = ctx => {
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
-      const { tick } = await syncManager.setPullFilter(params.sessionId, {
+      await syncManager.setPullFilter(params.sessionId, {
         since,
         facilityId,
         tablesToInclude,
         tablesForFullResync,
         isMobile,
       });
-      res.json({ tick });
+      res.json({});
     }),
   );
 
-  // count the outgoing changes for a session, or return null if it is not finished snapshotting
+  // check if pull snapshot is ready, so client can poll while server asynchronously snapshots
+  // changes to pull (which can also be blocked by another sync session finishing its persist phase)
   syncRoutes.get(
-    '/:sessionId/pull/count',
+    '/:sessionId/pull/ready',
     asyncHandler(async (req, res) => {
       const { params } = req;
-      const count = await syncManager.fetchPullCount(params.sessionId);
-      res.json(count);
+      const { sessionId } = params;
+      const ready = await syncManager.checkPullReady(sessionId);
+      res.json(ready);
+    }),
+  );
+
+  // count the outgoing changes for a session, and grab the sync tick the pull snapshots up until
+  syncRoutes.get(
+    '/:sessionId/pull/metadata',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(params.sessionId);
+      res.json({ totalToPull, pullUntil });
     }),
   );
 

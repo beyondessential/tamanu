@@ -134,15 +134,17 @@ class CentralSyncManager {
     return rows[0].snapshot_is_processing;
   }
 
-  // set pull filter begins creating a snapshot of changes to pull at this point in time, and
-  // returns a sync tick that we can safely consider the snapshot to be up to (because we use the
-  // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
-  // process is ongoing, will have a later updated_at_sync_tick)
+  // set pull filter begins creating a snapshot of changes to pull at this point in time
   async setPullFilter(sessionId, params) {
-    const { tick } = await this.tickTockGlobalClock();
+    // first check if the snapshot is already being processed, to throw a sane error if (for some
+    // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
+    const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
+    if (isAlreadyProcessing) {
+      throw new Error(`Snapshot for session ${sessionId} is already being processed`);
+    }
+
     const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
     this.setupSnapshot(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
-    return { tick };
   }
 
   async setupSnapshot(
@@ -155,9 +157,17 @@ class CentralSyncManager {
     const session = await this.connectToSession(sessionId);
 
     try {
+      // get a sync tick that we can safely consider the snapshot to be up to (because we use the
+      // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+      // process is ongoing, will have a later updated_at_sync_tick)
+      const { tick } = await this.tickTockGlobalClock();
+      await models.SyncSession.update(
+        { pullSince: since, pullUntil: tick },
+        { where: { id: sessionId } },
+      );
+
       await models.SyncSession.addDebugInfo(sessionId, {
         facilityId,
-        since,
         isMobile,
         tablesForFullResync,
       });
@@ -255,11 +265,11 @@ class CentralSyncManager {
     }
   }
 
-  async fetchPullCount(sessionId) {
-    // if this snapshot still processing, return null to tell the client to keep waiting
+  async checkPullReady(sessionId) {
+    // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
     if (snapshotIsProcessing) {
-      return null;
+      return false;
     }
 
     // if this snapshot is not marked as processing, but also never completed, record an error
@@ -271,12 +281,19 @@ class CentralSyncManager {
       throw new Error(errorMessageFromSession(session));
     }
 
-    // snapshot processing complete! return the actual count
-    return countSyncSnapshotRecords(
+    // snapshot processing complete!
+    return true;
+  }
+
+  async fetchPullMetadata(sessionId) {
+    const session = await this.connectToSession(sessionId);
+    const totalToPull = await countSyncSnapshotRecords(
       this.store.sequelize,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
+    const { pullUntil } = session;
+    return { totalToPull, pullUntil };
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
