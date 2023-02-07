@@ -326,7 +326,7 @@ class CentralSyncManager {
       );
     } catch (error) {
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
-      await models.SyncSession.update({ error: error.message });
+      await models.SyncSession.update({ error: error.message }, { where: { id: sessionId } });
     }
   }
 
