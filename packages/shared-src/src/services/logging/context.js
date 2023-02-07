@@ -1,4 +1,4 @@
-import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticAttributes as OpenTelSemantics } from '@opentelemetry/semantic-conventions';
 import config from 'config';
 import shortid from 'shortid';
 import os from 'os';
@@ -8,7 +8,7 @@ export const PROCESS_ID = shortid.generate();
 export const HOSTNAME = os.hostname();
 
 export const SemanticAttributes = {
-  ...SemanticAttributes,
+  ...OpenTelSemantics,
   DEPLOYMENT_NAME: 'deployment.name',
   DEPLOYMENT_ENVIRONMENT: 'deployment.environment',
   DEPLOYMENT_FACILITY: 'deployment.facility',
