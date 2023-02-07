@@ -1,7 +1,7 @@
 import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
-import { serviceContext, serviceName } from './context';
+import { SemanticAttributes, serviceContext, serviceName } from './context';
 
 const context = serviceContext();
 const legacyNames = {
