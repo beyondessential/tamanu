@@ -58,14 +58,22 @@ export class Form extends React.PureComponent {
     }
 
     setSubmitting(true);
+    const values = getValues();
 
     // validation phase
-    const values = getValues();
-    const formErrors = await validateForm(values);
-    if (Object.entries(formErrors).length) {
-      this.setErrors(formErrors);
-      setSubmitting(false);
-      throw new ValidationError('Form was not filled out correctly');
+    const { validateOnChange, validateOnBlur } = this.props;
+
+    // Only validate here if we are not validating on blur or change elsewhere. Formik doesn't
+    // handle double validating. @see https://github.com/jaredpalmer/formik/issues/1209
+    if (!validateOnChange && !validateOnBlur) {
+      const formErrors = await validateForm(values);
+      if (Object.entries(formErrors).length) {
+        this.setErrors(formErrors);
+        // Set submitting false before throwing the error so that the form is reset
+        // for future form submissions
+        setSubmitting(false);
+        throw new ValidationError('Form was not filled out correctly');
+      }
     }
 
     // submission phase
