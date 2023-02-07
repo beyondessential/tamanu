@@ -30,24 +30,40 @@ const Cell = styled.td`
 `;
 
 export const ListTable = ({ columns, data }) => {
+  const totalWidth = columns.reduce((sum, c) => sum + c.widthProportion || 1, 0);
+  const getWidth = widthProportion => `${(widthProportion / totalWidth) * 100}%`;
   return (
     <Table>
-      <Row>
-        {columns.map(({ key, title, style }) => (
-          <Header key={key} style={{ paddingLeft: '0.5rem', ...style }}>
-            {title}
-          </Header>
-        ))}
-      </Row>
-      {data.map(row => (
-        <Row key={row.id}>
-          {columns.map(({ key, accessor, style }) => (
-            <Cell key={key} style={{ paddingLeft: '0.5rem', ...style }}>
-              {accessor ? accessor(row) : row[key]}
-            </Cell>
+      <thead>
+        <Row>
+          {columns.map(({ key, title, style, widthProportion = 1 }) => (
+            <Header
+              key={key}
+              style={{ paddingLeft: '0.5rem', width: getWidth(widthProportion), ...style }}
+            >
+              {title}
+            </Header>
           ))}
         </Row>
-      ))}
+      </thead>
+      <tbody>
+        {data.map(row => (
+          <Row key={row.id}>
+            {columns.map(({ key, accessor, style, widthProportion = 1 }) => (
+              <Cell
+                key={key}
+                style={{
+                  paddingLeft: '0.5rem',
+                  width: getWidth(widthProportion),
+                  ...style,
+                }}
+              >
+                {accessor ? accessor(row) : row[key]}
+              </Cell>
+            ))}
+          </Row>
+        ))}
+      </tbody>
     </Table>
   );
 };

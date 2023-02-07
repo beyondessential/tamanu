@@ -23,7 +23,7 @@ export const NotesPagesSection = ({ idsAndNotePages }) => {
       }
       return {
         content: (
-          <p>
+          <p key={id}>
             <StyledId>{id}</StyledId>
             {content}
           </p>

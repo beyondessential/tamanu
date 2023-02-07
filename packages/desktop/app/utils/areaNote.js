@@ -10,7 +10,9 @@ export const getAreaNote = ({ areas, areaNote }) => {
     return areas.map(({ name, id }) => <div key={id}>{name}</div>);
   }
   if (areaNote) {
-    return areaNote.split('\n').map(line => <Line>{line}</Line>);
+    // there's no sensible way to key this except by array index
+    // eslint-disable-next-line react/no-array-index-key
+    return areaNote.split('\n').map((line, i) => <Line key={`${i}-${line}`}>{line}</Line>);
   }
   return '';
 };
