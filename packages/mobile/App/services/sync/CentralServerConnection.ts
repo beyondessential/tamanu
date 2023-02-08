@@ -127,9 +127,9 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
 
     // finally, fetch the new tick from starting the session
-    const { startSince } = await this.get(`sync/${sessionId}/metadata`, {});
+    const { startedAtTick } = await this.get(`sync/${sessionId}/metadata`, {});
 
-    return { sessionId, startSince };
+    return { sessionId, startedAtTick };
   }
 
   async endSyncSession(sessionId: string) {
@@ -152,7 +152,7 @@ export class CentralServerConnection {
     };
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
 
-    // poll the pull count endpoint until we get a valid response - it takes a while for
+    // poll the pull/ready endpoint until we get a valid response - it takes a while for
     // pull/initiate to finish populating the snapshot of changes
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 

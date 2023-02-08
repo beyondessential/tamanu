@@ -155,7 +155,10 @@ export class MobileSyncManager {
     await clearPersistedSyncSessionRecords();
 
     // the first step of sync is to start a session and retrieve the session id
-    const { sessionId, startSince: newSyncClockTime } = await this.centralServer.startSyncSession();
+    const {
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    } = await this.centralServer.startSyncSession();
 
     console.log('MobileSyncManager.runSync(): Sync started');
 

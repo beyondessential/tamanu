@@ -68,7 +68,10 @@ class FacilitySyncManager {
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
     // the first step of sync is to start a session and retrieve the session id
-    const { sessionId, startSince: newSyncClockTime } = await this.centralServer.startSyncSession();
+    const {
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    } = await this.centralServer.startSyncSession();
 
     // ~~~ Push phase ~~~ //
 

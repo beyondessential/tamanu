@@ -75,7 +75,7 @@ class CentralSyncManager {
     });
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
-    // and take a while if the central server is concurrently persist records from another client.
+    // and take a while if the central server is concurrently persisting records from another client.
     // Client should poll for the result later.
     this.prepareSession(syncSession);
 
@@ -90,7 +90,7 @@ class CentralSyncManager {
     const { tick } = await this.tickTockGlobalClock();
 
     await this.store.sequelize.models.SyncSession.update(
-      { startSince: tick },
+      { startedAtTick: tick },
       { where: { id: syncSession.id } },
     );
   }
@@ -280,7 +280,7 @@ class CentralSyncManager {
 
   async checkSessionReady(sessionId) {
     const session = await this.connectToSession(sessionId);
-    if (session.startSince === null) {
+    if (session.startedAtTick === null) {
       return false;
     }
 
@@ -309,8 +309,8 @@ class CentralSyncManager {
 
   async fetchSyncMetadata(sessionId) {
     // Minimum metadata info for now but can grow in the future
-    const { startSince } = await this.connectToSession(sessionId);
-    return { startSince };
+    const { startedAtTick } = await this.connectToSession(sessionId);
+    return { startedAtTick };
   }
 
   async fetchPullMetadata(sessionId) {

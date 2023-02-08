@@ -18,16 +18,6 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
-  // fetch sync metadata
-  syncRoutes.get(
-    '/:sessionId/metadata',
-    asyncHandler(async (req, res) => {
-      const { params } = req;
-      const { startSince } = await syncManager.fetchSyncMetadata(params.sessionId);
-      res.json({ startSince });
-    }),
-  );
-
   // fetch if the session is ready to start syncing
   syncRoutes.get(
     '/:sessionId/ready',
@@ -36,6 +26,16 @@ export const buildSyncRoutes = ctx => {
       const { sessionId } = params;
       const ready = await syncManager.checkSessionReady(sessionId);
       res.json(ready);
+    }),
+  );
+
+  // fetch sync metadata
+  syncRoutes.get(
+    '/:sessionId/metadata',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { startedAtTick } = await syncManager.fetchSyncMetadata(params.sessionId);
+      res.json({ startedAtTick });
     }),
   );
 
