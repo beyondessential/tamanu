@@ -137,8 +137,8 @@ jobs:
     - run: yarn workspace ${{ matrix.package }} run lint
   storybook:
     needs: build
-    env: 
-        NODE_ENV: development
+    # env: 
+    #     NODE_ENV: development
     continue-on-error: true
   
     strategy:
@@ -156,11 +156,8 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
         cache: yarn
-    - name: Get prebuilt shared
-      uses: ./.github/actions/get-shared
-      with:
-        node: ${{ matrix.node }}
-  
+    - run: yarn build-shared
+      shell: bash
     - run: yarn workspace desktop run verify-storybook
 
   migrations:
