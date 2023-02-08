@@ -6,6 +6,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
+const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 /**
  * The doc doesn't really mention using webpack.config.js, but .storybook/main.js instead.
@@ -25,6 +26,16 @@ module.exports = async ({ config }) => {
   config.plugins.push(
     new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
       resource.request = resource.request.replace(/^node:/, '');
+    }),
+  );
+  /**
+   * This warning was so hard to discover the root off, no combination
+   * of webpack.config changes and intercepting storybook initial config plugins
+   * would fix it in ci context. So just ignoring to restore storybook ci step
+   */
+  config.plugins.push(
+    new FilterWarningsPlugin({
+      exclude: /"DefinePlugin\nConflicting values for 'NODE_ENV'"/,
     }),
   );
   config.resolve.fallback = {
