@@ -37,7 +37,7 @@ module.exports = async ({ config }) => {
    */
   config.plugins.push(
     new FilterWarningsPlugin({
-      exclude: "DefinePlugin\nConflicting values for 'process.env.NODE_ENV'",
+      exclude: /DefinePlugin\nConflicting values for 'process.env.NODE_ENV'/,
     }),
   );
   config.resolve.fallback = {
