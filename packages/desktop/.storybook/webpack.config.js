@@ -22,16 +22,18 @@ module.exports = async ({ config }) => {
   /**
    * Pretty odd workaround but prevented changing more core configs
    *  @see https://github.com/vercel/next.js/issues/28774#issuecomment-1264555395 for similar issue
-  //  */
+   */
   config.plugins.push(
     new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
       resource.request = resource.request.replace(/^node:/, '');
     }),
   );
   /**
-   * This warning was so hard to discover the root off, no combination
-   * of webpack.config changes and intercepting storybook initial config plugins
-   * would fix it in ci context. So just ignoring to restore storybook ci step
+   * Another workaround to restore storybook-verify ci step
+   * In the context of ci step this would also show as warning
+   * Intercepting default storybook webpack configs DefinePlugin
+   * did not work nor did other combinations of webpack configs
+   * and storybook configs env settings
    */
   config.plugins.push(
     new FilterWarningsPlugin({

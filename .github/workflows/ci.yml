@@ -135,7 +135,6 @@ jobs:
         node: ${{ matrix.node }}
 
     - run: yarn workspace ${{ matrix.package }} run lint
-  ## disable for now as there are some outstanding warning that need to be gone over 
   storybook:
     needs: build
     continue-on-error: true
