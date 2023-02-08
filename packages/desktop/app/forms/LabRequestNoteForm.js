@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { NOTE_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { NOTE_TYPES } from 'shared/constants';
 import { useApi } from '../api';
 import { Form, Field, TextField, AddButton, TextInput } from '../components';
 
