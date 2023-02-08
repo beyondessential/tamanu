@@ -15,43 +15,44 @@ const columns = [
   {
     key: 'displayId',
     title: 'Test ID',
-    style: { width: '13.33%' },
+    widthProportion: 2,
   },
   {
     key: 'date',
     title: 'Request date',
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
-    style: { width: '13.33%' },
+    widthProportion: 2,
   },
   {
     key: 'requestedBy',
     title: 'Requesting clinician',
     accessor: ({ requestedBy }) => requestedBy?.displayName,
-    style: { width: '13.33%' },
+    widthProportion: 2,
   },
   {
     key: 'sampleTime',
     title: 'Sample time',
     accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showTime />,
-    style: { textAlign: 'center', width: '13.33%' },
+    style: { textAlign: 'center' },
+    widthProportion: 2,
   },
   {
     key: 'priority',
     title: 'Priority',
     accessor: ({ priority }) => priority?.name || '',
-    style: { width: '13.33%' },
+    widthProportion: 2,
   },
   {
     key: 'category',
     title: 'Test category',
     accessor: ({ category }) => category?.name || '',
-    style: { width: '13.33%' },
+    widthProportion: 2,
   },
   {
     key: 'testType',
     title: 'Test type',
     accessor: ({ tests }) => tests?.map(test => test.labTestType?.name).join(', ') || '',
-    style: { width: '20%' },
+    widthProportion: 3,
   },
 ];
 
