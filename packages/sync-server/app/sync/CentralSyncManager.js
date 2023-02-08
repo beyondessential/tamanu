@@ -73,13 +73,26 @@ class CentralSyncManager {
       startTime,
       lastConnectionTime: startTime,
     });
-    await createSnapshotTable(this.store.sequelize, syncSession.id);
+
+    // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
+    // and take a while if the central server is concurrently persisting records from another client.
+    // Client should poll for the result later.
+    this.prepareSession(syncSession);
 
     log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
 
+    return { sessionId: syncSession.id };
+  }
+
+  async prepareSession(syncSession) {
+    await createSnapshotTable(this.store.sequelize, syncSession.id);
+
     const { tick } = await this.tickTockGlobalClock();
 
-    return { sessionId: syncSession.id, tick };
+    await this.store.sequelize.models.SyncSession.update(
+      { startedAtTick: tick },
+      { where: { id: syncSession.id } },
+    );
   }
 
   async connectToSession(sessionId) {
@@ -134,15 +147,17 @@ class CentralSyncManager {
     return rows[0].snapshot_is_processing;
   }
 
-  // set pull filter begins creating a snapshot of changes to pull at this point in time, and
-  // returns a sync tick that we can safely consider the snapshot to be up to (because we use the
-  // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
-  // process is ongoing, will have a later updated_at_sync_tick)
-  async setPullFilter(sessionId, params) {
-    const { tick } = await this.tickTockGlobalClock();
+  // set pull filter begins creating a snapshot of changes to pull at this point in time
+  async initiatePull(sessionId, params) {
+    // first check if the snapshot is already being processed, to throw a sane error if (for some
+    // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
+    const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
+    if (isAlreadyProcessing) {
+      throw new Error(`Snapshot for session ${sessionId} is already being processed`);
+    }
+
     const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
     this.setupSnapshot(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
-    return { tick };
   }
 
   async setupSnapshot(
@@ -155,9 +170,17 @@ class CentralSyncManager {
     const session = await this.connectToSession(sessionId);
 
     try {
+      // get a sync tick that we can safely consider the snapshot to be up to (because we use the
+      // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+      // process is ongoing, will have a later updated_at_sync_tick)
+      const { tick } = await this.tickTockGlobalClock();
+      await models.SyncSession.update(
+        { pullSince: since, pullUntil: tick },
+        { where: { id: sessionId } },
+      );
+
       await models.SyncSession.addDebugInfo(sessionId, {
         facilityId,
-        since,
         isMobile,
         tablesForFullResync,
       });
@@ -172,7 +195,7 @@ class CentralSyncManager {
         where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug(
-        `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
+        `CentralSyncManager.initiatePull: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
       );
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
@@ -248,18 +271,27 @@ class CentralSyncManager {
       // time throughout the snapshot process
       await session.update({ snapshotCompletedAt: new Date() });
     } catch (error) {
-      log.error('CentralSyncManager.setPullFilter encountered an error', error);
+      log.error('CentralSyncManager.initiatePull encountered an error', error);
       await session.update({ error: error.message });
     } finally {
       await unmarkSnapshotAsProcessing();
     }
   }
 
-  async fetchPullCount(sessionId) {
-    // if this snapshot still processing, return null to tell the client to keep waiting
+  async checkSessionReady(sessionId) {
+    const session = await this.connectToSession(sessionId);
+    if (session.startedAtTick === null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async checkPullReady(sessionId) {
+    // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
     if (snapshotIsProcessing) {
-      return null;
+      return false;
     }
 
     // if this snapshot is not marked as processing, but also never completed, record an error
@@ -271,12 +303,26 @@ class CentralSyncManager {
       throw new Error(errorMessageFromSession(session));
     }
 
-    // snapshot processing complete! return the actual count
-    return countSyncSnapshotRecords(
+    // snapshot processing complete!
+    return true;
+  }
+
+  async fetchSyncMetadata(sessionId) {
+    // Minimum metadata info for now but can grow in the future
+    const { startedAtTick } = await this.connectToSession(sessionId);
+    return { startedAtTick };
+  }
+
+  async fetchPullMetadata(sessionId) {
+    const session = await this.connectToSession(sessionId);
+    const totalToPull = await countSyncSnapshotRecords(
       this.store.sequelize,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
+    await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
+    const { pullUntil } = session;
+    return { totalToPull, pullUntil };
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
@@ -292,7 +338,12 @@ class CentralSyncManager {
 
   async persistIncomingChanges(sessionId, tablesToInclude) {
     const { sequelize, models } = this.store;
-    await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date() });
+    const totalPushed = await countSyncSnapshotRecords(
+      sequelize,
+      sessionId,
+      SYNC_SESSION_DIRECTION.INCOMING,
+    );
+    await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date(), totalPushed });
 
     const modelsToInclude = tablesToInclude
       ? filterModelsFromName(models, tablesToInclude)
@@ -319,6 +370,7 @@ class CentralSyncManager {
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
       });
+
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(
         { persistCompletedAt: new Date() },
