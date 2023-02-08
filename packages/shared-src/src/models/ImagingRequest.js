@@ -68,7 +68,6 @@ export class ImagingRequest extends Model {
   }
 
   async extractNotes() {
-    console.log(this);
     const notePages =
       this.notePages ||
       (await this.getNotePages({
@@ -139,7 +138,6 @@ export class ImagingRequest extends Model {
       scope: {
         recordType: this.name,
       },
-      // scope: Sequelize.literal(`"notePages".record_type = '${this.name}'`),
     });
 
     this.hasMany(models.ImagingResult, {
