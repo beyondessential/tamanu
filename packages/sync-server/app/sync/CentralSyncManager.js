@@ -73,13 +73,26 @@ class CentralSyncManager {
       startTime,
       lastConnectionTime: startTime,
     });
-    await createSnapshotTable(this.store.sequelize, syncSession.id);
+
+    // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
+    // and take a while if the central server is concurrently persist records from another client.
+    // Client should poll for the result later.
+    this.prepareSession(syncSession);
 
     log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
 
+    return { sessionId: syncSession.id };
+  }
+
+  async prepareSession(syncSession) {
+    await createSnapshotTable(this.store.sequelize, syncSession.id);
+
     const { tick } = await this.tickTockGlobalClock();
 
-    return { sessionId: syncSession.id, tick };
+    await this.store.sequelize.models.SyncSession.update(
+      { startSince: tick },
+      { where: { id: syncSession.id } },
+    );
   }
 
   async connectToSession(sessionId) {
@@ -265,6 +278,15 @@ class CentralSyncManager {
     }
   }
 
+  async checkSessionReady(sessionId) {
+    const session = await this.connectToSession(sessionId);
+    if (session.startSince === null) {
+      return false;
+    }
+
+    return true;
+  }
+
   async checkPullReady(sessionId) {
     // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
@@ -283,6 +305,12 @@ class CentralSyncManager {
 
     // snapshot processing complete!
     return true;
+  }
+
+  async fetchSyncMetadata(sessionId) {
+    // Minimum metadata info for now but can grow in the future
+    const { startSince } = await this.connectToSession(sessionId);
+    return { startSince };
   }
 
   async fetchPullMetadata(sessionId) {
@@ -342,6 +370,7 @@ class CentralSyncManager {
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
       });
+
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(
         { persistCompletedAt: new Date() },

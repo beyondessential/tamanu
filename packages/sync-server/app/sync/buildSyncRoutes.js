@@ -18,6 +18,27 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
+  // fetch sync metadata
+  syncRoutes.get(
+    '/:sessionId/metadata',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { startSince } = await syncManager.fetchSyncMetadata(params.sessionId);
+      res.json({ startSince });
+    }),
+  );
+
+  // fetch if the session is ready to start syncing
+  syncRoutes.get(
+    '/:sessionId/ready',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { sessionId } = params;
+      const ready = await syncManager.checkSessionReady(sessionId);
+      res.json(ready);
+    }),
+  );
+
   // set the since and facilityId for a pull session
   syncRoutes.post(
     '/:sessionId/pull/initiate',

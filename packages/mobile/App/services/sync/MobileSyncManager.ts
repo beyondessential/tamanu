@@ -155,7 +155,7 @@ export class MobileSyncManager {
     await clearPersistedSyncSessionRecords();
 
     // the first step of sync is to start a session and retrieve the session id
-    const { sessionId, tick: newSyncClockTime } = await this.centralServer.startSyncSession();
+    const { sessionId, startSince: newSyncClockTime } = await this.centralServer.startSyncSession();
 
     console.log('MobileSyncManager.runSync(): Sync started');
 
@@ -190,6 +190,10 @@ export class MobileSyncManager {
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
     const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
+
+    console.log(
+      `MobileSyncManager.syncOutgoingChanges(): Finished snapshot ${outgoingChanges.length} outgoing changes`,
+    );
 
     if (outgoingChanges.length > 0) {
       await pushOutgoingChanges(

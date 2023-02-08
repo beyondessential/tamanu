@@ -209,7 +209,17 @@ export class CentralServerConnection {
   }
 
   async startSyncSession() {
-    return this.fetch('sync', { method: 'POST' });
+    const { sessionId } = await this.fetch('sync', { method: 'POST' });
+
+    // then, poll the sync/:sessionId/ready endpoint until we get a valid response
+    // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked 
+    // and take a while if the central server is concurrently persist records from another client
+    await this.pollUntilTrue(`sync/${sessionId}/ready`);
+
+    // finally, fetch the new tick from starting the session
+    const { startSince } = await this.fetch(`sync/${sessionId}/metadata`);
+
+    return { sessionId, startSince };
   }
 
   async endSyncSession(sessionId) {

@@ -12,6 +12,7 @@ export class SyncSession extends Model {
         snapshotCompletedAt: { type: DataTypes.DATE },
         persistCompletedAt: { type: DataTypes.DATE },
         completedAt: { type: DataTypes.DATE },
+        startSince: { type: DataTypes.BIGINT },
         pullSince: { type: DataTypes.BIGINT },
         pullUntil: { type: DataTypes.BIGINT },
         error: { type: DataTypes.TEXT },
