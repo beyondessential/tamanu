@@ -37,8 +37,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     getEndpoint={`patient/${patient.id}/conditions`}
     Form={OngoingConditionForm}
     getName={({ condition, resolved }) =>
-      resolved ? `${condition.name} (resolved)` : condition.name
-    }
+      resolved ? `${condition.name} (resolved)` : condition.name}
   />
 ));
 
