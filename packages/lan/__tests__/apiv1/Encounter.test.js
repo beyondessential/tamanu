@@ -476,6 +476,9 @@ describe('Encounter', () => {
         const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('triage') && x.content.includes('admission');
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(
+          app.user.id,
+        );
       });
 
       it('should fail to change encounter type to an invalid type', async () => {
@@ -513,6 +516,9 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(
+          app.user.id,
+        );
       });
 
       it('should change encounter location and add a note', async () => {
@@ -534,6 +540,9 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(
+          app.user.id,
+        );
       });
 
       it('should include comma separated location_group and location name in created note on updating encounter location', async () => {
@@ -599,6 +608,9 @@ describe('Encounter', () => {
         expect(noteItems[0].content).toEqual(
           `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
         );
+        expect(noteItems[0].authorId).toEqual(
+          app.user.id,
+        );
       });
 
       it('should discharge a patient', async () => {
@@ -637,6 +649,9 @@ describe('Encounter', () => {
         const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('Discharged');
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(
+          app.user.id,
+        );
       });
 
       it('should only update medications marked for discharge', async () => {

@@ -14,10 +14,11 @@ import { PatientDetailPrintout } from './PatientDetailPrintout';
 import { CertificateLabel } from './CertificateLabels';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
+import { getFullLocationName } from '../../utils/location';
 
 const RowContainer = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-around;
 `;
 
 const StyledDivider = styled(Divider)`
@@ -84,7 +85,7 @@ const columns = [
 ];
 
 export const MultipleLabRequestsPrintout = React.memo(
-  ({ patientData, labRequests, certificateData }) => {
+  ({ patientData, labRequests, encounterData, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
     const { facility } = useAuth();
     const notes = labRequests
@@ -117,13 +118,18 @@ export const MultipleLabRequestsPrintout = React.memo(
 
         <RowContainer>
           <StyledDiv>
-            <CertificateLabel margin="9px" name="Date" size="14px">
+            <CertificateLabel name="Print date" size="14px">
               <DateDisplay date={getCurrentDateString()} />
             </CertificateLabel>
           </StyledDiv>
-          <StyledDiv $marginLeft="150">
+          <StyledDiv>
             <LocalisedLabel name="facility" size="14px">
               {facility.name}
+            </LocalisedLabel>
+          </StyledDiv>
+          <StyledDiv>
+            <LocalisedLabel name="locationId" size="14px">
+              {getFullLocationName(encounterData?.location)}
             </LocalisedLabel>
           </StyledDiv>
         </RowContainer>

@@ -41,8 +41,8 @@ const RegisterPatientButton = (): ReactElement => {
           >
             <ProfileIcon
               style={{
-                height:screenPercentageToDP(6.92, Orientation.Height),
-                width:screenPercentageToDP(6.92, Orientation.Height),
+                height: screenPercentageToDP(6.92, Orientation.Height),
+                width: screenPercentageToDP(6.92, Orientation.Height),
               }}
             />
             <StyledText
@@ -64,18 +64,17 @@ const RegisterPatientButton = (): ReactElement => {
 export const ConditionalRegisterPatientButton = (): ReactElement => {
   const { getBool } = useLocalisation();
   const allowRegisterPatient = getBool('features.registerNewPatient');
-  if(allowRegisterPatient) {
+  if (allowRegisterPatient) {
     return <RegisterPatientButton />;
-  } else {
-    // Prevent view collapsing strangely
-    return (
-      <StyledView
-        background={theme.colors.BACKGROUND_GREY}
-        paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
-        paddingBottom={screenPercentageToDP(3.03, Orientation.Height)}
-        paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-        paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-      />
-    );
   }
+  // Prevent view collapsing strangely
+  return (
+    <StyledView
+      background={theme.colors.BACKGROUND_GREY}
+      paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
+      paddingBottom={screenPercentageToDP(3.03, Orientation.Height)}
+      paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+      paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
+    />
+  );
 };

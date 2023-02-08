@@ -7,6 +7,7 @@ import {
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
+import { jsonString, validationString } from './jsonString';
 
 const visibilityStatus = yup
   .string()
@@ -119,19 +120,6 @@ export const LabTestType = Base.shape({
   visibilityStatus,
 });
 
-const jsonString = () =>
-  // The template curly two lines down is valid in a yup message
-  // eslint-disable-next-line no-template-curly-in-string
-  yup.string().test('is-json', '${path} is not valid JSON', value => {
-    if (!value) return true;
-    try {
-      JSON.parse(value);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  });
-
 export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
   type: yup
@@ -141,9 +129,16 @@ export const ProgramDataElement = Base.shape({
   defaultOptions: jsonString(),
 });
 
+export const baseValidationShape = yup
+  .object()
+  .shape({
+    mandatory: yup.boolean(),
+  })
+  .noUnknown();
+
 export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
-  validationCriteria: jsonString(),
+  validationCriteria: validationString(baseValidationShape),
   config: jsonString(),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),

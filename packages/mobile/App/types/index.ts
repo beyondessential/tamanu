@@ -25,3 +25,4 @@ export * from './ILocation';
 export * from './ILocationGroup';
 export * from './IDepartment';
 export * from './DateString';
+export * from './Forms';

@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import styled from 'styled-components';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+
+interface TextFieldErrorMessageProps {
+  children: ReactNode;
+}
 
 const StyledErrorMessage = styled(StyledText)`
     color: ${theme.colors.ALERT};
@@ -12,6 +16,6 @@ const StyledErrorMessage = styled(StyledText)`
     padding-left: ${screenPercentageToDP(1, Orientation.Width)};
 `;
 
-export const TextErrorMessage = ({ children }: { children: string }): JSX.Element => (
+export const TextFieldErrorMessage = ({ children }: TextFieldErrorMessageProps): JSX.Element => (
   <StyledErrorMessage>{children}</StyledErrorMessage>
 );

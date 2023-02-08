@@ -1,13 +1,17 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, RefObject, useEffect, useState } from 'react';
 import { StyledView, StyledText } from '/styled/common';
-import { ISurveyScreenComponent } from '~/types';
+import { FormikErrors } from 'formik';
+import { ScrollView } from 'react-native';
+import { GenericFormValues, IPatient, ISurveyScreenComponent } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
-  patient: any;
+  errors: FormikErrors<GenericFormValues>;
+  scrollViewRef: RefObject<ScrollView>;
+  patient: IPatient;
 }
 
 function getField(type: string, { writeToPatient: { fieldType = '' } = {} } = {}): Element {
@@ -50,7 +54,7 @@ export const SurveyQuestion = ({
   return (
     <StyledView
       marginTop={10}
-      onLayout={({ nativeEvent }) => {
+      onLayout={({ nativeEvent }): void => {
         setPosition(nativeEvent.layout.y);
       }}
     >
