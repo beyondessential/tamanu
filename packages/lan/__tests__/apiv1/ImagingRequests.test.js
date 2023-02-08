@@ -115,6 +115,50 @@ describe('Imaging requests', () => {
     expect(body).toHaveProperty('areaNote', 'test-area-note');
   });
 
+  it('should get relevant notes for an imagingRequest under an encounter', async () => {
+    // Arrange
+    const createdImagingRequest = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+    const n1 = await models.NotePage.createForRecord(
+      createdImagingRequest.id,
+      NOTE_RECORD_TYPES.IMAGING_REQUEST,
+      NOTE_TYPES.AREA_TO_BE_IMAGED,
+      'test-area-note',
+      app.user.id,
+    );
+    const n2 = await models.NotePage.createForRecord(
+      createdImagingRequest.id,
+      NOTE_RECORD_TYPES.IMAGING_REQUEST,
+      NOTE_TYPES.OTHER,
+      'test-note',
+      app.user.id,
+    );
+
+    // Act
+    const result = await app.get(
+      `/v1/encounter/${encounter.id}/imagingRequests?includeNotePages=true`,
+    );
+
+    // Assert
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    expect(body.count).toBeGreaterThan(0);
+    const retrievedImgReq = body.data.find(ir => ir.id === createdImagingRequest.id);
+    expect(retrievedImgReq).toMatchObject({
+      note: 'test-note',
+      areaNote: 'test-area-note',
+    });
+    expect(
+      retrievedImgReq.notePages
+        .map(np => np.id)
+        .sort()
+        .join(','),
+    ).toBe([n1.id, n2.id].sort().join(','));
+  });
+
   it('should get imaging request reference info when listing imaging requests', async () => {
     await models.ImagingRequest.create({
       encounterId: encounter.id,

@@ -148,8 +148,9 @@ encounterRelations.get(
       orderBy = 'createdAt',
       rowsPerPage,
       page,
-      includeNotePages = false,
+      includeNotePages: includeNotePagesStr = 'false',
     } = query;
+    const includeNotePages = includeNotePagesStr === 'true';
 
     req.checkPermission('list', 'ImagingRequest');
 
