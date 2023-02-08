@@ -6,15 +6,15 @@ import { NOTE_TYPES } from 'shared/constants';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
+import { PRINTOUT_COLUMNS } from '../modals/multipleImagingRequestsColumns';
 
-import { StyledDivider } from './MultipleLabRequestsPrintout';
+import { Divider } from './reusable/Divider';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
 import { ListTable } from './reusable/ListTable';
 import { NotesPagesSection } from './reusable/NotesPagesSection';
-
-import { PRINTOUT_COLUMNS } from '../modals/multipleImagingRequestsColumns';
+import { DateFacilitySection } from './reusable/DateFacilitySection';
 
 export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) => {
   const { title, subTitle, logo } = useCertificate();
@@ -40,7 +40,8 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
       />
       <PatientDetailPrintout patientData={patient} />
 
-      <StyledDivider />
+      <Divider />
+      <DateFacilitySection encounter={encounter} />
 
       <ListTable data={imagingRequests} columns={PRINTOUT_COLUMNS} />
       <NotesPagesSection idsAndNotePages={idsAndNotePages} />
