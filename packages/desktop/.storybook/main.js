@@ -7,12 +7,4 @@ module.exports = {
   core: {
     builder: 'webpack5',
   },
-  webpackFinal: async config => {
-    // Another niche workaround to fix DefinePlugin Conflicting 'process.env.NODE_ENV'
-    const definePlugin = config.plugins.find(x => x.constructor.name === 'DefinePlugin');
-    definePlugin.definitions['NODE_ENV'] = JSON.stringify('test');
-    definePlugin.definitions['process.env.NODE_ENV'] = JSON.stringify('test');
-    config.mode = 'none';
-    return config;
-  },
 };
