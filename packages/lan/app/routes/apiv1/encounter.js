@@ -126,9 +126,18 @@ encounterRelations.get(
   '/:id/labRequests',
   getLabRequestList('encounterId', {
     additionalFilters: {
-      status: {
-        [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
-      },
+      [Op.and]: [
+        {
+          status: {
+            [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+          },
+        },
+        {
+          status: {
+            [Op.ne]: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+          },
+        },
+      ],
     },
   }),
 );
@@ -159,7 +168,12 @@ encounterRelations.get(
     const baseQueryOptions = {
       where: {
         encounterId,
-        status: { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
+        status: {
+          [Op.and]: [
+            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
+            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR },
+          ],
+        },
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: associations,

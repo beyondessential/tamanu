@@ -22,7 +22,6 @@ const Container = styled.div`
 `;
 
 const MainButton = styled(Button)`
-  flex: 1;
   border-radius: 3px;
   text-transform: none;
   font-size: 14px;
