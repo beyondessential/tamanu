@@ -33,9 +33,9 @@
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r ./babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
     "test": "echo 'No tests on desktop'",
     "reinstall": "rm -rf ../../**/node_modules && yarn",
-    "storybook": "cross-env NODE_ENV=test start-storybook -p 6006",
-    "verify-storybook": "cross-env NODE_ENV=test start-storybook --ci --smoke-test",
-    "build-storybook": "cross-env NODE_ENV=test build-storybook"
+    "storybook": "start-storybook -p 6006",
+    "verify-storybook": "start-storybook --ci --smoke-test",
+    "build-storybook": "build-storybook"
   },
   "browserslist": "electron 1.6",
   "lint-staged": {
