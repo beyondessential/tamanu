@@ -6,7 +6,6 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 /**
  * The doc doesn't really mention using webpack.config.js, but .storybook/main.js instead.
