@@ -109,7 +109,28 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;
 
-  // Get the ids of the notes that have been edited
+  const displayNotes = notes?.filter(note => {
+    return note.noteType !== 'system';
+  });
+
+  const systemNotes = notes?.filter(note => {
+    return note.noteType === 'system';
+  });
+
+  // Add orignal note to each note object linked to an edited note
+  const linkedNotes = displayNotes?.map(note => {
+    const updatedNote = note;
+    updatedNote.noteItems = note.noteItems.map(noteItem => {
+      const updatedNoteItem = noteItem;
+      const linkedNote = note.noteItems.find(item => item.id === noteItem.revisedById);
+      updatedNoteItem.originalNote = linkedNote || updatedNoteItem;
+      return updatedNoteItem;
+    });
+    return updatedNote;
+  });
+
+  // Remove orignal notes that have been edited and duplicate edits
+  const seen = new Set();
   const editedNoteIds = [];
   if (notes) {
     notes.forEach(note => {
@@ -120,24 +141,15 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       });
     });
   }
-
-  const updatedNotes = notes?.map(note => {
-    return {
-      ...note,
-      noteItems: note.noteItems.map(noteItem => {
-        return {
-          ...noteItem,
-          originalNote: note.noteItems.find(item => item.id === noteItem.revisedById),
-        };
-      }),
-    };
-  });
-
-  // TODO need to remove duplicate note updates
-  const filteredNotes = updatedNotes?.map(note => {
+  const filteredNotes = linkedNotes?.map(note => {
     const noteCopy = note;
     noteCopy.noteItems = noteCopy.noteItems.filter(noteItem => {
       return !editedNoteIds.includes(noteItem.id);
+    });
+    noteCopy.noteItems = noteCopy.noteItems.reverse().filter(noteItem => {
+      const duplicate = seen.has(noteItem.originalNote?.id);
+      seen.add(noteItem.originalNote?.id);
+      return !duplicate;
     });
     return noteCopy;
   });
@@ -158,10 +170,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         return new Date(a.date) - new Date(b.date);
       }),
     };
-  });
-
-  const systemNotes = notes?.filter(note => {
-    return note.noteType === 'system';
   });
 
   const locationSystemNotes = systemNotes?.filter(note => {
