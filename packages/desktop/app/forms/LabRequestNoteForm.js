@@ -23,8 +23,8 @@ const AddNoteButton = styled(AddButton)`
   align-self: flex-end;
 `;
 
-const ReadOnlyField = ({ notes }) => {
-  const notesText = notes.map(note => note.content).join(', ');
+const ReadOnlyNotesField = ({ notes }) => {
+  const notesText = notes.map(note => note.content).join('. ');
   return (
     <TextInput
       multiline
@@ -36,10 +36,9 @@ const ReadOnlyField = ({ notes }) => {
   );
 };
 
-export const LabRequestNoteForm = React.memo(({ labRequest }) => {
+export const LabRequestNoteForm = React.memo(({ labRequest, isReadOnly }) => {
   const api = useApi();
   const [notes, setNotes] = useState([]);
-  const isReadOnly = labRequest.status === LAB_REQUEST_STATUSES.CANCELLED;
 
   useEffect(() => {
     (async () => {
@@ -59,7 +58,7 @@ export const LabRequestNoteForm = React.memo(({ labRequest }) => {
   };
 
   if (isReadOnly) {
-    return <ReadOnlyField notes={notes} />;
+    return <ReadOnlyNotesField notes={notes} />;
   }
 
   return (

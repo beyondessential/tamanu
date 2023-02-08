@@ -298,7 +298,7 @@ export const ImagingRequestView = () => {
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
-    const note = `Request cancelled. Reason: ${reasonText}`;
+    const note = `Request cancelled. Reason: ${reasonText}.`;
 
     let status;
     if (reasonForCancellation === 'duplicate') {

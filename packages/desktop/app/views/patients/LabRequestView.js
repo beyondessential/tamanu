@@ -394,7 +394,7 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest, isReadOnly }) => (
       label="Sample date"
       disabled={isReadOnly}
     />
-    <LabRequestNoteForm labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
+    <LabRequestNoteForm labRequest={labRequest} isReadOnly={isReadOnly} />
   </FormGrid>
 );
 
