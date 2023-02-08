@@ -10,6 +10,7 @@ const ModalBody = styled.div`
   margin-top: 30px;
 
   .MuiTypography-root {
+    top: -10px;
     margin-bottom: 30px;
   }
 `;
@@ -24,9 +25,7 @@ export const CancelModal = React.memo(
   ({ title, bodyText, onConfirm, options, helperText, open, onClose }) => (
     <Modal width="sm" title={title} onClose={onClose} open={open}>
       <Form
-        onSubmit={({ reasonForCancellation }) =>
-          onConfirm(reasonForCancellation, isReasonForDelete(reasonForCancellation))
-        }
+        onSubmit={onConfirm}
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required(),
         })}

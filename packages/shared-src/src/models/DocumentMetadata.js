@@ -59,6 +59,10 @@ export class DocumentMetadata extends Model {
     });
   }
 
+  static getListReferenceAssociations() {
+    return ['department'];
+  }
+
   static buildSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;

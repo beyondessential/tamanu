@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
+import { replaceInTemplate } from '../replaceInTemplate';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -69,10 +70,12 @@ const CertificateTitle = {
   clearance: 'Covid-19 Clearance Certificate',
 };
 
-const getCertificateRemark = patient => ({
+const getCertificateRemark = (patient, getLocalisation) => ({
   test: '',
-  clearance: `This notice certifies that ${patient.firstName || ''} ${patient.lastName ||
-    ''} is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19.`,
+  clearance: replaceInTemplate(
+    getLocalisation('templates.covidTestCertificate.clearanceCertRemark') ?? '',
+    patient,
+  ),
 });
 
 export const CovidLabCertificate = ({
@@ -101,7 +104,7 @@ export const CovidLabCertificate = ({
       <Box mb={30}>
         <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
       </Box>
-      <P>{getCertificateRemark(patient)[certType] || ''}</P>
+      <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
       <Box />
       <Box>
         <Row>
