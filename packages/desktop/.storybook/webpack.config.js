@@ -28,18 +28,6 @@ module.exports = async ({ config }) => {
       resource.request = resource.request.replace(/^node:/, '');
     }),
   );
-  /**
-   * Another workaround to restore storybook-verify ci step
-   * In the context of ci step this would also show as warning
-   * Intercepting default storybook webpack configs DefinePlugin
-   * did not work nor did other combinations of webpack configs
-   * and storybook configs env settings
-   */
-  config.plugins.push(
-    new FilterWarningsPlugin({
-      exclude: /.*DefinePlugin.*/,
-    }),
-  );
   config.resolve.fallback = {
     ...config.resolve.fallback,
     os: false,

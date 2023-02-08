@@ -27,8 +27,7 @@ const queryClient = new QueryClient({
 
 
 export const decorators = [
-  Story => {
-    return (
+  Story => (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>
@@ -45,6 +44,5 @@ export const decorators = [
           </StylesProvider>
         </ConnectedRouter>
       </Provider>
-    );
-  },
+    )
 ];

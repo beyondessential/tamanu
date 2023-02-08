@@ -137,6 +137,8 @@ jobs:
     - run: yarn workspace ${{ matrix.package }} run lint
   storybook:
     needs: build
+    env: 
+        NODE_ENV: development
     continue-on-error: true
   
     strategy:
