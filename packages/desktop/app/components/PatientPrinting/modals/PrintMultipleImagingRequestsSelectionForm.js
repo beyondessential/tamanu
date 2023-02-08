@@ -66,6 +66,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
       <ConfirmCancelRow
         cancelText="Close"
         confirmText="Print"
+        confirmDisabled={selectedRows.length === 0}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />
