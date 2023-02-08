@@ -4,6 +4,7 @@ export * from './modals/PrintMultipleLabRequestsSelectionModal';
 export * from './modals/PrintMultipleImagingRequestsSelectionModal';
 export * from './modals/PrescriptionPrintModal';
 export * from './modals/ImmunisationCertificateModal';
+export * from './modals/DeathCertificateModal';
 
 export * from './printouts/LabRequestPrintout';
 export * from './printouts/ImagingRequestPrintout';
