@@ -219,7 +219,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
       </Header>
       <Content>
         <ContentItem>
-          <ContentLabel>Current Admission:</ContentLabel>
+          <ContentLabel>Current admission:</ContentLabel>
           <ContentText>{patientStatus}</ContentText>
         </ContentItem>
         <ContentItem>
