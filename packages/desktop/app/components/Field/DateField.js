@@ -99,7 +99,7 @@ export const DateInput = ({
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max, min },
       }}
-      style={isPlaceholder ? {color: Colors.softText} : undefined}
+      style={isPlaceholder ? { color: Colors.softText } : undefined}
       {...props}
     />
   );
