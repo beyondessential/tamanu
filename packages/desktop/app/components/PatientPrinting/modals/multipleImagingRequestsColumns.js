@@ -10,7 +10,7 @@ export const COLUMN_KEYS = {
   SELECTED: 'selected',
   REQUESTED_DATE: 'requestedDate',
   REQUESTED_BY: 'requestedBy',
-  URGENT: 'urgent',
+  PRIORITY: 'priority',
   TYPE: 'imagingType',
   AREAS: 'areas',
 };
@@ -44,10 +44,9 @@ const COMMON_COLUMNS = [
     printout: { widthProportion: 4 },
   },
   {
-    key: COLUMN_KEYS.URGENT,
-    title: 'Urgent',
+    key: COLUMN_KEYS.PRIORITY,
+    title: 'Priority',
     sortable: false,
-    accessor: ({ priority }) => (priority?.toLowerCase() === 'urgent' ? 'Yes' : 'No'),
     form: { hidden: true },
     printout: { widthProportion: 3 },
   },
