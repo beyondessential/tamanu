@@ -42,6 +42,7 @@ export const SSCAutocomplete = SurveyScreenComponent.shape({
   config: configString(
     sourceReferenceConfig
       .shape({
+        scope: yup.string(),
         where: yup
           .object()
           .when('source', {
