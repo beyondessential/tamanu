@@ -13,16 +13,8 @@ const RowContainer = styled.div`
   justify-content: space-between;
 `;
 
-export const PatientDetailPrintout = React.memo(({ patientData }) => {
-  const {
-    firstName,
-    lastName,
-    dateOfBirth,
-    sex,
-    displayId,
-    additionalData = {},
-    village = {},
-  } = patientData;
+export const PatientDetailPrintout = React.memo(({ patient, village, additionalData }) => {
+  const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
   const { streetVillage } = additionalData;
   const { name: villageName } = village;
 
@@ -40,12 +32,19 @@ export const PatientDetailPrintout = React.memo(({ patientData }) => {
       <div>
         <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
         <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
-        <PatientBarcode patient={patientData} barWidth={2} barHeight={60} margin={0} />
+        <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
       </div>
     </RowContainer>
   );
 });
 
 PatientDetailPrintout.propTypes = {
-  patientData: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
+  additionalData: PropTypes.object,
+  village: PropTypes.object,
+};
+
+PatientDetailPrintout.defaultProps = {
+  additionalData: {},
+  village: {},
 };

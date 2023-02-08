@@ -23,7 +23,21 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
     ['patient', encounter.patientId],
     () => api.get(`patient/${encodeURIComponent(encounter.patientId)}`),
   );
-  if (isPatientLoading) {
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
+    ['additionalData', encounter.patientId],
+    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
+  );
+  const isVillageEnabled = !!patient?.villageId;
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
+    ['village', encounter.patientId],
+    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    {
+      enabled: isVillageEnabled,
+    },
+  );
+  const isLoading =
+    isPatientLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
+  if (isLoading) {
     return <LoadingIndicator />;
   }
   const idsAndNotePages = imagingRequests.map(ir => [
@@ -38,7 +52,7 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
         logoSrc={logo}
         pageTitle="Imaging Request"
       />
-      <PatientDetailPrintout patientData={patient} />
+      <PatientDetailPrintout patient={patient} village={village} additionalData={additionalData} />
 
       <Divider />
       <DateFacilitySection encounter={encounter} />

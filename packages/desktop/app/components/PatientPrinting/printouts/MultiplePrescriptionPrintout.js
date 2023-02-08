@@ -86,6 +86,7 @@ export const MultiplePrescriptionPrintout = React.memo(
   ({ patientData, prescriber, prescriptions, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
     const { facility } = useAuth();
+    const { village, additionalData } = patientData;
 
     return (
       <CertificateWrapper>
@@ -95,7 +96,11 @@ export const MultiplePrescriptionPrintout = React.memo(
           logoSrc={logo}
           pageTitle="Prescription"
         />
-        <PatientDetailPrintout patientData={patientData} />
+        <PatientDetailPrintout
+          patient={patientData}
+          village={village}
+          additionalData={additionalData}
+        />
 
         <StyledDivider />
 

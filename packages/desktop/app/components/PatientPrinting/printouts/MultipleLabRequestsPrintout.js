@@ -57,17 +57,21 @@ const columns = [
 ];
 
 export const MultipleLabRequestsPrintout = React.memo(
-  ({ patientData, labRequests, encounterData, certificateData }) => {
+  ({ patient, labRequests, encounter, village, additionalData, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
     const idsAndNotePages = labRequests.map(lr => [lr.displayId, lr.notePages]);
 
     return (
       <CertificateWrapper>
         <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle="Lab Request" />
-        <PatientDetailPrintout patientData={patientData} />
+        <PatientDetailPrintout
+          patient={patient}
+          village={village}
+          additionalData={additionalData}
+        />
 
         <Divider />
-        <DateFacilitySection encounter={encounterData} />
+        <DateFacilitySection encounter={encounter} />
 
         <ListTable data={labRequests} columns={columns} />
         <NotesPagesSection idsAndNotePages={idsAndNotePages} />
@@ -77,7 +81,10 @@ export const MultipleLabRequestsPrintout = React.memo(
 );
 
 MultipleLabRequestsPrintout.propTypes = {
-  patientData: PropTypes.object.isRequired,
+  patient: PropTypes.object.isRequired,
+  additionalData: PropTypes.object.isRequired,
+  village: PropTypes.object.isRequired,
+  encounter: PropTypes.object.isRequired,
   labRequests: PropTypes.array.isRequired,
   certificateData: PropTypes.object.isRequired,
 };
