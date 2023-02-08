@@ -40,20 +40,31 @@ export const SSCSurveyAnswer = SurveyScreenComponent.shape({
 });
 export const SSCAutocomplete = SurveyScreenComponent.shape({
   config: configString(
-    sourceReferenceConfig.shape({
-      where: yup
-        .object()
-        .when('source', {
-          is: 'ReferenceData',
-          then: yup
-            .object()
-            .shape({
-              type: yup.string().required(),
-            })
-            .required(),
-        })
-        .default(null),
-    }),
+    sourceReferenceConfig
+      .shape({
+        where: yup
+          .object()
+          .when('source', {
+            is: 'ReferenceData',
+            then: yup
+              .object()
+              .shape({
+                type: yup.string().required(),
+              })
+              .required(),
+          })
+          .default(null),
+      })
+      .test(
+        'only-where-on-referenceData',
+        "where field only used for when source='ReferenceData'",
+        ({ source, where }) => {
+          if (where) {
+            return source === 'ReferenceData';
+          }
+          return true;
+        },
+      ),
   ),
 });
 
