@@ -123,7 +123,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     updatedNote.noteItems = note.noteItems.map(noteItem => {
       const updatedNoteItem = noteItem;
       const linkedNote = note.noteItems.find(item => item.id === noteItem.revisedById);
-      updatedNoteItem.originalNote = linkedNote || updatedNoteItem;
+      updatedNoteItem.originalNote = linkedNote || {id: updatedNoteItem.id};
       return updatedNoteItem;
     });
     return updatedNote;
