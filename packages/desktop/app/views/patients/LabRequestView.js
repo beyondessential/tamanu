@@ -358,7 +358,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   );
 };
 
-const LabRequestInfoPane = ({ labRequest, refreshLabRequest, isReadOnly }) => (
+const LabRequestInfoPane = ({ labRequest, isReadOnly }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest.displayId} label="Request ID" disabled={isReadOnly} />
     <TextInput

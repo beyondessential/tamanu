@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
-import { DropdownButton } from '../components/DropdownButton';
+// import { DropdownButton } from '../components/DropdownButton';
 import { PrescriptionPrintModal } from '../components/PatientPrinting';
 import {
   FormGrid,
@@ -226,16 +226,20 @@ export const MedicationForm = React.memo(
                       Discontinue
                     </Button>
                     <div />
-                    <Button variant="outlined" color="primary" onClick={onCancel}>
-                      Close
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => setPrintModalOpen(true)}
-                    >
-                      Print
-                    </Button>
+                    {!shouldDiscontinue && (
+                      <>
+                        <Button variant="outlined" color="primary" onClick={onCancel}>
+                          Close
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => setPrintModalOpen(true)}
+                        >
+                          Print
+                        </Button>
+                      </>
+                    )}
                   </DiscontinuePrintButtonRow>
                 </>
               )}
@@ -263,7 +267,16 @@ export const MedicationForm = React.memo(
                   <Button variant="outlined" color="primary" onClick={onCancel}>
                     Cancel
                   </Button>
-                  <DropdownButton
+                  <Button
+                    color="primary"
+                    onClick={data => {
+                      setAwaitingPrint(false);
+                      submitForm(data);
+                    }}
+                  >
+                    Finalise
+                  </Button>
+                  {/* <DropdownButton
                     actions={[
                       {
                         label: 'Finalise',
@@ -280,7 +293,7 @@ export const MedicationForm = React.memo(
                         },
                       },
                     ]}
-                  />
+                  /> */}
                 </ButtonRow>
               )}
             </FormGrid>
