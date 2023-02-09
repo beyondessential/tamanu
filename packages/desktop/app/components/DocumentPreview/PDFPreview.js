@@ -35,6 +35,8 @@ export default function PDFPreview({
 
   const scrollRef = useRef(null);
 
+  // Fetch raw PDF data from tamanu api
+  // Pass data to PDF loader and generate pages
   useEffect(() => {
     (async () => {
       if (!attachmentId) {
@@ -59,6 +61,8 @@ export default function PDFPreview({
     })();
   }, [attachmentId, api, pageCount, setPageCount]);
 
+  // Listen for scroll events
+  // Approximate current page number from scroll percent
   useEffect(() => {
     const node = scrollRef.current;
     const reportScroll = e => {
