@@ -66,11 +66,20 @@ export class WorkerTask extends ScheduledTask {
 
     this.log.debug('WorkerTask: Grabbed job', { topic: this.topic, jobId: job.id });
 
+    try {
+      await job.start(this.workerId);
     this.log.info('WorkerTask: Job started', {
       workerId: this.workerId,
       topic: this.topic,
       jobId: job.id,
     });
+    } catch (err) {
+      this.log.error('WorkerTask: Failed to mark job as started', { err });
+      // eslint-disable-next-line no-console
+      console.error(err);
+      return;
+    }
+
     const start = Date.now();
 
     try {

@@ -1,6 +1,10 @@
-import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
+import ms from 'ms';
+import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
+
 import { Model } from './Model';
 import { SYNC_DIRECTIONS } from '../constants';
+import { log } from '../services/logging';
+import { sleepAsync } from '../utils/sleepAsync';
 
 export class Job extends Model {
   static init({ primaryKey, ...options }) {
@@ -72,13 +76,44 @@ export class Job extends Model {
   }
 
   static async grab(workerId, topic) {
-    const [{ job_id }] = await this.sequelize.query('SELECT (job_grab($workerId, $topic)).*', {
-      type: QueryTypes.SELECT,
-      bind: { workerId, topic },
-    });
+    // We need to have strong isolation when grabbing, to avoid grabbing the
+    // same job twice. But that runs the risk of failing due to serialization
+    // failures, so we retry a few times, and add a bit of jitter to increase
+    // our chances of success.
 
-    if (!job_id) return null;
-    return Job.findByPk(job_id);
+    const GRAB_RETRY = 10;
+    for (let i = 0; i < GRAB_RETRY; i += 1) {
+      try {
+        return await this.sequelize.transaction(
+          {
+            isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+          },
+          async () => {
+            const [{ job_id }] = await this.sequelize.query(
+              'SELECT (job_grab($workerId, $topic)).*',
+              {
+                type: QueryTypes.SELECT,
+                bind: { workerId, topic },
+              },
+            );
+
+            if (!job_id) return null;
+            return Job.findByPk(job_id);
+          },
+        );
+      } catch (err) {
+        // 40001 is the Postgres error code for serialization failure
+        if (err?.parent?.code !== '40001') throw err;
+
+        // retry, with a bit of jitter to avoid thundering herd
+        const delay = Math.floor(Math.random() * 500);
+        log.warn(`Failed to grab job, retrying in ${ms(delay)} (${i + 1}/${GRAB_RETRY})`);
+        await sleepAsync(delay);
+        continue;
+      }
+    }
+
+    throw new Error(`Failed to grab job after ${GRAB_RETRY} retries`);
   }
 
   static async submit(topic, payload, { priority = 1000, discriminant = null } = {}) {
@@ -97,6 +132,13 @@ export class Job extends Model {
       },
     );
     return job_submit;
+  }
+
+  async start(workerId) {
+    await this.sequelize.query('SELECT job_start($jobId, $workerId)', {
+      type: QueryTypes.SELECT,
+      bind: { jobId: this.id, workerId },
+    });
   }
 
   async complete(workerId) {

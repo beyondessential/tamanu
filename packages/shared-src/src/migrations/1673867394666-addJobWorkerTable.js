@@ -82,13 +82,14 @@ export async function up(query) {
       IN worker_id UUID,
       OUT alive BOOLEAN
     )
-      RETURNS NULL ON NULL INPUT
       LANGUAGE SQL
       STABLE PARALLEL SAFE
     AS $$
-      SELECT updated_at > current_timestamp - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
-      FROM job_workers
-      WHERE id = worker_id
+      SELECT coalesce((
+        SELECT updated_at > current_timestamp - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
+        FROM job_workers
+        WHERE id = worker_id
+      ), false)
     $$
   `);
 }
