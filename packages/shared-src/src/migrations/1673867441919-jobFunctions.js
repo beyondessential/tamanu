@@ -47,7 +47,7 @@ export async function up(query) {
     CREATE OR REPLACE FUNCTION job_fail(
       IN job_id UUID,
       IN by_worker_id UUID,
-      IN error TEXT
+      IN error_message TEXT
     )
       RETURNS void
       RETURNS NULL ON NULL INPUT
@@ -63,7 +63,7 @@ export async function up(query) {
             status = 'Errored',
             updated_at = now(),
             errored_at = now(),
-            error = error,
+            error = error_message,
             discriminant = uuid_generate_v4() || '::' || discriminant -- prevent future jobs from matching
           WHERE id = job_id;
         ELSE
