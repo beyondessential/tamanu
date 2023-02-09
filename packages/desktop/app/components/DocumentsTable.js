@@ -30,6 +30,7 @@ const Action = styled(Button)`
 
 const StyledIconButton = styled(IconButton)`
   border: 1px solid;
+  border-color: ${props => props.theme.palette.primary.main};
   color: ${props => props.theme.palette.primary.main};
   border-radius: 3px;
   padding-left: 10px;
