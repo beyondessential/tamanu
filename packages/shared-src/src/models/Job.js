@@ -110,8 +110,8 @@ export class Job extends Model {
     });
   }
 
-  async error(workerId, error) {
-    await this.sequelize.query('SELECT job_error($jobId, $workerId, $error)', {
+  async fail(workerId, error) {
+    await this.sequelize.query('SELECT job_fail($jobId, $workerId, $error)', {
       type: QueryTypes.SELECT,
       bind: { jobId: this.id, workerId, error },
     });
