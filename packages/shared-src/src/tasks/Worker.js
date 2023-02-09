@@ -5,7 +5,9 @@ import ms from 'ms';
 
 export class Worker {
   handlers = new Map();
+
   heartbeat = null;
+
   worker = null;
 
   constructor(context, log) {

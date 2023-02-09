@@ -89,16 +89,16 @@ export class Job extends Model {
             isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
           },
           async () => {
-            const [{ job_id }] = await this.sequelize.query(
-              'SELECT (job_grab($workerId, $topic)).*',
+            const [{ id }] = await this.sequelize.query(
+              'SELECT (job_grab($workerId, $topic)).job_id as id',
               {
                 type: QueryTypes.SELECT,
                 bind: { workerId, topic },
               },
             );
 
-            if (!job_id) return null;
-            return Job.findByPk(job_id);
+            if (!id) return null;
+            return Job.findByPk(id);
           },
         );
       } catch (err) {
@@ -117,21 +117,21 @@ export class Job extends Model {
   }
 
   static async submit(topic, payload, { priority = 1000, discriminant = null } = {}) {
-    const [{ job_submit }] = await this.sequelize.query(
+    const [{ id }] = await this.sequelize.query(
       `
       SELECT job_submit(
           $topic
         , $payload
         , $priority
         ${discriminant ? ', $discriminant' : ''}
-      )
+      ) as id
     `,
       {
         type: QueryTypes.SELECT,
         bind: { topic, payload, priority, discriminant },
       },
     );
-    return job_submit;
+    return id;
   }
 
   async start(workerId) {

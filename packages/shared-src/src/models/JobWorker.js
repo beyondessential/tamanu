@@ -1,6 +1,5 @@
 import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 import { Model } from './Model';
-import { Job } from './Job';
 import { SYNC_DIRECTIONS } from '../constants';
 
 export class JobWorker extends Model {

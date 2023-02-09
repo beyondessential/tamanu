@@ -29,8 +29,8 @@ export class WorkerTask extends ScheduledTask {
    * @param {Job} job Job model instance (for payload)
    * @returns {Promise<void>}
    */
-  // eslint-disable-next-line no-unused-vars class-methods-use-this
-  async doWork(job) {
+  // eslint-disable-next-line class-methods-use-this
+  async doWork(/* job */) {
     throw new Error('WorkerTask.doWork() must be implemented');
   }
 
