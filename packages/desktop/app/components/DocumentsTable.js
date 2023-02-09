@@ -4,6 +4,7 @@ import { extension } from 'mime-types';
 import { promises as asyncFs } from 'fs';
 
 import GetAppIcon from '@material-ui/icons/GetApp';
+import { IconButton } from '@material-ui/core';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DeleteButton, Button } from './Button';
@@ -19,7 +20,20 @@ const DOCUMENT_ACTIONS = {
 };
 
 const ActionsContainer = styled.div`
-  white-space: nowrap;
+  display: flex;
+`;
+
+const Action = styled(Button)`
+  margin-right: 0.5rem;
+  height: auto;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  border: 1px solid;
+  color: ${props => props.theme.palette.primary.main};
+  border-radius: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 // eslint-disable-next-line no-unused-vars
@@ -38,18 +52,12 @@ const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView 
 
   return (
     <ActionsContainer>
-      <Button variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
+      <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
         View
-      </Button>
-      <Button
-        variant="outlined"
-        size="small"
-        onClick={() => onDownload(row)}
-        key="download"
-        startIcon={<GetAppIcon />}
-      >
-        Download
-      </Button>
+      </Action>
+      <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
+        <GetAppIcon fontSize="small" />
+      </StyledIconButton>
     </ActionsContainer>
   );
 });
