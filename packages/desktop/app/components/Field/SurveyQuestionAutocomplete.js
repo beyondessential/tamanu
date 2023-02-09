@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { connectApi } from '../../api/connectApi';
 import { Suggester } from '../../utils/suggester';
 import { AutocompleteField } from './AutocompleteField';
@@ -14,7 +13,7 @@ const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'Department') return 'department';
   if (config?.source === 'User') return 'practitioner';
   if (config?.source === 'LocationGroup') {
-    return config.type === 'all' ? 'locationGroup' : 'facilityLocationGroup';
+    return config.scope === 'allFacilities' ? 'locationGroup' : 'facilityLocationGroup';
   }
 
   // autocomplete component won't crash when given an invalid endpoint, it just logs an error.

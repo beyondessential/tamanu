@@ -12,7 +12,7 @@ const Actions = styled(Box)`
   align-items: center;
 
   button ~ button {
-    margin-left: 12px;
+    margin-left: 20px;
   }
 `;
 
@@ -33,9 +33,8 @@ export const DeathFormScreen = ({
   const { children } = screenComponent.props;
   const questionComponents = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(questionComponents, values);
-  const hasStepBack = screenIndex > 0;
+  const showBackButton = screenIndex > 0;
   const showSaveAndClose = screenIndex === 0 && !patient.dateOfDeath;
-  const Wrapper = showSaveAndClose ? Box : React.Fragment;
 
   // screenComponent is a react element (not a component) so we have to attach the new children manually
   const updatedScreenComponent = {
@@ -65,17 +64,18 @@ export const DeathFormScreen = ({
     <>
       {updatedScreenComponent}
       <Actions mt={4}>
-        {showSaveAndClose && (
-          <OutlinedButton onClick={toggleSummary}>Save and close</OutlinedButton>
-        )}
-        <Wrapper>
-          <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
-            Back
-          </OutlinedButton>
+        <Box>
+          {showSaveAndClose && (
+            <OutlinedButton onClick={toggleSummary}>Save and close</OutlinedButton>
+          )}
+          {showBackButton && <OutlinedButton onClick={onStepBack}>Back</OutlinedButton>}
+        </Box>
+        <Box>
+          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
           <Button color="primary" variant="contained" onClick={onStepForward}>
             {isLast ? 'Submit' : 'Continue'}
           </Button>
-        </Wrapper>
+        </Box>
       </Actions>
     </>
   );

@@ -60,9 +60,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       }}
       validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};
-
-        // All readings are either numbers or strings
-        if (!Object.values(values).some(x => ['number', 'string'].includes(typeof x))) {
+        if (Object.values(values).every(x => x === '' || x === null || x === undefined)) {
           errors.form = 'At least one recording must be entered.';
         }
 
