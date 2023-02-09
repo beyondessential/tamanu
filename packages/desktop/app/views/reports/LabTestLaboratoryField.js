@@ -2,7 +2,7 @@ import React from 'react';
 import { useSuggester } from '../../api';
 import { AutocompleteField, Field } from '../../components';
 
-export const DumbLabTestLaboratoryField = ({
+export const LabTestLaboratoryField = ({
   name = 'labTestLaboratory',
   required,
 }) => {
