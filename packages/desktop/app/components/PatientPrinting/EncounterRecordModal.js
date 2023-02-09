@@ -154,13 +154,13 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return {
       ...note,
       noteItems: note.noteItems.sort((a, b) => {
-        if (a.originalNote && b.originalNote) {
+        if (a.revisedById && b.revisedById) {
           return new Date(a.originalNote.date) - new Date(b.originalNote.date);
         }
-        if (a.originalNote) {
+        if (a.revisedById) {
           return new Date(a.originalNote.date) - new Date(b.date);
         }
-        if (b.originalNote) {
+        if (b.revisedById) {
           return new Date(a.date) - new Date(b.originalNote.date);
         }
         return new Date(a.date) - new Date(b.date);
