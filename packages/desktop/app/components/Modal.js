@@ -76,11 +76,6 @@ const StyledButton = styled(Button)`
   margin-left: 8px;
 `;
 
-const Subtitle = styled(Typography)`
-  font-size: 12px;
-  color: ${props => props.theme.palette.text.secondary};
-`;
-
 export const Modal = memo(
   ({
     title,
@@ -94,7 +89,6 @@ export const Modal = memo(
     onPrint = null,
     additionalActions,
     color = Colors.background,
-    subtitle = '',
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -132,12 +126,7 @@ export const Modal = memo(
         {...props}
       >
         <ModalTitle>
-          <VerticalCenteredText>
-            <div>
-              <div>{title}</div>
-              {subtitle && <Subtitle>{subtitle}</Subtitle>}
-            </div>
-          </VerticalCenteredText>
+          <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
             {additionalActions}
             {printable && (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-
+import styled from 'styled-components';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import { Typography } from '@material-ui/core';
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
@@ -14,6 +15,11 @@ const DownloadButton = ({ onClick }) => {
     </Button>
   );
 };
+
+const Subtitle = styled(Typography)`
+  font-size: 12px;
+  color: ${props => props.theme.palette.text.secondary};
+`;
 
 const Preview = ({ documentType, attachmentId, ...props }) => {
   if (documentType === SUPPORTED_DOCUMENT_TYPES.PDF) {
@@ -39,11 +45,18 @@ export const DocumentPreviewModal = ({
   return (
     <Modal
       open={open}
-      title={title}
-      subtitle={
-        documentType === SUPPORTED_DOCUMENT_TYPES.PDF ? `Page ${scrollPage} of ${pageCount}` : null
+      title={
+        <div>
+          {title}
+          <Subtitle>
+            {documentType === SUPPORTED_DOCUMENT_TYPES.PDF
+              ? `Page ${scrollPage} of ${pageCount}`
+              : null}
+          </Subtitle>
+        </div>
       }
       additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
+      width="md"
       onClose={() => {
         setScrollPage(1);
         onClose();
