@@ -64,6 +64,7 @@ export const sortInDependencyOrder = async (queryRunner: QueryRunner): Promise<s
 
   return sorted;
 };
+
 export class wipeAllDataAndResync1675907161000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const [patientCountRow] = await queryRunner.query(`
