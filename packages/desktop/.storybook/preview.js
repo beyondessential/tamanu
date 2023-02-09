@@ -25,7 +25,6 @@ const queryClient = new QueryClient({
   },
 });
 
-
 export const decorators = [
   Story => (
       <Provider store={store}>
