@@ -1,17 +1,17 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { Modal } from '../../../components';
-import { connectApi } from '../../../api';
+import { useApi } from '../../../api';
 
-const DumbNewRecordModal = memo(({ title, open, Form, onSubmit, onCancel }) => (
-  <Modal title={title} open={open} onClose={onCancel}>
-    <Form onSubmit={onSubmit} onCancel={onCancel} />
-  </Modal>
-));
-
-export const NewRecordModal = connectApi((api, dispatch, { endpoint, onCancel }) => ({
-  onSubmit: async data => {
+export const NewRecordModal = ({ title, open, Form, onCancel }) => {
+  const api = useApi();
+  const onSubmit = useCallback(async data => {
     await api.post(endpoint, data);
     onCancel();
-  },
-}))(DumbNewRecordModal);
+  }, [api, onCancel]);
+  return (
+    <Modal title={title} open={open} onClose={onCancel}>
+      <Form onSubmit={onSubmit} onCancel={onCancel} />
+    </Modal>
+  );
+}
