@@ -60,12 +60,13 @@ export const VaccineForm = ({
   const consentSchema =
     status === VaccineStatus.GIVEN
       ? Yup.boolean()
-        .oneOf([true])
-        .required()
+          .oneOf([true])
+          .required()
       : Yup.boolean();
   return (
     <Form
       onSubmit={onSubmit}
+      validateOnChange={false}
       validationSchema={Yup.object().shape({
         date: Yup.date().required(),
         consent: consentSchema,

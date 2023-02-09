@@ -28,7 +28,7 @@ export const SurveyForm = ({
   ]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
   const submitVisibleValues = useCallback(
-    (values: any) => {
+    (values: any, formikActions) => {
       // 1. get a list of visible fields
       const visibleFields = new Set(
         components
@@ -49,6 +49,8 @@ export const SurveyForm = ({
 
   return (
     <Form
+      validateOnChange
+      validateOnBlur
       validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
