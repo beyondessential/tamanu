@@ -391,3 +391,7 @@ export const DRUG_ROUTE_VALUE_TO_LABEL = {
   topical: 'Topical',
   vaginal: 'Vaginal',
 };
+
+export const FORM_STATUSES = {
+  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+};

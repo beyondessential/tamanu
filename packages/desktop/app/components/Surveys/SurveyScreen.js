@@ -6,6 +6,7 @@ import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
+import { FORM_STATUSES } from '../../constants';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -66,6 +67,7 @@ export const SurveyScreen = ({
   validateForm,
   setErrors,
   errors,
+  setStatus,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(components, values, setFieldValue);
@@ -86,6 +88,10 @@ export const SurveyScreen = ({
     const pageErrors = Object.keys(formErrors).filter(x =>
       components.map(c => c.dataElementId).includes(x),
     );
+    // Use formik status prop to track if the user has attempted to submit the form. This is used in
+    // Field.js to only show error messages once the user has attempted to submit the form
+    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();

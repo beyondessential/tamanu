@@ -7,6 +7,7 @@ import { Typography } from '@material-ui/core';
 import { flattenObject } from '../../utils';
 
 import { Dialog } from '../Dialog';
+import { FORM_STATUSES } from '../../constants';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -51,6 +52,10 @@ export class Form extends React.PureComponent {
   }) => async event => {
     event.preventDefault();
     event.persist();
+
+    // Use formik status prop to track if the user has attempted to submit the form. This is used in
+    // Field.js to only show error messages once the user has attempted to submit the form
+    rest.setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
     // avoid multiple submissions
     if (isSubmitting) {
