@@ -12,7 +12,8 @@ export const StyledTextField = styled(MuiTextField)`
 
   // The actual input field
   .MuiInputBase-input {
-    color: ${Colors.darkestText};
+    ${props =>
+      props.style?.color ? `color: ${props.style.color}` : `color: ${Colors.darkestText}`};
     padding: 13px 12px 13px 15px;
     font-size: 15px;
     line-height: 18px;
