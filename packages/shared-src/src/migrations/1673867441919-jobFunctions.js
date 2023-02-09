@@ -61,8 +61,8 @@ export async function up(query) {
           UPDATE jobs
           SET
             status = 'Errored',
-            updated_at = now(),
-            errored_at = now(),
+            updated_at = current_timestamp,
+            errored_at = current_timestamp,
             error = error_message,
             discriminant = uuid_generate_v4() || '::' || discriminant -- prevent future jobs from matching
           WHERE id = job_id;
@@ -104,8 +104,8 @@ export async function up(query) {
           UPDATE jobs
           SET
             status = 'Started',
-            updated_at = now(),
-            started_at = now(),
+            updated_at = current_timestamp,
+            started_at = current_timestamp,
             worker_id = with_worker
           WHERE id = job_id;
         END IF;

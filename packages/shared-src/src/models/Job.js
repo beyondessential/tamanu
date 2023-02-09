@@ -82,7 +82,7 @@ export class Job extends Model {
   }
 
   static async submit(topic, payload, { priority = 1000, discriminant = null } = {}) {
-    const [{ jobId }] = await this.sequelize.query(
+    const [{ job_submit }] = await this.sequelize.query(
       `
       SELECT job_submit(
           $topic
@@ -96,7 +96,7 @@ export class Job extends Model {
         bind: { topic, payload, priority, discriminant },
       },
     );
-    return jobId;
+    return job_submit;
   }
 
   async complete(workerId) {
