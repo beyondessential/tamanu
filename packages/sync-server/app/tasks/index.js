@@ -1,5 +1,7 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
+import { Worker } from 'shared/tasks';
+
 import { findUser } from '../auth/utils';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
@@ -66,6 +68,13 @@ export async function startScheduledTasks(context) {
   ].filter(x => x);
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
+}
+
+export async function startWorkerTasks({ store }) {
+  const worker = new Worker(store, log);
+  await worker.start();
+
+  return worker;
 }
 
 async function getReportSchedulers(context) {

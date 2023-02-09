@@ -19,6 +19,16 @@ export class WorkerTask extends ScheduledTask {
     return this.models.Job.backlog(this.topic);
   }
 
+  /** Actual work goes here
+   * 
+   * Throw an error to mark the job as errored, return normally to mark it as completed.
+   * Return values will be ignored.
+   * 
+   * @abstract
+   * @typedef { import('shared/models/Job').Job } Job
+   * @param {Job} job Job model instance (for payload)
+   * @returns {Promise<void>}
+  */
   // eslint-disable-next-line no-unused-vars class-methods-use-this
   async doWork(job) {
     throw new Error('WorkerTask.doWork() must be implemented');
