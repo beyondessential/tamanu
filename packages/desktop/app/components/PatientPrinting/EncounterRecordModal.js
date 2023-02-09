@@ -11,11 +11,10 @@ import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
 import { useReferenceData } from '../../api/queries/useReferenceData';
 import { usePatientAdditionalData } from '../../api/queries/usePatientAdditionalData';
 import { useLocalisation } from '../../contexts/Localisation';
-// import { FacilityAndSyncVersionIncompatibleError } from 'shared/errors';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { Colors } from '../../constants';
 
-// TAKES A GROUP OF ENCOUNTER/LOCATION SYSTEM NOTES AND TURNS IT INTO AN OBJECT WITH EITHER LOCATION OR ENCOUNTER TYPE HISTORY DATA TO BE DISPLAYED
+// Takes a group of encounter or location system notes and turns them into a usable object array for generating a table from
 const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
 const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
 const extractNoteData = (notes, encounterData, matcher) => {
@@ -123,7 +122,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     updatedNote.noteItems = note.noteItems.map(noteItem => {
       const updatedNoteItem = noteItem;
       const linkedNote = note.noteItems.find(item => item.id === noteItem.revisedById);
-      updatedNoteItem.originalNote = linkedNote || {id: updatedNoteItem.id};
+      updatedNoteItem.originalNote = linkedNote || { id: updatedNoteItem.id };
       return updatedNoteItem;
     });
     return updatedNote;
@@ -143,13 +142,10 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   }
   const filteredNotes = linkedNotes?.map(note => {
     const noteCopy = note;
-    noteCopy.noteItems = noteCopy.noteItems.filter(noteItem => {
-      return !editedNoteIds.includes(noteItem.id);
-    });
     noteCopy.noteItems = noteCopy.noteItems.reverse().filter(noteItem => {
       const duplicate = seen.has(noteItem.originalNote?.id);
       seen.add(noteItem.originalNote?.id);
-      return !duplicate;
+      return !duplicate && !editedNoteIds.includes(noteItem.id);
     });
     return noteCopy;
   });
