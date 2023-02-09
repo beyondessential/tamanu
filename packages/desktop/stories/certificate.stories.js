@@ -80,11 +80,11 @@ const getLocalisation = key => {
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
     'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
     'templates.vaccineCertificate.contactNumber': '123456',
-
     'fields.firstName.longLabel': 'First Name',
     'fields.lastName.longLabel': 'Last Name',
     'fields.dateOfBirth.longLabel': 'Date of Birth',
     'fields.sex.longLabel': 'Sex',
+    previewUvciFormat: 'tamanu',
   };
   return config[key];
 };
@@ -233,16 +233,26 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
 
 storiesOf('Certificates', module).add('LabRequestPrintout', () => {
   return (
-    <Modal title="Record patient death" open width="md">
-      <LabRequestPrintout
-        labRequestData={{ displayId: 'ASDF123', requestedDate: '10/10/10' }}
-        patientData={{
-          ...patient,
-          timeOfDeath: new Date(),
-          causes: { primary: { condition: { name: 'Diabetes' } } },
-        }}
-        certificateData={certificateData}
-      />
-    </Modal>
+      <Modal title="Record patient death" open width="md">
+        <LabRequestPrintout
+          labRequestData={{
+            displayId: 'ASDF123',
+            requestedDate: '10/10/10',
+            tests: [
+              {
+                labTestType: {
+                  name: 'Blood test',
+                },
+              },
+            ],
+          }}
+          patientData={{
+            ...patient,
+            timeOfDeath: new Date(),
+            causes: { primary: { condition: { name: 'Diabetes' } } },
+          }}
+          certificateData={certificateData}
+        />
+      </Modal>
   );
 });

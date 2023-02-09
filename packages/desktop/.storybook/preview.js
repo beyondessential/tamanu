@@ -4,13 +4,15 @@ import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { DummyElectronProvider } from '../app/contexts/Electron';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { initStore } from '../app/store';
 import { theme } from '../app/theme';
 import { API } from '../app/api/singletons';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import {Buffer} from 'buffer'
+import { DumbLocalisationProvider } from '../app/contexts/Localisation';
+import { mockLocalisationData } from './__mocks__/config';
 
 window.Buffer = Buffer
 
@@ -35,7 +37,9 @@ export const decorators = [
                 <QueryClientProvider client={queryClient}>
                   <DummyElectronProvider>
                     <CssBaseline />
+                    <DumbLocalisationProvider reduxLocalisation={mockLocalisationData}>
                     <Story />
+                    </DumbLocalisationProvider>
                   </DummyElectronProvider>
                 </QueryClientProvider>
               </ThemeProvider>
