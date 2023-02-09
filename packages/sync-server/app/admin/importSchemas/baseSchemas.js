@@ -139,9 +139,9 @@ export const baseValidationShape = yup
 export const baseConfigShape = yup.object().noUnknown();
 
 export const SurveyScreenComponent = Base.shape({
-  visibilityCriteria: configString(baseConfigShape),
+  visibilityCriteria: jsonString(),
   validationCriteria: validationString(baseValidationShape),
-  config: jsonString(),
+  config: configString(baseConfigShape),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),
   options: jsonString(),
