@@ -89,5 +89,8 @@ export * from './NoteItem';
 
 export * from './SyncSession';
 
+export * from './Job';
+export * from './JobWorker';
+
 export * from './fhir';
 export * from './FhirMaterialiseJob';

@@ -1,10 +1,11 @@
+import { hostname } from 'os';
 import config from 'config';
 import { merge } from 'lodash';
 import ms from 'ms';
 
-class Worker {
+export class Worker {
   handlers = new Map();
-  heartbeart = null;
+  heartbeat = null;
   worker = null;
 
   constructor(context, log) {
@@ -15,14 +16,31 @@ class Worker {
 
   async start() {
     const { JobWorker, Setting } = this.models;
-    this.worker = await JobWorker.register();
 
-    const heartbeat = ms(await Setting.get('jobs.worker.heartbeat'));
+    const heartbeatInterval = await Setting.get('jobs.worker.heartbeat');
+    this.log.debug('Worker: got raw heartbeat interval', { heartbeatInterval });
+    const heartbeat = ms(heartbeatInterval);
     this.log.debug('Worker: scheduling heartbeat', { intervalMs: heartbeat });
-    this.heartbeart = setInterval(() => Promise.allSettled(this.worker.heartbeat()), heartbeat);
+
+    this.worker = await JobWorker.register({
+      version: 'unknown',
+      serverType: 'unknown',
+      hostname: hostname(),
+      ...(global.serverInfo ?? {}),
+    });
+    this.log.debug('Worker: registered', { workerId: this.worker?.id })
+    
+    this.heartbeat = setInterval(async () => {
+      try {
+        this.log.debug('Worker: heartbeat');
+        await this.worker.heartbeat();
+      } catch (err) {
+        this.log.error('Worker: heartbeat failed', { err });
+      }
+    }, heartbeat);
   }
 
-  async handleTopic(topic, Task) {
+  async installTopic(topic, Task) {
     if (this.handlers.has(topic)) {
       this.log.info('Worker: replacing topic handler', { topic });
       this.handlers.get(topic).cancelPolling();
@@ -32,10 +50,15 @@ class Worker {
     const { serverFacilityId = null } = config;
 
     const defaults = await Setting.get(`jobs.topics.default`, serverFacilityId);
-    const { schedule, maxConcurrency } = merge(
+    const { enabled, schedule, maxConcurrency } = merge(
       defaults,
       (await Setting.get(`jobs.topics.${topic}`, serverFacilityId)) ?? {},
     );
+
+    if (!enabled) {
+      this.log.info('Worker: topic disabled', { topic });
+      return;
+    }
 
     this.log.info('Worker: adding topic handler', { topic, schedule, maxConcurrency });
     const handler = new Task(
@@ -53,8 +76,8 @@ class Worker {
   }
 
   async stop() {
-    clearInterval(this.heartbeart);
-    this.heartbeart = null;
+    clearInterval(this.heartbeat);
+    this.heartbeat = null;
 
     for (const [topic, handler] of this.handlers.entries()) {
       this.log.info('Worker: removing topic handler', { topic });

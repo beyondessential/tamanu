@@ -61,10 +61,13 @@ export class Job extends Model {
   }
 
   static async backlog(topic, includeDropped = true) {
-    const [{ count }] = await this.sequelize.query('SELECT job_backlog($topic, $includeDropped)', {
-      type: QueryTypes.SELECT,
-      bind: { topic, includeDropped },
-    });
+    const [{ count }] = await this.sequelize.query(
+      'SELECT job_backlog($topic, $includeDropped) as count',
+      {
+        type: QueryTypes.SELECT,
+        bind: { topic, includeDropped },
+      },
+    );
     return count;
   }
 
@@ -83,17 +86,20 @@ export class Job extends Model {
   }
 
   static async submit(topic, payload, { priority = 1000, discriminant = null } = {}) {
-    const [{ jobId }] = await this.sequelize.query(`
+    const [{ jobId }] = await this.sequelize.query(
+      `
       SELECT job_submit(
           $topic
         , $payload
         , $priority
         ${discriminant ? ', $discriminant' : ''}
       )
-    `, {
-      type: QueryTypes.SELECT,
-      bind: { topic, payload, priority, discriminant },
-    });
+    `,
+      {
+        type: QueryTypes.SELECT,
+        bind: { topic, payload, priority, discriminant },
+      },
+    );
     return jobId;
   }
 

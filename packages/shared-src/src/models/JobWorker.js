@@ -25,13 +25,13 @@ export class JobWorker extends Model {
     );
   }
 
-  static async register(metadata) {
-    const [{ workerId }] = await this.sequelize.query('SELECT job_worker_register($metadata)', {
+  static async register(metadata = {}) {
+    const [{ id }] = await this.sequelize.query('SELECT job_worker_register($metadata) as id', {
       type: QueryTypes.SELECT,
       bind: { metadata },
     });
 
-    return JobWorker.findByPk(workerId);
+    return JobWorker.findByPk(id);
   }
 
   static async clearDead() {

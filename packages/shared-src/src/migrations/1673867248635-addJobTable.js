@@ -20,6 +20,7 @@ export async function up(query) {
       defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
+    deleted_at: Sequelize.DATE, // not used, but required by our models
 
     // queue
     priority: {
@@ -55,7 +56,7 @@ export async function up(query) {
       type: DataTypes.JSONB,
       allowNull: false,
       defaultValue: {},
-    }
+    },
   });
 }
 
