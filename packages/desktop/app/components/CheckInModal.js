@@ -22,17 +22,19 @@ export const CheckInModal = React.memo(
           referralId: referral?.id,
           ...data,
         };
-        if (typeof onSubmitEncounter === 'function') {
-          onSubmitEncounter(newEncounter);
-        }
+
         await createEncounter(newEncounter);
         if (referral) {
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
+        if (typeof onSubmitEncounter === 'function') {
+          onSubmitEncounter(newEncounter);
+        }
+
         dispatch(reloadPatient(patientId));
       },
-      [dispatch, patientId, api, createEncounter, onClose, referral],
+      [dispatch, patientId, api, createEncounter, onSubmitEncounter, onClose, referral],
     );
 
     return (

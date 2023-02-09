@@ -24,6 +24,10 @@ const Heading = styled.div`
   margin-bottom: 0.35rem;
 `;
 
+const ErrorText = styled.span`
+  color: red;
+`;
+
 const PatientInfoContainer = styled.div`
   border: 2px solid ${Colors.outline};
   padding: 1rem 0.75rem;
@@ -65,10 +69,13 @@ const PatientInfo = ({ patient }) => {
     })();
   }, [id, api]);
 
-  const patientInfoContainerOnClick = useCallback(() => dispatch(push(`/patients/all/${id}`)), []);
+  const handlePatientInfoContainerClick = useCallback(() => dispatch(push(`/patients/all/${id}`)), [
+    dispatch,
+    id,
+  ]);
 
   return (
-    <PatientInfoContainer onClick={patientInfoContainerOnClick}>
+    <PatientInfoContainer onClick={handlePatientInfoContainerClick}>
       <PatientNameRow>
         <PatientName>
           <PatientNameDisplay patient={patient} />
@@ -199,25 +206,31 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     setStatusOption(appointmentStatusOptions.find(option => option.value === status));
   }, [status]);
 
-  const updateAppointmentStatus = async newValue => {
-    await api.put(`appointments/${id}`, {
-      status: newValue,
-    });
-    onUpdated();
-  };
+  const updateAppointmentStatus = useCallback(
+    async newValue => {
+      await api.put(`appointments/${id}`, {
+        status: newValue,
+      });
+      onUpdated();
+    },
+    [api, id, onUpdated],
+  );
 
   const onOpenAppointmentModal = useCallback(() => setAppointmentModal(true), []);
   const onCloseAppointmentModal = useCallback(() => setAppointmentModal(false), []);
   const onOpenEncounterModal = useCallback(() => setEncounterModal(true), []);
   const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
-  const onSubmitEncounterModal = useCallback(async encounter => {
-    setStatusOption(
-      appointmentStatusOptions.find(options => options.value === APPOINTMENT_STATUSES.ARRIVED),
-    );
-    setCreatedEncounter(encounter);
-    onCloseEncounterModal();
-    await updateAppointmentStatus(APPOINTMENT_STATUSES.ARRIVED);
-  }, []);
+  const onSubmitEncounterModal = useCallback(
+    async encounter => {
+      setStatusOption(
+        appointmentStatusOptions.find(options => options.value === APPOINTMENT_STATUSES.ARRIVED),
+      );
+      setCreatedEncounter(encounter);
+      onCloseEncounterModal();
+      await updateAppointmentStatus(APPOINTMENT_STATUSES.ARRIVED);
+    },
+    [onCloseEncounterModal, updateAppointmentStatus],
+  );
 
   return (
     <Container>
@@ -250,35 +263,33 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             await updateAppointmentStatus(selectedOption.value);
           }}
           styles={{
-            valueContainer: (baseStyles, state) => ({
+            valueContainer: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            dropdownIndicator: (baseStyles, state) => ({
+            dropdownIndicator: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            singleValue: (baseStyles, state) => ({
+            singleValue: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            control: (baseStyles, state) => ({
+            control: baseStyles => ({
               ...baseStyles,
               backgroundColor: Colors.primary,
               color: Colors.white,
               borderColor: 'transparent',
             }),
-            menu: (baseStyles, state) => ({
+            menu: baseStyles => ({
               ...baseStyles,
               backgroundColor: Colors.primary,
               color: Colors.white,
-              // borderColor: state.isFocused ? 'black' : baseStyles.borderColor,
             }),
             option: (baseStyles, state) => ({
               ...baseStyles,
               backgroundColor: (state.isSelected || state.isFocused) && Colors.veryLightBlue,
               color: (state.isSelected || state.isFocused) && Colors.darkText,
-              // borderColor: state.isSelected ? 'black' : baseStyles.borderColor,
             }),
           }}
         />
@@ -298,17 +309,15 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       {!currentEncounter &&
         !currentEncounterError &&
         !currentEncounterLoading &&
+        !additionalDataLoading &&
         !createdEncounter && (
-          <Button
-            variant="text"
-            color="primary"
-            // disableRipple
-            // disableFocusRipple
-            onClick={onOpenEncounterModal}
-          >
+          <Button variant="text" color="primary" onClick={onOpenEncounterModal}>
             <u>Admit or check-in</u>
           </Button>
         )}
+      {currentEncounterError && (
+        <ErrorText>There was an error loading the current encounter</ErrorText>
+      )}
       <AppointmentModal
         open={appointmentModal}
         onClose={onCloseAppointmentModal}
@@ -317,14 +326,16 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           onUpdated();
         }}
       />
-      <EncounterModal
-        open={encounterModal}
-        onClose={onCloseEncounterModal}
-        onSubmitEncounter={onSubmitEncounterModal}
-        noRedirectOnSubmit
-        patient={patient}
-        patientBillingTypeId={additionalData?.patientBillingTypeId}
-      />
+      {!additionalDataLoading && (
+        <EncounterModal
+          open={encounterModal}
+          onClose={onCloseEncounterModal}
+          onSubmitEncounter={onSubmitEncounterModal}
+          noRedirectOnSubmit
+          patient={patient}
+          patientBillingTypeId={additionalData?.patientBillingTypeId}
+        />
+      )}
       <CancelAppointmentModal
         appointment={appointment}
         open={cancelModal}
