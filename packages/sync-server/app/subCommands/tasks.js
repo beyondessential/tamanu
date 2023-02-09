@@ -14,7 +14,7 @@ export const tasks = async ({ skipMigrationCheck }) => {
 
   const stopScheduledTasks = await startScheduledTasks(context);
   const worker = await startWorkerTasks(context);
-  
+
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.once(sig, async () => {
       log.info(`Received ${sig}, stopping scheduled tasks`);

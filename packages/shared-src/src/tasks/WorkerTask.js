@@ -12,7 +12,7 @@ export class WorkerTask extends ScheduledTask {
   }
 
   getName() {
-    return `jobs/${this.topic}`;
+    return `jobs/${this.topic ?? '(pending)'}`;
   }
 
   countQueue() {
@@ -20,23 +20,28 @@ export class WorkerTask extends ScheduledTask {
   }
 
   /** Actual work goes here
-   * 
+   *
    * Throw an error to mark the job as errored, return normally to mark it as completed.
    * Return values will be ignored.
-   * 
+   *
    * @abstract
    * @typedef { import('shared/models/Job').Job } Job
    * @param {Job} job Job model instance (for payload)
    * @returns {Promise<void>}
-  */
+   */
   // eslint-disable-next-line no-unused-vars class-methods-use-this
   async doWork(job) {
     throw new Error('WorkerTask.doWork() must be implemented');
   }
 
   async run() {
+    this.log.debug('WorkerTask: checking queue', { topic: this.topic });
+    // FIXME: this only makes sense in a single-tasks-process world
     const count = Math.min(await this.countQueue(), this.maxConcurrency);
-    if (count === 0) return;
+    if (count === 0) {
+      this.log.debug('WorkerTask: nothing in queue', { topic: this.topic });
+      return;
+    }
 
     this.log.info('WorkerTask: Grabbing jobs', {
       workerId: this.workerId,
@@ -52,19 +57,43 @@ export class WorkerTask extends ScheduledTask {
   }
 
   async runOne() {
+    this.log.debug('WorkerTask: Grabbing job', { topic: this.topic });
     const job = await this.models.Job.grab(this.workerId, this.topic);
-    if (!job) return;
+    if (!job) {
+      this.log.debug('WorkerTask: No job to grab', { topic: this.topic });
+      return;
+    }
+
+    this.log.debug('WorkerTask: Grabbed job', { topic: this.topic, jobId: job.id });
+
+    this.log.info('WorkerTask: Job started', {
+      workerId: this.workerId,
+      topic: this.topic,
+      jobId: job.id,
+    });
+    const start = Date.now();
 
     try {
-      this.log.info('WorkerTask: Job started', {
-        workerId: this.workerId,
-        topic: this.topic,
-        jobId: job.id,
-      });
-      const start = Date.now();
-
       await this.doWork(job);
+    } catch (workErr) {
+      try {
+        await job.fail(this.workerId, workErr.message);
+        this.log.error('WorkerTask: Job failed', {
+          workerId: this.workerId,
+          topic: this.topic,
+          jobId: job.id,
+          err: workErr,
+        });
+      } catch (err) {
+        this.log.error('WorkerTask: Job failed but failed to mark as errored', { err });
+        // eslint-disable-next-line no-console
+        console.error(err);
+      }
 
+      return;
+    }
+
+    try {
       await job.complete(this.workerId);
       this.log.info('WorkerTask: Job completed', {
         workerId: this.workerId,
@@ -73,13 +102,9 @@ export class WorkerTask extends ScheduledTask {
         durationMs: Date.now() - start,
       });
     } catch (err) {
-      await job.error(this.workerId, err.message);
-      this.log.error('WorkerTask: Job failed', {
-        workerId: this.workerId,
-        topic: this.topic,
-        jobId: job.id,
-        error: err.message,
-      });
+      this.log.error('WorkerTask: Job completed but failed to mark as complete', { err });
+      // eslint-disable-next-line no-console
+      console.error(err);
     }
   }
 }

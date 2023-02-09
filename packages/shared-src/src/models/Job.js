@@ -72,17 +72,13 @@ export class Job extends Model {
   }
 
   static async grab(workerId, topic) {
-    const job = await this.sequelize.query('SELECT job_grab($workerId, $topic)', {
+    const [{ job_id }] = await this.sequelize.query('SELECT (job_grab($workerId, $topic)).*', {
       type: QueryTypes.SELECT,
       bind: { workerId, topic },
     });
 
-    if (!job || !job[0]) {
-      return null;
-    }
-
-    const { jobId } = job[0];
-    return Job.findByPk(jobId);
+    if (!job_id) return null;
+    return Job.findByPk(job_id);
   }
 
   static async submit(topic, payload, { priority = 1000, discriminant = null } = {}) {

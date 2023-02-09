@@ -28,8 +28,8 @@ export class Worker {
       hostname: hostname(),
       ...(global.serverInfo ?? {}),
     });
-    this.log.debug('Worker: registered', { workerId: this.worker?.id })
-    
+    this.log.info('Worker: registered', { workerId: this.worker?.id });
+
     this.heartbeat = setInterval(async () => {
       try {
         this.log.debug('Worker: heartbeat');

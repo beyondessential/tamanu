@@ -3,6 +3,7 @@ import { log } from 'shared/services/logging';
 import { Worker } from 'shared/tasks';
 
 import { findUser } from '../auth/utils';
+
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -18,6 +19,8 @@ import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublish
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { FhirMaterialiser } from './FhirMaterialiser';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
+
+import { WorkerTest } from './WorkerTest';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -73,6 +76,8 @@ export async function startScheduledTasks(context) {
 export async function startWorkerTasks({ store }) {
   const worker = new Worker(store, log);
   await worker.start();
+
+  await worker.installTopic('test', WorkerTest);
 
   return worker;
 }
