@@ -84,7 +84,7 @@ export class Job extends Model {
 
   static async submit(topic, payload, { priority = 1000, discriminant = null } = {}) {
     const [{ jobId }] = await this.sequelize.query(`
-      SELECT job_backlog(
+      SELECT job_submit(
           $topic
         , $payload
         , $priority
