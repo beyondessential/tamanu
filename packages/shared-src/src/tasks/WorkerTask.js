@@ -77,7 +77,10 @@ export class WorkerTask extends ScheduledTask {
       await this.doWork(job);
     } catch (workErr) {
       try {
-        await job.fail(this.workerId, workErr.message);
+        await job.fail(
+          this.workerId,
+          workErr.stack ?? workErr.message ?? workErr?.toString() ?? 'Unknown error',
+        );
         this.log.error('WorkerTask: Job failed', {
           workerId: this.workerId,
           topic: this.topic,
