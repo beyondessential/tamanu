@@ -52,7 +52,15 @@ export class WorkerTask extends ScheduledTask {
     await Promise.allSettled(
       Array(count)
         .fill(0)
-        .map(() => this.runOne()),
+        .map(async () => {
+          try {
+            await this.runOne();
+          } catch (err) {
+            this.log.error('WorkerTask: Error running job', { err, topic: this.topic });
+            // eslint-disable-next-line no-console
+            console.error(err);
+          }
+        }),
     );
   }
 
@@ -68,11 +76,11 @@ export class WorkerTask extends ScheduledTask {
 
     try {
       await job.start(this.workerId);
-    this.log.info('WorkerTask: Job started', {
-      workerId: this.workerId,
-      topic: this.topic,
-      jobId: job.id,
-    });
+      this.log.info('WorkerTask: Job started', {
+        workerId: this.workerId,
+        topic: this.topic,
+        jobId: job.id,
+      });
     } catch (err) {
       this.log.error('WorkerTask: Failed to mark job as started', { err });
       // eslint-disable-next-line no-console
