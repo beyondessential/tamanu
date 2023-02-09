@@ -10,6 +10,7 @@ import { PDFPage } from './PDFPage';
 const PDFDocument = styled.div`
   overflow-y: scroll;
   max-height: 75vh;
+  text-align: center;
 `;
 
 // Calculate which page we're scrolled to "Page X of Y"

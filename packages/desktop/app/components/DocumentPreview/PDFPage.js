@@ -7,7 +7,7 @@ export function PDFPage({ page }) {
     if (!page) {
       return;
     }
-    const viewport = page.getViewport({ scale: 0.9 });
+    const viewport = page.getViewport({ scale: 1 });
     const canvas = canvasRef.current;
     canvas.height = viewport.height;
     canvas.width = viewport.width;

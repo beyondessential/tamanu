@@ -89,6 +89,7 @@ export const Modal = memo(
     onPrint = null,
     additionalActions,
     color = Colors.background,
+    overrideContentPadding = false,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -146,7 +147,9 @@ export const Modal = memo(
           </div>
         </ModalTitle>
         <ModalContainer $color={color}>
-          <ModalContent>{children}</ModalContent>
+          <ModalContent style={overrideContentPadding ? { padding: '0px' } : null}>
+            {children}
+          </ModalContent>
           <DialogActions>{actions}</DialogActions>
         </ModalContainer>
       </Dialog>

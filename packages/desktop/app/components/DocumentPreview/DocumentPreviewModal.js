@@ -57,6 +57,7 @@ export const DocumentPreviewModal = ({
       }
       additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
       width="md"
+      overrideContentPadding
       onClose={() => {
         setScrollPage(1);
         onClose();

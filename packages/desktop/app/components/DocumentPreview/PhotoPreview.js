@@ -6,6 +6,11 @@ const Image = styled.img`
   max-width: 35vw;
 `;
 
+const ImageContainer = styled.div`
+  text-align: center;
+  padding-top: 1rem;
+`;
+
 export default function PhotoPreview({ attachmentId }) {
   const api = useApi();
   const [imageData, setImageData] = useState();
@@ -20,5 +25,9 @@ export default function PhotoPreview({ attachmentId }) {
     })();
   }, [api, attachmentId, setImageData]);
 
-  return <Image src={`data:image/jpeg;base64,${imageData}`} alt="" />;
+  return (
+    <ImageContainer>
+      <Image src={`data:image/jpeg;base64,${imageData}`} alt="" />
+    </ImageContainer>
+  );
 }
