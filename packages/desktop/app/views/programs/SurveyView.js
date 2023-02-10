@@ -66,7 +66,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
     );
   };
 
-  const surveyContents =
+  const surveyContents = (
     <Form
       initialValues={initialValues}
       onSubmit={onSubmitSurvey}
@@ -74,7 +74,8 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       validationSchema={validationSchema}
       validateOnChange
       validateOnBlur
-    />;
+    />
+  );
 
   return (
     <ProgramsPane>
