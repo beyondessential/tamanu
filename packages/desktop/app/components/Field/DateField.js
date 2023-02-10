@@ -91,7 +91,7 @@ export const DateInput = ({
     return () => {
       setCurrentText('');
       setIsPlaceholder(true);
-    }
+    };
   }, [value, format]);
 
   return (
