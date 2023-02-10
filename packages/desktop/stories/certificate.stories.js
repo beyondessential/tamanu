@@ -233,26 +233,26 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
 
 storiesOf('Certificates', module).add('LabRequestPrintout', () => {
   return (
-      <Modal title="Record patient death" open width="md">
-        <LabRequestPrintout
-          labRequestData={{
-            displayId: 'ASDF123',
-            requestedDate: '10/10/10',
-            tests: [
-              {
-                labTestType: {
-                  name: 'Blood test',
-                },
+    <Modal title="Record patient death" open width="md">
+      <LabRequestPrintout
+        labRequestData={{
+          displayId: 'ASDF123',
+          requestedDate: '10/10/10',
+          tests: [
+            {
+              labTestType: {
+                name: 'Blood test',
               },
-            ],
-          }}
-          patientData={{
-            ...patient,
-            timeOfDeath: new Date(),
-            causes: { primary: { condition: { name: 'Diabetes' } } },
-          }}
-          certificateData={certificateData}
-        />
-      </Modal>
+            },
+          ],
+        }}
+        patientData={{
+          ...patient,
+          timeOfDeath: new Date(),
+          causes: { primary: { condition: { name: 'Diabetes' } } },
+        }}
+        certificateData={certificateData}
+      />
+    </Modal>
   );
 });

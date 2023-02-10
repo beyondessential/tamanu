@@ -3,6 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
+import styled from 'styled-components';
 import { TextField } from '../app/components';
 
 import { Button } from '../app/components/Button';
@@ -17,16 +18,29 @@ async function asyncSubmit(data) {
   action('submitEnd')(data);
 }
 
+const StyledFormGrid = styled(FormGrid)`
+  align-items: end;
+`;
+
+const StyledButton = styled(Button)`
+  padding: 14px 20px;
+`;
+
 storiesOf('FormBehaviour', module).add('Async submission form', () => (
   <Form
     onSubmit={asyncSubmit}
     render={({ submitForm, isSubmitting }) => (
-      <FormGrid>
+      <StyledFormGrid>
         <Field name="value" label="Value" component={TextField} />
-        <Button onClick={submitForm} disabled={isSubmitting} color="primary" variant="contained">
+        <StyledButton
+          onClick={submitForm}
+          disabled={isSubmitting}
+          color="primary"
+          variant="contained"
+        >
           {isSubmitting ? '...' : 'Submit'}
-        </Button>
-      </FormGrid>
+        </StyledButton>
+      </StyledFormGrid>
     )}
   />
 ));
@@ -47,12 +61,17 @@ storiesOf('FormBehaviour', module).add('With async error', () => (
   <Form
     onSubmit={asyncSubmitWithError}
     render={({ submitForm, isSubmitting }) => (
-      <FormGrid>
+      <StyledFormGrid>
         <Field name="value" label="Value" component={TextField} />
-        <Button onClick={submitForm} disabled={isSubmitting} color="primary" variant="contained">
+        <StyledButton
+          onClick={submitForm}
+          disabled={isSubmitting}
+          color="primary"
+          variant="contained"
+        >
           {isSubmitting ? '...' : 'Submit'}
-        </Button>
-      </FormGrid>
+        </StyledButton>
+      </StyledFormGrid>
     )}
   />
 ));
