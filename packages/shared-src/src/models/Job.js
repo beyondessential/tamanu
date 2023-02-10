@@ -116,7 +116,7 @@ export class Job extends Model {
     throw new Error(`Failed to grab job after ${GRAB_RETRY} retries`);
   }
 
-  static async submit(topic, payload, { priority = 1000, discriminant = null } = {}) {
+  static async submit(topic, payload = {}, { priority = 1000, discriminant = null } = {}) {
     const [{ id }] = await this.sequelize.query(
       `
       SELECT job_submit(

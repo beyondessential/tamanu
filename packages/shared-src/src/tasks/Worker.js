@@ -68,6 +68,7 @@ export class Worker {
         models: this.models,
         sequelize: this.sequelize,
       },
+      this.log.child({ topic }),
       topic,
       this.worker.id,
       schedule,
@@ -89,5 +90,18 @@ export class Worker {
 
     await this.worker.deregister();
     this.worker = null;
+  }
+  
+  /** Cancel automatic processing of tasks. */
+  __testingSetup() {
+    for (const handler of this.handlers.values()) {
+      handler.cancelPolling();
+    }
+  }
+
+  /** Poll a topic once, as if it was on schedule. */
+  __testingRunOnce(topic) {
+    const handler = this.handlers.get(topic);
+    return handler?.runImmediately();
   }
 }
