@@ -8,6 +8,7 @@ import { DateDisplay } from './DateDisplay';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
+import { usePatient } from '../contexts/Patient';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
@@ -47,12 +48,12 @@ const useColumns = () => {
 
 export const TriageTable = React.memo(() => {
   const { loadEncounter } = useEncounter();
+  const { loadPatient } = usePatient();
   const { category } = useParams();
-  const dispatch = useDispatch();
   const columns = useColumns();
 
   const viewEncounter = async triage => {
-    await dispatch(reloadPatient(triage.patientId));
+    await loadPatient(triage.patientId);
     await loadEncounter(triage.encounterId);
     dispatch(push(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`));
   };

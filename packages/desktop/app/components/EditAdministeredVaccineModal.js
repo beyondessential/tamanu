@@ -3,13 +3,12 @@ import styled from 'styled-components';
 import { VACCINE_STATUS } from 'shared/constants';
 import { Modal } from './Modal';
 import { useApi } from '../api';
-import { reloadPatient } from '../store/patient';
 import { ContentPane } from './ContentPane';
 import { DeleteButton } from './Button';
 import { TextInput } from './Field';
 import { FormGrid } from './FormGrid';
 import { ConfirmModal } from './ConfirmModal';
-import { useDispatch } from 'react-redux';
+import { usePatient } from '../contexts/Patient';
 
 const Button = styled(DeleteButton)`
   margin-top: 2em;
@@ -23,14 +22,14 @@ export const EditAdministeredVaccineModal = ({ open, onClose, onMarkRecordedInEr
   }, [onClose]);
 
   const api = useApi();
-  const dispatch = useDispatch();
+  const { loadPatient } = usePatient();
 
   const onMarkRecordedInError = useCallback(async () => {
     await api.put(`patient/${patientId}/administeredVaccine/${vaccineRecord.id}`, {
       status: VACCINE_STATUS.RECORDED_IN_ERROR,
     });
-    dispatch(reloadPatient(patientId));
-  }, [patientId, vaccineRecord, dispatch, api, reloadPatient]);
+    loadPatient(patientId);
+  }, [patientId, vaccineRecord, dispatch, api, loadPatient]);
 
   if (!vaccineRecord) return null;
 

@@ -1,18 +1,17 @@
 import React, { useCallback } from 'react';
 import { REFERRAL_STATUSES } from 'shared/constants';
-import { useDispatch } from 'react-redux';
 import { useApi } from '../api';
 
 import { Modal } from './Modal';
-import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 
 export const CheckInModal = React.memo(
   ({ open, onClose, patientId, referral, patientBillingTypeId, ...props }) => {
     const { createEncounter } = useEncounter();
     const api = useApi();
-    const dispatch = useDispatch();
+    const { loadPatient } = usePatient();
 
     const onCreateEncounter = useCallback(
       async data => {
@@ -26,7 +25,7 @@ export const CheckInModal = React.memo(
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
-        dispatch(reloadPatient(patientId));
+        loadPatient(patientId);
       },
       [dispatch, patientId, api, createEncounter, onClose, referral],
     );

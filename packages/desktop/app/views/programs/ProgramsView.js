@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useApi } from 'desktop/app/api';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { SURVEY_TYPES } from 'shared/constants';
 
-import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';

@@ -7,6 +7,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
+import { usePatient } from '../../../contexts/Patient';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
@@ -23,7 +24,7 @@ export const PatientDetailsPane = React.memo(
   ({ patient, additionalData, birthData, patientFields }) => {
     const api = useApi();
     const queryClient = useQueryClient();
-    const dispatch = useDispatch();
+    const { loadPatient } = usePatient();
     const { ability } = useAuth();
 
     const handleSubmit = async data => {
@@ -31,7 +32,7 @@ export const PatientDetailsPane = React.memo(
       queryClient.invalidateQueries(['additionalData', patient.id]);
       queryClient.invalidateQueries(['birthData', patient.id]);
       queryClient.invalidateQueries(['patientFields', patient.id]);
-      dispatch(reloadPatient(patient.id));
+      loadPatient(patient.id);
     };
 
     // Display form if user can read, write or create patient additional data.

@@ -1,14 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
-import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../views/patients/encounterTabNames';
 import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
+import { usePatient } from '../contexts/Patient';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -56,6 +55,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const [isOpen, setModalOpen] = useState(false);
   const [encounterMedication, setEncounterMedication] = useState(null);
   const { loadEncounter } = useEncounter();
+  const { loadPatient } = usePatient();
 
   const onClose = useCallback(() => setModalOpen(false), [setModalOpen]);
   const onSaved = useCallback(async () => {
@@ -101,7 +101,7 @@ export const DataFetchingMedicationTable = () => {
   const onMedicationSelect = useCallback(
     async medication => {
       await loadEncounter(medication.encounter.id);
-      await dispatch(reloadPatient(medication.encounter.patientId));
+      await loadPatient(medication.encounter.patientId);
       dispatch(
         push(
           `/patients/all/${medication.encounter.patientId}/encounter/${medication.encounter.id}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,

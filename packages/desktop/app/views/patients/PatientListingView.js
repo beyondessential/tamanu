@@ -1,8 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { reloadPatient } from '../../store/patient';
 
 import {
   TopBar,
@@ -29,6 +27,7 @@ import {
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { usePatient } from '../../contexts/Patient';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -87,11 +86,11 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
-  const dispatch = useDispatch();
+  const { loadPatient } = usePatient();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
 
   const handleViewPatient = async row => {
-    await dispatch(reloadPatient(row.id));
+    await loadPatient(row.id);
     navigateToPatient(row.id);
   };
 
@@ -113,7 +112,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 const NewPatientButton = ({ onCreateNewPatient }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
-  const dispatch = useDispatch();
+  const { loadPatient } = usePatient();
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
 
   const showNewPatient = useCallback(() => {
@@ -125,7 +124,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     if (onCreateNewPatient) {
       onCreateNewPatient(newPatient.id);
     } else {
-      await dispatch(reloadPatient(newPatient.id));
+      await loadPatient(newPatient.id);
     }
     navigateToPatient(newPatient.id);
   };

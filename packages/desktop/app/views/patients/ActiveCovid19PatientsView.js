@@ -4,7 +4,6 @@ import { push } from 'connected-react-router';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import {
   TopBar,

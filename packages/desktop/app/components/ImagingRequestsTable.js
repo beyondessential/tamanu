@@ -6,11 +6,11 @@ import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
-import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { StatusTag } from './Tag';
+import { usePatient } from '../contexts/Patient';
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
@@ -31,6 +31,7 @@ const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} showTim
 export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters }) => {
   const dispatch = useDispatch();
   const params = useParams();
+  const { loadPatient } = usePatient();
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
@@ -54,7 +55,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       const patientId = params.patientId || encounter.patientId;
       if (encounter) {
         await loadEncounter(encounter.id);
-        await dispatch(reloadPatient(patientId));
+        await loadPatient(patientId);
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';

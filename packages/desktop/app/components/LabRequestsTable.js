@@ -5,7 +5,6 @@ import { push } from 'connected-react-router';
 
 import { DataFetchingTable } from './Table';
 
-import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
 
@@ -20,6 +19,7 @@ import {
   getRequestId,
   getLaboratory,
 } from '../utils/lab';
+import { usePatient } from '../contexts/Patient';
 
 const encounterColumns = [
   { key: 'requestId', title: 'Request ID', sortable: false, accessor: getRequestId },
@@ -45,6 +45,7 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
   const params = useParams();
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
+  const { loadPatient } = usePatient();
   const { loadLabRequest, searchParameters } = useLabRequest();
   const selectLab = useCallback(
     async lab => {
@@ -52,7 +53,7 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
         // no encounter, likely on the labs page
         await loadEncounter(lab.encounterId);
       }
-      if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
+      if (lab.patientId) await loadPatient(lab.patientId);
       const patientId = params.patientId || lab.patientId;
       const category = params.category || 'all';
       await loadLabRequest(lab.id);

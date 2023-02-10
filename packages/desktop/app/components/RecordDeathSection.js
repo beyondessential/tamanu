@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
@@ -7,7 +6,7 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
-import { reloadPatient } from '../store/patient';
+import { usePatient } from '../contexts/Patient';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -23,7 +22,7 @@ const TypographyLink = styled(Typography)`
 
 export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
   const api = useApi();
-  const dispatch = useDispatch();
+  const { loadPatient } = usePatient();
   const { navigateToPatient } = usePatientNavigation();
   const queryClient = useQueryClient();
   const [isRevertModalOpen, setRevertModalOpen] = useState(false);
@@ -35,7 +34,7 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
     queryClient.resetQueries(['patientDeathSummary', patient.id]);
 
     closeRevertModal();
-    await dispatch(reloadPatient(patientId));
+    await loadPatient(patientId);
     navigateToPatient(patientId);
   };
 
