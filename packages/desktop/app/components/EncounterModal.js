@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { useSelector } from 'react-redux';
 
 import { CheckInModal } from './CheckInModal';
 import { TriageModal } from './TriageModal';
 import { SelectEncounterTypeModal } from './SelectEncounterTypeModal';
+import { usePatient } from '../contexts/Patient';
 
 // Initial state should always be SELECT_OPEN
 const MODAL_STATES = {
@@ -18,7 +18,7 @@ const MODAL_STATES = {
 export const EncounterModal = React.memo(({ open, onClose, referral, patientBillingTypeId }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.SELECT_OPEN);
   const [encounterType, setEncounterType] = useState(null);
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
 
   const onCloseModal = useCallback(() => {
     // Reset to default state

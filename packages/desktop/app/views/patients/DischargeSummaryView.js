@@ -18,6 +18,7 @@ import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { getFullLocationName } from '../../utils/location';
 import { useLocalisation } from '../../contexts/Localisation';
+import { usePatient } from '../../contexts/Patient';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -125,7 +126,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   const dischargeDispositionVisible =
     getLocalisation('fields.dischargeDisposition.hidden') === false;
 
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const {
     diagnoses,
     procedures,

@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { push } from 'connected-react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
@@ -22,6 +22,7 @@ import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getActionsFromData, getAnswersFromData } from '../utils';
+import { usePatient } from '../contexts/Patient';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -34,7 +35,7 @@ const InfoPopupLabel = React.memo(() => (
 export const TriageForm = ({ onCancel, editedObject }) => {
   const api = useApi();
   const dispatch = useDispatch();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');

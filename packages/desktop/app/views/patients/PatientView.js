@@ -21,6 +21,7 @@ import {
 } from './panes';
 import { Colors } from '../../constants';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
+import { usePatient } from '../../contexts/Patient';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -88,7 +89,7 @@ const TABS = [
 
 export const PatientView = () => {
   const { getLocalisation } = useLocalisation();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient(); 
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
   const api = useApi();

@@ -30,6 +30,7 @@ import { ImagingRequestPrintout } from '../../components/PatientPrinting/Imaging
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 import { SimpleTopBar } from '../../components';
+import { usePatient } from '../../contexts/Patient';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
@@ -277,7 +278,7 @@ export const ImagingRequestView = () => {
   const dispatch = useDispatch();
   const params = useParams();
   const imagingRequest = useSelector(state => state.imagingRequest);
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const practitionerSuggester = useSuggester('practitioner');
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },

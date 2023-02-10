@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { OutlinedButton } from '../Button';
@@ -27,6 +26,7 @@ import {
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { RecordDeathSection } from '../RecordDeathSection';
+import { usePatient } from '../../contexts/Patient';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -145,7 +145,7 @@ export const PatientInfoPane = () => {
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const { getLocalisation } = useLocalisation();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const api = useApi();
   const { data: deathData, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
     api.get(`patient/${patient.id}/death`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),

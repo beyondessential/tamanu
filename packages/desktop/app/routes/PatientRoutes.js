@@ -7,6 +7,7 @@ import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import {
   DischargeSummaryView,
@@ -21,7 +22,7 @@ import { ReferralsView } from '../views/referrals/ReferralsView';
 
 export const usePatientRoutes = () => {
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { encounter } = useEncounter();
   return [
     {

@@ -16,6 +16,7 @@ import {
 } from '../../components';
 import { Colors } from '../../constants';
 import { StatisticsCard, StatisticsCardContainer } from '../../components/StatisticsCard';
+import { usePatient } from '../../contexts/Patient';
 
 const CLINICAL_STATUSES = {
   CRITICAL: 'Critical',
@@ -76,8 +77,9 @@ const ENDPOINT = 'patient/program/activeCovid19Patients';
 
 const Covid19PatientsTable = React.memo(({ data, ...props }) => {
   const dispatch = useDispatch();
+  const { loadPatient } = usePatient();
   const handleViewPatient = async id => {
-    await dispatch(reloadPatient(id));
+    await loadPatient(id);
     dispatch(push(`/patients/all/${id}`));
   };
 

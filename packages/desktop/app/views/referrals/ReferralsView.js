@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from 'desktop/app/api';
-import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { PatientListingView } from 'desktop/app/views';
 import { FormGrid } from 'desktop/app/components/FormGrid';
@@ -12,6 +11,7 @@ import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { usePatient } from '../../contexts/Patient';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -81,17 +81,10 @@ const ReferralFlow = ({ patient, currentUser }) => {
 };
 
 export const ReferralsView = () => {
-  const patient = useSelector(state => state.patient);
+  const { patient, loadPatient } = usePatient();
   const currentUser = useSelector(getCurrentUser);
-  const dispatch = useDispatch();
   if (!patient.id) {
-    return (
-      <PatientListingView
-        onViewPatient={id => {
-          dispatch(reloadPatient(id));
-        }}
-      />
-    );
+    return <PatientListingView onViewPatient={loadPatient} />;
   }
 
   return <ReferralFlow patient={patient} currentUser={currentUser} />;

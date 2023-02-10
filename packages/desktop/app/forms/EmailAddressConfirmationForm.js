@@ -1,13 +1,13 @@
 import React from 'react';
 import * as Yup from 'yup';
-import { useSelector } from 'react-redux';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { Form, Field, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { usePatient } from '../contexts/Patient';
 
 export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) => {
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
 
   return (
     <Form

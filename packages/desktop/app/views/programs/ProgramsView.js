@@ -20,6 +20,7 @@ import {
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { usePatient } from '../../contexts/Patient';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -119,11 +120,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
 };
 
 export const ProgramsView = () => {
-  const dispatch = useDispatch();
-  const patient = useSelector(state => state.patient);
+  const { patient, loadPatient } = usePatient(); 
   const currentUser = useSelector(getCurrentUser);
   if (!patient.id) {
-    return <PatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
+    return <PatientListingView onViewPatient={loadPatient} />;
   }
 
   return <SurveyFlow patient={patient} currentUser={currentUser} />;

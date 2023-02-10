@@ -12,6 +12,7 @@ import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
+import { PatientProvider } from './contexts/Patient';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
@@ -20,17 +21,19 @@ import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 
 const StateContextProviders = ({ children, store }) => (
-  <EncounterProvider store={store}>
-    <ReferralProvider>
-      <ImagingRequestsProvider>
-        <LabRequestProvider store={store}>
-          <PatientSearchProvider>
-            <LocalisationProvider store={store}>{children}</LocalisationProvider>
-          </PatientSearchProvider>
-        </LabRequestProvider>
-      </ImagingRequestsProvider>
-    </ReferralProvider>
-  </EncounterProvider>
+  <PatientProvider>
+    <EncounterProvider store={store}>
+      <ReferralProvider>
+        <ImagingRequestsProvider>
+          <LabRequestProvider store={store}>
+            <PatientSearchProvider>
+              <LocalisationProvider store={store}>{children}</LocalisationProvider>
+            </PatientSearchProvider>
+          </LabRequestProvider>
+        </ImagingRequestsProvider>
+      </ReferralProvider>
+    </EncounterProvider>
+  </PatientProvider>
 );
 
 const queryClient = new QueryClient({

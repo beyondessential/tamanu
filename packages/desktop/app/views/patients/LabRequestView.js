@@ -30,6 +30,7 @@ import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
+import { usePatient } from '../../contexts/Patient';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -312,7 +313,7 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
 export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
 
   const updateLabReq = useCallback(
     async data => {

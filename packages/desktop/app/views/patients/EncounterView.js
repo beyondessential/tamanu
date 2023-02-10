@@ -25,6 +25,7 @@ import {
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 import { EncounterActions } from './components';
+import { usePatient } from '../../contexts/Patient';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -120,7 +121,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 export const EncounterView = () => {
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { encounter, isLoadingEncounter } = useEncounter();
   const [currentTab, setCurrentTab] = React.useState(query.get('tab') || 'vitals');
   const disabled = encounter?.endDate || patient.death;
