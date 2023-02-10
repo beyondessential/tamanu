@@ -91,7 +91,7 @@ export class Worker {
     await this.worker.deregister();
     this.worker = null;
   }
-  
+
   /** Cancel automatic processing of tasks. */
   __testingSetup() {
     for (const handler of this.handlers.values()) {
