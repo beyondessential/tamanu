@@ -18,18 +18,23 @@ import { ReferralProvider } from './contexts/Referral';
 import { ElectronProvider } from './contexts/ElectronProvider';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
+import { AuthProvider } from './contexts/Auth';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
-    <ReferralProvider>
-      <ImagingRequestsProvider>
-        <LabRequestProvider store={store}>
-          <PatientSearchProvider>
-            <LocalisationProvider store={store}>{children}</LocalisationProvider>
-          </PatientSearchProvider>
-        </LabRequestProvider>
-      </ImagingRequestsProvider>
-    </ReferralProvider>
+    <AuthProvider>
+      <ReferralProvider>
+        <ImagingRequestsProvider>
+          <LabRequestProvider store={store}>
+            <PatientSearchProvider>
+              <LocalisationProvider store={store}>
+                {children}
+              </LocalisationProvider>
+            </PatientSearchProvider>
+          </LabRequestProvider>
+        </ImagingRequestsProvider>
+      </ReferralProvider>
+    </AuthProvider>
   </EncounterProvider>
 );
 
