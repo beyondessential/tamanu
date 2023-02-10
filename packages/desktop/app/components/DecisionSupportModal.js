@@ -24,7 +24,7 @@ const RepeatDiagnosisMessage = React.memo(({ previousDiagnoses }) => (
   </>
 ));
 
-export const DecisionSupportModal = ({ message, onClose }) => {
+export const DecisionSupportModal = () => {
   const message = useSelector(getCurrentDecisionSupport);
   const dispatch = useDispatch();
   const onClose = () => dispatch({ type: POP_DECISION_SUPPORT });
