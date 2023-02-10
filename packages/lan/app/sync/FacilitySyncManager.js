@@ -68,7 +68,10 @@ class FacilitySyncManager {
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
     // the first step of sync is to start a session and retrieve the session id
-    const { sessionId, tick: newSyncClockTime } = await this.centralServer.startSyncSession();
+    const {
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    } = await this.centralServer.startSyncSession();
 
     // ~~~ Push phase ~~~ //
 
@@ -112,7 +115,7 @@ class FacilitySyncManager {
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
-    const { count: incomingChangesCount, tick: pullTick } = await pullIncomingChanges(
+    const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       this.sequelize,
       sessionId,
@@ -120,8 +123,8 @@ class FacilitySyncManager {
     );
 
     await this.sequelize.transaction(async () => {
-      if (incomingChangesCount > 0) {
-        log.debug(`FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount} changes`);
+      if (totalPulled > 0) {
+        log.debug(`FacilitySyncManager.runSync: Saving a total of ${totalPulled} changes`);
         await saveIncomingChanges(
           this.sequelize,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
@@ -133,9 +136,9 @@ class FacilitySyncManager {
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
       log.debug(
-        `FacilitySyncManager.runSync: Setting the last successful sync pull time to ${pullTick}`,
+        `FacilitySyncManager.runSync: Setting the last successful sync pull time to ${pullUntil}`,
       );
-      await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullTick);
+      await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullUntil);
     });
     await this.centralServer.endSyncSession(sessionId);
 
