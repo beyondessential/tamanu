@@ -24,13 +24,14 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToPatient = (patientId, modal) => {
+  const navigateToPatient = (patientId, modal, tab) => {
     const existingParams = getParams(PATIENT_PATHS.CATEGORY);
     navigate(
-      generatePath(`${PATIENT_PATHS.PATIENT}/:modal?`, {
+      generatePath(`${PATIENT_PATHS.PATIENT}/:modal?/:tab?`, {
         ...existingParams,
         patientId,
         modal,
+        tab,
       }),
     );
   };
