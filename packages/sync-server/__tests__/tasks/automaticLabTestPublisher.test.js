@@ -1,8 +1,8 @@
 import { createDummyPatient } from 'shared/demoData/patients';
 import { LAB_REQUEST_STATUSES, ENCOUNTER_TYPES } from 'shared/constants';
 import { fake, fakeUser } from 'shared/test-helpers';
-import { createTestContext } from './utilities';
-import { AutomaticLabTestResultPublisher } from '../app/tasks/AutomaticLabTestResultPublisher';
+import { createTestContext } from '../utilities';
+import { AutomaticLabTestResultPublisher } from '../../app/tasks/AutomaticLabTestResultPublisher';
 
 const testConfig = {
   enabled: true,

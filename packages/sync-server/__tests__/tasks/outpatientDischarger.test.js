@@ -1,5 +1,5 @@
-import { OutpatientDischarger } from "../app/tasks/OutpatientDischarger";
-import { createTestContext } from "./utilities";
+import { OutpatientDischarger } from "../../app/tasks/OutpatientDischarger";
+import { createTestContext } from "../utilities";
 import { sub, isSameDay, startOfDay, parseISO } from 'date-fns';
 import { ENCOUNTER_TYPES } from "shared/constants/encounters";
 import { fake, fakeUser } from 'shared/test-helpers/fake';
