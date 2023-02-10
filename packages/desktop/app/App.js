@@ -4,13 +4,13 @@ import styled from 'styled-components';
 import 'typeface-roboto';
 import { Colors } from './constants';
 
-import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { useAuth } from './contexts/Auth';
 
 const AppContainer = styled.div`
   display: flex;
@@ -25,9 +25,9 @@ const AppContentsContainer = styled.div`
 `;
 
 export function App({ sidebar, children }) {
-  const isUserLoggedIn = useSelector(checkIsLoggedIn);
+  const { isLoggedIn } = useAuth();
   const currentRoute = useSelector(getCurrentRoute);
-  if (!isUserLoggedIn) {
+  if (!isLoggedIn) {
     return <LoginView />;
   }
 

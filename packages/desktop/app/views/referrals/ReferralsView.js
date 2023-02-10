@@ -10,8 +10,8 @@ import { SURVEY_TYPES } from 'shared/constants';
 
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
-import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { useAuth } from '../../contexts/Auth';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -82,7 +82,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
 export const ReferralsView = () => {
   const patient = useSelector(state => state.patient);
-  const currentUser = useSelector(getCurrentUser);
+  const { currentUser } = useAuth();
   const dispatch = useDispatch();
   if (!patient.id) {
     return (

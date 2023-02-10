@@ -6,7 +6,6 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { SURVEY_TYPES } from 'shared/constants';
 
 import { reloadPatient } from 'desktop/app/store/patient';
-import { getCurrentUser } from 'desktop/app/store/auth';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
@@ -20,6 +19,7 @@ import {
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { useAuth } from '../../contexts/Auth';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -121,7 +121,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
 export const ProgramsView = () => {
   const dispatch = useDispatch();
   const patient = useSelector(state => state.patient);
-  const currentUser = useSelector(getCurrentUser);
+  const { currentUser } = useAuth();
   if (!patient.id) {
     return <PatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
   }

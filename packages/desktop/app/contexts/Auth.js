@@ -10,10 +10,11 @@ export const useAuth = () => {
 
   return {
     ...useSelector(state => ({
-      currentUser: state.auth.user,
-      ability: state.auth.ability,
-      facility: state.auth.server?.facility || {},
-      centralHost: state.auth.server?.centralHost,
+      currentUser: state.auth?.user,
+      isLoggedIn: !!(state.auth?.user),
+      ability: state.auth?.ability,
+      facility: state.auth?.server.facility || {},
+      centralHost: state.auth?.server.centralHost,
     })),
     onLogout: () => dispatch(logout()),
   };

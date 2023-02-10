@@ -1,7 +1,6 @@
-import { useSelector } from 'react-redux';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAsset } from './useAsset';
-import { getCurrentUser } from '../store';
+import { useAuth } from '../contexts/Auth';
 
 export const useCertificate = () => {
   const { getLocalisation } = useLocalisation();
@@ -13,7 +12,7 @@ export const useCertificate = () => {
   const title = getLocalisation('templates.letterhead.title');
   const subTitle = getLocalisation('templates.letterhead.subTitle');
 
-  const currentUser = useSelector(getCurrentUser);
+  const { currentUser } = useAuth();
 
   return {
     title,

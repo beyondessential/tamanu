@@ -1,5 +1,4 @@
 import React, { useMemo, useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -8,7 +7,6 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { getCurrentUser } from '../store/auth';
 import {
   Form,
   Field,
@@ -21,6 +19,7 @@ import {
   LocalisedLocationField,
 } from '../components/Field';
 import { Colors } from '../constants';
+import { useAuth } from '../contexts/Auth';
 
 const VaccineScheduleOptions = [
   { value: 'Routine', label: 'Routine' },
@@ -113,7 +112,7 @@ export const ImmunisationForm = React.memo(
       [selectedVaccine],
     );
 
-    const currentUser = useSelector(getCurrentUser);
+    const { currentUser } = useAuth();
 
     const onSubmitWithRecorder = useCallback(
       data =>

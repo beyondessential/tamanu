@@ -78,10 +78,6 @@ export const changePassword = ({ host, ...data }) => async (dispatch, getState, 
   }
 };
 
-// selectors
-export const getCurrentUser = ({ auth }) => auth.user;
-export const checkIsLoggedIn = state => !!getCurrentUser(state);
-
 // reducer
 const defaultState = {
   loading: false,
