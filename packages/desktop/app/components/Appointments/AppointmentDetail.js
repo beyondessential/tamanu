@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
@@ -22,10 +23,6 @@ const Heading = styled.div`
   font-weight: 700;
   margin-top: 0.5rem;
   margin-bottom: 0.35rem;
-`;
-
-const ErrorText = styled.span`
-  color: red;
 `;
 
 const PatientInfoContainer = styled.div`
@@ -201,10 +198,17 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelConfirmed, setCancelConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showErrorAlert, setShowErrorAlert] = useState(true);
 
   useEffect(() => {
     setStatusOption(appointmentStatusOptions.find(option => option.value === status));
   }, [status]);
+
+  useEffect(() => {
+    if (currentEncounterError) {
+      setShowErrorAlert(true);
+    }
+  }, [currentEncounterError]);
 
   const updateAppointmentStatus = useCallback(
     async newValue => {
@@ -315,8 +319,16 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             <u>Admit or check-in</u>
           </Button>
         )}
-      {currentEncounterError && (
-        <ErrorText>There was an error loading the current encounter</ErrorText>
+      {showErrorAlert && (
+        <Alert
+          severity="error"
+          style={{ marginBottom: 20 }}
+          onClose={() => {
+            setShowErrorAlert(false);
+          }}
+        >
+          Error: There was an error loading the current encounter
+        </Alert>
       )}
       <AppointmentModal
         open={appointmentModal}
