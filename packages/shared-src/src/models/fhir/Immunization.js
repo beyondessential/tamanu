@@ -48,6 +48,14 @@ export class FhirImmunization extends FhirResource {
     );
 
     this.UpstreamModel = models.AdministeredVaccine;
+    this.upstreams = [
+      models.AdministeredVaccine,
+      models.ScheduledVaccine,
+      models.Encounter,
+      models.Patient,
+      models.ReferenceData,
+      models.User,
+    ];
   }
 
   static CAN_DO = new Set([

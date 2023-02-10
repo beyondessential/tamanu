@@ -47,6 +47,15 @@ export class FhirDiagnosticReport extends FhirResource {
     );
 
     this.UpstreamModel = models.LabTest;
+    this.upstreams = [
+      models.LabTest,
+      models.LabRequest,
+      models.LabTestType,
+      models.ReferenceData,
+      models.Encounter,
+      models.Patient,
+      models.User,
+    ];
   }
 
   static CAN_DO = new Set([

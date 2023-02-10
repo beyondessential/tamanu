@@ -48,6 +48,10 @@ export class FhirPatient extends FhirResource {
     );
 
     this.UpstreamModel = models.Patient;
+    this.upstreams = [
+      models.Patient,
+      models.PatientAdditionalData,
+    ];
   }
 
   static CAN_DO = new Set([

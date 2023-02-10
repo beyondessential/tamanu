@@ -50,6 +50,16 @@ export class FhirServiceRequest extends FhirResource {
     );
 
     this.UpstreamModel = models.ImagingRequest;
+    this.upstreams = [
+      models.ImagingRequest,
+      models.Encounter,
+      models.Facility,
+      models.ImagingAreaExternalCode,
+      models.Location,
+      models.Patient,
+      models.ReferenceData,
+      models.User,
+    ];
   }
 
   static CAN_DO = new Set([
