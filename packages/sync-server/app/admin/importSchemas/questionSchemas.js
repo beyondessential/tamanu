@@ -1,10 +1,8 @@
 import * as yup from 'yup';
-import { SurveyScreenComponent, baseValidationShape } from './baseSchemas';
+import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
 import { configString, validationString } from './jsonString';
 
-const config = yup.object().noUnknown();
-
-const columnReferenceConfig = config.shape({
+const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),
 });
 
@@ -17,16 +15,17 @@ export const SSCPatientData = SurveyScreenComponent.shape({
       writeToPatient: yup
         .object()
         .shape({
-          field: yup.string().required(),
+          fieldName: yup.string().required(),
           isAdditionalData: yup.boolean(),
-          fieldType: yup.string(),
+          fieldType: yup.string().required(),
         })
+        .noUnknown()
         .default(null),
     }),
   ),
 });
 
-const sourceReferenceConfig = config.shape({
+const sourceReferenceConfig = baseConfigShape.shape({
   source: yup.string().required(),
 });
 
@@ -41,34 +40,49 @@ export const SSCSurveyAnswer = SurveyScreenComponent.shape({
 });
 export const SSCAutocomplete = SurveyScreenComponent.shape({
   config: configString(
-    sourceReferenceConfig.shape({
-      where: yup
-        .object()
-        .when('source', {
-          is: 'ReferenceData',
-          then: yup
-            .object()
-            .shape({
-              type: yup.string().required(),
-            })
-            .required(),
-        })
-        .default(null),
-    }),
+    sourceReferenceConfig
+      .shape({
+        scope: yup.string(),
+        where: yup
+          .object()
+          .when('source', {
+            is: 'ReferenceData',
+            then: yup
+              .object()
+              .shape({
+                type: yup.string().required(),
+              })
+              .required(),
+          })
+          .default(null),
+      })
+      .test(
+        'only-where-on-referenceData',
+        "where field only used for when source='ReferenceData'",
+        ({ source, where }) => {
+          if (where) {
+            return source === 'ReferenceData';
+          }
+          return true;
+        },
+      ),
   ),
 });
 
-const numberConfig = config.shape({
+const numberConfig = baseConfigShape.shape({
   unit: yup.string(),
-  rounding: yup.string(),
+  rounding: yup.number(),
 });
 const numberValidationCriteria = baseValidationShape.shape({
   min: yup.number(),
   max: yup.number(),
-  normalRange: yup.object().shape({
-    min: yup.number(),
-    max: yup.number(),
-  }),
+  normalRange: yup
+    .object()
+    .shape({
+      min: yup.number(),
+      max: yup.number(),
+    })
+    .noUnknown(),
 });
 
 export const SSCNumber = SurveyScreenComponent.shape({
