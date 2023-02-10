@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
@@ -21,13 +22,16 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const { components } = survey;
   const initialValues = getFormInitialValues(components, patient, currentUser);
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
+  const patient = useSelector(state => state.patient);
+  const { navigateToPatient } = usePatientNavigation();
 
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 
   const onSubmitSurvey = useCallback(
     async data => {
       await onSubmit(data);
-      setSurveyCompleted(true);
+      // setSurveyCompleted(true);
+      navigateToPatient(patient.id);
     },
     [onSubmit],
   );
