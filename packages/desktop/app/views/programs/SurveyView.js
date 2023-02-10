@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
@@ -27,9 +27,9 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const onSubmitSurvey = useCallback(
     async data => {
       await onSubmit(data);
-      navigateToPatient(patient.id, undefined,'Programs');
+      navigateToPatient(patient.id, undefined, 'Programs');
     },
-    [onSubmit],
+    [onSubmit, navigateToPatient, patient.id],
   );
 
   const renderSurvey = props => {
@@ -66,14 +66,15 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
     );
   };
 
-  const surveyContents = <Form
+  const surveyContents =
+    <Form
       initialValues={initialValues}
       onSubmit={onSubmitSurvey}
       render={renderSurvey}
       validationSchema={validationSchema}
       validateOnChange
       validateOnBlur
-    />
+    />;
 
   return (
     <ProgramsPane>
