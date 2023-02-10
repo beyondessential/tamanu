@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { 
   reloadPatient as reduxReloadPatient,
@@ -10,7 +10,7 @@ const PatientContext = React.createContext({
   patient: null,
   loadPatient: (id) => {},
   reloadPatient: () => {},
-  syncPatient: () => {};
+  syncPatient: () => {},
 });
 
 export const usePatient = () => useContext(PatientContext);
