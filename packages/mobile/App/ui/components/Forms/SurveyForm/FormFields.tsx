@@ -12,6 +12,7 @@ import { Button } from '../../Button';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
+import { FORM_STATUSES } from '/helpers/constants';
 
 const useScrollToFirstError = () => {
   const [questionPositions, setQuestionPositions] = useState({});
@@ -46,6 +47,8 @@ interface FormFieldsProps {
   patient: IPatient;
   note: string;
   errors: FormikErrors<GenericFormValues>;
+  validateForm: FormikErrors<GenericFormValues>;
+  setStatus: FormikErrors<GenericFormValues>;
 }
 
 export const FormFields = ({
@@ -70,7 +73,7 @@ export const FormFields = ({
     const pageErrors = Object.keys(formErrors).filter(x =>
       components.map(c => c.dataElement.code).includes(x),
     );
-    setStatus('SUBMISSION_ATTEMPTED');
+    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
     if (pageErrors.length === 0) {
       setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));

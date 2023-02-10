@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Field as FormikField, useField, useFormikContext } from 'formik';
+import { FORM_STATUSES } from '/helpers/constants';
 
 export interface FieldProps {
   component: ReactNode;
@@ -23,7 +24,7 @@ export const Field = ({
   const [field, meta] = useField(name);
   const { validateOnChange, status } = useFormikContext();
 
-  const error = !validateOnChange || status === 'SUBMISSION_ATTEMPTED' ? meta.error : null;
+  const error = !validateOnChange || status === FORM_STATUSES.SUBMIT_ATTEMPTED ? meta.error : null;
 
   const combinedOnChange = (newValue: any): any => {
     if (onChange) {
