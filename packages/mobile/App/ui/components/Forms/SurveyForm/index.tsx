@@ -28,7 +28,7 @@ export const SurveyForm = ({
   ]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
   const submitVisibleValues = useCallback(
-    (values: any, formikActions) => {
+    (values: any) => {
       // 1. get a list of visible fields
       const visibleFields = new Set(
         components
@@ -56,7 +56,7 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setFieldValue, errors }): ReactElement => {
+      {({ values, setFieldValue, errors, validateForm, setStatus }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -73,6 +73,8 @@ export const SurveyForm = ({
             note={note}
             patient={patient}
             errors={errors}
+            validateForm={validateForm}
+            setStatus={setStatus}
           />
         );
       }}

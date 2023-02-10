@@ -13,6 +13,28 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 
+const useScrollToFirstError = () => {
+  const [questionPositions, setQuestionPositions] = useState({});
+
+  const scrollToQuestion = (scrollViewRef, questionCode) => {
+    const yPosition = questionPositions[questionCode];
+
+    if (scrollViewRef.current !== null) {
+      // Allow a bit of space at the top of the form field for the form label text
+      const offset = 20;
+      scrollViewRef.current?.scrollTo({ x: 0, y: yPosition - offset, animated: true });
+    }
+  };
+
+  const setQuestionPosition = questionCode => yPosition => {
+    if (yPosition) {
+      setQuestionPositions(x => ({ ...x, [questionCode]: yPosition }));
+    }
+  };
+
+  return { setQuestionPosition, scrollToQuestion };
+};
+
 const SurveyQuestionErrorView = ({ error }): ReactElement => (
   <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
     <StyledText color="red">Error displaying component</StyledText>
@@ -32,21 +54,37 @@ export const FormFields = ({
   note,
   patient,
   errors,
+  validateForm,
+  setStatus,
 }: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
+  const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
 
   const maxIndex = components
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
-  const onNavigateNext = useCallback(() => {
-    setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
-  }, [currentScreenIndex]);
+  const onNavigateNext = async () => {
+    const formErrors = await validateForm();
+    const pageErrors = Object.keys(formErrors).filter(x =>
+      components.map(c => c.dataElement.code).includes(x),
+    );
+    setStatus('SUBMISSION_ATTEMPTED');
 
-  const onNavigatePrevious = useCallback(() => {
+    if (pageErrors.length === 0) {
+      setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
+    } else {
+      const firstErroredQuestion = components.find(({ dataElement }) =>
+        pageErrors.includes(dataElement.code),
+      );
+      scrollToQuestion(scrollViewRef, firstErroredQuestion.dataElement.code);
+    }
+  };
+
+  const onNavigatePrevious = () => {
     setCurrentScreenIndex(Math.max(currentScreenIndex - 1, 0));
-  }, [currentScreenIndex]);
+  };
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
@@ -85,8 +123,7 @@ export const FormFields = ({
               key={component.id}
               component={component}
               patient={patient}
-              errors={errors}
-              scrollViewRef={scrollViewRef}
+              setPosition={setQuestionPosition(component.dataElement.code)}
             />
           </ErrorBoundary>
         </React.Fragment>

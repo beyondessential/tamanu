@@ -88,14 +88,16 @@ export const SurveyScreen = ({
     const pageErrors = Object.keys(formErrors).filter(x =>
       components.map(c => c.dataElementId).includes(x),
     );
-    // Use formik status prop to track if the user has attempted to submit the form. This is used in
-    // Field.js to only show error messages once the user has attempted to submit the form
-    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();
+      setStatus(null);
     } else {
+      // Use formik status prop to track if the user has attempted to submit the form. This is used in
+      // Field.js to only show error messages once the user has attempted to submit the form
+      setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+
       const firstErroredQuestion = components.find(({ dataElementId }) =>
         pageErrors.includes(dataElementId),
       );
