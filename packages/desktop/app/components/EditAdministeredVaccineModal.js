@@ -15,7 +15,7 @@ const Button = styled(DeleteButton)`
   margin-top: 2em;
 `;
 
-export const EditAdministeredVaccineModal = ({ open, onClose, onMarkRecordedInError, vaccineRecord }) => {
+export const EditAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const closeWithoutDeletingRecord = useCallback(() => {
     setConfirmDelete(false);

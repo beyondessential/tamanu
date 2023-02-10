@@ -20,9 +20,9 @@ const MarkPatientForSyncIcon = styled(Loop)`
   padding-bottom: 1rem;
 `;
 
-export const MarkPatientForSync = ({ onMarkPatientForSync }) => {
+export const MarkPatientForSync = ({ patient }) => {
   const dispatch = useDispatch();
-  const onMarkPatientForSync = () => dispatch(syncPatient());
+  const onMarkPatientForSync = () => dispatch(syncPatient(patient.id));
   return (
     <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
       <MarkPatientForSyncIcon />
