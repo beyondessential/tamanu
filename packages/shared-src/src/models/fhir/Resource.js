@@ -62,6 +62,9 @@ export class FhirResource extends Model {
   // main Tamanu model this resource is based on
   static UpstreamModel;
 
+  // list of Tamanu models that are used to materialise this resource
+  static upstreams = [];
+
   // switch to true if the upstream's ID is the UUID pg type
   static UPSTREAM_UUID = false;
 

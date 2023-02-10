@@ -17,9 +17,14 @@ import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
-import { FhirMaterialiser } from './FhirMaterialiser';
+import { FhirMaterialiser } from './FhirRefreshAllFromUpstream';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
+
+import { FhirRefreshFromUpstream } from './FhirRefreshFromUpstream';
+import { FhirRefreshAllFromUpstream } from './FhirRefreshAllFromUpstream';
+import { FhirRefreshEntireResource } from './FhirRefreshEntireResource';
+import { FhirRefreshResolver } from './FhirRefreshResolver';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -80,8 +85,10 @@ export async function startFhirWorkerTasks({ store }) {
   const worker = new FhirWorker(store, log);
   await worker.start();
 
-  // example of how to add a handler for a topic:
-  // worker.setHandler('topic', handlerFunction);
+  worker.setHandler('fhir.refresh.fromUpstream', FhirRefreshFromUpstream);
+  worker.setHandler('fhir.refresh.allFromUpstream', FhirRefreshAllFromUpstream);
+  worker.setHandler('fhir.refresh.entireResource', FhirRefreshEntireResource);
+  worker.setHandler('fhir.refresh.resolver', FhirRefreshResolver);
 
   worker.processQueueNow();
   return worker;
