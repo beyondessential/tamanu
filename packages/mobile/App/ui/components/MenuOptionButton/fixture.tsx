@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { ThemeProvider } from 'styled-components';
-import { StyledView, themeSystem, StyledSafeAreaView } from '/styled/common';
+import { StyledView, themeSystem } from '/styled/common';
 import { theme } from '/styled/theme';
 import {
   HistoryIcon,
@@ -11,7 +11,8 @@ import {
   QuestionIcon,
   RingIcon,
 } from '../Icons';
-import { MenuOptionButton, MenuOptionButtonProps } from './index';
+import { MenuOptionButton } from './index';
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MoreMenuOptions = [
   {

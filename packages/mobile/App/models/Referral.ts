@@ -1,9 +1,10 @@
 import { Entity, Column, ManyToOne, RelationId, getConnection } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
+import { GenericFormValues, ICreateSurveyResponse, IReferral } from '~/types';
 import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';
+import { SurveyScreenComponent } from './SurveyScreenComponent';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
@@ -39,16 +40,13 @@ export class Referral extends BaseModel implements IReferral {
   static async submit(
     patientId: string,
     userId: string,
-    surveyData: ISurveyResponse & {
-      encounterReason: string;
-      components: ISurveyScreenComponent[];
-    },
-    values: object,
-    setNote: (note: string) => void = () => null,
-  ) {
+    surveyData: ICreateSurveyResponse,
+    values: GenericFormValues,
+    setNote: (note: string) => void = (): void => null,
+  ): Promise<Referral> {
     // typeORM is extremely unhappy if you take away this
     // transactionalEntityManager param even if it's unused.
-    return getConnection().transaction(async transactionalEntityManager => {
+    return getConnection().transaction(async () => {
       const response = await SurveyResponse.submit(patientId, userId, surveyData, values, setNote);
       const referralRecord: Referral = await Referral.createAndSaveOne({
         initiatingEncounter: response.encounter,
@@ -67,7 +65,15 @@ export class Referral extends BaseModel implements IReferral {
       .leftJoinAndSelect('surveyResponse.survey', 'survey')
       .leftJoinAndSelect('surveyResponse.answers', 'answers')
       .leftJoinAndSelect('answers.dataElement', 'dataElement')
+      .leftJoinAndSelect(SurveyScreenComponent, 'screenComponent',
+        'screenComponent.dataElementId = dataElement.id and screenComponent.surveyId = survey.id')
       .where('initiatingEncounter.patientId = :patientId', { patientId })
+      .orderBy(
+        {
+          'screenComponent.screenIndex': 'ASC',
+          'screenComponent.componentIndex': 'ASC',
+        },
+      )
       .getMany();
   }
 }

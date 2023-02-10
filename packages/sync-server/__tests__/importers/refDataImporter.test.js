@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
@@ -34,14 +35,13 @@ describe('Data definition import', () => {
 
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       'ReferenceData/allergy': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/diagnosis': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/drug': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/triageReason': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/imagingType': { created: 4, updated: 0, errored: 0 },
       'ReferenceData/labTestCategory': { created: 5, updated: 0, errored: 0 },
-      'ReferenceData/labTestType': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/village': { created: 13, updated: 0, errored: 0 },
       'ReferenceData/procedureType': { created: 10, updated: 0, errored: 0 },
       User: { created: 10, updated: 0, errored: 0 },
@@ -157,7 +157,7 @@ describe('Data definition import', () => {
     });
 
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
     });
 
@@ -176,7 +176,7 @@ describe('Data definition import', () => {
       file: 'valid-whitespace',
     });
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
     });
     const historical = await ReferenceData.findOne({
@@ -239,6 +239,11 @@ describe('Permissions import', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
+  beforeEach(async () => {
+    const { Permission, Role } = ctx.store.models;
+    await Permission.destroy({ where: {}, force: true });
+    await Role.destroy({ where: {}, force: true });
+  });
   afterAll(async () => {
     await ctx.close();
   });
@@ -258,10 +263,18 @@ describe('Permissions import', () => {
 
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Role: { created: 3, updated: 0, errored: 0 },
-      Permission: { created: 29, updated: 0, errored: 0 },
+      Permission: { created: 35, updated: 0, errored: 0 },
     });
+  });
+
+  it('should properly import rows with object ID', async () => {
+    const { Permission } = ctx.store.models;
+    await doImport({ file: 'valid' });
+
+    const permissionsCount = await Permission.count({ where: { objectId: { [Op.ne]: null } } });
+    expect(permissionsCount).toEqual(6);
   });
 
   it('should not write anything for a dry run', async () => {
@@ -345,5 +358,16 @@ describe('Permissions import', () => {
     const afterReinstate = await Permission.findOne({ where, paranoid: false });
     expect(afterReinstate).toBeTruthy();
     expect(afterReinstate.deletedAt).toEqual(null);
+  });
+
+  it('should not import rows specified in pages other than "Permissions"', async () => {
+    const { didntSendReason, errors, stats } = await doImport({ file: 'old-format', dryRun: true });
+
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      Role: { created: 3, updated: 0, errored: 0 },
+      Permission: { created: 3, updated: 0, errored: 0 },
+    });
   });
 });

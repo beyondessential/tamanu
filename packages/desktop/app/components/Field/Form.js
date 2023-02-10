@@ -58,14 +58,22 @@ export class Form extends React.PureComponent {
     }
 
     setSubmitting(true);
+    const values = getValues();
 
     // validation phase
-    const values = getValues();
-    const formErrors = await validateForm(values);
-    if (Object.entries(formErrors).length) {
-      this.setErrors(formErrors);
-      setSubmitting(false);
-      throw new ValidationError('Form was not filled out correctly');
+    const { validateOnChange, validateOnBlur } = this.props;
+
+    // Only validate here if we are not validating on blur or change elsewhere. Formik doesn't
+    // handle double validating. @see https://github.com/jaredpalmer/formik/issues/1209
+    if (!validateOnChange && !validateOnBlur) {
+      const formErrors = await validateForm(values);
+      if (Object.entries(formErrors).length) {
+        this.setErrors(formErrors);
+        // Set submitting false before throwing the error so that the form is reset
+        // for future form submissions
+        setSubmitting(false);
+        throw new ValidationError('Form was not filled out correctly');
+      }
     }
 
     // submission phase
@@ -130,7 +138,14 @@ export class Form extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, showInlineErrorsOnly, showErrorDialog = true, ...props } = this.props;
+    const {
+      onSubmit,
+      showInlineErrorsOnly,
+      showErrorDialog = true,
+      validateOnChange,
+      validateOnBlur,
+      ...props
+    } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;
 
     // read children from additional props rather than destructuring so
@@ -143,8 +158,8 @@ export class Form extends React.PureComponent {
       <>
         <Formik
           onSubmit={onSubmit}
-          validateOnChange={false}
-          validateOnBlur={false}
+          validateOnChange={validateOnChange}
+          validateOnBlur={validateOnBlur}
           initialStatus={{
             page: 1,
           }}
@@ -172,6 +187,8 @@ Form.propTypes = {
   render: PropTypes.func.isRequired,
   showInlineErrorsOnly: PropTypes.bool,
   initialValues: PropTypes.shape({}),
+  validateOnChange: PropTypes.bool,
+  validateOnBlur: PropTypes.bool,
 };
 
 Form.defaultProps = {
@@ -179,4 +196,6 @@ Form.defaultProps = {
   onError: null,
   onSuccess: null,
   initialValues: {},
+  validateOnChange: false,
+  validateOnBlur: false,
 };

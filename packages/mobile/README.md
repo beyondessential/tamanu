@@ -11,17 +11,14 @@ The rest of the Tamanu system is in [a separate monorepo](https://github.com/bey
 - [install](#Install)
   - [Installing dependencies](#Installing-dependencies)
   - [Making Project runnable](#making-Project-runnable)
-    - [Xcode](#Xcode)
     - [Android Studio](#Android-Studio)
 - [Running](#Running)
   - [Run metro bundler](#Run-metro-bundler)
   - [Run storybook](#Run-storybook)
 - [Emulator Command Hints](#Emulator-Command-Hints)
-  - [IOS](#IOS)
   - [Android](#Android)
-- [Generate apk or ipa](#Generate-apk-and-ipa)
+- [Generate apk](#Generate-apk-and-ipa)
   - [Generate Android build](#Android)
-  - [Generate IOS build](#IOS)
 - [Run MockServer](#Run-Mockserver)
 - [Base App Structure](#Base-app-structure)
   - [Configuration files](#File-configurations)
@@ -37,34 +34,18 @@ After downloading or cloning into your local machine, open a console window in t
 yarn
 ```
 
-If you are about to use IOS simulators you will also need to go into the `ios` folder and install the dependencies:
-
-```
-cd ios && pod install
-```
-
-### Configure environment
-
-```
-cp .sampleenv .env
-```
-
 ### Making Project runnable
-
-#### Xcode
-
-Open the project .workspace file inside the ios folder with your xcode and after it succesfully opens wait to check if there are any errors.
 
 #### Android Studio
 
 Open Android Studio and select to "Open an existing Android Studio project" and then choose the android file inside the tamanu App folder.
-Why for it to link and build.
+Wait for it to link and build.
 
 ## Running
 
 Open your console/terminal in the project folder
 
-Be sure to have [Xcode](https://apps.apple.com/br/app/xcode/id497799835?marginTop=12) and/or [Android Studio](https://www.google.com/search?q=android+studio&oq=android+studio&aqs=chrome..69i57j69i60l2j69i65l2j69i60.1366j0j4&sourceid=chrome&ie=UTF-8) installed in your computer.
+Be sure to have [Android Studio](https://www.google.com/search?q=android+studio&oq=android+studio&aqs=chrome..69i57j69i60l2j69i65l2j69i60.1366j0j4&sourceid=chrome&ie=UTF-8) installed in your computer.
 
 ### Run emulator
 
@@ -94,11 +75,6 @@ You can also run `yarn storybook-web-ui` for a little nicer experience.
 
 ## Emulator Command Hints
 
-### IOS
-
-- super + R = reloads app
-- super + D = open debugger settings
-
 ### Android
 
 - super + M = open debugger settings
@@ -106,7 +82,7 @@ You can also run `yarn storybook-web-ui` for a little nicer experience.
 
 ## Generate apk or ipa
 
-Generate .apk or .ipa files
+Generate .apk files
 
 ### Generate Android build
 
@@ -143,6 +119,7 @@ To bump the version, edit it in `package.json`, and remember to increment the pa
 
 1. upload file in diawi.com
 2. share app with the team!
+
 #### Releasing
 
 App Center will build an apk and app bundle on every commit to dev and master. It is also connected directly to Google Play, making distribution easy _if_ you are releasing to all countries at once.
@@ -167,22 +144,6 @@ To make a release build of a branch:
 - Hit "Save and build"
 - When finished, download the .apk file by choosing "Download" -> "Download build"
 - Optionally, remove the config from that branch so that it doesn't build on every push
-
-### Generate IOS build
-
-To generate ios .ipa file:
-
-Run react-native to a device:
-
-```
-react-native run-ios --device "Max's iPhone"
-```
-
-This will generate an IOS build in
-
-```
-tamanu-mobile/ios/build/tamanuapp/Build/Products/Release-iphoneos
-```
 
 ### Run MockServer
 
@@ -235,7 +196,6 @@ App folder structure:
 | e2e  |  End to end testing with detox  |
 | mockserver | firebase functions to mock remote server   |
 | android | Gradle configuration, debug signing key  |
-| ios | Pods (cocoa-pods) installed. Some RN libraries require a native syncing that is done by running "pod install" in this folder. |
 | _mocks_ | fixed mocks for jest test runner  |
 
 #### Migrations

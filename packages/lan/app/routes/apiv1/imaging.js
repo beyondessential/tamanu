@@ -2,7 +2,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
-import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
+import {
+  NOTE_TYPES,
+  AREA_TYPE_TO_IMAGING_TYPE,
+  IMAGING_AREA_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+} from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { getNoteWithType, mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
@@ -174,6 +179,7 @@ imagingRequest.put(
       },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
+
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
@@ -201,7 +207,8 @@ imagingRequest.put(
       if (otherNotePage) {
         const otherNoteItems = await otherNotePage.getNoteItems();
         const otherNoteItem = otherNoteItems[0];
-        await otherNoteItem.update({ content: note });
+        const newNote = `${otherNoteItem.content} ${note}`;
+        await otherNoteItem.update({ content: newNote });
         notes.note = otherNoteItem.content;
       } else {
         const notePage = await imagingRequestObject.createNotePage({
@@ -380,7 +387,21 @@ globalImagingRequests.get(
 
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
-      where: imagingRequestFilters,
+      where: {
+        ...imagingRequestFilters,
+        [Op.and]: [
+          {
+            status: {
+              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+            },
+          },
+          {
+            status: {
+              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+            },
+          },
+        ],
+      },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, encounter, areas],
       limit: rowsPerPage,

@@ -1,4 +1,6 @@
 import { Op, Transaction } from 'sequelize';
+import _config from 'config';
+
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
@@ -15,7 +17,8 @@ import {
   saveIncomingChanges,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
+import { uuidToFairlyUniqueInteger } from 'shared/utils';
+
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
@@ -27,9 +30,17 @@ const errorMessageFromSession = session =>
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
 
-export
-@injectConfig
-class CentralSyncManager {
+export class CentralSyncManager {
+  static config = _config;
+
+  static overrideConfig(override) {
+    this.config = override;
+  }
+
+  static restoreConfig() {
+    this.config = _config;
+  }
+
   currentSyncTick;
 
   store;
@@ -199,7 +210,7 @@ class CentralSyncManager {
       );
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-      const { syncAllLabRequests } = await models.Setting.forFacility(facilityId);
+      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile

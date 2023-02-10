@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { connectApi } from '../../api/connectApi';
 import { Suggester } from '../../utils/suggester';
 import { AutocompleteField } from './AutocompleteField';

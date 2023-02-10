@@ -291,7 +291,12 @@ export const getValidationSchema = surveyData => {
           valueSchema = yup.mixed();
           break;
       }
-      return { ...acc, [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired']() };
+      return {
+        ...acc,
+        [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
+          mandatory ? `${dataElement.name} is a required field` : null,
+        ),
+      };
     },
     {},
   );
