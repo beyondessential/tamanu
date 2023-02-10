@@ -21,7 +21,7 @@ export async function createVersion(file, definition, versions, store, verbose) 
   const { ReportDefinitionVersion } = store.models;
 
   log.info('Analyzing query');
-  await reportUtils.explainAnalyzeQuery(
+  await reportUtils.verifyQuery(
     versionData.query,
     versionData.queryOptions?.parameters,
     store,
