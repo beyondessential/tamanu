@@ -3,9 +3,7 @@ import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
-
 import { flattenObject } from '../../utils';
-
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES } from '../../constants';
 
@@ -66,19 +64,17 @@ export class Form extends React.PureComponent {
     const values = getValues();
 
     // validation phase
-    const { validateOnChange, validateOnBlur } = this.props;
+    const formErrors = await validateForm(values);
 
-    // Only validate here if we are not validating on blur or change elsewhere. Formik doesn't
-    // handle double validating. @see https://github.com/jaredpalmer/formik/issues/1209
-    if (!validateOnChange && !validateOnBlur) {
-      const formErrors = await validateForm(values);
-      if (Object.entries(formErrors).length) {
-        this.setErrors(formErrors);
-        // Set submitting false before throwing the error so that the form is reset
-        // for future form submissions
-        setSubmitting(false);
-        throw new ValidationError('Form was not filled out correctly');
-      }
+    // There is a bug in formik when you have validateOnChange set to true and validate manually as
+    // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
+    // @see https://github.com/jaredpalmer/formik/issues/1209
+    if (Object.keys(formErrors).filter(x => x !== 'isCanceled').length) {
+      this.setErrors(formErrors);
+      // Set submitting false before throwing the error so that the form is reset
+      // for future form submissions
+      setSubmitting(false);
+      throw new ValidationError('Form was not filled out correctly');
     }
 
     // submission phase
@@ -159,6 +155,9 @@ export class Form extends React.PureComponent {
       throw new Error('Form must not have any children -- use the `render` prop instead please!');
     }
 
+    const displayErrorDialog = (showErrorDialog || validationErrors.form) && isErrorDialogVisible;
+    const { form: formLevelErrors } = validationErrors;
+
     return (
       <>
         <Formik
@@ -171,15 +170,14 @@ export class Form extends React.PureComponent {
           {...props}
           render={this.renderFormContents}
         />
-
-        {showErrorDialog && (
-          <Dialog
-            isVisible={isErrorDialogVisible}
-            onClose={this.hideErrorDialog}
-            headerTitle="Please fix below errors to continue"
-            contentText={<FormErrors errors={validationErrors} />}
-          />
-        )}
+        <Dialog
+          isVisible={displayErrorDialog}
+          onClose={this.hideErrorDialog}
+          headerTitle="Please fix below errors to continue"
+          contentText={
+            <FormErrors errors={showErrorDialog ? validationErrors : { form: formLevelErrors }} />
+          }
+        />
       </>
     );
   }

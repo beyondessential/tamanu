@@ -19,7 +19,7 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
     // write values that have changed back into answers
     Object.entries(calculatedValues)
       .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v));
+      .map(([k, v]) => setFieldValue(k, v, false));
   }, [components, values, setFieldValue]);
 };
 
