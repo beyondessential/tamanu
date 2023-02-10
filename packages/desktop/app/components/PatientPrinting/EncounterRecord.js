@@ -99,6 +99,15 @@ const ChildNote = styled.div`
   }
 `;
 
+const PageBreak = styled.div`
+  @media print {
+    height: 100px;
+    background: red;
+    position: relative;
+    page-break-after: always;
+  }
+`;
+
 // COLUMN LAYOUTS
 const columns = {
   encounterTypes: [
@@ -297,6 +306,7 @@ export const EncounterRecord = React.memo(
           logoSrc={logo}
           pageTitle="Patient Encounter Record"
         />
+        <PageBreak />
 
         <SummaryHeading>Patient Details</SummaryHeading>
         <Divider />
@@ -316,6 +326,8 @@ export const EncounterRecord = React.memo(
             <LocalisedDisplayValue name="villageName">{village}</LocalisedDisplayValue>
           </div>
         </RowContainer>
+
+        <PageBreak />
 
         <SummaryHeading>Encounter Details</SummaryHeading>
         <Divider />
