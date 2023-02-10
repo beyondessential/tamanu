@@ -163,7 +163,7 @@ const PatientHomeContainer = ({
 
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);
-  }, [patientIssues?.length ?? 0, selectedPatient.id]);
+  }, [patientIssues]);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
