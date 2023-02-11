@@ -14,6 +14,9 @@ import {Buffer} from 'buffer'
 import { DumbLocalisationProvider } from '../app/contexts/Localisation';
 import { mockLocalisationData } from './__mocks__/config';
 
+/**
+ * Make buffer available to storybook for certificate stories
+ */
 window.Buffer = Buffer
 
 const { store, history } = initStore(API);

@@ -27,13 +27,17 @@ module.exports = async ({ config }) => {
       resource.request = resource.request.replace(/^node:/, '');
     }),
   );
+  /**
+   * Mock out some modules used in shared
+   * that are not available in the browser
+   */
   config.resolve.fallback = {
     ...config.resolve.fallback,
     os: false,
     fs: false,
     http: false,
-    stream: require.resolve('stream-browserify'),
-    zlib: require.resolve('browserify-zlib'),
+    stream: false,
+    zlib: false,
   };
   config.resolve.alias = {
     ...config.resolve.alias,
