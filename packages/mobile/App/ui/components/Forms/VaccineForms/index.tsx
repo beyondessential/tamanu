@@ -66,7 +66,6 @@ export const VaccineForm = ({
   return (
     <Form
       onSubmit={onSubmit}
-      validateOnChange={false}
       validationSchema={Yup.object().shape({
         date: Yup.date().required(),
         consent: consentSchema,

@@ -24,6 +24,8 @@ export const Field = ({
   const [field, meta] = useField(name);
   const { validateOnChange, status } = useFormikContext();
 
+  // Show errors if validateOnChange is false or if the user has already tried to submit the form.
+  // We don't want errors displayed by on change events before user submits.
   const error = !validateOnChange || status === FORM_STATUSES.SUBMIT_ATTEMPTED ? meta.error : null;
 
   const combinedOnChange = (newValue: any): any => {

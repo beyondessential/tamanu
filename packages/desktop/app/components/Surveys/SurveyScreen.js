@@ -72,19 +72,10 @@ export const SurveyScreen = ({
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(components, values, setFieldValue);
 
-  const questionElements = components
-    .filter(c => checkVisibility(c, values, components))
-    .map(c => (
-      <SurveyQuestion
-        component={c}
-        patient={patient}
-        key={c.id}
-        inputRef={setQuestionToRef(c.dataElementId)}
-      />
-    ));
-
   const validateAndStep = async () => {
     const formErrors = await validateForm();
+
+    // Only include visible elements
     const pageErrors = Object.keys(formErrors).filter(x =>
       components.map(c => c.dataElementId).includes(x),
     );
@@ -105,9 +96,18 @@ export const SurveyScreen = ({
     }
   };
 
+  const visibleQuestions = components.filter(c => checkVisibility(c, values, components));
+
   return (
     <FormGrid columns={cols}>
-      {questionElements}
+      {visibleQuestions.map(c => (
+        <SurveyQuestion
+          component={c}
+          patient={patient}
+          key={c.id}
+          inputRef={setQuestionToRef(c.dataElementId)}
+        />
+      ))}
       <StyledButtonRow>
         {submitButton || (
           <>

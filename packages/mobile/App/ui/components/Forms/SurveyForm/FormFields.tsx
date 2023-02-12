@@ -14,10 +14,15 @@ import { FullView, RowView, StyledText, StyledView } from '../../../styled/commo
 import { theme } from '../../../styled/theme';
 import { FORM_STATUSES } from '/helpers/constants';
 
-const useScrollToFirstError = () => {
+interface UseScrollToFirstError {
+  setQuestionPosition: (yPosition: string) => void;
+  scrollToQuestion: (scrollViewRef: any, questionCode: string) => void;
+}
+
+const useScrollToFirstError = (): UseScrollToFirstError => {
   const [questionPositions, setQuestionPositions] = useState({});
 
-  const scrollToQuestion = (scrollViewRef, questionCode) => {
+  const scrollToQuestion = (scrollViewRef, questionCode): void => {
     const yPosition = questionPositions[questionCode];
 
     if (scrollViewRef.current !== null) {
@@ -41,14 +46,15 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
     <StyledText color="red">Error displaying component</StyledText>
   </TouchableWithoutFeedback>
 );
+
 interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   values: GenericFormValues;
   patient: IPatient;
   note: string;
   errors: FormikErrors<GenericFormValues>;
-  validateForm: FormikErrors<GenericFormValues>;
-  setStatus: FormikErrors<GenericFormValues>;
+  validateForm: (values?: any) => Promise<FormikErrors<any>>;
+  setStatus: (status: string) => void;
 }
 
 export const FormFields = ({
@@ -60,6 +66,7 @@ export const FormFields = ({
   validateForm,
   setStatus,
 }: FormFieldsProps): ReactElement => {
+  console.log('errors', errors);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
@@ -68,16 +75,26 @@ export const FormFields = ({
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
-  const onNavigateNext = async () => {
+  const screenComponents = components
+    .filter(x => x.screenIndex === currentScreenIndex)
+    .sort((a, b) => a.componentIndex - b.componentIndex);
+
+  const onNavigateNext = async (): Promise<void> => {
+    // Validate form on screen before moving to the next one
     const formErrors = await validateForm();
+
+    // Only include components that are on this page
     const pageErrors = Object.keys(formErrors).filter(x =>
-      components.map(c => c.dataElement.code).includes(x),
+      screenComponents.map(c => c.dataElement.code).includes(x),
     );
-    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
     if (pageErrors.length === 0) {
       setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
+      setStatus(null);
     } else {
+      // Only show error messages once the user has attempted to submit the form
+      setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+
       const firstErroredQuestion = components.find(({ dataElement }) =>
         pageErrors.includes(dataElement.code),
       );
@@ -85,7 +102,7 @@ export const FormFields = ({
     }
   };
 
-  const onNavigatePrevious = () => {
+  const onNavigatePrevious = (): void => {
     setCurrentScreenIndex(Math.max(currentScreenIndex - 1, 0));
   };
 
@@ -94,54 +111,47 @@ export const FormFields = ({
     [values],
   );
 
-  const screenComponents = components
-    .filter(x => x.screenIndex === currentScreenIndex)
-    .sort((a, b) => a.componentIndex - b.componentIndex)
-    .filter(shouldShow)
-    .map((component, index) => {
-      const validationCriteria = component && component.getValidationCriteriaObject();
-      return (
-        <React.Fragment key={component.id}>
-          <StyledView marginTop={index === 0 ? 0 : 20} flexDirection="row" alignItems="center">
-            <SectionHeader h3>
-              {component.text || component.dataElement.defaultText || ''}
-            </SectionHeader>
-            {validationCriteria.mandatory && (
-              <StyledText
-                marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
-                fontSize={screenPercentageToDP(1.6, Orientation.Height)}
-                color={theme.colors.ALERT}
-              >
-                *
-              </StyledText>
-            )}
-          </StyledView>
-          {component.detail ? (
-            <StyledText marginTop={4} fontSize={screenPercentageToDP(2.2, Orientation.Height)}>
-              {component.detail}
-            </StyledText>
-          ) : null}
-          <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-            <SurveyQuestion
-              key={component.id}
-              component={component}
-              patient={patient}
-              setPosition={setQuestionPosition(component.dataElement.code)}
-            />
-          </ErrorBoundary>
-        </React.Fragment>
-      );
-    });
-
   // Note: we set the key on FullView so that React registers it as a whole
   // new component, rather than a component whose contents happen to have
   // changed. This means that each new page will start at the top, rather than
   // the scroll position continuing across pages.
-
   return (
     <FullView key={currentScreenIndex}>
       <FormScreenView scrollViewRef={scrollViewRef}>
-        {screenComponents}
+        {screenComponents.filter(shouldShow).map((component, index) => {
+          const validationCriteria = component && component.getValidationCriteriaObject();
+          return (
+            <React.Fragment key={component.id}>
+              <StyledView marginTop={index === 0 ? 0 : 20} flexDirection="row" alignItems="center">
+                <SectionHeader h3>
+                  {component.text || component.dataElement.defaultText || ''}
+                </SectionHeader>
+                {validationCriteria.mandatory && (
+                  <StyledText
+                    marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
+                    fontSize={screenPercentageToDP(1.6, Orientation.Height)}
+                    color={theme.colors.ALERT}
+                  >
+                    *
+                  </StyledText>
+                )}
+              </StyledView>
+              {component.detail ? (
+                <StyledText marginTop={4} fontSize={screenPercentageToDP(2.2, Orientation.Height)}>
+                  {component.detail}
+                </StyledText>
+              ) : null}
+              <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
+                <SurveyQuestion
+                  key={component.id}
+                  component={component}
+                  patient={patient}
+                  setPosition={setQuestionPosition(component.dataElement.code)}
+                />
+              </ErrorBoundary>
+            </React.Fragment>
+          );
+        })}
         {errors?.form && (
           <StyledText fontSize={16} color={theme.colors.ALERT} marginTop={20}>
             {errors.form}
