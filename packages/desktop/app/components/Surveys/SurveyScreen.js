@@ -96,18 +96,18 @@ export const SurveyScreen = ({
     }
   };
 
-  const visibleQuestions = components.filter(c => checkVisibility(c, values, components));
-
   return (
     <FormGrid columns={cols}>
-      {visibleQuestions.map(c => (
-        <SurveyQuestion
-          component={c}
-          patient={patient}
-          key={c.id}
-          inputRef={setQuestionToRef(c.dataElementId)}
-        />
-      ))}
+      {components
+        .filter(c => checkVisibility(c, values, components))
+        .map(c => (
+          <SurveyQuestion
+            component={c}
+            patient={patient}
+            key={c.id}
+            inputRef={setQuestionToRef(c.dataElementId)}
+          />
+        ))}
       <StyledButtonRow>
         {submitButton || (
           <>

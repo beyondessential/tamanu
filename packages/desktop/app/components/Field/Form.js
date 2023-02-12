@@ -46,6 +46,7 @@ export class Form extends React.PureComponent {
     isSubmitting,
     setSubmitting,
     getValues,
+    setStatus,
     ...rest
   }) => async event => {
     event.preventDefault();
@@ -53,7 +54,7 @@ export class Form extends React.PureComponent {
 
     // Use formik status prop to track if the user has attempted to submit the form. This is used in
     // Field.js to only show error messages once the user has attempted to submit the form
-    rest.setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
     // avoid multiple submissions
     if (isSubmitting) {
@@ -64,12 +65,13 @@ export class Form extends React.PureComponent {
     const values = getValues();
 
     // validation phase
-    const formErrors = await validateForm(values);
 
     // There is a bug in formik when you have validateOnChange set to true and validate manually as
     // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
     // @see https://github.com/jaredpalmer/formik/issues/1209
-    if (Object.keys(formErrors).filter(x => x !== 'isCanceled').length) {
+    const { isCancelled, ...formErrors } = await validateForm(values);
+
+    if (Object.keys(formErrors)) {
       this.setErrors(formErrors);
       // Set submitting false before throwing the error so that the form is reset
       // for future form submissions
@@ -155,6 +157,7 @@ export class Form extends React.PureComponent {
       throw new Error('Form must not have any children -- use the `render` prop instead please!');
     }
 
+    // Todo: fix display
     const displayErrorDialog = (showErrorDialog || validationErrors.form) && isErrorDialogVisible;
     const { form: formLevelErrors } = validationErrors;
 

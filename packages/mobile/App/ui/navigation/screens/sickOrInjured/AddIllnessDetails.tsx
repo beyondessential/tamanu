@@ -77,12 +77,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik
-        onSubmit={onRecordIllness}
-        initialValues={{}}
-        validationSchema={IllnessFormSchema}
-        validateOnChange={false}
-      >
+      <Formik onSubmit={onRecordIllness} initialValues={{}} validationSchema={IllnessFormSchema}>
         {({ handleSubmit }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}

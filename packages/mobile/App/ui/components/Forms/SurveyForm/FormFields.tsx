@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback, useState, useRef } from 'react';
+import React, { ReactElement, useCallback, useState, useRef, MutableRefObject } from 'react';
 import { useFormikContext } from 'formik';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { IPatient, ISurveyScreenComponent } from '../../../../types';
 import { checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
@@ -20,9 +20,12 @@ interface UseScrollToFirstError {
 }
 
 const useScrollToFirstError = (): UseScrollToFirstError => {
-  const [questionPositions, setQuestionPositions] = useState({});
+  const [questionPositions, setQuestionPositions] = useState<{ [key: string]: string }>({});
 
-  const scrollToQuestion = (scrollViewRef, questionCode): void => {
+  const scrollToQuestion = (
+    scrollViewRef: MutableRefObject<ScrollView>,
+    questionCode: string,
+  ): void => {
     const yPosition = questionPositions[questionCode];
 
     if (scrollViewRef.current !== null) {
@@ -32,7 +35,7 @@ const useScrollToFirstError = (): UseScrollToFirstError => {
     }
   };
 
-  const setQuestionPosition = questionCode => yPosition => {
+  const setQuestionPosition = (questionCode: string) => (yPosition: string) => {
     if (yPosition) {
       setQuestionPositions(x => ({ ...x, [questionCode]: yPosition }));
     }
@@ -67,7 +70,7 @@ export const FormFields = ({ components, note, patient }: FormFieldsProps): Reac
     .filter(x => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex);
 
-  const submitScreen = async (handleSubmit): Promise<void> => {
+  const submitScreen = async (handleSubmit: () => Promise<void>): Promise<void> => {
     // Validate form on screen before moving to the next one
     const formErrors = await validateForm();
 

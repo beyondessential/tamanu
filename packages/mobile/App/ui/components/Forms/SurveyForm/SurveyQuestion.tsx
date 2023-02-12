@@ -7,7 +7,7 @@ import { FieldByType } from '~/ui/helpers/fieldComponents';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
-  setPosition: any;
+  setPosition: (pos: string) => void;
   patient: IPatient;
 }
 
