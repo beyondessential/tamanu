@@ -37,7 +37,7 @@ const Dialog = styled(MuiDialog)`
 
 const ModalContent = styled.div`
   flex: 1 1 auto;
-  padding: 18px ${MODAL_PADDING}px;
+  padding: 18px ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING)}px;
 `;
 
 const ModalContainer = styled.div`
@@ -147,9 +147,7 @@ export const Modal = memo(
           </div>
         </ModalTitle>
         <ModalContainer $color={color}>
-          <ModalContent style={overrideContentPadding ? { padding: '0px' } : null}>
-            {children}
-          </ModalContent>
+          <ModalContent $overrideContentPadding={overrideContentPadding}>{children}</ModalContent>
           <DialogActions>{actions}</DialogActions>
         </ModalContainer>
       </Dialog>
