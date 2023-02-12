@@ -18,7 +18,7 @@ export const createReducers = history => ({
   specialModals: specialModalsReducer,
 });
 
-export function initStore(api) {
+export function initStore(api, initialState = {}) {
   const history = createHashHistory();
   const router = routerMiddleware(history);
   const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
@@ -27,7 +27,7 @@ export function initStore(api) {
     persistConfig.whitelist = []; // persist used for a dev experience, but not required in production
   }
   const persistedReducers = persistCombineReducers(persistConfig, createReducers(history));
-  const store = createStore(persistedReducers, {}, enhancers);
+  const store = createStore(persistedReducers, initialState, enhancers);
 
   return { store, history };
 }

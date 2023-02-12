@@ -10,16 +10,19 @@ import { theme } from '../app/theme';
 import { API } from '../app/api/singletons';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import {Buffer} from 'buffer'
+import { Buffer } from 'buffer';
 import { DumbLocalisationProvider } from '../app/contexts/Localisation';
 import { mockLocalisationData } from './__mocks__/config';
+import { createDummyPatient } from 'shared/demoData/patients';
 
 /**
  * Make buffer available to storybook for certificate stories
  */
-window.Buffer = Buffer
+window.Buffer = Buffer;
 
-const { store, history } = initStore(API);
+const { store, history } = initStore(API, {
+  patient: { id: 'test-patient', ...createDummyPatient() },
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,23 +35,23 @@ const queryClient = new QueryClient({
 
 export const decorators = [
   Story => (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <StylesProvider injectFirst>
-            <MuiThemeProvider theme={theme}>
-              <ThemeProvider theme={theme}>
-                <QueryClientProvider client={queryClient}>
-                  <DummyElectronProvider>
-                    <CssBaseline />
-                    <DumbLocalisationProvider reduxLocalisation={mockLocalisationData}>
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <StylesProvider injectFirst>
+          <MuiThemeProvider theme={theme}>
+            <ThemeProvider theme={theme}>
+              <QueryClientProvider client={queryClient}>
+                <DummyElectronProvider>
+                  <CssBaseline />
+                  <DumbLocalisationProvider reduxLocalisation={mockLocalisationData}>
                     <Story />
-                    </DumbLocalisationProvider>
-                  </DummyElectronProvider>
-                </QueryClientProvider>
-              </ThemeProvider>
-            </MuiThemeProvider>
-          </StylesProvider>
-        </ConnectedRouter>
-      </Provider>
-    )
+                  </DumbLocalisationProvider>
+                </DummyElectronProvider>
+              </QueryClientProvider>
+            </ThemeProvider>
+          </MuiThemeProvider>
+        </StylesProvider>
+      </ConnectedRouter>
+    </Provider>
+  ),
 ];
