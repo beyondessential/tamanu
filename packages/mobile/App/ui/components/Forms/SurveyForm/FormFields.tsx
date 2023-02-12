@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useState, useRef } from 'react';
-import { FormikErrors } from 'formik';
+import { useFormikContext } from 'formik';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { GenericFormValues, IPatient, ISurveyScreenComponent } from '../../../../types';
+import { IPatient, ISurveyScreenComponent } from '../../../../types';
 import { checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
@@ -49,26 +49,14 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
 
 interface FormFieldsProps {
   components: ISurveyScreenComponent[];
-  values: GenericFormValues;
   patient: IPatient;
   note: string;
-  errors: FormikErrors<GenericFormValues>;
-  validateForm: (values?: any) => Promise<FormikErrors<any>>;
-  setStatus: (status: string) => void;
 }
 
-export const FormFields = ({
-  components,
-  values,
-  note,
-  patient,
-  errors,
-  validateForm,
-  setStatus,
-}: FormFieldsProps): ReactElement => {
-  console.log('errors', errors);
+export const FormFields = ({ components, note, patient }: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
+  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
 
   const maxIndex = components
@@ -79,7 +67,7 @@ export const FormFields = ({
     .filter(x => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex);
 
-  const onNavigateNext = async (): Promise<void> => {
+  const submitScreen = async (handleSubmit): Promise<void> => {
     // Validate form on screen before moving to the next one
     const formErrors = await validateForm();
 
@@ -89,8 +77,8 @@ export const FormFields = ({
     );
 
     if (pageErrors.length === 0) {
-      setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
       setStatus(null);
+      await handleSubmit();
     } else {
       // Only show error messages once the user has attempted to submit the form
       setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
@@ -100,6 +88,19 @@ export const FormFields = ({
       );
       scrollToQuestion(scrollViewRef, firstErroredQuestion.dataElement.code);
     }
+  };
+
+  const onNavigateNext = async (): Promise<void> => {
+    await submitScreen(() => {
+      setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
+    });
+  };
+
+  const onSubmit = async (): Promise<void> => {
+    await submitScreen(async () => {
+      await submitForm();
+      resetForm();
+    });
   };
 
   const onNavigatePrevious = (): void => {
@@ -169,7 +170,7 @@ export const FormFields = ({
           {currentScreenIndex !== maxIndex ? (
             <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
           ) : (
-            <SubmitButton margin={5} />
+            <SubmitButton margin={5} onSubmit={onSubmit} />
           )}
         </RowView>
         {currentScreenIndex === maxIndex && (
