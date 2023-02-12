@@ -13,16 +13,12 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Buffer } from 'buffer';
 import { DumbLocalisationProvider } from '../app/contexts/Localisation';
 import { mockLocalisationData } from './__mocks__/config';
-import { createDummyPatient } from 'shared/demoData/patients';
+import { store, history } from './__mocks__/store';
 
 /**
  * Make buffer available to storybook for certificate stories
  */
 window.Buffer = Buffer;
-
-const { store, history } = initStore(API, {
-  patient: { id: 'test-patient', ...createDummyPatient() },
-});
 
 const queryClient = new QueryClient({
   defaultOptions: {

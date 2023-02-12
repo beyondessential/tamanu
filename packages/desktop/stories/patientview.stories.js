@@ -4,28 +4,60 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 import { createDummyPatient } from 'shared/demoData';
 import { PatientEncounterSummary } from '../app/views/patients/components/PatientEncounterSummary';
 import { MockedApi } from './utils/mockedApi';
+import {
+  getCurrentDateString,
+  getCurrentDateTimeString,
+} from '../../shared-src/src/utils/dateTime';
 
-const patient = createDummyPatient();
-const { currentEncounter } = patient;
+const patient = createDummyPatient(null, { id: 'test-patient' });
 
 const getEndpointsForEncounterType = encounterType => ({
-  'patient/:id/currentEncounter': async () => {
-    return { ...currentEncounter, encounterType };
+  'patient/:id/currentEncounter': () => {
+    return {
+      encounterType,
+      id: 'current-encounter',
+      examiner: {
+        displayName: 'Dr. John',
+      },
+      location: {
+        name: 'Location 1',
+      },
+      referralSource: {
+        name: 'Other clinic',
+      },
+      reasonForEncounter: 'Unwell',
+      startDate: getCurrentDateTimeString(),
+    };
   },
 });
 
 storiesOf('PatientEncounterSummary', module)
-  .add('No current visit', () => (
+  .addDecorator(Story => (
     <MockedApi
       endpoints={{
-        'patient/:id/currentEncounter': async () => {
-          return null;
-        },
+        'patient/:id/currentEncounter': () => null,
+        'patient/test-patient/death': () => ({
+          facility: {
+            name: 'Facility 1',
+          },
+          clinician: {
+            displayName: 'Dr. John',
+          },
+          dateOfDeath: getCurrentDateString(),
+          causes: {
+            primary: {
+              condition: {
+                name: 'Condition 1',
+              },
+            },
+          },
+        }),
       }}
     >
-      <PatientEncounterSummary patient={patient} />
+      {Story()}
     </MockedApi>
   ))
+  .add('No current visit', () => <PatientEncounterSummary patient={patient} />)
   .add(ENCOUNTER_TYPES.ADMISSION, () => (
     <MockedApi endpoints={getEndpointsForEncounterType(ENCOUNTER_TYPES.ADMISSION)}>
       <PatientEncounterSummary patient={patient} />
@@ -52,13 +84,5 @@ storiesOf('PatientEncounterSummary', module)
     </MockedApi>
   ))
   .add('Deceased', () => (
-    <MockedApi
-      endpoints={{
-        'patient/:id/currentEncounter': async () => {
-          return null;
-        },
-      }}
-    >
-      <PatientEncounterSummary encounter={null} patient={{ ...patient, dateOfDeath: '123' }} />
-    </MockedApi>
+    <PatientEncounterSummary encounter={null} patient={{ ...patient, dateOfDeath: '123' }} />
   ));

@@ -57,6 +57,11 @@ export const mockLocalisationData = {
       longLabel: 'Village',
       hidden: false,
     },
+    referralSourceId: {
+      shortLabel: 'Referral source',
+      longLabel: 'Referral source',
+      hidden: false,
+    }
   },
 };
 
