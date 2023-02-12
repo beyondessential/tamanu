@@ -34,6 +34,7 @@ export class Form extends React.PureComponent {
     }
 
     if (showInlineErrorsOnly) {
+      // If validationErrors, only show form level errors in the Error Dialog
       if (validationErrors?.form) {
         this.setState({
           validationErrors: {
