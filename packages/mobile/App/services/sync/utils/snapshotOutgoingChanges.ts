@@ -30,7 +30,7 @@ export const snapshotOutgoingChanges = async (
   outgoingModels: typeof MODELS_MAP,
   since: number,
 ): Promise<SyncRecord[]> => {
-  const outgoingChanges = [];
+  let outgoingChanges = [];
 
   // snapshot inside a transaction (Serializable is the default isolation level),
   // so that other changes made while this snapshot
@@ -46,7 +46,8 @@ export const snapshotOutgoingChanges = async (
       const sanitizedSyncRecords = model.sanitizeRecordDataForPush
         ? model.sanitizeRecordDataForPush(syncRecordsForModel)
         : syncRecordsForModel;
-      outgoingChanges.push(...sanitizedSyncRecords);
+
+      outgoingChanges = outgoingChanges.concat(sanitizedSyncRecords);
     }
 
     return outgoingChanges;

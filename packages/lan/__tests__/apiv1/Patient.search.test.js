@@ -381,9 +381,10 @@ describe('Patient search', () => {
       });
     });
 
-    it('should get a list of patients by location', async () => {
+    it('should get a list of patients by location (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         locationId: locations[0].id,
+        facilityId: locations[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -393,9 +394,10 @@ describe('Patient search', () => {
       });
     });
 
-    it('should get a list of patients by location group', async () => {
+    it('should get a list of patients by location group (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         locationGroupId: locationGroups[0].id,
+        facilityId: locationGroups[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -405,9 +407,10 @@ describe('Patient search', () => {
       });
     });
 
-    it('should get a list of patients by department', async () => {
+    it('should get a list of patients by department (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         departmentId: departments[0].id,
+        facilityId: departments[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -542,9 +545,10 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.encounterType, true);
     });
 
-    it('should sort by location', async () => {
+    it('should sort by location (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         orderBy: 'locationName',
+        facilityId: locations[0].facilityId,
       });
 
       expect(response).toHaveSucceeded();
@@ -552,9 +556,10 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.locationName);
     });
 
-    it('should sort by department', async () => {
+    it('should sort by department (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         orderBy: 'departmentName',
+        facilityId: departments[0].facilityId,
       });
 
       expect(response).toHaveSucceeded();
