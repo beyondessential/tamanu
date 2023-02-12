@@ -5,12 +5,9 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { DummyElectronProvider } from '../app/contexts/Electron';
 
 import React from 'react';
-import { initStore } from '../app/store';
 import { theme } from '../app/theme';
-import { API } from '../app/api/singletons';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { Buffer } from 'buffer';
 import { DumbLocalisationProvider } from '../app/contexts/Localisation';
 import { mockLocalisationData } from './__mocks__/config';
 import { store, history } from './__mocks__/store';
@@ -18,7 +15,14 @@ import { store, history } from './__mocks__/store';
 /**
  * Make buffer available to storybook for certificate stories
  */
-window.Buffer = Buffer;
+window.Buffer = class Buffer {
+  static isBuffer(){
+    return true;
+  }
+  static from(){
+    return null
+  }
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
