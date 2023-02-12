@@ -262,6 +262,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   ImagingRequest: () => ({
     status: chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES)),
+    reasonForCancellation: chance.pickone(['duplicate', 'entered-in-error']),
+  }),
+  LabRequest: () => ({
+    reasonForCancellation: chance.pickone(['duplicate', 'entered-in-error']),
   }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
