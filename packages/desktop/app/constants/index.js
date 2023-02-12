@@ -385,3 +385,8 @@ export const DRUG_ROUTE_VALUE_TO_LABEL = {
 export const FORM_STATUSES = {
   SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
 };
+
+export const SUPPORTED_DOCUMENT_TYPES = {
+  PDF: 'PDF',
+  JPEG: 'JPEG',
+};
