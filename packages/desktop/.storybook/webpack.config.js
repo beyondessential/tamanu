@@ -3,20 +3,14 @@
  * Copyright (c) 2017 - 2022 Beyond Essential Systems Pty Ltd
  *
  */
-
 const path = require('path');
 const webpack = require('webpack');
 
 /**
- * The doc doesn't really mention using webpack.config.js, but .storybook/main.js instead.
- *
- * Nevertheless, configuring the webpack.config.js seems to work fine.
- *
- * @param config
- * @return {Promise<*>}
- * @see https://storybook.js.org/docs/react/configure/webpack
- * @see https://storybook.js.org/docs/react/configure/webpack#using-your-existing-config
+ * Custom webpack config for storybook opted into Wwebpack 5
+ * @see https://storybook.js.org/docs/react/builders/webpack#extending-storybooks-webpack-config
  */
+
 module.exports = async ({ config }) => {
   /**
    * Pretty odd workaround but prevented changing more core configs
@@ -28,7 +22,7 @@ module.exports = async ({ config }) => {
     }),
   );
   /**
-   * Mock out some modules used in shared
+   * Mock resolve some modules used in shared
    * that are not available in the browser
    */
   config.resolve.fallback = {
@@ -39,8 +33,18 @@ module.exports = async ({ config }) => {
     stream: false,
     zlib: false,
   };
+
+  // Mock node global - Buffer
+  config.plugins.push(
+    new webpack.ProvidePlugin({
+      Buffer: 'buffer',
+    }),
+)
+
+  // Resolve some modules that are problematic in browser to mocks
   config.resolve.alias = {
     ...config.resolve.alias,
+    buffer: path.resolve(__dirname, './__mocks__/buffer.js'),
     sequelize: path.resolve(__dirname, './__mocks__/sequelize.js'),
     config: path.resolve(__dirname, './__mocks__/config.js'),
     electron: require.resolve('./__mocks__/electron.js'),

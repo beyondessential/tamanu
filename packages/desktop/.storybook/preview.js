@@ -12,18 +12,6 @@ import { DumbLocalisationProvider } from '../app/contexts/Localisation';
 import { mockLocalisationData } from './__mocks__/config';
 import { store, history } from './__mocks__/store';
 
-/**
- * Make buffer available to storybook for certificate stories
- */
-window.Buffer = class Buffer {
-  static isBuffer(){
-    return true;
-  }
-  static from(){
-    return null
-  }
-};
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
