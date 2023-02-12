@@ -24,20 +24,30 @@ export class Form extends React.PureComponent {
     super();
     this.state = {
       validationErrors: {},
-      isErrorDialogVisible: false,
     };
   }
 
   setErrors = validationErrors => {
-    const { onError } = this.props;
+    const { onError, showInlineErrorsOnly } = this.props;
     if (onError) {
       onError(validationErrors);
     }
-    this.setState({ validationErrors, isErrorDialogVisible: true });
+
+    if (showInlineErrorsOnly) {
+      if (validationErrors?.form) {
+        this.setState({
+          validationErrors: {
+            form: validationErrors.form,
+          },
+        });
+      }
+    } else {
+      this.setState({ validationErrors });
+    }
   };
 
   hideErrorDialog = () => {
-    this.setState({ isErrorDialogVisible: false });
+    this.setState({ validationErrors: {} });
   };
 
   createSubmissionHandler = ({
@@ -69,9 +79,11 @@ export class Form extends React.PureComponent {
     // There is a bug in formik when you have validateOnChange set to true and validate manually as
     // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
     // @see https://github.com/jaredpalmer/formik/issues/1209
-    const { isCancelled, ...formErrors } = await validateForm(values);
+    const e = await validateForm(values);
 
-    if (Object.keys(formErrors)) {
+    const { isCanceled, ...formErrors } = e;
+
+    if (Object.keys(formErrors).length > 0) {
       this.setErrors(formErrors);
       // Set submitting false before throwing the error so that the form is reset
       // for future form submissions
@@ -144,12 +156,11 @@ export class Form extends React.PureComponent {
     const {
       onSubmit,
       showInlineErrorsOnly,
-      showErrorDialog = true,
       validateOnChange,
       validateOnBlur,
       ...props
     } = this.props;
-    const { validationErrors, isErrorDialogVisible } = this.state;
+    const { validationErrors } = this.state;
 
     // read children from additional props rather than destructuring so
     // eslint ignores it (there's not good support for "forbidden" props)
@@ -157,9 +168,7 @@ export class Form extends React.PureComponent {
       throw new Error('Form must not have any children -- use the `render` prop instead please!');
     }
 
-    // Todo: fix display
-    const displayErrorDialog = (showErrorDialog || validationErrors.form) && isErrorDialogVisible;
-    const { form: formLevelErrors } = validationErrors;
+    const displayErrorDialog = Object.keys(validationErrors).length > 0;
 
     return (
       <>
@@ -177,9 +186,7 @@ export class Form extends React.PureComponent {
           isVisible={displayErrorDialog}
           onClose={this.hideErrorDialog}
           headerTitle="Please fix below errors to continue"
-          contentText={
-            <FormErrors errors={showErrorDialog ? validationErrors : { form: formLevelErrors }} />
-          }
+          contentText={<FormErrors errors={validationErrors} />}
         />
       </>
     );

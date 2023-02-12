@@ -1,9 +1,13 @@
 import React, { ReactElement } from 'react';
 import { useFormikContext } from 'formik';
 import { theme } from '/styled/theme';
-import { Button } from '/components/Button';
+import { Button, StyledButtonProps } from '/components/Button';
 
-export const SubmitButton = ({ onSubmit = null, ...props }): ReactElement => {
+interface SubmitButtonProps extends StyledButtonProps {
+  onSubmit?: () => Promise<void>;
+}
+
+export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactElement => {
   const { isSubmitting, submitForm } = useFormikContext();
   return (
     <Button

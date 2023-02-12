@@ -53,7 +53,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   return (
     <Form
       onSubmit={handleSubmit}
-      showErrorDialog={false}
+      showInlineErrorsOnly
       validateOnChange
       validateOnBlur
       validationSchema={validationSchema}
