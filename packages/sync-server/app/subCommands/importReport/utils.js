@@ -19,9 +19,10 @@ export function getLatestVersion(versions, status) {
     .find(v => !status || v.status === status);
 }
 
-export async function explainAnalyzeQuery(query, paramDefinitions = [], store, verbose) {
+export async function verifyQuery(query, paramDefinitions = [], store, verbose) {
   try {
-    const results = await store.sequelize.query(`EXPLAIN ANALYZE ${query}`, {
+    // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
+    const results = await store.sequelize.query(`EXPLAIN ${query}`, {
       type: QueryTypes.SELECT,
       replacements: getQueryReplacementsFromParams(paramDefinitions),
     });
@@ -29,7 +30,7 @@ export async function explainAnalyzeQuery(query, paramDefinitions = [], store, v
       const formattedResults = results.reduce(
         (a1, x) =>
           `${a1}\n${Object.entries(x).reduce((a2, [k, v]) => `${a2}\x1b[1m${k}:\x1b[0m ${v}`, '')}`,
-        'Explain analyze output:',
+        'Explain output:',
       );
       log.info(formattedResults);
     }
