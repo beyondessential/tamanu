@@ -52,7 +52,7 @@ describe('FacilitySyncManager', () => {
     });
   });
 
-  describe.only('edge cases', () => {
+  describe('edge cases', () => {
     let ctx;
     let models;
     let sequelize;
@@ -134,13 +134,11 @@ describe('FacilitySyncManager', () => {
       // check that the snapshot included _both_ patient records (the changes get passed as an
       // argument to pushOutgoingChanges, which we spy on)
       expect(
-        push.pushOutgoingChanges.mock.calls[0][2].filter(c => c.recordType === 'patients'),
-      ).toBe(
-        expect.arrayContaining([
-          expect.objectContaining({ recordId: safePatientId }),
-          expect.objectContaining({ recordId: riskyPatientId }),
-        ]),
-      );
+        push.pushOutgoingChanges.mock.calls[0][2]
+          .filter(c => c.recordType === 'patients')
+          .map(c => c.recordId)
+          .sort(),
+      ).toStrictEqual([safePatientId, riskyPatientId].sort());
     });
   });
 });
