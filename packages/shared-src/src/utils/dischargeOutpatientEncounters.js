@@ -3,7 +3,6 @@ import { Op } from 'sequelize';
 
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
-import { InvalidConfigError } from 'shared/errors';
 
 export const dischargeOutpatientEncounters = async (
   models,
@@ -27,14 +26,6 @@ export const dischargeOutpatientEncounters = async (
   }
 
   const oldEncountersCount = await models.Encounter.count({ where });
-
-  // Make sure these exist, else they will prevent the script from working
-  if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
-    throw new InvalidConfigError(
-      'batchSize and batchSleepAsyncDurationInMilliseconds must not be empty for discharging outpatient encounters',
-    );
-  }
-
   const batchCount = Math.ceil(oldEncountersCount / batchSize);
 
   log.info(
