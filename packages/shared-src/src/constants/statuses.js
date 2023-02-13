@@ -29,12 +29,12 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.DELETED]: {
-    label: 'Deleted',
+    label: 'Cancelled',
     color: '#444444;',
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
-    label: 'Entered in Error',
+    label: 'Cancelled',
     color: '#444444;',
     background: '#EDEDED',
   },
