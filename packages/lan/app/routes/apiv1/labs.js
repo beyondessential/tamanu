@@ -23,7 +23,7 @@ labRequest.put(
     req.checkPermission('read', 'LabRequest');
     const labRequestRecord = await models.LabRequest.findByPk(params.id);
     if (!labRequestRecord) throw new NotFoundError();
-    req.checkPermission('write', labRequestRecord);
+    // req.checkPermission('write', labRequestRecord);
 
     await db.transaction(async () => {
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
@@ -73,6 +73,9 @@ labRequest.get(
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
         [LAB_REQUEST_STATUSES.DELETED]: LAB_REQUEST_STATUSES.DELETED,
+      })),
+      makeFilter(true, `lab_requests.status != :cancelled`, () => ({
+        [LAB_REQUEST_STATUSES.CANCELLED]: LAB_REQUEST_STATUSES.CANCELLED,
       })),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,

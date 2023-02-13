@@ -258,20 +258,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   const [labModalOpen, setLabModalOpen] = useState(modal === 'laboratory');
   const [cancelModalOpen, setCancelModalOpen] = useState(modal === 'cancel');
 
-  const api = useApi();
-  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
   const { id: labRequestId, status } = labRequest;
-
-  // show delete button if no test has results
-  useEffect(() => {
-    (async () => {
-      const { data: tests } = await api.get(`/labRequest/${labRequestId}/tests`);
-      const testsWithResults = tests.filter(t => t.result);
-      if (!testsWithResults.length) {
-        setHasTests(false);
-      }
-    })();
-  }, [api, labRequestId, setHasTests]);
 
   const actions = [
     { label: 'Change status', onClick: () => setStatusModalOpen(true) },
@@ -281,10 +268,6 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     actions.push({ label: 'Cancel request', onClick: () => setCancelModalOpen(true) });
-  }
-
-  if (!hasTests) {
-    actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
   }
 
   // Hide all actions if the lab request is cancelled, deleted or entered-in-error

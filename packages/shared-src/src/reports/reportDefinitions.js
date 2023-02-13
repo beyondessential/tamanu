@@ -1,10 +1,11 @@
 import {
   APPOINTMENT_STATUSES,
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUS_OPTIONS,
+  MANNER_OF_DEATH_OPTIONS,
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
-  IMAGING_REQUEST_STATUS_OPTIONS,
-  MANNER_OF_DEATH_OPTIONS,
-  LAB_REQUEST_STATUS_OPTIONS,
   REPORT_DATE_RANGE_LABELS,
   REPORT_DEFAULT_DATE_RANGES,
 } from 'shared/constants';
@@ -469,8 +470,11 @@ export const REPORT_DEFINITIONS = [
       {
         parameterField: 'ParameterSelectField',
         label: 'Status',
-        name: 'status',
-        options: IMAGING_REQUEST_STATUS_OPTIONS,
+        name: 'statuses',
+        options: Object.values(IMAGING_REQUEST_STATUS_TYPES).map(s => ({
+          label: IMAGING_REQUEST_STATUS_CONFIG[s].label,
+          value: s,
+        })),
       },
     ],
   },
