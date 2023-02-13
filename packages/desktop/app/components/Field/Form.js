@@ -80,9 +80,7 @@ export class Form extends React.PureComponent {
     // There is a bug in formik when you have validateOnChange set to true and validate manually as
     // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
     // @see https://github.com/jaredpalmer/formik/issues/1209
-    const errors = await validateForm(values);
-
-    const { isCanceled, ...formErrors } = errors;
+    const { isCanceled, ...formErrors } = await validateForm(values);
 
     if (Object.keys(formErrors).length > 0) {
       this.setErrors(formErrors);
