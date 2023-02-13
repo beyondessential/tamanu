@@ -39,7 +39,18 @@ module.exports = async ({ config }) => {
     new webpack.ProvidePlugin({
       Buffer: 'buffer',
     }),
-)
+  )
+
+  // Allow reading in of config json with comments
+  config.module.rules.push({
+    test: /\.json$/i,
+    loader: 'json5-loader',
+    options: {
+      esModule: false,
+    },
+    type: 'javascript/auto',
+  });
+
 
   // Resolve some modules that are problematic in browser to mocks
   config.resolve.alias = {
