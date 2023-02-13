@@ -11,7 +11,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
     let ctx;
     let app;
     beforeAll(async () => {
-      ctx = await createTestContext('fiji-vrs');
+      ctx = await createTestContext(integrationName);
       app = await ctx.baseApp.asRole('practitioner');
     });
     afterAll(() => ctx.close());

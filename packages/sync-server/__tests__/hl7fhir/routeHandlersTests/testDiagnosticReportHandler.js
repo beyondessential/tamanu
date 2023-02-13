@@ -11,7 +11,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
     let ctx;
     let app;
     beforeAll(async () => {
-      ctx = await createTestContext();
+      ctx = await createTestContext(integrationName);
       app = await ctx.baseApp.asRole('practitioner');
     });
     afterAll(() => ctx.close());
