@@ -41,12 +41,12 @@ export const LAB_REQUEST_STATUS_CONFIG = {
     background: '#EDEDED',
   },
   [LAB_REQUEST_STATUSES.DELETED]: {
-    label: 'Deleted',
+    label: 'Cancelled',
     color: '#444444;',
     background: '#EDEDED',
   },
   [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: {
-    label: 'Entered in error',
+    label: 'Cancelled',
     color: '#444444;',
     background: '#EDEDED',
   },
