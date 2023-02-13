@@ -1,7 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import { getSnapshotTableName } from './manageSnapshotTable';
 
-export const fetchSyncSnapshotRecordIds = async (
+export const getSyncSnapshotRecordIds = async (
   sequelize,
   sessionId,
   direction,

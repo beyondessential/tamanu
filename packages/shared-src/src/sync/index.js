@@ -7,3 +7,4 @@ export * from './manageSnapshotTable';
 export * from './removeEchoedChanges';
 export * from './saveIncomingChanges';
 export * from './adjustDataPostSyncPush';
+export * from './getSyncSnapshotRecordIds';
