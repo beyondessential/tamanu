@@ -115,23 +115,23 @@ class MockApplicationContext {
   };
 }
 
-export async function createTestContext() {
+export async function createTestContext(clientId = 'Tamanu Mobile') {
   const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
 
-  baseApp.set('X-Tamanu-Client', 'Tamanu Mobile');
+  baseApp.set('X-Tamanu-Client', clientId);
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
       expiresIn: '1d',
-      audience: 'Tamanu Mobile',
+      audience: clientId,
       issuer: config.canonicalHostName,
     });
     agent.set('authorization', `Bearer ${token}`);
-    agent.set('X-Tamanu-Client', 'Tamanu Mobile');
+    agent.set('X-Tamanu-Client', clientId);
     agent.user = user;
     return agent;
   };

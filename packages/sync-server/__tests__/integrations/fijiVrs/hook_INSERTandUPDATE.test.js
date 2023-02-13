@@ -12,7 +12,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
   let ctx;
   let app;
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext('fiji-vrs');
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
