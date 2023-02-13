@@ -153,6 +153,19 @@ export class CentralServerConnection {
     }, backoff);
   }
 
+  async pollUntilTrue(endpoint) {
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const response = await this.fetch(endpoint);
+      if (response) {
+        return response;
+      }
+      await sleepAsync(waitTime);
+    }
+    throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
+  }
+
   async connect() {
     // if there's an ongoing connect attempt, reuse it
     if (this.connectionPromise) {
@@ -196,31 +209,35 @@ export class CentralServerConnection {
   }
 
   async startSyncSession() {
-    return this.fetch('sync', { method: 'POST' });
+    const { sessionId } = await this.fetch('sync', { method: 'POST' });
+
+    // then, poll the sync/:sessionId/ready endpoint until we get a valid response
+    // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
+    // and take a while if the central server is concurrently persist records from another client
+    await this.pollUntilTrue(`sync/${sessionId}/ready`);
+
+    // finally, fetch the new tick from starting the session
+    const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
+
+    return { sessionId, startedAtTick };
   }
 
   async endSyncSession(sessionId) {
     return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
   }
 
-  async setPullFilter(sessionId, since) {
+  async initiatePull(sessionId, since) {
+    // first, set the pull filter on the central server, which will kick of a snapshot of changes
+    // to pull
     const body = { since, facilityId: config.serverFacilityId };
-    return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
-  }
+    await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
-  async fetchPullCount(sessionId) {
-    // poll the pull count endpoint until we get a valid response - it takes a while for
-    // setPullFilter to finish populating the snapshot of changes
-    const waitTime = 1000; // retry once per second
-    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const count = await this.fetch(`sync/${sessionId}/pull/count`);
-      if (count !== null) {
-        return count;
-      }
-      await sleepAsync(waitTime);
-    }
-    throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
+    // then, poll the pull/ready endpoint until we get a valid response - it takes a while for
+    // pull/initiate to finish populating the snapshot of changes
+    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+
+    // finally, fetch the metadata for the changes we're about to pull
+    return this.fetch(`sync/${sessionId}/pull/metadata`);
   }
 
   async pull(sessionId, { limit = 100, fromId } = {}) {
@@ -232,12 +249,18 @@ export class CentralServerConnection {
     return this.fetch(path);
   }
 
-  async push(sessionId, changes, { pushedSoFar, totalToPush }) {
-    const path = `sync/${sessionId}/push?${objectToQueryString({
-      pushedSoFar,
-      totalToPush,
-    })}`;
+  async push(sessionId, changes) {
+    const path = `sync/${sessionId}/push`;
     return this.fetch(path, { method: 'POST', body: { changes } });
+  }
+
+  async completePush(sessionId) {
+    // first off, mark the push as complete on central
+    await this.fetch(`sync/${sessionId}/push/complete`, { method: 'POST' });
+
+    // now poll the complete check endpoint until we get a valid response - it takes a while for
+    // the pushed changes to finish persisting to the central database
+    await this.pollUntilTrue(`sync/${sessionId}/push/complete`);
   }
 
   async whoami() {

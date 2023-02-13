@@ -215,3 +215,7 @@ export const AutocompleteSourceToColumnMap = {
 export const VitalsDataElements = {
   dateRecorded: 'pde-PatientVitalsDate',
 };
+
+export const FORM_STATUSES = {
+  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+};
