@@ -51,8 +51,8 @@ export class Survey extends Model {
   }
 
   static async getResponsePermissionCheck(id) {
-    const { id: vitalsSurveyId } = await this.getVitalsSurvey();
-    if (id === vitalsSurveyId) {
+    const vitalsSurvey = await this.getVitalsSurvey();
+    if (vitalsSurvey && id === vitalsSurvey.id) {
       return 'Vitals';
     }
     return 'SurveyResponse';
