@@ -86,8 +86,23 @@ export const TextField = React.memo(
 
     const inputMarginTop = useMemo(() => {
       if (multiline) return 0;
-      if (!label) return screenPercentageToDP(0.8, Orientation.Height);
-      return screenPercentageToDP(1.5, Orientation.Height);
+      if (!label) {
+        return screenPercentageToDP(0.8, Orientation.Height);
+      } else {
+        return screenPercentageToDP(0.3, Orientation.Height);
+      }
+      return 0;
+    }, []);
+
+    const inputHeight = useMemo(() => {
+      if (label) {
+        if (multiline) {
+          return '90%';
+        } else {
+          return '65%'
+        }
+      }
+      return '100%';
     }, []);
 
     return (
@@ -95,16 +110,13 @@ export const TextField = React.memo(
         height={
           multiline
             ? screenPercentageToDP('13.36', Orientation.Height)
-            : screenPercentageToDP('6.68', Orientation.Height)
+            : screenPercentageToDP('9', Orientation.Height)
         }
         marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
         width="100%"
       >
         <InputContainer
-          disabled={disabled}
-          hasValue={value && value.length > 0}
-          error={error}
-          paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
+          paddingLeft={`${true ? undefined : screenPercentageToDP(1.5, Orientation.Width)}`}
         >
           {!multiline && label && (
             <TextFieldLabel
@@ -117,9 +129,14 @@ export const TextField = React.memo(
             </TextFieldLabel>
           )}
           <StyledTextInput
+            disabled={disabled}
+            focused={focused}
+            hasValue={value && value.length > 0}
+            error={error}
             testID={label}
             value={!hideValue && value}
             marginTop={inputMarginTop}
+            height={inputHeight}
             ref={ref}
             autoCapitalize={
               keyboardType === 'email-address' ? 'none' : autoCapitalize
