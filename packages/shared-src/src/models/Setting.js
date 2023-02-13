@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { isPlainObject } from 'lodash';
+import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -73,19 +73,8 @@ export class Setting extends Model {
     });
 
     const settingsObject = {};
-
     for (const currentSetting of settings) {
-      let target = settingsObject;
-      const pathSegments = currentSetting.key.split('.');
-      const finalSegment = pathSegments.pop();
-
-      for (const segment of pathSegments) {
-        if (!target[segment]) {
-          target[segment] = {};
-        }
-        target = target[segment];
-      }
-      target[finalSegment] = JSON.parse(currentSetting.value);
+      setAtPath(settingsObject, currentSetting.key, JSON.parse(currentSetting.value));
     }
 
     if (key === '') {
@@ -97,7 +86,7 @@ export class Setting extends Model {
     // {  schedule: '0 11 * * *', batchSize: 1000 }
     // rather than
     // { schedules: { outPatientDischarger: { schedule: '0 11 * * *', batchSize: 1000 } } }
-    return key.split('.').reduce((object, index) => object[index], settingsObject);
+    return getAtPath(settingsObject, key);
   }
 
   static async forFacility(facilityId) {

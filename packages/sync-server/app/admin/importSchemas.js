@@ -202,7 +202,7 @@ export const Survey = Base.shape({
   surveyType: yup
     .string()
     .required()
-    .oneOf(['programs', 'referral', 'obsolete']),
+    .oneOf(['programs', 'referral', 'obsolete', 'vitals']),
   isSensitive: yup.boolean().required(),
 });
 

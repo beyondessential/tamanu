@@ -1,4 +1,5 @@
 import React from 'react';
+import * as yup from 'yup';
 import { inRange } from 'lodash';
 
 import { ageInYears } from 'shared/utils/dateTime';
@@ -14,8 +15,9 @@ import {
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
+  DateTimeField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -32,6 +34,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: props => <DateTimeField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: props => <DateField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
@@ -163,11 +166,10 @@ function getInitialValue(dataElement) {
   }
 }
 
-export function getConfigObject(componentId, configString) {
-  if (!configString) return {};
-
+export function getConfigObject(componentId, config) {
+  if (!config) return {};
   try {
-    return JSON.parse(configString);
+    return JSON.parse(config);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn(`Invalid config in survey screen component ${componentId}`);
@@ -243,3 +245,55 @@ export const getActionsFromData = (data, survey) =>
     }
     return acc;
   }, {});
+
+export const getValidationSchema = surveyData => {
+  if (!surveyData) return {};
+  const { components } = surveyData;
+  const schema = components.reduce(
+    (
+      acc,
+      {
+        id: componentId,
+        dataElement,
+        validationCriteria,
+        config,
+        dataElementId,
+        text: componentText,
+      },
+    ) => {
+      const { unit = '' } = getConfigObject(componentId, config);
+      const { min, max, mandatory } = getConfigObject(componentId, validationCriteria);
+      const { type, defaultText } = dataElement;
+      const text = componentText || defaultText;
+      let valueSchema;
+      switch (type) {
+        case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
+          valueSchema = yup.number().nullable();
+          if (typeof min === 'number' && !isNaN(min)) {
+            valueSchema = valueSchema.min(min, `${text} must be at least ${min}${unit}`);
+          }
+          if (typeof max === 'number' && !isNaN(max)) {
+            valueSchema = valueSchema.max(max, `${text} can not exceed ${max}${unit}`);
+          }
+          break;
+        }
+        case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+        case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
+        case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
+          valueSchema = yup.string();
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+        case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
+        case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
+          valueSchema = yup.date();
+          break;
+        default:
+          valueSchema = yup.mixed();
+          break;
+      }
+      return { ...acc, [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired']() };
+    },
+    {},
+  );
+  return yup.object().shape(schema);
+};

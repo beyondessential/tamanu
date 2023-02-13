@@ -10,18 +10,16 @@ export class SyncSession extends Model {
         startTime: { type: DataTypes.DATE },
         lastConnectionTime: { type: DataTypes.DATE },
         snapshotCompletedAt: { type: DataTypes.DATE },
+        persistCompletedAt: { type: DataTypes.DATE },
         completedAt: { type: DataTypes.DATE },
+        startedAtTick: { type: DataTypes.BIGINT },
+        pullSince: { type: DataTypes.BIGINT },
+        pullUntil: { type: DataTypes.BIGINT },
         error: { type: DataTypes.TEXT },
         debugInfo: { type: DataTypes.JSON },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
-  }
-
-  static initRelations(models) {
-    this.hasMany(models.SyncSessionRecord, {
-      foreignKey: 'sessionId',
-    });
   }
 
   static async addDebugInfo(id, info) {

@@ -1,6 +1,9 @@
 import { log } from 'shared/services/logging';
 import { readFile, utils } from 'xlsx';
 import config from 'config';
+import { Op } from 'sequelize';
+import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
+import { validateQuestions } from './validateQuestions';
 
 import { ValidationError } from '../errors';
 import { importRows } from '../importRows';
@@ -152,7 +155,6 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   // then loop over each survey defined in metadata and import it
   for (const md of surveyMetadata.filter(shouldImportSurvey)) {
     const sheetName = md.name;
-    const surveyRows = [];
 
     const surveyData = {
       id: `${programId}-${idify(md.code)}`,
@@ -161,16 +163,38 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       surveyType: md.surveyType,
       isSensitive: md.isSensitive,
     };
-    surveyRows.push({
-      model: 'Survey',
-      sheetRow: -2,
-      values: surveyData,
-    });
 
-    // don't import questions for obsoleted surveys
-    // (or even read their worksheet, or check if it exists)
+    let surveyRows = [
+      {
+        model: 'Survey',
+        sheetRow: -2,
+        values: surveyData,
+      },
+    ];
+
+    // always read obsolete surveys, but only the first rows
+    // this is so we don't miss surveys that have just been made obsolete
     if (md.surveyType === 'obsolete') {
+      stats.push(
+        await importRows(context(sheetName), {
+          sheetName,
+          rows: surveyRows,
+        }),
+      );
       continue;
+    }
+
+    // There should only be one instance of a vitals survey
+    if (md.surveyType === 'vitals') {
+      const vitalsCount = await models.Survey.count({
+        where: { id: { [Op.not]: `${programId}-${idify(md.code)}` }, survey_type: 'vitals' },
+      });
+      if (vitalsCount > 0) {
+        errors.push(
+          new ValidationError(sheetName, -2, 'Only one vitals survey may exist at a time'),
+        );
+        continue;
+      }
     }
 
     // Strip some characters from workbook names before trying to find them
@@ -189,7 +213,18 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     }
 
     const data = utils.sheet_to_json(worksheet);
-    surveyRows.push(...importSurveySheet(data, surveyData));
+
+    if (md.surveyType === 'vitals') {
+      if (
+        !validateQuestions({ ...surveyData, errors }, data, {
+          requiredFields: Object.values(VITALS_DATA_ELEMENT_IDS),
+        })
+      ) {
+        continue;
+      }
+    }
+
+    surveyRows = surveyRows.concat(importSurveySheet(data, surveyData));
 
     stats.push(
       await importRows(context(sheetName), {

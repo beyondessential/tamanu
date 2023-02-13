@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import Box from '@material-ui/core/Box';
 
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants';
+
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi } from '../../api';
@@ -76,11 +78,13 @@ const DiagnosesList = ({ diagnoses }) => {
     return <span>N/A</span>;
   }
 
-  return diagnoses.map(item => (
-    <li>
-      {item.diagnosis.name} (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
-    </li>
-  ));
+  return diagnoses
+    .filter(({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty))
+    .map(item => (
+      <li>
+        {item.diagnosis.name} (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
+      </li>
+    ));
 };
 
 const ProceduresList = ({ procedures }) => {
@@ -216,7 +220,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </ListColumn>
         <div>
           <Label>Discharge planning notes:</Label>
-          <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
+          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{discharge?.note}</div>
         </div>
       </Content>
     </SummaryPageContainer>

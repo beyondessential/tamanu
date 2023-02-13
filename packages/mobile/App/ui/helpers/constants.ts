@@ -12,6 +12,7 @@ export const DateFormats = {
   SHORT_MONTH: 'MMM',
   DATE_AND_TIME: 'dd MMM yyyy pp',
   TIME_HHMMSS: 'pp',
+  TIME: 'p',
 };
 
 export const FilterTypeAll = 'All';
@@ -207,5 +208,10 @@ export const AutocompleteSourceToColumnMap = {
   Department: 'name',
   Facility: 'name',
   Location: 'name',
+  LocationGroup: 'name',
   ReferenceData: 'name',
+};
+
+export const VitalsDataElements = {
+  dateRecorded: 'pde-PatientVitalsDate',
 };

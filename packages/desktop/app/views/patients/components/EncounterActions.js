@@ -84,7 +84,7 @@ const EncounterActionDropdown = ({ encounter }) => {
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
     {
-      label: 'Plan patient move',
+      label: 'Move patient',
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
     },
