@@ -1,8 +1,19 @@
 import React from 'react';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
+
+const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
+  .filter(
+    x =>
+      x !== IMAGING_REQUEST_STATUS_TYPES.DELETED &&
+      x !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+  )
+  .map(x => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[x].label,
+    value: x,
+  }));
 
 export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
