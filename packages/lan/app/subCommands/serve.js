@@ -11,6 +11,7 @@ import { startScheduledTasks } from '../tasks';
 import { listenForServerQueries } from '../discovery';
 
 import { version } from '../serverInfo';
+import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 
 async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
@@ -34,6 +35,12 @@ async function serve({ skipMigrationCheck }) {
   context.centralServer = new CentralServerConnection(context);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
+
+  await performTimeZoneChecks({
+    remote: context.centralServer,
+    sequelize: context.sequelize,
+    config,
+  });
 
   const app = createApp(context);
 

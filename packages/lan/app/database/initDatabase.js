@@ -14,6 +14,7 @@ export async function initDatabase() {
   existingConnection = await sharedInitDatabase({
     ...config.db,
     testMode,
+    timezone: config.countryTimeZone,
     primaryKeyDefault: testMode ? fakeUUID : undefined,
   });
   return existingConnection;

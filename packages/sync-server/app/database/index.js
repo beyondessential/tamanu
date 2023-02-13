@@ -16,6 +16,7 @@ export async function initDatabase({ testMode = false }) {
     testMode,
     makeEveryModelParanoid: true,
     saltRounds: config.auth.saltRounds,
+    timezone: config.countryTimeZone,
   });
 
   // drop and recreate db

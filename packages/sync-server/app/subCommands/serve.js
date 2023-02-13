@@ -23,6 +23,11 @@ export const serve = async ({ skipMigrationCheck }) => {
 
   const app = createApp(context);
 
+  await performTimeZoneChecks({
+    sequelize: store.sequelize,
+    config,
+  });
+
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
