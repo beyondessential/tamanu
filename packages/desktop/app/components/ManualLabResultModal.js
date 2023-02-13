@@ -5,7 +5,7 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { Modal } from './Modal';
 import { ManualLabResultForm } from '../forms/ManualLabResultForm';
 
-export const ManualLabResultModal = ({ labTest, onClose, open }) => {
+export const ManualLabResultModal = ({ labTest, onClose, open, isReadOnly }) => {
   const { updateLabTest, labRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
   const onSubmit = useCallback(
@@ -29,7 +29,12 @@ export const ManualLabResultModal = ({ labTest, onClose, open }) => {
       onClose={onClose}
       title={`Enter result – ${labTest && labTest.labTestType.name}`}
     >
-      <ManualLabResultForm labTest={labTest} onSubmit={onSubmit} onClose={onClose} />
+      <ManualLabResultForm
+        labTest={labTest}
+        onSubmit={onSubmit}
+        onClose={onClose}
+        isReadOnly={isReadOnly}
+      />
     </Modal>
   );
 };

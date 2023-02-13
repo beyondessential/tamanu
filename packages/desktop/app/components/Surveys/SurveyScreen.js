@@ -6,6 +6,7 @@ import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
+import { FORM_STATUSES } from '../../constants';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -18,7 +19,7 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
     // write values that have changed back into answers
     Object.entries(calculatedValues)
       .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v));
+      .map(([k, v]) => setFieldValue(k, v, false));
   }, [components, values, setFieldValue]);
 };
 
@@ -66,30 +67,28 @@ export const SurveyScreen = ({
   validateForm,
   setErrors,
   errors,
+  setStatus,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(components, values, setFieldValue);
 
-  const questionElements = components
-    .filter(c => checkVisibility(c, values, components))
-    .map(c => (
-      <SurveyQuestion
-        component={c}
-        patient={patient}
-        key={c.id}
-        inputRef={setQuestionToRef(c.dataElementId)}
-      />
-    ));
-
   const validateAndStep = async () => {
     const formErrors = await validateForm();
+
+    // Only include visible elements
     const pageErrors = Object.keys(formErrors).filter(x =>
       components.map(c => c.dataElementId).includes(x),
     );
+
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();
+      setStatus(null);
     } else {
+      // Use formik status prop to track if the user has attempted to submit the form. This is used in
+      // Field.js to only show error messages once the user has attempted to submit the form
+      setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+
       const firstErroredQuestion = components.find(({ dataElementId }) =>
         pageErrors.includes(dataElementId),
       );
@@ -99,7 +98,16 @@ export const SurveyScreen = ({
 
   return (
     <FormGrid columns={cols}>
-      {questionElements}
+      {components
+        .filter(c => checkVisibility(c, values, components))
+        .map(c => (
+          <SurveyQuestion
+            component={c}
+            patient={patient}
+            key={c.id}
+            inputRef={setQuestionToRef(c.dataElementId)}
+          />
+        ))}
       <StyledButtonRow>
         {submitButton || (
           <>

@@ -294,7 +294,7 @@ export const getValidationSchema = surveyData => {
       return {
         ...acc,
         [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
-          mandatory ? `${dataElement.name} is a required field` : null,
+          mandatory ? 'Required' : null,
         ),
       };
     },
