@@ -1,9 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-export const setting = express.Router();
+export const template = express.Router();
 
-setting.get(
+template.get(
   '/:key',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
@@ -14,13 +14,12 @@ setting.get(
       query: { facilityId },
     } = req;
 
-    const settingResult = await Setting.findOne({
-      where: {
-        key,
-        facilityId,
-      },
-    });
+    if (!key.startsWith('templates.')) {
+      throw new Error('Invalid template key');
+    }
 
-    res.send({ data: settingResult?.value || '' });
+    const templateValue = await Setting.get(key, facilityId);
+
+    res.send({ data: templateValue || null });
   }),
 );

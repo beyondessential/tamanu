@@ -40,7 +40,7 @@ import { syncHealth } from './syncHealth';
 import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
-import { setting } from './setting';
+import { template } from './template';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -99,7 +99,7 @@ referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
 referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
-referenceDataRoutes.use('/setting', setting);
+referenceDataRoutes.use('/template', template);
 
 // sync endpoints
 syncRoutes.use('/sync', sync);
