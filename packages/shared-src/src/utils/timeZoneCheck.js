@@ -41,7 +41,9 @@ export async function performTimeZoneChecks({ config, sequelize, remote }) {
     if (config.allowMismatchedTimeZones) {
       log.warn(errorText);
     } else {
-      throw new TimeZoneMismatchError(`${errorText} Please ensure these are consistent, or set config.allowMismatchedTimeZones to true.`);
+      throw new TimeZoneMismatchError(
+        `${errorText} Please ensure these are consistent, or set config.allowMismatchedTimeZones to true.`,
+      );
     }
   }
 }

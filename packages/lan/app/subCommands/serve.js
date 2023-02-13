@@ -3,6 +3,7 @@ import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 
+import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
@@ -11,7 +12,6 @@ import { startScheduledTasks } from '../tasks';
 import { listenForServerQueries } from '../discovery';
 
 import { version } from '../serverInfo';
-import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 
 async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
