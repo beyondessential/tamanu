@@ -13,4 +13,4 @@ export const PractitionerField = ({ name = 'practitioner', required }) => {
       required={required}
     />
   );
-}
+};

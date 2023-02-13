@@ -24,7 +24,7 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
-export const syncPatient = (patientId) => async (dispatch, getState, { api }) => {
+export const syncPatient = patientId => async (dispatch, getState, { api }) => {
   dispatch({
     type: PATIENT_SYNCING,
     data: true,

@@ -29,7 +29,7 @@ export const DiagnosisForm = React.memo(
 
     const icd10Suggester = useSuggester('icd10', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
-    }); 
+    });
 
     return (
       <Form

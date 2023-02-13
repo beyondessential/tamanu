@@ -13,4 +13,4 @@ export const DiagnosisField = ({ required, name, label }) => {
       required={required}
     />
   );
-}
+};

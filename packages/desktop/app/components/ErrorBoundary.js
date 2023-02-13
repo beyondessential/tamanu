@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { ContentPane } from './ContentPane';
 
@@ -15,15 +15,15 @@ const DebugInfo = styled.pre`
 `;
 
 export const ErrorView = React.memo(({ error }) => {
-  const state = useSelector(state => state);
+  const reduxState = useSelector(state => state);
   const logError = useCallback(() => {
     // eslint-disable-next-line no-console
     console.log(error);
   }, [error]);
   const logState = useCallback(() => {
     // eslint-disable-next-line no-console
-    console.log({ state });
-  }, [state]);
+    console.log({ reduxState });
+  }, [reduxState]);
 
   return (
     <ContentPane>
@@ -34,7 +34,7 @@ export const ErrorView = React.memo(({ error }) => {
       <p>The stack of the error are:</p>
       <DebugInfo onClick={logError}>{error.stack}</DebugInfo>
       <p>The contents of the application state are:</p>
-      <DebugInfo onClick={logState}>{JSON.stringify({ state }, null, 2)}</DebugInfo>
+      <DebugInfo onClick={logState}>{JSON.stringify({ reduxState }, null, 2)}</DebugInfo>
     </ContentPane>
   );
 });

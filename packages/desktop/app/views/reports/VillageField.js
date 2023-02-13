@@ -13,4 +13,4 @@ export const VillageField = ({ name = 'village', required }) => {
       required={required}
     />
   );
-}
+};

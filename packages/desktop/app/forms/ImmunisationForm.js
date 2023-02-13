@@ -111,10 +111,9 @@ export const ImmunisationForm = ({ onCancel, onSubmit, getScheduledVaccines }) =
     () => findVaccinesByAdministeredStatus(selectedVaccine, true),
     [selectedVaccine],
   );
-  const scheduleOptions = useMemo(
-    () => findVaccinesByAdministeredStatus(selectedVaccine, false),
-    [selectedVaccine],
-  );
+  const scheduleOptions = useMemo(() => findVaccinesByAdministeredStatus(selectedVaccine, false), [
+    selectedVaccine,
+  ]);
 
   const currentUser = useSelector(getCurrentUser);
 

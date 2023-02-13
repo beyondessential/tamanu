@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { VACCINE_STATUS } from 'shared/constants';
+import { useDispatch } from 'react-redux';
 import { Modal } from './Modal';
 import { useApi } from '../api';
 import { reloadPatient } from '../store/patient';
@@ -9,13 +10,12 @@ import { DeleteButton } from './Button';
 import { TextInput } from './Field';
 import { FormGrid } from './FormGrid';
 import { ConfirmModal } from './ConfirmModal';
-import { useDispatch } from 'react-redux';
 
 const Button = styled(DeleteButton)`
   margin-top: 2em;
 `;
 
-export const EditAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
+export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const closeWithoutDeletingRecord = useCallback(() => {
     setConfirmDelete(false);
@@ -87,4 +87,3 @@ export const EditAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     </Modal>
   );
 };
-

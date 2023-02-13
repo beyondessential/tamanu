@@ -8,12 +8,7 @@ import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
 import { useApi } from '../api';
 
-export const DiagnosisModal = ({ 
-  diagnosis, 
-  onClose, 
-  encounterId,
-  ...rest 
-}) => {
+export const DiagnosisModal = ({ diagnosis, onClose, encounterId, ...rest }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
@@ -22,17 +17,12 @@ export const DiagnosisModal = ({
       if (data.id) {
         await api.put(`diagnosis/${data.id}`, data);
       } else {
-        const { diagnosis, previousDiagnoses = [] } = await api.post(`diagnosis`, {
+        const result = await api.post(`diagnosis`, {
           ...data,
           encounterId,
         });
-        if (previousDiagnoses.length > 0) {
-          dispatch(
-            showDecisionSupport('repeatDiagnosis', {
-              diagnosis,
-              previousDiagnoses,
-            }),
-          );
+        if (result.previousDiagnoses.length > 0) {
+          dispatch(showDecisionSupport('repeatDiagnosis', result));
         }
       }
       await loadEncounter(encounterId);

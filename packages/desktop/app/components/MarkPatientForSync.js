@@ -29,4 +29,4 @@ export const MarkPatientForSync = ({ patient }) => {
       Sync patient records
     </MarkPatientForSyncButton>
   );
-}
+};

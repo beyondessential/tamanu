@@ -22,10 +22,5 @@ const getSuggesterEndpointForConfig = config => {
 export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
   const endpoint = getSuggesterEndpointForConfig(config);
   const suggester = useSuggester(endpoint);
-  return (
-    <AutocompleteField 
-      suggester={suggester}
-      {...props} 
-    />
-  );
-}
+  return <AutocompleteField suggester={suggester} {...props} />;
+};
