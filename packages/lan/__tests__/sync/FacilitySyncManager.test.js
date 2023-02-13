@@ -98,9 +98,12 @@ describe('FacilitySyncManager', () => {
 
       // create a record that will be committed before the sync starts, so safely gets the current
       // sync tick and available in the db for snapshotting
-      await models.Facility.create({
-        ...fake(models.Facility),
-        id: config.serverFacilityId,
+      await models.Facility.findOrCreate({
+        where: { id: config.serverFacilityId },
+        defaults: {
+          ...fake(models.Facility),
+          id: config.serverFacilityId,
+        },
       });
       const { id: safePatientId } = await models.Patient.create(createDummyPatient());
 
