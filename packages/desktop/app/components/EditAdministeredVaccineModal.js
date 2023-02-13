@@ -30,7 +30,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
       status: VACCINE_STATUS.RECORDED_IN_ERROR,
     });
     dispatch(reloadPatient(patientId));
-  }, [patientId, vaccineRecord, dispatch, api, reloadPatient]);
+  }, [patientId, vaccineRecord, dispatch, api]);
 
   if (!vaccineRecord) return null;
 
