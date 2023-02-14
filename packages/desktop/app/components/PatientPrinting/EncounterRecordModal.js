@@ -182,18 +182,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractNoteData(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
-  // const dataPoints = {
-  //   encounterTable: encounterTypeHistory?.length + 1,
-  //   locationTable: locationHistory?.length + 1,
-  //   diagnosesTable: encounter?.diagnoses?.length + 1,
-  //   proceduresTable: encounter?.procedures?.length + 1,
-  //   labsTable: updatedLabRequests?.data?.length + 1,
-  //   imagingTable: updatedImagingRequests?.length + 1,
-  //   medicationsTable: encounter?.medications?.length + 1,
-  //   notesTable: orderedNotes?.length + 1,
-  // };s
-  // console.log(dataPoints);
-
   return (
     <Modal
       title="Encounter Record"

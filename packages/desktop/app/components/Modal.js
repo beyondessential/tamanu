@@ -28,7 +28,6 @@ const Dialog = styled(MuiDialog)`
   }
 
   @media print {
-    position: relative !important;
     .MuiPaper-root {
       -webkit-print-color-adjust: exact;
     }

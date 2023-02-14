@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
 import { LocalisedLabel } from './SimplePrintout';
 import { PrintLetterhead } from './PrintLetterhead';
-import { CertificateWrapper } from './CertificateWrapper';
 import { DateDisplay } from '../DateDisplay';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ListTable } from './ListTable';
@@ -96,13 +95,6 @@ const ChildNote = styled.div`
   margin-top: 10px;
   &:nth-of-type(1) {
     margin-top: 0;
-  }
-`;
-
-const PageBreak = styled.section`
-  @media print {
-    page-break-after: always;
-    break-after: page;
   }
 `;
 
@@ -320,44 +312,6 @@ export const EncounterRecord = React.memo(
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
-    // const [height, setHeight] = useState(0);
-    const encounterTable = useRef(null);
-    const locationTable = useRef(null);
-    const diagnosesTable = useRef(null);
-    const proceduresTable = useRef(null);
-    const labsTable = useRef(null);
-    const imagingTable = useRef(null);
-    const medicationsTable = useRef(null);
-    const notesTable = useRef(null);
-
-    // useEffect(() => {
-    //   setHeight({
-    //     encounterTable: encounterTable.current?.offsetHeight,
-    //     locationTable: locationTable.current?.offsetHeight,
-    //     diagnosesTable: diagnosesTable.current?.offsetHeight,
-    //     proceduresTable: proceduresTable.current?.offsetHeight,
-    //     labsTable: labsTable.current?.offsetHeight,
-    //     imagingTable: imagingTable.current?.offsetHeight,
-    //     medicationsTable: medicationsTable.current?.offsetHeight,
-    //     notesTable: notesTable.current?.offsetHeight,
-    //   });
-    // }, []);
-
-    // // console.log(height);
-    // const keys = Object.keys(height);
-    // let currentPageX = 0;
-    // let breakIndexes = [];
-
-    // keys.forEach((key, index) => {
-    //   if (currentPageX + height[key] > 1000) {
-    //     currentPageX = 0;
-    //     breakIndexes.push(index);
-    //   }
-    //   currentPageX += height[key];
-    // });
-
-    // breakIndexes = [];
-
     return (
       <>
         <ShiftedCertificateWrapper>
@@ -420,101 +374,85 @@ export const EncounterRecord = React.memo(
           </RowContainer>
 
           {encounterTypeHistory.length > 0 ? (
-            <div ref={encounterTable}>
+            <>
               <TableHeading>Encounter Types</TableHeading>
               <CompactListTable data={encounterTypeHistory} columns={columns.encounterTypes} />
-            </div>
+            </>
           ) : (
             <></>
           )}
-
-          {/* {breakIndexes.includes(1) ? <PageBreak /> : <></>} */}
 
           {locationHistory.length > 0 ? (
-            <div ref={locationTable}>
+            <>
               <TableHeading>Locations</TableHeading>
               <CompactListTable data={locationHistory} columns={columns.locations} />
-            </div>
+            </>
           ) : (
             <></>
           )}
-
-          {/* {breakIndexes.includes(2) ? <PageBreak /> : <></>} */}
 
           {encounter.diagnoses.length > 0 ? (
-            <div ref={diagnosesTable}>
+            <>
               <TableHeading>Diagnoses</TableHeading>
               <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
-            </div>
+            </>
           ) : (
             <></>
           )}
-
-          {/* {breakIndexes.includes(3) ? <PageBreak /> : <></>} */}
 
           {encounter.procedures.length > 0 ? (
-            <div ref={proceduresTable}>
+            <>
               <TableHeading>Procedures</TableHeading>
               <CompactListTable data={encounter.procedures} columns={columns.procedures} />
-            </div>
+            </>
           ) : (
             <></>
           )}
-
-          {/* {breakIndexes.includes(4) ? <PageBreak /> : <></>} */}
 
           {labRequests.data.length > 0 ? (
-            <div ref={labsTable}>
+            <>
               <TableHeading>Lab Requests</TableHeading>
               <CompactListTable data={labRequests.data} columns={columns.labRequests} />
-            </div>
+            </>
           ) : (
             <></>
           )}
-
-          {/* {breakIndexes.includes(5) ? <PageBreak /> : <></>} */}
 
           {imagingRequests.length > 0 ? (
-            <div ref={imagingTable}>
+            <>
               <TableHeading>Imaging Requests</TableHeading>
               <CompactListTable data={imagingRequests} columns={columns.imagingRequests} />
-            </div>
+            </>
           ) : (
             <></>
           )}
-
-          {/* {breakIndexes.includes(6) ? <PageBreak /> : <></>} */}
 
           {encounter.medications.length > 0 ? (
-            <div ref={medicationsTable}>
+            <>
               <TableHeading>Medications</TableHeading>
               <CompactListTable data={encounter.medications} columns={columns.medications} />
-            </div>
+            </>
           ) : (
             <></>
           )}
 
-          {/* {breakIndexes.includes(7) ? <PageBreak /> : <></>} */}
-
           {notes.length > 0 ? (
-            <div ref={notesTable}>
+            <>
               <TableHeading>Notes</TableHeading>
               {notes.map(note => (
                 <>
                   <Table>
-                    <thead>
-                      <Row>
-                        <Cell width="10%">
-                          <BoldText>Note Type</BoldText>
-                        </Cell>
-                        <Cell width="35%">
-                          {noteTypes.find(x => x.value === note.noteType).label}
-                        </Cell>
-                        <Cell>
-                          <DateDisplay date={note.date} showDate showTime />
-                        </Cell>
-                      </Row>
-                    </thead>
+                    <Row>
+                      <Cell width="10%">
+                        <BoldText>Note Type</BoldText>
+                      </Cell>
+                      <Cell width="35%">
+                        {noteTypes.find(x => x.value === note.noteType).label}
+                      </Cell>
+                      <Cell>
+                        <DateDisplay date={note.date} showDate showTime />
+                      </Cell>
+                    </Row>
                     <tbody>
                       <Row>
                         <Cell colSpan={3}>
@@ -533,7 +471,7 @@ export const EncounterRecord = React.memo(
                   </Table>
                 </>
               ))}
-            </div>
+            </>
           ) : (
             <></>
           )}
