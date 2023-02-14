@@ -9,13 +9,10 @@ const Table = styled.table`
   border-spacing: 0px;
   border-collapse: collapse;
   width: 100%;
-  page-break-inside: auto;
 `;
 
 const Row = styled.tr`
   border-bottom: 1px solid black;
-  page-break-inside: avoid;
-  page-break-after: always;
 `;
 
 const Header = styled.th`
