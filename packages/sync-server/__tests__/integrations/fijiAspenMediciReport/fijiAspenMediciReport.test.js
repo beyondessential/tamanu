@@ -320,7 +320,7 @@ describe('fijiAspenMediciReport', () => {
   let fakedata;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext('medici');
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models);
