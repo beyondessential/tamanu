@@ -1,53 +1,39 @@
 import React, { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { connectApi } from '../api/connectApi';
-import { Suggester } from '../utils/suggester';
 import { useEncounter } from '../contexts/Encounter';
 import { showDecisionSupport } from '../store/specialModals';
 
 import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
+import { useApi } from '../api';
 
-const DumbDiagnosisModal = React.memo(
-  ({ diagnosis, onClose, onSaveDiagnosis, encounterId, ...rest }) => {
-    const { loadEncounter } = useEncounter();
-    const saveDiagnosis = useCallback(
-      async data => {
-        await onSaveDiagnosis(data);
-        await loadEncounter(encounterId);
-        onClose();
-      },
-      [onSaveDiagnosis, loadEncounter, onClose, encounterId],
-    );
-
-    return (
-      <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
-        <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} onSave={saveDiagnosis} {...rest} />
-      </Modal>
-    );
-  },
-);
-
-export const DiagnosisModal = connectApi((api, dispatch, { encounterId, excludeDiagnoses }) => ({
-  onSaveDiagnosis: async data => {
-    if (data.id) {
-      await api.put(`diagnosis/${data.id}`, data);
-    } else {
-      const { diagnosis, previousDiagnoses = [] } = await api.post(`diagnosis`, {
-        ...data,
-        encounterId,
-      });
-      if (previousDiagnoses.length > 0) {
-        dispatch(
-          showDecisionSupport('repeatDiagnosis', {
-            diagnosis,
-            previousDiagnoses,
-          }),
-        );
+export const DiagnosisModal = ({ diagnosis, onClose, encounterId, ...rest }) => {
+  const api = useApi();
+  const dispatch = useDispatch();
+  const { loadEncounter } = useEncounter();
+  const onSaveDiagnosis = useCallback(
+    async data => {
+      if (data.id) {
+        await api.put(`diagnosis/${data.id}`, data);
+      } else {
+        const result = await api.post(`diagnosis`, {
+          ...data,
+          encounterId,
+        });
+        if (result.previousDiagnoses.length > 0) {
+          dispatch(showDecisionSupport('repeatDiagnosis', result));
+        }
       }
-    }
-  },
-  icd10Suggester: new Suggester(api, 'icd10', {
-    filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
-  }),
-}))(DumbDiagnosisModal);
+      await loadEncounter(encounterId);
+      onClose();
+    },
+    [api, dispatch, loadEncounter, onClose, encounterId],
+  );
+
+  return (
+    <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
+      <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} onSave={onSaveDiagnosis} {...rest} />
+    </Modal>
+  );
+};

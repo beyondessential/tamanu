@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { VACCINE_STATUS } from 'shared/constants';
+import { useDispatch } from 'react-redux';
 import { Modal } from './Modal';
-import { connectApi } from '../api/connectApi';
+import { useApi } from '../api';
 import { reloadPatient } from '../store/patient';
 import { ContentPane } from './ContentPane';
 import { DeleteButton } from './Button';
@@ -14,12 +15,22 @@ const Button = styled(DeleteButton)`
   margin-top: 2em;
 `;
 
-const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccineRecord }) => {
+export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const closeWithoutDeletingRecord = useCallback(() => {
     setConfirmDelete(false);
     onClose();
   }, [onClose]);
+
+  const api = useApi();
+  const dispatch = useDispatch();
+
+  const onMarkRecordedInError = useCallback(async () => {
+    await api.put(`patient/${patientId}/administeredVaccine/${vaccineRecord.id}`, {
+      status: VACCINE_STATUS.RECORDED_IN_ERROR,
+    });
+    dispatch(reloadPatient(patientId));
+  }, [patientId, vaccineRecord, dispatch, api]);
 
   if (!vaccineRecord) return null;
 
@@ -75,15 +86,4 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
       </ContentPane>
     </Modal>
   );
-});
-
-export const EditAdministeredVaccineModal = connectApi(
-  (api, dispatch, { patientId, vaccineRecord }) => ({
-    onMarkRecordedInError: async () => {
-      await api.put(`patient/${patientId}/administeredVaccine/${vaccineRecord.id}`, {
-        status: VACCINE_STATUS.RECORDED_IN_ERROR,
-      });
-      dispatch(reloadPatient(patientId));
-    },
-  }),
-)(ModalContent);
+};
