@@ -147,6 +147,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   const encounter5 = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: expectedPatient2.id }),
   );
+  // Todo: extend DELETED EXAMPLE
   const labRequest5Data = await randomLabRequest(models, {
     labTestCategoryId: 'labTestCategory-COVID',
     patientId: expectedPatient2.id,
@@ -430,7 +431,9 @@ describe('Covid swab lab test list', () => {
         expectedPatient1.displayId,
       ]);
     });
-
+    it('excludes Lab requests with a status of Cancelled, Deleted or Entered-in-error', () => {
+      expect(true).toBe(false);
+    });
     it('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({
         parameters: {

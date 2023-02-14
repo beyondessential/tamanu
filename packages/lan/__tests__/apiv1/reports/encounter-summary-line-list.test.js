@@ -396,6 +396,10 @@ describe('Encounter summary line list report', () => {
 
   afterAll(() => ctx.close());
 
+  it('excludes Lab requests with a status of Cancelled, Deleted or Entered-in-error', () => {
+    expect(true).toBe(false);
+  });
+
   it(`Should produce a simple report`, async () => {
     const { patient, encounterId, locationGroupId } = await fakeAllData(models);
 
