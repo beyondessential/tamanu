@@ -205,8 +205,7 @@ imagingRequest.put(
     // Update or create the note with new content if provided
     if (note) {
       if (otherNotePage) {
-        const otherNoteItems = await otherNotePage.getNoteItems();
-        const otherNoteItem = otherNoteItems[0];
+        const [otherNoteItem] = await otherNotePage.getNoteItems();
         const newNote = `${otherNoteItem.content}. ${note}`;
         await otherNoteItem.update({ content: newNote });
         notes.note = otherNoteItem.content;
