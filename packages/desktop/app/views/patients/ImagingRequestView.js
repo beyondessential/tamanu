@@ -33,13 +33,15 @@ import { SimpleTopBar } from '../../components';
 
 const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
   .filter(
-    x =>
-      x !== IMAGING_REQUEST_STATUS_TYPES.DELETED &&
-      x !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+    type =>
+      ![
+        IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+      ].includes(type),
   )
-  .map(x => ({
-    label: IMAGING_REQUEST_STATUS_CONFIG[x].label,
-    value: x,
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
   }));
 
 const PrintButton = ({ imagingRequest, patient }) => {
