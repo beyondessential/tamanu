@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
@@ -99,12 +99,10 @@ const ChildNote = styled.div`
   }
 `;
 
-const PageBreak = styled.div`
+const PageBreak = styled.section`
   @media print {
-    height: 100px;
-    background: red;
-    position: relative;
     page-break-after: always;
+    break-after: page;
   }
 `;
 
@@ -298,170 +296,231 @@ export const EncounterRecord = React.memo(
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
+    const [height, setHeight] = useState(0);
+    const encounterTable = useRef(null);
+    const locationTable = useRef(null);
+    const diagnosesTable = useRef(null);
+    const proceduresTable = useRef(null);
+    const labsTable = useRef(null);
+    const imagingTable = useRef(null);
+    const medicationsTable = useRef(null);
+    const notesTable = useRef(null);
+
+    useEffect(() => {
+      setHeight({
+        encounterTable: encounterTable.current?.offsetHeight,
+        locationTable: locationTable.current?.offsetHeight,
+        diagnosesTable: diagnosesTable.current?.offsetHeight,
+        proceduresTable: proceduresTable.current?.offsetHeight,
+        labsTable: labsTable.current?.offsetHeight,
+        imagingTable: imagingTable.current?.offsetHeight,
+        medicationsTable: medicationsTable.current?.offsetHeight,
+        notesTable: notesTable.current?.offsetHeight,
+      });
+    }, []);
+
+    // console.log(height);
+    const keys = Object.keys(height);
+    let combinedTableHeight = 0;
+    let currentPageX = 0;
+    let pages = 1;
+    let breakIndexes = [];
+
+    keys.forEach((key, index) => {
+      combinedTableHeight += height[key];
+      if (currentPageX + height[key] > 1000) {
+        currentPageX = 0;
+        pages++;
+        breakIndexes.push(index);
+      }
+      currentPageX += height[key];
+    });
+
+    console.log(combinedTableHeight);
+    console.log(height);
+    console.log(breakIndexes);
+
     return (
-      <CertificateWrapper>
-        <PrintLetterhead
-          title={title}
-          subTitle={subTitle}
-          logoSrc={logo}
-          pageTitle="Patient Encounter Record"
-        />
-        <PageBreak />
+      <>
+        <CertificateWrapper>
+          <PrintLetterhead
+            title={title}
+            subTitle={subTitle}
+            logoSrc={logo}
+            pageTitle="Patient Encounter Record"
+          />
 
-        <SummaryHeading>Patient Details</SummaryHeading>
-        <Divider />
-        <RowContainer>
-          <div>
-            <DisplayValue name="Full Name">
-              {firstName} {lastName}
-            </DisplayValue>
-            <LocalisedDisplayValue name="dateOfBirth">
-              <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
-            </LocalisedDisplayValue>
-            <LocalisedDisplayValue name="sex">{capitaliseFirstLetter(sex)}</LocalisedDisplayValue>
-          </div>
-          <div>
-            <LocalisedDisplayValue name="displayId">{displayId}</LocalisedDisplayValue>
-            <LocalisedDisplayValue name="streetVillage">{pad.streetVillage}</LocalisedDisplayValue>
-            <LocalisedDisplayValue name="villageName">{village}</LocalisedDisplayValue>
-          </div>
-        </RowContainer>
+          <SummaryHeading>Patient Details</SummaryHeading>
+          <Divider />
+          <RowContainer>
+            <div>
+              <DisplayValue name="Full Name">
+                {firstName} {lastName}
+              </DisplayValue>
+              <LocalisedDisplayValue name="dateOfBirth">
+                <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+              </LocalisedDisplayValue>
+              <LocalisedDisplayValue name="sex">{capitaliseFirstLetter(sex)}</LocalisedDisplayValue>
+            </div>
+            <div>
+              <LocalisedDisplayValue name="displayId">{displayId}</LocalisedDisplayValue>
+              <LocalisedDisplayValue name="streetVillage">
+                {pad.streetVillage}
+              </LocalisedDisplayValue>
+              <LocalisedDisplayValue name="villageName">{village}</LocalisedDisplayValue>
+            </div>
+          </RowContainer>
 
-        <PageBreak />
+          <SummaryHeading>Encounter Details</SummaryHeading>
+          <Divider />
+          <RowContainer>
+            <div>
+              <LocalisedDisplayValue name="facility">
+                {location.facility.name}
+              </LocalisedDisplayValue>
+              <DisplayValue name="Supervising clinician" size="10px">
+                {examiner.displayName}
+              </DisplayValue>
+              <DisplayValue name="Discharging clinician" size="10px">
+                {discharge.discharger.displayName}
+              </DisplayValue>
+              <DisplayValue name="Reason for encounter" size="10px">
+                {reasonForEncounter}
+              </DisplayValue>
+            </div>
+            <div>
+              <DisplayValue name="Discharging department" size="10px">
+                {department.name}
+              </DisplayValue>
+              <DisplayValue name="Date of admission" size="10px">
+                <DateDisplay date={startDate} showDate={false} showExplicitDate />
+              </DisplayValue>
+              <DisplayValue name="Date of discharge" size="10px">
+                <DateDisplay date={endDate} showDate={false} showExplicitDate />
+              </DisplayValue>
+            </div>
+          </RowContainer>
 
-        <SummaryHeading>Encounter Details</SummaryHeading>
-        <Divider />
-        <RowContainer>
-          <div>
-            <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
-            <DisplayValue name="Supervising clinician" size="10px">
-              {examiner.displayName}
-            </DisplayValue>
-            <DisplayValue name="Discharging clinician" size="10px">
-              {discharge.discharger.displayName}
-            </DisplayValue>
-            <DisplayValue name="Reason for encounter" size="10px">
-              {reasonForEncounter}
-            </DisplayValue>
-          </div>
-          <div>
-            <DisplayValue name="Discharging department" size="10px">
-              {department.name}
-            </DisplayValue>
-            <DisplayValue name="Date of admission" size="10px">
-              <DateDisplay date={startDate} showDate={false} showExplicitDate />
-            </DisplayValue>
-            <DisplayValue name="Date of discharge" size="10px">
-              <DateDisplay date={endDate} showDate={false} showExplicitDate />
-            </DisplayValue>
-          </div>
-        </RowContainer>
+          {encounterTypeHistory.length > 0 ? (
+            <div ref={encounterTable}>
+              <TableHeading>Encounter Types</TableHeading>
+              <CompactListTable data={encounterTypeHistory} columns={columns.encounterTypes} />
+            </div>
+          ) : (
+            <></>
+          )}
 
-        {encounterTypeHistory.length > 0 ? (
-          <>
-            <TableHeading>Encounter Types</TableHeading>
-            <CompactListTable data={encounterTypeHistory} columns={columns.encounterTypes} />
-          </>
-        ) : (
-          <></>
-        )}
+          {/* {breakIndexes.includes(1) ? <PageBreak /> : <></>} */}
 
-        {locationHistory.length > 0 ? (
-          <>
-            <TableHeading>Locations</TableHeading>
-            <CompactListTable data={locationHistory} columns={columns.locations} />
-          </>
-        ) : (
-          <></>
-        )}
+          {locationHistory.length > 0 ? (
+            <div ref={locationTable}>
+              <TableHeading>Locations</TableHeading>
+              <CompactListTable data={locationHistory} columns={columns.locations} />
+            </div>
+          ) : (
+            <></>
+          )}
 
-        {encounter.diagnoses.length > 0 ? (
-          <>
-            <TableHeading>Diagnoses</TableHeading>
-            <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
-          </>
-        ) : (
-          <></>
-        )}
+          {/* {breakIndexes.includes(2) ? <PageBreak /> : <></>} */}
 
-        {encounter.procedures.length > 0 ? (
-          <>
-            <TableHeading>Procedures</TableHeading>
-            <CompactListTable data={encounter.procedures} columns={columns.procedures} />
-          </>
-        ) : (
-          <></>
-        )}
+          {encounter.diagnoses.length > 0 ? (
+            <div ref={diagnosesTable}>
+              <TableHeading>Diagnoses</TableHeading>
+              <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
+            </div>
+          ) : (
+            <></>
+          )}
 
-        {labRequests.data.length > 0 ? (
-          <>
-            <TableHeading>Lab Requests</TableHeading>
-            <CompactListTable data={labRequests.data} columns={columns.labRequests} />
-          </>
-        ) : (
-          <></>
-        )}
+          {/* {breakIndexes.includes(3) ? <PageBreak /> : <></>} */}
 
-        {imagingRequests.length > 0 ? (
-          <>
-            <TableHeading>Imaging Requests</TableHeading>
-            <CompactListTable data={imagingRequests} columns={columns.imagingRequests} />
-          </>
-        ) : (
-          <></>
-        )}
+          {encounter.procedures.length > 0 ? (
+            <div ref={proceduresTable}>
+              <TableHeading>Procedures</TableHeading>
+              <CompactListTable data={encounter.procedures} columns={columns.procedures} />
+            </div>
+          ) : (
+            <></>
+          )}
 
-        {encounter.medications.length > 0 ? (
-          <>
-            <TableHeading>Medications</TableHeading>
-            <CompactListTable data={encounter.medications} columns={columns.medications} />
-          </>
-        ) : (
-          <></>
-        )}
+          {/* {breakIndexes.includes(4) ? <PageBreak /> : <></>} */}
 
-        {notes.length > 0 ? (
-          <>
-            <TableHeading>Notes</TableHeading>
-            {notes.map(note => (
-              <>
-                <Table>
-                  <thead>
-                    <Row>
-                      <Cell width="10%">
-                        <BoldText>Note Type</BoldText>
-                      </Cell>
-                      <Cell width="35%">
-                        {noteTypes.find(x => x.value === note.noteType).label}
-                      </Cell>
-                      <Cell>
-                        <DateDisplay date={note.date} showDate showTime />
-                      </Cell>
-                    </Row>
-                  </thead>
-                  <tbody>
-                    <Row>
-                      <Cell colSpan={3}>
-                        {note.noteItems.map(noteItem => (
-                          <ChildNote>
-                            <BoldText>
-                              <DateDisplay date={noteItem.date} showDate showTime />
-                              {noteItem.revisedById ? ' (edited)' : ''}
-                            </BoldText>
-                            {noteItem.content}
-                          </ChildNote>
-                        ))}
-                      </Cell>
-                    </Row>
-                  </tbody>
-                </Table>
-              </>
-            ))}
-          </>
-        ) : (
-          <></>
-        )}
-      </CertificateWrapper>
+          {labRequests.data.length > 0 ? (
+            <>
+              <TableHeading>Lab Requests</TableHeading>
+              <CompactListTable data={labRequests.data} columns={columns.labRequests} />
+            </>
+          ) : (
+            <></>
+          )}
+
+          {/* {breakIndexes.includes(5) ? <PageBreak /> : <></>} */}
+
+          {imagingRequests.length > 0 ? (
+            <div ref={imagingTable}>
+              <TableHeading>Imaging Requests</TableHeading>
+              <CompactListTable data={imagingRequests} columns={columns.imagingRequests} />
+            </div>
+          ) : (
+            <></>
+          )}
+
+          {/* {breakIndexes.includes(6) ? <PageBreak /> : <></>} */}
+
+          {encounter.medications.length > 0 ? (
+            <div ref={medicationsTable}>
+              <TableHeading>Medications</TableHeading>
+              <CompactListTable data={encounter.medications} columns={columns.medications} />
+            </div>
+          ) : (
+            <></>
+          )}
+
+          {/* {breakIndexes.includes(7) ? <PageBreak /> : <></>} */}
+
+          {notes.length > 0 ? (
+            <div ref={notesTable}>
+              <TableHeading>Notes</TableHeading>
+              {notes.map(note => (
+                <>
+                  <Table>
+                    <thead>
+                      <Row>
+                        <Cell width="10%">
+                          <BoldText>Note Type</BoldText>
+                        </Cell>
+                        <Cell width="35%">
+                          {noteTypes.find(x => x.value === note.noteType).label}
+                        </Cell>
+                        <Cell>
+                          <DateDisplay date={note.date} showDate showTime />
+                        </Cell>
+                      </Row>
+                    </thead>
+                    <tbody>
+                      <Row>
+                        <Cell colSpan={3}>
+                          {note.noteItems.map(noteItem => (
+                            <ChildNote>
+                              <BoldText>
+                                <DateDisplay date={noteItem.date} showDate showTime />
+                                {noteItem.revisedById ? ' (edited)' : ''}
+                              </BoldText>
+                              {noteItem.content}
+                            </ChildNote>
+                          ))}
+                        </Cell>
+                      </Row>
+                    </tbody>
+                  </Table>
+                </>
+              ))}
+            </div>
+          ) : (
+            <></>
+          )}
+        </CertificateWrapper>
+      </>
     );
   },
 );

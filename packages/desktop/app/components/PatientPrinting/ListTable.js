@@ -9,10 +9,13 @@ const Table = styled.table`
   border-spacing: 0px;
   border-collapse: collapse;
   width: 100%;
+  page-break-inside: auto;
 `;
 
 const Row = styled.tr`
   border-bottom: 1px solid black;
+  page-break-inside: avoid;
+  page-break-after: always;
 `;
 
 const Header = styled.th`
@@ -32,22 +35,26 @@ const Cell = styled.td`
 export const ListTable = ({ columns, data, className }) => {
   return (
     <Table className={className}>
-      <Row>
-        {columns.map(({ key, title, style }) => (
-          <Header key={key} style={{ paddingLeft: '0.5rem', ...style }}>
-            {title}
-          </Header>
-        ))}
-      </Row>
-      {data.map(row => (
-        <Row key={row.id}>
-          {columns.map(({ key, accessor, style }) => (
-            <Cell key={key} style={{ paddingLeft: '0.5rem', ...style }}>
-              {accessor ? accessor(row) : row[key]}
-            </Cell>
+      <thead>
+        <Row>
+          {columns.map(({ key, title, style }) => (
+            <Header key={key} style={{ paddingLeft: '0.5rem', ...style }}>
+              {title}
+            </Header>
           ))}
         </Row>
-      ))}
+      </thead>
+      <tbody>
+        {data.map(row => (
+          <Row key={row.id}>
+            {columns.map(({ key, accessor, style }) => (
+              <Cell key={key} style={{ paddingLeft: '0.5rem', ...style }}>
+                {accessor ? accessor(row) : row[key]}
+              </Cell>
+            ))}
+          </Row>
+        ))}
+      </tbody>
     </Table>
   );
 };
