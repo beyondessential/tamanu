@@ -10,7 +10,7 @@ export * from './TimeWithUnitField';
 export * from './RadioField';
 export * from './SuggesterSelectField';
 export * from './SelectField';
-export * from './SurveyQuestionAutocomplete';
+export * from './SurveyQuestionAutocompleteField';
 export * from './SurveyResponseSelectField';
 export * from './TextField';
 export * from './UnsupportedPhotoField';

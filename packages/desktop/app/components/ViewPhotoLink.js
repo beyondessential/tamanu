@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { connectApi } from '../api';
+import { useApi } from '../api';
 import { getImageSourceFromData } from '../utils';
 import { Modal } from './Modal';
 import { TextButton } from './Button';
@@ -11,10 +11,11 @@ const Image = styled.img`
   width: 400px;
 `;
 
-export const ViewPhotoLinkComponent = React.memo(({ imageId, fetchImage }) => {
+export const ViewPhotoLink = ({ imageId }) => {
   const [showModal, setShowModal] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const api = useApi();
   const openModalCallback = useCallback(async () => {
     if (!navigator.onLine) {
       setImageData(null);
@@ -26,7 +27,7 @@ export const ViewPhotoLinkComponent = React.memo(({ imageId, fetchImage }) => {
     }
 
     try {
-      const { data } = await fetchImage(imageId);
+      const { data } = await api.get(`attachment/${imageId}`, { base64: true });
       setImageData(data);
       setErrorMessage(null);
     } catch (error) {
@@ -35,7 +36,7 @@ export const ViewPhotoLinkComponent = React.memo(({ imageId, fetchImage }) => {
     }
 
     setShowModal(true);
-  }, [fetchImage, imageId]);
+  }, [api, imageId]);
 
   return (
     <>
@@ -51,8 +52,4 @@ export const ViewPhotoLinkComponent = React.memo(({ imageId, fetchImage }) => {
       </Modal>
     </>
   );
-});
-
-export const ViewPhotoLink = connectApi(api => ({
-  fetchImage: id => api.get(`attachment/${id}`, { base64: true }),
-}))(ViewPhotoLinkComponent);
+};
