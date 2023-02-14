@@ -50,7 +50,6 @@ const reportColumnTemplate = FIELDS.map(field => {
     return {
       title: field,
       accessor: data => {
-        console.log('reason', data[field]);
         return DEFAULT_REASONS_FOR_CANCELLATION[data[field]] ?? data[field];
       },
     };
