@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { getCurrentDecisionSupport, POP_DECISION_SUPPORT } from '../store/specialModals';
 import { Modal } from './Modal';
@@ -24,7 +24,11 @@ const RepeatDiagnosisMessage = React.memo(({ previousDiagnoses }) => (
   </>
 ));
 
-const DumbDecisionSupportModal = React.memo(({ message, onClose }) => {
+export const DecisionSupportModal = () => {
+  const message = useSelector(getCurrentDecisionSupport);
+  const dispatch = useDispatch();
+  const onClose = () => dispatch({ type: POP_DECISION_SUPPORT });
+
   if (!message) {
     return null;
   }
@@ -34,13 +38,4 @@ const DumbDecisionSupportModal = React.memo(({ message, onClose }) => {
       <ModalActionRow onConfirm={onClose} confirmText="OK" />
     </Modal>
   );
-});
-
-export const DecisionSupportModal = connect(
-  state => ({
-    message: getCurrentDecisionSupport(state),
-  }),
-  dispatch => ({
-    onClose: () => dispatch({ type: POP_DECISION_SUPPORT }),
-  }),
-)(DumbDecisionSupportModal);
+};
