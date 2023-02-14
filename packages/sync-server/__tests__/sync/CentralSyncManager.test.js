@@ -42,7 +42,7 @@ describe('CentralSyncManager', () => {
     it.todo('all');
   });
 
-  describe('setupSnapshot', () => {
+  describe('setupSnapshotForPull', () => {
     it.todo('all');
   });
 

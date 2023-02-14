@@ -13,13 +13,13 @@ import {
   getModelsForDirection,
   removeEchoedChanges,
   saveIncomingChanges,
+  waitForAnyTransactionsUsingSyncTick,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
-import { waitForAnyTransactionsUsingSyncTick } from '../../../shared-src/src/sync';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -158,10 +158,10 @@ class CentralSyncManager {
     }
 
     const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
-    this.setupSnapshot(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
+    this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
   }
 
-  async setupSnapshot(
+  async setupSnapshotForPull(
     sessionId,
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
     unmarkSnapshotAsProcessing,
