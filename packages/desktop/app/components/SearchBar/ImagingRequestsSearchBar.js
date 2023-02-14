@@ -6,16 +6,16 @@ import { useLocalisation } from '../../contexts/Localisation';
 
 const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
   .filter(
-    x =>
+    type =>
       ![
         IMAGING_REQUEST_STATUS_TYPES.DELETED,
         IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
         IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-      ].includes(x),
+      ].includes(type),
   )
-  .map(x => ({
-    label: IMAGING_REQUEST_STATUS_CONFIG[x].label,
-    value: x,
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
   }));
 
 export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {

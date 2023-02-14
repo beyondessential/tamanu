@@ -23,7 +23,7 @@ labRequest.put(
     req.checkPermission('read', 'LabRequest');
     const labRequestRecord = await models.LabRequest.findByPk(params.id);
     if (!labRequestRecord) throw new NotFoundError();
-    // req.checkPermission('write', labRequestRecord);
+    req.checkPermission('write', labRequestRecord);
 
     await db.transaction(async () => {
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {

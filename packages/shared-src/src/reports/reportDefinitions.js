@@ -470,10 +470,10 @@ export const REPORT_DEFINITIONS = [
       {
         parameterField: 'ParameterSelectField',
         label: 'Status',
-        name: 'statuses',
-        options: Object.values(IMAGING_REQUEST_STATUS_TYPES).map(s => ({
-          label: IMAGING_REQUEST_STATUS_CONFIG[s].label,
-          value: s,
+        name: 'status',
+        options: Object.values(IMAGING_REQUEST_STATUS_TYPES).map(status => ({
+          label: IMAGING_REQUEST_STATUS_CONFIG[status].label,
+          value: status,
         })),
       },
     ],
