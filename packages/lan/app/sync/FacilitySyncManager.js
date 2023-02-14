@@ -7,13 +7,13 @@ import {
   dropAllSnapshotTables,
   getModelsForDirection,
   saveIncomingChanges,
+  waitForAnyTransactionsUsingSyncTick,
 } from 'shared/sync';
 import { injectConfig } from 'shared/utils/withConfig';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
-import { waitForAnyTransactionsUsingSyncTick } from './waitForAnyTransactionsUsingSyncTick';
 
 export
 @injectConfig
