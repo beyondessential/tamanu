@@ -13,6 +13,7 @@ import {
   getModelsForDirection,
   removeEchoedChanges,
   saveIncomingChanges,
+  adjustDataPostSyncPush,
   waitForAnyTransactionsUsingSyncTick,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
@@ -371,6 +372,11 @@ class CentralSyncManager {
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
       });
+
+      // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
+      // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
+      await this.tickTockGlobalClock();
+      await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
 
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(
