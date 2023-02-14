@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState} from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button, connectRoutedModal } from '../../../components';
+import { Button } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/EncounterRecordModal';
@@ -34,18 +34,36 @@ const TypographyLink = styled(Typography)`
   }
 `;
 
-const EncounterActionDropdown = ({ encounter }) => {
-  const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
+const ENCOUNTER_MODALS = {
+  NONE: 'none',
+
+  CHANGE_CLINICIAN: 'changeClinician',
+  CHANGE_DEPARTMENT: 'changeDepartment',
+  CHANGE_LOCATION: 'changeLocation',
+  CHANGE_TYPE: 'changeType',
+
+  DISCHARGE: 'discharge',
+
+  BEGIN_MOVE: 'beginMove',
+  FINALISE_MOVE: 'finaliseMove',
+  CANCEL_MOVE: 'cancelMove',
+};
+
+const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
+  const { navigateToSummary, navigateToEncounter } = usePatientNavigation();
   const { getLocalisation } = useLocalisation();
 
-  const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType`, { type });
-  const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
-  const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
-  const onChangeClinician = () => navigateToEncounter(encounter.id, 'changeClinician');
-  const onPlanLocationChange = () => navigateToEncounter(encounter.id, 'beginMove');
-  const onFinaliseLocationChange = () => navigateToEncounter(encounter.id, 'finaliseMove');
-  const onCancelLocationChange = () => navigateToEncounter(encounter.id, 'cancelMove');
-  const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
+  const onChangeEncounterType = type => {
+    setNewEncounterType(type);
+    setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE);
+  };
+  const onDischargeOpen = () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE);
+  const onChangeDepartment = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT);
+  const onChangeClinician = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN);
+  const onPlanLocationChange = () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE);
+  const onFinaliseLocationChange = () => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE);
+  const onCancelLocationChange = () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE);
+  const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => navigateToEncounter(encounter.id, 'encounterRecord');
 
@@ -131,62 +149,57 @@ const EncounterActionDropdown = ({ encounter }) => {
   return <DropdownButton actions={actions} />;
 };
 
-const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
-  connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
-
 export const EncounterActions = React.memo(({ encounter }) => {
-  const params = useParams();
-
-  const RoutedDischargeModal = useMemo(() => getConnectRoutedModal(params, 'discharge'), [params])(
-    DischargeModal,
-  );
-
-  const RoutedChangeEncounterTypeModal = useMemo(
-    () => getConnectRoutedModal(params, 'changeType'),
-    [params],
-  )(ChangeEncounterTypeModal);
-
-  const RoutedChangeDepartmentModal = useMemo(
-    () => getConnectRoutedModal(params, 'changeDepartment'),
-    [params],
-  )(ChangeDepartmentModal);
-
-  const RoutedChangeClinicianModal = useMemo(
-    () => getConnectRoutedModal(params, 'changeClinician'),
-    [params],
-  )(ChangeClinicianModal);
-
-  const RoutedCancelMoveModal = useMemo(() => getConnectRoutedModal(params, 'cancelMove'), [
-    params,
-  ])(CancelPatientMoveModal);
-
-  const RoutedBeginMoveModal = useMemo(() => getConnectRoutedModal(params, 'beginMove'), [params])(
-    BeginPatientMoveModal,
-  );
-
-  const RoutedFinaliseMoveModal = useMemo(() => getConnectRoutedModal(params, 'finaliseMove'), [
-    params,
-  ])(FinalisePatientMoveModal);
-
-  const RoutedEncounterRecordModal = useMemo(
-    () => getConnectRoutedModal(params, 'encounterRecord'),
-    [params],
-  )(EncounterRecordModal);
-
-  const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
+  const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
+  const [newEncounterType, setNewEncounterType] = useState();
+  const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
 
   return (
     <>
-      <EncounterActionDropdown encounter={encounter} />
-      <RoutedDischargeModal encounter={encounter} />
-      <RoutedChangeEncounterTypeModal encounter={encounter} />
-      <RoutedChangeDepartmentModal />
-      <RoutedChangeClinicianModal />
-      <RoutedMoveModal encounter={encounter} />
-      <RoutedBeginMoveModal encounter={encounter} />
-      <RoutedFinaliseMoveModal encounter={encounter} />
-      <RoutedCancelMoveModal encounter={encounter} />
-      <RoutedEncounterRecordModal encounter={encounter} />
+      <EncounterActionDropdown
+        encounter={encounter}
+        setOpenModal={setOpenModal}
+        setNewEncounterType={setNewEncounterType}
+      />
+      <DischargeModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.DISCHARGE}
+        onClose={onClose}
+      />
+      <ChangeEncounterTypeModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.CHANGE_TYPE}
+        onClose={onClose}
+        newType={newEncounterType}
+      />
+      <ChangeDepartmentModal
+        open={openModal === ENCOUNTER_MODALS.CHANGE_DEPARTMENT}
+        onClose={onClose}
+      />
+      <ChangeClinicianModal
+        open={openModal === ENCOUNTER_MODALS.CHANGE_CLINICIAN}
+        onClose={onClose}
+      />
+      <MoveModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.CHANGE_LOCATION}
+        onClose={onClose}
+      />
+      <BeginPatientMoveModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.BEGIN_MOVE}
+        onClose={onClose}
+      />
+      <FinalisePatientMoveModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.FINALISE_MOVE}
+        onClose={onClose}
+      />
+      <CancelPatientMoveModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
+        onClose={onClose}
+      />
     </>
   );
 });

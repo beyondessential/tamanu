@@ -40,10 +40,10 @@ export class Setting extends Model {
       {
         id: primaryKey,
         key: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: false,
         },
-        value: Sequelize.TEXT,
+        value: Sequelize.JSONB,
       },
       {
         ...options,
@@ -106,26 +106,21 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async forFacility(facilityId) {
-    return this.get('', facilityId);
-  }
-
   static async set(key, value, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
     await Promise.all(
-      records.map(async r => {
+      records.map(async record => {
         // can't use upsert as sequelize can't parse our triple-index unique constraint
         const existing = await this.findOne({
-          where: { key: r.key, facilityId: r.facilityId },
+          where: { key: record.key, facilityId: record.facilityId },
         });
 
-        // need to serialize to JSON manually here as we're not going through the model
         if (existing) {
-          await this.update({ value: JSON.stringify(r.value) }, { where: { id: existing.id } });
+          await this.update({ value: record.value }, { where: { id: existing.id } });
         } else {
-          await this.create({ ...r, value: JSON.stringify(r.value) });
+          await this.create(record);
         }
       }),
     );
@@ -133,7 +128,7 @@ export class Setting extends Model {
     // delete any records that are no longer needed
     await this.update(
       {
-        deletedAt: Sequelize.fn('current_timestamp', 3),
+        deletedAt: Sequelize.fn('now'),
       },
       {
         where: {

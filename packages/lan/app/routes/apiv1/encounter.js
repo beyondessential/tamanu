@@ -32,7 +32,7 @@ encounter.post('/$', simplePost('Encounter'));
 encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { db, models, params } = req;
+    const { db, models, user, params } = req;
     const { referralId, id } = params;
     req.checkPermission('read', 'Encounter');
     const object = await models.Encounter.findByPk(id);
@@ -63,7 +63,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await object.update(req.body);
+      await object.update(req.body, user);
     });
 
     res.send(object);
@@ -126,9 +126,18 @@ encounterRelations.get(
   '/:id/labRequests',
   getLabRequestList('encounterId', {
     additionalFilters: {
-      status: {
-        [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
-      },
+      [Op.and]: [
+        {
+          status: {
+            [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+          },
+        },
+        {
+          status: {
+            [Op.ne]: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+          },
+        },
+      ],
     },
   }),
 );
@@ -141,9 +150,18 @@ encounterRelations.get(
   '/:id/imagingRequests',
   simpleGetList('ImagingRequest', 'encounterId', {
     additionalFilters: {
-      status: {
-        [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
-      },
+      [Op.and]: [
+        {
+          status: {
+            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+          },
+        },
+        {
+          status: {
+            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+          },
+        },
+      ],
     },
   }),
 );
@@ -211,7 +229,7 @@ encounterRelations.get(
         SELECT
           survey_responses.*,
           surveys.name as survey_name,
-          programs.name as program_name, 
+          programs.name as program_name,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by
         FROM
           survey_responses
@@ -247,7 +265,6 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { db, params, query } = req;
     req.checkPermission('list', 'Vitals');
-    req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
     const { order = 'DESC' } = query;
     // The LIMIT and OFFSET occur in an unusual place in this query
@@ -316,7 +333,7 @@ encounterRelations.get(
             response.encounter_id = :encounterId
             ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
-        GROUP BY answer.data_element_id 
+        GROUP BY answer.data_element_id
         `,
       {
         replacements: {

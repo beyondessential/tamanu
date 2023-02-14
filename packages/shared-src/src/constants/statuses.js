@@ -4,6 +4,7 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
   DELETED: 'deleted',
+  ENTERED_IN_ERROR: 'entered_in_error',
 };
 
 export const IMAGING_REQUEST_STATUS_CONFIG = {
@@ -28,7 +29,12 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.DELETED]: {
-    label: 'Deleted',
+    label: 'Cancelled',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
+    label: 'Cancelled',
     color: '#444444;',
     background: '#EDEDED',
   },
@@ -40,7 +46,11 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
 };
 
 export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
-  .filter(x => x !== IMAGING_REQUEST_STATUS_TYPES.DELETED)
+  .filter(
+    x =>
+      x !== IMAGING_REQUEST_STATUS_TYPES.DELETED &&
+      x !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+  )
   .map(s => ({
     label: IMAGING_REQUEST_STATUS_CONFIG[s].label,
     value: s,
