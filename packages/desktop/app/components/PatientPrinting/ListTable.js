@@ -32,26 +32,23 @@ const Cell = styled.td`
 export const ListTable = ({ columns, data, className }) => {
   return (
     <Table className={className}>
-      <thead>
-        <Row>
-          {columns.map(({ key, title, style }) => (
-            <Header key={key} style={{ paddingLeft: '0.5rem', ...style }}>
-              {title}
-            </Header>
+      <Row>
+        {columns.map(({ key, title, style }) => (
+          <Header key={key} style={{ paddingLeft: '0.5rem', ...style }}>
+            {title}
+          </Header>
+        ))}
+      </Row>
+
+      {data.map(row => (
+        <Row key={row.id}>
+          {columns.map(({ key, accessor, style }) => (
+            <Cell key={key} style={{ paddingLeft: '0.5rem', ...style }}>
+              {accessor ? accessor(row) : row[key]}
+            </Cell>
           ))}
         </Row>
-      </thead>
-      <tbody>
-        {data.map(row => (
-          <Row key={row.id}>
-            {columns.map(({ key, accessor, style }) => (
-              <Cell key={key} style={{ paddingLeft: '0.5rem', ...style }}>
-                {accessor ? accessor(row) : row[key]}
-              </Cell>
-            ))}
-          </Row>
-        ))}
-      </tbody>
+      ))}
     </Table>
   );
 };
