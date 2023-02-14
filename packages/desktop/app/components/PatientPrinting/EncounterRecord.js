@@ -106,6 +106,30 @@ const PageBreak = styled.section`
   }
 `;
 
+export const ShiftedCertificateWrapper = styled.div`
+  position: relative;
+  padding: 10px 20px;
+
+  @media print {
+    padding: 0;
+    bottom: 32px;
+  }
+
+  &:before {
+    content: '';
+    background-size: contain;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.05;
+    background-image: ${props => (props.watermarkSrc ? `url("${props.watermarkSrc}")` : '')};
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+`;
+
 // COLUMN LAYOUTS
 const columns = {
   encounterTypes: [
@@ -296,7 +320,7 @@ export const EncounterRecord = React.memo(
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
 
-    const [height, setHeight] = useState(0);
+    // const [height, setHeight] = useState(0);
     const encounterTable = useRef(null);
     const locationTable = useRef(null);
     const diagnosesTable = useRef(null);
@@ -306,38 +330,37 @@ export const EncounterRecord = React.memo(
     const medicationsTable = useRef(null);
     const notesTable = useRef(null);
 
-    useEffect(() => {
-      setHeight({
-        encounterTable: encounterTable.current?.offsetHeight,
-        locationTable: locationTable.current?.offsetHeight,
-        diagnosesTable: diagnosesTable.current?.offsetHeight,
-        proceduresTable: proceduresTable.current?.offsetHeight,
-        labsTable: labsTable.current?.offsetHeight,
-        imagingTable: imagingTable.current?.offsetHeight,
-        medicationsTable: medicationsTable.current?.offsetHeight,
-        notesTable: notesTable.current?.offsetHeight,
-      });
-    }, []);
+    // useEffect(() => {
+    //   setHeight({
+    //     encounterTable: encounterTable.current?.offsetHeight,
+    //     locationTable: locationTable.current?.offsetHeight,
+    //     diagnosesTable: diagnosesTable.current?.offsetHeight,
+    //     proceduresTable: proceduresTable.current?.offsetHeight,
+    //     labsTable: labsTable.current?.offsetHeight,
+    //     imagingTable: imagingTable.current?.offsetHeight,
+    //     medicationsTable: medicationsTable.current?.offsetHeight,
+    //     notesTable: notesTable.current?.offsetHeight,
+    //   });
+    // }, []);
 
-    // console.log(height);
-    const keys = Object.keys(height);
-    let currentPageX = 0;
-    const breakIndexes = [];
+    // // console.log(height);
+    // const keys = Object.keys(height);
+    // let currentPageX = 0;
+    // let breakIndexes = [];
 
-    keys.forEach((key, index) => {
-      if (currentPageX + height[key] > 1000) {
-        currentPageX = 0;
-        breakIndexes.push(index);
-      }
-      currentPageX += height[key];
-    });
+    // keys.forEach((key, index) => {
+    //   if (currentPageX + height[key] > 1000) {
+    //     currentPageX = 0;
+    //     breakIndexes.push(index);
+    //   }
+    //   currentPageX += height[key];
+    // });
 
-    console.log(height);
-    console.log(breakIndexes);
+    // breakIndexes = [];
 
     return (
       <>
-        <CertificateWrapper>
+        <ShiftedCertificateWrapper>
           <PrintLetterhead
             title={title}
             subTitle={subTitle}
@@ -405,7 +428,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {breakIndexes.includes(1) ? <PageBreak /> : <></>}
+          {/* {breakIndexes.includes(1) ? <PageBreak /> : <></>} */}
 
           {locationHistory.length > 0 ? (
             <div ref={locationTable}>
@@ -416,7 +439,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {breakIndexes.includes(2) ? <PageBreak /> : <></>}
+          {/* {breakIndexes.includes(2) ? <PageBreak /> : <></>} */}
 
           {encounter.diagnoses.length > 0 ? (
             <div ref={diagnosesTable}>
@@ -427,7 +450,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {breakIndexes.includes(3) ? <PageBreak /> : <></>}
+          {/* {breakIndexes.includes(3) ? <PageBreak /> : <></>} */}
 
           {encounter.procedures.length > 0 ? (
             <div ref={proceduresTable}>
@@ -438,7 +461,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {breakIndexes.includes(4) ? <PageBreak /> : <></>}
+          {/* {breakIndexes.includes(4) ? <PageBreak /> : <></>} */}
 
           {labRequests.data.length > 0 ? (
             <div ref={labsTable}>
@@ -449,7 +472,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {breakIndexes.includes(5) ? <PageBreak /> : <></>}
+          {/* {breakIndexes.includes(5) ? <PageBreak /> : <></>} */}
 
           {imagingRequests.length > 0 ? (
             <div ref={imagingTable}>
@@ -460,7 +483,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {breakIndexes.includes(6) ? <PageBreak /> : <></>}
+          {/* {breakIndexes.includes(6) ? <PageBreak /> : <></>} */}
 
           {encounter.medications.length > 0 ? (
             <div ref={medicationsTable}>
@@ -471,7 +494,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {breakIndexes.includes(7) ? <PageBreak /> : <></>}
+          {/* {breakIndexes.includes(7) ? <PageBreak /> : <></>} */}
 
           {notes.length > 0 ? (
             <div ref={notesTable}>
@@ -479,7 +502,7 @@ export const EncounterRecord = React.memo(
               {notes.map(note => (
                 <>
                   <Table>
-                    {/* <thead> */}
+                    <thead>
                       <Row>
                         <Cell width="10%">
                           <BoldText>Note Type</BoldText>
@@ -491,8 +514,8 @@ export const EncounterRecord = React.memo(
                           <DateDisplay date={note.date} showDate showTime />
                         </Cell>
                       </Row>
-                    {/* </thead> */}
-                    {/* <tbody> */}
+                    </thead>
+                    <tbody>
                       <Row>
                         <Cell colSpan={3}>
                           {note.noteItems.map(noteItem => (
@@ -506,7 +529,7 @@ export const EncounterRecord = React.memo(
                           ))}
                         </Cell>
                       </Row>
-                    {/* </tbody> */}
+                    </tbody>
                   </Table>
                 </>
               ))}
@@ -514,7 +537,7 @@ export const EncounterRecord = React.memo(
           ) : (
             <></>
           )}
-        </CertificateWrapper>
+        </ShiftedCertificateWrapper>
       </>
     );
   },
