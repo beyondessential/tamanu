@@ -321,22 +321,17 @@ export const EncounterRecord = React.memo(
 
     // console.log(height);
     const keys = Object.keys(height);
-    let combinedTableHeight = 0;
     let currentPageX = 0;
-    let pages = 1;
-    let breakIndexes = [];
+    const breakIndexes = [];
 
     keys.forEach((key, index) => {
-      combinedTableHeight += height[key];
       if (currentPageX + height[key] > 1000) {
         currentPageX = 0;
-        pages++;
         breakIndexes.push(index);
       }
       currentPageX += height[key];
     });
 
-    console.log(combinedTableHeight);
     console.log(height);
     console.log(breakIndexes);
 
@@ -410,7 +405,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {/* {breakIndexes.includes(1) ? <PageBreak /> : <></>} */}
+          {breakIndexes.includes(1) ? <PageBreak /> : <></>}
 
           {locationHistory.length > 0 ? (
             <div ref={locationTable}>
@@ -421,7 +416,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {/* {breakIndexes.includes(2) ? <PageBreak /> : <></>} */}
+          {breakIndexes.includes(2) ? <PageBreak /> : <></>}
 
           {encounter.diagnoses.length > 0 ? (
             <div ref={diagnosesTable}>
@@ -432,7 +427,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {/* {breakIndexes.includes(3) ? <PageBreak /> : <></>} */}
+          {breakIndexes.includes(3) ? <PageBreak /> : <></>}
 
           {encounter.procedures.length > 0 ? (
             <div ref={proceduresTable}>
@@ -443,18 +438,18 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {/* {breakIndexes.includes(4) ? <PageBreak /> : <></>} */}
+          {breakIndexes.includes(4) ? <PageBreak /> : <></>}
 
           {labRequests.data.length > 0 ? (
-            <>
+            <div ref={labsTable}>
               <TableHeading>Lab Requests</TableHeading>
               <CompactListTable data={labRequests.data} columns={columns.labRequests} />
-            </>
+            </div>
           ) : (
             <></>
           )}
 
-          {/* {breakIndexes.includes(5) ? <PageBreak /> : <></>} */}
+          {breakIndexes.includes(5) ? <PageBreak /> : <></>}
 
           {imagingRequests.length > 0 ? (
             <div ref={imagingTable}>
@@ -465,7 +460,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {/* {breakIndexes.includes(6) ? <PageBreak /> : <></>} */}
+          {breakIndexes.includes(6) ? <PageBreak /> : <></>}
 
           {encounter.medications.length > 0 ? (
             <div ref={medicationsTable}>
@@ -476,7 +471,7 @@ export const EncounterRecord = React.memo(
             <></>
           )}
 
-          {/* {breakIndexes.includes(7) ? <PageBreak /> : <></>} */}
+          {breakIndexes.includes(7) ? <PageBreak /> : <></>}
 
           {notes.length > 0 ? (
             <div ref={notesTable}>
@@ -484,7 +479,7 @@ export const EncounterRecord = React.memo(
               {notes.map(note => (
                 <>
                   <Table>
-                    <thead>
+                    {/* <thead> */}
                       <Row>
                         <Cell width="10%">
                           <BoldText>Note Type</BoldText>
@@ -496,8 +491,8 @@ export const EncounterRecord = React.memo(
                           <DateDisplay date={note.date} showDate showTime />
                         </Cell>
                       </Row>
-                    </thead>
-                    <tbody>
+                    {/* </thead> */}
+                    {/* <tbody> */}
                       <Row>
                         <Cell colSpan={3}>
                           {note.noteItems.map(noteItem => (
@@ -511,7 +506,7 @@ export const EncounterRecord = React.memo(
                           ))}
                         </Cell>
                       </Row>
-                    </tbody>
+                    {/* </tbody> */}
                   </Table>
                 </>
               ))}
