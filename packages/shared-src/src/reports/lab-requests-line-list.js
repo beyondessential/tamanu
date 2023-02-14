@@ -1,7 +1,7 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
-import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '../constants';
+import { LAB_REQUEST_STATUS_CONFIG } from '../constants';
 
 const FIELDS = [
   'Patient ID',
@@ -117,6 +117,7 @@ from lab_requests lr
   left join location_groups locationGroup on l.location_group_id=locationGroup.id
   left join facilities f on f.id = l.facility_id
   left join lab_test_items lti on lti.lab_request_id = lr.id
+  left join lab_tests lt on lr.id = lt.lab_request_id
   left join reference_data rd_request_type on rd_request_type.id = lr.lab_test_category_id
   left join users requested_by_user on requested_by_user.id = lr.requested_by_id
   left join users examiner_by_user on examiner_by_user.id = e.examiner_id
@@ -136,18 +137,27 @@ where
   and case when :to_date is not null then lr.requested_date::date <= :to_date::date else true end
   and case when :requested_by_id is not null then lr.requested_by_id = :requested_by_id else true end
   and case when :lab_test_category_id is not null then rd_request_type.id = :lab_test_category_id else true end
-  and case when :areStatuses is not null then lr.status IN(:statuses) else true end
+  and case when :are_lab_test_types is not null then lt.lab_test_type_id IN(:lab_test_types) else true end
+  and case when :are_statuses is not null then lr.status IN(:statuses) else true end
 order by lr.requested_date;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate, toDate, requestedById, labTestCategoryId, statuses } = parameters;
+  const {
+    fromDate,
+    toDate,
+    requestedById,
+    labTestCategoryId,
+    statuses,
+    labTestTypeIds,
+  } = parameters;
 
   const queryFromDate = toDateTimeString(
     startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
   );
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
   const selectedStatuses = statuses?.split(', ') ?? null;
+  const selectedLabTestTypes = labTestTypeIds?.split(', ') ?? null;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
@@ -157,7 +167,9 @@ const getData = async (sequelize, parameters) => {
       requested_by_id: requestedById ?? null,
       lab_test_category_id: labTestCategoryId ?? null,
       statuses: selectedStatuses,
-      areStatuses: selectedStatuses ? 'true' : null,
+      are_statuses: selectedStatuses ? 'true' : null,
+      lab_test_types: selectedLabTestTypes ?? null,
+      are_lab_test_types: selectedLabTestTypes ? 'true' : null,
     },
   });
 };

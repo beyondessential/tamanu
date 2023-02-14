@@ -216,3 +216,6 @@ labRequest.use(labRelations);
 export const labTest = express.Router();
 
 labTest.put('/:id', simplePut('LabTest'));
+
+export const labTestType = express.Router();
+labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));

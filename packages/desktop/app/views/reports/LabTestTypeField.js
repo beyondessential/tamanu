@@ -1,55 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../api';
-import { SelectField, Field, Dialog } from '../../components';
+import { Field, MultiselectField } from '../../components';
 
-export const LabTestTypeField = ({ name = 'labTestType', required, parameterValues }) => {
+export const useLabTestTypes = labTestCategoryId => {
   const api = useApi();
-  const { category } = parameterValues;
-  const [testOptions, setTestOptions] = useState([]);
-  const [error, setError] = useState(null);
-  const [isErrorDialogVisible, setIsErrorDialogVisible] = useState(false);
+  const query = useQuery(
+    ['labTestType', { labTestCategoryId }],
+    () => api.get(`labTestType/${labTestCategoryId}`, { rowsPerPage: 50 }),
+    { enabled: !!labTestCategoryId },
+  );
 
-  useEffect(() => {
-    if (!category) {
-      return;
-    }
-    const scheduledVaccinesToOptions = async () => {
-      try {
-        const scheduledVaccines = await api.get(`scheduledVaccine`, { category });
-        const vaccineNames = [...new Set(scheduledVaccines.map(vaccine => vaccine.label))];
-        const options = vaccineNames.map(vaccineName => ({
-          label: vaccineName,
-          value: vaccineName,
-        }));
-        setError(null);
-        setTestOptions(options);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        setError(e.message);
-        setIsErrorDialogVisible(true);
-        setTestOptions([]);
-      }
-    };
+  return { ...query, data: query.isSuccess ? query.data.data : [] };
+};
 
-    scheduledVaccinesToOptions();
-  }, [api, category]);
+export const LabTestTypeField = ({ name = 'labTestTypeIds', required, parameterValues }) => {
+  const { labTestCategoryId: category } = parameterValues;
+  const { data } = useLabTestTypes(category);
+
+  if (!category) {
+    return null;
+  }
 
   return (
-    <>
-      <Field
-        name={name}
-        label="Vaccine"
-        component={SelectField}
-        required={required}
-        options={testOptions}
-      />
-      <Dialog
-        headerTitle="Error"
-        isVisible={isErrorDialogVisible}
-        onClose={() => setIsErrorDialogVisible(false)}
-        contentText={`Error occurred when fetching lab test types: ${error}`}
-      />
-    </>
+    <Field
+      name={name}
+      label="Test type"
+      component={MultiselectField}
+      required={required}
+      options={data.map(x => ({ value: x.id, label: x.name }))}
+    />
   );
 };

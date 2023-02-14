@@ -526,7 +526,7 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'practitioner',
       },
       { parameterField: 'LabTestCategoryField' },
-      { parameterField: 'LabTestCategoryField' },
+      { parameterField: 'LabTestTypeField' },
       {
         parameterField: 'ParameterMultiselectField',
         label: 'Status',
