@@ -61,8 +61,15 @@ export class CentralServerConnection {
     );
 
     if (response.status === 401) {
+      const isLogin = path.startsWith('login');
+      if (!isLogin && this.refreshToken) {
+        await this.refresh();
+        //#TODO Need to handle breaking out if request after refresh fails
+        // due to invalid token
+        return this.fetch(path, query, config);
+      }
       throw new AuthenticationError(
-        path.startsWith('login') ? invalidUserCredentialsMessage : invalidTokenMessage,
+        isLogin ? invalidUserCredentialsMessage : invalidTokenMessage,
       );
     }
 
@@ -86,6 +93,7 @@ export class CentralServerConnection {
       throw new RemoteError(generalErrorMessage, error, response.status);
     }
 
+    this.attemptedRefresh = false;
     return response.json();
   }
 
