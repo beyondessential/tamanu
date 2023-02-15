@@ -1,5 +1,5 @@
 import config from 'config';
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, Op } from 'sequelize';
 
 import { FHIR_INTERACTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 
@@ -136,6 +136,101 @@ export class FhirDiagnosticReport extends FhirResource {
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
     });
+  }
+
+  async queryToFindUpstreamIdsFromTable(table, id) {
+    const {
+      Encounter,
+      LabRequest,
+      LabTest,
+      LabTestType,
+      Patient,
+      ReferenceData,
+      User,
+    } = this.sequelize.models;
+
+    switch (table) {
+      case LabTest.tableName:
+        return { where: { id } };
+      case LabRequest.tableName:
+        return { where: { labRequestId: id } };
+      case LabTestType.tableName:
+        return { where: { labTestTypeId: id } };
+      case Encounter.tableName:
+        return {
+          include: [
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              where: { encounterId: id },
+            },
+          ],
+        };
+      case Patient.tableName:
+        return {
+          include: [
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              include: [
+                {
+                  model: Encounter,
+                  as: 'encounter',
+                  where: { patientId: id },
+                },
+              ],
+            },
+          ],
+        };
+      case User.tableName:
+        return {
+          include: [
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              include: [
+                {
+                  model: Encounter,
+                  as: 'encounter',
+                  where: { examinerId: id },
+                },
+              ],
+            },
+          ],
+        };
+      case ReferenceData.tableName:
+        return {
+          include: [
+            {
+              model: ReferenceData,
+              as: 'category',
+            },
+            {
+              model: ReferenceData,
+              as: 'labTestMethod',
+            },
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              include: [
+                {
+                  model: ReferenceData,
+                  as: 'laboratory',
+                },
+              ],
+            },
+          ],
+          where: {
+            [Op.or]: [
+              { '$category.id$': id },
+              { '$labTestMethod.id$': id },
+              { '$laboratory.id$': id },
+            ],
+          },
+        };
+      default:
+        return null;
+    }
   }
 }
 

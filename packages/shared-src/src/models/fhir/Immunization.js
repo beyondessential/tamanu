@@ -50,10 +50,10 @@ export class FhirImmunization extends FhirResource {
     this.UpstreamModel = models.AdministeredVaccine;
     this.upstreams = [
       models.AdministeredVaccine,
-      models.ScheduledVaccine,
       models.Encounter,
       models.Patient,
       models.ReferenceData,
+      models.ScheduledVaccine,
       models.User,
     ];
   }
@@ -118,6 +118,86 @@ export class FhirImmunization extends FhirResource {
       performer: performer(recorder),
       protocolApplied: protocolApplied(scheduledVaccine.schedule),
     });
+  }
+
+  async queryToFindUpstreamIdsFromTable(table, id) {
+    const {
+      AdministeredVaccine,
+      Encounter,
+      Patient,
+      ReferenceData,
+      ScheduledVaccine,
+      User,
+    } = this.sequelize.models;
+
+    switch (table) {
+      case AdministeredVaccine.tableName:
+        return { where: { id } };
+      case Encounter.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              where: { id },
+            },
+          ],
+        };
+      case Patient.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              include: [
+                {
+                  model: Patient,
+                  as: 'patient',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case ReferenceData.tableName:
+        return {
+          include: [
+            {
+              model: ScheduledVaccine,
+              as: 'scheduledVaccine',
+              include: [
+                {
+                  model: ReferenceData,
+                  as: 'vaccine',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case ScheduledVaccine.tableName:
+        return {
+          include: [
+            {
+              model: ScheduledVaccine,
+              as: 'scheduledVaccine',
+              where: { id },
+            },
+          ],
+        };
+      case User.tableName:
+        return {
+          include: [
+            {
+              model: User,
+              as: 'recorder',
+              where: { id },
+            },
+          ],
+        };
+      default:
+        return null;
+    }
   }
 
   // Searching for patient is not supported yet
