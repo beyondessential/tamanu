@@ -1,8 +1,9 @@
 import { AuthenticationError, generalErrorMessage } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
+import { fetchWithTimeout } from './utils';
 
 jest.mock('./utils', () => ({
-  callWithBackoff: jest.fn(),
+  ...jest.requireActual('./utils'),
   getResponseJsonSafely: jest.fn(),
   fetchWithTimeout: jest.fn(),
   sleepAsync: jest.fn(),
@@ -12,14 +13,19 @@ jest.mock('react-native-device-info', () => ({
   getUniqueId: jest.fn().mockReturnValue('test-device-id'),
 }));
 
+jest.mock('/root/package.json', () => ({
+  version: 'test-version',
+}));
+
 const mockSessionId = 'test-session-id';
+const mockHost = 'http://test-host';
 
 describe('CentralServerConnection', () => {
   let centralServerConnection;
 
   beforeEach(() => {
     centralServerConnection = new CentralServerConnection();
-    centralServerConnection.connect('http://test-host');
+    centralServerConnection.connect(mockHost);
     jest.clearAllMocks();
   });
 
@@ -120,6 +126,33 @@ describe('CentralServerConnection', () => {
       expect(centralServerConnection.login(mockEmail, mockPassword)).rejects.toThrowError(
         new AuthenticationError(generalErrorMessage),
       );
+    });
+  });
+  describe('fetch', () => {
+    it('should call fetch with correct parameters', async () => {
+      (fetchWithTimeout as jest.Mock).mockResolvedValueOnce({
+        json: () => 'test-result',
+        status: 200,
+        ok: true,
+      });
+      const mockPath = 'test-path';
+      const mockQuery = { test: 'test-query' };
+      const mockConfig = { test: 'test-config-key' };
+      const mockToken = 'test-token';
+      const mockHeaders = {
+        Authorization: `Bearer ${mockToken}`,
+        Accept: 'application/json',
+        'X-Tamanu-Client': 'Tamanu Mobile',
+        'X-Version': 'test-version',
+      };
+      centralServerConnection.setToken(mockToken);
+
+      const fetchRes = await centralServerConnection.fetch(mockPath, mockQuery, mockConfig);
+      expect(fetchWithTimeout).toBeCalledWith(`${mockHost}/v1/${mockPath}?test=${mockQuery.test}`, {
+        headers: mockHeaders,
+        ...mockConfig,
+      });
+      expect(fetchRes).toEqual('test-result');
     });
   });
 });
