@@ -1,10 +1,11 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
-import { SurveyCompletedMessage, SurveyScreenPaginator } from '../../components/Surveys';
+import { SurveyScreenPaginator } from '../../components/Surveys';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -21,15 +22,14 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const { components } = survey;
   const initialValues = getFormInitialValues(components, patient, currentUser);
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
-
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
+  const { navigateToPatient } = usePatientNavigation();
 
   const onSubmitSurvey = useCallback(
     async data => {
       await onSubmit(data);
-      setSurveyCompleted(true);
+      navigateToPatient(patient.id, undefined, 'Programs');
     },
-    [onSubmit],
+    [onSubmit, navigateToPatient, patient.id],
   );
 
   const renderSurvey = props => {
@@ -76,9 +76,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
     );
   };
 
-  const surveyContents = surveyCompleted ? (
-    <SurveyCompletedMessage onResetClicked={onCancel} />
-  ) : (
+  const surveyContents = (
     <Form
       initialValues={initialValues}
       onSubmit={onSubmitSurvey}

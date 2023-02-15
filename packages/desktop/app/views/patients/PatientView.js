@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -89,7 +90,10 @@ const TABS = [
 export const PatientView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
-  const [currentTab, setCurrentTab] = React.useState('history');
+  const { tab } = useParams();
+  const [currentTab, setCurrentTab] = React.useState(
+    TABS.find(t => t.key === tab) ? tab : 'history',
+  );
   const disabled = !!patient.death;
   const api = useApi();
   const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
@@ -105,7 +109,7 @@ export const PatientView = () => {
     return <LoadingIndicator />;
   }
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+  const visibleTabs = TABS.filter(t => !t.condition || t.condition(getLocalisation));
 
   return (
     <>
