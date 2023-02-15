@@ -60,14 +60,11 @@ export async function centralServerLogin(models, email, password) {
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
-    await models.User.upsert(
-      {
-        id,
-        ...userDetails,
-        password,
-      },
-      { where: { id } },
-    );
+    await models.User.upsert({
+      id,
+      ...userDetails,
+      password,
+    });
     await models.UserLocalisationCache.upsert({
       userId: id,
       localisation: JSON.stringify(localisation),
