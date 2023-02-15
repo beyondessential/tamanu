@@ -95,6 +95,7 @@ async function localLogin(models, email, password) {
 
   const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
+    order: [['createdAt', 'DESC']],
   });
 
   const token = getToken(user);
