@@ -15,8 +15,8 @@ type FormProps<T extends GenericFormValues> = {
 export function Form<T>({
   initialValues,
   validationSchema,
-  validateOnChange = true,
-  validateOnBlur = true,
+  validateOnChange = false,
+  validateOnBlur = false,
   onSubmit,
   children,
   validate,

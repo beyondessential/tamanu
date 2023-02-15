@@ -99,7 +99,7 @@
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
     "outpatientDischarger": {
       // every day at 11 PM
-      "schedule": "0 11 * * *",
+      "schedule": "0 23 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
@@ -649,6 +649,25 @@
         }
       ],
       "imagingCancellationReasons": [{
+        "value": "clinical",
+        "label": "Clinical reason"
+      },{
+        "value": "duplicate",
+        "label": "Duplicate"
+      },{
+        "value": "entered-in-error",
+        "label": "Entered in error"
+      },{
+        "value": "patient-discharged",
+        "label": "Patient discharged"
+      },{
+        "value": "patient-refused",
+        "label": "Patient refused"
+      },{
+        "value": "other",
+        "label": "Other"
+      }],
+      "labsCancellationReasons": [{
         "value": "clinical",
         "label": "Clinical reason"
       },{

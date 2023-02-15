@@ -3,6 +3,7 @@ import { isAfter, isBefore, parse } from 'date-fns';
 import { toDateString, toDateTimeString, format as formatDate } from 'shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
+import { Colors } from '../../constants';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -39,6 +40,7 @@ export const DateInput = ({
   ...props
 }) => {
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
+  const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
   const onValueChange = useCallback(
     event => {
@@ -68,6 +70,7 @@ export const DateInput = ({
       } else {
         outputValue = date.toISOString();
       }
+      setIsPlaceholder(false);
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
@@ -83,8 +86,12 @@ export const DateInput = ({
     const formattedValue = fromRFC3339(value, format);
     if (value && formattedValue) {
       setCurrentText(formattedValue);
+      setIsPlaceholder(false);
     }
-    return () => setCurrentText('');
+    return () => {
+      setCurrentText('');
+      setIsPlaceholder(true);
+    };
   }, [value, format]);
 
   return (
@@ -96,6 +103,7 @@ export const DateInput = ({
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max, min },
       }}
+      style={isPlaceholder ? { color: Colors.softText } : undefined}
       {...props}
     />
   );
