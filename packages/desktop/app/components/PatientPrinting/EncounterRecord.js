@@ -6,6 +6,7 @@ import { LocalisedLabel } from './SimplePrintout';
 import { PrintLetterhead } from './PrintLetterhead';
 import { DateDisplay } from '../DateDisplay';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { CertificateWrapper } from './CertificateWrapper';
 import { ListTable } from './ListTable';
 import { CertificateLabel } from './CertificateLabels';
 import { noteTypes, DRUG_ROUTE_VALUE_TO_LABEL, CERTAINTY_OPTIONS_BY_VALUE } from '../../constants';
@@ -98,31 +99,13 @@ const ChildNote = styled.div`
   }
 `;
 
-export const ShiftedCertificateWrapper = styled.div`
-  position: relative;
-  padding: 10px 20px;
-
+export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   @media print {
-    padding: 0;
-    bottom: 32px;
-  }
-
-  &:before {
-    content: '';
-    background-size: contain;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    opacity: 0.05;
-    background-image: ${props => (props.watermarkSrc ? `url("${props.watermarkSrc}")` : '')};
-    background-position: center;
-    background-repeat: no-repeat;
+    top: -32px;
   }
 `;
 
-// COLUMN LAYOUTS
+// COLUMN LAYOUTSs
 const columns = {
   encounterTypes: [
     {
