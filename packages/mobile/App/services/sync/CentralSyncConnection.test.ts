@@ -128,6 +128,42 @@ describe('CentralServerConnection', () => {
       );
     });
   });
+  describe('refresh', () => {
+    it('should set new token and refreshToken', async () => {
+      const setTokenSpy = jest.spyOn(centralServerConnection, 'setToken');
+      const setRefreshTokenSpy = jest.spyOn(centralServerConnection, 'setRefreshToken');
+      const mockToken = 'test-token';
+      const mockRefreshToken = 'test-refresh-token';
+      const mockNewRefreshToken = 'test-new-refresh-token';
+
+      centralServerConnection.setRefreshToken(mockRefreshToken);
+
+      const postSpy = jest.spyOn(centralServerConnection, 'post').mockResolvedValue({
+        token: mockToken,
+        refreshToken: mockNewRefreshToken,
+      });
+
+      await centralServerConnection.refresh();
+
+      expect(postSpy).toBeCalledWith(
+        'refresh',
+        {},
+        { refreshToken: mockRefreshToken, deviceId: 'test-device-id' },
+      );
+      expect(setTokenSpy).toBeCalledWith(mockToken);
+      expect(setRefreshTokenSpy).toBeCalledWith(mockNewRefreshToken);
+    });
+    it('should throw an error if token or refreshToken are not defined', async () => {
+      const mockRefreshToken = 'test-refresh-token';
+      jest.spyOn(centralServerConnection, 'post').mockResolvedValue({
+        refreshToken: mockRefreshToken,
+      });
+
+      expect(centralServerConnection.refresh()).rejects.toThrowError(
+        new AuthenticationError(generalErrorMessage),
+      );
+    });
+  });
   describe('fetch', () => {
     it('should call fetch with correct parameters', async () => {
       (fetchWithTimeout as jest.Mock).mockResolvedValueOnce({
@@ -162,7 +198,7 @@ describe('CentralServerConnection', () => {
       const mockNewToken = 'test-new-token';
       const mockNewRefreshToken = 'test-new-refresh-token';
 
-      const getHeadersWithToken = (token: string):any => ({
+      const getHeadersWithToken = (token: string): any => ({
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
         'X-Tamanu-Client': 'Tamanu Mobile',
@@ -176,16 +212,18 @@ describe('CentralServerConnection', () => {
        * 2. Second call to fetchWithTimeout will be refresh endpoint return a 200 with new tokens
        * 3. Third call to fetchWithTimeout will be the original fetch call with new token
        */
-      (fetchWithTimeout as jest.Mock).mockResolvedValueOnce({
-        status: 401,
-      }).mockResolvedValueOnce({
-        json: () => ({
-          token: mockNewToken,
-          refreshToken: mockNewRefreshToken,
-        }),
-        status: 200,
-        ok: true,
-      })
+      (fetchWithTimeout as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 401,
+        })
+        .mockResolvedValueOnce({
+          json: () => ({
+            token: mockNewToken,
+            refreshToken: mockNewRefreshToken,
+          }),
+          status: 200,
+          ok: true,
+        })
         .mockResolvedValueOnce({
           json: () => 'test-result',
           status: 200,
@@ -195,34 +233,20 @@ describe('CentralServerConnection', () => {
       await centralServerConnection.fetch(mockPath, {}, {});
       expect(refreshSpy).toHaveBeenCalledTimes(1);
 
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(
-        1,
-        `${mockHost}/v1/${mockPath}`,
-        {
-          headers: getHeadersWithToken(mockToken),
-        },
-      );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(
-        2,
-        `${mockHost}/v1/refresh`,
-        {
-          headers: { ...getHeadersWithToken(mockToken),
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-          body: JSON.stringify({
-            refreshToken: mockRefreshToken,
-            deviceId: 'test-device-id',
-          }),
-        },
-      );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(
-        3,
-        `${mockHost}/v1/${mockPath}`,
-        {
-          headers: getHeadersWithToken(mockNewToken),
-        },
-      );
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/v1/${mockPath}`, {
+        headers: getHeadersWithToken(mockToken),
+      });
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/v1/refresh`, {
+        headers: { ...getHeadersWithToken(mockToken), 'Content-Type': 'application/json' },
+        method: 'POST',
+        body: JSON.stringify({
+          refreshToken: mockRefreshToken,
+          deviceId: 'test-device-id',
+        }),
+      });
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/v1/${mockPath}`, {
+        headers: getHeadersWithToken(mockNewToken),
+      });
       // Check that the fetch would not recursively call itself again on failure post refresh
       expect(fetchSpy).toHaveBeenNthCalledWith(
         3,
