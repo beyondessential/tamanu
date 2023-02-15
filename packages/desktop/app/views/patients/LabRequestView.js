@@ -264,7 +264,7 @@ const LabRequestCancelModal = ({ open, onClose, updateLabReq, labRequestId }) =>
 
     await updateLabReq({
       status,
-      note,
+      reasonForCancellation,
     });
   };
 
@@ -318,6 +318,12 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
     actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
   }
 
+  // Hide all actions if the lab request is cancelled, deleted or entered-in-error
+  const hideActions =
+    status === LAB_REQUEST_STATUSES.CANCELLED ||
+    status === LAB_REQUEST_STATUSES.DELETED ||
+    status === LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
+
   return (
     <>
       <ChangeLabStatusModal
@@ -350,10 +356,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={cancelModalOpen}
         onClose={() => setCancelModalOpen(false)}
       />
-      {/*  Hide all actions if the lab request is cancelled */}
-      {status !== LAB_REQUEST_STATUSES.CANCELLED && (
-        <DropdownButton actions={actions} variant="outlined" />
-      )}
+      {!hideActions && <DropdownButton actions={actions} variant="outlined" />}
     </>
   );
 };

@@ -311,6 +311,7 @@ export const ImagingRequestView = () => {
 
     await api.put(`imagingRequest/${imagingRequest.id}`, {
       status,
+      reasonForCancellation,
       note,
     });
     dispatch(

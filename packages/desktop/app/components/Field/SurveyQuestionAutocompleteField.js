@@ -1,6 +1,5 @@
 import React from 'react';
-import { connectApi } from '../../api/connectApi';
-import { Suggester } from '../../utils/suggester';
+import { useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
 
 // Required due to desktop/mobile using different implementations for
@@ -20,8 +19,8 @@ const getSuggesterEndpointForConfig = config => {
   return null;
 };
 
-const SurveyQuestionAutocompleteComponent = props => <AutocompleteField {...props} />;
-
-export const SurveyQuestionAutocomplete = connectApi((api, dispatch, { config }) => ({
-  suggester: new Suggester(api, getSuggesterEndpointForConfig(config)),
-}))(SurveyQuestionAutocompleteComponent);
+export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
+  const endpoint = getSuggesterEndpointForConfig(config);
+  const suggester = useSuggester(endpoint);
+  return <AutocompleteField suggester={suggester} {...props} />;
+};
