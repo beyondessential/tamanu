@@ -53,11 +53,10 @@ export class CentralServerConnection {
       ...extraHeaders,
     };
     const response = await callWithBackoff(
-      () =>
-        fetchWithTimeout(url, {
-          ...config,
-          headers,
-        }),
+      () => fetchWithTimeout(url, {
+        ...config,
+        headers,
+      }),
       backoff,
     );
 
@@ -92,7 +91,6 @@ export class CentralServerConnection {
       throw new RemoteError(generalErrorMessage, error, response.status);
     }
 
-    this.attemptedRefresh = false;
     return response.json();
   }
 

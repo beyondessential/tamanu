@@ -43,7 +43,7 @@ export interface LoginResponse {
 
 export type FetchOptions = {
   backoff?: callWithBackoffOptions;
-  isPostRefresh?: boolean;
+  skipAttemptRefresh?: boolean;
   [key: string]: any;
 };
 
