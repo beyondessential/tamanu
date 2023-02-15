@@ -1,7 +1,6 @@
-import React, { useMemo, useState} from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { DischargeModal } from '../../../components/DischargeModal';
@@ -52,7 +51,7 @@ const ENCOUNTER_MODALS = {
 };
 
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
-  const { navigateToSummary, navigateToEncounter } = usePatientNavigation();
+  const { navigateToSummary } = usePatientNavigation();
   const { getLocalisation } = useLocalisation();
 
   const onChangeEncounterType = type => {
@@ -150,7 +149,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   return <DropdownButton actions={actions} />;
 };
-// 
+
 export const EncounterActions = React.memo(({ encounter }) => {
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
   const [newEncounterType, setNewEncounterType] = useState();

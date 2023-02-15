@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from '@tanstack/react-query';
 
 import { Table } from '../Table';
 import { CheckInput, OuterLabelFieldWrapper } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { DateDisplay } from '../DateDisplay';
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
-import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { useLabRequests } from '../../api/queries/useLabRequests';
 
