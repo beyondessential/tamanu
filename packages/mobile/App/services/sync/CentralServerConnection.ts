@@ -34,7 +34,7 @@ export class CentralServerConnection {
   async fetch(
     path: string,
     query: Record<string, string | number>,
-    { backoff, ...config }: FetchOptions = {},
+    { backoff, isPostRefresh, ...config }: FetchOptions = {},
   ) {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
@@ -62,11 +62,9 @@ export class CentralServerConnection {
 
     if (response.status === 401) {
       const isLogin = path.startsWith('login');
-      if (!isLogin && this.refreshToken) {
+      if (!isLogin && this.refreshToken && !isPostRefresh) {
         await this.refresh();
-        //#TODO Need to handle breaking out if request after refresh fails
-        // due to invalid token
-        return this.fetch(path, query, config);
+        return this.fetch(path, query, { ...config, isPostRefresh: true });
       }
       throw new AuthenticationError(
         isLogin ? invalidUserCredentialsMessage : invalidTokenMessage,
