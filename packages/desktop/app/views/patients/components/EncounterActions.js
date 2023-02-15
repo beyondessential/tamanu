@@ -47,6 +47,8 @@ const ENCOUNTER_MODALS = {
   BEGIN_MOVE: 'beginMove',
   FINALISE_MOVE: 'finaliseMove',
   CANCEL_MOVE: 'cancelMove',
+
+  ENCOUNTER_RECORD: 'encounterRecord',
 };
 
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
@@ -65,7 +67,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onCancelLocationChange = () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE);
   const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
-  const onViewEncounterRecord = () => navigateToEncounter(encounter.id, 'encounterRecord');
+  const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
 
   if (encounter.endDate) {
     return (
@@ -148,7 +150,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   return <DropdownButton actions={actions} />;
 };
-
+// 
 export const EncounterActions = React.memo(({ encounter }) => {
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
   const [newEncounterType, setNewEncounterType] = useState();
@@ -198,6 +200,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <CancelPatientMoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
+        onClose={onClose}
+      />
+      <EncounterRecordModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD}
         onClose={onClose}
       />
     </>
