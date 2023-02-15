@@ -1,5 +1,6 @@
 import config from 'config';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -99,7 +100,7 @@ with
     from lab_requests lr
     join lab_test_info lti
     on lti.lab_request_id  = lr.id
-    where lr.status NOT IN ('deleted', 'cancelled', 'entered-in-error') 
+    where lr.status NOT IN(:lab_request_statuses) 
     group by encounter_id
   ),
   procedure_info as (
@@ -468,6 +469,11 @@ const getData = async (sequelize, parameters, includedPatientFieldIds) => {
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
       location_group_id: locationGroup ?? null,
+      lab_request_statuses: [
+        LAB_REQUEST_STATUSES.DELETED,
+        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        LAB_REQUEST_STATUSES.CANCELLED,
+      ],
       imaging_area_labels: JSON.stringify({
         xRay: 'X-Ray',
         ctScan: 'CT Scan',
