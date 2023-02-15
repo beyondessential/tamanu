@@ -23,16 +23,21 @@ export async function up(query) {
       RETURNS TRIGGER
       LANGUAGE PLPGSQL
     AS $$
+    DECLARE
+      payload JSONB;
     BEGIN
-      PERFORM job_submit(
-        'fhir.refresh.allFromUpstream',
-        jsonb_build_object(
-          'table', (TG_TABLE_SCHEMA::text || '.' || TG_TABLE_NAME::text),
-          'op', TG_OP,
-          'id', COALESCE(NEW.id, OLD.id)::text,
-          'args', to_jsonb(TG_ARGV)
-        )
+      payload := jsonb_build_object(
+        'table', (TG_TABLE_SCHEMA::text || '.' || TG_TABLE_NAME::text),
+        'op', TG_OP,
+        'id', COALESCE(NEW.id, OLD.id)::text,
+        'args', to_jsonb(TG_ARGV)
       );
+      
+      IF TG_OP = 'DELETE' THEN
+        payload := payload || jsonb_build_object('deletedRow', OLD);
+      END IF;
+
+      PERFORM job_submit('fhir.refresh.allFromUpstream', payload);
     END;
     $$
   `);
