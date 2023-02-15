@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { CancelModal } from '../../components/CancelModal';
 import { useCertificate } from '../../utils/useCertificate';
@@ -31,11 +31,19 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
-const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'completed', label: 'Completed' },
-];
+const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
+  .filter(
+    type =>
+      ![
+        IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      ].includes(type),
+  )
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
+  }));
 
 const PrintButton = ({ imagingRequest, patient }) => {
   const api = useApi();
