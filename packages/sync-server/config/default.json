@@ -809,6 +809,9 @@
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
   },
+  "validateQuestionConfigs": {
+    "enabled": false
+  },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   "countryTimeZone": null
