@@ -257,10 +257,6 @@ describe('Fiji traveller covid lab test report', () => {
       await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
     });
 
-    it('excludes Lab requests with a status of Cancelled, Deleted or Entered-in-error', () => {
-      expect(true).toBe(false);
-    });
-
     it('should produce the right columns', async () => {
       const testBrand = 'Rapid Test';
       await createCovidTestForPatient(testContext.models, expectedPatient1);

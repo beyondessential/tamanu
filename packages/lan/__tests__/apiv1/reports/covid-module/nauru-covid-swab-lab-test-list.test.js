@@ -111,10 +111,6 @@ describe('Nauru covid case report tests', () => {
       await testContext.models.LabRequest.destroy({ where: {} });
     });
 
-    it('excludes Lab requests with a status of Cancelled, Deleted or Entered-in-error', () => {
-      expect(true).toBe(false);
-    });
-
     it('should filter by sample time', async () => {
       await submitInitialFormForPatient(app, models, expectedPatient, new Date(2022, 3, 10, 4), {
         'pde-NauCOVTest002': 435355781, // 'Patient contact number'

@@ -322,10 +322,6 @@ describe('Palau covid case report tests', () => {
       ]);
     });
 
-    it('excludes Lab requests with a status of Cancelled, Deleted or Entered-in-error', () => {
-      expect(true).toBe(false);
-    });
-
     it('should not include survey responses without initial form', async () => {
       const patient = await createPatient(testContext.models);
       await submitFollowUpFormForPatient(app, testContext.models, patient, {

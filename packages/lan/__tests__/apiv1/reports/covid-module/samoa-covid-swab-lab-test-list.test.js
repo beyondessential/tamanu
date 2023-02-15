@@ -148,10 +148,6 @@ describe('Samoa covid lab test report', () => {
       expect(getDataForColumn(reportResult.body, 'Phone Number', 1)).toBe(phoneNumber);
     });
 
-    it('excludes Lab requests with a status of Cancelled, Deleted or Entered-in-error', () => {
-      expect(true).toBe(false);
-    });
-
     it('should pick the latest answer between the current and the next lab request', async () => {
       const phoneNumber = '123-456-7890';
       await createCovidTestForPatient(testContext.models, expectedPatient1, '2022-03-01');

@@ -98,11 +98,13 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
         as: 'labRequest',
         attributes: [],
         where: {
-          [Op.notIn]: [
-            LAB_REQUEST_STATUSES.DELETED,
-            LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-            LAB_REQUEST_STATUSES.CANCELLED,
-          ],
+          status: {
+            [Op.notIn]: [
+              LAB_REQUEST_STATUSES.DELETED,
+              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+              LAB_REQUEST_STATUSES.CANCELLED,
+            ],
+          },
         },
         include: [
           {
