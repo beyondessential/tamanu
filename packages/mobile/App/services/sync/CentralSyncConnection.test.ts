@@ -1,6 +1,5 @@
-import { getUniqueId } from 'react-native-device-info';
+import { AuthenticationError, generalErrorMessage } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
-import { fetchWithTimeout } from './utils';
 
 jest.mock('./utils', () => ({
   callWithBackoff: jest.fn(),
@@ -93,10 +92,34 @@ describe('CentralServerConnection', () => {
       const mockPassword = 'test-password';
 
       const loginRes = await centralServerConnection.login(mockEmail, mockPassword);
-      expect(postSpy).toBeCalledWith('login', {}, { email: mockEmail, password: mockPassword, deviceId: 'test-device-id' }, { backoff: {
-        maxAttempts: 1,
-      } });
+      expect(postSpy).toBeCalledWith(
+        'login',
+        {},
+        { email: mockEmail, password: mockPassword, deviceId: 'test-device-id' },
+        {
+          backoff: {
+            maxAttempts: 1,
+          },
+        },
+      );
       expect(loginRes).toEqual(mockResponse);
+    });
+    it('should throw an error if token, refreshToken or user are not defined', async () => {
+      const mockResponseMissingRefreshToken = {
+        token: 'test-token',
+        user: {
+          id: 'test-user-id',
+        },
+      };
+      jest
+        .spyOn(centralServerConnection, 'post')
+        .mockResolvedValue(mockResponseMissingRefreshToken);
+      const mockEmail = 'test@testemail.com';
+      const mockPassword = 'test-password';
+
+      expect(centralServerConnection.login(mockEmail, mockPassword)).rejects.toThrowError(
+        new AuthenticationError(generalErrorMessage),
+      );
     });
   });
 });
