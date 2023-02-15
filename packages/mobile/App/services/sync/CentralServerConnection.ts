@@ -34,7 +34,7 @@ export class CentralServerConnection {
   async fetch(
     path: string,
     query: Record<string, string | number>,
-    { backoff, isPostRefresh, ...config }: FetchOptions = {},
+    { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
   ) {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
@@ -53,22 +53,23 @@ export class CentralServerConnection {
       ...extraHeaders,
     };
     const response = await callWithBackoff(
-      () => fetchWithTimeout(url, {
-        ...config,
-        headers,
-      }),
+      () =>
+        fetchWithTimeout(url, {
+          ...config,
+          headers,
+        }),
       backoff,
     );
 
     if (response.status === 401) {
       const isLogin = path.startsWith('login');
-      if (!isLogin && this.refreshToken && !isPostRefresh) {
+      if (!isLogin && this.refreshToken && !skipAttemptRefresh) {
         await this.refresh();
-        return this.fetch(path, query, { ...config, isPostRefresh: true });
+        // Ensure that we don't get stuck in a loop of refreshes in case
+        const updatedConfig = { ...config, skipAttemptRefresh: true };
+        return this.fetch(path, query, updatedConfig);
       }
-      throw new AuthenticationError(
-        isLogin ? invalidUserCredentialsMessage : invalidTokenMessage,
-      );
+      throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
     }
 
     if (response.status === 400) {
@@ -201,7 +202,12 @@ export class CentralServerConnection {
   }
 
   async refresh(): Promise<void> {
-    const data = await this.post('refresh', {}, { refreshToken: this.refreshToken, deviceId: this.deviceId });
+    const data = await this.post(
+      'refresh',
+      {},
+      { refreshToken: this.refreshToken, deviceId: this.deviceId },
+      { skipAttemptRefresh: true, backoff: { maxAttempts: 1 } },
+    );
     if (!data.token || !data.refreshToken) {
       // auth failed in some other regard
       console.warn('Auth failed with an inexplicable error', data);

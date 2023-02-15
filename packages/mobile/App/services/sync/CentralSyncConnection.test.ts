@@ -149,13 +149,19 @@ describe('CentralServerConnection', () => {
         'refresh',
         {},
         { refreshToken: mockRefreshToken, deviceId: 'test-device-id' },
+        {
+          backoff: {
+            maxAttempts: 1,
+          },
+          skipAttemptRefresh: true,
+        },
       );
       expect(setTokenSpy).toBeCalledWith(mockToken);
       expect(setRefreshTokenSpy).toBeCalledWith(mockNewRefreshToken);
     });
     it('should throw an error if token or refreshToken are not defined', async () => {
       const mockRefreshToken = 'test-refresh-token';
-      jest.spyOn(centralServerConnection, 'post').mockResolvedValue({
+      jest.spyOn(centralServerConnection, 'post').mockResolvedValueOnce({
         refreshToken: mockRefreshToken,
       });
 
@@ -249,11 +255,30 @@ describe('CentralServerConnection', () => {
       });
       // Check that the fetch would not recursively call itself again on failure post refresh
       expect(fetchSpy).toHaveBeenNthCalledWith(
+        2,
+        'refresh',
+        {},
+        {
+          body: JSON.stringify({
+            refreshToken: mockRefreshToken,
+            deviceId: 'test-device-id',
+          }),
+          skipAttemptRefresh: true,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          backoff: {
+            maxAttempts: 1,
+          },
+        },
+      );
+      expect(fetchSpy).toHaveBeenNthCalledWith(
         3,
         mockPath,
         {},
         {
-          isPostRefresh: true,
+          skipAttemptRefresh: true,
         },
       );
     });
