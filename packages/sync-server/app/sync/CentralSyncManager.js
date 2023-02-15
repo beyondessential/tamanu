@@ -14,6 +14,7 @@ import {
   removeEchoedChanges,
   saveIncomingChanges,
   adjustDataPostSyncPush,
+  waitForAnyTransactionsUsingSyncTick,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
@@ -61,7 +62,7 @@ class CentralSyncManager {
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
     const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
-    return { tick: tock - 1, tock };
+    return { tick: tock - 1, tock, previousTick: tock - 3, previousTock: tock - 2 };
   }
 
   async startSession() {
@@ -158,15 +159,15 @@ class CentralSyncManager {
     }
 
     const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
-    this.setupSnapshot(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
+    this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
   }
 
-  async setupSnapshot(
+  async setupSnapshotForPull(
     sessionId,
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
     unmarkSnapshotAsProcessing,
   ) {
-    const { models } = this.store;
+    const { models, sequelize } = this.store;
 
     const session = await this.connectToSession(sessionId);
 
@@ -174,7 +175,9 @@ class CentralSyncManager {
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
       // process is ongoing, will have a later updated_at_sync_tick)
-      const { tick } = await this.tickTockGlobalClock();
+      const { tick, previousTock } = await this.tickTockGlobalClock();
+      // wait for any transactions that were in progress using the previous central server "tock"
+      await waitForAnyTransactionsUsingSyncTick(sequelize, previousTock);
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },
@@ -353,13 +356,11 @@ class CentralSyncManager {
     try {
       // commit the changes to the db
       await sequelize.transaction(async () => {
-        // we tick-tock the global clock to make sure there is a unique tick for these changes, and
-        // to acquire a lock on the sync time row in the local system facts table, so that no sync
-        // pull snapshot can start while this save is still in progress
-        // the pull snapshot starts by updating the current time, so this locks that out while the
-        // save transaction happens, to avoid the snapshot missing records that get during this save
-        // but aren't visible in the db to be snapshot until the transaction commits, so would
-        // otherwise be completely skipped over by that sync client
+        // we tick-tock the global clock to make sure there is a unique tick for these changes
+        // n.b. this used to also be used for concurrency control, but that is now handled by
+        // shared advisory locks taken using the current sync tick as the id, which are waited on
+        // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
+        // saving with a unique tick
         const { tock } = await this.tickTockGlobalClock();
         await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
         // store the sync tick on save with the incoming changes, so they can be compared for
