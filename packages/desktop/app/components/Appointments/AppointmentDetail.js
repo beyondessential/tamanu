@@ -198,7 +198,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelConfirmed, setCancelConfirmed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showErrorAlert, setShowErrorAlert] = useState(true);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   useEffect(() => {
     setStatusOption(appointmentStatusOptions.find(option => option.value === status));
