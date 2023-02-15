@@ -164,7 +164,7 @@ export class CentralServerConnection {
 
   async push(
     sessionId: string,
-    changes,
+    changes: SyncRecord[],
     pageNumber: number,
     totalPages: number,
     tableNames: string[],
