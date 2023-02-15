@@ -36,7 +36,7 @@ export const genToken = async (keyType, email, { expiresIn }) => {
       userId: user.id,
     },
     secret,
-    // TODO: sort out audience for this integrations
+    // TODO: sort out audience for these integrations
     { expiresIn, audience: 'Tamanu Mobile', issuer: config.canonicalHostName },
   );
 
