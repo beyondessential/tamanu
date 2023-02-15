@@ -154,5 +154,84 @@ describe('CentralServerConnection', () => {
       });
       expect(fetchRes).toEqual('test-result');
     });
+    it('should invoke itself after invalid token and refresh endpoint', async () => {
+      const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
+      const fetchSpy = jest.spyOn(centralServerConnection, 'fetch');
+      const mockToken = 'test-token';
+      const mockRefreshToken = 'test-refresh-token';
+      const mockNewToken = 'test-new-token';
+      const mockNewRefreshToken = 'test-new-refresh-token';
+
+      const getHeadersWithToken = (token: string):any => ({
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'X-Tamanu-Client': 'Tamanu Mobile',
+        'X-Version': 'test-version',
+      });
+      centralServerConnection.setToken(mockToken);
+      centralServerConnection.setRefreshToken(mockRefreshToken);
+      /**
+       * Mock three calls to fetchWithTimeout:
+       * 1. First call to fetchWithTimeout will return a 401 for invalid token
+       * 2. Second call to fetchWithTimeout will be refresh endpoint return a 200 with new tokens
+       * 3. Third call to fetchWithTimeout will be the original fetch call with new token
+       */
+      (fetchWithTimeout as jest.Mock).mockResolvedValueOnce({
+        status: 401,
+      }).mockResolvedValueOnce({
+        json: () => ({
+          token: mockNewToken,
+          refreshToken: mockNewRefreshToken,
+        }),
+        status: 200,
+        ok: true,
+      })
+        .mockResolvedValueOnce({
+          json: () => 'test-result',
+          status: 200,
+          ok: true,
+        });
+      const mockPath = 'test-path';
+      await centralServerConnection.fetch(mockPath, {}, {});
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(
+        1,
+        `${mockHost}/v1/${mockPath}`,
+        {
+          headers: getHeadersWithToken(mockToken),
+        },
+      );
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(
+        2,
+        `${mockHost}/v1/refresh`,
+        {
+          headers: { ...getHeadersWithToken(mockToken),
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({
+            refreshToken: mockRefreshToken,
+            deviceId: 'test-device-id',
+          }),
+        },
+      );
+      expect(fetchWithTimeout).toHaveBeenNthCalledWith(
+        3,
+        `${mockHost}/v1/${mockPath}`,
+        {
+          headers: getHeadersWithToken(mockNewToken),
+        },
+      );
+      // Check that the fetch would not recursively call itself again on failure post refresh
+      expect(fetchSpy).toHaveBeenNthCalledWith(
+        3,
+        mockPath,
+        {},
+        {
+          isPostRefresh: true,
+        },
+      );
+    });
   });
 });
