@@ -30,7 +30,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
   const [imageData, setImageData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const { syncSource, models } = useBackend();
+  const { centralServer, models } = useBackend();
   const netInfo = useNetInfo();
   const openModalCallback = useCallback(async () => {
     setLoading(true);
@@ -55,7 +55,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
     }
 
     try {
-      const { data } = await syncSource.get(`attachment/${imageId}`, {
+      const { data } = await centralServer.get(`attachment/${imageId}`, {
         base64: true
       });
       setImageData(data);

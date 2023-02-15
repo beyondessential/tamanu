@@ -2,14 +2,18 @@ import { Command } from 'commander';
 import { QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { FHIR_RESOURCE_TYPES } from 'shared/constants';
+import { FHIR_INTERACTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
+import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 import { ApplicationContext } from '../ApplicationContext';
 
-async function showStatus(models) {
-  for (const resource of FHIR_RESOURCE_TYPES) {
-    const Resource = models[`Fhir${resource}`];
+const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
+
+async function showStatus() {
+  const app = await new ApplicationContext().init();
+
+  for (const Resource of materialisableResources) {
     const count = await Resource.count();
     const latest =
       (
@@ -30,24 +34,25 @@ async function showStatus(models) {
       `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest}`,
     );
   }
+
+  await app.close();
 }
 
-async function doRefresh(resource, { existing, missing, models, since }) {
+async function doRefresh(resource, { existing, missing, since }) {
+  const app = await new ApplicationContext().init();
+
   if (resource.toLowerCase() === 'all') {
-    for (const res of FHIR_RESOURCE_TYPES) {
-      const Resource = models[`Fhir${res}`];
+    for (const Resource of materialisableResources) {
       if (!Resource?.UpstreamModel) continue;
-      await doRefresh(res, { missing, models, since });
+      await doRefresh(Resource.fhirName, { existing, missing, since });
     }
     return;
   }
 
-  const normalised = FHIR_RESOURCE_TYPES.find(r => r.toLowerCase() === resource.toLowerCase());
-  if (!normalised) throw new Error(`No such FHIR Resource: ${resource}`);
-
-  const Resource = models[`Fhir${normalised}`];
-  if (!Resource) throw new Error(`No matching FHIR Resource model: ${resource}`);
-  if (!Resource.UpstreamModel) throw new Error('FHIR model is not configured for materialisation');
+  const Resource = materialisableResources.find(
+    r => r.fhirName.toLowerCase() === resource.toLowerCase(),
+  );
+  if (!Resource) throw new Error(`No such FHIR Resource: ${resource}`);
 
   const recordsToDo = (
     await Resource.sequelize.query(
@@ -73,24 +78,19 @@ async function doRefresh(resource, { existing, missing, models, since }) {
     if (done % 100 === 0) log.info(`Refreshed ${done} out of ${recordsToDo.length}`);
   }
 
-  if (normalised === 'Patient') {
-    log.info('Resolving patient upstream references...');
-    await Resource.resolveUpstreamLinks();
-  }
+  log.info('Resolving upstream references...');
+  await Resource.resolveUpstreams();
 
-  log.info(`Done refreshing ${done} ${normalised} records`);
+  log.info(`Done refreshing ${done} ${Resource.fhirName} records`);
+  await app.close();
 }
 
 export const fhir = async ({ status, refresh, existing, missing, since }) => {
-  const {
-    store: { models },
-  } = await new ApplicationContext().init();
+  if (status || !refresh) return showStatus();
 
-  if (status || !refresh) return showStatus(models);
-
-  return doRefresh(refresh, {
-    models,
-    ...yup
+  return doRefresh(
+    refresh,
+    yup
       .object({
         existing: yup.boolean().default(false),
         missing: yup.boolean().default(false),
@@ -100,7 +100,7 @@ export const fhir = async ({ status, refresh, existing, missing, since }) => {
           .default(null),
       })
       .validateSync({ existing, missing, since }),
-  });
+  );
 };
 
 export const fhirCommand = new Command('fhir')

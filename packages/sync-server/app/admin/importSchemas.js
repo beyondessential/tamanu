@@ -89,6 +89,11 @@ export const Location = Base.shape({
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
   visibilityStatus,
+  maxOccupancy: yup
+    .number()
+    .integer()
+    .min(1, 'maxOccupancy must be 1 or null for unrestricted occupancy')
+    .max(1, 'maxOccupancy above 1 is unimplemented'),
 });
 
 export const Permission = yup.object().shape({
@@ -197,7 +202,7 @@ export const Survey = Base.shape({
   surveyType: yup
     .string()
     .required()
-    .oneOf(['programs', 'referral', 'obsolete']),
+    .oneOf(['programs', 'referral', 'obsolete', 'vitals']),
   isSensitive: yup.boolean().required(),
 });
 

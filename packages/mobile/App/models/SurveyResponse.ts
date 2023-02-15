@@ -1,28 +1,11 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  OneToMany,
-  BeforeUpdate,
-  BeforeInsert,
-  RelationId,
-} from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
-import {
-  ISurveyResponse,
-  IProgramDataElement,
-  ISurveyScreenComponent,
-  EncounterType,
-} from '~/types';
+import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
 
-import {
-  getStringValue,
-  getResultValue,
-  isCalculated,
-  FieldTypes,
-} from '~/ui/helpers/fields';
+import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
@@ -31,11 +14,13 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
-import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @DateTimeStringColumn({ nullable: true })
   startTime?: string;
 
@@ -48,29 +33,35 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column({ default: '', nullable: true })
   resultText?: string;
 
-  @ManyToOne(() => Survey, survey => survey.responses)
+  @ManyToOne(
+    () => Survey,
+    survey => survey.responses,
+  )
   survey: Survey;
 
   @RelationId(({ survey }) => survey)
   surveyId: string;
 
-  @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.surveyResponses,
+  )
   encounter: Encounter;
 
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @OneToMany(() => Referral, referral => referral.surveyResponse)
+  @OneToMany(
+    () => Referral,
+    referral => referral.surveyResponse,
+  )
   referral: Referral;
 
-  @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
+  @OneToMany(
+    () => SurveyResponseAnswer,
+    answer => answer.response,
+  )
   answers: SurveyResponseAnswer[];
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
-  }
 
   static async getFullResponse(surveyId: string) {
     const repo = this.getRepository();
@@ -95,19 +86,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   static async submit(
     patientId: string,
     userId: string,
-    surveyData: ISurveyResponse & {
-      encounterReason: string;
-      components: ISurveyScreenComponent[];
-    },
+    surveyData: ICreateSurveyResponse,
     values: object,
     setNote: (note: string) => void = () => null,
   ): Promise<SurveyResponse> {
-    const {
-      surveyId,
-      encounterReason,
-      components,
-      ...otherData
-    } = surveyData;
+    const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
     try {
       setNote('Creating encounter...');
@@ -121,10 +104,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const calculatedValues = runCalculations(components, values);
       const finalValues = { ...values, ...calculatedValues };
 
-      const {
-        result,
-        resultText,
-      } = getResultValue(components, finalValues);
+      const { result, resultText } = getResultValue(components, finalValues);
 
       setNote('Creating response object...');
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
@@ -144,14 +124,17 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const patientAdditionalDataValues = {};
 
       // TODO: this should just look at the field name and decide; there will never be overlap
-      const isAdditionalDataField = (questionConfig) => questionConfig.writeToPatient?.isAdditionalDataField;
+      const isAdditionalDataField = questionConfig =>
+        questionConfig.writeToPatient?.isAdditionalDataField;
 
       for (const a of Object.entries(finalValues)) {
         const [dataElementCode, value] = a;
         const component = components.find(c => c.dataElement.code === dataElementCode);
         if (!component) {
           // better to fail entirely than save partial data
-          throw new Error(`no screen component for code: ${dataElementCode}, cannot match to data element`);
+          throw new Error(
+            `no screen component for code: ${dataElementCode}, cannot match to data element`,
+          );
         }
         const { dataElement } = component;
 

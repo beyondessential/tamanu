@@ -8,9 +8,7 @@ import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
-const META_SERVER = __DEV__
-  ? 'https://meta-dev.tamanu.io'
-  : 'https://meta.tamanu.io';
+const META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
 
 type Server = {
   name: string;
@@ -27,7 +25,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   const response = await fetch(`${META_SERVER}/servers`);
   const servers: Server[] = await response.json();
 
-  return servers.map((s) => ({ label: s.name, value: s.host }));
+  return servers.map(s => ({ label: s.name, value: s.host }));
 };
 
 export const ServerSelector = ({ onChange, label, value }): ReactElement => {
@@ -45,25 +43,21 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
     })();
   }, [netInfo.isInternetReachable]);
 
-  const onServerSelected = useCallback((server) => {
-    setDisplayValue(server ? server.label : '');
-    onChange(server?.value);
-  }, [onChange]);
+  const onServerSelected = useCallback(
+    server => {
+      setDisplayValue(server ? server.label : '');
+      onChange(server?.value);
+    },
+    [onChange],
+  );
 
   if (!netInfo.isInternetReachable) {
-    return (
-      <StyledText color={theme.colors.ALERT}>
-        No internet connection available.
-      </StyledText>
-    );
+    return <StyledText color={theme.colors.ALERT}>No internet connection available.</StyledText>;
   }
 
   return (
     <>
-      <StyledView
-        marginBottom={10}
-        height={screenPercentageToDP(4.86, Orientation.Height)}
-      >
+      <StyledView marginBottom={10} height={screenPercentageToDP(4.86, Orientation.Height)}>
         <InputContainer>
           <StyledText
             color={theme.colors.TEXT_DARK}

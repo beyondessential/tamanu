@@ -116,7 +116,7 @@ describe('Imaging requests', () => {
   });
 
   it('should get imaging request reference info when listing imaging requests', async () => {
-    const createdImagingRequest = await models.ImagingRequest.create({
+    await models.ImagingRequest.create({
       encounterId: encounter.id,
       requestedById: app.user.id,
       imagingType: IMAGING_TYPES.CT_SCAN,
@@ -146,5 +146,141 @@ describe('Imaging requests', () => {
         ultrasound: expectedAreas,
       }),
     );
+  });
+
+  it('should return all results for an imaging request', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+    await models.ImagingResult.create({
+      imagingRequestId: ir.id,
+      description: 'result description',
+    });
+    await models.ImagingResult.create({
+      imagingRequestId: ir.id,
+      description: 'result description with user',
+      completedById: app.user.dataValues.id,
+    });
+
+    // act
+    const result = await app.get(`/v1/imagingRequest/${ir.id}`);
+
+    // assert
+    expect(result).toHaveSucceeded();
+    expect(result.body.results[0]).toMatchObject({
+      description: 'result description',
+    });
+    expect(result.body.results[1]).toMatchObject({
+      description: 'result description with user',
+      completedBy: {
+        id: app.user.dataValues.id,
+      },
+    });
+  });
+
+  it('should create a result for an imaging request', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+
+    // act
+    const result = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+      status: 'completed',
+      newResultDescription: 'new result description',
+      newResultDate: new Date().toISOString(),
+      newResultCompletedById: app.user.dataValues.id,
+    });
+
+    // assert
+    expect(result).toHaveSucceeded();
+
+    const results = await models.ImagingResult.findAll({
+      where: { imagingRequestId: ir.id },
+    });
+    expect(results.length).toBe(1);
+    expect(results[0].description).toBe('new result description');
+  });
+
+  it('should create multiple results for an imaging request', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+
+    // act
+    const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+      status: 'completed',
+      newResultDescription: 'new result description 1',
+      newResultDate: new Date().toISOString(),
+      newResultCompletedById: app.user.dataValues.id,
+    });
+    const result2 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+      status: 'completed',
+      newResultDescription: 'new result description 2',
+      newResultDate: new Date().toISOString(),
+    });
+
+    // assert
+    expect(result1).toHaveSucceeded();
+    expect(result2).toHaveSucceeded();
+
+    const results = await models.ImagingResult.findAll({
+      where: { imagingRequestId: ir.id },
+    });
+    expect(results.length).toBe(2);
+    expect(results[0].description).toBe('new result description 1');
+    expect(results[1].description).toBe('new result description 2');
+  });
+
+  it('should query an external provider for imaging results if configured so', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+    const resultRow = await models.ImagingResult.create({
+      imagingRequestId: ir.id,
+      description: 'external result description',
+      externalCode: 'EXT123',
+    });
+    await models.ImagingResult.create({
+      imagingRequestId: ir.id,
+      description: 'result description with user',
+      completedById: app.user.dataValues.id,
+    });
+
+    const settings = await models.Setting.get('integrations.imaging');
+    await models.Setting.set('integrations.imaging', {
+      enabled: true,
+      provider: 'test',
+    });
+
+    // act
+    const result = await app.get(`/v1/imagingRequest/${ir.id}`);
+
+    // reset settings
+    await models.Setting.set('integrations.imaging', settings);
+
+    // assert
+    expect(result).toHaveSucceeded();
+    expect(result.body.results[0]).toMatchObject({
+      description: 'external result description',
+      externalUrl: `https://test.tamanu.io/${resultRow.id}`,
+    });
+    expect(result.body.results[1]).toMatchObject({
+      description: 'result description with user',
+      completedBy: {
+        id: app.user.dataValues.id,
+      },
+    });
   });
 });

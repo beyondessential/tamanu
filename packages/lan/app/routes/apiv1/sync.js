@@ -10,7 +10,7 @@ sync.post(
 
     req.flagPermissionChecked(); // no particular permission check for triggering a sync
 
-    await syncManager.runSync();
+    await syncManager.triggerSync();
 
     res.send({ message: 'Sync completed' });
   }),

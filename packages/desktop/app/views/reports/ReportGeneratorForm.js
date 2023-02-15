@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { keyBy } from 'lodash';
+import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
 import { Typography, Box } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -92,9 +92,14 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
-  const reportOptions = useMemo(() => availableReports.map(r => ({ value: r.id, label: r.name })), [
-    availableReports,
-  ]);
+  const reportOptions = useMemo(
+    () =>
+      orderBy(
+        availableReports.map(r => ({ value: r.id, label: r.name })),
+        'label',
+      ),
+    [availableReports],
+  );
 
   const {
     parameters = [],
@@ -183,7 +188,6 @@ export const ReportGeneratorForm = () => {
       initialValues={{
         reportId: '',
         emails: currentUser.email,
-        ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
@@ -196,7 +200,7 @@ export const ReportGeneratorForm = () => {
           {},
         ),
       })}
-      render={({ values, submitForm }) => (
+      render={({ values, submitForm, clearForm }) => (
         <>
           <FormGrid columns={2}>
             <Field
@@ -205,7 +209,10 @@ export const ReportGeneratorForm = () => {
               component={ReportIdField}
               options={reportOptions}
               required
-              onValueChange={setSelectedReportId}
+              onValueChange={reportId => {
+                setSelectedReportId(reportId);
+                clearForm();
+              }}
             />
             <Field
               name="dataSource"

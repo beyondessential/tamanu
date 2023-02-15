@@ -216,7 +216,7 @@ location_info as (
     e.id encounter_id,
     case when count("from") = 0
       then json_build_array(json_build_object(
-        'location', l.name,
+        'location', coalesce(lg.name || ', ', '' ) || l.name,
         'assignedTime', e.start_date::timestamp at time zone :timezone_string
       ))
       else 
@@ -233,6 +233,7 @@ location_info as (
     end location_history
   from encounters e
   left join locations l on e.location_id = l.id
+  left join location_groups lg on l.location_group_id = lg.id
   left join note_history nh
   on nh.encounter_id = e.id and nh.place = 'location'
   left join (
@@ -243,9 +244,9 @@ location_info as (
     from note_history nh2
     order by date
     limit 1
-  ) first_from
+    ) first_from
   on e.id = first_from.enc_id
-  group by e.id, l.name, e.start_date, first_from
+  group by e.id, l.name, lg.name, e.start_date, first_from
 ),
 triage_info as (
   select

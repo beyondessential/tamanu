@@ -1,4 +1,4 @@
-import { fake, showError } from 'shared/test-helpers';
+import { fake, withErrorShown } from 'shared/test-helpers';
 import {
   FhirAddress,
   FhirCodeableConcept,
@@ -19,8 +19,9 @@ describe('Patient', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should create directly', () =>
-    showError(async () => {
+  it(
+    'should create directly',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient } = models;
 
@@ -29,10 +30,12 @@ describe('Patient', () => {
 
       // Assert
       expect(patient.versionId).toBeTruthy();
-    }));
+    }),
+  );
 
-  it('should update the version id on update', () =>
-    showError(async () => {
+  it(
+    'should update the version id on update',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient } = models;
       const patient = await FhirPatient.create(fake(FhirPatient));
@@ -44,10 +47,12 @@ describe('Patient', () => {
 
       // Assert
       expect(patient.versionId).not.toEqual(versionId);
-    }));
+    }),
+  );
 
-  it('should round-trip a composite field', () =>
-    showError(async () => {
+  it(
+    'should round-trip a composite field',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient } = models;
       const idA = new FhirIdentifier({
@@ -74,10 +79,12 @@ describe('Patient', () => {
 
       // Assert
       expect(patient.identifier).toEqual([idA, idB]);
-    }));
+    }),
+  );
 
-  it('should round-trip a composite field with update', () =>
-    showError(async () => {
+  it(
+    'should round-trip a composite field with update',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient } = models;
       const id = new FhirIdentifier({
@@ -96,10 +103,12 @@ describe('Patient', () => {
 
       // Assert
       expect(patient.identifier).toEqual([id]);
-    }));
+    }),
+  );
 
-  it('should round-trip a composite field with build', () =>
-    showError(async () => {
+  it(
+    'should round-trip a composite field with build',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient } = models;
       const id = new FhirIdentifier({
@@ -119,10 +128,12 @@ describe('Patient', () => {
 
       // Assert
       expect(patient.identifier).toEqual([id]);
-    }));
+    }),
+  );
 
-  it('should round-trip a composite field containing an array', () =>
-    showError(async () => {
+  it(
+    'should round-trip a composite field containing an array',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient } = models;
 
@@ -165,10 +176,12 @@ describe('Patient', () => {
       // Assert
       expect(patient.identifier).toEqual([id]);
       expect(patient.address).toEqual([address]);
-    }));
+    }),
+  );
 
-  it('should materialise', () =>
-    showError(async () => {
+  it(
+    'should materialise',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient, Patient, PatientAdditionalData } = models;
       const patient = await Patient.create(fake(Patient));
@@ -195,5 +208,6 @@ describe('Patient', () => {
           text: patient.culturalName,
         }),
       ]);
-    }));
+    }),
+  );
 });

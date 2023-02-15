@@ -1,13 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-
 import { VACCINE_STATUS } from 'shared/constants';
-
 import { Modal } from './Modal';
-
 import { connectApi } from '../api/connectApi';
 import { reloadPatient } from '../store/patient';
-
 import { ContentPane } from './ContentPane';
 import { DeleteButton } from './Button';
 import { TextInput } from './Field';
@@ -54,17 +50,18 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
   }
 
   return (
-    <Modal title="Edit Vaccination Record" open={open} onClose={closeWithoutDeletingRecord}>
+    <Modal title="Vaccination Record" open={open} onClose={closeWithoutDeletingRecord}>
       <ContentPane>
         <FormGrid columns={2}>
           <TextInput disabled value={`${label} (${schedule})`} label="Vaccine" />
           <TextInput disabled value={status} label="Status" />
-          <TextInput disabled value={injectionSite} label="Injection site" />
+          <TextInput disabled value={location?.locationGroup?.name} label="Area" />
           <TextInput
             disabled
             value={location?.name || encounter?.location?.name}
-            label="Facility"
+            label="Location"
           />
+          <TextInput disabled value={injectionSite} label="Injection site" />
           {givenBy && <TextInput disabled value={givenBy} label="Giver" />}
           <TextInput
             disabled

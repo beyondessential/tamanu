@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { isAfter, parse } from 'date-fns';
+import { isAfter, isBefore, parse } from 'date-fns';
 import { toDateString, toDateTimeString, format as formatDate } from 'shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
@@ -34,6 +34,7 @@ export const DateInput = ({
   name,
   placeholder,
   max = '9999-12-31',
+  min,
   saveDateAsString = false,
   ...props
 }) => {
@@ -47,6 +48,14 @@ export const DateInput = ({
       if (max) {
         const maxDate = parse(max, format, new Date());
         if (isAfter(date, maxDate)) {
+          onChange({ target: { value: '', name } });
+          return;
+        }
+      }
+
+      if (min) {
+        const minDate = parse(min, format, new Date());
+        if (isBefore(date, minDate)) {
           onChange({ target: { value: '', name } });
           return;
         }
@@ -67,7 +76,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, max, saveDateAsString, type],
+    [onChange, format, name, min, max, saveDateAsString, type],
   );
 
   useEffect(() => {
@@ -85,7 +94,7 @@ export const DateInput = ({
       onChange={onValueChange}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
-        inputProps: { max },
+        inputProps: { max, min },
       }}
       {...props}
     />

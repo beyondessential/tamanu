@@ -1,11 +1,14 @@
-import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
-import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
+import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
+import { BaseModel, IdRelation } from './BaseModel';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { IPatientSecondaryId } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_secondary_id')
 export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column()
   value: string;
 
@@ -17,37 +20,16 @@ export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId
   @IdRelation()
   typeId: string;
 
-  @ManyToOne(() => Patient, patient => patient.secondaryIds)
+  @ManyToOne(
+    () => Patient,
+    patient => patient.secondaryIds,
+  )
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
 
-  static shouldExport = true;
-
   @BeforeInsert()
-  @BeforeUpdate()
-  async markPatient() {
-    // adding a secondary ID to a patient should mark them for syncing in future
-    // we don't need to upload the patient, so we only set markedForSync
-    const parent = await this.findParent(Patient, 'patient');
-    if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
-    }
-  }
-
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
-    const patientId = opts.channel.match(/^patient\/(.*)\/secondaryId$/)[1];
-    if (!patientId) {
-      throw new Error(`Could not extract patientId from ${opts.channel}`);
-    }
-
-    const records = await this.findMarkedForUploadQuery(opts)
-      .andWhere('patientId = :patientId', { patientId })
-      .getMany();
-
-    return records as BaseModel[];
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
   }
 }

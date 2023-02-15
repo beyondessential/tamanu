@@ -27,10 +27,7 @@ export const PatientMenuButton = ({
   Icon,
   onPress,
 }: PatientMenuButtonProps): JSX.Element => (
-  <TouchableHighlight
-    underlayColor={theme.colors.BOX_OUTLINE}
-    onPress={onPress}
-  >
+  <TouchableHighlight underlayColor={theme.colors.BOX_OUTLINE} onPress={onPress}>
     <StyledView
       style={styles.buttonContainer}
       paddingTop={screenPercentageToDP('2.77', Orientation.Height)}
@@ -49,7 +46,7 @@ export const PatientMenuButton = ({
         <StyledText
           textAlign="center"
           color={theme.colors.PRIMARY_MAIN}
-          fontWeight="700"
+          fontWeight="500"
           fontSize={screenPercentageToDP('2.2', Orientation.Height)}
         >
           {title}

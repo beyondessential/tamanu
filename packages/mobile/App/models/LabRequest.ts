@@ -1,7 +1,8 @@
-import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
@@ -11,6 +12,8 @@ import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   sampleTime: string;
 
@@ -74,10 +77,8 @@ export class LabRequest extends BaseModel implements ILabRequest {
   )
   tests: LabTest[];
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
+  static getTableNameForSync(): string {
+    return 'lab_requests'; // unusual camel case table here on mobile
   }
 
   static async getForPatient(patientId: string): Promise<LabRequest[]> {

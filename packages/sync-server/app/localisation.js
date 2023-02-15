@@ -16,6 +16,7 @@ const fieldSchema = yup
       then: yup.string().required(),
     }),
     hidden: yup.boolean().required(),
+    required: yup.boolean(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
   .required()
@@ -25,6 +26,7 @@ const unhideableFieldSchema = yup
   .object({
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
+    required: yup.boolean(),
   })
   .required()
   .noUnknown();
@@ -43,6 +45,8 @@ const UNHIDEABLE_FIELDS = [
   'dateOfBirthExact',
   'emergencyContactName',
   'emergencyContactNumber',
+  'locationId',
+  'locationGroupId',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -98,10 +102,13 @@ const HIDEABLE_FIELDS = [
   'prescriber',
   'prescriberId',
   'facility',
+  'dischargeDisposition',
 ];
 
 const templatesSchema = yup
   .object({
+    plannedMoveTimeoutHours: yup.number().required(),
+
     letterhead: yup
       .object({
         title: yup.string(),
@@ -337,18 +344,12 @@ const rootLocalisationSchema = yup
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
-        enableDischargeDisposition: yup.boolean().default(true),
         editDisplayId: yup.boolean().required(),
+        patientPlannedMove: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
-    sync: yup
-      .object({
-        syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
-      })
-      .required()
-      .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
   })
   .required()

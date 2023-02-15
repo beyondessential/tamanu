@@ -1,6 +1,6 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
-import { utcToZonedTime, zonedTimeToUtc, formatInTimeZone } from 'date-fns-tz';
+import { utcToZonedTime } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
@@ -33,6 +33,7 @@ const createLocalDateTimeStringFromUTC = (
 
 const fakeAllData = async models => {
   const { id: userId } = await models.User.create(fake(models.User));
+  const { id: examinerId } = await models.User.create(fake(models.User));
   const { id: facilityId } = await models.Facility.create(fake(models.Facility));
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
@@ -134,6 +135,7 @@ const fakeAllData = async models => {
       patientBillingTypeId,
       locationId: location1Id,
       departmentId,
+      examinerId,
     }),
   );
   // Call build and save to avoid custom triage.create logic
@@ -215,14 +217,14 @@ const fakeAllData = async models => {
       requestedDate: '2022-06-11T01:20:54.225+00:00',
     }),
   );
-  await models.ImagingRequestAreas.create(
-    fake(models.ImagingRequestAreas, {
+  await models.ImagingRequestArea.create(
+    fake(models.ImagingRequestArea, {
       imagingRequestId,
       areaId: leftImagingAreaId,
     }),
   );
-  await models.ImagingRequestAreas.create(
-    fake(models.ImagingRequestAreas, {
+  await models.ImagingRequestArea.create(
+    fake(models.ImagingRequestArea, {
       imagingRequestId,
       areaId: rightImagingAreaId,
     }),

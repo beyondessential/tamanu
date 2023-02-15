@@ -155,7 +155,7 @@ describe('Referrals', () => {
       endTime: Date.now(),
       patientId: patient.id,
       surveyId: testSurvey.id,
-      departmentId: departmentId,
+      departmentId,
     });
 
     expect(result).toHaveSucceeded();

@@ -41,7 +41,7 @@ export interface IVitals {
   dbp?: number;
   heartRate?: number;
   respiratoryRate?: number;
-  spO2?: number;
+  spo2?: number;
   avpu?: AVPUType;
   gcs?: number;
   hemoglobin?: number;

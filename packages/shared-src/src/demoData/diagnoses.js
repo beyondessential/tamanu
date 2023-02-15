@@ -57,6 +57,6 @@ export const TRIAGE_DIAGNOSES = splitIds(`
  TB - suspected/confirmed
  Tooth problem
  Wheezing
-`).map(data => ({ ...data, code: data._id, type: 'triageReason' }));
+`).map(data => ({ ...data, code: data.id, type: 'triageReason' }));
 
 export const DIAGNOSES = [...TRIAGE_DIAGNOSES, ...ICD10_DIAGNOSES];

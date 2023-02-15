@@ -1,5 +1,7 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 
 export class Procedure extends Model {
@@ -17,7 +19,7 @@ export class Procedure extends Model {
         note: Sequelize.STRING,
         completedNote: Sequelize.STRING,
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
@@ -28,6 +30,7 @@ export class Procedure extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
@@ -53,5 +56,12 @@ export class Procedure extends Model {
       foreignKey: 'anaestheticId',
       as: 'Anaesthetic',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 }

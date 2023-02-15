@@ -7,7 +7,6 @@ export * from './MultiselectField';
 export * from './NumberField';
 export * from './NullableBooleanField';
 export * from './TimeWithUnitField';
-export * from './TemperatureField';
 export * from './RadioField';
 export * from './SuggesterSelectField';
 export * from './SelectField';
@@ -22,6 +21,7 @@ export * from './ArrayField';
 export * from './AutocompleteField';
 export * from './DisplayIdField';
 export * from './DOBFields';
+export * from './LocationField';
 
 // form helpers
 export * from './Form';
