@@ -220,7 +220,9 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <ListColumn>
           <ul>
             <MedicationsList
-              medications={medications.filter(medication => !medication.discontinued && medication.isDischarge)}
+              medications={medications.filter(
+                medication => !medication.discontinued && medication.isDischarge,
+              )}
             />
           </ul>
         </ListColumn>
