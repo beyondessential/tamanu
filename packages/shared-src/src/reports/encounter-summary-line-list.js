@@ -86,7 +86,7 @@ with
       lab_request_id,
       json_agg(ltt.name) tests
     from lab_tests lt
-    join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
+    join lab_test_types ltt on ltt.id = lt.lab_test_type_id
     group by lab_request_id 
   ),
   lab_request_info as (
@@ -99,6 +99,7 @@ with
     from lab_requests lr
     join lab_test_info lti
     on lti.lab_request_id  = lr.id
+    where lr.status NOT IN ('deleted', 'cancelled', 'entered-in-error') 
     group by encounter_id
   ),
   procedure_info as (
@@ -194,6 +195,7 @@ with
     from imaging_requests ir
     left join notes_info ni on ni.record_id = ir.id
     left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
+    where ir.status NOT IN ('deleted', 'cancelled', 'entered_in_error')
     group by encounter_id
   ),
   encounter_notes_info as (
