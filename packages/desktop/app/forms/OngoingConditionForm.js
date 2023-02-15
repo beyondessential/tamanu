@@ -38,7 +38,7 @@ export class OngoingConditionForm extends React.PureComponent {
           disabled={resolving}
         />
         <Field
-          name="practitioner"
+          name="examinerId"
           label="Doctor/nurse"
           disabled={resolving}
           component={AutocompleteField}
@@ -90,7 +90,7 @@ export class OngoingConditionForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           conditionId: foreignKey('Condition is a required field'),
           recordedDate: yup.date(),
-          practitioner: yup.string(),
+          examinerId: yup.string(),
           note: yup.string(),
 
           resolved: yup.boolean(),
