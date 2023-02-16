@@ -1,5 +1,6 @@
 import { promises } from 'fs';
 import qs from 'qs';
+import { machineIdSync } from 'node-machine-id';
 
 import { buildAbilityForUser } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
@@ -113,6 +114,7 @@ export class TamanuApi {
   setHost(host) {
     this.host = host;
     this.prefix = `${host}/v1`;
+    this.deviceId = machineIdSync();
 
     // save host in local storage
     window.localStorage.setItem(HOST, host);
@@ -141,7 +143,7 @@ export class TamanuApi {
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post('login', { email, password }, { returnResponse: true });
+    const response = await this.post('login', { email, password, deviceId: this.deviceId }, { returnResponse: true });
     const serverType = response.headers.get('X-Tamanu-Server');
     if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);

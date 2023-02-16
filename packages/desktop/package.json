@@ -254,7 +254,8 @@
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
     "xlsx": "^0.14.0",
-    "yup": "^0.27.0"
+    "yup": "^0.27.0",
+    "node-machine-id": "1.1.12"
   },
   "devEngines": {
     "node": ">=7.x <11.0",
