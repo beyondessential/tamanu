@@ -1,5 +1,5 @@
 import { WorkerTask } from 'shared/tasks';
-import { FHIR_INTERACTIONS } from 'shared/constants';
+import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
@@ -26,7 +26,7 @@ export class FhirRefreshEntireResource extends WorkerTask {
     await this.sequelize.query(
       `INSERT INTO jobs (topic, payload)
       SELECT
-        'fhir.refresh.fromUpstream' as topic,
+        $topic as topic,
         json_build_object(
           'resource', $resource,
           'upstreamId', id
@@ -34,6 +34,7 @@ export class FhirRefreshEntireResource extends WorkerTask {
       FROM $table`,
       {
         bind: {
+          topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
           resource,
           table: Resource.UpstreamModel.tableName,
         },

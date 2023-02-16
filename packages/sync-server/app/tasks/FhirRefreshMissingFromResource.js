@@ -1,6 +1,6 @@
 import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
-import { FHIR_INTERACTIONS } from 'shared/constants';
+import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
@@ -45,7 +45,7 @@ export class FhirRefreshMissingFromResources extends ScheduledTask {
         `
         INSERT INTO jobs (topic, payload)
         SELECT
-          'fhir.refresh.fromUpstream' as topic,
+          $topic as topic,
           json_build_object(
             'resource', $resource,
             'upstreamId', up.id
@@ -54,6 +54,7 @@ export class FhirRefreshMissingFromResources extends ScheduledTask {
         `,
         {
           bind: {
+            topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
             resource: Resource.fhirName,
             resourceTable: Resource.tableName,
             upstreamTable: Resource.UpstreamModel.tableName,

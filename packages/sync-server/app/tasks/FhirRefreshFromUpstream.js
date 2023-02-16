@@ -1,5 +1,5 @@
 import { WorkerTask } from 'shared/tasks';
-import { FHIR_INTERACTIONS } from 'shared/constants';
+import { FHIR_INTERACTIONS, JOB_SUBMITS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
@@ -22,8 +22,12 @@ export class FhirRefreshFromUpstream extends WorkerTask {
       versionId: result.versionId,
     });
 
-    await this.models.Job.submit('fhir.refresh.resolver', {}, {
-      discriminant: 'one at a time',
-    });
+    await this.models.Job.submit(
+      JOB_SUBMITS.FHIR.REFRESH.RESOLVER,
+      {},
+      {
+        discriminant: 'one at a time',
+      },
+    );
   }
 }

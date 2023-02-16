@@ -1,4 +1,5 @@
 import config from 'config';
+import { JOB_TOPICS } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { FhirWorker } from 'shared/tasks';
 
@@ -82,10 +83,10 @@ export async function startFhirWorkerTasks({ store }) {
   const worker = new FhirWorker(store, log);
   await worker.start();
 
-  worker.setHandler('fhir.refresh.fromUpstream', FhirRefreshFromUpstream);
-  worker.setHandler('fhir.refresh.allFromUpstream', FhirRefreshAllFromUpstream);
-  worker.setHandler('fhir.refresh.entireResource', FhirRefreshEntireResource);
-  worker.setHandler('fhir.refresh.resolver', FhirRefreshResolver);
+  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, FhirRefreshFromUpstream);
+  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM, FhirRefreshAllFromUpstream);
+  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.ENTIRE_RESOURCE, FhirRefreshEntireResource);
+  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.RESOLVER, FhirRefreshResolver);
 
   worker.processQueueNow();
   return worker;
