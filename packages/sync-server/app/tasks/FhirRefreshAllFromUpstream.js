@@ -1,43 +1,80 @@
+import { Sequelize } from 'sequelize';
 import { WorkerTask } from 'shared/tasks';
-import { FHIR_INTERACTIONS } from 'shared/constants';
+import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
 export class FhirRefreshAllFromUpstream extends WorkerTask {
   async doWork({ payload }) {
-    const { table, op, id } = payload;
+    const { table, op, id, deletedRow = null } = payload;
 
     const resources = materialisableResources.filter(resource =>
       resource.upstreams.some(upstream => upstream.tableName.toLowerCase() === table.toLowerCase()),
     );
     if (resources.length === 0) {
-      this.log.warn('FhirRefreshAllFromUpstream: No materialisable FHIR resource found for table', {
+      this.log.warn('No materialisable FHIR resource found for table', {
         table,
       });
       return;
     }
 
-    const submits = [];
     for (const Resource of resources) {
-      this.log.debug('FhirRefreshAllFromUpstream: finding upstream', {
+      this.log.debug('finding upstream for row', {
         resource: Resource.fhirName,
         table,
+        id,
+        op,
       });
 
-      // TODO the difficult part: find the upstream from the table+id that was changed
-      // - if it's a delete... might not be entirely possible sob
-      //   - maybe use args? hmm
-
-      submits.push(
-        this.models.Job.submit('fhir.refresh.fromUpstream', {
+      const query = await Resource.queryToFindUpstreamIdsFromTable(table, id, deletedRow);
+      if (!query) {
+        this.log.debug('no upstream found for row', {
           resource: Resource.fhirName,
-          upstreamId,
           table,
+          id,
           op,
-        }, { discriminant: `${Resource.fhirName}:${upstreamId}` }),
-      );
-    }
+        });
+        continue;
+      }
 
-    await Promise.all(submits);
+      const sql = Resource.UpstreamModel.QueryGenerator.selectQuery(
+        Resource.UpstreamModel.getTableName(),
+        {
+          ...query,
+          attributes: [
+            Sequelize.cast(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, 'text'),
+            Sequelize.fn(
+              'json_build_object',
+              'resource',
+              Resource.fhirName,
+              'upstreamId',
+              Sequelize.col('id'),
+              'table',
+              table,
+              'op',
+              op,
+            ),
+            Sequelize.fn('concat', Resource.fhirName, ':', Sequelize.col('id')),
+          ],
+        },
+      );
+
+      const results = await this.sequelize.query(
+        `INSERT INTO jobs (name, payload, discriminant)
+        ${sql}
+        ON CONFLICT (discriminant) DO NOTHING`,
+        {
+          type: Sequelize.QueryTypes.INSERT,
+        },
+      );
+      if (!results) {
+        throw new Error(`Failed to insert jobs: ${JSON.stringify(results)}`);
+      }
+
+      this.log.debug('submitted refresh jobs', {
+        resource: Resource.fhirName,
+        count: results[1],
+      });
+    }
   }
 }
