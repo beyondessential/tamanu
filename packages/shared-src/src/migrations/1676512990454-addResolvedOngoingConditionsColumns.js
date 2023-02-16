@@ -2,14 +2,14 @@ import { DataTypes } from 'sequelize';
 
 export async function up(query) {
   await query.addColumn('patient_conditions', 'resolution_date', {
-    type: DataTypes.DATE,
+    type: 'date_time_string',
     allowNull: true,
   });
-  await query.addColumn('patient_conditions', 'resolution_practitioner', {
+  await query.addColumn('patient_conditions', 'resolution_practitioner_id', {
     type: DataTypes.STRING,
     allowNull: true,
     references: {
-      model: 'reference_data',
+      model: 'users',
       key: 'id',
     },
   });
