@@ -1,13 +1,14 @@
 import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
+import { log } from 'shared/services/logging';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
 export class FhirRefreshMissingFromResources extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.fhirRefreshMissingFromResources;
-    super(conf.schedule, log);
+    super(conf.schedule, log.child({ task: 'FhirRefreshMissingFromResources' }));
     this.config = conf;
     this.context = context;
   }
