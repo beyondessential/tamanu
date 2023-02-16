@@ -468,9 +468,9 @@ export const REPORT_DEFINITIONS = [
       },
       { parameterField: 'ImagingTypeField' },
       {
-        parameterField: 'ParameterSelectField',
+        parameterField: 'ParameterMultiselectField',
         label: 'Status',
-        name: 'status',
+        name: 'statuses',
         options: Object.values(IMAGING_REQUEST_STATUS_TYPES).map(status => ({
           label: IMAGING_REQUEST_STATUS_CONFIG[status].label,
           value: status,
