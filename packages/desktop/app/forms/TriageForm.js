@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { push } from 'connected-react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
@@ -31,10 +31,15 @@ const InfoPopupLabel = React.memo(() => (
   </span>
 ));
 
-export const TriageForm = ({ onCancel, editedObject }) => {
+export const TriageForm = ({
+  onCancel,
+  onSubmitEncounter,
+  noRedirectOnSubmit,
+  patient,
+  editedObject,
+}) => {
   const api = useApi();
   const dispatch = useDispatch();
-  const patient = useSelector(state => state.patient);
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
@@ -130,12 +135,21 @@ export const TriageForm = ({ onCancel, editedObject }) => {
       vitals: updatedVitals,
     };
 
-    await api.post('triage', {
+    const newTriage = {
       ...updatedValues,
       startDate: getCurrentDateTimeString(),
       patientId: patient.id,
-    });
-    dispatch(push('/patients/emergency'));
+    };
+
+    if (typeof onSubmitEncounter === 'function') {
+      onSubmitEncounter(newTriage);
+    }
+
+    await api.post('triage', newTriage);
+
+    if (!noRedirectOnSubmit) {
+      dispatch(push('/patients/emergency'));
+    }
   };
 
   return (

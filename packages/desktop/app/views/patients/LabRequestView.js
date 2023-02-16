@@ -2,6 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from 'shared/constants';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useLabRequest } from '../../contexts/LabRequest';
+import { useApi, useSuggester } from '../../api';
 import {
   SelectInput,
   DateInput,
@@ -11,18 +14,13 @@ import {
   SimpleTopBar,
   Modal,
   ConfirmCancelRow,
-  DeleteButton,
   ContentPane,
   DataFetchingTable,
   FormGrid,
 } from '../../components';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { useLabRequest } from '../../contexts/LabRequest';
-import { useApi, useSuggester } from '../../api';
 import { useCertificate } from '../../utils/useCertificate';
-import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { ConfirmModal } from '../../components/ConfirmModal';
+import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
 import { DropdownButton } from '../../components/DropdownButton';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
@@ -158,32 +156,6 @@ const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
   );
 };
 
-const DeleteRequestModal = ({ updateLabReq, open, onClose }) => {
-  const { navigateToEncounter } = usePatientNavigation();
-  const deleteLabRequest = useCallback(async () => {
-    await updateLabReq({
-      status: 'deleted',
-    });
-    onClose();
-    navigateToEncounter();
-  }, [updateLabReq, onClose, navigateToEncounter]);
-
-  return (
-    <>
-      <ConfirmModal
-        title="Delete lab request"
-        open={open}
-        text="WARNING: This action is irreversible!"
-        subText="Are you sure you want to delete this lab request?"
-        onCancel={onClose}
-        onConfirm={deleteLabRequest}
-        ConfirmButton={DeleteButton}
-        confirmButtonText="Delete"
-      />
-    </>
-  );
-};
-
 const PrintModal = ({ labRequest, patient, open, onClose }) => {
   const api = useApi();
   const certificateData = useCertificate();
@@ -288,22 +260,8 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   const [printModalOpen, setPrintModalOpen] = useState(modal === 'print');
   const [labModalOpen, setLabModalOpen] = useState(modal === 'laboratory');
   const [cancelModalOpen, setCancelModalOpen] = useState(modal === 'cancel');
-  const [deleteModalOpen, setDeleteModalOpen] = useState(modal === 'delete');
 
-  const api = useApi();
-  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
   const { id: labRequestId, status } = labRequest;
-
-  // show delete button if no test has results
-  useEffect(() => {
-    (async () => {
-      const { data: tests } = await api.get(`/labRequest/${labRequestId}/tests`);
-      const testsWithResults = tests.filter(t => t.result);
-      if (!testsWithResults.length) {
-        setHasTests(false);
-      }
-    })();
-  }, [api, labRequestId, setHasTests]);
 
   const actions = [
     { label: 'Change status', onClick: () => setStatusModalOpen(true) },
@@ -313,10 +271,6 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     actions.push({ label: 'Cancel request', onClick: () => setCancelModalOpen(true) });
-  }
-
-  if (!hasTests) {
-    actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
   }
 
   // Hide all actions if the lab request is cancelled, deleted or entered-in-error
@@ -335,12 +289,6 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         patient={patient}
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
-      />
-      <DeleteRequestModal
-        labRequestId={labRequestId}
-        updateLabReq={updateLabReq}
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
       />
       <ChangeLaboratoryModal
         laboratory={labRequest.laboratory}

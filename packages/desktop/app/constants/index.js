@@ -14,6 +14,8 @@ import {
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
 
 import {
@@ -54,6 +56,7 @@ export const Colors = {
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
+  veryLightBlue: '#F4F9FF',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };
@@ -288,6 +291,20 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   label: status,
   value: status,
 }));
+
+export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
+  .filter(
+    type =>
+      ![
+        IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      ].includes(type),
+  )
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
+  }));
 
 export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless

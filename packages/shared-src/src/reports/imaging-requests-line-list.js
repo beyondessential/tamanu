@@ -49,9 +49,7 @@ const reportColumnTemplate = FIELDS.map(field => {
   if (field === 'Reason for cancellation') {
     return {
       title: field,
-      accessor: data => {
-        return DEFAULT_REASONS_FOR_CANCELLATION[data[field]] ?? data[field];
-      },
+      accessor: data => DEFAULT_REASONS_FOR_CANCELLATION[data[field]] ?? data[field],
     };
   }
 
