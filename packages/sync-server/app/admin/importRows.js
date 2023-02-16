@@ -1,6 +1,7 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
+import config from 'config';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -138,7 +139,7 @@ export async function importRows(
         const { type } = values;
         const specificSchemaName = `SSC${type}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
-        if (specificSchemaExists) {
+        if (config.validateQuestionConfigs.enabled && specificSchemaExists) {
           schemaName = specificSchemaName;
         } else {
           schemaName = 'SurveyScreenComponent';
