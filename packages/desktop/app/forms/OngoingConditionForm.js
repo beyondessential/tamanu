@@ -94,7 +94,7 @@ export class OngoingConditionForm extends React.PureComponent {
           note: yup.string(),
 
           resolved: yup.boolean(),
-          resolutionDate: yup.string(),
+          resolutionDate: yup.date(),
           resolutionPractitioner: yup.string(),
           resolutionNote: yup.string(),
         })}
