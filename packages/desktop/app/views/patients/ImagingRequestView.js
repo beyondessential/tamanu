@@ -6,10 +6,9 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-
+import { CancelModal } from '../../components/CancelModal';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -30,12 +29,21 @@ import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { SimpleTopBar } from '../../components';
 
-const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'completed', label: 'Completed' },
-];
+const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
+  .filter(
+    type =>
+      ![
+        IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      ].includes(type),
+  )
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
+  }));
 
 const PrintButton = ({ imagingRequest, patient }) => {
   const api = useApi();
@@ -72,11 +80,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
           />
         )}
       </Modal>
-      <Button
-        variant="outlined"
-        onClick={openModal}
-        style={{ marginRight: '0.5rem', marginBottom: '30px' }}
-      >
+      <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
         Print request
       </Button>
     </>
@@ -85,6 +89,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
 
 const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
 
   return (
     <FormGrid columns={3}>
@@ -99,12 +104,22 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         label="Priority"
         disabled
       />
-      <Field name="status" label="Status" component={SelectField} options={STATUS_OPTIONS} />
+      <Field
+        name="status"
+        label="Status"
+        component={SelectField}
+        options={
+          isCancelled
+            ? [{ value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED, label: 'Cancelled' }]
+            : STATUS_OPTIONS
+        }
+        disabled={isCancelled}
+      />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
       {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
         values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
         <Field
-          label="Area"
+          label="Facility area"
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -151,12 +166,13 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
       {values.results?.map(result => (
         <BottomAlignFormGrid columns={result.externalUrl ? 3 : 2}>
           <TextInput
+            label="Completed by"
             value={
               result.completedBy?.displayName ?? (result.externalUrl && 'External provider') ?? ''
             }
             disabled
           />
-          <DateTimeInput value={result.createdAt} disabled />
+          <DateTimeInput label="Completed" value={result.completedAt} disabled />
           {result.externalUrl && (
             <Button color="secondary" onClick={openExternalUrl(result.externalUrl)}>
               View image (external link)
@@ -164,6 +180,7 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
           )}
 
           <TextInput
+            label="Result description"
             value={result.description}
             multiline
             disabled
@@ -173,20 +190,18 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
         </BottomAlignFormGrid>
       ))}
 
-      <h4>Add result</h4>
+      <h4>{values.results?.length > 0 ? 'Add additional result' : 'Add result'}</h4>
       <FormGrid columns={2}>
         <Field
+          label="Completed by"
           name="newResultCompletedBy"
-          placeholder="Search for a practitioner..."
+          placeholder="Search"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
+        <Field label="Completed" name="newResultDate" saveDateAsString component={DateTimeField} />
         <Field
-          name="newResultDate"
-          saveDateAsString
-          component={DateTimeField}
-        />
-        <Field
+          label="Result description"
           name="newResultDescription"
           placeholder="Result description..."
           multiline
@@ -202,6 +217,7 @@ const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
+    const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
 
     return (
       <Formik
@@ -248,7 +264,13 @@ const ImagingRequestInfoPane = React.memo(
                   }}
                 />
               )}
-              <ButtonRow>{dirty && <Button type="submit">Save</Button>}</ButtonRow>
+              <ButtonRow style={{ marginTop: 20 }}>
+                {!isCancelled && (
+                  <Button disabled={!dirty} type="submit">
+                    Save
+                  </Button>
+                )}
+              </ButtonRow>
             </Form>
           );
         }}
@@ -259,6 +281,7 @@ const ImagingRequestInfoPane = React.memo(
 
 export const ImagingRequestView = () => {
   const api = useApi();
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const params = useParams();
   const imagingRequest = useSelector(state => state.imagingRequest);
@@ -270,6 +293,7 @@ export const ImagingRequestView = () => {
 
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
+  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
 
   const onSubmit = async data => {
     await api.put(`imagingRequest/${imagingRequest.id}`, data);
@@ -280,17 +304,66 @@ export const ImagingRequestView = () => {
     );
   };
 
+  const onConfirmCancel = async ({ reasonForCancellation }) => {
+    const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
+    const note = `Request cancelled. Reason: ${reasonText}.`;
+
+    let status;
+    if (reasonForCancellation === 'duplicate') {
+      status = IMAGING_REQUEST_STATUS_TYPES.DELETED;
+    } else if (reasonForCancellation === 'entered-in-error') {
+      status = IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR;
+    } else {
+      status = IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    }
+
+    await api.put(`imagingRequest/${imagingRequest.id}`, {
+      status,
+      reasonForCancellation,
+      note,
+    });
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
+      ),
+    );
+  };
+
   if (patient.loading) return <LoadingIndicator />;
+
+  const isCancellable =
+    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.CANCELLED &&
+    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR &&
+    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+
   return (
-    <ContentPane>
-      <PrintButton imagingRequest={imagingRequest} patient={patient} />
-      <ImagingRequestInfoPane
-        imagingRequest={imagingRequest}
-        onSubmit={onSubmit}
-        practitionerSuggester={practitionerSuggester}
-        locationSuggester={locationSuggester}
-        imagingTypes={imagingTypes}
-      />
-    </ContentPane>
+    <>
+      <SimpleTopBar title="Imaging request">
+        {isCancellable && (
+          <Button variant="text" onClick={() => setOpen(true)}>
+            Cancel request
+          </Button>
+        )}
+        <CancelModal
+          title="Cancel imaging request"
+          helperText="This reason will permanently delete the imaging request record"
+          bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+          options={cancellationReasonOptions}
+          open={open}
+          onClose={() => setOpen(false)}
+          onConfirm={onConfirmCancel}
+        />
+        <PrintButton imagingRequest={imagingRequest} patient={patient} />
+      </SimpleTopBar>
+      <ContentPane>
+        <ImagingRequestInfoPane
+          imagingRequest={imagingRequest}
+          onSubmit={onSubmit}
+          practitionerSuggester={practitionerSuggester}
+          locationSuggester={locationSuggester}
+          imagingTypes={imagingTypes}
+        />
+      </ContentPane>
+    </>
   );
 };

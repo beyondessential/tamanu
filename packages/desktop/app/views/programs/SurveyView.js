@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
-import { checkVisibility, getFormInitialValues } from 'desktop/app/utils';
+import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
-import { SurveyCompletedMessage, SurveyScreenPaginator } from '../../components/Surveys';
+import { SurveyScreenPaginator } from '../../components/Surveys';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -20,19 +21,28 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
 export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser }) => {
   const { components } = survey;
   const initialValues = getFormInitialValues(components, patient, currentUser);
-
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
+  const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
+  const { navigateToPatient } = usePatientNavigation();
 
   const onSubmitSurvey = useCallback(
     async data => {
       await onSubmit(data);
-      setSurveyCompleted(true);
+      navigateToPatient(patient.id, undefined, 'Programs');
     },
-    [onSubmit],
+    [onSubmit, navigateToPatient, patient.id],
   );
 
   const renderSurvey = props => {
-    const { submitForm, values, setFieldValue, setValues } = props;
+    const {
+      submitForm,
+      values,
+      setFieldValue,
+      setValues,
+      validateForm,
+      setErrors,
+      errors,
+      setStatus,
+    } = props;
 
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
@@ -58,14 +68,23 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
         setFieldValue={setFieldValue}
         onSurveyComplete={submitVisibleValues}
         onCancel={onCancel}
+        validateForm={validateForm}
+        setErrors={setErrors}
+        errors={errors}
+        setStatus={setStatus}
       />
     );
   };
 
-  const surveyContents = surveyCompleted ? (
-    <SurveyCompletedMessage onResetClicked={onCancel} />
-  ) : (
-    <Form initialValues={initialValues} onSubmit={onSubmitSurvey} render={renderSurvey} />
+  const surveyContents = (
+    <Form
+      initialValues={initialValues}
+      onSubmit={onSubmitSurvey}
+      render={renderSurvey}
+      validationSchema={validationSchema}
+      validateOnChange
+      validateOnBlur
+    />
   );
 
   return (

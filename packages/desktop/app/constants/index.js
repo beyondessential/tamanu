@@ -3,7 +3,6 @@ import { capitalize } from 'lodash';
 import { createValueIndex } from 'shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
-  IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
@@ -15,7 +14,6 @@ import {
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
-  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
 import {
@@ -56,28 +54,13 @@ export const Colors = {
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
+  veryLightBlue: '#F4F9FF',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
-};
-
-export const LAB_REQUEST_COLORS = {
-  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
-  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
-  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: '#caf',
-  [LAB_REQUEST_STATUSES.VERIFIED]: '#5af',
-  [LAB_REQUEST_STATUSES.PUBLISHED]: '#afa',
-  unknown: '#333',
-};
-
-export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#faa',
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
-  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
-  unknown: '#333',
 };
 
 export const REFERRAL_STATUS_LABELS = {
@@ -398,4 +381,13 @@ export const DRUG_ROUTE_VALUE_TO_LABEL = {
   sublingual: 'Sublingual',
   topical: 'Topical',
   vaginal: 'Vaginal',
+};
+
+export const FORM_STATUSES = {
+  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+};
+
+export const SUPPORTED_DOCUMENT_TYPES = {
+  PDF: 'PDF',
+  JPEG: 'JPEG',
 };

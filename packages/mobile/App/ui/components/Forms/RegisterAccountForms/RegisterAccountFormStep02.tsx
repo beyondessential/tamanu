@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { Formik, FormikHandlers } from 'formik';
 import * as Yup from 'yup';
 import { TextField } from '../../TextField/TextField';
@@ -9,18 +9,16 @@ import { theme } from '/styled/theme';
 import { Button } from '../../Button';
 import { Dropdown } from '../../Dropdown';
 import { dropdownItems } from '../../Dropdown/fixture';
-import { RegisterAccountFormStep2Props } from '../../../contexts/RegisterAccountContext';
+import { RegisterAccountFormStep2FormValues } from '../../../contexts/RegisterAccountContext';
 import { userRolesOptions } from '/helpers/constants';
 
-interface RegisterAccountFormStep02 {
-  onSubmit: (values: RegisterAccountFormStep2Props) => void;
-  formState: RegisterAccountFormStep2Props;
+interface RegisterAccountFormStep02Props {
+  onSubmit: (values: RegisterAccountFormStep2FormValues) => void;
+  formState: RegisterAccountFormStep2FormValues;
   navigateFormStepBack: () => void;
 }
 
-export const RegisterAccountFormStep02: FunctionComponent<RegisterAccountFormStep02> = (
-  props: RegisterAccountFormStep02,
-) => (
+export const RegisterAccountFormStep02 = (props: RegisterAccountFormStep02Props): JSX.Element => (
   <FullView justifyContent="center" padding={20}>
     <StyledText
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
@@ -32,11 +30,11 @@ export const RegisterAccountFormStep02: FunctionComponent<RegisterAccountFormSte
   </FullView>
 );
 
-const Form: FunctionComponent<RegisterAccountFormStep02> = ({
+const Form = ({
   formState,
   onSubmit,
   navigateFormStepBack,
-}: RegisterAccountFormStep02) => (
+}: RegisterAccountFormStep02Props): JSX.Element => (
   <Formik
     initialValues={{
       ...formState,
