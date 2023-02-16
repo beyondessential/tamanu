@@ -25,7 +25,7 @@ export const usePatientRoutes = () => {
   const { encounter } = useEncounter();
   return [
     {
-      path: `${PATIENT_PATHS.PATIENT}`,
+      path: PATIENT_PATHS.PATIENT,
       component: PatientView,
       navigateTo: () => navigateToPatient(patient.id),
       title: getPatientNameAsString(patient || {}),

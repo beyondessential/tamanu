@@ -31,10 +31,10 @@ export const PATIENT_PATHS = {
 export const PATIENT_TABS = {
   HISTORY: 'history',
   DETAILS: 'details',
-  REFERRALS: 'Referrals',
-  PROGRAMS: 'Programs',
+  REFERRALS: 'referrals',
+  PROGRAMS: 'programs',
   DOCUMENTS: 'documents',
-  IMMUNISATION: 'a',
+  IMMUNISATION: 'immunisation',
   MEDICATION: 'medication',
   INVOICES: 'invoices',
 };
