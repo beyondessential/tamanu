@@ -28,6 +28,7 @@ import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 import { useApi } from '../api';
+import { useAuth } from '../contexts/Auth';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type)?.label;
@@ -81,6 +82,7 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
 
 export const LabRequestForm = ({
   practitionerSuggester,
+  departmentSuggester,
   encounter,
   requestId,
   onSubmit,
@@ -89,7 +91,7 @@ export const LabRequestForm = ({
   generateDisplayId,
 }) => {
   const api = useApi();
-
+  const { currentUser } = useAuth();
   const { data: testTypes } = useQuery(['labTestTypes'], () =>
     api.get('suggestions/labTestType/all'),
   );
@@ -102,32 +104,38 @@ export const LabRequestForm = ({
 
     return (
       <FormGrid>
-        <Field name="displayId" label="Lab request number" disabled component={TextField} />
-        <Field
-          name="requestedDate"
-          label="Request date"
-          required
-          component={DateTimeField}
-          saveDateAsString
-        />
-        <TextInput label="Supervising clinician" disabled value={examinerLabel} />
+        {/* <Field name="displayId" label="Lab request number" disabled component={TextField} /> */}
+        {/* <TextInput label="Supervising clinician" disabled value={examinerLabel} /> */}
         <Field
           name="requestedById"
-          label="Requesting doctor"
+          label="Requesting clinician"
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
         <Field
+          name="requestedDate"
+          label="Request date & time"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
+        <Field
+          name="departmentId"
+          label="Department"
+          component={AutocompleteField}
+          suggester={departmentSuggester}
+        />
+        {/* <Field
           name="sampleTime"
           label="Sample time"
           required
           component={DateTimeField}
           saveDateAsString
-        />
+        /> */}
         <div>
-          <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
-          <Field name="urgent" label="Urgent?" component={CheckField} />
+          {/* <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
+          <Field name="urgent" label="Urgent?" component={CheckField} /> */}
           <Field
             name="labTestPriorityId"
             label="Priority"
@@ -137,30 +145,30 @@ export const LabRequestForm = ({
         </div>
         <FormSeparatorLine />
         <TextInput label="Encounter" disabled value={encounterLabel} />
-        <Field
+        {/* <Field
           name="labTestCategoryId"
           label="Test category"
           required
           component={SuggesterSelectField}
           endpoint="labTestCategory"
-        />
-        <Field
+        /> */}
+        {/* <Field
           name="labTestTypeIds"
           label="Test type"
           required
           testTypes={filteredTestTypes}
           component={TestSelectorField}
           style={{ gridColumn: '1 / -1' }}
-        />
+        /> */}
         <FormSeparatorLine />
-        <Field
+        {/* <Field
           name="note"
           label="Notes"
           component={TextField}
           multiline
           style={{ gridColumn: '1 / -1' }}
           rows={3}
-        />
+        /> */}
         <ButtonRow>
           <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
           <FormSubmitActionDropdown
@@ -179,6 +187,8 @@ export const LabRequestForm = ({
       render={renderForm}
       initialValues={{
         displayId: generateDisplayId(),
+        requestedById: currentUser.id,
+        departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
         sampleTime: getCurrentDateTimeString(),
         // LabTest date
