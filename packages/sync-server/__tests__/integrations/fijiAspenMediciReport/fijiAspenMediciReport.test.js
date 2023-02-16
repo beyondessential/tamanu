@@ -125,6 +125,20 @@ const fakeAllData = async models => {
       dateOfBirth: '1952-10-12',
     }),
   );
+  // open encounter
+  await models.Encounter.create(
+    fake(models.Encounter, {
+      patientId: patient.id,
+      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      reasonForEncounter: 'Severe Migrane',
+      patientBillingTypeId,
+      locationId: location1Id,
+      departmentId,
+      examinerId,
+    }),
+  );
+  // closed encounter
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
@@ -332,15 +346,15 @@ describe('fijiAspenMediciReport', () => {
     it.each([
       // [ expectedResults, period.start, period.end ]
       [1, '2022-06-09', '2022-10-09'],
-      [0, '2022-06-10', '2022-10-09'],
-      [0, '2022-06-09T00:02:53-02:00', '2022-10-09'],
-      [1, '2022-06-09T00:02:53Z', '2022-10-09'],
-      [0, '2022-06-09T00:02:55Z', '2022-10-09'],
-      [1, '2022-06-09T00:02:55+01:00', '2022-10-09'],
-      [0, '2022-06-09T00:02:53-01:00', '2022-10-09'],
-      // Dates/times inputted without timezone will be server timezone
-      [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 55).replace(' ', 'T'), '2023'],
-      [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 53).replace(' ', 'T'), '2023'],
+      [0, '2022-06-15', '2022-10-09'],
+      [0, '2022-06-12T00:02:53-02:00', '2022-10-09'],
+      [1, '2022-06-12T00:02:53Z', '2022-10-09'],
+      [0, '2022-06-12T00:02:55Z', '2022-10-09'],
+      [1, '2022-06-12T00:02:55+01:00', '2022-10-09'],
+      [0, '2022-06-12T00:02:53-01:00', '2022-10-09'],
+      // Dates/times input without timezone will be server timezone
+      [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'), '2023'],
+      [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'), '2023'],
     ])(
       'Date filtering: Should return %p result(s) between %p and %s',
       async (expectedResults, start, end) => {
@@ -407,6 +421,7 @@ describe('fijiAspenMediciReport', () => {
         // Note that seconds is the highest level of precision - so the milliseconds are truncated
         encounterStartDate: '2022-06-09T00:02:54.000Z',
         encounterEndDate: '2022-06-12T00:02:54.000Z',
+        dischargeDate: '2022-06-12T00:02:54.000Z',
         encounterType: 'AR-DRG',
         reasonForEncounter: 'Severe Migrane',
 

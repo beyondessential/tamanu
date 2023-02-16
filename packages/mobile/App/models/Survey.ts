@@ -6,7 +6,6 @@ import { Database } from '~/infra/db';
 import { VitalsDataElements } from '/helpers/constants';
 import {
   ISurvey,
-  ISurveyResponse,
   ISurveyScreenComponent,
   IVitalsSurvey,
   SurveyTypes,
@@ -71,15 +70,5 @@ export class Survey extends BaseModel implements ISurvey {
       name: vitalsSurvey.name,
       id: vitalsSurvey.id,
     };
-  }
-
-  static async getResponses(surveyId: string): Promise<ISurveyResponse[]> {
-    const responses = await Database.models.SurveyResponse.find({
-      where: {
-        survey: surveyId,
-      },
-      relations: ['encounter', 'survey', 'encounter.patient'],
-    });
-    return responses;
   }
 }

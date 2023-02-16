@@ -27,6 +27,16 @@ export const formatTime = date =>
     '__:__',
   ); // 12:30 am
 
+export const formatTimeWithSeconds = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'medium',
+      hour12: true,
+    },
+    '__:__:__',
+  ); // 12:30:00 am
+
 const formatShortExplicit = date =>
   intlFormatDate(date, {
     dateStyle: 'medium',

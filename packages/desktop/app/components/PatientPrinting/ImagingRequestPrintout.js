@@ -3,6 +3,7 @@ import React from 'react';
 import { SimplePrintout } from './SimplePrintout';
 import { useLocalisation } from '../../contexts/Localisation';
 import { DateDisplay } from '../DateDisplay';
+import { getFullLocationName } from '../../utils/location';
 
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {
@@ -30,6 +31,7 @@ export const ImagingRequestPrintout = React.memo(
           'Request date': requestedDate ? <DateDisplay date={requestedDate} /> : null,
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
+          Location: getFullLocationName(encounterData?.location),
           'Requested by': requestedBy?.displayName,
           Priority: imagingPriorities.find(p => p.value === priority)?.label || '',
           'Imaging type': imagingTypes[imagingType]?.label || 'Unknown',

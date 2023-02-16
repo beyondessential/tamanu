@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 
 import { getCurrentDateString } from 'shared/utils/dateTime';
@@ -15,10 +14,11 @@ import { PatientDetailPrintout } from './PatientDetailPrintout';
 import { CertificateLabel } from './CertificateLabels';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
+import { getFullLocationName } from '../../utils/location';
 
 const RowContainer = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-around;
 `;
 
 const StyledDivider = styled(Divider)`
@@ -44,42 +44,48 @@ const columns = [
   {
     key: 'displayId',
     title: 'Test ID',
+    style: { width: '13.33%' },
   },
   {
     key: 'date',
     title: 'Request date',
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
+    style: { width: '13.33%' },
   },
   {
     key: 'requestedBy',
     title: 'Requesting clinician',
     accessor: ({ requestedBy }) => requestedBy?.displayName,
+    style: { width: '13.33%' },
   },
   {
     key: 'sampleTime',
     title: 'Sample time',
     accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showTime />,
-    style: { textAlign: 'center' },
+    style: { textAlign: 'center', width: '13.33%' },
   },
   {
     key: 'priority',
     title: 'Priority',
     accessor: ({ priority }) => priority?.name || '',
+    style: { width: '13.33%' },
   },
   {
     key: 'category',
     title: 'Test category',
     accessor: ({ category }) => category?.name || '',
+    style: { width: '13.33%' },
   },
   {
     key: 'testType',
     title: 'Test type',
     accessor: ({ tests }) => tests?.map(test => test.labTestType?.name).join(', ') || '',
+    style: { width: '20%' },
   },
 ];
 
 export const MultipleLabRequestsPrintout = React.memo(
-  ({ patientData, labRequests, certificateData }) => {
+  ({ patientData, labRequests, encounterData, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
     const { facility } = useAuth();
     const notes = labRequests
@@ -112,22 +118,23 @@ export const MultipleLabRequestsPrintout = React.memo(
 
         <RowContainer>
           <StyledDiv>
-            <CertificateLabel margin="9px" name="Date" size="14px">
+            <CertificateLabel name="Print date" size="14px">
               <DateDisplay date={getCurrentDateString()} />
             </CertificateLabel>
           </StyledDiv>
-          <StyledDiv $marginLeft="150">
+          <StyledDiv>
             <LocalisedLabel name="facility" size="14px">
               {facility.name}
             </LocalisedLabel>
           </StyledDiv>
+          <StyledDiv>
+            <LocalisedLabel name="locationId" size="14px">
+              {getFullLocationName(encounterData?.location)}
+            </LocalisedLabel>
+          </StyledDiv>
         </RowContainer>
 
-        <ListTable
-          data={labRequests}
-          columns={columns}
-          gridTemplateColumns="2fr 2fr 2fr 2fr 2fr 2fr 3fr"
-        />
+        <ListTable data={labRequests} columns={columns} />
         <StyledNotesSectionWrapper>
           <NotesSection title="Notes" notes={notes} height="auto" separator={null} boldTitle />
         </StyledNotesSectionWrapper>

@@ -27,6 +27,7 @@ const NotesBox = styled(Box)`
   margin-bottom: 16px;
   border: 1px solid black;
   height: ${props => (props.$height ? props.$height : '75px')};
+  min-height: ${props => (props.$minHeight ? props.$minHeight : '150px')};
   text-overflow: ellipsis;
   overflow: hidden;
 `;
@@ -35,6 +36,7 @@ export const NotesSection = ({
   notes = [],
   title = 'Notes:',
   height,
+  emptyMinHeight,
   boldTitle,
   separator = ' ',
 }) => {
@@ -42,7 +44,7 @@ export const NotesSection = ({
   return (
     <>
       <Text $boldTitle={boldTitle}>{title}</Text>
-      <NotesBox $height={height}>
+      <NotesBox $height={height} $minHeight={noteContentList.length ? '0px' : emptyMinHeight}>
         {separator ? noteContentList.join(separator) : noteContentList}
       </NotesBox>
     </>

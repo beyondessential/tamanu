@@ -5,6 +5,7 @@ import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
@@ -30,6 +31,7 @@ const useColumns = () => {
         }
       },
       accessor: TriageWaitTimeCell,
+      isExportable: false,
     },
     { key: 'chiefComplaint', title: 'Chief complaint' },
     { key: 'displayId' },
@@ -39,8 +41,8 @@ const useColumns = () => {
       key: 'sex',
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
     },
-    { key: 'locationGroupName', title: 'Area' },
-    { key: 'locationName', title: 'Location' },
+    { key: 'locationGroupName', title: 'Area', accessor: LocationGroupCell },
+    { key: 'locationName', title: 'Location', accessor: LocationCell },
   ];
 };
 

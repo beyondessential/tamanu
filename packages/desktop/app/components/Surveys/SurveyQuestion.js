@@ -7,13 +7,14 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-export const SurveyQuestion = ({ component, patient }) => {
+export const SurveyQuestion = ({ component, patient, inputRef }) => {
   const {
     dataElement,
     detail,
     config: componentConfig,
     options: componentOptions,
     text: componentText,
+    validationCriteria,
   } = component;
   const { defaultText, type, defaultOptions, id } = dataElement;
   const configObject = getConfigObject(id, componentConfig);
@@ -21,10 +22,14 @@ export const SurveyQuestion = ({ component, patient }) => {
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const FieldComponent = getComponentForQuestionType(type, configObject);
 
+  const validationCriteriaObject = getConfigObject(id, validationCriteria);
+  const required = validationCriteriaObject?.mandatory || null;
+
   if (!FieldComponent) return <Text>{text}</Text>;
 
   return (
     <Field
+      inputRef={inputRef}
       label={text}
       component={FieldComponent}
       patient={patient}
@@ -32,6 +37,7 @@ export const SurveyQuestion = ({ component, patient }) => {
       options={options}
       config={configObject}
       helperText={detail}
+      required={required}
     />
   );
 };

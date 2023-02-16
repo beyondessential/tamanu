@@ -38,7 +38,7 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.DATE,
-    title: 'Date',
+    title: 'Request date',
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
   },
@@ -72,6 +72,8 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
       includeNotePages: 'true',
       status: 'reception_pending',
+      order: 'asc',
+      orderBy: 'requestedDate',
     }),
   );
 

@@ -20,7 +20,7 @@ export class PatientDeathData extends Model {
         externalCauseNotes: Sequelize.TEXT,
         fetalOrInfant: Sequelize.BOOLEAN, // true/false/null
         hoursSurvivedSinceBirth: { type: Sequelize.INTEGER, unsigned: true },
-        manner: { type: Sequelize.STRING, allowNull: false },
+        manner: Sequelize.STRING,
         pregnancyContributed: Sequelize.STRING, // yes/no/unknown/null
         recentSurgery: Sequelize.STRING, // yes/no/unknown/null
         stillborn: Sequelize.STRING, // yes/no/unknown/null
@@ -30,6 +30,7 @@ export class PatientDeathData extends Model {
         primaryCauseTimeAfterOnset: Sequelize.INTEGER, // minutes
         antecedentCause1TimeAfterOnset: Sequelize.INTEGER, // minutes
         antecedentCause2TimeAfterOnset: Sequelize.INTEGER, // minutes
+        isFinal: Sequelize.BOOLEAN,
       },
       {
         ...options,
