@@ -143,7 +143,11 @@ export class TamanuApi {
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post('login', { email, password, deviceId: this.deviceId }, { returnResponse: true });
+    const response = await this.post(
+      'login',
+      { email, password, deviceId: this.deviceId },
+      { returnResponse: true },
+    );
     const serverType = response.headers.get('X-Tamanu-Server');
     if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
