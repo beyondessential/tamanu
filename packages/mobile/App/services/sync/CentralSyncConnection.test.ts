@@ -1,10 +1,16 @@
-import { AuthenticationError, generalErrorMessage, invalidTokenMessage, OutdatedVersionError } from '../error';
+import {
+  AuthenticationError,
+  generalErrorMessage,
+  invalidTokenMessage,
+  OutdatedVersionError,
+} from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
-import { fetchWithTimeout } from './utils';
+import { fetchWithTimeout, sleepAsync } from './utils';
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
   fetchWithTimeout: jest.fn(),
+  sleepAsync: jest.fn(),
 }));
 
 jest.mock('react-native-device-info', () => ({
@@ -16,6 +22,7 @@ jest.mock('/root/package.json', () => ({
 }));
 
 const mockFetchWithTimeout = fetchWithTimeout as jest.MockedFunction<any>;
+const mockSleepAsync = sleepAsync as jest.MockedFunction<any>;
 
 const mockSessionId = 'test-session-id';
 const mockHost = 'http://test-host';
@@ -45,9 +52,20 @@ describe('CentralServerConnection', () => {
   });
   describe('startSyncSession', () => {
     it('should call post with correct parameters', async () => {
-      const postSpy = jest.spyOn(centralServerConnection, 'post').mockResolvedValue(null);
-      await centralServerConnection.startSyncSession();
-      expect(postSpy).toBeCalledWith('sync', {}, {});
+      const pollUntilTrueSpy = jest
+        .spyOn(centralServerConnection, 'pollUntilTrue')
+        .mockResolvedValue(true);
+      const postSpy = jest
+        .spyOn(centralServerConnection, 'post')
+        .mockResolvedValue({ sessionId: mockSessionId });
+      const getSpy = jest
+        .spyOn(centralServerConnection, 'get')
+        .mockResolvedValue({ startedAtTick: 1 });
+      const startSyncSessionRes = await centralServerConnection.startSyncSession();
+      expect(postSpy).toBeCalled();
+      expect(pollUntilTrueSpy).toBeCalledWith(expect.stringContaining(mockSessionId));
+      expect(getSpy).toBeCalledWith(expect.stringContaining(mockSessionId), {});
+      expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
     });
   });
   describe('pull', () => {
@@ -71,24 +89,32 @@ describe('CentralServerConnection', () => {
           data: { id: 'test-id-1' },
         },
       ];
-      const mockPageNumber = 2;
-      const mockTotalPages = 4;
-      const mockTableNames = ['table-1', 'table-2'];
-      await centralServerConnection.push(
-        mockSessionId,
-        mockChanges,
-        mockPageNumber,
-        mockTotalPages,
-        mockTableNames,
-      );
+      await centralServerConnection.push(mockSessionId, mockChanges);
       expect(postSpy).toBeCalledWith(
         expect.stringContaining(mockSessionId),
-        { pageNumber: mockPageNumber, totalPages: mockTotalPages },
+        {},
         {
           changes: mockChanges,
-          tablesToInclude: mockTableNames,
         },
       );
+    });
+  });
+  describe('completePush', () => {
+    it('should call post with correct parameters', async () => {
+      jest
+        .spyOn(centralServerConnection, 'get')
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true);
+      const mockTablesToInclude = ['test-table-1', 'test-table-2'];
+      const postSpy = jest.spyOn(centralServerConnection, 'post').mockResolvedValue(null);
+      await centralServerConnection.completePush(mockSessionId, mockTablesToInclude);
+      expect(postSpy).toBeCalledWith(
+        expect.stringContaining(mockSessionId),
+        {},
+        { tablesToInclude: mockTablesToInclude },
+      );
+      expect(mockSleepAsync).toHaveBeenCalledTimes(2);
     });
   });
   describe('login', () => {
