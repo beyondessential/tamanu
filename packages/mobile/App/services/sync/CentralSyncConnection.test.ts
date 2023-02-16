@@ -20,6 +20,13 @@ const mockFetchWithTimeout = fetchWithTimeout as jest.MockedFunction<any>;
 const mockSessionId = 'test-session-id';
 const mockHost = 'http://test-host';
 
+const getHeadersWithToken = (token: string): any => ({
+  Authorization: `Bearer ${token}`,
+  Accept: 'application/json',
+  'X-Tamanu-Client': 'Tamanu Mobile',
+  'X-Version': 'test-version',
+});
+
 describe('CentralServerConnection', () => {
   let centralServerConnection;
 
@@ -181,12 +188,7 @@ describe('CentralServerConnection', () => {
       const mockQuery = { test: 'test-query' };
       const mockConfig = { test: 'test-config-key' };
       const mockToken = 'test-token';
-      const mockHeaders = {
-        Authorization: `Bearer ${mockToken}`,
-        Accept: 'application/json',
-        'X-Tamanu-Client': 'Tamanu Mobile',
-        'X-Version': 'test-version',
-      };
+      const mockHeaders = getHeadersWithToken(mockToken);
       centralServerConnection.setToken(mockToken);
 
       const fetchRes = await centralServerConnection.fetch(mockPath, mockQuery, mockConfig);
@@ -204,12 +206,6 @@ describe('CentralServerConnection', () => {
       const mockNewToken = 'test-new-token';
       const mockNewRefreshToken = 'test-new-refresh-token';
 
-      const getHeadersWithToken = (token: string): any => ({
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-        'X-Tamanu-Client': 'Tamanu Mobile',
-        'X-Version': 'test-version',
-      });
       centralServerConnection.setToken(mockToken);
       centralServerConnection.setRefreshToken(mockRefreshToken);
       /**

@@ -171,6 +171,7 @@ export class CentralServerConnection {
           email,
           password,
           facilityId: config.serverFacilityId,
+          deviceId: config.serverFacilityId,
         },
         awaitConnection: false,
         retryAuth: false,
