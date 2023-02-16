@@ -205,9 +205,8 @@ imagingRequest.put(
     // Update or create the note with new content if provided
     if (note) {
       if (otherNotePage) {
-        const otherNoteItems = await otherNotePage.getNoteItems();
-        const otherNoteItem = otherNoteItems[0];
-        const newNote = `${otherNoteItem.content} ${note}`;
+        const [otherNoteItem] = await otherNotePage.getNoteItems();
+        const newNote = `${otherNoteItem.content}. ${note}`;
         await otherNoteItem.update({ content: newNote });
         notes.note = otherNoteItem.content;
       } else {
@@ -340,7 +339,9 @@ globalImagingRequests.get(
         mapFn: caseInsensitiveFilter,
       },
       { key: 'imagingType', operator: Op.eq },
+
       { key: 'status', operator: Op.eq },
+
       { key: 'priority', operator: Op.eq },
       {
         key: 'requestedDateFrom',
@@ -388,19 +389,16 @@ globalImagingRequests.get(
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: {
-        ...imagingRequestFilters,
-        [Op.and]: [
-          {
-            status: {
-              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
-            },
+        [Op.and]: {
+          ...imagingRequestFilters,
+          status: {
+            [Op.notIn]: [
+              IMAGING_REQUEST_STATUS_TYPES.DELETED,
+              IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+              IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+            ],
           },
-          {
-            status: {
-              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-            },
-          },
-        ],
+        },
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, encounter, areas],
