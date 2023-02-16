@@ -1,12 +1,10 @@
-import { AuthenticationError, generalErrorMessage } from '../error';
+import { AuthenticationError, generalErrorMessage, invalidTokenMessage, OutdatedVersionError } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
 import { fetchWithTimeout } from './utils';
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
-  getResponseJsonSafely: jest.fn(),
   fetchWithTimeout: jest.fn(),
-  sleepAsync: jest.fn(),
 }));
 
 jest.mock('react-native-device-info', () => ({
@@ -16,6 +14,8 @@ jest.mock('react-native-device-info', () => ({
 jest.mock('/root/package.json', () => ({
   version: 'test-version',
 }));
+
+const mockFetchWithTimeout = fetchWithTimeout as jest.MockedFunction<any>;
 
 const mockSessionId = 'test-session-id';
 const mockHost = 'http://test-host';
@@ -172,8 +172,8 @@ describe('CentralServerConnection', () => {
   });
   describe('fetch', () => {
     it('should call fetch with correct parameters', async () => {
-      (fetchWithTimeout as jest.Mock).mockResolvedValueOnce({
-        json: () => 'test-result',
+      mockFetchWithTimeout.mockResolvedValueOnce({
+        json: async () => 'test-result',
         status: 200,
         ok: true,
       });
@@ -218,7 +218,7 @@ describe('CentralServerConnection', () => {
        * 2. Second call to fetchWithTimeout will be refresh endpoint return a 200 with new tokens
        * 3. Third call to fetchWithTimeout will be the original fetch call with new token
        */
-      (fetchWithTimeout as jest.Mock)
+      mockFetchWithTimeout
         .mockResolvedValueOnce({
           status: 401,
         })
@@ -280,6 +280,31 @@ describe('CentralServerConnection', () => {
         {
           skipAttemptRefresh: true,
         },
+      );
+    });
+    it('should not call refresh if skipAttemptRefresh is true', async () => {
+      mockFetchWithTimeout.mockResolvedValueOnce({
+        status: 401,
+      });
+      const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
+      expect(
+        centralServerConnection.fetch('test-path', {}, { skipAttemptRefresh: true }),
+      ).rejects.toThrowError(new AuthenticationError(invalidTokenMessage));
+      expect(refreshSpy).not.toHaveBeenCalled();
+    });
+    it('should throw an error with updateUrl if version is outdated', async () => {
+      const mockUpdateUrl = 'test-update-url';
+      mockFetchWithTimeout.mockResolvedValueOnce({
+        status: 400,
+        json: async () => ({
+          error: {
+            name: 'InvalidClientVersion',
+            updateUrl: 'test-update-url',
+          },
+        }),
+      });
+      expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
+        new OutdatedVersionError(mockUpdateUrl),
       );
     });
   });

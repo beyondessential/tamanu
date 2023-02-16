@@ -35,7 +35,7 @@ export class CentralServerConnection {
     path: string,
     query: Record<string, string | number>,
     { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
-  ) {
+  ): Promise<any> {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
     }
