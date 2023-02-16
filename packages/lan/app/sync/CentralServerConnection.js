@@ -15,7 +15,6 @@ import { sleepAsync } from 'shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
-import { machineIdSync } from 'node-machine-id';
 
 const API_VERSION = 'v1';
 
@@ -49,7 +48,6 @@ export class CentralServerConnection {
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
-    this.deviceId = machineIdSync();
   }
 
   async fetch(endpoint, params = {}) {
@@ -186,7 +184,8 @@ export class CentralServerConnection {
           email,
           password,
           facilityId: config.serverFacilityId,
-          deviceId: this.deviceId,
+          // Device id is only used in refresh token logic
+          deviceId: 'placeholder',
         },
         awaitConnection: false,
         retryAuth: false,
