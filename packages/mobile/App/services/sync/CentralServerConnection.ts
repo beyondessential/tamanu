@@ -14,6 +14,7 @@ import {
 import { version } from '/root/package.json';
 
 import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
+import { CentralConnectionStatus } from '~/types';
 
 const API_VERSION = 1;
 
@@ -33,7 +34,7 @@ export class CentralServerConnection {
 
   async fetch(
     path: string,
-    query: Record<string, string | number>,
+    query: Record<string, string | number | boolean>,
     { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
   ): Promise<any> {
     if (!this.host) {
@@ -62,11 +63,14 @@ export class CentralServerConnection {
 
     if (response.status === 401) {
       const isLogin = path.startsWith('login');
-      if (!isLogin && this.refreshToken && !skipAttemptRefresh) {
-        await this.refresh();
-        // Ensure that we don't get stuck in a loop of refreshes in case
-        const updatedConfig = { ...config, skipAttemptRefresh: true };
-        return this.fetch(path, query, updatedConfig);
+      if (!isLogin) {
+        this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Disconnected);
+        if (this.refreshToken && !skipAttemptRefresh) {
+          await this.refresh();
+          // Ensure that we don't get stuck in a loop of refreshes in case
+          const updatedConfig = { ...config, skipAttemptRefresh: true };
+          return this.fetch(path, query, updatedConfig);
+        }
       }
       throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
     }
@@ -94,7 +98,7 @@ export class CentralServerConnection {
     return response.json();
   }
 
-  async get(path: string, query: Record<string, string | number>) {
+  async get(path: string, query: Record<string, string | number | boolean>) {
     return this.fetch(path, query, { method: 'GET' });
   }
 

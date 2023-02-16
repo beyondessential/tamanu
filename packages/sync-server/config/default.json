@@ -600,6 +600,13 @@
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
         "patientPlannedMove": false,
+        "idleTimeout": {
+          "enabled": false,
+          // All values in seconds
+          "timeoutDuration": 600,
+          "warningPromptDuration": 30,
+          "refreshInterval": 150
+        },
         "fhirNewZealandEthnicity": false
       },
       "templates": {

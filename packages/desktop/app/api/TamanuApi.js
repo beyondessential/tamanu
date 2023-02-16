@@ -20,8 +20,6 @@ const getResponseJsonSafely = async response => {
   }
 };
 
-const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
-
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
@@ -212,12 +210,6 @@ export class TamanuApi {
       ...otherConfig,
     });
     if (response.ok) {
-      const timeSinceRefresh = Date.now() - this.lastRefreshed;
-      if (timeSinceRefresh > REFRESH_DURATION) {
-        this.lastRefreshed = Date.now();
-        this.refreshToken();
-      }
-
       if (returnResponse) {
         return response;
       }
