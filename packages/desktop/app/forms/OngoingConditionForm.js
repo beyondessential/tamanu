@@ -48,9 +48,14 @@ export class OngoingConditionForm extends React.PureComponent {
         <Field name="resolved" label="Resolved" component={CheckField} />
         <Collapse in={resolving}>
           <FormGrid columns={1}>
-            <Field name="resolutionDate" label="Date resolved" component={DateField} />
             <Field
-              name="resolutionPractitioner"
+              name="resolutionDate"
+              saveDateAsString
+              label="Date resolved"
+              component={DateField}
+            />
+            <Field
+              name="resolutionPractitionerId"
               label="Doctor/nurse confirming resolution"
               component={AutocompleteField}
               suggester={practitionerSuggester}
@@ -71,7 +76,7 @@ export class OngoingConditionForm extends React.PureComponent {
     }
 
     // remove resolution-specific fields if not resolved
-    const { resolutionDate, resolutionNote, resolutionPractitioner, ...rest } = data;
+    const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
     onSubmit(rest);
   };
 
@@ -83,7 +88,7 @@ export class OngoingConditionForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           recordedDate: getCurrentDateTimeString(),
-          resolutionDate: new Date(),
+          resolutionDate: getCurrentDateTimeString(),
           resolved: false,
           ...editedObject,
         }}
@@ -95,7 +100,7 @@ export class OngoingConditionForm extends React.PureComponent {
 
           resolved: yup.boolean(),
           resolutionDate: yup.date(),
-          resolutionPractitioner: yup.string(),
+          resolutionPractitionerId: yup.string(),
           resolutionNote: yup.string(),
         })}
       />
