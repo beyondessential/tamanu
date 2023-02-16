@@ -54,6 +54,7 @@ export const Colors = {
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
+  veryLightBlue: '#F4F9FF',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };
