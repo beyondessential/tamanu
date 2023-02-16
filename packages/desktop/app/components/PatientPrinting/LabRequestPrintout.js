@@ -2,6 +2,7 @@ import React from 'react';
 
 import { SimplePrintout } from './SimplePrintout';
 import { DateDisplay } from '../DateDisplay';
+import { getFullLocationName } from '../../utils/location';
 
 export const LabRequestPrintout = React.memo(
   ({ labRequestData, patientData, encounterData, certificateData }) => {
@@ -26,6 +27,7 @@ export const LabRequestPrintout = React.memo(
           'Request date': requestedDate ? <DateDisplay date={requestedDate} showTime /> : null,
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
+          Location: getFullLocationName(encounterData?.location),
           'Requested by': requestedBy?.displayName,
           'Sample time': sampleTime ? <DateDisplay date={sampleTime} showTime /> : null,
           Priority: priority?.name,

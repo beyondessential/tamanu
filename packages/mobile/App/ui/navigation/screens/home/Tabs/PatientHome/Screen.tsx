@@ -18,11 +18,12 @@ import { joinNames, getGender } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
-  visitTypeButtons: any[];
-  patientMenuButtons: any[];
+  visitTypeButtons: MenuOptionButtonProps[];
+  patientMenuButtons: MenuOptionButtonProps[];
   markPatientForSync: () => void;
   selectedPatient: IPatient;
 }

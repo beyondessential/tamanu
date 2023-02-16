@@ -71,8 +71,14 @@ labRequest.get(
     const { rowsPerPage = 10, page = 0, ...filterParams } = query;
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
-      makeFilter(true, 'lab_requests.status != :deleted', () => ({
-        deleted: LAB_REQUEST_STATUSES.DELETED,
+      makeFilter(true, `lab_requests.status != :deleted`, () => ({
+        [LAB_REQUEST_STATUSES.DELETED]: LAB_REQUEST_STATUSES.DELETED,
+      })),
+      makeFilter(true, `lab_requests.status != :cancelled`, () => ({
+        [LAB_REQUEST_STATUSES.CANCELLED]: LAB_REQUEST_STATUSES.CANCELLED,
+      })),
+      makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
+        enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
       makeSimpleTextFilter('status', 'lab_requests.status'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),

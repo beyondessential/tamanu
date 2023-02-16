@@ -35,7 +35,7 @@ describe('Data definition import', () => {
 
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       'ReferenceData/allergy': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/diagnosis': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/drug': { created: 10, updated: 0, errored: 0 },
@@ -157,7 +157,7 @@ describe('Data definition import', () => {
     });
 
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
     });
 
@@ -176,7 +176,7 @@ describe('Data definition import', () => {
       file: 'valid-whitespace',
     });
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
     });
     const historical = await ReferenceData.findOne({
@@ -263,7 +263,7 @@ describe('Permissions import', () => {
 
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Role: { created: 3, updated: 0, errored: 0 },
       Permission: { created: 35, updated: 0, errored: 0 },
     });
@@ -365,7 +365,7 @@ describe('Permissions import', () => {
 
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Role: { created: 3, updated: 0, errored: 0 },
       Permission: { created: 3, updated: 0, errored: 0 },
     });

@@ -5,7 +5,7 @@ import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
-import { ensureRequiredQuestionsPresent, ensureOnlyOneVitalsSurveyExists } from './validation';
+import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
@@ -44,7 +44,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
   const { sheetName, surveyType } = surveyInfo;
 
   if (surveyType === SURVEY_TYPES.VITALS) {
-    await ensureOnlyOneVitalsSurveyExists(context, surveyInfo);
+    await validateVitalsSurvey(context, surveyInfo);
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);

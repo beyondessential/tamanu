@@ -1,8 +1,8 @@
+import { fake } from 'shared/test-helpers/fake';
+import { SURVEY_TYPES } from 'shared/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
-import { fake } from 'shared/test-helpers/fake';
-import { SURVEY_TYPES } from 'shared/constants';
 import './matchers';
 
 // the importer can take a little while
@@ -39,7 +39,7 @@ describe('Programs import', () => {
 
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 1, updated: 0, errored: 0 },
       ProgramDataElement: { created: 21, updated: 0, errored: 0 },
@@ -52,7 +52,7 @@ describe('Programs import', () => {
 
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 1, updated: 0, errored: 0 },
     });
@@ -64,10 +64,49 @@ describe('Programs import', () => {
 
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
-    expect(stats).toEqual({
+    expect(stats).toMatchObject({
       Program: { created: 0, updated: 1, errored: 0 },
       Survey: { created: 0, updated: 1, errored: 0 },
     });
+  });
+
+  it('should delete survey questions', async () => {
+    const { Survey } = ctx.store.models;
+
+    const getComponents = async () => {
+      const survey = await Survey.findByPk('program-testprogram-deletion');
+      expect(survey).toBeTruthy();
+      return await survey.getComponents();
+    };
+
+    {
+      const { errors, stats } = await doImport({ file: 'deleteQuestions' });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        ProgramDataElement: { created: 3 },
+        SurveyScreenComponent: { created: 3 },
+      });
+    }
+
+    // find imported ssc
+    const componentsBefore = await getComponents();
+    expect(componentsBefore).toHaveLength(3);
+
+    {
+      const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        ProgramDataElement: { updated: 3 }, // deleter should NOT delete underlying PDEs
+        SurveyScreenComponent: { deleted: 2, updated: 1 },
+      });
+    }
+
+    const componentsAfter = await getComponents();
+    // of the three in the import doc:
+    //  - one is not deleted
+    //  - one is set to visibilityStatus = 'deleted'
+    //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
+    expect(componentsAfter).toHaveLength(1);
   });
 
   it('should not write anything for a dry run', async () => {
@@ -94,8 +133,23 @@ describe('Programs import', () => {
     );
   });
 
+  it('run validation against question configs', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'question-validation',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors.length).toEqual(31);
+    expect(stats).toMatchObject({
+      Program: { created: 1, updated: 0, errored: 0 },
+      Survey: { created: 2, updated: 0, errored: 0 },
+      ProgramDataElement: { created: 40, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 9, updated: 0, errored: 31 }, // 31 fields in failure test, 9 in success test
+    });
+  });
+
   describe('Vitals survey', () => {
-    
     it('Should detect if the mandatory vitals questions are missing', async () => {
       const { errors } = await doImport({
         file: 'vitals-missing-qs',
@@ -107,9 +161,9 @@ describe('Programs import', () => {
     it('Should refuse to import more than one vitals survey', async () => {
       const { Program, Survey } = ctx.store.models;
       const program = await Program.create(fake(Program));
-      await Survey.create({ 
+      await Survey.create({
         ...fake(Survey),
-        surveyType: SURVEY_TYPES.VITALS, 
+        surveyType: SURVEY_TYPES.VITALS,
         programId: program.id,
       });
 
@@ -120,6 +174,14 @@ describe('Programs import', () => {
       expect(errors).toContainValidationError('metadata', 0, 'Only one vitals survey');
     });
 
+    it('Should reject a vitals survey with isSensitive set to true', async () => {
+      const { errors } = await doImport({
+        file: 'vitals-sensitive-true',
+        dryRun: true,
+      });
+      expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
+    });
+
     it('Should import a valid vitals survey', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'vitals-valid',
@@ -127,7 +189,7 @@ describe('Programs import', () => {
       });
       expect(errors).toBeEmpty();
       expect(didntSendReason).toEqual('dryRun');
-      expect(stats).toEqual({
+      expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 1, updated: 0, errored: 0 },
         ProgramDataElement: { created: 16, updated: 0, errored: 0 },

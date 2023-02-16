@@ -1,13 +1,14 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { StyledView, StyledText } from '/styled/common';
-import { ISurveyScreenComponent } from '~/types';
+import { IPatient, ISurveyScreenComponent } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
-  patient: any;
+  setPosition: (pos: string) => void;
+  patient: IPatient;
 }
 
 function getField(type: string, { writeToPatient: { fieldType = '' } = {} } = {}): Element {
@@ -24,25 +25,11 @@ function getField(type: string, { writeToPatient: { fieldType = '' } = {} } = {}
 export const SurveyQuestion = ({
   component,
   patient,
-  errors,
-  scrollViewRef,
+  setPosition,
 }: SurveyQuestionProps): ReactElement => {
-  const [position, setPosition] = useState(null);
   const { dataElement } = component;
   const config = component && component.getConfigObject();
   const fieldInput: any = getField(dataElement.type, config);
-
-  useEffect(() => {
-    if (Object.keys(errors).length === 0) {
-      return;
-    }
-    const firstErrorKey = Object.keys(errors)[0];
-    if (firstErrorKey === component.dataElement.code && scrollViewRef.current !== null) {
-      // Allow a bit of space at the top of the form field for the form label text
-      const positionOffset = 25;
-      scrollViewRef.current?.scrollTo({ x: 0, y: position - positionOffset, animated: true });
-    }
-  }, [component.id, errors, scrollViewRef, position]);
 
   if (!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
@@ -50,7 +37,7 @@ export const SurveyQuestion = ({
   return (
     <StyledView
       marginTop={10}
-      onLayout={({ nativeEvent }) => {
+      onLayout={({ nativeEvent }): void => {
         setPosition(nativeEvent.layout.y);
       }}
     >

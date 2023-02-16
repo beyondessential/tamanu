@@ -161,7 +161,7 @@ export const NotePageForm = ({
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      showErrorDialog={false}
+      showInlineErrorsOnly
       initialValues={{
         date: getCurrentDateTimeString(),
         noteType: notePage?.noteType,
