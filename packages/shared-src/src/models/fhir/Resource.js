@@ -188,10 +188,10 @@ export class FhirResource extends Model {
   }
 
   /** Reverse-map a table row to a query which returns the right upstream IDs for this resource.
-   * 
+   *
    * This is called from the materialisation process to find the upstream ID(s)
    * for a given row in a related table, based on trigger events.
-   * 
+   *
    * @param {string} table - the table name
    * @param {string} id - the row ID
    * @param {null|object} deletedRow - the contents of the row if it was deleted, with field names as in SQL

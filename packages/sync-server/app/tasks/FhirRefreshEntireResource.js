@@ -1,6 +1,7 @@
 import { WorkerTask } from 'shared/tasks';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
+
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
 export class FhirRefreshEntireResource extends WorkerTask {
