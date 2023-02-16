@@ -29,6 +29,7 @@ import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
 import { CancelModal } from '../../components/CancelModal';
 import { useLocalisation } from '../../contexts/Localisation';
+import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -95,13 +96,6 @@ const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.CANCELLED,
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
-
-const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
-  .filter(x => !HIDDEN_STATUSES.includes(x))
-  .map(s => ({
-    label: LAB_REQUEST_STATUS_CONFIG[s].label,
-    value: s,
-  }));
 
 const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClose }) => {
   const [status, setStatus] = useState(currentStatus);

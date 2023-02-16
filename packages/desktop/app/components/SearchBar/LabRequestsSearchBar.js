@@ -1,15 +1,8 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { DateField, SelectField, LocalisedField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
-
-const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
-  .filter(x => x !== LAB_REQUEST_STATUSES.DELETED && x !== LAB_REQUEST_STATUSES.ENTERED_IN_ERROR)
-  .map(s => ({
-    label: LAB_REQUEST_STATUS_CONFIG[s].label,
-    value: s,
-  }));
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
