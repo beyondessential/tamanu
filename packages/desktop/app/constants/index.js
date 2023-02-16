@@ -97,6 +97,13 @@ export const medicationStatuses = {
   REQUESTED: 'Requested',
 };
 
+export const binaryOptions = [
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
+];
+
+export const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
+
 export const locationOptions = [
   {
     value: 'australian-capital-territory',

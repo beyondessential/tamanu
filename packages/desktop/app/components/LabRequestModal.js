@@ -11,6 +11,7 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department');
+  const labSampleSiteSuggester = useSuggester('labSampleSite');
   const [requestId, setRequestId] = useState();
 
   return (
@@ -29,6 +30,7 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
         requestId={requestId}
         practitionerSuggester={practitionerSuggester}
         departmentSuggester={departmentSuggester}
+        labSampleSiteSuggester={labSampleSiteSuggester}
         generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 7)}
       />
     </Modal>

@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
-import { encounterOptions } from '../constants';
+import { binaryOptions, encounterOptions } from '../constants';
 import { useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -19,6 +19,7 @@ import {
   DateTimeField,
   CheckField,
   TextInput,
+  RadioField,
 } from '../components/Field';
 import { TestSelectorField } from '../components/TestSelector';
 import { FormGrid } from '../components/FormGrid';
@@ -83,6 +84,7 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
 export const LabRequestForm = ({
   practitionerSuggester,
   departmentSuggester,
+  labSampleSiteSuggester,
   encounter,
   requestId,
   onSubmit,
@@ -97,10 +99,10 @@ export const LabRequestForm = ({
   );
 
   const renderForm = ({ values, submitForm }) => {
-    const { examiner = {} } = encounter;
-    const examinerLabel = examiner.displayName;
-    const encounterLabel = getEncounterLabel(encounter);
-    const filteredTestTypes = filterTestTypes(testTypes || [], values.labTestCategoryId);
+    // const { examiner = {} } = encounter;
+    // const examinerLabel = examiner.displayName;
+    // const encounterLabel = getEncounterLabel(encounter);
+    // const filteredTestTypes = filterTestTypes(testTypes || [], values.labTestCategoryId);
 
     return (
       <FormGrid>
@@ -126,13 +128,6 @@ export const LabRequestForm = ({
           component={AutocompleteField}
           suggester={departmentSuggester}
         />
-        {/* <Field
-          name="sampleTime"
-          label="Sample time"
-          required
-          component={DateTimeField}
-          saveDateAsString
-        /> */}
         <div>
           {/* <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} /> */}
@@ -144,7 +139,33 @@ export const LabRequestForm = ({
           />
         </div>
         <FormSeparatorLine />
-        <TextInput label="Encounter" disabled value={encounterLabel} />
+        {/* <TextInput label="Encounter" disabled value={encounterLabel} /> */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <Field
+            name="sampleCollected"
+            label="Sample collected"
+            required
+            component={RadioField}
+            options={binaryOptions}
+          />
+        </div>
+        {values.sampleCollected === 'yes' && (
+          <>
+            <Field
+              name="sampleTime"
+              label="Sample date & time"
+              required
+              component={DateTimeField}
+              saveDateAsString
+            />
+            <Field
+              name="labSampleSiteId"
+              label="Site"
+              component={AutocompleteField}
+              suggester={labSampleSiteSuggester}
+            />
+          </>
+        )}
         {/* <Field
           name="labTestCategoryId"
           label="Test category"
