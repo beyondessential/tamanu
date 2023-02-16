@@ -8,6 +8,7 @@ function getEthnicity(ethnicityId) {
     case 'ethnicity-FID':
       return { code: '43112', display: 'Fijian Indian' };
     case null:
+    case undefined:
       return { code: '99999', display: 'Not Stated' };
     default:
       return { code: '61199', display: 'Other Ethnicity nec' };
