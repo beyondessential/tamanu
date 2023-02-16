@@ -120,7 +120,7 @@ export class FhirImmunization extends FhirResource {
     });
   }
 
-  async queryToFindUpstreamIdsFromTable(table, id) {
+  static async queryToFindUpstreamIdsFromTable(table, id) {
     const {
       AdministeredVaccine,
       Encounter,

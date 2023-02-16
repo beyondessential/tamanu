@@ -200,7 +200,7 @@ export class FhirServiceRequest extends FhirResource {
     });
   }
 
-  async queryToFindUpstreamIdsFromTable(table, id) {
+  static async queryToFindUpstreamIdsFromTable(table, id) {
     const {
       ImagingRequest,
       ImagingRequestArea,

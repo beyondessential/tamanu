@@ -198,7 +198,7 @@ export class FhirResource extends Model {
    * @returns {object|null} the argument to Sequelize#query, a query which will return the upstreams for this row, or null if the row is not relevant
    */
   // eslint-disable-next-line no-unused-vars
-  async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
+  static async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
     return null;
   }
 

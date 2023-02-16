@@ -138,7 +138,7 @@ export class FhirDiagnosticReport extends FhirResource {
     });
   }
 
-  async queryToFindUpstreamIdsFromTable(table, id) {
+  static async queryToFindUpstreamIdsFromTable(table, id) {
     const {
       Encounter,
       LabRequest,
