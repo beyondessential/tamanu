@@ -28,7 +28,7 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', required, parameterV
       label="Test type"
       component={MultiselectField}
       required={required}
-      options={data.map(x => ({ value: x.id, label: x.name }))}
+      options={data.map(type => ({ value: type.id, label: type.name }))}
     />
   );
 };

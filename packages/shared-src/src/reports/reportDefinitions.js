@@ -531,9 +531,9 @@ export const REPORT_DEFINITIONS = [
         parameterField: 'ParameterMultiselectField',
         label: 'Status',
         name: 'statuses',
-        options: Object.values(LAB_REQUEST_STATUSES).map(s => ({
-          label: LAB_REQUEST_STATUS_CONFIG[s].label,
-          value: s,
+        options: Object.values(LAB_REQUEST_STATUSES).map(status => ({
+          label: LAB_REQUEST_STATUS_CONFIG[status].label,
+          value: status,
         })),
       },
     ],
