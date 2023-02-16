@@ -24,24 +24,20 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToPatient = (patientId, modal, tab) => {
+  const navigateToPatient = (patientId, search) => {
     const existingParams = getParams(PATIENT_PATHS.CATEGORY);
-    navigate(
-      generatePath(`${PATIENT_PATHS.PATIENT}/:modal?/:tab?`, {
-        ...existingParams,
-        patientId,
-        modal,
-        tab,
-      }),
-    );
+    const patientRoute = generatePath(PATIENT_PATHS.PATIENT, {
+      ...existingParams,
+      patientId,
+    });
+    navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
-  const navigateToEncounter = (encounterId, modal, search) => {
+  const navigateToEncounter = (encounterId, search) => {
     const existingParams = getParams(PATIENT_PATHS.PATIENT);
-    const encounterRoute = generatePath(`${PATIENT_PATHS.ENCOUNTER}/:modal?`, {
+    const encounterRoute = generatePath(PATIENT_PATHS.ENCOUNTER, {
       ...existingParams,
       encounterId,
-      modal,
     });
     navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
@@ -55,6 +51,7 @@ export const usePatientNavigation = () => {
     );
   };
 
+  // @todo: refactor modal that is used in lab request printing
   const navigateToLabRequest = (labRequestId, modal) => {
     const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
     navigate(
@@ -66,6 +63,7 @@ export const usePatientNavigation = () => {
     );
   };
 
+  // @todo: refactor modal that is used in imaging request printing
   const navigateToImagingRequest = (imagingRequestId, modal) => {
     const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
     navigate(
