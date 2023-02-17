@@ -62,7 +62,7 @@ notePageRoute.get(
           ],
         },
       ],
-      where: { id: notePageId },
+      where: { id: notePageId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
     await checkNotePermission(req, notePage, 'read');
@@ -87,7 +87,7 @@ notePageRoute.put(
           ],
         },
       ],
-      where: { id: params.id },
+      where: { id: params.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
     if (!editedNotePage) {
