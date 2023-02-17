@@ -114,7 +114,9 @@ notePageRoute.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const notePageToDelete = await models.NotePage.findByPk(req.params.id);
+    const notePageToDelete = await models.NotePage.findOne({
+      where: { id: req.params.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
 
     if (!notePageToDelete) {
       throw new NotFoundError();
