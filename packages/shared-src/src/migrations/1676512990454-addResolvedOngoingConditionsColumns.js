@@ -21,6 +21,6 @@ export async function up(query) {
 
 export async function down(query) {
   await query.removeColumn('patient_conditions', 'resolution_date');
-  await query.removeColumn('patient_conditions', 'resolution_practitioner');
+  await query.removeColumn('patient_conditions', 'resolution_practitioner_id');
   await query.removeColumn('patient_conditions', 'resolution_note');
 }
