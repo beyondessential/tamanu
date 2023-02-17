@@ -360,63 +360,49 @@ export const EncounterRecord = React.memo(
               <TableHeading>Encounter Types</TableHeading>
               <CompactListTable data={encounterTypeHistory} columns={COLUMNS.encounterTypes} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
 
           {locationHistory.length > 0 ? (
             <>
               <TableHeading>Locations</TableHeading>
               <CompactListTable data={locationHistory} columns={COLUMNS.locations} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
 
           {encounter.diagnoses.length > 0 ? (
             <>
               <TableHeading>Diagnoses</TableHeading>
               <CompactListTable data={encounter.diagnoses} columns={COLUMNS.diagnoses} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
 
           {encounter.procedures.length > 0 ? (
             <>
               <TableHeading>Procedures</TableHeading>
               <CompactListTable data={encounter.procedures} columns={COLUMNS.procedures} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
 
           {labRequests.data.length > 0 ? (
             <>
               <TableHeading>Lab Requests</TableHeading>
               <CompactListTable data={labRequests.data} columns={COLUMNS.labRequests} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
 
           {imagingRequests.length > 0 ? (
             <>
               <TableHeading>Imaging Requests</TableHeading>
               <CompactListTable data={imagingRequests} columns={COLUMNS.imagingRequests} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
 
           {encounter.medications.length > 0 ? (
             <>
               <TableHeading>Medications</TableHeading>
               <CompactListTable data={encounter.medications} columns={COLUMNS.medications} />
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
 
           {notes.length > 0 ? (
             <>
@@ -454,9 +440,7 @@ export const EncounterRecord = React.memo(
                 </>
               ))}
             </>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </ShiftedCertificateWrapper>
       </>
     );
