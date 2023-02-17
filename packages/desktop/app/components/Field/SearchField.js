@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import Search from '@material-ui/icons/Search';
 import { InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
