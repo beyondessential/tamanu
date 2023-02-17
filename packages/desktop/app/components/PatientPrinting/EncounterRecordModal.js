@@ -16,10 +16,13 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { Colors } from '../../constants';
 
-// Takes a group of encounter or location system notes and turns them into a usable object array for generating a table from
+// These below functions are used to extract the history of changes made to the encounter that are stored in notes.
+// obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
+
 const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
 const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
 
+// This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   if (notes?.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
     const {
@@ -44,6 +47,8 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   return null;
 };
 
+// These two functions both take the generated object based on the matcher from the above function and alters the data names to be relavant to the table.
+// It will either loop through the generic history and rename the keys to relevant ones or it will just grab the current encounter details if there is no note history
 const extractEncounterTypeHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, encounterTypeNoteMatcher);
   const encounterHistory = history?.map(({ to: newEncounterType, ...rest }) => ({
