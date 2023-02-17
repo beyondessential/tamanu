@@ -73,13 +73,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     orderBy: 'requestedDate',
   });
   const labRequests = labRequestsQuery.data;
-  const updatedLabRequests = {
-    data: [],
-  };
+  const updatedLabRequests = [];
   if (labRequests) {
     labRequests.data.forEach(labRequest => {
       labRequest.tests.forEach(test => {
-        updatedLabRequests.data.push({
+        updatedLabRequests.push({
           testType: test.labTestType.name,
           testCategory: labRequest.category.name,
           requestingClinician: labRequest.requestedBy.displayName,

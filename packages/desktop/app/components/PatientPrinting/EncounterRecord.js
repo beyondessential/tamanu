@@ -383,10 +383,10 @@ export const EncounterRecord = React.memo(
             </>
           ) : null}
 
-          {labRequests.data.length > 0 ? (
+          {labRequests.length > 0 ? (
             <>
               <TableHeading>Lab Requests</TableHeading>
-              <CompactListTable data={labRequests.data} columns={COLUMNS.labRequests} />
+              <CompactListTable data={labRequests} columns={COLUMNS.labRequests} />
             </>
           ) : null}
 
