@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Search from '@material-ui/icons/Search';
 import { InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
@@ -28,7 +28,7 @@ export const SearchField = props => {
           </Icon>
         ),
       }}
-      placeholder={props?.label ? `search ${props?.label}` : ''}
+      placeholder={props?.label ? `Search ${props?.label.toLowerCase()}` : ''}
       {...props}
     />
   );
