@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { NOTE_TYPES } from 'shared/constants/notes';
+
 import { EncounterRecord } from './EncounterRecord';
 import { Modal } from '../Modal';
 import { useCertificate } from '../../utils/useCertificate';
@@ -13,13 +15,53 @@ import { usePatientAdditionalData } from '../../api/queries/usePatientAdditional
 import { useLocalisation } from '../../contexts/Localisation';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { Colors } from '../../constants';
-import { NOTE_TYPES } from 'shared/constants/notes';
 
 // Takes a group of encounter or location system notes and turns them into a usable object array for generating a table from
 const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
 const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
-const extractNoteData = (notes, encounterData, matcher) => {
-  if (notes.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
+// const extractNoteData = (notes, encounterData, matcher) => {
+//   if (notes.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
+//     const {
+//       groups: { from },
+//     } = notes[0].noteItems[0].content.match(matcher);
+
+//     const history = [
+//       {
+//         to: from,
+//         date: encounterData.startDate,
+//       },
+//       ...notes?.map(({ noteItems }) => {
+//         const {
+//           groups: { to },
+//         } = noteItems[0].content.match(matcher);
+//         const { date } = noteItems[0];
+//         return { to, date };
+//       }),
+//     ];
+//     return history;
+//   }
+//   if (matcher === locationNoteMatcher) {
+//     return [
+//       {
+//         to: `${encounterData.location.locationGroup.name}, ${encounterData.location.name}`,
+//         date: encounterData.startDate,
+//       },
+//     ];
+//   }
+//   if (matcher === encounterTypeNoteMatcher) {
+//     return [
+//       {
+//         to: encounterData.encounterType,
+//         date: encounterData.startDate,
+//       },
+//     ];
+//   }
+
+//   return [];
+// };
+
+const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
+  if (notes?.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
     const {
       groups: { from },
     } = notes[0].noteItems[0].content.match(matcher);
@@ -39,24 +81,30 @@ const extractNoteData = (notes, encounterData, matcher) => {
     ];
     return history;
   }
-  if (matcher === locationNoteMatcher) {
-    return [
-      {
-        to: `${encounterData.location.locationGroup.name}, ${encounterData.location.name}`,
-        date: encounterData.startDate,
-      },
-    ];
-  }
-  if (matcher === encounterTypeNoteMatcher) {
-    return [
-      {
-        to: encounterData.encounterType,
-        date: encounterData.startDate,
-      },
-    ];
-  }
+  return null;
+};
 
-  return [];
+const extractEncounterTypeHistory = (notes, encounterData) => {
+  const history = extractUpdateHistoryFromNoteData(notes, encounterData, encounterTypeNoteMatcher);
+  if (history) return history;
+  return [
+    {
+      to: encounterData.encounterType,
+      date: encounterData.startDate,
+    },
+  ];
+};
+
+const extractLocationHistory = (notes, encounterData) => {
+  const history = extractUpdateHistoryFromNoteData(notes, encounterData, locationNoteMatcher);
+  if (history) return history;
+  return [
+    {
+      to: `${encounterData.location.locationGroup.name}, ${encounterData.location.name}`,
+      date: encounterData.startDate,
+    },
+  ];
+
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
@@ -171,14 +219,14 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return note.noteItems[0].content.match(locationNoteMatcher);
   });
   const locationHistory = locationSystemNotes
-    ? extractNoteData(locationSystemNotes, encounter, locationNoteMatcher)
+    ? extractLocationHistory(locationSystemNotes, encounter, locationNoteMatcher)
     : [];
 
   const encounterTypeSystemNotes = systemNotes?.filter(note => {
     return note.noteItems[0].content.match(encounterTypeNoteMatcher);
   });
   const encounterTypeHistory = encounterTypeSystemNotes
-    ? extractNoteData(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
+    ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
   return (
