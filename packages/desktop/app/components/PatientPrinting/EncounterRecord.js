@@ -126,13 +126,13 @@ const COLUMNS = {
     {
       key: 'to',
       title: 'Area',
-      accessor: ({ to }) => to.split(',')[0] || {},
+      accessor: ({ to }) => to.split(',')[0] || '',
       style: { width: '30%' },
     },
     {
       key: 'location',
       title: 'Location',
-      accessor: ({ to }) => to.split(',')[1].trim() || {},
+      accessor: ({ to }) => to.split(',')[1].trim() || '',
       style: { width: '40%' },
     },
     {
@@ -147,13 +147,13 @@ const COLUMNS = {
     {
       key: 'diagnoses',
       title: 'Diagnoses',
-      accessor: ({ diagnosis }) => (diagnosis || {}).name,
+      accessor: ({ diagnosis }) => diagnosis?.name,
       style: { width: '60%' },
     },
     {
       key: 'certainty',
       title: 'Certainty',
-      accessor: ({ certainty }) => CERTAINTY_OPTIONS_BY_VALUE[certainty].label || {},
+      accessor: ({ certainty }) => CERTAINTY_OPTIONS_BY_VALUE[certainty].label || '',
       style: { width: '20%' },
     },
     {
@@ -168,7 +168,7 @@ const COLUMNS = {
     {
       key: 'procedure',
       title: 'Procedure',
-      accessor: ({ procedureType }) => (procedureType || {}).name,
+      accessor: ({ procedureType }) => procedureType?.name,
       style: { width: '80%' },
     },
     {
@@ -213,32 +213,31 @@ const COLUMNS = {
     {
       key: 'imagingType',
       title: 'Imaging request type',
-      accessor: ({ imagingName }) => (imagingName || {}).label,
+      accessor: ({ imagingName }) => imagingName?.label,
       style: { width: '20%' },
     },
     {
       key: 'areaToBeImaged',
       title: 'Area to be imaged',
-      accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="areas" /> || {},
+      accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="areas" />,
       style: { width: '20%' },
     },
     {
       key: 'requestingClinician',
       title: 'Requesting Clinician',
-      accessor: ({ requestedBy }) => (requestedBy || {}).displayName,
+      accessor: ({ requestedBy }) => requestedBy?.displayName,
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
       title: 'Request Date',
-      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate /> || {},
+      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate />,
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed Date',
-      accessor: ({ id }) =>
-        <ImagingRequestData imagingRequestId={id} dataType="completedDate" /> || {},
+      accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="completedDate" />,
       style: { width: '20%' },
     },
   ],
@@ -247,31 +246,31 @@ const COLUMNS = {
     {
       key: 'medication',
       title: 'Medication',
-      accessor: ({ medication }) => (medication || {}).name,
+      accessor: ({ medication }) => medication?.name,
       style: { width: '20%' },
     },
     {
       key: 'insructions',
       title: 'Instructions',
-      accessor: ({ prescription }) => prescription || {},
+      accessor: ({ prescription }) => prescription || '',
       style: { width: '30%' },
     },
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || {},
+      accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
       style: { width: '10%' },
     },
     {
       key: 'prescriber',
       title: 'Prescriber',
-      accessor: ({ prescriber }) => (prescriber || {}).displayName,
+      accessor: ({ prescriber }) => prescriber?.displayName,
       style: { width: '20%' },
     },
     {
       key: 'prescriptionDate',
       title: 'Prescription Date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
+      accessor: ({ date }) => <DateDisplay date={date} showDate />,
       style: { width: '20%' },
     },
   ],
