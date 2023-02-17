@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError, ForbiddenError } from 'shared/errors';
-import { NOTE_RECORD_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 
 import { noteItems } from './noteItems';
 import { checkNotePermission } from '../../../utils/checkNotePermission';
@@ -126,16 +126,7 @@ notePageRoute.delete(
 
     req.checkPermission('write', notePageToDelete.recordType);
 
-    await req.models.NoteItem.destroy({
-      where: {
-        notePageId: req.params.id,
-      },
-    });
-    await req.models.NotePage.destroy({
-      where: {
-        id: req.params.id,
-      },
-    });
+    await notePageToDelete.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
 
     res.send({});
   }),
