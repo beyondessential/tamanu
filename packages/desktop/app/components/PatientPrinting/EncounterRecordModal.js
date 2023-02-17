@@ -13,6 +13,7 @@ import { usePatientAdditionalData } from '../../api/queries/usePatientAdditional
 import { useLocalisation } from '../../contexts/Localisation';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { Colors } from '../../constants';
+import { NOTE_TYPES } from 'shared/constants/notes';
 
 // Takes a group of encounter or location system notes and turns them into a usable object array for generating a table from
 const locationNoteMatcher = /^Changed location from (?<from>.*) to (?<to>.*)/;
@@ -109,11 +110,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notes = notesQuery?.data?.data;
 
   const displayNotes = notes?.filter(note => {
-    return note.noteType !== 'system';
+    return note.noteType !== NOTE_TYPES.SYSTEM;
   });
 
   const systemNotes = notes?.filter(note => {
-    return note.noteType === 'system';
+    return note.noteType === NOTE_TYPES.SYSTEM;
   });
 
   // Add orignal note to each note object linked to an edited note
