@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
@@ -27,10 +27,6 @@ export class NoteItem extends Model {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         }),
-        visibilityStatus: {
-          type: DataTypes.TEXT,
-          defaultValue: VISIBILITY_STATUSES.CURRENT,
-        },
       },
       {
         ...options,

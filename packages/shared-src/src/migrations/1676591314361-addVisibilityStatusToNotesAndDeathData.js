@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 
-const tables = ['patient_death_data', 'note_pages', 'note_items'];
+const tables = ['patient_death_data', 'note_pages'];
 
 export async function up(query) {
   for (const table of tables) {
