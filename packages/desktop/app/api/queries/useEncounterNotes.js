@@ -4,7 +4,7 @@ import { useApi } from '../useApi';
 export const useEncounterNotes = encounterId => {
   const api = useApi();
 
-  return useQuery(['useEncounterNotes', encounterId], () =>
+  return useQuery(['encounterNotePages', encounterId], () =>
     api.get(`encounter/${encodeURIComponent(encounterId)}/notePages`),
   );
 };
