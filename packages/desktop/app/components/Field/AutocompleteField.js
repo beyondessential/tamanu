@@ -229,6 +229,7 @@ class BaseAutocomplete extends Component {
 
   renderInputComponent = inputProps => {
     const { label, required, className, infoTooltip, tag, value, ...other } = inputProps;
+    const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
         label={label}
@@ -248,7 +249,7 @@ class BaseAutocomplete extends Component {
                   </SelectTag>
                 )}
                 <Icon position="end">
-                  {className?.includes('open') ? <ExpandLess /> : <ExpandMore />}
+                  {suggestions.length > 0 ? <ExpandLess /> : <ExpandMore />}
                 </Icon>
               </>
             ),
