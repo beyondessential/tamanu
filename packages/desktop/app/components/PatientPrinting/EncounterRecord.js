@@ -106,7 +106,7 @@ export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
 `;
 
 // COLUMN LAYOUTSs
-const columns = {
+const COLUMNS = {
   encounterTypes: [
     {
       key: 'encounterType',
@@ -359,7 +359,7 @@ export const EncounterRecord = React.memo(
           {encounterTypeHistory.length > 0 ? (
             <>
               <TableHeading>Encounter Types</TableHeading>
-              <CompactListTable data={encounterTypeHistory} columns={columns.encounterTypes} />
+              <CompactListTable data={encounterTypeHistory} columns={COLUMNS.encounterTypes} />
             </>
           ) : (
             <></>
@@ -368,7 +368,7 @@ export const EncounterRecord = React.memo(
           {locationHistory.length > 0 ? (
             <>
               <TableHeading>Locations</TableHeading>
-              <CompactListTable data={locationHistory} columns={columns.locations} />
+              <CompactListTable data={locationHistory} columns={COLUMNS.locations} />
             </>
           ) : (
             <></>
@@ -377,7 +377,7 @@ export const EncounterRecord = React.memo(
           {encounter.diagnoses.length > 0 ? (
             <>
               <TableHeading>Diagnoses</TableHeading>
-              <CompactListTable data={encounter.diagnoses} columns={columns.diagnoses} />
+              <CompactListTable data={encounter.diagnoses} columns={COLUMNS.diagnoses} />
             </>
           ) : (
             <></>
@@ -386,7 +386,7 @@ export const EncounterRecord = React.memo(
           {encounter.procedures.length > 0 ? (
             <>
               <TableHeading>Procedures</TableHeading>
-              <CompactListTable data={encounter.procedures} columns={columns.procedures} />
+              <CompactListTable data={encounter.procedures} columns={COLUMNS.procedures} />
             </>
           ) : (
             <></>
@@ -395,7 +395,7 @@ export const EncounterRecord = React.memo(
           {labRequests.data.length > 0 ? (
             <>
               <TableHeading>Lab Requests</TableHeading>
-              <CompactListTable data={labRequests.data} columns={columns.labRequests} />
+              <CompactListTable data={labRequests.data} columns={COLUMNS.labRequests} />
             </>
           ) : (
             <></>
@@ -404,7 +404,7 @@ export const EncounterRecord = React.memo(
           {imagingRequests.length > 0 ? (
             <>
               <TableHeading>Imaging Requests</TableHeading>
-              <CompactListTable data={imagingRequests} columns={columns.imagingRequests} />
+              <CompactListTable data={imagingRequests} columns={COLUMNS.imagingRequests} />
             </>
           ) : (
             <></>
@@ -413,7 +413,7 @@ export const EncounterRecord = React.memo(
           {encounter.medications.length > 0 ? (
             <>
               <TableHeading>Medications</TableHeading>
-              <CompactListTable data={encounter.medications} columns={columns.medications} />
+              <CompactListTable data={encounter.medications} columns={COLUMNS.medications} />
             </>
           ) : (
             <></>
