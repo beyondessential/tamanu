@@ -413,7 +413,7 @@ routes.get(
         to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
-        limit,
+        limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
         timezone_string: COUNTRY_TIMEZONE,
       },
