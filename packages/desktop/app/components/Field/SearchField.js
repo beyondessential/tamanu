@@ -28,7 +28,7 @@ export const SearchField = props => {
           </Icon>
         ),
       }}
-      placeholder={props?.label ? `Search ${props?.label}` : ''}
+      placeholder={props?.label ? `search ${props?.label}` : ''}
       {...props}
     />
   );
