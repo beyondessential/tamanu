@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
+import { startCase } from 'lodash';
+
 import { LocalisedLabel } from './SimplePrintout';
 import { PrintLetterhead } from './PrintLetterhead';
 import { DateDisplay } from '../DateDisplay';
@@ -111,7 +113,7 @@ const COLUMNS = {
     {
       key: 'encounterType',
       title: 'Type',
-      accessor: ({ to }) => to.charAt(0).toUpperCase() + to.slice(1) || {},
+      accessor: ({ newEncounterType }) => startCase(newEncounterType),
       style: { width: '70%' },
     },
     {
@@ -126,13 +128,13 @@ const COLUMNS = {
     {
       key: 'to',
       title: 'Area',
-      accessor: ({ to }) => to.split(',')[0] || '',
+      accessor: ({ newLocationGroup }) => startCase(newLocationGroup),
       style: { width: '30%' },
     },
     {
       key: 'location',
       title: 'Location',
-      accessor: ({ to }) => to.split(',')[1].trim() || '',
+      accessor: ({ newLocation }) => startCase(newLocation),
       style: { width: '40%' },
     },
     {
