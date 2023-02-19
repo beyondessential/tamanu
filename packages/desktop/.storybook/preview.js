@@ -8,8 +8,7 @@ import React from 'react';
 import { theme } from '../app/theme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { DumbLocalisationProvider } from '../app/contexts/Localisation';
-import { mockLocalisationData } from './__mocks__/config';
+import { LocalisationProvider } from '../app/contexts/Localisation';
 import { store, history } from './__mocks__/store';
 
 const queryClient = new QueryClient({
@@ -22,7 +21,7 @@ const queryClient = new QueryClient({
 });
 
 export const decorators = [
-  Story => (
+  Story =>(
     <Provider store={store}>
       <ConnectedRouter history={history}>
         <StylesProvider injectFirst>
@@ -31,9 +30,9 @@ export const decorators = [
               <QueryClientProvider client={queryClient}>
                 <DummyElectronProvider>
                   <CssBaseline />
-                  <DumbLocalisationProvider reduxLocalisation={mockLocalisationData}>
+                  <LocalisationProvider>
                     <Story />
-                  </DumbLocalisationProvider>
+                  </LocalisationProvider>
                 </DummyElectronProvider>
               </QueryClientProvider>
             </ThemeProvider>
