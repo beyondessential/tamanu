@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { inRange } from 'lodash';
 
-import { ageInYears } from 'shared/utils/dateTime';
+import { ageInYears, ageInMonths } from 'shared/utils/dateTime';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -189,9 +189,16 @@ function transformPatientData(patient, config) {
   const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
 
+  let years = 0;
+  let months = 0;
+
   switch (column) {
     case 'age':
       return ageInYears(dateOfBirth).toString();
+    case 'ageWithMonths':
+      years = ageInYears(dateOfBirth);
+      months = ageInMonths(dateOfBirth) - years * 12;
+      return `${years} years, ${months} months`;
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
@@ -228,7 +235,6 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }
-
   return initialValues;
 }
 
