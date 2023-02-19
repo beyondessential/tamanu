@@ -87,9 +87,9 @@ const TopTextContainer = styled.div`
 
 const TopData = ({ name, children }) => (
   <TopTextContainer>
-    <StrongText
-      style={{ fontSize: '14px', marginRight: '5px', marginLeft: '0px' }}
-    >{`${name}:`}</StrongText>
+    <StrongText style={{ fontSize: '14px', marginRight: '5px', marginLeft: '0px' }}>
+      {`${name}:`}
+    </StrongText>
     {children}
   </TopTextContainer>
 );

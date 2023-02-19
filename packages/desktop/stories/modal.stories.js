@@ -13,7 +13,7 @@ storiesOf('Modal', module)
     <Modal
       title="Confirm/Cancel modal"
       open
-      actions={() => <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('cancel')} />}
+      actions={<ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('cancel')} />}
     >
       Some modal content
     </Modal>
@@ -22,7 +22,7 @@ storiesOf('Modal', module)
     <Modal
       title="Custom buttons modal"
       open
-      actions={() => (
+      actions={
         <ButtonRow>
           <Button onClick={action('plier')} variant="contained" color="primary">
             Plier
@@ -37,7 +37,7 @@ storiesOf('Modal', module)
             Glisser
           </Button>
         </ButtonRow>
-      )}
+      }
     >
       Some modal content
     </Modal>
