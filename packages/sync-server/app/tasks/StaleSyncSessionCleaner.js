@@ -17,19 +17,25 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
     this.store = context.store;
   }
 
+  async getWhere() {
+    const { staleSessionSeconds } = this.config;
+    return {
+      lastConnectionTime: { [Op.lt]: Date.now() - staleSessionSeconds * 1000 },
+      completedAt: { [Op.is]: null },
+    };
+  }
+
+  async countQueue() {
+    const { SyncSession } = this.store.models;
+    return SyncSession.count({
+      where: this.getWhere(),
+    });
+  }
+
   async run() {
     const { SyncSession } = this.store.models;
-
-    const { staleSessionSeconds } = this.config;
-    if (!staleSessionSeconds) {
-      throw new InvalidConfigError(`staleSessionSeconds must be set for ${this.getName()}`);
-    }
-
     const staleSessions = await SyncSession.findAll({
-      where: {
-        lastConnectionTime: { [Op.lt]: Date.now() - staleSessionSeconds * 1000 },
-        completedAt: { [Op.is]: null },
-      },
+      where: this.getWhere(),
       select: ['id'],
       raw: true,
     });
