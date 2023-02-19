@@ -23,7 +23,7 @@ const StyledFormControl = styled(FormControl)`
 
 const StyledRadioGroup = styled(RadioGroup)`
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   justify-content: flex-start;
   flex-direction: row;
 `;
@@ -36,8 +36,7 @@ const ControlLabel = styled(FormControlLabel)`
   border: 1px solid
     ${props => (props.selected ? props.theme.border.selected : props.theme.border.default)};
   justify-content: center;
-  background: ${props =>
-    props.selected ? props.theme.background.selected : props.theme.background.default};
+  background: ${props => props.theme.background.default};
 
   &:last-child {
     margin-right: 0;
@@ -54,7 +53,8 @@ const ControlLabel = styled(FormControlLabel)`
   }
 
   &.MuiFormControlLabel-labelPlacementStart {
-    padding: 18px 20px;
+    padding: 16px 14px;
+    align-items: stretch;
     .MuiButtonBase-root {
       align-self: flex-start;
     }

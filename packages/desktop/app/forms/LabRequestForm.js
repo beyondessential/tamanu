@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { useQuery } from '@tanstack/react-query';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
-import { binaryOptions, encounterOptions } from '../constants';
+import { binaryOptions } from '../constants';
 import { useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
+import { useAuth } from '../contexts/Auth';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import {
@@ -15,37 +15,19 @@ import {
   Field,
   AutocompleteField,
   SuggesterSelectField,
-  TextField,
   DateTimeField,
-  CheckField,
-  TextInput,
   RadioField,
 } from '../components/Field';
-import { TestSelectorField } from '../components/TestSelector';
 import { FormGrid } from '../components/FormGrid';
-import { OutlinedButton } from '../components/Button';
+import { Button, OutlinedButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
-import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-import { useApi } from '../api';
-import { useAuth } from '../contexts/Auth';
 
-function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type)?.label;
-}
-
-function getEncounterLabel(encounter) {
-  const encounterDate = DateDisplay.rawFormat(encounter.startDate);
-  const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
-  return `${encounterDate} (${encounterTypeLabel})`;
-}
-
-function filterTestTypes(testTypes, labTestCategoryId) {
-  return labTestCategoryId
-    ? testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
-    : [];
-}
+const LAB_REQUEST_TYPES = {
+  PANEL: 'panel',
+  INDIVIDUAL: 'individual',
+};
 
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
   const { navigateToLabRequest } = usePatientNavigation();
@@ -84,30 +66,19 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
 export const LabRequestForm = ({
   practitionerSuggester,
   departmentSuggester,
-  labSampleSiteSuggester,
   encounter,
   requestId,
+  onNext,
   onSubmit,
   onCancel,
   editedObject,
   generateDisplayId,
 }) => {
-  const api = useApi();
   const { currentUser } = useAuth();
-  const { data: testTypes } = useQuery(['labTestTypes'], () =>
-    api.get('suggestions/labTestType/all'),
-  );
 
-  const renderForm = ({ values, submitForm }) => {
-    // const { examiner = {} } = encounter;
-    // const examinerLabel = examiner.displayName;
-    // const encounterLabel = getEncounterLabel(encounter);
-    // const filteredTestTypes = filterTestTypes(testTypes || [], values.labTestCategoryId);
-
+  const renderForm = ({ values }) => {
     return (
       <FormGrid>
-        {/* <Field name="displayId" label="Lab request number" disabled component={TextField} /> */}
-        {/* <TextInput label="Supervising clinician" disabled value={examinerLabel} /> */}
         <Field
           name="requestedById"
           label="Requesting clinician"
@@ -128,18 +99,13 @@ export const LabRequestForm = ({
           component={AutocompleteField}
           suggester={departmentSuggester}
         />
-        <div>
-          {/* <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
-          <Field name="urgent" label="Urgent?" component={CheckField} /> */}
-          <Field
-            name="labTestPriorityId"
-            label="Priority"
-            component={SuggesterSelectField}
-            endpoint="labTestPriority"
-          />
-        </div>
+        <Field
+          name="labTestPriorityId"
+          label="Priority"
+          component={SuggesterSelectField}
+          endpoint="labTestPriority"
+        />
         <FormSeparatorLine />
-        {/* <TextInput label="Encounter" disabled value={encounterLabel} /> */}
         <div style={{ gridColumn: '1 / -1' }}>
           <Field
             name="sampleCollected"
@@ -161,42 +127,36 @@ export const LabRequestForm = ({
             <Field
               name="labSampleSiteId"
               label="Site"
-              component={AutocompleteField}
-              suggester={labSampleSiteSuggester}
+              component={SuggesterSelectField}
+              endpoint="labSampleSite"
             />
           </>
         )}
-        {/* <Field
-          name="labTestCategoryId"
-          label="Test category"
-          required
-          component={SuggesterSelectField}
-          endpoint="labTestCategory"
-        /> */}
-        {/* <Field
-          name="labTestTypeIds"
-          label="Test type"
-          required
-          testTypes={filteredTestTypes}
-          component={TestSelectorField}
-          style={{ gridColumn: '1 / -1' }}
-        /> */}
         <FormSeparatorLine />
-        {/* <Field
-          name="note"
-          label="Notes"
-          component={TextField}
-          multiline
-          style={{ gridColumn: '1 / -1' }}
-          rows={3}
-        /> */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <Field
+            name="requestType"
+            label="Select your request type"
+            component={RadioField}
+            options={[
+              {
+                label: 'Panel',
+                description: 'Select from a list of test panels',
+                value: LAB_REQUEST_TYPES.PANEL,
+              },
+              {
+                label: 'Individual',
+                description: 'Select any individual or range of individual test types',
+                value: LAB_REQUEST_TYPES.INDIVIDUAL,
+              },
+            ]}
+          />
+        </div>
+
+        <FormSeparatorLine />
         <ButtonRow>
           <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-          <FormSubmitActionDropdown
-            requestId={requestId}
-            encounter={encounter}
-            submitForm={submitForm}
-          />
+          <Button onClick={onNext}>Next</Button>
         </ButtonRow>
       </FormGrid>
     );
