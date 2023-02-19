@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import Box from '@material-ui/core/Paper';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -11,6 +13,7 @@ import {
   SimpleTopBar,
   ContentPane,
   FormGrid,
+  Heading2,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -21,6 +24,7 @@ import { LabRequestChangeStatusModal } from './components/LabRequestChangeStatus
 import { LabRequestPrintModal } from './components/LabRequestPrintModal';
 import { LabRequestCancelModal } from './components/LabRequestCancelModal';
 import { LabRequestResultsTable } from './components/LabRequestResultsTable';
+import { Divider } from '@material-ui/core';
 
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
@@ -81,7 +85,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   );
 };
 
-export const LabRequestView = () => {
+export const OldLabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
 
@@ -156,5 +160,77 @@ export const LabRequestView = () => {
         <LabRequestAuditPane labRequest={labRequest} />
       </ContentPane>
     </div>
+  );
+};
+
+const Container = styled.div`
+  padding: 12px 30px;
+`;
+
+const TileContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  justify-content: space-between;
+  overflow: auto;
+`;
+
+const Tile = styled.div`
+  background: white;
+  border-radius: 3px;
+  padding: 30px;
+  flex: 1;
+  min-width: 100px;
+  height: 110px;
+  margin: 0 12px 12px;
+
+  &:first-child,
+  &:last-child {
+    margin-left: 0;
+    margin-right: 0;
+  }
+`;
+
+const Rule = styled(Divider)`
+  margin: 20px 0;
+`;
+
+const Placeholder = styled.div`
+  background: white;
+  border-radius: 3px;
+  margin-bottom: 12px;
+  padding: 30px;
+`;
+
+export const LabRequestView = () => {
+  const { isLoading, labRequest, updateLabRequest } = useLabRequest();
+  const { navigateToLabRequest } = usePatientNavigation();
+
+  const patient = useSelector(state => state.patient);
+
+  const updateLabReq = async data => {
+    await updateLabRequest(labRequest.id, data);
+    navigateToLabRequest(labRequest.id);
+  };
+
+  if (isLoading) return <LoadingIndicator />;
+
+  const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
+
+  return (
+    <Container>
+      <Heading2 style={{ marginBottom: 20 }}>Labs</Heading2>
+      <Placeholder>Card</Placeholder>
+      <Placeholder>Notes</Placeholder>
+      <TileContainer>
+        <Tile />
+        <Tile />
+        <Tile />
+        <Tile />
+        <Tile />
+      </TileContainer>
+      <Rule />
+      <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
+    </Container>
   );
 };
