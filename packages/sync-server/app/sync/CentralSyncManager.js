@@ -151,6 +151,8 @@ class CentralSyncManager {
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
   async initiatePull(sessionId, params) {
+    await this.connectToSession(sessionId);
+
     // first check if the snapshot is already being processed, to throw a sane error if (for some
     // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
     const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
@@ -283,6 +285,7 @@ class CentralSyncManager {
   }
 
   async checkSessionReady(sessionId) {
+    await this.connectToSession(sessionId);
     const session = await this.connectToSession(sessionId);
     if (session.startedAtTick === null) {
       return false;
@@ -292,6 +295,8 @@ class CentralSyncManager {
   }
 
   async checkPullReady(sessionId) {
+    await this.connectToSession(sessionId);
+
     // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
     if (snapshotIsProcessing) {
