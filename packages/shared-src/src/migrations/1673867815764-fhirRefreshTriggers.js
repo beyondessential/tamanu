@@ -38,6 +38,7 @@ export async function up(query) {
       END IF;
 
       PERFORM job_submit('fhir.refresh.allFromUpstream', payload);
+      RETURN NEW;
     END;
     $$
   `);
