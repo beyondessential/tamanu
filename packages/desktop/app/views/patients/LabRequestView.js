@@ -1,34 +1,35 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
-import { useCertificate } from '../../utils/useCertificate';
-import { ContentPane } from '../../components/ContentPane';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { DataFetchingTable } from '../../components/Table';
-import { ManualLabResultModal } from '../../components/ManualLabResultModal';
-import { FormGrid } from '../../components/FormGrid';
 import {
   SelectInput,
   DateInput,
   TextInput,
   DateTimeInput,
   AutocompleteField,
-} from '../../components/Field';
-import { ConfirmCancelRow } from '../../components/ButtonRow';
+  SimpleTopBar,
+  Modal,
+  ConfirmCancelRow,
+  ContentPane,
+  DataFetchingTable,
+  FormGrid,
+} from '../../components';
+import { useCertificate } from '../../utils/useCertificate';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
 import { DropdownButton } from '../../components/DropdownButton';
-import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
 import { CancelModal } from '../../components/CancelModal';
-import { SimpleTopBar } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
+import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -90,22 +91,18 @@ const ResultsPane = React.memo(({ labRequest, patient, isReadOnly }) => {
   );
 });
 
+const HIDDEN_STATUSES = [
+  LAB_REQUEST_STATUSES.DELETED,
+  LAB_REQUEST_STATUSES.CANCELLED,
+  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+];
+
 const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClose }) => {
   const [status, setStatus] = useState(currentStatus);
   const updateLabStatus = useCallback(async () => {
     await updateLabReq({ status });
     onClose();
   }, [updateLabReq, status, onClose]);
-  const labStatuses = useMemo(
-    () => [
-      { value: 'reception_pending', label: 'Reception pending' },
-      { value: 'results_pending', label: 'Results pending' },
-      { value: 'to_be_verified', label: 'To be verified' },
-      { value: 'verified', label: 'Verified' },
-      { value: 'published', label: 'Published' },
-    ],
-    [],
-  );
   return (
     <>
       <Modal open={open} onClose={onClose} title="Change lab request status">
@@ -113,7 +110,7 @@ const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClo
           <SelectInput
             label="Status"
             name="status"
-            options={labStatuses}
+            options={LAB_REQUEST_STATUS_OPTIONS}
             value={status}
             onChange={({ target: { value } }) => setStatus(value)}
           />
@@ -271,10 +268,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   }
 
   // Hide all actions if the lab request is cancelled, deleted or entered-in-error
-  const hideActions =
-    status === LAB_REQUEST_STATUSES.CANCELLED ||
-    status === LAB_REQUEST_STATUSES.DELETED ||
-    status === LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
+  const hideActions = HIDDEN_STATUSES.includes(status);
 
   return (
     <>
@@ -360,10 +354,7 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const isReadOnly =
-    labRequest.status === LAB_REQUEST_STATUSES.CANCELLED ||
-    labRequest.status === LAB_REQUEST_STATUSES.ENTERED_IN_ERROR ||
-    labRequest.status === LAB_REQUEST_STATUSES.DELETED;
+  const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
 
   return (
     <div>
