@@ -1,5 +1,6 @@
 import { subDays } from 'date-fns';
 import { toDateTimeString } from 'shared/utils/dateTime';
+import { IMAGING_REQUEST_STATUS_CONFIG } from '../constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -21,12 +22,42 @@ const FIELDS = [
   'Imaging type',
   'Area to be imaged',
   'Status',
+  'Reason for cancellation',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+// Reason for cancellation is a configurable field but these are the default values
+const DEFAULT_REASONS_FOR_CANCELLATION = {
+  clinical: 'Clinical reason',
+  duplicate: 'Duplicate',
+  'entered-in-error': 'Entered in error',
+  'patient-discharged': 'Patient discharged',
+  'patient-refused': 'Patient refused',
+  other: 'Other',
+};
+
+const reportColumnTemplate = FIELDS.map(field => {
+  if (field === 'Status') {
+    return {
+      title: field,
+      accessor: data =>
+        IMAGING_REQUEST_STATUS_CONFIG[data[field]]
+          ? IMAGING_REQUEST_STATUS_CONFIG[data[field]].label
+          : data[field],
+    };
+  }
+
+  if (field === 'Reason for cancellation') {
+    return {
+      title: field,
+      accessor: data => DEFAULT_REASONS_FOR_CANCELLATION[data[field]] ?? data[field],
+    };
+  }
+
+  return {
+    title: field,
+    accessor: data => data[field],
+  };
+});
 
 const query = `
 select 
@@ -50,7 +81,11 @@ select
     when ira.id is not null then rdi.name
     else ni.content
     end as "Area to be imaged",
-  ir.status as "Status"
+  ir.status as "Status",
+  case
+      when ir.status = 'cancelled' then ir.reason_for_cancellation
+      else null
+      end as "Reason for cancellation"
 from
   imaging_requests ir
   left join encounters e on e.id=ir.encounter_id
@@ -71,7 +106,7 @@ where
   and case when :to_date is not null then ir.requested_date::date <= :to_date::date else true end
   and case when :requested_by_id is not null then ir.requested_by_id = :requested_by_id else true end
   and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
-  and case when :status is not null then ir.status = :status else true end
+  and case when :areStatuses is not null then ir.status IN(:statuses) else true end
 order by ir.requested_date;
 `;
 
@@ -81,8 +116,10 @@ const getData = async (sequelize, parameters) => {
     toDate,
     requestedById,
     imagingType,
-    status,
+    statuses,
   } = parameters;
+
+  const selectedStatuses = statuses?.split(', ') ?? null;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
@@ -91,7 +128,8 @@ const getData = async (sequelize, parameters) => {
       to_date: toDate ?? null,
       requested_by_id: requestedById ?? null,
       imaging_type: imagingType ?? null,
-      status: status ?? null,
+      statuses: selectedStatuses,
+      areStatuses: selectedStatuses ? 'true' : null,
     },
   });
 };
