@@ -23,18 +23,18 @@ export async function up(query) {
       allowNull: true,
     },
     lab_test_panel_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
       references: {
         model: 'lab_test_panels',
         key: 'id',
       },
     },
-    lab_test_id: {
+    lab_test_type_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: 'lab_tests',
+        model: 'lab_test_types',
         key: 'id',
       },
     },
