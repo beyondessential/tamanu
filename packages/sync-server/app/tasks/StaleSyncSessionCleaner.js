@@ -1,6 +1,5 @@
 import config from 'config';
 import { Op } from 'sequelize';
-import { InvalidConfigError } from 'shared/errors';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { completeSyncSession } from 'shared/sync/completeSyncSession';
@@ -17,7 +16,7 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
     this.store = context.store;
   }
 
-  async getWhere() {
+  getWhere() {
     const { staleSessionSeconds } = this.config;
     return {
       lastConnectionTime: { [Op.lt]: Date.now() - staleSessionSeconds * 1000 },
