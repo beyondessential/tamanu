@@ -86,8 +86,12 @@ export const DateInput = ({
     const formattedValue = fromRFC3339(value, format);
     if (value && formattedValue) {
       setCurrentText(formattedValue);
+      setIsPlaceholder(false);
     }
-    return () => setCurrentText('');
+    return () => {
+      setCurrentText('');
+      setIsPlaceholder(true);
+    };
   }, [value, format]);
 
   return (

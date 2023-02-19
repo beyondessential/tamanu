@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { CancelModal } from '../../components/CancelModal';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -30,12 +31,6 @@ import { ImagingRequestPrintout } from '../../components/PatientPrinting/Imaging
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 import { SimpleTopBar } from '../../components';
-
-const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'completed', label: 'Completed' },
-];
 
 const PrintButton = ({ imagingRequest, patient }) => {
   const api = useApi();
@@ -100,11 +95,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         name="status"
         label="Status"
         component={SelectField}
-        options={
-          isCancelled
-            ? [{ value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED, label: 'Cancelled' }]
-            : STATUS_OPTIONS
-        }
+        options={IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
@@ -310,6 +301,7 @@ export const ImagingRequestView = () => {
 
     await api.put(`imagingRequest/${imagingRequest.id}`, {
       status,
+      reasonForCancellation,
       note,
     });
     dispatch(

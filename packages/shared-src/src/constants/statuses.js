@@ -34,7 +34,7 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
-    label: 'Entered in Error',
+    label: 'Entered in error',
     color: '#444444;',
     background: '#EDEDED',
   },
@@ -44,17 +44,6 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
     background: '#EDEDED',
   },
 };
-
-export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
-  .filter(
-    x =>
-      x !== IMAGING_REQUEST_STATUS_TYPES.DELETED &&
-      x !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-  )
-  .map(s => ({
-    label: IMAGING_REQUEST_STATUS_CONFIG[s].label,
-    value: s,
-  }));
 
 export const APPOINTMENT_TYPES = {
   STANDARD: 'Standard',

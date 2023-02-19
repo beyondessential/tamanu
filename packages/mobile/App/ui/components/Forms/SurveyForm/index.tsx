@@ -49,30 +49,24 @@ export const SurveyForm = ({
 
   return (
     <Form
+      validateOnChange
+      validateOnBlur
       validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setFieldValue, errors }): ReactElement => {
+      {({ values, setFieldValue }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
 
           // write values that have changed back into answers
           Object.entries(calculatedValues)
-            .filter(([k, v]) => values[k] !== v)
-            .map(([k, v]) => setFieldValue(k, v));
+            .filter(([key, value]) => values[key] !== value)
+            .map(([key, value]) => setFieldValue(key, value, false));
         }, [values]);
-        return (
-          <FormFields
-            components={components}
-            values={values}
-            note={note}
-            patient={patient}
-            errors={errors}
-          />
-        );
+        return <FormFields components={components} note={note} patient={patient} />;
       }}
     </Form>
   );

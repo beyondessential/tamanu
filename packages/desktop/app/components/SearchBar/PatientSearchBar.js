@@ -8,6 +8,7 @@ import {
   LocalisedField,
   DisplayIdField,
   DateField,
+  SearchField,
 } from '../Field';
 import { useSuggester } from '../../api';
 
@@ -23,14 +24,15 @@ export const PatientSearchBar = React.memo(
     return (
       <CustomisableSearchBar
         title="Search for Patients"
+        variant="small"
         renderCheckField={
           <Field name="deceased" label="Include deceased patients" component={CheckField} />
         }
         onSearch={onSearch}
         initialValues={{ displayIdExact: true, ...searchParameters }}
       >
-        <LocalisedField name="firstName" />
-        <LocalisedField name="lastName" />
+        <LocalisedField name="firstName" component={SearchField} />
+        <LocalisedField name="lastName" component={SearchField} />
         <Field
           name="dateOfBirthExact"
           label="DOB"

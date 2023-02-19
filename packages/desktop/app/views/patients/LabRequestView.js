@@ -1,38 +1,35 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
-import { useCertificate } from '../../utils/useCertificate';
-
-import { DeleteButton } from '../../components/Button';
-import { ContentPane } from '../../components/ContentPane';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { DataFetchingTable } from '../../components/Table';
-import { ManualLabResultModal } from '../../components/ManualLabResultModal';
-import { FormGrid } from '../../components/FormGrid';
 import {
   SelectInput,
   DateInput,
   TextInput,
   DateTimeInput,
   AutocompleteField,
-} from '../../components/Field';
-import { ConfirmCancelRow } from '../../components/ButtonRow';
-import { ConfirmModal } from '../../components/ConfirmModal';
+  SimpleTopBar,
+  Modal,
+  ConfirmCancelRow,
+  ContentPane,
+  DataFetchingTable,
+  FormGrid,
+} from '../../components';
+import { useCertificate } from '../../utils/useCertificate';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
 import { DropdownButton } from '../../components/DropdownButton';
-import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
-
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
 import { CancelModal } from '../../components/CancelModal';
-import { SimpleTopBar } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
+import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -94,22 +91,18 @@ const ResultsPane = React.memo(({ labRequest, patient, isReadOnly }) => {
   );
 });
 
+const HIDDEN_STATUSES = [
+  LAB_REQUEST_STATUSES.DELETED,
+  LAB_REQUEST_STATUSES.CANCELLED,
+  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+];
+
 const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClose }) => {
   const [status, setStatus] = useState(currentStatus);
   const updateLabStatus = useCallback(async () => {
     await updateLabReq({ status });
     onClose();
   }, [updateLabReq, status, onClose]);
-  const labStatuses = useMemo(
-    () => [
-      { value: 'reception_pending', label: 'Reception pending' },
-      { value: 'results_pending', label: 'Results pending' },
-      { value: 'to_be_verified', label: 'To be verified' },
-      { value: 'verified', label: 'Verified' },
-      { value: 'published', label: 'Published' },
-    ],
-    [],
-  );
   return (
     <>
       <Modal open={open} onClose={onClose} title="Change lab request status">
@@ -117,7 +110,7 @@ const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClo
           <SelectInput
             label="Status"
             name="status"
-            options={labStatuses}
+            options={LAB_REQUEST_STATUS_OPTIONS}
             value={status}
             onChange={({ target: { value } }) => setStatus(value)}
           />
@@ -153,32 +146,6 @@ const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
           <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={onClose} />
         </FormGrid>
       </Modal>
-    </>
-  );
-};
-
-const DeleteRequestModal = ({ updateLabReq, open, onClose }) => {
-  const { navigateToEncounter } = usePatientNavigation();
-  const deleteLabRequest = useCallback(async () => {
-    await updateLabReq({
-      status: 'deleted',
-    });
-    onClose();
-    navigateToEncounter();
-  }, [updateLabReq, onClose, navigateToEncounter]);
-
-  return (
-    <>
-      <ConfirmModal
-        title="Delete lab request"
-        open={open}
-        text="WARNING: This action is irreversible!"
-        subText="Are you sure you want to delete this lab request?"
-        onCancel={onClose}
-        onConfirm={deleteLabRequest}
-        ConfirmButton={DeleteButton}
-        confirmButtonText="Delete"
-      />
     </>
   );
 };
@@ -264,7 +231,7 @@ const LabRequestCancelModal = ({ open, onClose, updateLabReq, labRequestId }) =>
 
     await updateLabReq({
       status,
-      note,
+      reasonForCancellation,
     });
   };
 
@@ -287,22 +254,8 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   const [printModalOpen, setPrintModalOpen] = useState(modal === 'print');
   const [labModalOpen, setLabModalOpen] = useState(modal === 'laboratory');
   const [cancelModalOpen, setCancelModalOpen] = useState(modal === 'cancel');
-  const [deleteModalOpen, setDeleteModalOpen] = useState(modal === 'delete');
 
-  const api = useApi();
-  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
   const { id: labRequestId, status } = labRequest;
-
-  // show delete button if no test has results
-  useEffect(() => {
-    (async () => {
-      const { data: tests } = await api.get(`/labRequest/${labRequestId}/tests`);
-      const testsWithResults = tests.filter(t => t.result);
-      if (!testsWithResults.length) {
-        setHasTests(false);
-      }
-    })();
-  }, [api, labRequestId, setHasTests]);
 
   const actions = [
     { label: 'Change status', onClick: () => setStatusModalOpen(true) },
@@ -314,9 +267,8 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
     actions.push({ label: 'Cancel request', onClick: () => setCancelModalOpen(true) });
   }
 
-  if (!hasTests) {
-    actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
-  }
+  // Hide all actions if the lab request is cancelled, deleted or entered-in-error
+  const hideActions = HIDDEN_STATUSES.includes(status);
 
   return (
     <>
@@ -332,12 +284,6 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
       />
-      <DeleteRequestModal
-        labRequestId={labRequestId}
-        updateLabReq={updateLabReq}
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-      />
       <ChangeLaboratoryModal
         laboratory={labRequest.laboratory}
         updateLabReq={updateLabReq}
@@ -350,10 +296,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={cancelModalOpen}
         onClose={() => setCancelModalOpen(false)}
       />
-      {/*  Hide all actions if the lab request is cancelled */}
-      {status !== LAB_REQUEST_STATUSES.CANCELLED && (
-        <DropdownButton actions={actions} variant="outlined" />
-      )}
+      {!hideActions && <DropdownButton actions={actions} variant="outlined" />}
     </>
   );
 };
@@ -411,10 +354,7 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const isReadOnly =
-    labRequest.status === LAB_REQUEST_STATUSES.CANCELLED ||
-    labRequest.status === LAB_REQUEST_STATUSES.ENTERED_IN_ERROR ||
-    labRequest.status === LAB_REQUEST_STATUSES.DELETED;
+  const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
 
   return (
     <div>

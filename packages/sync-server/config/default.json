@@ -99,7 +99,7 @@
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
     "outpatientDischarger": {
       // every day at 11 PM
-      "schedule": "0 11 * * *",
+      "schedule": "0 23 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
@@ -808,6 +808,9 @@
     // DESTROY sets deleted_at to a timestamp
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
+  },
+  "validateQuestionConfigs": {
+    "enabled": false
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones

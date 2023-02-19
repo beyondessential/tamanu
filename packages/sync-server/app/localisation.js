@@ -328,7 +328,10 @@ const rootLocalisationSchema = yup
     imagingCancellationReasons: yup
       .array(
         yup.object({
-          value: yup.string().required(),
+          value: yup
+            .string()
+            .required()
+            .max(31),
           label: yup.string().required(),
         }),
       )
@@ -353,7 +356,10 @@ const rootLocalisationSchema = yup
     labsCancellationReasons: yup
       .array(
         yup.object({
-          value: yup.string().required(),
+          value: yup
+            .string()
+            .required()
+            .max(31),
           label: yup.string().required(),
         }),
       )

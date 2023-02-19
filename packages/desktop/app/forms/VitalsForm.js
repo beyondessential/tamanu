@@ -53,6 +53,9 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   return (
     <Form
       onSubmit={handleSubmit}
+      showInlineErrorsOnly
+      validateOnChange
+      validateOnBlur
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
@@ -66,20 +69,18 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
 
         return errors;
       }}
-      render={({ submitForm, values, setFieldValue }) => {
-        return (
-          <SurveyScreen
-            components={vitalsSurvey.components}
-            patient={patient}
-            cols={2}
-            values={values}
-            setFieldValue={setFieldValue}
-            submitButton={
-              <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
-            }
-          />
-        );
-      }}
+      render={({ submitForm, values, setFieldValue }) => (
+        <SurveyScreen
+          components={vitalsSurvey.components}
+          patient={patient}
+          cols={2}
+          values={values}
+          setFieldValue={setFieldValue}
+          submitButton={
+            <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+          }
+        />
+      )}
     />
   );
 });
