@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import * as yup from 'yup';
@@ -310,7 +311,7 @@ patientDeath.post(
         revertedById: req.user.id,
       });
       await patient.update({ dateOfDeath: null });
-      await deathData.destroy();
+      await deathData.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
     });
 
     res.send({
