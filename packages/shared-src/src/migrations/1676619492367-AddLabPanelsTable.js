@@ -29,6 +29,11 @@ export async function up(query) {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    visibility_status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'current',
+    },
   });
 }
 
