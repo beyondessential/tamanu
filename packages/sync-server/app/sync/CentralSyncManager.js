@@ -6,7 +6,6 @@ import {
   createSnapshotTable,
   insertSnapshotRecords,
   updateSnapshotRecords,
-  completeInactiveSyncSessions,
   completeSyncSession,
   countSyncSnapshotRecords,
   findSyncSnapshotRecords,
@@ -40,21 +39,10 @@ class CentralSyncManager {
 
   constructor(ctx) {
     this.store = ctx.store;
-    this.purgeInterval = setInterval(
-      this.purgeLapsedSessions,
-      this.constructor.config.sync.lapsedSessionCheckFrequencySeconds * 1000,
-    );
     ctx.onClose(this.close);
   }
 
   close = () => clearInterval(this.purgeInterval);
-
-  purgeLapsedSessions = async () => {
-    await completeInactiveSyncSessions(
-      this.store,
-      this.constructor.config.sync.lapsedSessionSeconds,
-    );
-  };
 
   async tickTockGlobalClock() {
     // rather than just incrementing by one tick, we "tick, tock" the clock so we guarantee the

@@ -27,8 +27,6 @@
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
     "adjustDataBatchSize": 20000,
-    "lapsedSessionSeconds": 3600,
-    "lapsedSessionCheckFrequencySeconds": 60,
     "syncAllEncountersForTheseVaccines": []
   },
   "loadshedder": {
@@ -174,6 +172,11 @@
       "timeoutHours": 24,
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "staleSyncSessionCleaner": {
+      "enabled": true,
+      "schedule": "* * * * *",
+      "staleSessionSeconds": 3600
     }
   },
   "integrations": {
@@ -559,12 +562,12 @@
         },
         "prescriber": {
           "shortLabel": "Prescriber",
-          "longLabel":  "Prescriber",
+          "longLabel": "Prescriber",
           "hidden": false
         },
         "prescriberId": {
           "shortLabel": "Prescriber ID",
-          "longLabel":  "Prescriber ID",
+          "longLabel": "Prescriber ID",
           "hidden": false
         },
         "facility": {

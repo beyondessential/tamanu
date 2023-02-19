@@ -18,9 +18,6 @@ import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
         },
         onClose: () => {},
       });
-
-      // Also if using this mock remember to call .close() on the instance. i.e.:
-      syncManager.close();
 */
 
 describe('CentralSyncManager', () => {
