@@ -38,7 +38,8 @@ patientDeath.get(
     }
 
     const deathData = await PatientDeathData.findOne({
-      where: { patientId },
+      where: { patientId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: User,
@@ -213,7 +214,8 @@ patientDeath.post(
     if (!doc) throw new NotFoundError('Discharge clinician not found');
 
     const existingDeathData = await PatientDeathData.findOne({
-      where: { patientId: patient.id },
+      where: { patientId: patient.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
     });
 
     await transactionOnPostgres(db, async () => {
@@ -297,7 +299,8 @@ patientDeath.post(
     if (!patient) throw new NotFoundError('Patient not found');
 
     const deathData = await PatientDeathData.findOne({
-      where: { patientId: patient.id },
+      where: { patientId: patient.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
     });
     if (!deathData) throw new NotFoundError('Death data not found');
     if (deathData.isFinal)
