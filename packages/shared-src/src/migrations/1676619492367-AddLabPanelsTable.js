@@ -26,6 +26,10 @@ export async function up(query) {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   });
 }
 
