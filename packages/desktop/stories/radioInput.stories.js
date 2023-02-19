@@ -80,4 +80,11 @@ WithError.args = {
   helperText: 'Here is an error message',
 };
 
-
+export const WithDescriptions = Template.bind({});
+WithDescriptions.args = {
+  ...DEFAULT_PROPS,
+  options: FRUITS.slice(0, 2).map(option => ({
+    ...option,
+    description: `Some descriptive information about the ${option.label}`,
+  })),
+};

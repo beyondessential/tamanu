@@ -53,6 +53,13 @@ const ControlLabel = styled(FormControlLabel)`
     }
   }
 
+  &.MuiFormControlLabel-labelPlacementStart {
+    padding: 18px 20px;
+    .MuiButtonBase-root {
+      align-self: flex-start;
+    }
+  }
+
   .MuiTypography-root {
     font-size: 14px;
     line-height: 16px;
@@ -60,6 +67,29 @@ const ControlLabel = styled(FormControlLabel)`
     color: ${props => (props.selected ? props.theme.text.selected : props.theme.text.default)};
   }
 `;
+
+const StyledLabelDescription = styled.p`
+  font-size: 11px;
+  color: ${Colors.midText};
+  margin: 0;
+  padding-right: 10px;
+  width: 200px;
+`;
+
+const StyledLabelTitle = styled.p`
+  font-size: 14px;
+  color: ${Colors.darkestText};
+  margin: 0;
+  margin-bottom: 8px;
+  font-weight: bold;
+`;
+
+const LabelWithDescription = ({ label, description }) => (
+  <div>
+    <StyledLabelTitle>{label}</StyledLabelTitle>
+    <StyledLabelDescription>{description}</StyledLabelDescription>
+  </div>
+);
 
 export const RadioInput = ({
   options,
@@ -83,8 +113,15 @@ export const RadioInput = ({
         {options.map(option => (
           <ControlLabel
             key={option.value}
+            labelPlacement={option.description ? 'start' : 'end'}
             control={<Radio value={option.value} selected={value === option.value} />}
-            label={option.label}
+            label={
+              option.description ? (
+                <LabelWithDescription label={option.label} description={option.description} />
+              ) : (
+                option.label
+              )
+            }
             value={option.value}
             $fullWidth={fullWidth}
             selected={value === option.value}
