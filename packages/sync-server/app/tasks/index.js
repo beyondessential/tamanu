@@ -52,7 +52,7 @@ export async function startScheduledTasks(context) {
     taskClasses.push(PlannedMoveTimeout);
   }
 
-  if (config.schedules.staleSessionCleaner.enabled) {
+  if (config.schedules.staleSyncSessionCleaner.enabled) {
     taskClasses.push(StaleSyncSessionCleaner);
   }
 
