@@ -77,6 +77,12 @@ export class LabTestType extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'labTestCategoryId',
     });
+    this.hasMany(models.LabTestPanelRelation, {
+      foreignKey: 'labTestTypeId',
+    });
+    this.belongsToMany(models.LabTestPanel, {
+      through: 'LabTestPanelRelation',
+    });
   }
 
   forResponse() {
