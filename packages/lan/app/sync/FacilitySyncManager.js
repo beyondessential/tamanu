@@ -69,6 +69,8 @@ class FacilitySyncManager {
       );
     }
 
+    log.info(`Sync: Initiating session`, { reason: this.reason });
+
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
 
@@ -81,8 +83,7 @@ class FacilitySyncManager {
       startedAtTick: newSyncClockTime,
     } = await this.centralServer.startSyncSession();
 
-    log.info(`Sync: Began sync`, { 
-      reason: this.reason,
+    log.info(`Sync: Session started`, { 
       sessionId,
       startedAtTick: newSyncClockTime,
     });
