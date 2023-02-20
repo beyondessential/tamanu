@@ -23,7 +23,7 @@ export async function up(query) {
       allowNull: true,
     },
     user_id: {
-      type: Sequelize.UUID,
+      type: Sequelize.STRING,
       references: {
         model: 'users',
         key: 'id',
@@ -32,7 +32,7 @@ export async function up(query) {
       allowNull: false,
     },
     patient_id: {
-      type: Sequelize.UUID,
+      type: Sequelize.STRING,
       references: {
         model: 'patients',
         key: 'id',
