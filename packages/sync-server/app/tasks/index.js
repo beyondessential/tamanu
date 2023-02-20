@@ -1,6 +1,6 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
-import { Worker } from 'shared/tasks';
+import { FhirWorker } from 'shared/tasks';
 
 import { findUser } from '../auth/utils';
 
@@ -20,7 +20,7 @@ import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificateP
 import { FhirMaterialiser } from './FhirMaterialiser';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 
-import { WorkerTest } from './WorkerTest';
+import { FhirWorkerTest } from './FhirWorkerTest';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -73,11 +73,11 @@ export async function startScheduledTasks(context) {
   return () => tasks.forEach(t => t.cancelPolling());
 }
 
-export async function startWorkerTasks({ store }) {
-  const worker = new Worker(store, log);
+export async function startFhirWorkerTasks({ store }) {
+  const worker = new FhirWorker(store, log);
   await worker.start();
 
-  await worker.installTopic('test', WorkerTest);
+  await worker.installTopic('test', FhirWorkerTest);
 
   return worker;
 }

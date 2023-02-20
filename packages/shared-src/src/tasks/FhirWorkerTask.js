@@ -1,6 +1,6 @@
 import { ScheduledTask } from './ScheduledTask';
 
-export class WorkerTask extends ScheduledTask {
+export class FhirWorkerTask extends ScheduledTask {
   constructor(context, log, topic, workerId, schedule, maxConcurrency) {
     super(schedule, log);
     this.models = context.models;
@@ -15,7 +15,7 @@ export class WorkerTask extends ScheduledTask {
   }
 
   countQueue() {
-    return this.models.Job.backlog(this.topic);
+    return this.models.FhirJob.backlog(this.topic);
   }
 
   /** Actual work goes here
@@ -24,8 +24,8 @@ export class WorkerTask extends ScheduledTask {
    * Return values will be ignored.
    *
    * @abstract
-   * @typedef { import('shared/models/Job').Job } Job
-   * @param {Job} job Job model instance (for payload)
+   * @typedef { import('shared/models/fhir/Job').FhirJob } FhirJob
+   * @param {FhirJob} job Job model instance (for payload)
    * @returns {Promise<void>}
    */
   // eslint-disable-next-line class-methods-use-this
@@ -65,7 +65,7 @@ export class WorkerTask extends ScheduledTask {
 
   async runOne() {
     this.log.debug('WorkerTask: Grabbing job', { topic: this.topic });
-    const job = await this.models.Job.grab(this.workerId, this.topic);
+    const job = await this.models.FhirJob.grab(this.workerId, this.topic);
     if (!job) {
       this.log.debug('WorkerTask: No job to grab', { topic: this.topic });
       return;

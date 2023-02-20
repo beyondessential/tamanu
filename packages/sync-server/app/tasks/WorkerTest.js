@@ -1,11 +1,11 @@
-import { WorkerTask } from 'shared/tasks';
+import { FhirWorkerTask } from 'shared/tasks';
 
-export class WorkerTest extends WorkerTask {
+export class FhirWorkerTest extends FhirWorkerTask {
   async doWork(job) {
     if (job.payload.error) {
-      throw new Error('WorkerTest: error');
+      throw new Error('FhirWorkerTest: error');
     }
 
-    this.log.info('WorkerTest: success', job.payload);
+    this.log.info('FhirWorkerTest: success', job.payload);
   }
 }

@@ -2,7 +2,7 @@ import { hostname } from 'os';
 import theConfig from 'config';
 import ms from 'ms';
 
-export class Worker {
+export class FhirWorker {
   handlers = new Map();
 
   heartbeat = null;
@@ -18,14 +18,14 @@ export class Worker {
   }
 
   async start() {
-    const { JobWorker, Setting } = this.models;
+    const { FhirJobWorker, Setting } = this.models;
 
     const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
     this.log.debug('FhirJobWorker: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = ms(heartbeatInterval);
     this.log.debug('FhirJobWorker: scheduling heartbeat', { intervalMs: heartbeat });
 
-    this.worker = await JobWorker.register({
+    this.worker = await FhirJobWorker.register({
       version: 'unknown',
       serverType: 'unknown',
       hostname: hostname(),

@@ -1,3 +1,3 @@
 export { ScheduledTask } from './ScheduledTask';
-export { WorkerTask } from './WorkerTask';
-export { Worker } from './Worker';
+export { FhirWorkerTask } from './FhirWorkerTask';
+export { FhirWorker } from './FhirWorker';

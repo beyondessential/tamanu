@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
-import { startScheduledTasks, startWorkerTasks } from '../tasks';
+import { startScheduledTasks, startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
 export const tasks = async ({ skipMigrationCheck }) => {
@@ -13,7 +13,7 @@ export const tasks = async ({ skipMigrationCheck }) => {
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const stopScheduledTasks = await startScheduledTasks(context);
-  const worker = await startWorkerTasks(context);
+  const worker = await startFhirWorkerTasks(context);
 
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.once(sig, async () => {

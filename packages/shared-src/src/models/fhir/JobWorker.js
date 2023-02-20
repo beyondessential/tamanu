@@ -2,7 +2,7 @@ import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 import { Model } from './Model';
 import { SYNC_DIRECTIONS } from '../constants';
 
-export class JobWorker extends Model {
+export class FhirJobWorker extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -31,7 +31,7 @@ export class JobWorker extends Model {
       bind: { metadata },
     });
 
-    return JobWorker.findByPk(id);
+    return FhirJobWorker.findByPk(id);
   }
 
   static async clearDead() {

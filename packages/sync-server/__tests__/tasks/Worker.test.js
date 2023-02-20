@@ -1,8 +1,8 @@
 import { jest, describe, expect, it } from '@jest/globals';
 import { withErrorShown } from 'shared/test-helpers';
-import { Worker } from 'shared/tasks';
+import { FhirWorker } from 'shared/tasks';
 import { createTestContext } from '../utilities';
-import { WorkerTest } from '../../app/tasks/WorkerTest';
+import { FhirWorkerTest } from '../../app/tasks/WorkerTest';
 import { fakeUUID } from 'shared/utils/generateId';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 
@@ -93,9 +93,9 @@ describe('Worker Jobs', () => {
 
     beforeEach(async () => {
       logger = jest.fn();
-      worker = new Worker(ctx.store, makeLogger(logger));
+      worker = new FhirWorker(ctx.store, makeLogger(logger));
       await worker.start();
-      await worker.installTopic('test', WorkerTest);
+      await worker.installTopic('test', FhirWorkerTest);
       worker.__testingSetup();
     });
 
@@ -182,11 +182,11 @@ describe('Worker Jobs', () => {
       await models.Job.truncate();
 
       logger = jest.fn();
-      worker = new Worker(ctx.store, makeLogger(logger));
+      worker = new FhirWorker(ctx.store, makeLogger(logger));
       worker.config.topicConcurrency = 1;
       await worker.start();
-      await worker.installTopic('test1', WorkerTest);
-      await worker.installTopic('test2', WorkerTest);
+      await worker.installTopic('test1', FhirWorkerTest);
+      await worker.installTopic('test2', FhirWorkerTest);
       worker.__testingSetup();
     });
 
@@ -302,7 +302,7 @@ describe('Worker Jobs', () => {
       withErrorShown(async () => {
         const { Job } = models;
         worker.config.topicConcurrency = 10;
-        await worker.installTopic('test3', WorkerTest);
+        await worker.installTopic('test3', FhirWorkerTest);
         worker.__testingSetup();
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');

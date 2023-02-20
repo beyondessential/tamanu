@@ -1,12 +1,12 @@
 import ms from 'ms';
 import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
 
-import { Model } from './Model';
-import { SYNC_DIRECTIONS } from '../constants';
-import { log } from '../services/logging';
-import { sleepAsync } from '../utils/sleepAsync';
+import { Model } from '../Model';
+import { SYNC_DIRECTIONS } from '../../constants';
+import { log } from '../../services/logging';
+import { sleepAsync } from '../../utils/sleepAsync';
 
-export class Job extends Model {
+export class FhirJob extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -99,7 +99,7 @@ export class Job extends Model {
             );
 
             if (!id) return null;
-            return Job.findByPk(id);
+            return FhirJob.findByPk(id);
           },
         );
       } catch (err) {
