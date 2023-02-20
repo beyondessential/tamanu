@@ -629,7 +629,11 @@
         },
         "plannedMoveTimeoutHours": 24
       },
-      "imagingTypes": {},
+      "imagingTypes": {
+        // keys are taken from IMAGING_TYPES in shared/constants/imaging
+        // e.g.
+        // "xRay": { "label": "X-Ray" }
+      },
       "imagingPriorities": [
         {
           "value": "routine",
