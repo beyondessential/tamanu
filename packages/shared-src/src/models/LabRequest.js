@@ -132,6 +132,7 @@ export class LabRequest extends Model {
 
   static getListReferenceAssociations() {
     return [
+      'department',
       'requestedBy',
       'category',
       'priority',
