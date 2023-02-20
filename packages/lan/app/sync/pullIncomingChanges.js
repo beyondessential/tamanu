@@ -11,8 +11,10 @@ const { persistedCacheBatchSize } = config.sync;
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
+  log.info('Sync: Waiting for central server to prepare records to pull');
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
 
+  log.info('Sync: Pulling changes', { since, totalToPull });
   let fromId;
   let limit = calculatePageLimit();
   let totalPulled = 0;

@@ -125,7 +125,6 @@ class FacilitySyncManager {
 
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
-    log.info('Sync: Pulling changes', { pullSince });
     await createSnapshotTable(this.sequelize, sessionId);
     const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
