@@ -7,6 +7,7 @@ import {
   AREA_TYPE_TO_IMAGING_TYPE,
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
@@ -131,7 +132,9 @@ imagingRequest.get(
     };
 
     // Get related notes (general, area to be imaged)
-    const relatedNotePages = await imagingRequestObject.getNotePages();
+    const relatedNotePages = await imagingRequestObject.getNotePages({
+      where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
 
     const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
     const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
@@ -192,7 +195,9 @@ imagingRequest.put(
     }
 
     // Get related notes (general, area to be imaged)
-    const relatedNotePages = await imagingRequestObject.getNotePages();
+    const relatedNotePages = await imagingRequestObject.getNotePages({
+      where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
 
     const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
     const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
