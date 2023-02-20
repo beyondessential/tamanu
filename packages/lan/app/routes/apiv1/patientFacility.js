@@ -26,7 +26,7 @@ patientFacility.post('/$', async (req, res) => {
   });
 
   // trigger a sync to immediately start pulling data for this patient
-  syncManager.triggerSync();
+  syncManager.triggerSync(`synced patient ${patient.displayId}`);
 
   res.send(record);
 });

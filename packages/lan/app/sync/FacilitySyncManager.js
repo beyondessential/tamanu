@@ -25,13 +25,19 @@ class FacilitySyncManager {
 
   syncPromise = null;
 
+  reason = '';
+
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
   }
 
-  async triggerSync() {
+  isSyncRunning() {
+    return !!this.syncPromise;
+  }
+
+  async triggerSync(reason) {
     if (!this.constructor.config.sync.enabled) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return;
@@ -44,6 +50,7 @@ class FacilitySyncManager {
     }
 
     // set up a common sync promise to avoid double sync
+    this.reason = reason;
     this.syncPromise = this.runSync();
 
     // make sure sync promise gets cleared when finished, even if there's an error
@@ -51,6 +58,7 @@ class FacilitySyncManager {
       await this.syncPromise;
     } finally {
       this.syncPromise = null;
+      this.reason = '';
     }
   }
 
