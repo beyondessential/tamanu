@@ -6,6 +6,8 @@ import {
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
   PATIENT_FIELD_DEFINITION_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../../utilities';
@@ -283,6 +285,7 @@ const fakeAllData = async models => {
       completedNote: 'Everything went smoothly, no issues',
     }),
   );
+
   const { id: imagingRequestId } = await models.ImagingRequest.create(
     fake(models.ImagingRequest, {
       encounterId,
@@ -292,6 +295,7 @@ const fakeAllData = async models => {
       requestedDate: '2022-06-11 01:20:54',
     }),
   );
+
   await models.ImagingRequestArea.create(
     fake(models.ImagingRequestArea, {
       imagingRequestId,
@@ -319,12 +323,51 @@ const fakeAllData = async models => {
     }),
   );
 
+  // Should not display due to Deleted status
+  await models.ImagingRequest.create(
+    fake(models.ImagingRequest, {
+      encounterId,
+      procedureTypeId,
+      requestedById: userId,
+      status: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+      imagingType: IMAGING_TYPES.ULTRASOUND,
+      requestedDate: '2022-06-11 01:20:54',
+    }),
+  );
+
+  // Should not display due to CANCELLED status
+  await models.ImagingRequest.create(
+    fake(models.ImagingRequest, {
+      encounterId,
+      procedureTypeId,
+      requestedById: userId,
+      status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      imagingType: IMAGING_TYPES.ECHOCARDIOGRAM,
+      requestedDate: '2022-06-11 01:20:54',
+    }),
+  );
+
+  // Should not display due to ENTERED_IN_ERROR status
+  await models.ImagingRequest.create(
+    fake(models.ImagingRequest, {
+      encounterId,
+      procedureTypeId,
+      requestedById: userId,
+      status: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+      imagingType: IMAGING_TYPES.VASCULAR_STUDY,
+      requestedDate: '2022-06-11 01:20:54',
+    }),
+  );
+
+  // Lab Request 1
   const { id: labRequest1Id } = await models.LabRequest.create(
-    fake(models.LabRequest, { encounterId }),
+    fake(models.LabRequest, { encounterId, status: LAB_REQUEST_STATUSES.PUBLISHED }),
   );
   await models.LabTest.create(fake(models.LabTest, { labRequestId: labRequest1Id, labTestTypeId }));
+
+  // Lab Request 2
   const { id: labRequest2Id } = await models.LabRequest.create(
-    fake(models.LabRequest, { encounterId }),
+    fake(models.LabRequest, { encounterId, status: LAB_REQUEST_STATUSES.VERIFIED }),
   );
   await models.LabTest.create(fake(models.LabTest, { labRequestId: labRequest2Id, labTestTypeId }));
   const { id: labsNotePageId } = await models.NotePage.create(
@@ -334,6 +377,38 @@ const fakeAllData = async models => {
       recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
     }),
   );
+
+  // Lab request should not show due to DELETED status
+  const { id: labTestTypeId2 } = await models.LabTestType.create(
+    fake(models.LabTestType, {
+      labTestCategoryId,
+      name: 'Calcium',
+    }),
+  );
+
+  const { id: labRequest3Id } = await models.LabRequest.create(
+    fake(models.LabRequest, { encounterId, status: LAB_REQUEST_STATUSES.DELETED }),
+  );
+  await models.LabTest.create(
+    fake(models.LabTest, { labRequestId: labRequest3Id, labTestTypeId: labTestTypeId2 }),
+  );
+
+  // Lab request should not show due to CANCELLED status
+  const { id: labRequest4Id } = await models.LabRequest.create(
+    fake(models.LabRequest, { encounterId, status: LAB_REQUEST_STATUSES.CANCELLED }),
+  );
+  await models.LabTest.create(
+    fake(models.LabTest, { labRequestId: labRequest4Id, labTestTypeId: labTestTypeId2 }),
+  );
+
+  // Lab request should not show due to ENTERED_IN_ERROR status
+  const { id: labRequest5Id } = await models.LabRequest.create(
+    fake(models.LabRequest, { encounterId, status: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR }),
+  );
+  await models.LabTest.create(
+    fake(models.LabTest, { labRequestId: labRequest5Id, labTestTypeId: labTestTypeId2 }),
+  );
+
   await models.NoteItem.create(
     fake(models.NoteItem, {
       notePageId: labsNotePageId,

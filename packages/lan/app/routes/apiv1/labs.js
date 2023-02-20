@@ -220,6 +220,9 @@ export const labTest = express.Router();
 
 labTest.put('/:id', simplePut('LabTest'));
 
+export const labTestType = express.Router();
+labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
+
 export const labTestPanel = express.Router();
 
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));

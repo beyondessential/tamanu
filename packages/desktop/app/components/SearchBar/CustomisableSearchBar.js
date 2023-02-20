@@ -11,6 +11,22 @@ const Container = styled.div`
   padding: 16px 30px 28px;
 `;
 
+const SmallContainer = styled(Container)`
+  font-size: 11px;
+  .MuiInputBase-input {
+    font-size: 11px;
+  }
+  .label-field {
+    font-size: 11px;
+  }
+
+  .display-field {
+    .MuiSvgIcon-root {
+      font-size: 16px;
+    }
+  }
+`;
+
 const SectionLabel = styled.div`
   font-size: 16px;
   font-weight: 500;
@@ -30,34 +46,39 @@ export const CustomisableSearchBar = ({
   onSearch,
   children,
   renderCheckField,
+  variant = 'normal',
   initialValues = {},
-}) => (
-  <Container>
-    <SectionLabel>{title}</SectionLabel>
-    <Form
-      onSubmit={onSearch}
-      render={({ submitForm, clearForm }) => (
-        <>
-          <SearchInputContainer>{children}</SearchInputContainer>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            style={{ marginTop: 20 }}
-          >
-            {renderCheckField}
-            <Box marginLeft="auto">
-              <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
-                Clear search
-              </LargeOutlineButton>
-              <LargeButton onClick={submitForm} type="submit">
-                Search
-              </LargeButton>
+}) => {
+  const ParentContainer = variant === 'small' ? SmallContainer : Container;
+
+  return (
+    <ParentContainer>
+      <SectionLabel>{title}</SectionLabel>
+      <Form
+        onSubmit={onSearch}
+        render={({ submitForm, clearForm }) => (
+          <>
+            <SearchInputContainer>{children}</SearchInputContainer>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              style={{ marginTop: 20 }}
+            >
+              {renderCheckField}
+              <Box marginLeft="auto">
+                <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
+                  Clear search
+                </LargeOutlineButton>
+                <LargeButton onClick={submitForm} type="submit">
+                  Search
+                </LargeButton>
+              </Box>
             </Box>
-          </Box>
-        </>
-      )}
-      initialValues={initialValues}
-    />
-  </Container>
-);
+          </>
+        )}
+        initialValues={initialValues}
+      />
+    </ParentContainer>
+  );
+};

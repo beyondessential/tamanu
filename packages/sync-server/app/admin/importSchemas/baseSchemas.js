@@ -7,6 +7,7 @@ import {
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
+import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
 
 const visibilityStatus = yup
@@ -140,8 +141,10 @@ export const baseConfigShape = yup.object().noUnknown();
 
 export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
-  validationCriteria: validationString(baseValidationShape),
-  config: configString(baseConfigShape),
+  validationCriteria: config.validateQuestionConfigs.enabled
+    ? validationString(baseValidationShape)
+    : jsonString(),
+  config: config.validateQuestionConfigs.enabled ? configString(baseConfigShape) : jsonString(),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),
   options: jsonString(),
