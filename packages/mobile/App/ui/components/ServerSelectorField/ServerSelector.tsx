@@ -20,12 +20,12 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // To use a local server, just edit this and select it.
   // The sync server config is sticky, so you can safely revert it after
   // the first sync begins and it'll stay connecting to your local server.
-  // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
+  return [{ label: 'Local', value: 'http://192.168.178.20:3000' }];
 
-  const response = await fetch(`${META_SERVER}/servers`);
-  const servers: Server[] = await response.json();
+  // const response = await fetch(`${META_SERVER}/servers`);
+  // const servers: Server[] = await response.json();
 
-  return servers.map(s => ({ label: s.name, value: s.host }));
+  // return servers.map(s => ({ label: s.name, value: s.host }));
 };
 
 export const ServerSelector = ({ onChange, label, value }): ReactElement => {
