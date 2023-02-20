@@ -55,6 +55,7 @@ export class Job extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        schema: 'fhir',
         indexes: [
           {
             fields: ['topic', 'status', 'priority', 'created_at'],
@@ -66,7 +67,7 @@ export class Job extends Model {
 
   static async backlog(topic, includeDropped = true) {
     const [{ count }] = await this.sequelize.query(
-      'SELECT job_backlog($topic, $includeDropped) as count',
+      'SELECT fhir.job_backlog($topic, $includeDropped) as count',
       {
         type: QueryTypes.SELECT,
         bind: { topic, includeDropped },
@@ -90,7 +91,7 @@ export class Job extends Model {
           },
           async () => {
             const [{ id }] = await this.sequelize.query(
-              'SELECT (job_grab($workerId, $topic)).job_id as id',
+              'SELECT (fhir.job_grab($workerId, $topic)).job_id as id',
               {
                 type: QueryTypes.SELECT,
                 bind: { workerId, topic },
@@ -119,7 +120,7 @@ export class Job extends Model {
   static async submit(topic, payload = {}, { priority = 1000, discriminant = null } = {}) {
     const [{ id }] = await this.sequelize.query(
       `
-      SELECT job_submit(
+      SELECT fhir.job_submit(
           $topic
         , $payload
         , $priority
@@ -135,21 +136,21 @@ export class Job extends Model {
   }
 
   async start(workerId) {
-    await this.sequelize.query('SELECT job_start($jobId, $workerId)', {
+    await this.sequelize.query('SELECT fhir.job_start($jobId, $workerId)', {
       type: QueryTypes.SELECT,
       bind: { jobId: this.id, workerId },
     });
   }
 
   async complete(workerId) {
-    await this.sequelize.query('SELECT job_complete($jobId, $workerId)', {
+    await this.sequelize.query('SELECT fhir.job_complete($jobId, $workerId)', {
       type: QueryTypes.SELECT,
       bind: { jobId: this.id, workerId },
     });
   }
 
   async fail(workerId, error) {
-    await this.sequelize.query('SELECT job_fail($jobId, $workerId, $error)', {
+    await this.sequelize.query('SELECT fhir.job_fail($jobId, $workerId, $error)', {
       type: QueryTypes.SELECT,
       bind: { jobId: this.id, workerId, error },
     });

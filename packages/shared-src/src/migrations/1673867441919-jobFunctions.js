@@ -1,6 +1,6 @@
 export async function up(query) {
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_submit(
+    CREATE OR REPLACE FUNCTION fhir.job_submit(
       IN to_topic TEXT,
       IN with_payload JSONB,
       IN at_priority INTEGER DEFAULT 1000,
@@ -11,7 +11,7 @@ export async function up(query) {
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
-      INSERT INTO jobs (topic, discriminant, priority, payload)
+      INSERT INTO fhir.jobs (topic, discriminant, priority, payload)
       VALUES (to_topic, with_discriminant, at_priority, with_payload)
       ON CONFLICT (discriminant) DO NOTHING
       RETURNING id
@@ -19,7 +19,7 @@ export async function up(query) {
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_start(
+    CREATE OR REPLACE FUNCTION fhir.job_start(
       IN job_id UUID,
       IN by_worker_id UUID
     )
@@ -31,16 +31,16 @@ export async function up(query) {
     DECLARE
       job_worker_id UUID;
     BEGIN
-      IF NOT job_worker_is_alive(by_worker_id) THEN
+      IF NOT fhir.job_worker_is_alive(by_worker_id) THEN
         RAISE EXCEPTION 'worker % is not alive', by_worker_id;
       END IF;
 
-      SELECT worker_id FROM jobs WHERE id = job_id INTO job_worker_id;
+      SELECT worker_id FROM fhir.jobs WHERE id = job_id INTO job_worker_id;
       IF job_worker_id != by_worker_id THEN
         RAISE EXCEPTION 'job % is not owned by worker %', job_id, by_worker_id;
       END IF;
 
-      UPDATE jobs
+      UPDATE fhir.jobs
       SET
         status = 'Started',
         updated_at = current_timestamp
@@ -50,7 +50,7 @@ export async function up(query) {
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_complete(
+    CREATE OR REPLACE FUNCTION fhir.job_complete(
       IN job_id UUID,
       IN by_worker_id UUID
     )
@@ -62,22 +62,22 @@ export async function up(query) {
     DECLARE
       job_worker_id UUID;
     BEGIN
-      IF NOT job_worker_is_alive(by_worker_id) THEN
+      IF NOT fhir.job_worker_is_alive(by_worker_id) THEN
         RAISE EXCEPTION 'worker % is not alive', by_worker_id;
       END IF;
 
-      SELECT worker_id FROM jobs WHERE id = job_id INTO job_worker_id;
+      SELECT worker_id FROM fhir.jobs WHERE id = job_id INTO job_worker_id;
       IF job_worker_id != by_worker_id THEN
         RAISE EXCEPTION 'job % is not owned by worker %', job_id, by_worker_id;
       END IF;
 
-      DELETE FROM jobs WHERE id = job_id;
+      DELETE FROM fhir.jobs WHERE id = job_id;
     END;
     $$
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_fail(
+    CREATE OR REPLACE FUNCTION fhir.job_fail(
       IN job_id UUID,
       IN by_worker_id UUID,
       IN error_message TEXT
@@ -90,16 +90,16 @@ export async function up(query) {
     DECLARE
       job_worker_id UUID;
     BEGIN
-      IF NOT job_worker_is_alive(by_worker_id) THEN
+      IF NOT fhir.job_worker_is_alive(by_worker_id) THEN
         RAISE EXCEPTION 'worker % is not alive', by_worker_id;
       END IF;
 
-      SELECT worker_id FROM jobs WHERE id = job_id INTO job_worker_id;
+      SELECT worker_id FROM fhir.jobs WHERE id = job_id INTO job_worker_id;
       IF job_worker_id != by_worker_id THEN
         RAISE EXCEPTION 'job % is not owned by worker %', job_id, by_worker_id;
       END IF;
 
-      UPDATE jobs
+      UPDATE fhir.jobs
       SET
         status = 'Errored',
         updated_at = current_timestamp,
@@ -112,7 +112,7 @@ export async function up(query) {
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_grab(
+    CREATE OR REPLACE FUNCTION fhir.job_grab(
       IN with_worker UUID,
       IN from_topic TEXT,
       OUT job_id UUID,
@@ -123,12 +123,12 @@ export async function up(query) {
       VOLATILE PARALLEL UNSAFE
     AS $$
     BEGIN
-      IF NOT job_worker_is_alive(with_worker) THEN
+      IF NOT fhir.job_worker_is_alive(with_worker) THEN
         RAISE EXCEPTION 'worker % is not alive', with_worker;
       END IF;
 
       SELECT id, payload INTO job_id, job_payload
-      FROM jobs
+      FROM fhir.jobs
       WHERE
         topic = from_topic
         AND (
@@ -139,14 +139,14 @@ export async function up(query) {
           )
           OR (
             status = 'Started'
-            AND NOT job_worker_is_alive(worker_id)
+            AND NOT fhir.job_worker_is_alive(worker_id)
           )
         )
       ORDER BY priority DESC, created_at ASC
       LIMIT 1;
 
       IF job_id IS NOT NULL THEN
-        UPDATE jobs
+        UPDATE fhir.jobs
         SET
           status = 'Grabbed',
           updated_at = current_timestamp,
@@ -159,7 +159,7 @@ export async function up(query) {
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_backlog(
+    CREATE OR REPLACE FUNCTION fhir.job_backlog(
       IN for_topic TEXT,
       IN include_dropped BOOLEAN,
       OUT count BIGINT
@@ -171,7 +171,7 @@ export async function up(query) {
     BEGIN
       IF include_dropped THEN
         SELECT COUNT(*) INTO count
-        FROM jobs
+        FROM fhir.jobs
         WHERE topic = for_topic
         AND (
           status = 'Queued'
@@ -181,12 +181,12 @@ export async function up(query) {
           )
           OR (
             status = 'Started'
-            AND NOT job_worker_is_alive(worker_id)
+            AND NOT fhir.job_worker_is_alive(worker_id)
           )
         );
       ELSE
         SELECT COUNT(*) INTO count
-        FROM jobs
+        FROM fhir.jobs
         WHERE topic = for_topic
         AND status = 'Queued';
       END IF;
@@ -195,17 +195,17 @@ export async function up(query) {
   `);
 
   await query.sequelize.query(`
-    CREATE INDEX IF NOT EXISTS job_grab_idx ON jobs
+    CREATE INDEX IF NOT EXISTS job_grab_idx ON fhir.jobs
     USING btree (topic, status, priority DESC, created_at ASC)
   `);
 }
 
 export async function down(query) {
   await query.sequelize.query(`DROP INDEX IF EXISTS job_grab_idx`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_backlog`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_grab`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_fail`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_complete`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_start`);
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS job_submit`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir.job_backlog`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir.job_grab`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir.job_fail`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir.job_complete`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir.job_start`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir.job_submit`);
 }

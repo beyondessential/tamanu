@@ -1,6 +1,6 @@
 import Sequelize, { DataTypes } from 'sequelize';
 
-const TABLE_NAME = 'jobs';
+const TABLE_NAME = ['fhir', 'jobs'];
 
 export async function up(query) {
   await query.createTable(TABLE_NAME, {

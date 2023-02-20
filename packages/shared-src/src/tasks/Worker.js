@@ -1,6 +1,5 @@
 import { hostname } from 'os';
 import config from 'config';
-import { merge } from 'lodash';
 import ms from 'ms';
 
 export class Worker {
@@ -19,10 +18,10 @@ export class Worker {
   async start() {
     const { JobWorker, Setting } = this.models;
 
-    const heartbeatInterval = await Setting.get('jobs.worker.heartbeat');
-    this.log.debug('Worker: got raw heartbeat interval', { heartbeatInterval });
+    const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
+    this.log.debug('FhirJobWorker: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = ms(heartbeatInterval);
-    this.log.debug('Worker: scheduling heartbeat', { intervalMs: heartbeat });
+    this.log.debug('FhirJobWorker: scheduling heartbeat', { intervalMs: heartbeat });
 
     this.worker = await JobWorker.register({
       version: 'unknown',
@@ -30,39 +29,32 @@ export class Worker {
       hostname: hostname(),
       ...(global.serverInfo ?? {}),
     });
-    this.log.info('Worker: registered', { workerId: this.worker?.id });
+    this.log.info('FhirJobWorker: registered', { workerId: this.worker?.id });
 
     this.heartbeat = setInterval(async () => {
       try {
-        this.log.debug('Worker: heartbeat');
+        this.log.debug('FhirJobWorker: heartbeat');
         await this.worker.heartbeat();
       } catch (err) {
-        this.log.error('Worker: heartbeat failed', { err });
+        this.log.error('FhirJobWorker: heartbeat failed', { err });
       }
     }, heartbeat);
   }
 
   async installTopic(topic, Task) {
     if (this.handlers.has(topic)) {
-      this.log.info('Worker: replacing topic handler', { topic });
+      this.log.info('FhirJobWorker: replacing topic handler', { topic });
       this.handlers.get(topic).cancelPolling();
     }
 
-    const { Setting } = this.models;
-    const { serverFacilityId = null } = config;
-
-    const defaults = await Setting.get(`jobs.topics.default`, serverFacilityId);
-    const { enabled, schedule, maxConcurrency } = merge(
-      defaults,
-      (await Setting.get(`jobs.topics.${topic}`, serverFacilityId)) ?? {},
-    );
+    const { enabled, schedule, topicConcurrency } = config.schedules.fhirJobWorker;
 
     if (!enabled) {
-      this.log.info('Worker: topic disabled', { topic });
+      this.log.info('FhirJobWorker: disabled');
       return;
     }
 
-    this.log.info('Worker: adding topic handler', { topic, schedule, maxConcurrency });
+    this.log.info('FhirJobWorker: adding topic handler', { topic, schedule, topicConcurrency });
     const handler = new Task(
       {
         models: this.models,
@@ -72,7 +64,7 @@ export class Worker {
       topic,
       this.worker.id,
       schedule,
-      maxConcurrency,
+      topicConcurrency,
     );
     this.handlers.set(topic, handler);
     handler.beginPolling();
@@ -83,7 +75,7 @@ export class Worker {
     this.heartbeat = null;
 
     for (const [topic, handler] of this.handlers.entries()) {
-      this.log.info('Worker: removing topic handler', { topic });
+      this.log.info('FhirJobWorker: removing topic handler', { topic });
       handler.cancelPolling();
     }
     this.handlers.clear();

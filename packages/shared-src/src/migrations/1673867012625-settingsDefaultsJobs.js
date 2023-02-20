@@ -2,11 +2,9 @@ import config from 'config';
 import { QueryTypes } from 'sequelize';
 
 const DEFAULT_SETTINGS = {
-  'jobs.worker.heartbeat': '1 minute',
-  'jobs.worker.assumeDroppedAfter': '10 minutes',
-  'jobs.topics.default.enabled': true,
-  'jobs.topics.default.schedule': '* * * * *', // once a minute
-  'jobs.topics.default.maxConcurrency': 10,
+  'fhir.worker.heartbeat': '1 minute',
+  'fhir.worker.assumeDroppedAfter': '10 minutes',
+  'fhir.worker.maxConcurrency': 10,
 };
 
 export async function up(query) {

@@ -161,6 +161,11 @@
       "labTestCategories": [],
       "labTestTypes": []
     },
+    "fhirJobWorker": {
+      "enabled": true,
+      "schedule": "*/1 * * * *",
+      "topicConcurrency": 10
+    },
     "fhirMaterialiser": {
       "enabled": true, // only when integrations.fhir is on
       "schedule": "*/1 * * * *",

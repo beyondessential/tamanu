@@ -19,13 +19,14 @@ export class JobWorker extends Model {
       },
       {
         ...options,
+        schema: 'fhir',
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
       },
     );
   }
 
   static async register(metadata = {}) {
-    const [{ id }] = await this.sequelize.query('SELECT job_worker_register($metadata) as id', {
+    const [{ id }] = await this.sequelize.query('SELECT fhir.job_worker_register($metadata) as id', {
       type: QueryTypes.SELECT,
       bind: { metadata },
     });
@@ -34,18 +35,18 @@ export class JobWorker extends Model {
   }
 
   static async clearDead() {
-    await this.sequelize.query('SELECT job_worker_garbage_collect()');
+    await this.sequelize.query('SELECT fhir.job_worker_garbage_collect()');
   }
 
   async heartbeat() {
-    await this.sequelize.query('SELECT job_worker_heartbeat($workerId)', {
+    await this.sequelize.query('SELECT fhir.job_worker_heartbeat($workerId)', {
       type: QueryTypes.SELECT,
       bind: { workerId: this.id },
     });
   }
 
   async deregister() {
-    await this.sequelize.query('SELECT job_worker_deregister($workerId)', {
+    await this.sequelize.query('SELECT fhir.job_worker_deregister($workerId)', {
       type: QueryTypes.SELECT,
       bind: { workerId: this.id },
     });

@@ -1,9 +1,7 @@
 import Sequelize, { DataTypes } from 'sequelize';
 
-const TABLE_NAME = 'job_workers';
-
 export async function up(query) {
-  await query.createTable(TABLE_NAME, {
+  await query.createTable(['fhir', 'job_workers'], {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -29,7 +27,7 @@ export async function up(query) {
   });
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_worker_register(
+    CREATE OR REPLACE FUNCTION fhir.job_worker_register(
       IN worker_info JSONB,
       OUT worker_id UUID
     )
@@ -37,48 +35,48 @@ export async function up(query) {
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
-      INSERT INTO job_workers (metadata) VALUES (worker_info)
+      INSERT INTO fhir.job_workers (metadata) VALUES (worker_info)
       RETURNING id
     $$
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_worker_heartbeat(
+    CREATE OR REPLACE FUNCTION fhir.job_worker_heartbeat(
       IN worker_id UUID
     )
       RETURNS void
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
-      UPDATE job_workers SET updated_at = current_timestamp WHERE id = worker_id
+      UPDATE fhir.job_workers SET updated_at = current_timestamp WHERE id = worker_id
     $$
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_worker_deregister(
+    CREATE OR REPLACE FUNCTION fhir.job_worker_deregister(
       IN worker_id UUID
     )
       RETURNS void
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
-      DELETE FROM job_workers WHERE id = worker_id
+      DELETE FROM fhir.job_workers WHERE id = worker_id
     $$
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_worker_garbage_collect()
+    CREATE OR REPLACE FUNCTION fhir.job_worker_garbage_collect()
       RETURNS void
       LANGUAGE SQL
       VOLATILE PARALLEL UNSAFE
     AS $$
-      DELETE FROM job_workers
-      WHERE updated_at < current_timestamp - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
+      DELETE FROM fhir.job_workers
+      WHERE updated_at < current_timestamp - (setting_get('fhir.worker.assumeDroppedAfter') ->> 0)::interval
     $$
   `);
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION job_worker_is_alive(
+    CREATE OR REPLACE FUNCTION fhir.job_worker_is_alive(
       IN worker_id UUID,
       OUT alive BOOLEAN
     )
@@ -86,8 +84,8 @@ export async function up(query) {
       STABLE PARALLEL SAFE
     AS $$
       SELECT coalesce((
-        SELECT updated_at > current_timestamp - (setting_get('jobs.worker.assumeDroppedAfter') ->> 0)::interval
-        FROM job_workers
+        SELECT updated_at > current_timestamp - (setting_get('fhir.worker.assumeDroppedAfter') ->> 0)::interval
+        FROM fhir.job_workers
         WHERE id = worker_id
       ), false)
     $$
@@ -95,10 +93,10 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_is_alive');
-  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_garbage_collect');
-  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_deregister');
-  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_heartbeat');
-  await query.sequelize.query('DROP FUNCTION IF EXISTS job_worker_register');
-  await query.dropTable(TABLE_NAME);
+  await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_is_alive');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_garbage_collect');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_deregister');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_heartbeat');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_register');
+  await query.dropTable(['fhir', 'job_workers']);
 }
