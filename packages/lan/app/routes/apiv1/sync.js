@@ -17,17 +17,15 @@ sync.post(
 
     const completeSync = async () => {
       await syncManager.triggerSync(`requested by ${user.email}`);
-      return 'Completed sync'
+      return 'Completed sync';
     };
 
-    const timeoutAfter = (seconds) => new Promise(resolve => {
-      setTimeout(() => resolve('Sync started'), seconds * 1000)
-    });
+    const timeoutAfter = seconds =>
+      new Promise(resolve => {
+        setTimeout(() => resolve('Sync started'), seconds * 1000);
+      });
 
-    const message = await Promise.race([
-      completeSync(),
-      timeoutAfter(10),
-    ]);
+    const message = await Promise.race([completeSync(), timeoutAfter(10)]);
 
     res.send({ message });
   }),
