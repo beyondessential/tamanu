@@ -11,7 +11,7 @@ import { Colors } from '../../constants';
 
 const DEFAULT_LABEL_THEME = {
   color: { default: Colors.outline, selected: Colors.primary },
-  background: { default: Colors.white, selected: Colors.offWhite },
+  background: { default: Colors.white, selected: Colors.white },
   border: { default: Colors.outline, selected: Colors.primary },
   text: { default: Colors.darkText, selected: Colors.darkestText },
 };
@@ -36,7 +36,8 @@ const ControlLabel = styled(FormControlLabel)`
   border: 1px solid
     ${props => (props.selected ? props.theme.border.selected : props.theme.border.default)};
   justify-content: center;
-  background: ${props => props.theme.background.default};
+  background: ${props =>
+    props.selected ? props.theme.background.selected : props.theme.background.default};
 
   &:last-child {
     margin-right: 0;

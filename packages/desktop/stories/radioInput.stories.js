@@ -88,3 +88,12 @@ WithDescriptions.args = {
     description: `Some descriptive information about the ${option.label}`,
   })),
 };
+
+export const WithColors = Template.bind({});
+WithColors.args = {
+  ...DEFAULT_PROPS,
+  options: FRUITS.slice(0, 2).map(option => ({
+    ...option,
+    color: '#FF0000',
+  })),
+};
