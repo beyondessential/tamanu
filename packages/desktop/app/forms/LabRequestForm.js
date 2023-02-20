@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -6,10 +6,7 @@ import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dat
 import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { foreignKey } from '../utils/validation';
 import { binaryOptions } from '../constants';
-import { useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import {
   Form,
@@ -23,7 +20,6 @@ import { FormGrid } from '../components/FormGrid';
 import { Button, OutlinedButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { DropdownButton } from '../components/DropdownButton';
 
 const LAB_REQUEST_TYPES = {
   PANEL: 'panel',
@@ -52,45 +48,44 @@ const labRequestValidationSchema = yup.object().shape({
     .required(),
 });
 
-const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
-  const { navigateToLabRequest } = usePatientNavigation();
-  const { loadEncounter } = useEncounter();
-  const { loadLabRequest } = useLabRequest();
-  const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
+// const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
+//   const { navigateToLabRequest } = usePatientNavigation();
+//   const { loadEncounter } = useEncounter();
+//   const { loadLabRequest } = useLabRequest();
+//   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
 
-  // Transition to print page as soon as we have the generated id
-  useEffect(() => {
-    (async () => {
-      if (awaitingPrintRedirect && requestId) {
-        await loadLabRequest(requestId);
-        navigateToLabRequest(requestId, 'print');
-      }
-    })();
-  }, [requestId, awaitingPrintRedirect, loadLabRequest, navigateToLabRequest]);
+//   // Transition to print page as soon as we have the generated id
+//   useEffect(() => {
+//     (async () => {
+//       if (awaitingPrintRedirect && requestId) {
+//         await loadLabRequest(requestId);
+//         navigateToLabRequest(requestId, 'print');
+//       }
+//     })();
+//   }, [requestId, awaitingPrintRedirect, loadLabRequest, navigateToLabRequest]);
 
-  const finalise = async data => {
-    await submitForm(data);
-    await loadEncounter(encounter.id);
-  };
-  const finaliseAndPrint = async data => {
-    await submitForm(data);
-    // We can't transition pages until the lab req is fully submitted
-    setAwaitingPrintRedirect(true);
-  };
+//   const finalise = async data => {
+//     await submitForm(data);
+//     await loadEncounter(encounter.id);
+//   };
+//   const finaliseAndPrint = async data => {
+//     await submitForm(data);
+//     // We can't transition pages until the lab req is fully submitted
+//     setAwaitingPrintRedirect(true);
+//   };
 
-  const actions = [
-    { label: 'Finalise', onClick: finalise },
-    { label: 'Finalise & print', onClick: finaliseAndPrint },
-  ];
+//   const actions = [
+//     { label: 'Finalise', onClick: finalise },
+//     { label: 'Finalise & print', onClick: finaliseAndPrint },
+//   ];
 
-  return <DropdownButton actions={actions} />;
-};
+//   return <DropdownButton actions={actions} />;
+// };
 
 export const LabRequestForm = ({
   practitionerSuggester,
   departmentSuggester,
   encounter,
-  requestId,
   onNext,
   onSubmit,
   onCancel,
@@ -100,9 +95,9 @@ export const LabRequestForm = ({
   const { currentUser } = useAuth();
 
   const renderForm = ({ values, setFieldValue, handleChange }) => {
-    const handleToggleSampleCollected = e => {
-      handleChange(e);
-      const isSampleCollected = e.target.value === 'yes';
+    const handleToggleSampleCollected = event => {
+      handleChange(event);
+      const isSampleCollected = event.target.value === 'yes';
       if (isSampleCollected) {
         setFieldValue('sampleTime', getCurrentDateString());
         setFieldValue('status', LAB_REQUEST_STATUSES.PENDING);
@@ -224,7 +219,6 @@ LabRequestForm.propTypes = {
   practitionerSuggester: PropTypes.object.isRequired,
   encounter: PropTypes.object,
   generateDisplayId: PropTypes.func.isRequired,
-  requestId: PropTypes.string,
   editedObject: PropTypes.object,
 };
 

@@ -33,32 +33,32 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
   [LAB_REQUEST_STATUSES.PUBLISHED]: {
     label: 'Published',
-    color: '#4101C9;',
+    color: '#4101C9',
+    background: '#ECE6FA',
+  },
+  [LAB_REQUEST_STATUSES.NOT_COLLECTED]: {
+    label: 'Not collected',
+    color: '#4101C9',
     background: '#ECE6FA',
   },
   [LAB_REQUEST_STATUSES.CANCELLED]: {
     label: 'Cancelled',
-    color: '#444444;',
+    color: '#444444',
     background: '#EDEDED',
   },
   [LAB_REQUEST_STATUSES.DELETED]: {
     label: 'Deleted',
-    color: '#444444;',
+    color: '#444444',
     background: '#EDEDED',
   },
   [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: {
     label: 'Entered in error',
-    color: '#444444;',
-    background: '#EDEDED',
-  },
-  [LAB_REQUEST_STATUSES.NOT_COLLECTED]: {
-    label: 'Not collected',
-    color: '#444444;',
+    color: '#444444',
     background: '#EDEDED',
   },
   unknown: {
     label: 'Unknown',
-    color: '#444444;',
+    color: '#444444',
     background: '#EDEDED',
   },
 };
