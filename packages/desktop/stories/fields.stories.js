@@ -222,19 +222,6 @@ addStories('NumberInput', props => (
   />
 ));
 
-addStories(
-  'RadioInput',
-  props => (
-    <StoryControlWrapper
-      Component={RadioInput}
-      label="Fruit"
-      options={FRUITS.slice(0, 3)}
-      {...props}
-    />
-  ),
-  "Should only be used for <=5 items. If there're a lot, prefer a SelectInput instead.",
-);
-
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
 )).add('Small', () => (

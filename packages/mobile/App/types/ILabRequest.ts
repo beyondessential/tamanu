@@ -4,7 +4,7 @@ import { IEncounter } from './IEncounter';
 import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
 import { IUser } from './IUser';
-import { DateString } from './DateString';
+import { IDepartment } from './IDepartment';
 
 export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',
@@ -33,6 +33,9 @@ export interface ILabRequest {
 
   requestedBy: IUser;
   requestedById?: string;
+
+  department?: IDepartment;
+  departmentId?: string;
 
   labTestCategory: IReferenceData;
   labTestCategoryId?: string;
