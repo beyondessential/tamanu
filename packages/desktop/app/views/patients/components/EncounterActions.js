@@ -14,7 +14,7 @@ import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
-import { EncounterRecordModal } from '../../../components/PatientPrinting/EncounterRecordModal';
+import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { Colors } from '../../../constants';
 
 const TypographyLink = styled(Typography)`

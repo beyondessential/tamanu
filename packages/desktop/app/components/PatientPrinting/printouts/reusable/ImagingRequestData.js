@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useImagingRequest } from '../../api/queries/useImagingRequest';
-import { DateDisplay } from '../DateDisplay';
+import { useImagingRequest } from '../../../../api/queries/useImagingRequest';
+import { DateDisplay } from '../../../DateDisplay';
 
 export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
   const imagingRequestQuery = useImagingRequest(imagingRequestId);

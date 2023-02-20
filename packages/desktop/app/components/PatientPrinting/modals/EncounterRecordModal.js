@@ -2,19 +2,19 @@ import React from 'react';
 
 import { NOTE_TYPES } from 'shared/constants/notes';
 
-import { EncounterRecord } from './EncounterRecord';
-import { Modal } from '../Modal';
-import { useCertificate } from '../../utils/useCertificate';
-import { usePatientData } from '../../api/queries/usePatientData';
-import { useLabRequests } from '../../api/queries/useLabRequests';
-import { useImagingRequests } from '../../api/queries/useImagingRequests';
-import { useEncounterNotes } from '../../api/queries/useEncounterNotes';
-import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
-import { useReferenceData } from '../../api/queries/useReferenceData';
-import { usePatientAdditionalData } from '../../api/queries/usePatientAdditionalData';
-import { useLocalisation } from '../../contexts/Localisation';
-import { LoadingIndicator } from '../LoadingIndicator';
-import { Colors } from '../../constants';
+import { EncounterRecord } from '../printouts/EncounterRecord';
+import { Modal } from '../../Modal';
+import { useCertificate } from '../../../utils/useCertificate';
+import { usePatientData } from '../../../api/queries/usePatientData';
+import { useLabRequests } from '../../../api/queries/useLabRequests';
+import { useImagingRequests } from '../../../api/queries/useImagingRequests';
+import { useEncounterNotes } from '../../../api/queries/useEncounterNotes';
+import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarge';
+import { useReferenceData } from '../../../api/queries/useReferenceData';
+import { usePatientAdditionalData } from '../../../api/queries/usePatientAdditionalData';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { Colors } from '../../../constants';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.

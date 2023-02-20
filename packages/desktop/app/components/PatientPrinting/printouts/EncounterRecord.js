@@ -4,16 +4,20 @@ import { Typography } from '@material-ui/core';
 
 import { startCase } from 'lodash';
 
-import { LocalisedLabel } from './SimplePrintout';
-import { PrintLetterhead } from './PrintLetterhead';
-import { DateDisplay } from '../DateDisplay';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { CertificateWrapper } from './CertificateWrapper';
-import { ListTable } from './ListTable';
-import { CertificateLabel } from './CertificateLabels';
-import { noteTypes, DRUG_ROUTE_VALUE_TO_LABEL, CERTAINTY_OPTIONS_BY_VALUE } from '../../constants';
+import { LocalisedLabel } from './reusable/SimplePrintout';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { DateDisplay } from '../../DateDisplay';
+import { capitaliseFirstLetter } from '../../../utils/capitalise';
+import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { ListTable } from './reusable/ListTable';
+import { CertificateLabel } from './reusable/CertificateLabels';
+import {
+  noteTypes,
+  DRUG_ROUTE_VALUE_TO_LABEL,
+  CERTAINTY_OPTIONS_BY_VALUE,
+} from '../../../constants';
 
-import { ImagingRequestData } from './ImagingRequestData';
+import { ImagingRequestData } from './reusable/ImagingRequestData';
 
 // STYLES
 const CompactListTable = styled(ListTable)`

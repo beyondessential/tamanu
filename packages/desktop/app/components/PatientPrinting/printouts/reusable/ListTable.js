@@ -31,11 +31,11 @@ const Cell = styled.td`
   font-size: 14px;
 `;
 
-export const ListTable = ({ columns, data }) => {
+export const ListTable = ({ columns, data, className }) => {
   const totalWidth = columns.reduce((sum, c) => sum + c.widthProportion || 1, 0);
   const getWidth = widthProportion => `${(widthProportion / totalWidth) * 100}%`;
   return (
-    <Table>
+    <Table className={className}>
       <thead>
         <Row>
           {columns.map(({ key, title, style, widthProportion = 1 }) => (
