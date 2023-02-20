@@ -42,19 +42,17 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   }, [api, labRequest.id]);
 
   return (
-    <>
-      <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-        {encounterLoading || testsLoading || notesLoading ? (
-          <LoadingIndicator />
-        ) : (
-          <LabRequestPrintout
-            labRequestData={{ ...labRequest, tests, notes }}
-            patientData={patient}
-            encounterData={encounter}
-            certificateData={certificateData}
-          />
-        )}
-      </Modal>
-    </>
+    <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
+      {encounterLoading || testsLoading || notesLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <LabRequestPrintout
+          labRequestData={{ ...labRequest, tests, notes }}
+          patientData={patient}
+          encounterData={encounter}
+          certificateData={certificateData}
+        />
+      )}
+    </Modal>
   );
 });

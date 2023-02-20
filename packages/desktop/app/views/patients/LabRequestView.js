@@ -98,7 +98,7 @@ export const LabRequestView = () => {
 
   return (
     <div>
-      <SimpleTopBar title="Lab request 2">
+      <SimpleTopBar title="Lab request">
         <LabRequestActionDropdown
           labRequest={labRequest}
           patient={patient}
