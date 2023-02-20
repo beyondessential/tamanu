@@ -163,7 +163,7 @@
     },
     "fhirJobWorker": {
       "enabled": true,
-      "schedule": "*/1 * * * *",
+      "schedule": "* * * * *",
       "topicConcurrency": 10
     },
     "fhirMaterialiser": {
