@@ -48,40 +48,6 @@ const labRequestValidationSchema = yup.object().shape({
     .required(),
 });
 
-// const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
-//   const { navigateToLabRequest } = usePatientNavigation();
-//   const { loadEncounter } = useEncounter();
-//   const { loadLabRequest } = useLabRequest();
-//   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
-
-//   // Transition to print page as soon as we have the generated id
-//   useEffect(() => {
-//     (async () => {
-//       if (awaitingPrintRedirect && requestId) {
-//         await loadLabRequest(requestId);
-//         navigateToLabRequest(requestId, 'print');
-//       }
-//     })();
-//   }, [requestId, awaitingPrintRedirect, loadLabRequest, navigateToLabRequest]);
-
-//   const finalise = async data => {
-//     await submitForm(data);
-//     await loadEncounter(encounter.id);
-//   };
-//   const finaliseAndPrint = async data => {
-//     await submitForm(data);
-//     // We can't transition pages until the lab req is fully submitted
-//     setAwaitingPrintRedirect(true);
-//   };
-
-//   const actions = [
-//     { label: 'Finalise', onClick: finalise },
-//     { label: 'Finalise & print', onClick: finaliseAndPrint },
-//   ];
-
-//   return <DropdownButton actions={actions} />;
-// };
-
 export const LabRequestForm = ({
   practitionerSuggester,
   departmentSuggester,
