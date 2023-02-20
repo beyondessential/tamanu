@@ -25,7 +25,6 @@ import {
   CARE_PLANS_TITLE,
 } from './paneTitles';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
-import { LoadingIndicator } from '../LoadingIndicator';
 import { RecordDeathSection } from '../RecordDeathSection';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
@@ -121,6 +120,8 @@ const Container = styled.div`
 `;
 
 const ListsSection = styled.div`
+  background: ${Colors.white};
+
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
@@ -148,16 +149,14 @@ export const PatientInfoPane = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const api = useApi();
-  const { data: deathData, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
+  const { data: deathData, isSuccess } = useQuery(['patientDeathSummary', patient.id], () =>
     api.get(`patient/${patient.id}/death`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
   );
 
   const readonly = !!patient.death;
   const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
-  const showRecordDeathActions = patientDeathsEnabled && !deathData?.isFinal;
+  const showRecordDeathActions = isSuccess && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
-
-  if (isLoading) return <LoadingIndicator />;
 
   return (
     <Container>
