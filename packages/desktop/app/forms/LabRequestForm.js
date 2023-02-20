@@ -37,11 +37,11 @@ const labRequestValidationSchema = yup.object().shape({
     .string()
     .oneOf(Object.values(LAB_REQUEST_TYPES))
     .required(),
-  sampleCollected: yup
+  specimenAttached: yup
     .string()
     .oneOf(binaryOptions.map(o => o.value))
     .required(),
-  sampleTime: yup.date().when('sampleCollected', {
+  sampleTime: yup.date().when('specimenAttached', {
     is: 'yes',
     then: schema => schema.required('Sample time is required'),
   }),
@@ -94,14 +94,10 @@ export const LabRequestForm = ({
 }) => {
   const { currentUser } = useAuth();
 
-  const renderForm = ({ values, setValues }) => {
+  const renderForm = ({ values, setFieldValue, handleChange }) => {
     const handleToggleSampleCollected = e => {
-      const { value } = e.target;
-      setValues({
-        ...values,
-        sampleCollected: value,
-        sampleTime: value === 'yes' ? getCurrentDateTimeString() : null,
-      });
+      handleChange(e);
+      setFieldValue('sampleTime', e.target.value === 'yes' ? getCurrentDateTimeString() : null);
     };
 
     return (
@@ -135,7 +131,7 @@ export const LabRequestForm = ({
         <FormSeparatorLine />
         <div style={{ gridColumn: '1 / -1' }}>
           <Field
-            name="sampleCollected"
+            name="specimenAttached"
             label="Sample collected"
             required
             component={RadioField}
@@ -143,7 +139,7 @@ export const LabRequestForm = ({
             options={binaryOptions}
           />
         </div>
-        {values.sampleCollected === 'yes' && (
+        {values.specimenAttached === 'yes' && (
           <>
             <Field
               name="sampleTime"
@@ -199,7 +195,7 @@ export const LabRequestForm = ({
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
-        // sampleTime: getCurrentDateTimeString(),
+        specimenAttached: 'no',
         // LabTest date
         date: getCurrentDateString(),
         ...editedObject,
