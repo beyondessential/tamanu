@@ -19,7 +19,7 @@ export const LabRequestChangeLabModal = React.memo(
         <FormGrid columns={1}>
           <AutocompleteField
             label="Laboratory"
-            field={{ name: 'labTestLaboratoryId' }}
+            name="labTestLaboratoryId"
             suggester={laboratorySuggester}
             value={lab}
             onChange={({ target: { value } }) => {

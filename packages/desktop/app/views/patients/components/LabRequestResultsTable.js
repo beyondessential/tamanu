@@ -6,6 +6,18 @@ import { ManualLabResultForm } from '../../../forms/ManualLabResultForm';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 
+const makeRangeStringAccessor = sex => ({ labTestType }) => {
+  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
+  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
+  const hasMax = max || max === 0;
+  const hasMin = min || min === 0;
+
+  if (hasMin && hasMax) return `${min} - ${max}`;
+  if (hasMin) return `>${min}`;
+  if (hasMax) return `<${max}`;
+  return 'N/A';
+};
+
 const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly }) => {
   const { updateLabTest, labRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
@@ -41,28 +53,16 @@ const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly })
   );
 });
 
-const makeRangeStringAccessor = sex => ({ labTestType }) => {
-  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
-  const hasMax = max || max === 0;
-  const hasMin = min || min === 0;
-
-  if (hasMin && hasMax) return `${min} - ${max}`;
-  if (hasMin) return `>${min}`;
-  if (hasMax) return `<${max}`;
-  return 'N/A';
-};
-
 const columns = sex => [
-  { title: 'Test type', key: 'type', accessor: row => row.labTestType.name },
+  { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
   {
     title: 'Result',
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Normal range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
+  { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
-  { title: 'Lab Officer', key: 'laboratoryOfficer' },
+  { title: 'Laboratory officer', key: 'laboratoryOfficer' },
   { title: 'Verification', key: 'verification' },
   { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
 ];
@@ -93,7 +93,6 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadO
         endpoint={`labRequest/${labRequest.id}/tests`}
         onRowClick={openModal}
         initialSort={{ order: 'asc', orderBy: 'id' }}
-        elevated={false}
       />
     </>
   );
