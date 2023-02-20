@@ -83,7 +83,7 @@ class FacilitySyncManager {
       startedAtTick: newSyncClockTime,
     } = await this.centralServer.startSyncSession();
 
-    log.info(`Sync: Session started`, { 
+    log.info('Sync: Session started', {
       sessionId,
       startedAtTick: newSyncClockTime,
     });

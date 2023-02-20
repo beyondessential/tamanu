@@ -13,8 +13,8 @@ sync.post(
     if (syncManager.isSyncRunning()) {
       res.send({ message: 'Sync already underway' });
       return;
-    } 
-    
+    }
+
     syncManager.triggerSync(`requested by ${user.email}`);
     res.send({ message: 'Sync started' });
   }),

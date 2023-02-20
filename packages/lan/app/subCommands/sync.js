@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { initDatabase } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 
-async function sync({ }) {
+async function sync() {
   const context = await initDatabase();
 
   context.centralServer = new CentralServerConnection(context);
@@ -13,6 +13,4 @@ async function sync({ }) {
   await context.syncManager.triggerSync('subcommand');
 }
 
-export const syncCommand = new Command('sync')
-  .description('Sync to central server')
-  .action(sync);
+export const syncCommand = new Command('sync').description('Sync to central server').action(sync);
