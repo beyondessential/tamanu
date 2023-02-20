@@ -9,8 +9,6 @@ import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import {
   TextInput,
-  CheckInput,
-  RadioInput,
   DateInput,
   TimeInput,
   DateTimeInput,
@@ -169,10 +167,6 @@ addStories('Dropdown with tags', props => {
     </Container>
   );
 });
-
-addStories('CheckInput', props => (
-  <StoryControlWrapper Component={CheckInput} label="Enable" {...props} />
-));
 
 addStories('NullableBooleanInput', props => (
   <StoryControlWrapper Component={NullableBooleanInput} label="Enable" {...props} />

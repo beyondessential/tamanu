@@ -12,7 +12,10 @@ import {
   FACILITIES,
   LOCATIONS,
   USERS,
+  DEPARTMENTS,
 } from 'shared/demoData';
+
+import { MockedApi } from './utils/mockedApi';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
@@ -34,6 +37,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
+const departmentSuggester = createDummySuggester(mapToSuggestions(DEPARTMENTS));
 const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
 const dispositionSuggester = createDummySuggester(mapToSuggestions(DISPOSITIONS));
@@ -241,22 +245,22 @@ storiesOf('Forms', module).add('MedicationForm', () => (
   />
 ));
 
+const labRequestEndpoints = {
+  'suggestions/labSampleSite/all': () => [{ id: '1', name: 'Blood' }],
+  'suggestions/labTestPriority/all': () => [{ id: '1', name: 'Normal' }],
+};
+
 storiesOf('Forms/LabRequestForm', module)
   .add('LabRequestForm', () => (
-    <LabRequestForm
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
-      visit={{
-        visitType: 'admission',
-        startDate: new Date(),
-        examiner: {
-          displayName: 'Dr Jim Taylor',
-        },
-      }}
-      testTypes={testTypes}
-      testCategories={testCategories}
-      generateDisplayId={shortid.generate}
-      practitionerSuggester={practitionerSuggester}
-    />
+    <MockedApi endpoints={labRequestEndpoints}>
+      <LabRequestForm
+        onNext={action('next')}
+        onSubmit={action('submit')}
+        onCancel={action('cancel')}
+        generateDisplayId={shortid.generate}
+        practitionerSuggester={practitionerSuggester}
+        departmentSuggester={departmentSuggester}
+      />
+    </MockedApi>
   ))
   .add('TestSelector', () => <StorybookableTestSelector />);

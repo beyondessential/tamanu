@@ -42,7 +42,7 @@ const labRequestValidationSchema = yup.object().shape({
     then: yup.string().required(),
     otherwise: yup.string().nullable(),
   }),
-  sample: yup
+  status: yup
     .string()
     .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.NOT_COLLECTED])
     .required(),

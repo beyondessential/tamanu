@@ -7,11 +7,6 @@ const FRUITS = [
   { value: 'bananas', label: 'Bananas' },
 ];
 
-const DEFAULT_PROPS = {
-  options: FRUITS,
-  label: 'fruit',
-};
-
 export default {
   argTypes: {
     options: {
@@ -43,12 +38,13 @@ export default {
 };
 
 const Template = args => {
-  const props = { ...DEFAULT_PROPS, ...args };
   const [value, setValue] = useState(null);
   const handleChange = e => {
     setValue(e.target.value);
   };
-  return <RadioInput {...props} value={value} onChange={handleChange} />;
+  return (
+    <RadioInput options={FRUITS} label="fruit" {...args} value={value} onChange={handleChange} />
+  );
 };
 
 export const Default = Template.bind({});
