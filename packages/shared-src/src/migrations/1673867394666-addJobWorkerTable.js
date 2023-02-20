@@ -1,7 +1,9 @@
 import Sequelize, { DataTypes } from 'sequelize';
 
+const TABLE = { schema: 'fhir', tableName: 'job_workers' };
+
 export async function up(query) {
-  await query.createTable(['fhir', 'job_workers'], {
+  await query.createTable(TABLE, {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -98,5 +100,5 @@ export async function down(query) {
   await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_deregister');
   await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_heartbeat');
   await query.sequelize.query('DROP FUNCTION IF EXISTS fhir.job_worker_register');
-  await query.dropTable(['fhir', 'job_workers']);
+  await query.dropTable(TABLE);
 }

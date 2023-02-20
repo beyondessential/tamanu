@@ -1,9 +1,9 @@
 import Sequelize, { DataTypes } from 'sequelize';
 
-const TABLE_NAME = ['fhir', 'jobs'];
+const TABLE = { schema: 'fhir', tableName: 'jobs' };
 
 export async function up(query) {
-  await query.createTable(TABLE_NAME, {
+  await query.createTable(TABLE, {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -61,5 +61,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropTable(TABLE_NAME);
+  await query.dropTable(TABLE);
 }
