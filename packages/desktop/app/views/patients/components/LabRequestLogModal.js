@@ -14,8 +14,12 @@ const COLUMNS = [
 
 export const LabRequestLogModal = ({ open, onClose, labRequest }) => {
   return (
-    <Modal open={open} onClose={onClose} title="Change lab request status">
-      <DataFetchingTable columns={COLUMNS} endpoint={`labRequestLog/labRequest/${labRequest.id}`} />
+    <Modal open={open} onClose={onClose} title="Status log" width="md">
+      <DataFetchingTable
+        columns={COLUMNS}
+        endpoint={`labRequestLog/labRequest/${labRequest.id}`}
+        allowExport={false}
+      />
     </Modal>
   );
 };

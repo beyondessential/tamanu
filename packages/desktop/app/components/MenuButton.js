@@ -28,6 +28,15 @@ const Item = styled(MenuItem)`
   }
 `;
 
+const List = styled(MenuList)`
+  padding: 3px;
+  border-radius: 3px;
+
+  .MuiListItem-root {
+    padding: 4px;
+  }
+`;
+
 export const MenuButton = React.memo(({ actions, className, iconDirection, iconColor }) => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
@@ -55,8 +64,8 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
   const Icon = iconDirection === 'vertical' ? MoreVertIcon : MoreHorizIcon;
 
   return (
-    <span className={className} ref={anchorRef}>
-      <OpenButton onClick={handleToggle}>
+    <div className={className}>
+      <OpenButton onClick={handleToggle} ref={anchorRef}>
         <Icon style={{ color: iconColor, cursor: 'pointer' }} />
       </OpenButton>
       <Popper
@@ -67,9 +76,9 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
         placement="bottom-end"
       >
         {() => (
-          <Paper id="menu-list-grow">
+          <Paper id="menu-list-grow" variant="outlined">
             <ClickAwayListener onClickAway={handleClose}>
-              <MenuList>
+              <List>
                 {actions.map((action, index) => (
                   <Item
                     key={action.label}
@@ -79,12 +88,12 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
                     {action.label}
                   </Item>
                 ))}
-              </MenuList>
+              </List>
             </ClickAwayListener>
           </Paper>
         )}
       </Popper>
-    </span>
+    </div>
   );
 });
 

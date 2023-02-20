@@ -11,14 +11,6 @@ const Container = styled.div`
   padding: 12px;
   width: 150px;
   overflow: hidden;
-
-  margin: 0 12px 12px;
-
-  &:first-child,
-  &:last-child {
-    margin-left: 0;
-    margin-right: 0;
-  }
 `;
 
 const Row = styled.div`

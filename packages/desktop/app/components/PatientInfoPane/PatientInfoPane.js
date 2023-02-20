@@ -120,8 +120,6 @@ const Container = styled.div`
 `;
 
 const ListsSection = styled.div`
-  background: ${Colors.white};
-
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
