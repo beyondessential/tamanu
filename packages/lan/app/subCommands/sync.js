@@ -13,4 +13,4 @@ async function sync() {
   await context.syncManager.triggerSync('subcommand');
 }
 
-export const syncCommand = new Command('sync').description('Sync to central server').action(sync);
+export const syncCommand = new Command('sync').description('Sync with central server').action(sync);
