@@ -19,9 +19,9 @@ export class PatientCondition extends Model {
         resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
         resolutionDate: dateTimeType('resolutionDate', {
           defaultValue: getCurrentDateTimeString,
-          allowNull: false,
+          allowNull: true,
         }),
-        resolutionNote: Sequelize.STRING,
+        resolutionNote: Sequelize.TEXT,
       },
       {
         ...options,
