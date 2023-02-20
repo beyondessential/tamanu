@@ -16,12 +16,10 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
   let fromId;
   let limit = calculatePageLimit();
   let totalPulled = 0;
-  log.debug(`pullIncomingChanges: syncing`, { sessionId });
 
   // pull changes a page at a time
   while (totalPulled < totalToPull) {
-    log.debug(`pullIncomingChanges: pulling records`, {
-      sessionId,
+    log.debug('Sync: Pulling page of records', {
       fromId,
       limit,
     });
@@ -35,11 +33,11 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     const pullTime = Date.now() - startTime;
 
     if (!records.length) {
-      log.debug(`pullIncomingChanges: Pull returned no more changes, finishing`);
+      log.debug(`Sync: Pull returned no more changes, finishing`);
       break;
     }
 
-    log.debug(`pullIncomingChanges: Pulled ${records.length} changes, saving to local cache`);
+    log.info('Sync: Saving changes to cache', { count: records.length });
 
     const recordsToSave = records.map(r => ({
       ...r,
