@@ -21,6 +21,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
+  getResourceList,
 } from './crudHelpers';
 import { getLabRequestList } from '../../routeHandlers/labs';
 
@@ -149,48 +150,39 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/imagingRequests',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { ImagingRequest } = models;
-    const { id: encounterId } = params;
-    const {
-      order = 'ASC',
-      orderBy = 'createdAt',
-      rowsPerPage,
-      page,
-      includeNotePages: includeNotePagesStr = 'false',
-    } = query;
-    const includeNotePages = includeNotePagesStr === 'true';
+    const { query } = req;
+    const { includeNotePages: includeNotePagesStr = 'false', status } = query;
 
-    req.checkPermission('list', 'ImagingRequest');
-
-    const associations = ImagingRequest.getListReferenceAssociations(models) || [];
-
-    const baseQueryOptions = {
-      where: {
-        encounterId,
-        status: {
-          [Op.and]: [
-            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
-            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR },
-          ],
-        },
+    const options = {
+      additionalFilters: {
+        [Op.and]: [
+          {
+            status: {
+              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+            },
+          },
+          {
+            status: {
+              [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+            },
+          },
+        ],
+        // Allow filtering by status
+        ...(status ?? { status }),
       },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      include: associations,
     };
 
-    const count = await ImagingRequest.count({
-      ...baseQueryOptions,
-    });
+    const { data: imagingRequests, count } = await getResourceList(
+      req,
+      'ImagingRequest',
+      'encounterId',
+      options,
+    );
 
-    const objects = await ImagingRequest.findAll({
-      ...baseQueryOptions,
-      limit: rowsPerPage,
-      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
-    });
+    const includeNotePages = includeNotePagesStr === 'true';
 
     const data = await Promise.all(
-      objects.map(async ir => {
+      imagingRequests.map(async ir => {
         return {
           ...ir.forResponse(),
           ...(includeNotePages ? await ir.extractNotes() : undefined),
