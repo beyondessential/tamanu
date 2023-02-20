@@ -43,46 +43,40 @@ export default {
 };
 
 const Template = args => {
+  const props = { ...DEFAULT_PROPS, ...args };
   const [value, setValue] = useState(null);
   const handleChange = e => {
     setValue(e.target.value);
   };
-  return <RadioInput {...args} value={value} onChange={handleChange} />;
+  return <RadioInput {...props} value={value} onChange={handleChange} />;
 };
 
 export const Default = Template.bind({});
-Default.args = {
-  ...DEFAULT_PROPS,
-};
+Default.args = {};
 
 export const Required = Template.bind({});
 Required.args = {
-  ...DEFAULT_PROPS,
   required: true,
 };
 
 export const Disabled = Template.bind({});
 Disabled.args = {
-  ...DEFAULT_PROPS,
   disabled: true,
 };
 
 export const WithHelpText = Template.bind({});
 WithHelpText.args = {
-  ...DEFAULT_PROPS,
   helperText: 'Here is some help text',
 };
 
 export const WithError = Template.bind({});
 WithError.args = {
-  ...DEFAULT_PROPS,
   error: true,
   helperText: 'Here is an error message',
 };
 
 export const WithDescriptions = Template.bind({});
 WithDescriptions.args = {
-  ...DEFAULT_PROPS,
   options: FRUITS.slice(0, 2).map(option => ({
     ...option,
     description: `Some descriptive information about the ${option.label}`,
@@ -91,9 +85,8 @@ WithDescriptions.args = {
 
 export const WithColors = Template.bind({});
 WithColors.args = {
-  ...DEFAULT_PROPS,
-  options: FRUITS.slice(0, 2).map(option => ({
+  options: FRUITS.slice(0, 2).map((option, i) => ({
     ...option,
-    color: '#FF0000',
+    color: ['#FF0000', '#00FF00'][i],
   })),
 };
