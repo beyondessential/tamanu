@@ -31,7 +31,9 @@ const InvisibleSyncButton = () => {
 
     toast.info('Starting manual sync...');
     try {
-      const result = await api.post(`sync/run`);
+      const result = await api.post(`sync/run`, {}, {
+        timeout: 30000,
+      });
       toast.success(result.message);
     } catch (error) {
       toast.error(<Error errorMessage={error.message} />);
