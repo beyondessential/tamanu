@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { PropTypes } from 'prop-types';
 import { Typography } from '@material-ui/core';
+import LabelIcon from '@material-ui/icons/Label';
 import { MenuButton } from './MenuButton';
 
 const Container = styled.div`
@@ -10,6 +11,14 @@ const Container = styled.div`
   padding: 12px;
   width: 150px;
   overflow: hidden;
+
+  margin: 0 12px 12px;
+
+  &:first-child,
+  &:last-child {
+    margin-left: 0;
+    margin-right: 0;
+  }
 `;
 
 const Row = styled.div`
@@ -61,7 +70,7 @@ Tile.propTypes = {
 };
 
 Tile.defaultProps = {
-  Icon: null,
+  Icon: LabelIcon,
   title: null,
   text: null,
   actions: null,

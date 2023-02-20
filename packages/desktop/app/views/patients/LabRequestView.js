@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import Box from '@material-ui/core/Box';
+import IconButton from '@material-ui/core/IconButton';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { Divider } from '@material-ui/core';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -14,6 +17,9 @@ import {
   ContentPane,
   FormGrid,
   Heading2,
+  Tile,
+  CardItem,
+  OutlinedButton,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -24,6 +30,7 @@ import { LabRequestChangeStatusModal } from './components/LabRequestChangeStatus
 import { LabRequestPrintModal } from './components/LabRequestPrintModal';
 import { LabRequestCancelModal } from './components/LabRequestCancelModal';
 import { LabRequestResultsTable } from './components/LabRequestResultsTable';
+import { labsIcon } from '../../constants/images';
 
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
@@ -170,24 +177,7 @@ const TileContainer = styled.div`
   display: flex;
   align-items: flex-start;
   margin-bottom: 12px;
-  justify-content: space-between;
   overflow: auto;
-`;
-
-const Tile = styled.div`
-  background: white;
-  border-radius: 3px;
-  padding: 30px;
-  flex: 1;
-  min-width: 100px;
-  height: 110px;
-  margin: 0 12px 12px;
-
-  &:first-child,
-  &:last-child {
-    margin-left: 0;
-    margin-right: 0;
-  }
 `;
 
 const Rule = styled(Divider)`
@@ -199,6 +189,23 @@ const Placeholder = styled.div`
   border-radius: 3px;
   margin-bottom: 12px;
   padding: 30px;
+`;
+
+const LabIcon = styled.img`
+  width: 22px;
+  height: 22px;
+  border: none;
+`;
+
+const LabContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 5px;
+  padding: 18px;
+
+  margin-bottom: 20px;
 `;
 
 export const LabRequestView = () => {
@@ -219,14 +226,31 @@ export const LabRequestView = () => {
   return (
     <Container>
       <Heading2 style={{ marginBottom: 20 }}>Labs</Heading2>
-      <Placeholder>Card</Placeholder>
+      <LabContainer>
+        <LabIcon src={labsIcon} />
+        <Box pr={3} pl={3}>
+          <CardItem label="Lab test ID" value="HGU59KRC" />
+          <CardItem label="Request date" value="01/01/2023" />
+        </Box>
+        <Divider />
+        <Box pl={3} pr={3}>
+          <CardItem label="Requesting clinician" value="Jane Smith" />
+          <CardItem label="Department" value="Cardiology" />
+        </Box>
+        <Box>
+          <OutlinedButton>Print request</OutlinedButton>
+          <IconButton>
+            <MoreVertIcon />
+          </IconButton>
+        </Box>
+      </LabContainer>
       <Placeholder>Notes</Placeholder>
       <TileContainer>
-        <Tile />
-        <Tile />
-        <Tile />
-        <Tile />
-        <Tile />
+        <Tile title="Text Category" text="FBC" />
+        <Tile title="Status" text="Reception pending" />
+        <Tile title="Sample collected" text="23/01/22" />
+        <Tile title="Laboratory" text="Fiji CDC" />
+        <Tile title="Priority" text="standard" />
       </TileContainer>
       <Rule />
       <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />

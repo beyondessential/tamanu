@@ -12,7 +12,7 @@ export default {
   component: Card,
 };
 
-const Container = styled.div`
+const LabContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,7 +34,7 @@ const LabIcon = styled.img`
 
 export const LabsCard = args => (
   <div style={{ minWidth: 750 }}>
-    <Container {...args}>
+    <LabContainer {...args}>
       <LabIcon src={labsIcon} />
       <Box pr={3} pl={3}>
         <CardItem label="Lab test ID" value="HGU59KRC" />
@@ -51,7 +51,7 @@ export const LabsCard = args => (
           <MoreVertIcon />
         </IconButton>
       </Box>
-    </Container>
+    </LabContainer>
   </div>
 );
 
