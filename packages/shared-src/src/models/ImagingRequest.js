@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-
 import { InvalidOperationError } from 'shared/errors';
 import {
   SYNC_DIRECTIONS,
@@ -16,6 +15,7 @@ import { getCurrentDateTimeString } from '../utils/dateTime';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
+
 export class ImagingRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -26,24 +26,23 @@ export class ImagingRequest extends Model {
           type: Sequelize.ENUM(ALL_IMAGING_TYPES),
           allowNull: false,
         },
-
+        reasonForCancellation: {
+          type: Sequelize.STRING,
+        },
         status: {
           type: Sequelize.ENUM(ALL_IMAGING_REQUEST_STATUS_TYPES),
           allowNull: false,
           defaultValue: IMAGING_REQUEST_STATUS_TYPES.PENDING,
         },
-
         requestedDate: dateTimeType('requestedDate', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         }),
-
         // moved into ImagingResults.description
         legacyResults: {
           type: Sequelize.TEXT,
           defaultValue: '',
         },
-
         priority: {
           type: Sequelize.STRING,
         },

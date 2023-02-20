@@ -45,7 +45,7 @@ export const LoginForm = React.memo(
       }
     };
 
-    const renderForm = ({ setFieldValue }) => (
+    const renderForm = ({ setFieldValue, isSubmitting }) => (
       <FormGrid columns={1}>
         <div>{errorMessage}</div>
         <Field name="email" type="email" label="Email" required component={TextField} />
@@ -73,7 +73,9 @@ export const LoginForm = React.memo(
             setFieldValue={setFieldValue}
           />
         </Collapse>
-        <LoginButton type="submit">Login to your account</LoginButton>
+        <LoginButton type="submit" isSubmitting={isSubmitting}>
+          Login to your account
+        </LoginButton>
         <Button onClick={onNavToResetPassword} color="default" variant="text">
           Forgot your password?
         </Button>

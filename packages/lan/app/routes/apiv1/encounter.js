@@ -293,7 +293,6 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { db, params, query } = req;
     req.checkPermission('list', 'Vitals');
-    req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
     const { order = 'DESC' } = query;
     // The LIMIT and OFFSET occur in an unusual place in this query

@@ -198,6 +198,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
     id,
     examiner,
   } = encounter;
+
   const patientStatus = getPatientStatus(encounterType);
 
   return (

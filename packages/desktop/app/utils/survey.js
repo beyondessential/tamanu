@@ -10,7 +10,7 @@ import {
   MultiselectField,
   DateField,
   NullableBooleanField,
-  SurveyQuestionAutocomplete,
+  SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   NumberField,
   ReadOnlyTextField,
@@ -32,7 +32,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: props => <DateTimeField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: props => <DateField {...props} saveDateAsString />,
@@ -105,10 +105,18 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
+      const isMultiSelect =
+        matchingComponent.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'
@@ -294,7 +302,7 @@ export const getValidationSchema = surveyData => {
       return {
         ...acc,
         [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
-          mandatory ? `${dataElement.name} is a required field` : null,
+          mandatory ? 'Required' : null,
         ),
       };
     },
