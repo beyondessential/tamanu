@@ -32,6 +32,7 @@ const ALLOWLIST = [
   'labTestLaboratory',
   'labTestMethod',
   'labTestPriority',
+  'labSampleSite',
   'labTestType',
   'location',
   'locationGroup',

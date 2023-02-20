@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
+import { useApi, useSuggester } from '../api';
 
 import { Modal } from './Modal';
 import { LabRequestForm } from '../forms/LabRequestForm';
@@ -10,7 +9,8 @@ import { ALPHABET_FOR_ID } from '../constants';
 
 export const LabRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const practitionerSuggester = useSuggester('practitioner');
+  const departmentSuggester = useSuggester('department');
   const [requestId, setRequestId] = useState();
 
   return (
@@ -28,6 +28,7 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
         encounter={encounter}
         requestId={requestId}
         practitionerSuggester={practitionerSuggester}
+        departmentSuggester={departmentSuggester}
         generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 7)}
       />
     </Modal>
