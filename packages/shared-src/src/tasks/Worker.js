@@ -1,5 +1,5 @@
 import { hostname } from 'os';
-import config from 'config';
+import theConfig from 'config';
 import ms from 'ms';
 
 export class Worker {
@@ -8,6 +8,8 @@ export class Worker {
   heartbeat = null;
 
   worker = null;
+  
+  config = theConfig.schedules.fhirJobWorker;
 
   constructor(context, log) {
     this.models = context.models;
@@ -47,7 +49,7 @@ export class Worker {
       this.handlers.get(topic).cancelPolling();
     }
 
-    const { enabled, schedule, topicConcurrency } = config.schedules.fhirJobWorker;
+    const { enabled, schedule, topicConcurrency } = this.config;
 
     if (!enabled) {
       this.log.info('FhirJobWorker: disabled');

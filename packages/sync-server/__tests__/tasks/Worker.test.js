@@ -180,10 +180,10 @@ describe('Worker Jobs', () => {
 
     beforeEach(async () => {
       await models.Job.truncate();
-      await models.Setting.set('fhir.worker.maxConcurrency', 1);
 
       logger = jest.fn();
       worker = new Worker(ctx.store, makeLogger(logger));
+      worker.config.topicConcurrency = 1;
       await worker.start();
       await worker.installTopic('test1', WorkerTest);
       await worker.installTopic('test2', WorkerTest);
@@ -300,8 +300,8 @@ describe('Worker Jobs', () => {
     it(
       'several jobs can be grabbed simultaneously',
       withErrorShown(async () => {
-        const { Job, Setting } = models;
-        await Setting.set('fhir.worker.maxConcurrency', 10);
+        const { Job } = models;
+        worker.config.topicConcurrency = 10;
         await worker.installTopic('test3', WorkerTest);
         worker.__testingSetup();
         const id1 = await Job.submit('test3');

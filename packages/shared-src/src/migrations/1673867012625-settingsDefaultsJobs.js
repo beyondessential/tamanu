@@ -4,7 +4,6 @@ import { QueryTypes } from 'sequelize';
 const DEFAULT_SETTINGS = {
   'fhir.worker.heartbeat': '1 minute',
   'fhir.worker.assumeDroppedAfter': '10 minutes',
-  'fhir.worker.maxConcurrency': 10,
 };
 
 export async function up(query) {
