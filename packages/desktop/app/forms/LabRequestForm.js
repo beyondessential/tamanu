@@ -44,7 +44,7 @@ const labRequestValidationSchema = yup.object().shape({
   }),
   sample: yup
     .string()
-    .oneOf([LAB_REQUEST_STATUSES.PENDING, LAB_REQUEST_STATUSES.NOT_COLLECTED])
+    .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.NOT_COLLECTED])
     .required(),
 });
 
@@ -66,7 +66,7 @@ export const LabRequestForm = ({
       const isSampleCollected = event.target.value === 'yes';
       if (isSampleCollected) {
         setFieldValue('sampleTime', getCurrentDateString());
-        setFieldValue('status', LAB_REQUEST_STATUSES.PENDING);
+        setFieldValue('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
       } else {
         setFieldValue('sampleTime', null);
         setFieldValue('status', LAB_REQUEST_STATUSES.NOT_COLLECTED);
@@ -169,7 +169,7 @@ export const LabRequestForm = ({
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
         specimenAttached: 'no',
-        status: LAB_REQUEST_STATUSES.PENDING,
+        status: LAB_REQUEST_STATUSES.NOT_COLLECTED,
         // LabTest date
         date: getCurrentDateString(),
         ...editedObject,
@@ -191,5 +191,4 @@ LabRequestForm.propTypes = {
 LabRequestForm.defaultProps = {
   encounter: {},
   editedObject: {},
-  requestId: '',
 };
