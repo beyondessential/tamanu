@@ -22,7 +22,10 @@ sync.post(
 
     const timeoutAfter = seconds =>
       new Promise(resolve => {
-        setTimeout(() => resolve('Sync is taking a while, continuing in the background...'), seconds * 1000);
+        setTimeout(
+          () => resolve('Sync is taking a while, continuing in the background...'),
+          seconds * 1000,
+        );
       });
 
     const message = await Promise.race([completeSync(), timeoutAfter(10)]);
