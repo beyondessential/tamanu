@@ -1,252 +1,32 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useApi, useSuggester } from '../../api';
 import {
-  SelectInput,
   DateInput,
   TextInput,
   DateTimeInput,
-  AutocompleteField,
   SimpleTopBar,
-  Modal,
-  ConfirmCancelRow,
   ContentPane,
-  DataFetchingTable,
   FormGrid,
 } from '../../components';
-import { useCertificate } from '../../utils/useCertificate';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { ManualLabResultModal } from '../../components/ManualLabResultModal';
-import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
+import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
 import { DropdownButton } from '../../components/DropdownButton';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { getCompletedDate, getMethod } from '../../utils/lab';
-import { CancelModal } from '../../components/CancelModal';
-import { useLocalisation } from '../../contexts/Localisation';
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
-
-const makeRangeStringAccessor = sex => ({ labTestType }) => {
-  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
-  const hasMax = max || max === 0;
-  const hasMin = min || min === 0;
-
-  if (hasMin && hasMax) return `${min} - ${max}`;
-  if (hasMin) return `>${min}`;
-  if (hasMax) return `<${max}`;
-  return 'N/A';
-};
-
-const columns = sex => [
-  { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
-  {
-    title: 'Result',
-    key: 'result',
-    accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
-  },
-  { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
-  { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
-  { title: 'Laboratory officer', key: 'laboratoryOfficer' },
-  { title: 'Verification', key: 'verification' },
-  { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
-];
-
-const ResultsPane = React.memo(({ labRequest, patient, isReadOnly }) => {
-  const [activeTest, setActiveTest] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-  const openModal = useCallback(
-    test => {
-      setActiveTest(test);
-      setModalOpen(true);
-    },
-    [setActiveTest],
-  );
-
-  const sexAppropriateColumns = columns(patient.sex);
-
-  return (
-    <>
-      <ManualLabResultModal
-        open={isModalOpen}
-        labRequest={labRequest}
-        labTest={activeTest}
-        onClose={closeModal}
-        isReadOnly={isReadOnly}
-      />
-      <DataFetchingTable
-        columns={sexAppropriateColumns}
-        endpoint={`labRequest/${labRequest.id}/tests`}
-        onRowClick={openModal}
-        initialSort={{ order: 'asc', orderBy: 'id' }}
-      />
-    </>
-  );
-});
+import { LabRequestChangeStatusModal } from './components/LabRequestChangeStatusModal';
+import { LabRequestPrintModal } from './components/LabRequestPrintModal';
+import { LabRequestCancelModal } from './components/LabRequestCancelModal';
+import { LabRequestResultsTable } from './components/LabRequestResultsTable';
 
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
   LAB_REQUEST_STATUSES.CANCELLED,
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
-
-const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClose }) => {
-  const [status, setStatus] = useState(currentStatus);
-  const updateLabStatus = useCallback(async () => {
-    await updateLabReq({ status });
-    onClose();
-  }, [updateLabReq, status, onClose]);
-  return (
-    <>
-      <Modal open={open} onClose={onClose} title="Change lab request status">
-        <FormGrid columns={1}>
-          <SelectInput
-            label="Status"
-            name="status"
-            options={LAB_REQUEST_STATUS_OPTIONS}
-            value={status}
-            onChange={({ target: { value } }) => setStatus(value)}
-          />
-          <ConfirmCancelRow onConfirm={updateLabStatus} confirmText="Save" onCancel={onClose} />
-        </FormGrid>
-      </Modal>
-    </>
-  );
-};
-
-const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
-  const [lab, setLab] = useState(laboratory);
-  const laboratorySuggester = useSuggester('labTestLaboratory');
-  const updateLab = useCallback(async () => {
-    await updateLabReq({
-      labTestLaboratoryId: lab,
-    });
-    onClose();
-  }, [updateLabReq, lab, onClose]);
-  return (
-    <>
-      <Modal open={open} onClose={onClose} title="Change lab request laboratory">
-        <FormGrid columns={1}>
-          <AutocompleteField
-            label="Laboratory"
-            field={{ name: 'labTestLaboratoryId' }}
-            suggester={laboratorySuggester}
-            value={lab}
-            onChange={({ target: { value } }) => {
-              setLab(value);
-            }}
-          />
-          <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={onClose} />
-        </FormGrid>
-      </Modal>
-    </>
-  );
-};
-
-const PrintModal = ({ labRequest, patient, open, onClose }) => {
-  const api = useApi();
-  const certificateData = useCertificate();
-  const [notes, setNotes] = useState([]);
-  const [tests, setTests] = useState([]);
-  const [encounter, setEncounter] = useState({});
-  const [notesLoading, setNotesLoading] = useState(false);
-  const [testsLoading, setTestsLoading] = useState(false);
-  const [encounterLoading, setEncounterLoading] = useState(false);
-
-  useEffect(() => {
-    setEncounterLoading(true);
-    (async () => {
-      const res = await api.get(`encounter/${labRequest.encounterId}`);
-      setEncounter(res);
-    })();
-    setEncounterLoading(false);
-  }, [api, labRequest.encounterId]);
-
-  useEffect(() => {
-    setTestsLoading(true);
-    (async () => {
-      const res = await api.get(`labRequest/${labRequest.id}/tests`);
-      setTests(res.data);
-    })();
-    setTestsLoading(false);
-  }, [api, labRequest.id]);
-  useEffect(() => {
-    setNotesLoading(true);
-    (async () => {
-      const res = await api.get(`labRequest/${labRequest.id}/notes`);
-      setNotes(res.data);
-    })();
-    setNotesLoading(false);
-  }, [api, labRequest.id]);
-
-  return (
-    <>
-      <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-        {encounterLoading || testsLoading || notesLoading ? (
-          <LoadingIndicator />
-        ) : (
-          <LabRequestPrintout
-            labRequestData={{ ...labRequest, tests, notes }}
-            patientData={patient}
-            encounterData={encounter}
-            certificateData={certificateData}
-          />
-        )}
-      </Modal>
-    </>
-  );
-};
-
-const LabRequestCancelModal = ({ open, onClose, updateLabReq, labRequestId }) => {
-  const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
-
-  const onConfirmCancel = async ({ reasonForCancellation }) => {
-    const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation)
-      ?.label;
-    const note = `Request cancelled. Reason: ${reasonText}.`;
-
-    let status;
-    if (reasonForCancellation === 'duplicate') {
-      status = LAB_REQUEST_STATUSES.DELETED;
-    } else if (reasonForCancellation === 'entered-in-error') {
-      status = LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
-    } else {
-      status = LAB_REQUEST_STATUSES.CANCELLED;
-    }
-
-    await api.post(`labRequest/${labRequestId}/notes`, {
-      content: note,
-      authorId: api.user.id,
-      noteType: NOTE_TYPES.OTHER,
-    });
-
-    await updateLabReq({
-      status,
-      reasonForCancellation,
-    });
-  };
-
-  return (
-    <CancelModal
-      title="Cancel lab request"
-      open={open}
-      onClose={onClose}
-      options={cancellationReasonOptions}
-      helperText="This reason will permanently delete the lab request record"
-      bodyText="Please select reason for cancelling lab request and click 'Confirm'"
-      onConfirm={onConfirmCancel}
-    />
-  );
-};
 
 const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   const { modal } = useParams();
@@ -272,19 +52,19 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
 
   return (
     <>
-      <ChangeLabStatusModal
+      <LabRequestChangeStatusModal
         status={status}
         updateLabReq={updateLabReq}
         open={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}
       />
-      <PrintModal
+      <LabRequestPrintModal
         labRequest={labRequest}
         patient={patient}
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
       />
-      <ChangeLaboratoryModal
+      <LabRequestChangeLabModal
         laboratory={labRequest.laboratory}
         updateLabReq={updateLabReq}
         open={labModalOpen}
@@ -300,46 +80,6 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
     </>
   );
 };
-
-const LabRequestInfoPane = ({ labRequest, isReadOnly }) => (
-  <FormGrid columns={3}>
-    <TextInput value={labRequest.displayId} label="Request ID" disabled={isReadOnly} />
-    <TextInput
-      value={(labRequest.category || {}).name}
-      label="Request type"
-      disabled={isReadOnly}
-    />
-    <TextInput
-      value={labRequest.urgent ? 'Urgent' : 'Standard'}
-      label="Urgency"
-      disabled={isReadOnly}
-    />
-    <TextInput value={(labRequest.priority || {}).name} label="Priority" disabled={isReadOnly} />
-    <TextInput
-      value={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
-      label="Status"
-      disabled={isReadOnly}
-    />
-    <TextInput
-      value={(labRequest.laboratory || {}).name}
-      label="Laboratory"
-      disabled={isReadOnly}
-    />
-    <DateInput
-      value={labRequest.requestedDate}
-      saveDateAsString
-      label="Requested date"
-      disabled={isReadOnly}
-    />
-    <DateTimeInput
-      value={labRequest.sampleTime}
-      saveDateAsString
-      label="Sample date"
-      disabled={isReadOnly}
-    />
-    <LabRequestNoteForm labRequest={labRequest} isReadOnly={isReadOnly} />
-  </FormGrid>
-);
 
 export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
@@ -367,10 +107,50 @@ export const LabRequestView = () => {
         />
       </SimpleTopBar>
       <ContentPane>
-        <LabRequestInfoPane labRequest={labRequest} isReadOnly={isReadOnly} />
+        <FormGrid columns={3}>
+          <TextInput value={labRequest.displayId} label="Request ID" disabled={isReadOnly} />
+          <TextInput
+            value={(labRequest.category || {}).name}
+            label="Request type"
+            disabled={isReadOnly}
+          />
+          <TextInput
+            value={labRequest.urgent ? 'Urgent' : 'Standard'}
+            label="Urgency"
+            disabled={isReadOnly}
+          />
+          <TextInput
+            value={(labRequest.priority || {}).name}
+            label="Priority"
+            disabled={isReadOnly}
+          />
+          <TextInput
+            value={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+            label="Status"
+            disabled={isReadOnly}
+          />
+          <TextInput
+            value={(labRequest.laboratory || {}).name}
+            label="Laboratory"
+            disabled={isReadOnly}
+          />
+          <DateInput
+            value={labRequest.requestedDate}
+            saveDateAsString
+            label="Requested date"
+            disabled={isReadOnly}
+          />
+          <DateTimeInput
+            value={labRequest.sampleTime}
+            saveDateAsString
+            label="Sample date"
+            disabled={isReadOnly}
+          />
+          <LabRequestNoteForm labRequest={labRequest} isReadOnly={isReadOnly} />
+        </FormGrid>
       </ContentPane>
       <ContentPane>
-        <ResultsPane labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
+        <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
       </ContentPane>
       <ContentPane>
         <LabRequestAuditPane labRequest={labRequest} />
