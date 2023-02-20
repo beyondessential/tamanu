@@ -1,8 +1,8 @@
-export * from './modals/PatientPrintDetailsModal';
+export * from './modals/PrintPatientDetailsModal';
 export * from './modals/PrintMultipleMedicationSelectionModal';
 export * from './modals/PrintMultipleLabRequestsSelectionModal';
 export * from './modals/PrintMultipleImagingRequestsSelectionModal';
-export * from './modals/PrescriptionPrintModal';
+export * from './modals/PrintPrescriptionModal';
 export * from './modals/ImmunisationCertificateModal';
 export * from './modals/DeathCertificateModal';
 

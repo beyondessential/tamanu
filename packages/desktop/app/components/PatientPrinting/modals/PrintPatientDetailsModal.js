@@ -95,7 +95,7 @@ async function getPatientProfileImage(api, patientId) {
   }
 }
 
-export const PatientPrintDetailsModal = ({ patient }) => {
+export const PrintPatientDetailsModal = ({ patient }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [printType, setPrintType] = useState(null);
   const [imageData, setImageData] = useState('');

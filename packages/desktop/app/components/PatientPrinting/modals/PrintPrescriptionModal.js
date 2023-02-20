@@ -7,7 +7,7 @@ import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '../printouts/PrescriptionPrintout';
 
-export const PrescriptionPrintModal = ({ medication, open, onClose }) => {
+export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   const certificateData = useCertificate();
   const api = useApi();
   const [encounter, setEncounter] = useState({});

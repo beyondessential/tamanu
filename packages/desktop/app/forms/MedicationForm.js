@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
-import { PrescriptionPrintModal } from '../components/PatientPrinting';
+import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { DropdownButton } from '../components/DropdownButton';
 import {
   FormGrid,
@@ -303,7 +303,7 @@ export const MedicationForm = React.memo(
           )}
         />
         {(submittedMedication || medication) && (
-          <PrescriptionPrintModal
+          <PrintPrescriptionModal
             medication={submittedMedication || medication}
             open={printModalOpen}
             onClose={() => {
