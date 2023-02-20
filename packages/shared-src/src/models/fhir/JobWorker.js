@@ -27,10 +27,13 @@ export class FhirJobWorker extends Model {
   }
 
   static async register(metadata = {}) {
-    const [{ id }] = await this.sequelize.query('SELECT fhir.job_worker_register($metadata) as id', {
-      type: QueryTypes.SELECT,
-      bind: { metadata },
-    });
+    const [{ id }] = await this.sequelize.query(
+      'SELECT fhir.job_worker_register($metadata) as id',
+      {
+        type: QueryTypes.SELECT,
+        bind: { metadata },
+      },
+    );
 
     return FhirJobWorker.findByPk(id);
   }

@@ -8,7 +8,7 @@ export class FhirWorker {
   heartbeat = null;
 
   worker = null;
-  
+
   config = theConfig.schedules.fhirJobWorker;
 
   constructor(context, log) {
