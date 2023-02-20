@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
+import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { foreignKey } from '../utils/validation';
 import { binaryOptions } from '../constants';
 import { useLabRequest } from '../contexts/LabRequest';
@@ -45,6 +46,10 @@ const labRequestValidationSchema = yup.object().shape({
     then: yup.string().required(),
     otherwise: yup.string().nullable(),
   }),
+  sample: yup
+    .string()
+    .oneOf([LAB_REQUEST_STATUSES.PENDING, LAB_REQUEST_STATUSES.NOT_COLLECTED])
+    .required(),
 });
 
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
@@ -97,8 +102,14 @@ export const LabRequestForm = ({
   const renderForm = ({ values, setFieldValue, handleChange }) => {
     const handleToggleSampleCollected = e => {
       handleChange(e);
-      const newValue = e.target.value === 'yes' ? getCurrentDateTimeString() : null;
-      setFieldValue('sampleTime', newValue);
+      const isSampleCollected = e.target.value === 'yes';
+      if (isSampleCollected) {
+        setFieldValue('sampleTime', getCurrentDateString());
+        setFieldValue('status', LAB_REQUEST_STATUSES.PENDING);
+      } else {
+        setFieldValue('sampleTime', null);
+        setFieldValue('status', LAB_REQUEST_STATUSES.NOT_COLLECTED);
+      }
     };
 
     return (
@@ -181,7 +192,7 @@ export const LabRequestForm = ({
         <FormSeparatorLine />
         <ButtonRow>
           <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-          <Button type='submit' onClick={onNext}>Next</Button>
+          <Button onClick={onNext}>Next</Button>
         </ButtonRow>
       </FormGrid>
     );
@@ -197,6 +208,7 @@ export const LabRequestForm = ({
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
         specimenAttached: 'no',
+        status: LAB_REQUEST_STATUSES.PENDING,
         // LabTest date
         date: getCurrentDateString(),
         ...editedObject,

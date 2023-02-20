@@ -6,6 +6,7 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
   CANCELLED: 'cancelled',
   DELETED: 'deleted',
+  NOT_COLLECTED: 'not-collected',
   ENTERED_IN_ERROR: 'entered-in-error',
 };
 
@@ -47,6 +48,11 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
   [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: {
     label: 'Entered in error',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
+  [LAB_REQUEST_STATUSES.NOT_COLLECTED]: {
+    label: 'Not collected',
     color: '#444444;',
     background: '#EDEDED',
   },
