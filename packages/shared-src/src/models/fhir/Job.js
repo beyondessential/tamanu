@@ -56,6 +56,7 @@ export class FhirJob extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'fhir',
+        tableName: 'jobs',
         indexes: [
           {
             fields: ['topic', 'status', 'priority', 'created_at'],

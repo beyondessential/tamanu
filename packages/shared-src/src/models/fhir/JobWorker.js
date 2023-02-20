@@ -1,6 +1,6 @@
 import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
-import { Model } from './Model';
-import { SYNC_DIRECTIONS } from '../constants';
+import { Model } from '../Model';
+import { SYNC_DIRECTIONS } from '../../constants';
 
 export class FhirJobWorker extends Model {
   static init({ primaryKey, ...options }) {
@@ -20,6 +20,7 @@ export class FhirJobWorker extends Model {
       {
         ...options,
         schema: 'fhir',
+        tableName: 'job_workers',
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
       },
     );

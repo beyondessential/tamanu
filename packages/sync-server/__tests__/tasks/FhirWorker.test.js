@@ -2,7 +2,7 @@ import { jest, describe, expect, it } from '@jest/globals';
 import { withErrorShown } from 'shared/test-helpers';
 import { FhirWorker } from 'shared/tasks';
 import { createTestContext } from '../utilities';
-import { FhirWorkerTest } from '../../app/tasks/WorkerTest';
+import { FhirWorkerTest } from '../../app/tasks/FhirWorkerTest';
 import { fakeUUID } from 'shared/utils/generateId';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 
@@ -31,7 +31,7 @@ describe('Worker Jobs', () => {
       'with defaults',
       withErrorShown(async () => {
         // Act
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const id = await Job.submit('topic', { payload: 'value' });
 
         // Assert
@@ -51,7 +51,7 @@ describe('Worker Jobs', () => {
       'with a priority',
       withErrorShown(async () => {
         // Act
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const id = await Job.submit('topic', { payload: 'value' }, { priority: 4321 });
 
         // Assert
@@ -71,7 +71,7 @@ describe('Worker Jobs', () => {
       'with a discriminant',
       withErrorShown(async () => {
         // Act
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const first = await Job.submit('topic', { payload: 'first' }, { discriminant: 'unique' });
         const second = await Job.submit('topic', { payload: 'second' }, { discriminant: 'unique' });
 
@@ -106,7 +106,7 @@ describe('Worker Jobs', () => {
     it(
       'successfully',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
 
         // Act
         const id = await Job.submit('test');
@@ -140,7 +140,7 @@ describe('Worker Jobs', () => {
     it(
       'failing',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
 
         // Act
         const id = await Job.submit('test', { error: true });
@@ -178,8 +178,8 @@ describe('Worker Jobs', () => {
   describe('processing the queue', () => {
     let logger, worker;
 
-    beforeEach(async () => {
-      await models.Job.truncate();
+    beforeEach(withErrorShown(async () => {
+      await models.FhirJob.truncate();
 
       logger = jest.fn();
       worker = new FhirWorker(ctx.store, makeLogger(logger));
@@ -188,7 +188,7 @@ describe('Worker Jobs', () => {
       await worker.installTopic('test1', FhirWorkerTest);
       await worker.installTopic('test2', FhirWorkerTest);
       worker.__testingSetup();
-    });
+    }));
 
     afterEach(async () => {
       await worker.stop();
@@ -197,7 +197,7 @@ describe('Worker Jobs', () => {
     it(
       'jobs are processed by their topic',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const id1 = await Job.submit('test1');
         const id2 = await Job.submit('test2');
 
@@ -215,7 +215,7 @@ describe('Worker Jobs', () => {
     it(
       'jobs are processed in priority order',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const id1Low = await Job.submit('test1', {}, { priority: 500 });
         const id1Normal = await Job.submit('test1');
         const id1High = await Job.submit('test1', {}, { priority: 5000 });
@@ -255,7 +255,7 @@ describe('Worker Jobs', () => {
     it(
       'a job that was never started by other worker is picked up again',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const id = await Job.submit('test1');
         await Job.update({ status: 'Grabbed', workerId: fakeUUID() }, { where: { id } });
 
@@ -271,7 +271,7 @@ describe('Worker Jobs', () => {
     it(
       'a job that was never started by same worker is picked up again',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const id = await Job.submit('test1');
         await Job.update({ status: 'Grabbed', workerId: worker.worker.id }, { where: { id } });
 
@@ -287,7 +287,7 @@ describe('Worker Jobs', () => {
     it(
       'a job that was dropped is picked up again',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         const id = await Job.submit('test1');
         await Job.update({ status: 'Started', workerId: fakeUUID() }, { where: { id } });
 
@@ -300,7 +300,7 @@ describe('Worker Jobs', () => {
     it(
       'several jobs can be grabbed simultaneously',
       withErrorShown(async () => {
-        const { Job } = models;
+        const { FhirJob: Job } = models;
         worker.config.topicConcurrency = 10;
         await worker.installTopic('test3', FhirWorkerTest);
         worker.__testingSetup();
