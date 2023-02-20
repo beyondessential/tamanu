@@ -18,6 +18,7 @@ const Row = styled.tr`
 const Header = styled.th`
   border-right: 1px solid black;
   padding-top: 0.5rem;
+  padding-left: 0.5rem;
   padding-bottom: 0.5rem;
   font-weight: 600;
 `;
@@ -25,6 +26,7 @@ const Header = styled.th`
 const Cell = styled.td`
   border-right: 1px solid black;
   padding-top: 0.5rem;
+  padding-left: 0.5rem;
   padding-bottom: 0.5rem;
   font-size: 14px;
 `;
@@ -37,10 +39,7 @@ export const ListTable = ({ columns, data }) => {
       <thead>
         <Row>
           {columns.map(({ key, title, style, widthProportion = 1 }) => (
-            <Header
-              key={key}
-              style={{ paddingLeft: '0.5rem', width: getWidth(widthProportion), ...style }}
-            >
+            <Header key={key} style={{ width: getWidth(widthProportion), ...style }}>
               {title}
             </Header>
           ))}
@@ -53,7 +52,6 @@ export const ListTable = ({ columns, data }) => {
               <Cell
                 key={key}
                 style={{
-                  paddingLeft: '0.5rem',
                   width: getWidth(widthProportion),
                   ...style,
                 }}
