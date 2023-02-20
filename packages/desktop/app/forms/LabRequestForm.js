@@ -30,7 +30,6 @@ const LAB_REQUEST_TYPES = {
 };
 
 const labRequestValidationSchema = yup.object().shape({
-  labTestCategoryId: foreignKey('Lab request type must be selected'),
   requestedById: foreignKey('Requesting clinician is required'),
   requestedDate: yup.date().required(),
   requestType: yup
@@ -41,9 +40,10 @@ const labRequestValidationSchema = yup.object().shape({
     .string()
     .oneOf(binaryOptions.map(o => o.value))
     .required(),
-  sampleTime: yup.date().when('specimenAttached', {
+  sampleTime: yup.string().when('specimenAttached', {
     is: 'yes',
-    then: schema => schema.required('Sample time is required'),
+    then: yup.string().required(),
+    otherwise: yup.string().nullable(),
   }),
 });
 
@@ -97,7 +97,8 @@ export const LabRequestForm = ({
   const renderForm = ({ values, setFieldValue, handleChange }) => {
     const handleToggleSampleCollected = e => {
       handleChange(e);
-      setFieldValue('sampleTime', e.target.value === 'yes' ? getCurrentDateTimeString() : null);
+      const newValue = e.target.value === 'yes' ? getCurrentDateTimeString() : null;
+      setFieldValue('sampleTime', newValue);
     };
 
     return (
@@ -180,7 +181,7 @@ export const LabRequestForm = ({
         <FormSeparatorLine />
         <ButtonRow>
           <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-          <Button onClick={onNext}>Next</Button>
+          <Button type='submit' onClick={onNext}>Next</Button>
         </ButtonRow>
       </FormGrid>
     );
@@ -201,16 +202,6 @@ export const LabRequestForm = ({
         ...editedObject,
       }}
       validationSchema={labRequestValidationSchema}
-      validate={values => {
-        // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-        const { labTestTypeIds = [] } = values;
-        if (labTestTypeIds.length === 0) {
-          return {
-            labTestTypeIds: 'At least one test must be selected',
-          };
-        }
-        return {};
-      }}
     />
   );
 };
