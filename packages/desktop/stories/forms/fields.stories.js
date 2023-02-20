@@ -20,8 +20,8 @@ import {
   AutocompleteInput,
   NullableBooleanInput,
   TimeWithUnitInput,
-} from '../app/components';
-import { IdInput } from '../app/components/Field/IdField';
+} from '../../app/components';
+import { IdInput } from '../../app/components/Field/IdField';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -76,7 +76,7 @@ class StoryControlWrapper extends React.PureComponent {
 // Helper function to add a bunch of standard variants for a given control.
 // Returns the chain so additional variants can be added easily when necessary.
 function addStories(name, Component, note) {
-  return storiesOf(`FormControls/${name}`, module)
+  return storiesOf(`Forms/${name}`, module)
     .addParameters({ note })
     .add('Default', () => <Component />)
     .add('Required', () => <Component required />)

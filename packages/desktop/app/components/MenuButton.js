@@ -1,0 +1,105 @@
+import React, { useState, useRef } from 'react';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import {
+  MenuList,
+  MenuItem,
+  Popper,
+  Paper,
+  ClickAwayListener,
+  IconButton,
+} from '@material-ui/core';
+import { Colors } from '../constants';
+
+const OpenButton = styled(IconButton)`
+  padding: 5px;
+`;
+
+const Item = styled(MenuItem)`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 15px;
+  min-width: 110px;
+
+  &:hover {
+    background: ${Colors.veryLightBlue};
+  }
+`;
+
+export const MenuButton = React.memo(({ actions, className, iconDirection, iconColor }) => {
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef(null);
+
+  const handleClick = (event, index) => {
+    setOpen(false);
+    actions[index].onClick(event);
+  };
+
+  const handleToggle = () => {
+    setOpen(prevOpen => !prevOpen);
+  };
+
+  const handleClose = event => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+    setOpen(false);
+  };
+
+  if (!actions.length) {
+    return null;
+  }
+
+  const Icon = iconDirection === 'vertical' ? MoreVertIcon : MoreHorizIcon;
+
+  return (
+    <span className={className} ref={anchorRef}>
+      <OpenButton onClick={handleToggle}>
+        <Icon style={{ color: iconColor, cursor: 'pointer' }} />
+      </OpenButton>
+      <Popper
+        open={open}
+        anchorEl={anchorRef.current}
+        transition
+        disablePortal
+        placement="bottom-end"
+      >
+        {() => (
+          <Paper id="menu-list-grow">
+            <ClickAwayListener onClickAway={handleClose}>
+              <MenuList>
+                {actions.map((action, index) => (
+                  <Item
+                    key={action.label}
+                    disabled={!action.onClick}
+                    onClick={event => handleClick(event, index)}
+                  >
+                    {action.label}
+                  </Item>
+                ))}
+              </MenuList>
+            </ClickAwayListener>
+          </Paper>
+        )}
+      </Popper>
+    </span>
+  );
+});
+
+MenuButton.propTypes = {
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      onClick: PropTypes.func,
+    }),
+  ).isRequired,
+  iconDirection: PropTypes.string,
+  iconColor: PropTypes.string,
+};
+
+MenuButton.defaultProps = {
+  iconDirection: 'vertical',
+  iconColor: Colors.midText,
+};

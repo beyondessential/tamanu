@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import Box from '@material-ui/core/Paper';
+import { Divider } from '@material-ui/core';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -24,7 +24,6 @@ import { LabRequestChangeStatusModal } from './components/LabRequestChangeStatus
 import { LabRequestPrintModal } from './components/LabRequestPrintModal';
 import { LabRequestCancelModal } from './components/LabRequestCancelModal';
 import { LabRequestResultsTable } from './components/LabRequestResultsTable';
-import { Divider } from '@material-ui/core';
 
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
