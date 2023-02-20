@@ -29,6 +29,24 @@ const LAB_REQUEST_TYPES = {
   INDIVIDUAL: 'individual',
 };
 
+const labRequestValidationSchema = yup.object().shape({
+  labTestCategoryId: foreignKey('Lab request type must be selected'),
+  requestedById: foreignKey('Requesting clinician is required'),
+  requestedDate: yup.date().required(),
+  requestType: yup
+    .string()
+    .oneOf(Object.values(LAB_REQUEST_TYPES))
+    .required(),
+  sampleCollected: yup
+    .string()
+    .oneOf(binaryOptions.map(o => o.value))
+    .required(),
+  sampleTime: yup.date().when('sampleCollected', {
+    is: 'yes',
+    then: schema => schema.required('Sample time is required'),
+  }),
+});
+
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
   const { navigateToLabRequest } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
@@ -171,17 +189,12 @@ export const LabRequestForm = ({
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
-        sampleTime: getCurrentDateTimeString(),
+        // sampleTime: getCurrentDateTimeString(),
         // LabTest date
         date: getCurrentDateString(),
         ...editedObject,
       }}
-      validationSchema={yup.object().shape({
-        requestedById: foreignKey('Requesting doctor is required'),
-        labTestCategoryId: foreignKey('Lab request type must be selected'),
-        sampleTime: yup.date().required(),
-        requestedDate: yup.date().required(),
-      })}
+      validationSchema={labRequestValidationSchema}
       validate={values => {
         // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
         const { labTestTypeIds = [] } = values;
