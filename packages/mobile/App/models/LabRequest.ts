@@ -60,17 +60,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
     () => User,
     user => user.labRequests,
   )
+  requestedBy: User;
+  @RelationId(({ requestedBy }) => requestedBy)
+  requestedById: string;
+
   @ManyToOne(() => Department)
   department?: Department;
-
-  requestedBy: User;
-  @RelationId(({ requestedBy }) => requestedBy)
-  requestedById: string;
-
-
-  requestedBy: User;
-  @RelationId(({ requestedBy }) => requestedBy)
-  requestedById: string;
 
   @ReferenceDataRelation()
   labTestCategory: ReferenceData;
