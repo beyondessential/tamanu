@@ -5,6 +5,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
   NOTE_TYPES,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { getNoteWithType } from 'shared/utils/notePages';
 
@@ -70,6 +71,7 @@ export class ImagingRequest extends Model {
     const notePages =
       this.notePages ||
       (await this.getNotePages({
+        where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
         include: [{ association: 'noteItems' }],
       }));
     const extractWithType = async type => {
