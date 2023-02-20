@@ -158,6 +158,7 @@ encounterRelations.get(
       rowsPerPage,
       page,
       includeNotePages: includeNotePagesStr = 'false',
+      status,
     } = query;
     const includeNotePages = includeNotePagesStr === 'true';
 
@@ -168,7 +169,7 @@ encounterRelations.get(
     const baseQueryOptions = {
       where: {
         encounterId,
-        status: {
+        status: status || {
           [Op.and]: [
             { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
             { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR },
