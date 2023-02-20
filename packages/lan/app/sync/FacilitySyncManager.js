@@ -115,7 +115,7 @@ class FacilitySyncManager {
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
     await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);
-    log.debug('Sync: Updating last successful push', { currentSyncClockTime });
+    log.debug('Sync: Updated last successful push', { currentSyncClockTime });
 
     // ~~~ Pull phase ~~~ //
 
