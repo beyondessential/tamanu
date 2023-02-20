@@ -9,6 +9,7 @@ import { LabTest } from './LabTest';
 import { User } from './User';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
+import { Department } from './Department';
 
 const HIDDEN_STATUSES = ['deleted', 'entered-in-error', 'cancelled'];
 
@@ -59,6 +60,15 @@ export class LabRequest extends BaseModel implements ILabRequest {
     () => User,
     user => user.labRequests,
   )
+  requestedBy: User;
+  @RelationId(({ requestedBy }) => requestedBy)
+  requestedById: string;
+
+  @ManyToOne(() => Department, undefined, { eager: true, nullable: true })
+  department: Department;
+  @RelationId(({ department }) => department)
+  departmentId: string;
+
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;

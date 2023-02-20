@@ -94,7 +94,16 @@ export const LabRequestForm = ({
 }) => {
   const { currentUser } = useAuth();
 
-  const renderForm = ({ values }) => {
+  const renderForm = ({ values, setValues }) => {
+    const handleToggleSampleCollected = e => {
+      const { value } = e.target;
+      setValues({
+        ...values,
+        sampleCollected: value,
+        sampleTime: value === 'yes' ? getCurrentDateTimeString() : null,
+      });
+    };
+
     return (
       <FormGrid>
         <Field
@@ -130,6 +139,7 @@ export const LabRequestForm = ({
             label="Sample collected"
             required
             component={RadioField}
+            onChange={handleToggleSampleCollected}
             options={binaryOptions}
           />
         </div>

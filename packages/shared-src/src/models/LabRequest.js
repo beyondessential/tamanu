@@ -81,6 +81,10 @@ export class LabRequest extends Model {
   }
 
   static initRelations(models) {
+    this.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'department',
+    });
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
