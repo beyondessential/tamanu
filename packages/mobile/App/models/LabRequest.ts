@@ -66,6 +66,9 @@ export class LabRequest extends BaseModel implements ILabRequest {
 
   @ManyToOne(() => Department)
   department?: Department;
+  @RelationId(({ department }) => department)
+  departmentId: string;
+
 
   @ReferenceDataRelation()
   labTestCategory: ReferenceData;
