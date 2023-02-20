@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
@@ -122,7 +122,7 @@ export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
-  const [currentTab, setCurrentTab] = React.useState(query.get('tab') || 'vitals');
+  const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
   const disabled = encounter?.endDate || patient.death;
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;

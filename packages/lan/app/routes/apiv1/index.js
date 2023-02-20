@@ -15,7 +15,7 @@ import { encounter } from './encounter';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
 import { invoices, invoiceLineTypes } from './invoice';
-import { labRequest, labTest } from './labs';
+import { labRequest, labTest, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
 import { locationGroup } from './locationGroup';
@@ -40,6 +40,7 @@ import { syncHealth } from './syncHealth';
 import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
+import { template } from './template';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -68,6 +69,7 @@ patientDataRoutes.use('/imagingRequest', imagingRequest);
 patientDataRoutes.use('/invoices', invoices);
 patientDataRoutes.use('/labRequest', labRequest);
 patientDataRoutes.use('/labTest', labTest);
+patientDataRoutes.use('/labTestType', labTestType);
 patientDataRoutes.use('/medication', medication);
 patientDataRoutes.use('/notePages', notePages);
 patientDataRoutes.use('/ongoingCondition', ongoingCondition);
@@ -98,6 +100,7 @@ referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
 referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
+referenceDataRoutes.use('/template', template);
 
 // sync endpoints
 syncRoutes.use('/sync', sync);
