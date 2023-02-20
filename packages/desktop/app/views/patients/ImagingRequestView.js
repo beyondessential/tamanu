@@ -6,10 +6,10 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { CancelModal } from '../../components/CancelModal';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -27,7 +27,7 @@ import {
   TextField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
+import { ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 import { SimpleTopBar } from '../../components';
@@ -205,19 +205,18 @@ const ImagingRequestInfoPane = React.memo(
     return (
       <Formik
         // Only submit specific fields for update
-        onSubmit={fields =>
-          onSubmit(
-            pick(
-              fields,
-              'status',
-              'completedById',
-              'locationGroupId',
-              'newResultCompletedBy',
-              'newResultDate',
-              'newResultDescription',
-            ),
-          )
-        }
+        onSubmit={fields => {
+          const updateValues = pick(
+            fields,
+            'status',
+            'completedById',
+            'locationGroupId',
+            'newResultCompletedBy',
+            'newResultDate',
+            'newResultDescription',
+          );
+          onSubmit(updateValues);
+        }}
         enableReinitialize // Updates form to reflect changes in initialValues
         initialValues={{
           ...imagingRequest,
