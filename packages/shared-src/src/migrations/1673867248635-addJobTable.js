@@ -60,14 +60,14 @@ export async function up(query) {
   });
 
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION fhir_jobs_notify()
+    CREATE OR REPLACE FUNCTION fhir.jobs_notify()
       RETURNS TRIGGER
       LANGUAGE PLPGSQL
     AS $$
     BEGIN
       -- avoid ever hitting the queue limit (and failing)
       IF pg_notification_queue_usage() < 0.5 THEN
-        NOTIFY fhir.jobs;
+        NOTIFY jobs;
       END IF;
       RETURN NEW;
     END;
@@ -77,12 +77,12 @@ export async function up(query) {
   await query.sequelize.query(`
     CREATE TRIGGER fhir_jobs_insert_trigger
     AFTER INSERT ON fhir.jobs FOR EACH STATEMENT
-    EXECUTE FUNCTION fhir_jobs_notify()
+    EXECUTE FUNCTION fhir.jobs_notify()
   `);
 }
 
 export async function down(query) {
   await query.sequelize.query('DROP TRIGGER fhir_jobs_insert_trigger ON fhir.jobs');
-  await query.sequelize.query('DROP FUNCTION fhir_jobs_notify()');
+  await query.sequelize.query('DROP FUNCTION fhir.jobs_notify()');
   await query.dropTable(TABLE);
 }
