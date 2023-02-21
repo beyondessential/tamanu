@@ -102,6 +102,7 @@ export class FhirWorker {
   }
 
   currentlyProcessing = false;
+
   async processQueue() {
     if (this.currentlyProcessing) return;
 

@@ -74,7 +74,7 @@ export async function startScheduledTasks(context) {
 export async function startFhirWorkerTasks({ store }) {
   const worker = new FhirWorker(store, log);
   await worker.start();
-  
+
   // worker.setHandler('topic', handlerFunction);
 
   return worker;
