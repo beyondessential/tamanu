@@ -77,7 +77,7 @@ user.get(
           ON (patients.id = recent_encounter_by_patient.patient_id)
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
-        WHERE user_recently_viewed_patients.user_id = '${user.id}'
+        WHERE user_recently_viewed_patients.user_id = '${currentUser.id}'
         ORDER BY ${orderBy} ${order}
         LIMIT :limit
         OFFSET :offset
