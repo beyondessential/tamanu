@@ -161,11 +161,6 @@
       "labTestCategories": [],
       "labTestTypes": []
     },
-    "fhirJobWorker": {
-      "enabled": true,
-      "schedule": "* * * * *",
-      "topicConcurrency": 10
-    },
     "fhirMaterialiser": {
       "enabled": true, // only when integrations.fhir is on
       "schedule": "*/1 * * * *",
@@ -228,7 +223,11 @@
       "requireClientHeaders": true
     },
     "fhir": {
-      "enabled": false
+      "enabled": false, // the HTTP routes
+      "worker": {
+        "enabled": true, // the materialisation worker is controlled separately
+        "concurrency": 100
+      }
     },
     "omniLab": {
       "enabled": false,
