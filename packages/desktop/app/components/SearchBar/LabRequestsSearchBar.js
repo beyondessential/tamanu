@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUS_OPTIONS } from 'shared/constants';
+import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { DateField, SelectField, LocalisedField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';

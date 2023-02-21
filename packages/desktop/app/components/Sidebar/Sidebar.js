@@ -5,7 +5,6 @@ import { push } from 'connected-react-router';
 import { List, Divider, Box, Typography, Avatar, Button } from '@material-ui/core';
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { Colors } from '../../constants';
-import { version } from '../../../package.json';
 import { Translated } from '../Translated';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -13,6 +12,7 @@ import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
+import { useApi } from '../../api';
 
 const Container = styled.div`
   display: flex;
@@ -112,6 +112,7 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen) => {
 
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
+  const { appVersion } = useApi();
   const { facility, centralHost, currentUser, onLogout } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
@@ -177,7 +178,7 @@ export const Sidebar = React.memo(({ items }) => {
             <UserName>{currentUser?.displayName}</UserName>
             <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>
             <Box display="flex" justifyContent="space-between">
-              <Version>Version {version}</Version>
+              <Version>Version {appVersion}</Version>
               <LogoutButton
                 type="button"
                 onClick={onLogout}
