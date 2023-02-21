@@ -1,6 +1,7 @@
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import Chance from 'chance';
 import { pick } from 'lodash';
+import { fake } from 'shared/test-helpers/fake';
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
@@ -141,5 +142,75 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('permissions');
     });
+
+    it('should create a new recently viewed patient on first post from user', async () => {
+      await authUser.update({
+        role: 'practitioner',
+      });
+      const userAgent = await baseApp.asUser(authUser);
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const postResult = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
+      expect(postResult).toHaveSucceeded();
+      expect(postResult.body).toHaveProperty('userId', authUser.id);
+      expect(postResult.body).toHaveProperty('patientId', newPatient.id);
+      const getResult = await userAgent.get('/v1/user/recently-viewed-patients');
+      expect(getResult).toHaveSucceeded();
+      expect(getResult.body.data).toHaveLength(1);
+      expect(getResult.body.count).toBe(1);
+    });
+
+    it('should update updatedAt when posting with id of an already recently viewed patient', async () => {
+      await authUser.update({
+        role: 'practitioner',
+      });
+      const userAgent = await baseApp.asUser(authUser);
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const result = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('userId', authUser.id);
+      expect(result.body).toHaveProperty('patientId', newPatient.id);
+      await (() => new Promise(res => setTimeout(res, 100)))();
+      const result2 = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
+      expect(result2).toHaveSucceeded();
+      expect(result2.body).toHaveProperty('userId', authUser.id);
+      expect(result2.body).toHaveProperty('patientId', newPatient.id);
+      const resultDate = new Date(result.body.updatedAt);
+      const result2Date = new Date(result2.body.updatedAt);
+      expect(result2Date.getTime()).toBeGreaterThan(resultDate.getTime());
+      const getResult = await userAgent.get('/v1/user/recently-viewed-patients');
+      expect(getResult).toHaveSucceeded();
+      const getResultDate = new Date(getResult.body.data[0].last_accessed_on);
+      expect(getResultDate.getTime()).toBe(result2Date.getTime());
+    });
+
+    it('should maintain user recently viewed patient list length at 12', async () => {
+      await authUser.update({
+        role: 'practitioner',
+      });
+      const userAgent = await baseApp.asUser(authUser);
+      let newPatients = [];
+      for (let i = 0; i < 15; i++) {
+        newPatients.push(
+          await models.Patient.create({
+            ...fake(models.Patient),
+          })
+        );
+      }
+      for (let j = 0; j < newPatients.length; j++) {
+        await userAgent.post(`/v1/user/recently-viewed-patients/${newPatients[j].id}`);
+      }
+      const result = await userAgent.get('/v1/user/recently-viewed-patients?rowsPerPage=15');
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toBe(12);
+      expect(result.body.data).toHaveLength(12);
+      expect(result.body.data[0]).toHaveProperty('id', newPatients[14].id);
+      expect(result.body.data[11]).toHaveProperty('id', newPatients[3].id);
+    });
+
+
   });
 });
