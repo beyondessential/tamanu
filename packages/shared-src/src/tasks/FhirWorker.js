@@ -55,6 +55,16 @@ export class FhirWorker {
         this.log.error('FhirWorker: heartbeat failed', { err });
       }
     }, heartbeat);
+    
+    this.log.debug('FhirWorker: listen for postgres notifications');
+    this.pg = await this.sequelize.connectionManager.getConnection();
+    this.pg.on('notification', (msg) => {
+      if (msg.channel === 'jobs') {
+      this.log.debug('FhirWorker: got postgres notification', { msg });
+        this.processQueueNow();
+      }
+    });
+    this.pg.query('LISTEN jobs');
   }
 
   async setHandler(topic, handler) {
@@ -71,6 +81,12 @@ export class FhirWorker {
 
     await this.worker?.deregister();
     this.worker = null;
+    
+    if (this.pg) {
+      this.log.info('FhirWorker: removing postgres notification listener');
+      await this.sequelize.connectionManager.releaseConnection(this.pg);
+      this.pg = null;
+    }
   }
 
   /**
@@ -100,6 +116,12 @@ export class FhirWorker {
       // otherwise divide the capacity evenly among the topics
       Math.floor(this.totalCapacity() / this.handlers.size),
     );
+  }
+
+  processQueueNow() {
+    // using allSettled to avoid 'uncaught promise rejection' errors
+    // and setImmediate to avoid growing the stack
+    setImmediate(() => Promise.allSettled([this.processQueue()]));
   }
 
   currentlyProcessing = false;
@@ -133,7 +155,6 @@ export class FhirWorker {
         }
       }
 
-      // using allSettled to avoid 'uncaught promise rejection' errors
       await Promise.allSettled(runs);
     } finally {
       this.currentlyProcessing = false;
@@ -215,13 +236,14 @@ export class FhirWorker {
 
       if (!this.testMode) {
         // immediately process the queue again to work through the backlog
-        setImmediate(() => Promise.allSettled([this.processQueue()]));
+        this.processQueueNow();
       }
     }
   }
 
   /** Cancel listening for jobs. */
   __testingSetup() {
-    // listener = null;
+    this.sequelize.connectionManager.releaseConnection(this.pg);
+    this.pg = null;
   }
 }
