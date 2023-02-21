@@ -7,6 +7,7 @@ import {
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging/log';
 import { withConfig } from 'shared/utils/withConfig';
+import { getSnapshotChunkBoundaries } from './getSnapshotChunkBoundaries';
 
 const snapshotChangesForModel = async (
   model,
@@ -35,8 +36,14 @@ const snapshotChangesForModel = async (
 
   const snapshotTableName = getSnapshotTableName(sessionId);
 
-  const [, count] = await model.sequelize.query(
-    `
+  // roughly break that into chunks of records
+  const chunkBoundaries = await getSnapshotChunkBoundaries(model, since);
+
+  // run snapshot query for each chunk, using ids as cursors to define start and end of each chunk
+  let totalCount = 0;
+  for (const [minChunkId, maxChunkId] of chunkBoundaries) {
+    const [, chunkCount] = await model.sequelize.query(
+      `
       INSERT INTO ${snapshotTableName} (
         direction,
         is_deleted,
@@ -75,25 +82,31 @@ const snapshotChangesForModel = async (
         ${table}.id = updated_at_by_field_summary.id`
             : ''
         }
-      ${filter || `WHERE ${table}.updated_at_sync_tick > :since`};
+      ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
+      AND ${table}.id >= :minChunkId
+      AND ${table}.id < :maxChunkId;
     `,
-    {
-      replacements: {
-        sessionId,
-        since,
-        // include replacement params used in some model specific sync filters outside of this file
-        // see e.g. Referral.buildSyncFilter
-        patientIds,
-        facilityId,
+      {
+        replacements: {
+          sessionId,
+          since,
+          // include replacement params used in some model specific sync filters outside of this file
+          // see e.g. Referral.buildSyncFilter
+          patientIds,
+          facilityId,
+          minChunkId,
+          maxChunkId,
+        },
       },
-    },
-  );
+    );
+    totalCount += chunkCount;
+  }
 
   log.debug(
-    `snapshotChangesForModel: Found ${count} for model ${model.tableName} since ${since}, in session ${sessionId}`,
+    `snapshotChangesForModel: Found ${totalCount} for model ${model.tableName} since ${since}, in session ${sessionId}`,
   );
 
-  return count;
+  return totalCount;
 };
 
 export const snapshotOutgoingChanges = withConfig(
