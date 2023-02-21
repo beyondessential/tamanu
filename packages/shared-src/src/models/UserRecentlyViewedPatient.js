@@ -49,11 +49,7 @@ export class UserRecentlyViewedPatient extends Model {
     }
 
     return this.sequelize.transaction(async () => {
-      return super.create({
-        ...data,
-        userId: data.userId,
-        patientId: data.patientId,
-      });
+      return super.create(data);
     });
   }
 }
