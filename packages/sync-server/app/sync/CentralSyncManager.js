@@ -20,6 +20,7 @@ import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
+import { waitForSnapshotSlot } from './waitForSnapshotSlot';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -158,6 +159,8 @@ class CentralSyncManager {
     unmarkSnapshotAsProcessing,
   ) {
     const { models, sequelize } = this.store;
+
+    await waitForSnapshotSlot(models);
 
     const session = await this.connectToSession(sessionId);
 
