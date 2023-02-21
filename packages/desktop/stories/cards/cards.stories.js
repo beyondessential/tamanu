@@ -1,9 +1,15 @@
 import React from 'react';
-import { Card, CardBody, CardHeader, CardItem, CardDivider, LabsCard } from '../../app/components';
+import { Card, CardBody, CardHeader, CardItem, CardDivider } from '../../app/components';
+import { LabRequestCard } from '../../app/views/patients/components/LabRequestCard';
 
 export default {
   title: 'Card',
   component: Card,
+};
+
+export const LabRequest = args => <LabRequestCard {...args} />;
+LabRequest.args = {
+  labRequest: { disabled: 'xyz', requestedDate: '2022/12/01' },
 };
 
 export const EncounterInfoCard = args => (

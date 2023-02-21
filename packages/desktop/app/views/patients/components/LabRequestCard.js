@@ -37,6 +37,6 @@ export const LabRequestCard = ({ labRequest, Actions }) => (
       <CardItem label="Requesting clinician" value="Jane Smith" />
       <CardItem label="Department" value="Cardiology" />
     </BorderSection>
-    {Actions ? Actions : null}
+    {Actions || null}
   </CardContainer>
 );
