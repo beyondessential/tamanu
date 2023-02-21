@@ -173,7 +173,6 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('userId', authUser.id);
       expect(result.body).toHaveProperty('patientId', newPatient.id);
-      await (() => new Promise(res => setTimeout(res, 100)))();
       const result2 = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
       expect(result2).toHaveSucceeded();
       expect(result2.body).toHaveProperty('userId', authUser.id);
