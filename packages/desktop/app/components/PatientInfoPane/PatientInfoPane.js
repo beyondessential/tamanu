@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { OutlinedButton } from '../Button';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
-import { PatientPrintDetailsModal } from '../PatientPrinting';
+import { PrintPatientDetailsModal } from '../PatientPrinting';
 import {
   AllergyForm,
   OngoingConditionForm,
@@ -107,7 +107,7 @@ const CauseOfDeathButton = memo(({ openModal }) => {
   );
 });
 
-const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
+const PrintSection = memo(({ patient }) => <PrintPatientDetailsModal patient={patient} />);
 
 const Container = styled.div`
   display: flex;
