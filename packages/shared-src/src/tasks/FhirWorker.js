@@ -35,8 +35,8 @@ export class FhirWorker {
 
     const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
     this.log.debug('FhirWorker: got raw heartbeat interval', { heartbeatInterval });
-    const heartbeat = ms(heartbeatInterval);
-    this.log.debug('FhirWorker: scheduling heartbeat', { intervalMs: heartbeat });
+    const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
+    this.log.debug('FhirWorker: added some jitter to the heartbeat', { heartbeat });
 
     this.worker = await FhirJobWorker.register({
       version: 'unknown',
@@ -46,6 +46,7 @@ export class FhirWorker {
     });
     this.log.info('FhirWorker: registered', { workerId: this.worker?.id });
 
+    this.log.debug('FhirWorker: scheduling heartbeat', { intervalMs: heartbeat });
     this.heartbeat = setInterval(async () => {
       try {
         this.log.debug('FhirWorker: heartbeat');
