@@ -186,18 +186,20 @@ describe('Worker Jobs', () => {
   describe('processing the queue', () => {
     let logger, worker;
 
-    beforeEach(withErrorShown(async () => {
-      await models.FhirJob.truncate();
+    beforeEach(
+      withErrorShown(async () => {
+        await models.FhirJob.truncate();
 
-      logger = jest.fn();
-      worker = new FhirWorker(ctx.store, makeLogger(logger));
-      worker.testMode = true;
-      worker.config.concurrency = 1;
-      await worker.start();
-      await worker.setHandler('test1', workerTest);
-      await worker.setHandler('test2', workerTest);
-      worker.__testingSetup();
-    }));
+        logger = jest.fn();
+        worker = new FhirWorker(ctx.store, makeLogger(logger));
+        worker.testMode = true;
+        worker.config.concurrency = 1;
+        await worker.start();
+        await worker.setHandler('test1', workerTest);
+        await worker.setHandler('test2', workerTest);
+        worker.__testingSetup();
+      }),
+    );
 
     afterEach(async () => {
       await worker.stop();
@@ -307,6 +309,34 @@ describe('Worker Jobs', () => {
     );
 
     it(
+      'keeps track of capacity',
+      withErrorShown(() => {
+        worker.config.concurrency = 5;
+        worker.__testingSetup();
+
+        expect(worker.processing.size).toBe(0);
+        expect(worker.totalCapacity()).toBe(5);
+        expect(worker.topicCapacity()).toBe(2);
+
+        worker.processing.add('job1');
+        worker.processing.add('job2');
+        expect(worker.processing.size).toBe(2);
+        expect(worker.totalCapacity()).toBe(3);
+        expect(worker.topicCapacity()).toBe(1);
+
+        worker.processing.add('job3');
+        worker.processing.add('job4');
+        expect(worker.processing.size).toBe(4);
+        expect(worker.totalCapacity()).toBe(1);
+        expect(worker.topicCapacity()).toBe(1);
+
+        worker.processing.add('job5');
+        expect(worker.totalCapacity()).toBe(0);
+        expect(worker.topicCapacity()).toBe(0);
+      }),
+    );
+
+    it(
       'several jobs can be grabbed simultaneously',
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
@@ -324,7 +354,6 @@ describe('Worker Jobs', () => {
         // but not three times as that would ruin the test
 
         // Assert
-        console.log(logger.mock.calls);
         expect(await Job.findByPk(id1)).toBeNull();
         expect(await Job.findByPk(id2)).toBeNull();
         expect(await Job.findByPk(id3)).toBeNull();

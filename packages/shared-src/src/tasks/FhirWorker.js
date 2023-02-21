@@ -80,7 +80,7 @@ export class FhirWorker {
    *
    * @returns {number} Amount of jobs to grab.
    */
-  async totalCapacity() {
+  totalCapacity() {
     return Math.max(0, this.config.concurrency - this.processing.size);
   }
 
@@ -92,8 +92,13 @@ export class FhirWorker {
    *
    * @returns {number} Amount of jobs to grab for a topic.
    */
-  async topicCapacity() {
-    return Math.floor(this.totalCapacity() / this.handlers.size);
+  topicCapacity() {
+    return Math.max(
+      // return at least 1 if there's any capacity
+      this.totalCapacity() > 0 ? 1 : 0,
+      // otherwise divide the capacity evenly among the topics
+      Math.floor(this.totalCapacity() / this.handlers.size),
+    );
   }
 
   currentlyProcessing = false;
@@ -140,16 +145,15 @@ export class FhirWorker {
       return;
     }
 
+    this.log.debug('FhirWorker: grabbing job', { topic });
+    const job = await this.models.FhirJob.grab(this.worker.id, topic);
+    if (!job) {
+      this.log.debug('FhirWorker: no job to grab', { topic });
+      return;
+    }
+
     try {
       this.processing.add(job.id);
-
-      this.log.debug('FhirWorker: grabbing job', { topic });
-      const job = await this.models.FhirJob.grab(this.worker.id, topic);
-      if (!job) {
-        this.log.debug('FhirWorker: no job to grab', { topic });
-        return;
-      }
-
       this.log.debug('FhirWorker: grabbed job', { topic, jobId: job.id });
 
       try {
@@ -186,8 +190,6 @@ export class FhirWorker {
           });
         } catch (err) {
           this.log.error('FhirWorker: job failed but failed to mark as errored', { err });
-          // eslint-disable-next-line no-console
-          console.error(err);
         }
 
         return;
