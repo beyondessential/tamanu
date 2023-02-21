@@ -186,30 +186,6 @@ describe('User', () => {
       expect(getResultDate.getTime()).toBe(result2Date.getTime());
     });
 
-    it('should maintain user recently viewed patient list length at 12', async () => {
-      await authUser.update({
-        role: 'practitioner',
-      });
-      const userAgent = await baseApp.asUser(authUser);
-      let newPatients = [];
-      for (let i = 0; i < 15; i++) {
-        newPatients.push(
-          await models.Patient.create({
-            ...fake(models.Patient),
-          })
-        );
-      }
-      for (let j = 0; j < newPatients.length; j++) {
-        await userAgent.post(`/v1/user/recently-viewed-patients/${newPatients[j].id}`);
-      }
-      const result = await userAgent.get('/v1/user/recently-viewed-patients?rowsPerPage=15');
-      expect(result).toHaveSucceeded();
-      expect(result.body.count).toBe(12);
-      expect(result.body.data).toHaveLength(12);
-      expect(result.body.data[0]).toHaveProperty('id', newPatients[14].id);
-      expect(result.body.data[11]).toHaveProperty('id', newPatients[3].id);
-    });
-
 
   });
 });

@@ -47,12 +47,23 @@ user.get(
       models: { Patient },
       user: currentUser,
       query,
+      ...filterParams
     } = req;
 
     const { order = 'DESC', orderBy = 'last_accessed_on', rowsPerPage = 12, page = 0 } = query;
 
     req.checkPermission('read', currentUser);
     req.checkPermission('list', 'Patient');
+
+    let andClauses;
+
+    if (filterParams.encounterType !== undefined) {
+      if (filterParams.encounterType === null) {
+        andClauses = 'AND encounters.encounter_type IS NULL';
+      } else {
+        andClauses = `AND encounters.encounter_type = '${filterParams.encounterType}'`;
+      }
+    }
 
     const recentlyViewedPatients = await req.db.query(
       `
@@ -78,6 +89,7 @@ user.get(
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
         WHERE user_recently_viewed_patients.user_id = '${currentUser.id}'
+        ${andClauses || ''}
         ORDER BY ${orderBy} ${order}
         LIMIT :limit
         OFFSET :offset

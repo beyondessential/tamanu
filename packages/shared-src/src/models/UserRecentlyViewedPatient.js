@@ -48,16 +48,6 @@ export class UserRecentlyViewedPatient extends Model {
       });
     }
 
-    if (currentUserRecentlyViewedPatients.length >= 12) {
-      await super.destroy({
-        where: {
-          id: {
-            [Op.eq]: currentUserRecentlyViewedPatients[11].id,
-          },
-        },
-      });
-    }
-
     return this.sequelize.transaction(async () => {
       return super.create({
         ...data,
