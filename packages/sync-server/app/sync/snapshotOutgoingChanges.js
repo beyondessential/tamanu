@@ -84,7 +84,7 @@ const snapshotChangesForModel = async (
         }
       ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
       AND ${table}.id >= :minChunkId
-      AND ${table}.id < :maxChunkId;
+      AND ${table}.id <= :maxChunkId;
     `,
       {
         replacements: {
