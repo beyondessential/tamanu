@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import * as yup from 'yup';
@@ -37,7 +38,8 @@ patientDeath.get(
     }
 
     const deathData = await PatientDeathData.findOne({
-      where: { patientId },
+      where: { patientId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: User,
@@ -212,7 +214,8 @@ patientDeath.post(
     if (!doc) throw new NotFoundError('Discharge clinician not found');
 
     const existingDeathData = await PatientDeathData.findOne({
-      where: { patientId: patient.id },
+      where: { patientId: patient.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
     });
 
     await transactionOnPostgres(db, async () => {
@@ -296,7 +299,8 @@ patientDeath.post(
     if (!patient) throw new NotFoundError('Patient not found');
 
     const deathData = await PatientDeathData.findOne({
-      where: { patientId: patient.id },
+      where: { patientId: patient.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
     });
     if (!deathData) throw new NotFoundError('Death data not found');
     if (deathData.isFinal)
@@ -310,7 +314,7 @@ patientDeath.post(
         revertedById: req.user.id,
       });
       await patient.update({ dateOfDeath: null });
-      await deathData.destroy();
+      await deathData.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
     });
 
     res.send({
