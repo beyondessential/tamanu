@@ -20,8 +20,6 @@ import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificateP
 import { FhirMaterialiser } from './FhirMaterialiser';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 
-import { FhirWorkerTest } from './FhirWorkerTest';
-
 export async function startScheduledTasks(context) {
   const taskClasses = [
     OutpatientDischarger,
@@ -76,8 +74,8 @@ export async function startScheduledTasks(context) {
 export async function startFhirWorkerTasks({ store }) {
   const worker = new FhirWorker(store, log);
   await worker.start();
-
-  await worker.installTopic('test', FhirWorkerTest);
+  
+  // worker.setHandler('topic', handlerFunction);
 
   return worker;
 }

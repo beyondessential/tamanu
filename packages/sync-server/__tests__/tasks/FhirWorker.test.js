@@ -2,7 +2,6 @@ import { jest, describe, expect, it } from '@jest/globals';
 import { withErrorShown } from 'shared/test-helpers';
 import { FhirWorker } from 'shared/tasks';
 import { createTestContext } from '../utilities';
-import { FhirWorkerTest } from '../../app/tasks/FhirWorkerTest';
 import { fakeUUID } from 'shared/utils/generateId';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 
@@ -14,6 +13,14 @@ function makeLogger(mock, topData = {}) {
     error: (message, data = {}) => mock('error', message, { ...topData, ...data }),
     child: data => makeLogger(mock, { ...topData, ...data }),
   };
+}
+
+function workerTest(job, { log }) {
+  if (job.payload.error) {
+    throw new Error('workerTest: error');
+  }
+
+  log.info('workerTest: success', job.payload);
 }
 
 describe('Worker Jobs', () => {
@@ -95,7 +102,7 @@ describe('Worker Jobs', () => {
       logger = jest.fn();
       worker = new FhirWorker(ctx.store, makeLogger(logger));
       await worker.start();
-      await worker.installTopic('test', FhirWorkerTest);
+      await worker.setHandler('test', workerTest);
       worker.__testingSetup();
     });
 
@@ -110,7 +117,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test');
-        await worker.__testingRunOnce('test');
+        await worker.grabAndRunOne('test', { testMode: true });
 
         // Assert
         expect(await Job.findByPk(id)).toBeNull();
@@ -144,7 +151,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test', { error: true });
-        await worker.__testingRunOnce('test');
+        await worker.grabAndRunOne('test', { testMode: true });
 
         // Assert
         expect(await Job.findByPk(id)).toMatchObject({
@@ -185,8 +192,8 @@ describe('Worker Jobs', () => {
       worker = new FhirWorker(ctx.store, makeLogger(logger));
       worker.config.topicConcurrency = 1;
       await worker.start();
-      await worker.installTopic('test1', FhirWorkerTest);
-      await worker.installTopic('test2', FhirWorkerTest);
+      await worker.setHandler('test1', workerTest);
+      await worker.setHandler('test2', workerTest);
       worker.__testingSetup();
     }));
 
@@ -202,12 +209,12 @@ describe('Worker Jobs', () => {
         const id2 = await Job.submit('test2');
 
         // Act 1
-        await worker.__testingRunOnce('test1');
+        await worker.grabAndRunOne('test1', { testMode: true });
         expect(await Job.findByPk(id1)).toBeNull();
         expect(await Job.findByPk(id2)).toMatchObject({ status: 'Queued' });
 
         // Act 2
-        await worker.__testingRunOnce('test2');
+        await worker.grabAndRunOne('test2', { testMode: true });
         expect(await Job.findByPk(id2)).toBeNull();
       }),
     );
@@ -224,7 +231,7 @@ describe('Worker Jobs', () => {
         const id2High = await Job.submit('test2', {}, { priority: 5000 });
 
         // Act 1 (high)
-        await worker.__testingRunOnce('test1');
+        await worker.grabAndRunOne('test1', { testMode: true });
         expect(await Job.findByPk(id1High)).toBeNull();
         expect(await Job.findByPk(id1Normal)).toMatchObject({ status: 'Queued' });
         expect(await Job.findByPk(id1Low)).toMatchObject({ status: 'Queued' });
@@ -234,7 +241,7 @@ describe('Worker Jobs', () => {
         expect(await Job.findByPk(id2Low)).toMatchObject({ status: 'Queued' });
 
         // Act 1 (normal)
-        await worker.__testingRunOnce('test1');
+        await worker.grabAndRunOne('test1', { testMode: true });
         expect(await Job.findByPk(id1Normal)).toBeNull();
         expect(await Job.findByPk(id1Low)).toMatchObject({ status: 'Queued' });
 
@@ -243,7 +250,7 @@ describe('Worker Jobs', () => {
         expect(await Job.findByPk(id2Low)).toMatchObject({ status: 'Queued' });
 
         // Act 2 (high)
-        await worker.__testingRunOnce('test2');
+        await worker.grabAndRunOne('test2', { testMode: true });
         expect(await Job.findByPk(id2High)).toBeNull();
         expect(await Job.findByPk(id2Normal)).toMatchObject({ status: 'Queued' });
         expect(await Job.findByPk(id2Low)).toMatchObject({ status: 'Queued' });
@@ -263,7 +270,7 @@ describe('Worker Jobs', () => {
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.__testingRunOnce('test1');
+        await worker.grabAndRunOne('test1', { testMode: true });
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -279,7 +286,7 @@ describe('Worker Jobs', () => {
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.__testingRunOnce('test1');
+        await worker.grabAndRunOne('test1', { testMode: true });
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -292,7 +299,7 @@ describe('Worker Jobs', () => {
         await Job.update({ status: 'Started', workerId: fakeUUID() }, { where: { id } });
 
         // Assert
-        await worker.__testingRunOnce('test1');
+        await worker.grabAndRunOne('test1', { testMode: true });
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -302,17 +309,17 @@ describe('Worker Jobs', () => {
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
         worker.config.topicConcurrency = 10;
-        await worker.installTopic('test3', FhirWorkerTest);
+        await worker.setHandler('test3', workerTest);
         worker.__testingSetup();
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');
         const id3 = await Job.submit('test3');
 
         // Act 1 (high)
-        await worker.__testingRunOnce('test3');
+        await worker.grabAndRunOne('test3', { testMode: true });
         // try twice just in case
-        await worker.__testingRunOnce('test3');
-        // but not three times as that would run the test
+        await worker.grabAndRunOne('test3', { testMode: true });
+        // but not three times as that would ruin the test
 
         // Assert
         console.log(logger.mock.calls);
