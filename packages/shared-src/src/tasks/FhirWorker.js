@@ -13,6 +13,11 @@ export class FhirWorker {
 
   processing = new Set();
 
+  // if false, immediately reprocess the queue after a job is completed
+  // to work through the backlog promptly; this makes testing harder, so
+  // in "testMode" it's disabled.
+  testMode = false;
+
   constructor(context, log) {
     this.models = context.models;
     this.sequelize = context.sequelize;
@@ -122,98 +127,92 @@ export class FhirWorker {
       }
 
       // using allSettled to avoid 'uncaught promise rejection' errors
-      await Promise.allSettled(
-        Array(count)
-          .fill(0)
-          .map(async () => {
-            try {
-              await this.grabAndRunOne();
-            } catch (err) {
-              this.log.error('FhirWorker: Error running job', { err, topic: this.topic });
-              // eslint-disable-next-line no-console
-              console.error(err);
-            }
-          }),
-      );
+      await Promise.allSettled(runs);
     } finally {
       this.currentlyProcessing = false;
     }
   }
 
-  async grabAndRunOne(topic, { testMode = false } = {}) {
+  async grabAndRunOne(topic) {
     const handler = this.handlers.get(topic);
     if (!handler) {
       this.log.error('FhirWorker: no handler for topic', { topic });
-    }
-
-    this.log.debug('FhirWorker: grabbing job', { topic });
-    const job = await this.models.FhirJob.grab(this.worker.id, topic);
-    if (!job) {
-      this.log.debug('FhirWorker: no job to grab', { topic });
       return;
     }
 
-    this.log.debug('FhirWorker: grabbed job', { topic, jobId: job.id });
-
     try {
-      await job.start(this.worker.id);
-      this.log.info('FhirWorker: job started', {
-        workerId: this.worker.id,
-        topic,
-        jobId: job.id,
-      });
-    } catch (err) {
-      this.log.error('FhirWorker: failed to mark job as started', { err });
-      return;
-    }
+      this.processing.add(job.id);
 
-    const start = Date.now();
-    this.processing.add(job.id);
+      this.log.debug('FhirWorker: grabbing job', { topic });
+      const job = await this.models.FhirJob.grab(this.worker.id, topic);
+      if (!job) {
+        this.log.debug('FhirWorker: no job to grab', { topic });
+        return;
+      }
 
-    try {
-      await handler(job, {
-        log: this.log.child({ topic, jobId: job.id }),
-        models: this.models,
-        sequelize: this.sequelize,
-      });
-    } catch (workErr) {
+      this.log.debug('FhirWorker: grabbed job', { topic, jobId: job.id });
+
       try {
-        await job.fail(
-          this.worker.id,
-          workErr.stack ?? workErr.message ?? workErr?.toString() ?? 'Unknown error',
-        );
-        this.log.error('FhirWorker: job failed', {
+        await job.start(this.worker.id);
+        this.log.info('FhirWorker: job started', {
           workerId: this.worker.id,
           topic,
           jobId: job.id,
-          err: workErr,
         });
       } catch (err) {
-        this.log.error('FhirWorker: job failed but failed to mark as errored', { err });
-        // eslint-disable-next-line no-console
-        console.error(err);
+        this.log.error('FhirWorker: failed to mark job as started', { err });
+        return;
       }
 
-      return;
+      const start = Date.now();
+
+      try {
+        await handler(job, {
+          log: this.log.child({ topic, jobId: job.id }),
+          models: this.models,
+          sequelize: this.sequelize,
+        });
+      } catch (workErr) {
+        try {
+          await job.fail(
+            this.worker.id,
+            workErr.stack ?? workErr.message ?? workErr?.toString() ?? 'Unknown error',
+          );
+          this.log.error('FhirWorker: job failed', {
+            workerId: this.worker.id,
+            topic,
+            jobId: job.id,
+            err: workErr,
+          });
+        } catch (err) {
+          this.log.error('FhirWorker: job failed but failed to mark as errored', { err });
+          // eslint-disable-next-line no-console
+          console.error(err);
+        }
+
+        return;
+      }
+
+      try {
+        await job.complete(this.worker.id);
+        this.log.info('FhirWorker: job completed', {
+          workerId: this.worker.id,
+          topic,
+          jobId: job.id,
+          durationMs: Date.now() - start,
+        });
+      } catch (err) {
+        this.log.error('FhirWorker: job completed but failed to mark as complete', { err });
+      }
+    } catch (err) {
+      this.log.error('FhirWorker: error running job', { err, topic });
     } finally {
       this.processing.delete(job.id);
 
-      if (!testMode) {
+      if (!this.testMode) {
         // immediately process the queue again to work through the backlog
         setImmediate(() => Promise.allSettled([this.processQueue()]));
       }
-    }
-
-    try {
-      await job.complete(this.worker.id);
-      this.log.info('FhirWorker: job completed', {
-        workerId: this.worker.id,
-        topic,
-        jobId: job.id,
-        durationMs: Date.now() - start,
-      });
-    } catch (err) {
-      this.log.error('FhirWorker: job completed but failed to mark as complete', { err });
     }
   }
 
