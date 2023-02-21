@@ -132,7 +132,7 @@ const COLUMNS = {
     {
       key: 'to',
       title: 'Area',
-      accessor: ({ newLocationGroup }) => startCase(newLocationGroup),
+      accessor: ({ newLocationGroup }) => startCase(newLocationGroup) || '----',
       style: { width: '30%' },
     },
     {

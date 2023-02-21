@@ -76,7 +76,7 @@ const extractLocationHistory = (notes, encounterData) => {
   if (locationHistory) return locationHistory;
   return [
     {
-      newLocationGroup: encounterData.location.locationGroup.name,
+      newLocationGroup: encounterData.location.locationGroup?.name,
       newLocation: encounterData.location.name,
       date: encounterData.startDate,
     },
