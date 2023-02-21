@@ -119,6 +119,8 @@ export class FhirWorker {
   }
 
   processQueueNow() {
+    if (this.testMode) return;
+
     // using allSettled to avoid 'uncaught promise rejection' errors
     // and setImmediate to avoid growing the stack
     setImmediate(() => Promise.allSettled([this.processQueue()]));
@@ -234,16 +236,8 @@ export class FhirWorker {
     } finally {
       this.processing.delete(job.id);
 
-      if (!this.testMode) {
-        // immediately process the queue again to work through the backlog
-        this.processQueueNow();
-      }
+      // immediately process the queue again to work through the backlog
+      this.processQueueNow();
     }
-  }
-
-  /** Cancel listening for jobs. */
-  __testingSetup() {
-    this.sequelize.connectionManager.releaseConnection(this.pg);
-    this.pg = null;
   }
 }

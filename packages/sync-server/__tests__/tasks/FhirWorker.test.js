@@ -104,7 +104,6 @@ describe('Worker Jobs', () => {
       worker.testMode = true;
       await worker.start();
       await worker.setHandler('test', workerTest);
-      worker.__testingSetup();
     });
 
     afterEach(async () => {
@@ -197,7 +196,6 @@ describe('Worker Jobs', () => {
         await worker.start();
         await worker.setHandler('test1', workerTest);
         await worker.setHandler('test2', workerTest);
-        worker.__testingSetup();
       }),
     );
 
@@ -312,7 +310,6 @@ describe('Worker Jobs', () => {
       'keeps track of capacity',
       withErrorShown(() => {
         worker.config.concurrency = 5;
-        worker.__testingSetup();
 
         expect(worker.processing.size).toBe(0);
         expect(worker.totalCapacity()).toBe(5);
@@ -342,7 +339,6 @@ describe('Worker Jobs', () => {
         const { FhirJob: Job } = models;
         worker.config.concurrency = 10;
         await worker.setHandler('test3', workerTest);
-        worker.__testingSetup();
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');
         const id3 = await Job.submit('test3');
