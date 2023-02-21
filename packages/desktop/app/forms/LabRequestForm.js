@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import { useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
-
 import {
   Form,
   Field,
@@ -28,6 +26,7 @@ import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 import { useApi } from '../api';
+import { PATIENT_TABS } from '../constants/patientPaths';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type)?.label;
@@ -45,60 +44,47 @@ function filterTestTypes(testTypes, labTestCategoryId) {
     : [];
 }
 
-const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
-  const { navigateToLabRequest } = usePatientNavigation();
-  const { loadEncounter } = useEncounter();
-  const { loadLabRequest } = useLabRequest();
-  const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
-
-  // Transition to print page as soon as we have the generated id
-  useEffect(() => {
-    (async () => {
-      if (awaitingPrintRedirect && requestId) {
-        await loadLabRequest(requestId);
-        navigateToLabRequest(requestId, 'print');
-      }
-    })();
-  }, [requestId, awaitingPrintRedirect, loadLabRequest, navigateToLabRequest]);
-
-  const finalise = async data => {
-    await submitForm(data);
-    await loadEncounter(encounter.id);
-  };
-  const finaliseAndPrint = async data => {
-    await submitForm(data);
-    // We can't transition pages until the lab req is fully submitted
-    setAwaitingPrintRedirect(true);
-  };
-
-  const actions = [
-    { label: 'Finalise', onClick: finalise },
-    { label: 'Finalise & print', onClick: finaliseAndPrint },
-  ];
-
-  return <DropdownButton actions={actions} />;
-};
-
 export const LabRequestForm = ({
   practitionerSuggester,
   encounter,
-  requestId,
+  onClose,
   onSubmit,
-  onCancel,
   editedObject,
   generateDisplayId,
 }) => {
   const api = useApi();
+  const [printOnSuccess, setPrintOnSuccess] = useState(false);
+  const { navigateToLabRequest } = usePatientNavigation();
+  const { loadEncounter } = useEncounter();
+  const { loadLabRequest } = useLabRequest();
 
   const { data: testTypes } = useQuery(['labTestTypes'], () =>
     api.get('suggestions/labTestType/all'),
   );
+
+  const onSuccess = async ({ id: requestId }) => {
+    if (printOnSuccess) {
+      await loadLabRequest(requestId);
+      navigateToLabRequest(requestId, { modal: 'print' });
+    } else {
+      await loadEncounter(encounter.id);
+    }
+  };
 
   const renderForm = ({ values, submitForm }) => {
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
     const filteredTestTypes = filterTestTypes(testTypes || [], values.labTestCategoryId);
+
+    const finalise = async event => {
+      await submitForm(event);
+    };
+
+    const finaliseAndPrint = async event => {
+      setPrintOnSuccess(true);
+      await submitForm(event);
+    };
 
     return (
       <FormGrid>
@@ -162,11 +148,12 @@ export const LabRequestForm = ({
           rows={3}
         />
         <ButtonRow>
-          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-          <FormSubmitActionDropdown
-            requestId={requestId}
-            encounter={encounter}
-            submitForm={submitForm}
+          <OutlinedButton onClick={onClose}>Cancel</OutlinedButton>
+          <DropdownButton
+            actions={[
+              { label: 'Finalise', onClick: finalise },
+              { label: 'Finalise & print', onClick: finaliseAndPrint },
+            ]}
           />
         </ButtonRow>
       </FormGrid>
@@ -176,6 +163,7 @@ export const LabRequestForm = ({
   return (
     <Form
       onSubmit={onSubmit}
+      onSuccess={onSuccess}
       render={renderForm}
       initialValues={{
         displayId: generateDisplayId(),
@@ -206,17 +194,14 @@ export const LabRequestForm = ({
 };
 
 LabRequestForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
   practitionerSuggester: PropTypes.object.isRequired,
   encounter: PropTypes.object,
   generateDisplayId: PropTypes.func.isRequired,
-  requestId: PropTypes.string,
   editedObject: PropTypes.object,
 };
 
 LabRequestForm.defaultProps = {
   encounter: {},
   editedObject: {},
-  requestId: '',
 };

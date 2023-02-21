@@ -1,32 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { customAlphabet } from 'nanoid';
-
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
-
+import { useApi, useSuggester } from '../api';
 import { Modal } from './Modal';
 import { LabRequestForm } from '../forms/LabRequestForm';
 import { ALPHABET_FOR_ID } from '../constants';
 
 export const LabRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const [requestId, setRequestId] = useState();
-
+  const practitionerSuggester = useSuggester('practitioner');
   return (
     <Modal width="md" title="New lab request" open={open} onClose={onClose}>
       <LabRequestForm
-        onSubmit={async data => {
-          const newRequest = await api.post(`labRequest`, {
+        onSubmit={async data =>
+          api.post(`labRequest`, {
             ...data,
             encounterId: encounter.id,
-          });
-          setRequestId(newRequest.id);
-          onClose();
-        }}
-        onCancel={onClose}
+          })
+        }
+        onClose={onClose}
         encounter={encounter}
-        requestId={requestId}
         practitionerSuggester={practitionerSuggester}
         generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 7)}
       />

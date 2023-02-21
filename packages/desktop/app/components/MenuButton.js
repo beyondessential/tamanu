@@ -41,9 +41,9 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
 
-  const handleClick = (event, index) => {
+  const handleClick = (event, action) => {
     setOpen(false);
-    actions[index].onClick(event);
+    action(event);
   };
 
   const handleToggle = () => {
@@ -56,10 +56,6 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
     }
     setOpen(false);
   };
-
-  if (!actions.length) {
-    return null;
-  }
 
   const Icon = iconDirection === 'vertical' ? MoreVertIcon : MoreHorizIcon;
 
@@ -79,13 +75,13 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
           <Paper id="menu-list-grow" variant="outlined">
             <ClickAwayListener onClickAway={handleClose}>
               <List>
-                {actions.map((action, index) => (
+                {Object.entries(actions).map(([label, action]) => (
                   <Item
-                    key={action.label}
-                    disabled={!action.onClick}
-                    onClick={event => handleClick(event, index)}
+                    key={label}
+                    disabled={!action}
+                    onClick={event => handleClick(event, action)}
                   >
-                    {action.label}
+                    {label}
                   </Item>
                 ))}
               </List>
@@ -98,12 +94,7 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
 });
 
 MenuButton.propTypes = {
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      onClick: PropTypes.func,
-    }),
-  ).isRequired,
+  actions: PropTypes.objectOf(PropTypes.func).isRequired,
   iconDirection: PropTypes.string,
   iconColor: PropTypes.string,
 };

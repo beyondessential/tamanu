@@ -17,9 +17,9 @@ const Template = args => <MenuButton {...args} />;
 export const Vertical = Template.bind({});
 Vertical.args = {
   iconDirection: 'vertical',
-  actions: [
-    { label: 'Etendre', onClick: () => {} },
-    { label: 'Relever', onClick: () => {} },
-    { label: 'Glisser', onClick: () => {} },
-  ],
+  actions: {
+    Etendre: () => {},
+    Relever: () => {},
+    Glisser: () => {},
+  },
 };

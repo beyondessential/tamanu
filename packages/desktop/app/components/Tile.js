@@ -53,12 +53,7 @@ Tile.propTypes = {
   title: PropTypes.string,
   text: PropTypes.string,
   Icon: PropTypes.any,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      onClick: PropTypes.func,
-    }),
-  ),
+  actions: PropTypes.objectOf(PropTypes.func),
 };
 
 Tile.defaultProps = {
