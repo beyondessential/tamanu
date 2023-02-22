@@ -15,11 +15,13 @@ const snapshotChangesForModel = async (
   sessionId,
   facilityId,
   sessionConfig,
+  config,
 ) => {
   log.debug(
     `snapshotChangesForModel: Beginning snapshot for model ${model.tableName} since ${since}, in session ${sessionId}`,
   );
 
+  const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
   const modelHasSyncFilter = !!model.buildSyncFilter;
   const filter = modelHasSyncFilter ? model.buildSyncFilter(patientIds, sessionConfig) : '';
   if (modelHasSyncFilter && filter === null) {
@@ -35,65 +37,84 @@ const snapshotChangesForModel = async (
 
   const snapshotTableName = getSnapshotTableName(sessionId);
 
-  const [, count] = await model.sequelize.query(
-    `
-      INSERT INTO ${snapshotTableName} (
-        direction,
-        is_deleted,
-        record_type,
-        record_id,
-        saved_at_sync_tick,
-        updated_at_by_field_sum,
-        data
-      )
-      SELECT
-        '${SYNC_SESSION_DIRECTION.OUTGOING}',
-        ${table}.deleted_at IS NOT NULL,
-        '${table}',
-        ${table}.id,
-        ${table}.updated_at_sync_tick,
-        ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum ,' : 'NULL,'}
-        json_build_object(
-          ${Object.keys(attributes)
-            .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
-            .map(a => `'${a}', ${table}.${snake(a)}`)}
+  let fromId = '';
+  let totalCount = 0;
+
+  while (fromId != null) {
+    const [[{ maxId, count }]] = await model.sequelize.query(
+      `
+      WITH inserted as (
+        INSERT INTO ${snapshotTableName} (
+          direction,
+          is_deleted,
+          record_type,
+          record_id,
+          saved_at_sync_tick,
+          updated_at_by_field_sum,
+          data
         )
-      FROM
-        ${table}
-        ${
-          useUpdatedAtByFieldSum
-            ? `
-      LEFT JOIN (
         SELECT
-          ${table}.id, sum(value::text::bigint) sum
+          '${SYNC_SESSION_DIRECTION.OUTGOING}',
+          ${table}.deleted_at IS NOT NULL,
+          '${table}',
+          ${table}.id,
+          ${table}.updated_at_sync_tick,
+          ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum ,' : 'NULL,'}
+          json_build_object(
+            ${Object.keys(attributes)
+              .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
+              .map(a => `'${a}', ${table}.${snake(a)}`)}
+          )
         FROM
-          ${table}, json_each(${table}.updated_at_by_field)
-        GROUP BY
-          ${table}.id
-      ) updated_at_by_field_summary
-      ON
-        ${table}.id = updated_at_by_field_summary.id`
-            : ''
-        }
-      ${filter || `WHERE ${table}.updated_at_sync_tick > :since`};
+          ${table}
+          ${
+            useUpdatedAtByFieldSum
+              ? `
+        LEFT JOIN (
+          SELECT
+            ${table}.id, sum(value::text::bigint) sum
+          FROM
+            ${table}, json_each(${table}.updated_at_by_field)
+          GROUP BY
+            ${table}.id
+        ) updated_at_by_field_summary
+        ON
+          ${table}.id = updated_at_by_field_summary.id`
+              : ''
+          }
+        ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
+        ${fromId ? `AND ${table}.id > '${fromId}'` : ''}
+        ORDER BY ${table}.id
+        LIMIT :limit
+        RETURNING record_id
+      )
+      SELECT MAX(record_id) as "maxId", 
+      count(*) as "count" 
+      FROM inserted;
     `,
-    {
-      replacements: {
-        sessionId,
-        since,
-        // include replacement params used in some model specific sync filters outside of this file
-        // see e.g. Referral.buildSyncFilter
-        patientIds,
-        facilityId,
+      {
+        replacements: {
+          sessionId,
+          since,
+          // include replacement params used in some model specific sync filters outside of this file
+          // see e.g. Referral.buildSyncFilter
+          patientIds,
+          facilityId,
+          limit: CHUNK_SIZE,
+        },
       },
-    },
-  );
+    );
+
+    const chunkCount = parseInt(count, 10); // count should always be default to '0'
+    fromId = maxId;
+    totalCount += chunkCount;
+  }
 
   log.debug(
-    `snapshotChangesForModel: Found ${count} for model ${model.tableName} since ${since}, in session ${sessionId}`,
+    `snapshotChangesForModel: Found ${totalCount} for model ${model.tableName} since ${since}, in session ${sessionId}`,
   );
 
-  return count;
+  return totalCount;
 };
 
 export const snapshotOutgoingChanges = withConfig(
@@ -128,6 +149,7 @@ export const snapshotOutgoingChanges = withConfig(
           sessionId,
           facilityId,
           sessionConfig,
+          config,
         );
 
         changesCount += modelChangesCount || 0;
