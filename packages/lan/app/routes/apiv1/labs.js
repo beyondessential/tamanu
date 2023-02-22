@@ -234,8 +234,10 @@ labTestPanel.get(
 
     req.checkPermission('list', 'LabTests');
 
-    const panel = models.LabTestPanel.findOne({ where: { id: panelId } });
-    const response = panel.getLabTestTypes();
+    const panel = await models.LabTestPanel.findOne({
+      where: { id: panelId },
+    });
+    const response = await panel.getLabTestTypes();
 
     res.send(response);
   }),
