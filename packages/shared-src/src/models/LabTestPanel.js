@@ -16,7 +16,7 @@ export class LabTestPanel extends Model {
           allowNull: false,
         },
         visibilityStatus: {
-          type: Sequelize.TEXT,
+          type: Sequelize.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
