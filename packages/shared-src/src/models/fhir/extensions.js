@@ -3,7 +3,7 @@ import { withConfig } from 'shared/utils/withConfig';
 
 function getEthnicity(ethnicityId) {
   switch (ethnicityId) {
-    case 'ethnicity-Fiji':
+    case 'ethnicity-ITaukei':
       return { code: '36111', display: 'Fijian/iTaukei' };
     case 'ethnicity-FID':
       return { code: '43112', display: 'Fijian Indian' };
