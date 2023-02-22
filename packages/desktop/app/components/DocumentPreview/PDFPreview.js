@@ -9,7 +9,7 @@ import { PDFPage } from './PDFPage';
 // Prevent the modal header scrolling away by making the preview scrollable
 const PDFDocument = styled.div`
   overflow-y: scroll;
-  max-height: 75vh;
+  height: 75vh;
   text-align: center;
 `;
 
