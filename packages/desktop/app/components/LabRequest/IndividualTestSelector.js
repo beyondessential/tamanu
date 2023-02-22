@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { fuzzySearch } from '../../utils/fuzzySearch';
+import { subStrSearch } from '../../utils/subStringSearch';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { Field, Form, SearchField } from '../Field';
 import { Card } from '../Card';
@@ -89,21 +89,16 @@ const StyledSearchField = styled(SearchField)`
 
 const filterByTestTypeQuery = (testTypes, { labTestCategoryId, search }) =>
   testTypes
-    .map(type => ({
-      score: fuzzySearch(search, type.name),
-      ...type,
-    }))
     // Filter out tests that don't match the search query or category
     .filter(
       result =>
-        result.score !== null &&
+        subStrSearch(search, result.name) &&
         (!labTestCategoryId || result.labTestCategoryId === labTestCategoryId),
     )
-    // Sort by category, alphabetically with no search and by score with a search
-    .sort((a, b) =>
-      search
-        ? b.score - a.score
-        : a.labTestCategoryId.localeCompare(b.labTestCategoryId) || a.name.localeCompare(b.name),
+    // Sort by category then title alphabetically
+    .sort(
+      (a, b) =>
+        a.labTestCategoryId.localeCompare(b.labTestCategoryId) || a.name.localeCompare(b.name),
     );
 
 export const TestSelectorInput = ({ name, testTypes, selected = [], onChange }) => {
