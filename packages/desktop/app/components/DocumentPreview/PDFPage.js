@@ -1,14 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 
-export function PDFPage({ page }) {
+export function PDFPage({ page, parentRef }) {
   const canvasRef = useRef();
 
   useEffect(() => {
     if (!page) {
       return;
     }
-    const viewport = page.getViewport({ scale: 1 });
+    const [, , , pageHeight] = page.view;
     const canvas = canvasRef.current;
+    const scale = parentRef ? parentRef.current.clientHeight / pageHeight : 1;
+    const viewport = page.getViewport({ scale });
     canvas.height = viewport.height;
     canvas.width = viewport.width;
     const renderContext = {
@@ -16,7 +18,7 @@ export function PDFPage({ page }) {
       viewport,
     };
     page.render(renderContext);
-  }, [page]);
+  }, [page, parentRef]);
 
   return <canvas ref={canvasRef} />;
 }
