@@ -234,7 +234,7 @@ labTestPanel.get(
 
     req.checkPermission('list', 'LabTests');
 
-    const panel = await model.LabTestPanel.findByPk(panelId);
+    const panel = await models.LabTestPanel.findByPk(panelId);
     const response = await panel.getLabTestTypes();
 
     res.send(response);
