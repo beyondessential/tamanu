@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_SELECT_LAB_METHOD, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { foreignKey } from '../utils/validation';
 import { binaryOptions } from '../constants';
 import { useAuth } from '../contexts/Auth';
@@ -21,17 +21,12 @@ import { Button, OutlinedButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
-const LAB_REQUEST_TYPES = {
-  PANEL: 'panel',
-  INDIVIDUAL: 'individual',
-};
-
 const labRequestValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
   requestedDate: yup.date().required(),
   requestType: yup
     .string()
-    .oneOf(Object.values(LAB_REQUEST_TYPES))
+    .oneOf(Object.values(LAB_REQUEST_SELECT_LAB_METHOD))
     .required(),
   specimenAttached: yup
     .string()
@@ -139,12 +134,12 @@ export const LabRequestForm = ({
               {
                 label: 'Panel',
                 description: 'Select from a list of test panels',
-                value: LAB_REQUEST_TYPES.PANEL,
+                value: LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
               },
               {
                 label: 'Individual',
                 description: 'Select any individual or range of individual test types',
-                value: LAB_REQUEST_TYPES.INDIVIDUAL,
+                value: LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
               },
             ]}
           />

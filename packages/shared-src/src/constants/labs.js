@@ -70,3 +70,8 @@ export const LAB_TEST_RESULT_TYPES = {
   NUMBER: 'Number',
   SELECT: 'Select',
 };
+
+export const LAB_REQUEST_SELECT_LAB_METHOD = {
+  PANEL: 'panel',
+  INDIVIDUAL: 'individual',
+};
