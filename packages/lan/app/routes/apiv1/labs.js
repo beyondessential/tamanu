@@ -226,12 +226,17 @@ labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
 export const labTestPanel = express.Router();
 
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));
-// labTestPanel.get(
-//   '/:id/labTestTypes',
-//   asyncHandler(async (req, res) => {
-//     const { models, body, params } = req;
-//     const panelId = params.id;
-//
-//     const labTests = await models
-//   }),
-// );
+labTestPanel.get(
+  '/:id/labTestTypes',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const panelId = params.id;
+
+    req.checkPermission('list', 'LabTests');
+
+    const panel = models.LabTestPanel.findOne({ where: { id: panelId } });
+    const response = panel.getLabTestTypes();
+
+    res.send(response);
+  }),
+);
