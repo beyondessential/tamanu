@@ -9,6 +9,7 @@ const checkForConcurrentSnapshotCapacity = async models => {
       pullSince: { [Op.not]: null },
       snapshotCompletedAt: { [Op.is]: null },
       error: { [Op.is]: null },
+      completedAt: { [Op.is]: null },
     },
   });
   return count < config.sync.numberConcurrentPullSnapshots;
