@@ -46,20 +46,16 @@ user.get(
     const {
       models: { Patient },
       user: currentUser,
-      query
+      query,
     } = req;
 
     req.checkPermission('read', currentUser);
     req.checkPermission('list', 'Patient');
 
-    let andClauses;
+    let andClauses = '';
 
-    if (query.encounterType !== undefined) {
-      if (query.encounterType === null) {
-        andClauses = 'AND encounters.encounter_type IS NULL';
-      } else {
-        andClauses = `AND encounters.encounter_type = '${query.encounterType}'`;
-      }
+    if (query.encounterType) {
+      andClauses = `AND encounters.encounter_type = '${query.encounterType}'`;
     }
 
     const recentlyViewedPatients = await req.db.query(
@@ -86,7 +82,7 @@ user.get(
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
         WHERE user_recently_viewed_patients.user_id = '${currentUser.id}'
-        ${andClauses || ''}
+        ${andClauses}
         ORDER BY last_accessed_on DESC
         LIMIT 12
       `,
@@ -117,7 +113,7 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const createdRelation = await UserRecentlyViewedPatient.create({
+    const [createdRelation] = await UserRecentlyViewedPatient.create({
       userId: currentUser.id,
       patientId,
     });
