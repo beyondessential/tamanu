@@ -122,7 +122,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     imagingName: imagingTypes[imagingRequest.imagingType],
   }));
 
-  const dishchargeQuery = useEncounterDischarge(encounter.id);
+  const dishchargeQuery = useEncounterDischarge(encounter);
   const discharge = dishchargeQuery.data;
 
   const villageQuery = useReferenceData(patient?.villageId);
