@@ -159,7 +159,7 @@ export function labTestPanelLoader(item) {
     .map(t => t.trim())
     .forEach(testType => {
       rows.push({
-        model: 'LabTestPanelRelation',
+        model: 'LabTestPanelLabTestTypes',
         values: {
           labTestPanelId: id,
           labTestTypeId: testType,

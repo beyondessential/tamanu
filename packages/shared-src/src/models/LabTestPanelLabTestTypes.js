@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
-export class LabTestPanelRelation extends Model {
+export class LabTestPanelLabTestTypes extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {

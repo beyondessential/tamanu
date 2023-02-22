@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 export async function up(query) {
-  await query.createTable('lab_test_panel_relations', {
+  await query.createTable('lab_test_panel_lab_test_types', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -42,5 +42,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropTable('lab_test_panel_relations');
+  await query.dropTable('lab_test_panel_lab_test_types');
 }
