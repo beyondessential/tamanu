@@ -83,13 +83,13 @@ const snapshotChangesForModel = async (
               : ''
           }
         ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
-        ${fromId ? `AND ${table}.id > '${fromId}'` : ''}
+        ${fromId ? `AND ${table}.id > :fromId` : ''}
         ORDER BY ${table}.id
         LIMIT :limit
         RETURNING record_id
       )
       SELECT MAX(record_id) as "maxId", 
-      count(*) as "count" 
+        count(*) as "count" 
       FROM inserted;
     `,
       {
@@ -101,6 +101,7 @@ const snapshotChangesForModel = async (
           patientIds,
           facilityId,
           limit: CHUNK_SIZE,
+          fromId,
         },
       },
     );
