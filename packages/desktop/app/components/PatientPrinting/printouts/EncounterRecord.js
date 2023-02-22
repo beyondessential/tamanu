@@ -132,7 +132,7 @@ const COLUMNS = {
     {
       key: 'to',
       title: 'Area',
-      accessor: ({ newLocationGroup }) => startCase(newLocationGroup),
+      accessor: ({ newLocationGroup }) => startCase(newLocationGroup) || '----',
       style: { width: '30%' },
     },
     {
@@ -342,7 +342,7 @@ export const EncounterRecord = React.memo(
                 {examiner.displayName}
               </DisplayValue>
               <DisplayValue name="Discharging clinician" size="10px">
-                {discharge.discharger.displayName}
+                {discharge?.discharger.displayName}
               </DisplayValue>
               <DisplayValue name="Reason for encounter" size="10px">
                 {reasonForEncounter}

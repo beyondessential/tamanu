@@ -76,7 +76,7 @@ const extractLocationHistory = (notes, encounterData) => {
   if (locationHistory) return locationHistory;
   return [
     {
-      newLocationGroup: encounterData.location.locationGroup.name,
+      newLocationGroup: encounterData.location.locationGroup?.name,
       newLocation: encounterData.location.name,
       date: encounterData.startDate,
     },
@@ -122,7 +122,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     imagingName: imagingTypes[imagingRequest.imagingType],
   }));
 
-  const dishchargeQuery = useEncounterDischarge(encounter.id);
+  const dishchargeQuery = useEncounterDischarge(encounter);
   const discharge = dishchargeQuery.data;
 
   const villageQuery = useReferenceData(patient?.villageId);
