@@ -148,21 +148,58 @@ encounterRelations.get(
 );
 encounterRelations.get(
   '/:id/imagingRequests',
-  simpleGetList('ImagingRequest', 'encounterId', {
-    additionalFilters: {
-      [Op.and]: [
-        {
-          status: {
-            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED,
-          },
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { ImagingRequest } = models;
+    const { id: encounterId } = params;
+    const {
+      order = 'ASC',
+      orderBy = 'createdAt',
+      rowsPerPage,
+      page,
+      includeNotePages: includeNotePagesStr = 'false',
+      status,
+    } = query;
+    const includeNotePages = includeNotePagesStr === 'true';
+
+    req.checkPermission('list', 'ImagingRequest');
+
+    const associations = ImagingRequest.getListReferenceAssociations(models) || [];
+
+    const baseQueryOptions = {
+      where: {
+        encounterId,
+        status: status || {
+          [Op.and]: [
+            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
+            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR },
+          ],
         },
-        {
-          status: {
-            [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-          },
-        },
-      ],
-    },
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      include: associations,
+    };
+
+    const count = await ImagingRequest.count({
+      ...baseQueryOptions,
+    });
+
+    const objects = await ImagingRequest.findAll({
+      ...baseQueryOptions,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = await Promise.all(
+      objects.map(async ir => {
+        return {
+          ...ir.forResponse(),
+          ...(includeNotePages ? await ir.extractNotes() : undefined),
+        };
+      }),
+    );
+
+    res.send({ count, data });
   }),
 );
 

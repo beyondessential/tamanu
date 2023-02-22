@@ -1,3 +1,4 @@
+import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 import { fake } from 'shared/test-helpers/fake';
 import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -338,7 +339,9 @@ describe('PatientDeath', () => {
 
       const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
       expect(result).toHaveSucceeded();
-      const deathData = await PatientDeathData.findAll({ where: { patientId: id } });
+      const deathData = await PatientDeathData.findAll({
+        where: { patientId: id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      });
       expect(deathData.length).toBe(0);
     });
 
@@ -357,7 +360,9 @@ describe('PatientDeath', () => {
 
       const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
       expect(result).not.toHaveSucceeded();
-      const deathData = await PatientDeathData.findAll({ where: { patientId: id } });
+      const deathData = await PatientDeathData.findAll({
+        where: { patientId: id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      });
       expect(deathData.length).toBe(1);
     });
 
