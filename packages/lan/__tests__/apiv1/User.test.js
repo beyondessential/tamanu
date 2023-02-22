@@ -185,7 +185,6 @@ describe('User', () => {
       expect(result2).toHaveSucceeded();
       expect(result2.body).toHaveProperty('userId', authUser.id);
       expect(result2.body).toHaveProperty('patientId', newPatient.id);
-      console.log(result2.body)
       const resultDate = new Date(result.body.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(resultDate.getTime());
