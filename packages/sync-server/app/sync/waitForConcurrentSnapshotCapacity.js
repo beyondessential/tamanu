@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import config from 'config';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 
-const checkForSnapshotSlot = async models => {
+const checkForConcurrentSnapshotCapacity = async models => {
   // work out how many sessions are currently in the snapshot phase
   const count = await models.SyncSession.count({
     where: {
@@ -10,14 +10,12 @@ const checkForSnapshotSlot = async models => {
       snapshotCompletedAt: { [Op.is]: null },
     },
   });
-  if (count < config.sync.numberConcurrentSnapshots) {
-    return true;
-  }
+  return count < config.sync.numberConcurrentPullSnapshots;
 };
 
-export const waitForSnapshotSlot = async models => {
-  // wait for a gap to appear in the snapshot phase
-  while (!(await checkForSnapshotSlot(models))) {
+export const waitForConcurrentSnapshotCapacity = async models => {
+  // wait for there to be enough capacity to start a snapshot
+  while (!(await checkForConcurrentSnapshotCapacity(models))) {
     await sleepAsync(500); // wait for half a second
   }
 };
