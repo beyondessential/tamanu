@@ -144,6 +144,10 @@ describe('User', () => {
     });
 
     it('should create a new recently viewed patient on first post from user', async () => {
+      await models.UserRecentlyViewedPatient.destroy({
+        where: {},
+        truncate: true,
+      });
       await authUser.update({
         role: 'practitioner',
       });
@@ -162,6 +166,10 @@ describe('User', () => {
     });
 
     it('should update updatedAt when posting with id of an already recently viewed patient', async () => {
+      await models.UserRecentlyViewedPatient.destroy({
+        where: {},
+        truncate: true,
+      });
       await authUser.update({
         role: 'practitioner',
       });
@@ -177,11 +185,14 @@ describe('User', () => {
       expect(result2).toHaveSucceeded();
       expect(result2.body).toHaveProperty('userId', authUser.id);
       expect(result2.body).toHaveProperty('patientId', newPatient.id);
+      console.log(result2.body)
       const resultDate = new Date(result.body.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(resultDate.getTime());
       const getResult = await userAgent.get('/v1/user/recently-viewed-patients');
       expect(getResult).toHaveSucceeded();
+      expect(getResult.body.data).toHaveLength(1);
+      expect(getResult.body.count).toBe(1);
       const getResultDate = new Date(getResult.body.data[0].last_accessed_on);
       expect(getResultDate.getTime()).toBe(result2Date.getTime());
     });

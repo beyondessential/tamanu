@@ -46,6 +46,8 @@ export class UserRecentlyViewedPatient extends Model {
     //   });
     // }
 
-    return super.upsert(data);
+    return super.upsert(data, {
+      conflictFields: ['user_id', 'patient_id'],
+    });
   }
 }
