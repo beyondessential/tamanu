@@ -28,7 +28,7 @@
     "persistedCacheBatchSize": 20000,
     "adjustDataBatchSize": 20000,
     "syncAllEncountersForTheseVaccines": [],
-    "numberConcurrentSnapshots": 4
+    "numberConcurrentPullSnapshots": 4
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
