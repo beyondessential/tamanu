@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import NotesIcon from '@material-ui/icons/Notes';
-import { Button } from '@material-ui/core';
+import { Button, Box } from '@material-ui/core';
 import { NOTE_TYPES } from 'shared/constants';
 import { useApi } from '../api';
-import { Form, Field, TextField } from '../components';
+import { Form, Field, TextField, DateDisplay } from '../components';
 
 const Container = styled.div`
   display: flex;
@@ -13,10 +13,6 @@ const Container = styled.div`
   border-radius: 3px;
   margin-bottom: 15px;
   padding: 12px;
-`;
-
-const NotesSection = styled.div`
-  flex: 1;
 `;
 
 const List = styled.ul`
@@ -28,20 +24,20 @@ const List = styled.ul`
 const ListItem = styled.li`
   margin: 0 0 5px 0;
   font-weight: 400;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 15px;
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
+const Caption = styled.span`
+  color: ${props => props.theme.palette.text.tertiary};
+  margin-left: 6px;
 `;
 
 const NotesInput = styled(Field)`
   flex: 1;
 
   .MuiInputBase-input {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 15px;
     padding: 8px;
   }
@@ -49,14 +45,16 @@ const NotesInput = styled(Field)`
 
 const TextButton = styled(Button)`
   font-weight: 500;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 15px;
   text-transform: none;
   padding-left: 8px;
   padding-right: 8px;
   min-width: auto;
-  color: ${props => props.theme.palette.text.tertiary};
   background: none;
+  color: ${props =>
+    props.$underline ? props.theme.palette.primary.main : props.theme.palette.text.tertiary};
+  text-decoration: ${props => (props.$underline ? 'underline' : 'none')};
 
   &.MuiButton-root:hover {
     background: none;
@@ -90,30 +88,40 @@ export const LabRequestNoteForm = React.memo(({ labRequest, isReadOnly }) => {
 
   return (
     <Container>
-      <NotesIcon style={{ marginRight: 5 }} />
-      <NotesSection>
+      <NotesIcon color="primary" />
+      <Box flex="1" ml={1}>
         <List>
           {notes.map(note => (
-            <ListItem key={`${note.id}`}>{note.content}</ListItem>
+            <ListItem key={`${note.id}`}>
+              {note.content}
+              <Caption>
+                {note.author?.displayName} <DateDisplay date={note.date} />
+              </Caption>
+            </ListItem>
           ))}
         </List>
-        <Form
-          onSubmit={saveNote}
-          render={({ submitForm, values }) => {
-            return active ? (
-              <Wrapper>
-                <NotesInput label="" name="content" component={TextField} />
-                <TextButton onClick={submitForm} disabled={!values.content}>
-                  Save
+        {!isReadOnly && (
+          <Form
+            onSubmit={saveNote}
+            render={({ submitForm, values }) => {
+              const formSubmitIsDisabled = !values.content || values.content.length < 2;
+              return active ? (
+                <Box display="flex" alignItems="center">
+                  <NotesInput label="" name="content" component={TextField} />
+                  <TextButton onClick={submitForm} disabled={formSubmitIsDisabled}>
+                    Save
+                  </TextButton>
+                  <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
+                </Box>
+              ) : (
+                <TextButton $underline onClick={() => setActive(true)}>
+                  Add note
                 </TextButton>
-                <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
-              </Wrapper>
-            ) : (
-              <TextButton onClick={() => setActive(true)}>Add note</TextButton>
-            );
-          }}
-        />
-      </NotesSection>
+              );
+            }}
+          />
+        )}
+      </Box>
     </Container>
   );
 });

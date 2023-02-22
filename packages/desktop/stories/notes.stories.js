@@ -12,8 +12,18 @@ const endpoints = {
   'labRequest/:id/notes': () => {
     return {
       data: [
-        { id: '1', content: 'LabRequest Cancelled. Reason: Clinical Reason.' },
-        { id: '2', content: 'Patient discharged.' },
+        {
+          id: '1',
+          content: 'LabRequest Cancelled. Reason: Clinical Reason.',
+          author: { displayName: 'Catherine Jennings' },
+          date: new Date(),
+        },
+        {
+          id: '2',
+          content: 'Patient discharged.',
+          author: { displayName: 'Catherine Jennings' },
+          date: new Date(),
+        },
       ],
     };
   },
@@ -37,5 +47,8 @@ const Template = args => <LabRequestNoteForm {...args} />;
 
 export const LabRequestForm = Template.bind({});
 LabRequestForm.args = {
-  labRequest: { id: '123', status: 'cancelled' },
+  labRequest: {
+    id: '123',
+    status: 'cancelled',
+  },
 };

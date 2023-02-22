@@ -1,41 +1,50 @@
 import React from 'react';
-import { Card, CardBody, CardHeader, CardItem, CardDivider } from '../../app/components';
+import { Box } from '@material-ui/core';
+import { OutlinedButton, MenuButton } from '../../app/components';
 import { LabRequestCard } from '../../app/views/patients/components/LabRequestCard';
+import { EncounterInfoPane } from '../../app/views/patients/panes/EncounterInfoPane';
 
 export default {
   title: 'Card',
-  component: Card,
+  component: LabRequestCard,
 };
 
 export const LabRequest = args => <LabRequestCard {...args} />;
 LabRequest.args = {
-  labRequest: { disabled: 'xyz', requestedDate: '2022/12/01' },
+  labRequest: {
+    displayId: 'HGU59KRC',
+    requestedDate: '2022/12/01',
+    requestedBy: { displayName: 'Alan Chan' },
+  },
+  Actions: (
+    <Box display="flex" alignItems="center">
+      <OutlinedButton>Print request</OutlinedButton>
+      <MenuButton
+        status="Pending Approval"
+        actions={{
+          'Action 1': () => {
+            console.log('action 1');
+          },
+        }}
+      />
+    </Box>
+  ),
 };
 
-export const EncounterInfoCard = args => (
-  <div style={{ maxWidth: 750 }}>
-    <Card {...args}>
-      <CardHeader>
-        <CardItem
-          label="Planned move"
-          value="Colonial War Memorial Divisional Hospital General Clinic, Hospital General Clinic"
-        />
-      </CardHeader>
-      <CardBody>
-        <CardDivider />
-        <CardItem label="Department" value="Cardiology" />
-        <CardItem label="Patient type" value="Private" />
-        <CardItem
-          label="Location"
-          value="Bua Nursing Station General Clinic, Bua Nursing Station General Clinic"
-        />
-        <CardItem label="Encounter type" value="Hospital Admission" />
-        <CardItem
-          style={{ gridColumn: '1/-1' }}
-          label="Reason for encounter"
-          value="Admitted from Emergency Department - signs of renal failure"
-        />
-      </CardBody>
-    </Card>
-  </div>
-);
+export const EncounterInfoCard = args => <EncounterInfoPane {...args} />;
+EncounterInfoCard.args = {
+  patientBillingType: 'Private',
+  getLocalisation: key => {
+    const config = {
+      'fields.referralSourceId.shortLabel': 'Referral',
+    };
+    return config[key];
+  },
+  encounter: {
+    reasonForEncounter: 'Heart attack',
+    encounterType: 'admission',
+    department: { name: 'Cardiology' },
+    location: { name: 'Clinical treatment room' },
+    referralSource: { name: 'Alan Chan' },
+  },
+};
