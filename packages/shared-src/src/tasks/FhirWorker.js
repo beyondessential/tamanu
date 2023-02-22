@@ -67,7 +67,7 @@ export class FhirWorker {
     this.pg.query('LISTEN jobs');
   }
 
-  async setHandler(topic, handler) {
+  setHandler(topic, handler) {
     this.log.info('FhirWorker: setting topic handler', { topic });
     this.handlers.set(topic, handler);
   }
@@ -145,8 +145,8 @@ export class FhirWorker {
         this.log.debug('FhirWorker: checking queue', { topic });
         const backlog = await FhirJob.backlog(topic);
         if (backlog === 0) {
-          this.log.debug('FhirWorker: nothing in queue', { topic: this.topic });
-          return;
+          this.log.debug('FhirWorker: nothing in queue', { topic });
+          continue;
         }
 
         const capacity = this.topicCapacity();

@@ -74,7 +74,7 @@ export class FhirJob extends Model {
         bind: { topic, includeDropped },
       },
     );
-    return count;
+    return Number(count);
   }
 
   static async grab(workerId, topic) {
