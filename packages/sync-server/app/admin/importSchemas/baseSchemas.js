@@ -121,6 +121,12 @@ export const LabTestType = Base.shape({
   visibilityStatus,
 });
 
+export const LabTestPanel = Base.shape({
+  name: yup.string().required(),
+  code: yup.string().required(),
+  visibilityStatus,
+});
+
 export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
   type: yup

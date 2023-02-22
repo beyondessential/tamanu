@@ -141,3 +141,31 @@ export function permissionLoader(item) {
       };
     });
 }
+
+export function labTestPanelLoader(item) {
+  const { id, testTypesInPanel, ...otherFields } = item;
+  const rows = [];
+
+  rows.push({
+    model: 'LabTestPanel',
+    values: {
+      id,
+      ...otherFields,
+    },
+  });
+
+  (testTypesInPanel || '')
+    .split(',')
+    .map(t => t.trim())
+    .forEach(testType => {
+      rows.push({
+        model: 'LabTestPanelRelation',
+        values: {
+          labTestPanelId: id,
+          labTestTypeId: testType,
+        },
+      });
+    });
+
+  return rows;
+}
