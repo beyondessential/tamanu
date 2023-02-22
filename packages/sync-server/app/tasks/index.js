@@ -1,7 +1,5 @@
 import config from 'config';
-import { JOB_TOPICS } from 'shared/constants';
 import { log } from 'shared/services/logging';
-import { FhirWorker } from 'shared/tasks';
 
 import { findUser } from '../auth/utils';
 
@@ -20,12 +18,8 @@ import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublish
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
-import { FhirRefreshMissingFromResources } from './FhirRefreshMissingFromResource';
-
-import { FhirRefreshFromUpstream } from './FhirRefreshFromUpstream';
-import { FhirRefreshAllFromUpstream } from './FhirRefreshAllFromUpstream';
-import { FhirRefreshEntireResource } from './FhirRefreshEntireResource';
-import { FhirRefreshResolver } from './FhirRefreshResolver';
+import { FhirMissingResources } from './FhirMissingResources';
+export { startFhirWorkerTasks } from './fhir';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -35,7 +29,7 @@ export async function startScheduledTasks(context) {
     ReportRequestProcessor,
     CertificateNotificationProcessor,
     PatientMergeMaintainer,
-    FhirRefreshMissingFromResources,
+    FhirMissingResources,
   ];
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
@@ -77,19 +71,6 @@ export async function startScheduledTasks(context) {
   ].filter(x => x);
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
-}
-
-export async function startFhirWorkerTasks({ store }) {
-  const worker = new FhirWorker(store, log);
-  await worker.start();
-
-  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, FhirRefreshFromUpstream);
-  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM, FhirRefreshAllFromUpstream);
-  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.ENTIRE_RESOURCE, FhirRefreshEntireResource);
-  worker.setHandler(JOB_TOPICS.FHIR.REFRESH.RESOLVER, FhirRefreshResolver);
-
-  worker.processQueueNow();
-  return worker;
 }
 
 async function getReportSchedulers(context) {

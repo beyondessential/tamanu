@@ -166,7 +166,7 @@
       "enabled": false,
       "schedule": "*/30 * * * *"
     },
-    "fhirRefreshMissingFromResources": {
+    "fhirMissingResources": {
       "enabled": true,
       "schedule": "1 48 * * *" // once a day, time does not matter
     },

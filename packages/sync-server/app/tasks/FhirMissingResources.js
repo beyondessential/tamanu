@@ -6,16 +6,16 @@ import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
-export class FhirRefreshMissingFromResources extends ScheduledTask {
+export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
-    const conf = config.schedules.fhirRefreshMissingFromResources;
-    super(conf.schedule, log.child({ task: 'FhirRefreshMissingFromResources' }));
+    const conf = config.schedules.fhirMissingResources;
+    super(conf.schedule, log.child({ task: 'FhirMissingResources' }));
     this.config = conf;
     this.context = context;
   }
 
   getName() {
-    return 'FhirRefreshMissingFromResources';
+    return 'FhirMissingResources';
   }
 
   async run() {
