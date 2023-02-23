@@ -113,24 +113,26 @@ export const TestSelectorInput = ({
   selectMethod = LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
 }) => {
   const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
-  const handleClear = () => handleChange([]);
-
   return (
     <Form
       initialValues={{ search: '', labTestCategoryId: '', labTestPanelId: '', selectMethod }}
       style={{ height: '100%' }}
-      render={props => (
-        <TestSelectorForm
-          {...props}
-          selected={selected}
-          testTypes={testTypes}
-          onChange={handleChange}
-          onClear={() => {
-            props.setFieldValue('labTestPanelId', '');
-            handleClear();
-          }}
-        />
-      )}
+      render={props => {
+        const { setFieldValue } = props;
+        const handleClear = () => {
+          setFieldValue('labTestPanelId', '');
+          handleChange([]);
+        };
+        return (
+          <TestSelectorForm
+            {...props}
+            selected={selected}
+            testTypes={testTypes}
+            onChange={handleChange}
+            onClear={handleClear}
+          />
+        );
+      }}
     />
   );
 };
