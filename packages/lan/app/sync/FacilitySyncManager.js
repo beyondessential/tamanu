@@ -7,7 +7,7 @@ import {
   dropAllSnapshotTables,
   getModelsForDirection,
   saveIncomingChanges,
-  waitForAnyTransactionsUsingSyncTick,
+  waitForPendingEditsUsingSyncTick,
 } from 'shared/sync';
 import { injectConfig } from 'shared/utils/withConfig';
 
@@ -100,7 +100,7 @@ class FacilitySyncManager {
     await this.models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newSyncClockTime);
     log.debug('Sync: Updated local sync clock time', { newSyncClockTime });
 
-    await waitForAnyTransactionsUsingSyncTick(this.sequelize, currentSyncClockTime);
+    await waitForPendingEditsUsingSyncTick(this.sequelize, currentSyncClockTime);
 
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches

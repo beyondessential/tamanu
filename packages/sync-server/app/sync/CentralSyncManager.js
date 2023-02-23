@@ -13,7 +13,7 @@ import {
   removeEchoedChanges,
   saveIncomingChanges,
   adjustDataPostSyncPush,
-  waitForAnyTransactionsUsingSyncTick,
+  waitForPendingEditsUsingSyncTick,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
@@ -164,17 +164,16 @@ class CentralSyncManager {
 
     const session = await this.connectToSession(sessionId);
 
+    await models.SyncSession.update({ pullSince: since }, { where: { id: sessionId } });
+
     try {
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
       // process is ongoing, will have a later updated_at_sync_tick)
       const { tick, previousTock } = await this.tickTockGlobalClock();
       // wait for any transactions that were in progress using the previous central server "tock"
-      await waitForAnyTransactionsUsingSyncTick(sequelize, previousTock);
-      await models.SyncSession.update(
-        { pullSince: since, pullUntil: tick },
-        { where: { id: sessionId } },
-      );
+      await waitForPendingEditsUsingSyncTick(sequelize, previousTock);
+      await models.SyncSession.update({ pullUntil: tick }, { where: { id: sessionId } });
 
       await models.SyncSession.addDebugInfo(sessionId, {
         facilityId,
