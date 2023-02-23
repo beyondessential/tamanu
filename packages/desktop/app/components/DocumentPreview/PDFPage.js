@@ -13,7 +13,7 @@ export function PDFPage({ page, parentRef }) {
     const canvas = canvasRef.current;
     let widthScale = 1;
     let heightScale = 1;
-    if (parentRef) {
+    if (parentRef?.current) {
       widthScale = (parentRef.current.clientWidth / pageWidth) * WIDTH_MAX;
       heightScale = parentRef.current.clientHeight / pageHeight;
     }
