@@ -5,6 +5,8 @@ import { TestSelectorInput } from '../app/components/LabRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
 
 const fruit = [
+  { name: 'Apple', id: 'apple', labTestCategoryId: 'Sweet' },
+  { name: 'Banana', id: 'banana', labTestCategoryId: 'Sweet' },
   { name: 'Boysenberry', id: 'boysenberry', labTestCategoryId: 'Sweet' },
   { name: 'Grape', id: 'grape', labTestCategoryId: 'Sweet' },
   { name: 'Lemon', id: 'lemon', labTestCategoryId: 'Sweet' },
@@ -21,15 +23,30 @@ const vegetables = [
   { name: 'Zucchini', id: 'zuc', labTestCategoryId: 'Savoury' },
 ];
 
-const testTypes = [
-  { name: 'Chicken', id: 'chicken', labTestCategoryId: 'Savoury' },
+const meat = [
+  { name: 'Beef', id: 'beef', labTestCategoryId: 'Savoury' },
+  { name: 'Chicken Breast', id: 'chicken_breast', labTestCategoryId: 'Savoury' },
+  { name: 'Pork', id: 'pork', labTestCategoryId: 'Savoury' },
+  { name: 'Salmon', id: 'salmon', labTestCategoryId: 'Savoury' },
+  { name: 'Tuna', id: 'tuna', labTestCategoryId: 'Savoury' },
+];
+
+const baking = [
   { name: 'Chocolate', id: 'chocolate', labTestCategoryId: 'Sweet' },
   { name: 'Egg', id: 'egg', labTestCategoryId: 'Savoury' },
   { name: 'Vanilla', id: 'vanilla', labTestCategoryId: 'Sweet' },
   { name: 'Yeast', id: 'yeast', labTestCategoryId: 'Savoury' },
-  ...vegetables,
-  ...fruit,
+  { name: 'Baking Powder', id: 'bakingpowder', labTestCategoryId: 'Savoury' },
 ];
+
+const testTypes = [...baking, ...meat, ...vegetables, ...fruit];
+
+const panelIdToTestTypes = {
+  baking,
+  meat,
+  vegetables,
+  fruit,
+};
 
 export default {
   title: 'Forms/TestSelector',
@@ -46,15 +63,15 @@ const endpoints = {
   'suggestions/labTestPanel/all': () => [
     { id: 'fruit', name: 'Fruit' },
     { id: 'vegetables', name: 'Vegetables' },
+    { id: 'meat', name: 'Meat' },
+    { id: 'baking', name: 'Baking' },
   ],
   'suggestions/labTestCategory/:query': () => [
     { id: 'Savoury', name: 'Savoury' },
     { id: 'Sweet', name: 'Sweet' },
   ],
   'labTestPanel/:id/labTestTypes': (_, id) => {
-    if (id === 'fruit') return fruit;
-    if (id === 'vegetables') return vegetables;
-    return [];
+    return panelIdToTestTypes[id] || [];
   },
 };
 
