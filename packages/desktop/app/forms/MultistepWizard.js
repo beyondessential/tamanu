@@ -27,7 +27,7 @@ export const Wizard = ({ children, initialValues, onSubmit, onCancel }) => {
     setStepNumber(Math.max(stepNumber - 1, 0));
   };
 
-  const handleSubmit = async (values, {bag}) => {
+  const handleSubmit = async (values, bag) => {
     if (step.props.onSubmit) {
       await step.props.onSubmit(values, bag);
     }

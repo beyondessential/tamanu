@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { LAB_REQUEST_SELECT_LAB_METHOD, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { useQuery } from '@tanstack/react-query';
 import { foreignKey } from '../utils/validation';
 import { binaryOptions } from '../constants';
 import { useAuth } from '../contexts/Auth';
@@ -17,23 +18,23 @@ import {
 } from '../components/Field';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { Wizard, WizardStep } from './MultistepWizard';
-import { useLabTestTypes } from '../views/reports/LabTestTypeField';
 import { TestSelectorField } from '../components/LabRequest/TestSelector';
+import { useApi } from '../api';
 
 const labRequestValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
-  requestedDate: yup.date().required(),
+  requestedDate: yup.date().required('Request date is required'),
   requestType: yup
     .string()
     .oneOf(Object.values(LAB_REQUEST_SELECT_LAB_METHOD))
-    .required(),
+    .required('Select type must be selected'),
   specimenAttached: yup
     .string()
     .oneOf(binaryOptions.map(o => o.value))
     .required(),
   sampleTime: yup.string().when('specimenAttached', {
     is: 'yes',
-    then: yup.string().required(),
+    then: yup.string().required(''),
     otherwise: yup.string().nullable(),
   }),
   status: yup
@@ -127,6 +128,7 @@ const LabRequestFormScreen1 = ({
       <FormSeparatorLine />
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
+          required
           name="requestType"
           label="Select your request type"
           component={RadioField}
@@ -149,18 +151,27 @@ const LabRequestFormScreen1 = ({
 };
 
 const LabRequestFormScreen2 = props => {
-  const { data, isLoading } = useLabTestTypes();
+  const api = useApi();
+  const { data: testTypesData, isLoading } = useQuery(
+    ['labTestTypes'],
+    () => api.get('labTestType'),
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
 
   if (isLoading) return null;
 
   return (
-    <Field
-      name="labTestIds"
-      label="Lab tests"
-      component={TestSelectorField}
-      labTests={data}
-      {...props}
-    />
+    <div style={{ gridColumn: '1 / -1' }}>
+      <Field
+        name="labTestIds"
+        label="Lab tests"
+        component={TestSelectorField}
+        testTypes={testTypesData}
+        {...props}
+      />
+    </div>
   );
 };
 
@@ -174,7 +185,6 @@ export const LabRequestForm = ({
   generateDisplayId,
 }) => {
   const { currentUser } = useAuth();
-
   return (
     <Wizard
       onCancel={onCancel}

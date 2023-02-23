@@ -34,11 +34,15 @@ import { createDummySuggester, mapToSuggestions } from './utils';
 import { Modal } from '../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
+import { mockLabTestTypes, mockTestSelectorEndpoints } from './testSelector.stories';
 
-const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
+const PATIENTS = new Array(20).fill(0).map(() => createDummyPatient());
 
 const departmentSuggester = createDummySuggester(mapToSuggestions(DEPARTMENTS));
-const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
+const practitionerSuggester = createDummySuggester([
+  ...mapToSuggestions(USERS),
+  { label: 'Storybook test user', value: 'test-user-id' },
+]);
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
 const dispositionSuggester = createDummySuggester(mapToSuggestions(DISPOSITIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
@@ -212,7 +216,12 @@ const labRequestEndpoints = {
     { id: '2', name: 'Leg' },
     { id: '3', name: 'Shoulder' },
   ],
-  'suggestions/labTestPriority/all': () => [{ id: '1', name: 'Normal' }, { id: '2', name: 'Urgent' }],
+  'suggestions/labTestPriority/all': () => [
+    { id: '1', name: 'Normal' },
+    { id: '2', name: 'Urgent' },
+  ],
+  labTestType: () => mockLabTestTypes,
+  ...mockTestSelectorEndpoints,
 };
 
 storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (

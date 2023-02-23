@@ -39,7 +39,7 @@ const baking = [
   { name: 'Baking Powder', id: 'bakingpowder', labTestCategoryId: 'Savoury' },
 ];
 
-const testTypes = [...baking, ...meat, ...vegetables, ...fruit];
+export const mockLabTestTypes = [...baking, ...meat, ...vegetables, ...fruit];
 
 const panelIdToTestTypes = {
   baking,
@@ -59,7 +59,7 @@ export default {
   },
 };
 
-const endpoints = {
+export const mockTestSelectorEndpoints = {
   'suggestions/labTestPanel/all': () => [
     { id: 'fruit', name: 'Fruit' },
     { id: 'vegetables', name: 'Vegetables' },
@@ -88,10 +88,10 @@ const Template = args => {
   );
 
   return (
-    <MockedApi endpoints={endpoints}>
+    <MockedApi endpoints={mockTestSelectorEndpoints}>
       <div style={{ width: 800, height: 500 }}>
         <TestSelectorInput
-          testTypes={testTypes}
+          testTypes={mockLabTestTypes}
           selected={selected}
           onChange={onChange}
           {...args}
