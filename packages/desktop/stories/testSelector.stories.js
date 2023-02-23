@@ -1,6 +1,7 @@
 import { action } from '@storybook/addon-actions';
 import React from 'react';
-import { TestSelectorInput } from '../app/components/LabRequest/IndividualTestSelector';
+import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
+import { TestSelectorInput } from '../app/components/LabRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
 
 const testTypes = [
@@ -23,8 +24,14 @@ const testTypes = [
 ];
 
 export default {
-  title: 'TestSelector/Individual',
+  title: 'Forms/TestSelector',
   component: TestSelectorInput,
+  argTypes: {
+    selectMethod: {
+      control: 'select',
+      options: Object.values(LAB_REQUEST_SELECT_LAB_METHOD),
+    },
+  },
 };
 
 const endpoints = {
@@ -60,5 +67,7 @@ const Template = args => {
   );
 };
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Individual = Template.bind({});
+Individual.args = {
+  selectMethod: LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
+};
