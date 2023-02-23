@@ -20,7 +20,7 @@ import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
-import { waitForConcurrentSnapshotCapacity } from './waitForConcurrentSnapshotCapacity';
+import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -160,11 +160,11 @@ class CentralSyncManager {
   ) {
     const { models, sequelize } = this.store;
 
-    await waitForConcurrentSnapshotCapacity(models);
-
     const session = await this.connectToSession(sessionId);
 
-    await models.SyncSession.update({ pullSince: since }, { where: { id: sessionId } });
+    // will wait for concurrent snapshots to complete if we are currently at capacity, then
+    // set the snapshot_started_at timestamp before we proceed with the heavy work below
+    await startSnapshotWhenCapacityAvailable(sequelize, sessionId);
 
     try {
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
@@ -173,7 +173,10 @@ class CentralSyncManager {
       const { tick, previousTock } = await this.tickTockGlobalClock();
       // wait for any transactions that were in progress using the previous central server "tock"
       await waitForPendingEditsUsingSyncTick(sequelize, previousTock);
-      await models.SyncSession.update({ pullUntil: tick }, { where: { id: sessionId } });
+      await models.SyncSession.update(
+        { pullSince: since, pullUntil: tick },
+        { where: { id: sessionId } },
+      );
 
       await models.SyncSession.addDebugInfo(sessionId, {
         facilityId,
