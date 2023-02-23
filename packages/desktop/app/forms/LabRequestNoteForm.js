@@ -18,7 +18,7 @@ const Container = styled.div`
 
 const List = styled.ul`
   margin: 0;
-  padding: 4px 0 0 15px;
+  padding: 5px 0 0 15px;
   max-height: 200px;
   overflow: auto;
 `;
@@ -94,7 +94,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
 
   return (
     <Container>
-      <NotesIcon color="primary" />
+      <NotesIcon color="primary" style={{ marginTop: 4 }} />
       <Box flex="1" ml={1}>
         <List>
           {isSuccess &&
@@ -102,7 +102,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               <ListItem key={`${note.id}`}>
                 {note.content}
                 <Caption>
-                  {note.author?.displayName} <DateDisplay date={note.date} />
+                  {note.author?.displayName} <DateDisplay date={note.date} showTime />
                 </Caption>
               </ListItem>
             ))}
