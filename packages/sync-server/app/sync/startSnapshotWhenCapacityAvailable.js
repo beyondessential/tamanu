@@ -5,8 +5,8 @@ const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
   // work out how many sessions are currently in the snapshot phase
   const [, affectedRows] = await sequelize.query(
     `
-    WITH snapshot_capacity AS (
-      SELECT COUNT(*) < :numberConcurrentPullSnapshots AS has_capacity FROM sync_sessions
+    WITH in_flight_snapshots AS (
+      SELECT COUNT(*) AS count FROM sync_sessions
       WHERE snapshot_started_at IS NOT NULL
       AND snapshot_completed_at IS NULL
       AND error IS NULL
@@ -14,9 +14,9 @@ const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
     )
     UPDATE sync_sessions
     SET snapshot_started_at = NOW()
-    FROM snapshot_capacity
+    FROM in_flight_snapshots
     WHERE id = :sessionId
-    AND snapshot_capacity.has_capacity;
+    AND in_flight_snapshots.count < :numberConcurrentPullSnapshots;
     `,
     {
       replacements: {
