@@ -158,9 +158,9 @@ const COLUMNS = {
       style: { width: '60%' },
     },
     {
-      key: 'certainty',
-      title: 'Certainty',
-      accessor: ({ certainty }) => CERTAINTY_OPTIONS_BY_VALUE[certainty].label || '',
+      key: 'type',
+      title: 'Type',
+      accessor: ({ isPrimary }) => (isPrimary ? 'Primary' : 'Secondary'),
       style: { width: '20%' },
     },
     {
