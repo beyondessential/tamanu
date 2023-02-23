@@ -4,23 +4,31 @@ import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
 import { TestSelectorInput } from '../app/components/LabRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
 
-const testTypes = [
-  { name: 'Grape', id: 'grape', labTestCategoryId: 'Sweet' },
-  { name: 'Vanilla', id: 'vanilla', labTestCategoryId: 'Sweet' },
-  { name: 'Chocolate', id: 'chocolate', labTestCategoryId: 'Sweet' },
-  { name: 'Boysenberry', id: 'boysenberry', labTestCategoryId: 'Sweet' },
-  { name: 'Strawberry', id: 'strawb', labTestCategoryId: 'Sweet' },
+const fruit = [
   { name: 'Lemon', id: 'lemon', labTestCategoryId: 'Sweet' },
+  { name: 'Strawberry', id: 'strawb', labTestCategoryId: 'Sweet' },
+  { name: 'Boysenberry', id: 'boysenberry', labTestCategoryId: 'Sweet' },
+  { name: 'Grape', id: 'grape', labTestCategoryId: 'Sweet' },
+];
+
+const vegetables = [
   { name: 'Pepper', id: 'pepper', labTestCategoryId: 'Savoury' },
   { name: 'Cabbage', id: 'cabbage', labTestCategoryId: 'Savoury' },
   { name: 'Sprout', id: 'sprout', labTestCategoryId: 'Savoury' },
-  { name: 'Yeast', id: 'yeast', labTestCategoryId: 'Savoury' },
-  { name: 'Zucchini', id: 'zuc', labTestCategoryId: 'Savoury' },
-  { name: 'Egg', id: 'egg', labTestCategoryId: 'Savoury' },
-  { name: 'Chicken', id: 'chicken', labTestCategoryId: 'Savoury' },
   { name: 'Leek', id: 'leek', labTestCategoryId: 'Savoury' },
   { name: 'Chilli', id: 'chilli', labTestCategoryId: 'Savoury' },
   { name: 'Fennel', id: 'fennel', labTestCategoryId: 'Savoury' },
+  { name: 'Zucchini', id: 'zuc', labTestCategoryId: 'Savoury' },
+];
+
+const testTypes = [
+  { name: 'Vanilla', id: 'vanilla', labTestCategoryId: 'Sweet' },
+  { name: 'Chocolate', id: 'chocolate', labTestCategoryId: 'Sweet' },
+  { name: 'Yeast', id: 'yeast', labTestCategoryId: 'Savoury' },
+  { name: 'Egg', id: 'egg', labTestCategoryId: 'Savoury' },
+  { name: 'Chicken', id: 'chicken', labTestCategoryId: 'Savoury' },
+  ...vegetables,
+  ...fruit,
 ];
 
 export default {
@@ -35,10 +43,19 @@ export default {
 };
 
 const endpoints = {
+  'suggestions/labTestPanel/all': () => [
+    { id: 'fruit', name: 'Fruit' },
+    { id: 'vegetables', name: 'Vegetables' },
+  ],
   'suggestions/labTestCategory/:query': () => [
     { id: 'Savoury', name: 'Savoury' },
     { id: 'Sweet', name: 'Sweet' },
   ],
+  'labTestPanel/:id/labTestTypes': (_, id) => {
+    if (id === 'fruit') return fruit;
+    if (id === 'vegetables') return vegetables;
+    return [];
+  },
 };
 
 const Template = args => {

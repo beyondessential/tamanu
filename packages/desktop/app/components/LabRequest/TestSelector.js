@@ -136,9 +136,10 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
   const api = useApi();
   const { data: testTypeData = testTypes } = useQuery(
     ['labTestTypes', values.labTestPanelId],
-    () => api.get(`/labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
+    () => api.get(`labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
     {
-      enabled: values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
+      enabled:
+        values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && !!values.labTestPanelId,
     },
   );
 
