@@ -47,8 +47,6 @@ const Template = args => <LabRequestNoteForm {...args} />;
 
 export const LabRequestForm = Template.bind({});
 LabRequestForm.args = {
-  labRequest: {
-    id: '123',
-    status: 'cancelled',
-  },
+  labRequestId: '1234',
+  isReadOnly: false,
 };

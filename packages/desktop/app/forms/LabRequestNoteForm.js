@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Button, Box } from '@material-ui/core';
 import { NOTE_TYPES } from 'shared/constants';
@@ -18,7 +19,8 @@ const Container = styled.div`
 const List = styled.ul`
   margin: 0;
   padding: 4px 0 0 15px;
-  min-height: 25px;
+  max-height: 200px;
+  overflow: auto;
 `;
 
 const ListItem = styled.li`
@@ -63,52 +65,59 @@ const TextButton = styled(Button)`
   }
 `;
 
-export const LabRequestNoteForm = React.memo(({ labRequest, isReadOnly }) => {
+export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const [active, setActive] = useState(false);
-  const [notes, setNotes] = useState([]);
 
-  useEffect(() => {
-    (async () => {
-      const res = await api.get(`labRequest/${labRequest.id}/notes`);
-      setNotes(res.data);
-    })();
-  }, [api, labRequest.id]);
+  // Add sorting
+  const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId], () =>
+    api.get(`labRequest/${labRequestId}/notes`),
+  );
 
-  const saveNote = async ({ content }, { resetForm }) => {
-    const newNote = await api.post(`labRequest/${labRequest.id}/notes`, {
-      content,
-      authorId: api.user.id,
-      noteType: NOTE_TYPES.OTHER,
-    });
-    setNotes([...notes, newNote]);
-    setActive(false);
-    resetForm();
-  };
+  const { mutate: saveNote } = useMutation(
+    ({ values }) => {
+      return api.post(`labRequest/${labRequestId}/notes`, {
+        content: values.content,
+        authorId: api.user.id,
+        noteType: NOTE_TYPES.OTHER,
+      });
+    },
+    {
+      onSuccess: (responseData, { formProps }) => {
+        setActive(false);
+        formProps.resetForm();
+        queryClient.invalidateQueries(['labRequest', labRequestId]);
+      },
+    },
+  );
 
   return (
     <Container>
       <NotesIcon color="primary" />
       <Box flex="1" ml={1}>
         <List>
-          {notes.map(note => (
-            <ListItem key={`${note.id}`}>
-              {note.content}
-              <Caption>
-                {note.author?.displayName} <DateDisplay date={note.date} />
-              </Caption>
-            </ListItem>
-          ))}
+          {isSuccess &&
+            notes.data?.map(note => (
+              <ListItem key={`${note.id}`}>
+                {note.content}
+                <Caption>
+                  {note.author?.displayName} <DateDisplay date={note.date} />
+                </Caption>
+              </ListItem>
+            ))}
         </List>
         {!isReadOnly && (
           <Form
-            onSubmit={saveNote}
-            render={({ submitForm, values }) => {
+            onSubmit={(values, formProps) => {
+              saveNote({ values, formProps });
+            }}
+            render={({ values }) => {
               const formSubmitIsDisabled = !values.content || values.content.length < 2;
               return active ? (
                 <Box display="flex" alignItems="center">
-                  <NotesInput label="" name="content" component={TextField} />
-                  <TextButton onClick={submitForm} disabled={formSubmitIsDisabled}>
+                  <NotesInput label="" name="content" component={TextField} autoFocus />
+                  <TextButton type="submit" disabled={formSubmitIsDisabled}>
                     Save
                   </TextButton>
                   <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
