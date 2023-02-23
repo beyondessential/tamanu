@@ -2,6 +2,7 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
+import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 
 import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
