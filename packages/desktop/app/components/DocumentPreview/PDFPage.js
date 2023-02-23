@@ -1,6 +1,11 @@
 import React, { useEffect, useRef } from 'react';
+import styled from 'styled-components';
 
 const WIDTH_MAX = 0.9;
+
+const Page = styled.canvas`
+  margin-bottom: 20px;
+`;
 
 export function PDFPage({ page, parentRef }) {
   const canvasRef = useRef();
@@ -28,5 +33,5 @@ export function PDFPage({ page, parentRef }) {
     page.render(renderContext);
   }, [page, parentRef]);
 
-  return <canvas ref={canvasRef} />;
+  return <Page ref={canvasRef} />;
 }
