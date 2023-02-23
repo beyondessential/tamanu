@@ -8,4 +8,4 @@ export * from './removeEchoedChanges';
 export * from './saveIncomingChanges';
 export * from './adjustDataPostSyncPush';
 export * from './getSyncSnapshotRecordIds';
-export * from './waitForAnyTransactionsUsingSyncTick';
+export * from './waitForPendingEditsUsingSyncTick';
