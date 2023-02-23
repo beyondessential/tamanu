@@ -68,7 +68,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
   );
 
   const submitSurveyResponse = async data => {
-    navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     await api.post('surveyResponse', {
       surveyId: survey.id,
       startTime,
@@ -77,6 +76,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: getAnswersFromData(data, survey),
       actions: getActionsFromData(data, survey),
     });
+    navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
   };
 
   if (!programs) {
