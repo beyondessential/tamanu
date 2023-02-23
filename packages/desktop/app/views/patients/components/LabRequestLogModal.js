@@ -12,6 +12,7 @@ const COLUMNS = [
   { key: 'updatedByDisplayName', title: 'Officer' },
 ];
 
+// Todo: Add custom styled in WAITM-648
 export const LabRequestLogModal = ({ open, onClose, labRequest }) => {
   return (
     <Modal open={open} onClose={onClose} title="Status log" width="md">
