@@ -138,7 +138,7 @@ export const TestSelectorInput = ({
 const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) => {
   const api = useApi();
 
-  const { data: testTypeData, fetchStatus } = useQuery(
+  const { data: testTypeData, isFetching } = useQuery(
     ['labTestTypes', values.labTestPanelId],
     () => api.get(`labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
     {
@@ -184,8 +184,8 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
-          {fetchStatus === 'fetching' && <NoTestRow>Loading tests</NoTestRow>}
-          {fetchStatus !== 'fetching' &&
+          {isFetching && <NoTestRow>Loading tests</NoTestRow>}
+          {!isFetching &&
             (queriedTypes.length > 0 ? (
               queriedTypes.map(type => (
                 <SelectableTestItem
@@ -205,7 +205,7 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
       <SelectorContainer>
         <Box display="flex" justifyContent="space-between">
           <SectionHeader>Selected tests</SectionHeader>
-          {selected.length > 0 && <ClearAllButton onClick={resetPanel}>Clear all</ClearAllButton>}
+          {selected.length > 0 && <ClearAllButton onClick={onClear}>Clear all</ClearAllButton>}
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
