@@ -11,9 +11,8 @@ const PDFDocument = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: scroll;
-  height: 75vh;
   text-align: center;
+  min-height: 400px;
 `;
 
 // Calculate which page we're scrolled to "Page X of Y"
