@@ -9,17 +9,16 @@ import { binaryOptions } from '../constants';
 import { useAuth } from '../contexts/Auth';
 
 import {
-  Form,
   Field,
   AutocompleteField,
   SuggesterSelectField,
   DateTimeField,
   RadioField,
 } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { Button, OutlinedButton } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { Wizard, WizardStep } from './MultistepWizard';
+import { useLabTestTypes } from '../views/reports/LabTestTypeField';
+import { TestSelectorField } from '../components/LabRequest/TestSelector';
 
 const labRequestValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
@@ -43,11 +42,132 @@ const labRequestValidationSchema = yup.object().shape({
     .required(),
 });
 
+const labRequestTestSelectorSchema = yup.object().shape({
+  labTestIds: yup
+    .array()
+    .of(yup.string())
+    .required(),
+});
+
+const LabRequestFormScreen1 = ({
+  values,
+  setFieldValue,
+  handleChange,
+  practitionerSuggester,
+  departmentSuggester,
+}) => {
+  const handleToggleSampleCollected = event => {
+    handleChange(event);
+    const isSampleCollected = event.target.value === 'yes';
+    if (isSampleCollected) {
+      setFieldValue('sampleTime', getCurrentDateString());
+      setFieldValue('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    } else {
+      setFieldValue('sampleTime', null);
+      setFieldValue('status', LAB_REQUEST_STATUSES.NOT_COLLECTED);
+    }
+  };
+
+  return (
+    <>
+      <Field
+        name="requestedById"
+        label="Requesting clinician"
+        required
+        component={AutocompleteField}
+        suggester={practitionerSuggester}
+      />
+      <Field
+        name="requestedDate"
+        label="Request date & time"
+        required
+        component={DateTimeField}
+        saveDateAsString
+      />
+      <Field
+        name="departmentId"
+        label="Department"
+        component={AutocompleteField}
+        suggester={departmentSuggester}
+      />
+      <Field
+        name="labTestPriorityId"
+        label="Priority"
+        component={SuggesterSelectField}
+        endpoint="labTestPriority"
+      />
+      <FormSeparatorLine />
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field
+          name="specimenAttached"
+          label="Sample collected"
+          required
+          component={RadioField}
+          onChange={handleToggleSampleCollected}
+          options={binaryOptions}
+        />
+      </div>
+      {values.specimenAttached === 'yes' && (
+        <>
+          <Field
+            name="sampleTime"
+            label="Sample date & time"
+            required
+            component={DateTimeField}
+            saveDateAsString
+          />
+          <Field
+            name="labSampleSiteId"
+            label="Site"
+            component={SuggesterSelectField}
+            endpoint="labSampleSite"
+          />
+        </>
+      )}
+      <FormSeparatorLine />
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field
+          name="requestType"
+          label="Select your request type"
+          component={RadioField}
+          options={[
+            {
+              label: 'Panel',
+              description: 'Select from a list of test panels',
+              value: LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
+            },
+            {
+              label: 'Individual',
+              description: 'Select any individual or range of individual test types',
+              value: LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
+            },
+          ]}
+        />
+      </div>
+    </>
+  );
+};
+
+const LabRequestFormScreen2 = props => {
+  const { data, isLoading } = useLabTestTypes();
+
+  if (isLoading) return null;
+
+  return (
+    <Field
+      name="labTestIds"
+      label="Lab tests"
+      component={TestSelectorField}
+      labTests={data}
+      {...props}
+    />
+  );
+};
+
 export const LabRequestForm = ({
   practitionerSuggester,
   departmentSuggester,
   encounter,
-  onNext,
   onSubmit,
   onCancel,
   editedObject,
@@ -55,109 +175,10 @@ export const LabRequestForm = ({
 }) => {
   const { currentUser } = useAuth();
 
-  const renderForm = ({ values, setFieldValue, handleChange }) => {
-    const handleToggleSampleCollected = event => {
-      handleChange(event);
-      const isSampleCollected = event.target.value === 'yes';
-      if (isSampleCollected) {
-        setFieldValue('sampleTime', getCurrentDateString());
-        setFieldValue('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
-      } else {
-        setFieldValue('sampleTime', null);
-        setFieldValue('status', LAB_REQUEST_STATUSES.NOT_COLLECTED);
-      }
-    };
-
-    return (
-      <FormGrid>
-        <Field
-          name="requestedById"
-          label="Requesting clinician"
-          required
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-        />
-        <Field
-          name="requestedDate"
-          label="Request date & time"
-          required
-          component={DateTimeField}
-          saveDateAsString
-        />
-        <Field
-          name="departmentId"
-          label="Department"
-          component={AutocompleteField}
-          suggester={departmentSuggester}
-        />
-        <Field
-          name="labTestPriorityId"
-          label="Priority"
-          component={SuggesterSelectField}
-          endpoint="labTestPriority"
-        />
-        <FormSeparatorLine />
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field
-            name="specimenAttached"
-            label="Sample collected"
-            required
-            component={RadioField}
-            onChange={handleToggleSampleCollected}
-            options={binaryOptions}
-          />
-        </div>
-        {values.specimenAttached === 'yes' && (
-          <>
-            <Field
-              name="sampleTime"
-              label="Sample date & time"
-              required
-              component={DateTimeField}
-              saveDateAsString
-            />
-            <Field
-              name="labSampleSiteId"
-              label="Site"
-              component={SuggesterSelectField}
-              endpoint="labSampleSite"
-            />
-          </>
-        )}
-        <FormSeparatorLine />
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field
-            name="requestType"
-            label="Select your request type"
-            component={RadioField}
-            options={[
-              {
-                label: 'Panel',
-                description: 'Select from a list of test panels',
-                value: LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
-              },
-              {
-                label: 'Individual',
-                description: 'Select any individual or range of individual test types',
-                value: LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
-              },
-            ]}
-          />
-        </div>
-
-        <FormSeparatorLine />
-        <ButtonRow>
-          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-          <Button onClick={onNext}>Next</Button>
-        </ButtonRow>
-      </FormGrid>
-    );
-  };
-
   return (
-    <Form
+    <Wizard
+      onCancel={onCancel}
       onSubmit={onSubmit}
-      render={renderForm}
       initialValues={{
         displayId: generateDisplayId(),
         requestedById: currentUser.id,
@@ -170,7 +191,17 @@ export const LabRequestForm = ({
         ...editedObject,
       }}
       validationSchema={labRequestValidationSchema}
-    />
+    >
+      <WizardStep validationSchema={labRequestValidationSchema}>
+        <LabRequestFormScreen1
+          practitionerSuggester={practitionerSuggester}
+          departmentSuggester={departmentSuggester}
+        />
+      </WizardStep>
+      <WizardStep validationSchema={labRequestTestSelectorSchema}>
+        <LabRequestFormScreen2 />
+      </WizardStep>
+    </Wizard>
   );
 };
 

@@ -15,6 +15,7 @@ import {
   DEPARTMENTS,
 } from 'shared/demoData';
 
+import { Box } from '@material-ui/core';
 import { MockedApi } from './utils/mockedApi';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
@@ -30,7 +31,6 @@ import { MedicationForm } from '../app/forms/MedicationForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { createDummySuggester, mapToSuggestions } from './utils';
-import { TestSelectorInput } from '../app/components/TestSelector';
 import { Modal } from '../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
@@ -188,45 +188,6 @@ storiesOf('Forms', module).add('PatientDetailsForm', () => (
   />
 ));
 
-const testCategories = [
-  { label: 'Sweet', value: 'sweet' },
-  { label: 'Savoury', value: 'savoury' },
-];
-
-const testTypes = [
-  { name: 'Grape', id: 'grape', labTestCategoryId: 'sweet' },
-  { name: 'Vanilla', id: 'vanilla', labTestCategoryId: 'sweet' },
-  { name: 'Chocolate', id: 'chocolate', labTestCategoryId: 'sweet' },
-  { name: 'Boysenberry', id: 'boysenberry', labTestCategoryId: 'sweet' },
-  { name: 'Strawberry', id: 'strawb', labTestCategoryId: 'sweet' },
-  { name: 'Lemon', id: 'lemon', labTestCategoryId: 'sweet' },
-  { name: 'Pepper', id: 'pepper', labTestCategoryId: 'savoury' },
-  { name: 'Cabbage', id: 'cabbage', labTestCategoryId: 'savoury' },
-  { name: 'Sprout', id: 'sprout', labTestCategoryId: 'savoury' },
-  { name: 'Yeast', id: 'yeast', labTestCategoryId: 'savoury' },
-  { name: 'Zucchini', id: 'zuc', labTestCategoryId: 'savoury' },
-  { name: 'Egg', id: 'egg', labTestCategoryId: 'savoury' },
-  { name: 'Chicken', id: 'chicken', labTestCategoryId: 'savoury' },
-  { name: 'Leek', id: 'leek', labTestCategoryId: 'savoury' },
-  { name: 'Chilli', id: 'chilli', labTestCategoryId: 'savoury' },
-  { name: 'Fennel', id: 'fennel', labTestCategoryId: 'savoury' },
-];
-
-const StorybookableTestSelector = () => {
-  const [value, setValue] = React.useState([]);
-  const changeAction = action('change');
-  const onChange = React.useCallback(
-    e => {
-      const newValue = e.target.value;
-      changeAction(newValue);
-      setValue(newValue);
-    },
-    [setValue],
-  );
-
-  return <TestSelectorInput testTypes={testTypes} value={value} onChange={onChange} />;
-};
-
 storiesOf('Forms', module).add('FamilyHistoryForm', () => (
   <FamilyHistoryForm
     onSubmit={action('submit')}
@@ -246,13 +207,17 @@ storiesOf('Forms', module).add('MedicationForm', () => (
 ));
 
 const labRequestEndpoints = {
-  'suggestions/labSampleSite/all': () => [{ id: '1', name: 'Blood' }],
-  'suggestions/labTestPriority/all': () => [{ id: '1', name: 'Normal' }],
+  'suggestions/labSampleSite/all': () => [
+    { id: '1', name: 'Arm' },
+    { id: '2', name: 'Leg' },
+    { id: '3', name: 'Shoulder' },
+  ],
+  'suggestions/labTestPriority/all': () => [{ id: '1', name: 'Normal' }, { id: '2', name: 'Urgent' }],
 };
 
-storiesOf('Forms/LabRequestForm', module)
-  .add('LabRequestForm', () => (
-    <MockedApi endpoints={labRequestEndpoints}>
+storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (
+  <MockedApi endpoints={labRequestEndpoints}>
+    <Box width={800}>
       <LabRequestForm
         onNext={action('next')}
         onSubmit={action('submit')}
@@ -261,6 +226,6 @@ storiesOf('Forms/LabRequestForm', module)
         practitionerSuggester={practitionerSuggester}
         departmentSuggester={departmentSuggester}
       />
-    </MockedApi>
-  ))
-  .add('TestSelector', () => <StorybookableTestSelector />);
+    </Box>
+  </MockedApi>
+));
