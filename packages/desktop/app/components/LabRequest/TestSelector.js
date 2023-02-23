@@ -125,7 +125,10 @@ export const TestSelectorInput = ({
           selected={selected}
           testTypes={testTypes}
           onChange={handleChange}
-          onClear={handleClear}
+          onClear={() => {
+            props.setFieldValue('labTestPanelId', '');
+            handleClear();
+          }}
         />
       )}
     />
@@ -139,9 +142,12 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
     ['labTestTypes', values.labTestPanelId],
     () => api.get(`labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
     {
+      onSuccess: data => {
+        onChange(data.map(type => type.id));
+      },
       enabled:
         values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && !!values.labTestPanelId,
-      placeholderData: testTypes,
+      initialData: testTypes,
     },
   );
 
@@ -164,7 +170,7 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
           <LabTestCategoryField name="labTestCategoryId" includeAllOption />
         )}
         {values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && (
-          <LabTestPanelField name="labTestPanelId" />
+          <LabTestPanelField name="labTestPanelId" disabled={values.labTestPanelId} />
         )}
         <FormSeparatorLine />
         <Box display="flex" alignItems="center">
@@ -199,19 +205,20 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
       <SelectorContainer>
         <Box display="flex" justifyContent="space-between">
           <SectionHeader>Selected tests</SectionHeader>
-          {selected.length > 0 && <ClearAllButton onClick={onClear}>Clear all</ClearAllButton>}
+          {selected.length > 0 && <ClearAllButton onClick={resetPanel}>Clear all</ClearAllButton>}
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
           {selected.map(testId => {
             const testType = testTypeData.find(type => type.id === testId);
+            if (!testType) return null;
             return (
               <TestItem
                 key={`${testId}-selected`}
                 label={testType.name}
                 name={testId}
                 category={testType.labTestCategoryId}
-                onRemove={handleCheck}
+                onRemove={onClear}
               />
             );
           })}
