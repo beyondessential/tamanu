@@ -115,6 +115,7 @@ export const LabRequestView = () => {
       />
       <LabRequestNoteForm labRequest={labRequest} isReadOnly={isReadOnly} />
       <TileContainer>
+        {/* Todo: Add Tile component in WAITM-646 */}
         <Tile title="Test Category" Icon={Category} text={(labRequest.category || {}).name} />
         <Tile
           title="Status"
