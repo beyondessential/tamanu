@@ -21,7 +21,7 @@ export const DiagnosisModal = ({ diagnosis, onClose, encounterId, ...rest }) => 
           ...data,
           encounterId,
         });
-        if (result.previousDiagnoses.length > 0) {
+        if (result.previousDiagnoses?.length > 0) {
           dispatch(showDecisionSupport('repeatDiagnosis', result));
         }
       }
