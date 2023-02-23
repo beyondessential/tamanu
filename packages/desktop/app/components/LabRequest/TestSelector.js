@@ -220,7 +220,7 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
                 label={testType.name}
                 name={testId}
                 category={testType.labTestCategoryId}
-                onRemove={onClear}
+                onRemove={handleCheck}
               />
             );
           })}
@@ -230,6 +230,6 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
   );
 };
 
-export const IndividualTestSelectorField = ({ field, ...props }) => (
+export const TestSelectorField = ({ field, ...props }) => (
   <TestSelectorInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
