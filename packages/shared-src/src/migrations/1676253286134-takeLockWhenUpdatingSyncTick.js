@@ -18,7 +18,7 @@ export async function up(query) {
 
           -- take an advisory lock on the current sync tick (if one doesn't already exist), to
           -- record that an active transaction is using this sync tick
-          -- see waitForAnyTransactionsUsingSyncTick for more details
+          -- see waitForPendingEditsUsingSyncTick for more details
           PERFORM pg_try_advisory_xact_lock_shared(NEW.updated_at_sync_tick);
         END IF;
         RETURN NEW;
