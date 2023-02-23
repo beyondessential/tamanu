@@ -13,6 +13,7 @@ import { SelectableTestItem, TestItem } from './TestItem';
 import { TextButton } from '../Button';
 import { LabTestCategoryField } from '../../views/reports/LabTestCategoryField';
 import { LabTestPanelField } from './LabTestPanelField';
+import { useApi } from '../../api';
 
 const NoTestRow = styled.div`
   color: ${Colors.softText};
@@ -132,15 +133,16 @@ export const TestSelectorInput = ({
 };
 
 const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) => {
-  const res = useQuery(
+  const api = useApi();
+  const { data: testTypeData = testTypes } = useQuery(
     ['labTestTypes', values.labTestPanelId],
-    () => fetch(`/labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
+    () => api.get(`/labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
     {
       enabled: values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
     },
   );
-  console.log(res);
-  const queriedTypes = filterByTestTypeQuery(testTypes, values);
+
+  const queriedTypes = filterByTestTypeQuery(testTypeData, values);
 
   const isSelected = type => selected.includes(type.id);
 
@@ -197,7 +199,7 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
         <FormSeparatorLine />
         <SelectorTable>
           {selected.map(testId => {
-            const testType = testTypes.find(type => type.id === testId);
+            const testType = testTypeData.find(type => type.id === testId);
             return (
               <TestItem
                 key={`${testId}-selected`}
