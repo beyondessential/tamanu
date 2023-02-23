@@ -15,6 +15,7 @@ import {
   noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
   CERTAINTY_OPTIONS_BY_VALUE,
+  ENCOUNTER_OPTIONS_BY_VALUE,
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
@@ -117,7 +118,7 @@ const COLUMNS = {
     {
       key: 'encounterType',
       title: 'Type',
-      accessor: ({ newEncounterType }) => startCase(newEncounterType),
+      accessor: ({ newEncounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[newEncounterType].label,
       style: { width: '70%' },
     },
     {
