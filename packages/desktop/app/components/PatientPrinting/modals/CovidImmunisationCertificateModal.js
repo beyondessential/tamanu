@@ -12,7 +12,7 @@ import { usePatientAdditionalData } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
-export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
+export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();

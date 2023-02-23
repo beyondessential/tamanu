@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../../api';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
-import { ImmunisationCertificateModal } from '../../../components/PatientPrinting';
+import { CovidImmunisationCertificateModal } from '../../../components/PatientPrinting';
+// import { GeneralImmunisationCertificateModal } from '../../../components/PatientPrinting';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 
 export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
+  const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
@@ -40,8 +42,13 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
       />
       <ContentPane>
         <TableButtonRow variant="small">
-          <Button variant="text" style={{ marginLeft: 0, marginRight: 'auto' }} disabled={readonly}>
-            <i style={{ marginRight: '5px' }} className="fa fa-clipboard-list" />
+          <Button
+            onClick={() => setIsCovidCertificateModalOpen(true)}
+            variant="text"
+            style={{ marginLeft: 0, marginRight: 'auto' }}
+            disabled={readonly}
+          >
+            <i style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
             COVID-19 Certificate
           </Button>
           <Button
@@ -57,11 +64,16 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
         </TableButtonRow>
         <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
       </ContentPane>
-      <ImmunisationCertificateModal
+      <CovidImmunisationCertificateModal
+        open={isCovidCertificateModalOpen}
+        patient={patient}
+        onClose={() => setIsCovidCertificateModalOpen(false)}
+      />
+      {/* <GeneralImmunisationCertificateModal
         open={isCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCertificateModalOpen(false)}
-      />
+      /> */}
     </>
   );
 });
