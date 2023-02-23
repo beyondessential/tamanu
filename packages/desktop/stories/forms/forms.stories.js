@@ -1,5 +1,4 @@
 import React from 'react';
-
 import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -13,22 +12,22 @@ import {
   LOCATIONS,
   USERS,
 } from 'shared/demoData';
-import { EncounterForm } from '../app/forms/EncounterForm';
-import { TriageForm } from '../app/forms/TriageForm';
-import { ProcedureForm } from '../app/forms/ProcedureForm';
-import { AllergyForm } from '../app/forms/AllergyForm';
-import { ImmunisationForm } from '../app/forms/ImmunisationForm';
-import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
-import { DischargeForm } from '../app/forms/DischargeForm';
-import { NewPatientForm } from '../app/forms/NewPatientForm';
-import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
-import { LabRequestForm } from '../app/forms/LabRequestForm';
-import { MedicationForm } from '../app/forms/MedicationForm';
-import { DeathForm } from '../app/forms/DeathForm';
-import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
-import { createDummySuggester, mapToSuggestions } from './utils';
-import { TestSelectorInput } from '../app/components/TestSelector';
-import { Modal } from '../app/components/Modal';
+import { EncounterForm } from '../../app/forms/EncounterForm';
+import { TriageForm } from '../../app/forms/TriageForm';
+import { ProcedureForm } from '../../app/forms/ProcedureForm';
+import { AllergyForm } from '../../app/forms/AllergyForm';
+import { ImmunisationForm } from '../../app/forms/ImmunisationForm';
+import { OngoingConditionForm } from '../../app/forms/OngoingConditionForm';
+import { DischargeForm } from '../../app/forms/DischargeForm';
+import { NewPatientForm } from '../../app/forms/NewPatientForm';
+import { PatientDetailsForm } from '../../app/forms/PatientDetailsForm';
+import { LabRequestForm } from '../../app/forms/LabRequestForm';
+import { MedicationForm } from '../../app/forms/MedicationForm';
+import { DeathForm } from '../../app/forms/DeathForm';
+import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
+import { createDummySuggester, mapToSuggestions } from '../utils';
+import { TestSelectorInput } from '../../app/components/TestSelector';
+import { Modal } from '../../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 
