@@ -75,21 +75,17 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           </Timestamp>
           <MenuButton
             iconColor={Colors.midText}
-            actions={[
-              {
-                label: 'Edit',
-                onClick() {
-                  onEditClicked();
-                },
+            actions={{
+              Edit: () => {
+                onEditClicked();
               },
-              !isMainCarePlan && {
-                label: 'Delete',
-                async onClick() {
+              ...(!isMainCarePlan && {
+                Delete: async () => {
                   await deleteNote(note.id);
                   onNoteDeleted();
                 },
-              },
-            ]}
+              }),
+            }}
           />
         </VerticalCenter>
       </NoteHeaderContainer>
