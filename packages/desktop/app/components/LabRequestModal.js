@@ -8,6 +8,8 @@ import { ALPHABET_FOR_ID } from '../constants';
 export const LabRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
+  const departmentSuggester = useSuggester('department');
+
   return (
     <Modal width="md" title="New lab request" open={open} onClose={onClose}>
       <LabRequestForm
@@ -17,9 +19,10 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
             encounterId: encounter.id,
           })
         }
-        onClose={onClose}
+        onCancel={onClose}
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
+        departmentSuggester={departmentSuggester}
         generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 7)}
       />
     </Modal>

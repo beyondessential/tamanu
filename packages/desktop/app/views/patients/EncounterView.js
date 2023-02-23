@@ -123,7 +123,7 @@ export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
-  const patientBillingTypeData = useReferenceData(encounter.patientBillingTypeId);
+  const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
   const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
   const disabled = encounter?.endDate || patient.death;
 
