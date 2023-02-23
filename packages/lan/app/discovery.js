@@ -10,7 +10,8 @@ export function listenForServerQueries() {
   const socket = dgram.createSocket('udp4');
   let address = '';
   const serverPort = config.port;
-  const { overrideAddress, overridePort, protocol } = config.discovery;
+  const { overrideAddress, overridePort, overrideListeningPort, protocol } = config.discovery;
+  const listeningPort = overrideListeningPort || DISCOVERY_PORT;
 
   socket.on('message', (msg, rinfo) => {
     if (`${msg}`.trim() !== DISCOVERY_MAGIC_STRING) {
@@ -35,10 +36,10 @@ export function listenForServerQueries() {
 
   socket.on('listening', () => {
     address = socket.address().address;
-    log.info(`Server locator listening on ${address}:${DISCOVERY_PORT}`);
+    log.info(`Server locator listening on ${address}:${listeningPort}`);
   });
 
-  socket.bind(DISCOVERY_PORT);
+  socket.bind(listeningPort);
 
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing UDP discovery server');

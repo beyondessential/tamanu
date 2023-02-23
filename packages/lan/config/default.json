@@ -5,6 +5,7 @@
   "discovery": {
     "overrideAddress": "",
     "overridePort": null,
+    "overrideListeningPort": null,
     "protocol": "https"
   },
   "log": {
