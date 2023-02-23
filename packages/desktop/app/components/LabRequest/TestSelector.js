@@ -134,12 +134,14 @@ export const TestSelectorInput = ({
 
 const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) => {
   const api = useApi();
-  const { data: testTypeData = testTypes } = useQuery(
+
+  const { data: testTypeData, fetchStatus } = useQuery(
     ['labTestTypes', values.labTestPanelId],
     () => api.get(`labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
     {
       enabled:
         values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && !!values.labTestPanelId,
+      placeholderData: testTypes,
     },
   );
 
@@ -176,20 +178,22 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
-          {queriedTypes.length > 0 ? (
-            queriedTypes.map(type => (
-              <SelectableTestItem
-                key={`${type.id}-checkbox`}
-                label={type.name}
-                name={type.id}
-                category={type.labTestCategoryId}
-                checked={isSelected(type)}
-                onChange={handleCheck}
-              />
-            ))
-          ) : (
-            <NoTestRow>No tests found.</NoTestRow>
-          )}
+          {fetchStatus === 'fetching' && <NoTestRow>Loading tests</NoTestRow>}
+          {fetchStatus !== 'fetching' &&
+            (queriedTypes.length > 0 ? (
+              queriedTypes.map(type => (
+                <SelectableTestItem
+                  key={`${type.id}-checkbox`}
+                  label={type.name}
+                  name={type.id}
+                  category={type.labTestCategoryId}
+                  checked={isSelected(type)}
+                  onChange={handleCheck}
+                />
+              ))
+            ) : (
+              <NoTestRow>No tests found.</NoTestRow>
+            ))}
         </SelectorTable>
       </SelectorContainer>
       <SelectorContainer>
