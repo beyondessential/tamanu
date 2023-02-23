@@ -6,18 +6,6 @@ import { ManualLabResultForm } from '../../../forms/ManualLabResultForm';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 
-const makeRangeStringAccessor = sex => ({ labTestType }) => {
-  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
-  const hasMax = max || max === 0;
-  const hasMin = min || min === 0;
-
-  if (hasMin && hasMax) return `${min} - ${max}`;
-  if (hasMin) return `>${min}`;
-  if (hasMax) return `<${max}`;
-  return 'N/A';
-};
-
 const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly }) => {
   const { updateLabTest, labRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
@@ -52,6 +40,18 @@ const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly })
     </Modal>
   );
 });
+
+const makeRangeStringAccessor = sex => ({ labTestType }) => {
+  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
+  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
+  const hasMax = max || max === 0;
+  const hasMin = min || min === 0;
+
+  if (hasMin && hasMax) return `${min} - ${max}`;
+  if (hasMin) return `>${min}`;
+  if (hasMax) return `<${max}`;
+  return 'N/A';
+};
 
 const columns = sex => [
   { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
@@ -93,6 +93,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadO
         endpoint={`labRequest/${labRequest.id}/tests`}
         onRowClick={openModal}
         initialSort={{ order: 'asc', orderBy: 'id' }}
+        elevated={false}
       />
     </>
   );
