@@ -10,7 +10,7 @@ import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
-  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [isGeneralCertificateModalOpen, setIsGeneralCertificateModalOpen] = useState(false);
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
   const [hasVaccines, setHasVaccines] = useState();
@@ -52,7 +52,7 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
             COVID-19 Certificate
           </Button>
           <Button
-            onClick={() => setIsCertificateModalOpen(true)}
+            onClick={() => setIsGeneralCertificateModalOpen(true)}
             variant="outlined"
             disabled={!hasVaccines}
           >
@@ -70,9 +70,9 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
         onClose={() => setIsCovidCertificateModalOpen(false)}
       />
       {/* <GeneralImmunisationCertificateModal
-        open={isCertificateModalOpen}
-        patient={patient}
-        onClose={() => setIsCertificateModalOpen(false)}
+        open={isCertificateModalOpen}f
+        patient={patient}s
+        onClose={() => setIsGeneralCertificateModalOpen(false)}
       /> */}
     </>
   );
