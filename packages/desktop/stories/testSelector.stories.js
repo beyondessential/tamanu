@@ -71,3 +71,8 @@ export const Individual = Template.bind({});
 Individual.args = {
   selectMethod: LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
 };
+
+export const Panel = Template.bind({});
+Panel.args = {
+  selectMethod: LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
+};

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
+import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { Field, Form, SearchField } from '../Field';
@@ -10,6 +11,7 @@ import { Colors } from '../../constants';
 import { SelectableTestItem, TestItem } from './TestItem';
 import { TextButton } from '../Button';
 import { LabTestCategoryField } from '../../views/reports/LabTestCategoryField';
+import { LabTestPanelField } from './LabTestPanelField';
 
 const NoTestRow = styled.div`
   color: ${Colors.softText};
@@ -101,13 +103,19 @@ const filterByTestTypeQuery = (testTypes, { labTestCategoryId, search }) =>
         a.labTestCategoryId.localeCompare(b.labTestCategoryId) || a.name.localeCompare(b.name),
     );
 
-export const TestSelectorInput = ({ name, testTypes, selected = [], onChange }) => {
+export const TestSelectorInput = ({
+  name,
+  testTypes,
+  selected = [],
+  onChange,
+  selectMethod = LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
+}) => {
   const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
   const handleClear = () => handleChange([]);
 
   return (
     <Form
-      initialValues={{ search: '', labTestCategoryId: '' }}
+      initialValues={{ search: '', labTestCategoryId: '', labTestPanelId: '' }}
       style={{ height: '100%' }}
       render={({ values }) => {
         const queriedTypes = filterByTestTypeQuery(testTypes, values);
@@ -126,7 +134,12 @@ export const TestSelectorInput = ({ name, testTypes, selected = [], onChange }) 
         return (
           <WrapperCard>
             <SelectorContainer>
-              <LabTestCategoryField name="labTestCategoryId" includeAllOption />
+              {selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL && (
+                <LabTestCategoryField name="labTestCategoryId" includeAllOption />
+              )}
+              {selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && (
+                <LabTestPanelField name="labTestPanelId" />
+              )}
               <FormSeparatorLine />
               <Box display="flex" alignItems="center">
                 <SelectableTestItem
