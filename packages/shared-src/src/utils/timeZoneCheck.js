@@ -35,8 +35,8 @@ export async function performTimeZoneChecks({ config, sequelize, remote }) {
     zones.remote = await getRemoteTimeZone(remote);
   }
 
-  const unique = [...new Set(Object.values(zones))];
-  if (unique.length > 1) {
+  const unique = new Set(Object.values(zones));
+  if (unique.size > 1) {
     const errorText = `Detected mismatched time zones. Details: ${JSON.stringify(zones)}.`;
     if (config.allowMismatchedTimeZones) {
       log.warn(errorText);
