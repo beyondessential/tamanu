@@ -111,7 +111,7 @@ user.post(
 
     const { patientId } = params;
 
-    req.checkPermission('write', currentUser);
+    req.checkPermission('read', 'Patient');
 
     const [createdRelation] = await UserRecentlyViewedPatient.create({
       userId: currentUser.id,

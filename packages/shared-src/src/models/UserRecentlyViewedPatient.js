@@ -8,7 +8,7 @@ export class UserRecentlyViewedPatient extends Model {
       {
         id: primaryKey,
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
     );
   }
 
@@ -25,27 +25,6 @@ export class UserRecentlyViewedPatient extends Model {
   }
 
   static async create(data) {
-    // const currentUserRecentlyViewedPatients = await this.findAll({
-    //   where: {
-    //     userId: {
-    //       [Op.eq]: data.userId,
-    //     },
-    //   },
-    //   order: [['updatedAt', 'DESC']],
-    // });
-    //
-    // const existingRelation = currentUserRecentlyViewedPatients.find(
-    //   relation => relation.patientId === data.patientId,
-    // );
-    //
-    // if (existingRelation) {
-    //   existingRelation.changed('updatedAt', true);
-    //
-    //   return this.sequelize.transaction(async () => {
-    //     return existingRelation.update({ updatedAt: new Date() });
-    //   });
-    // }
-
     return super.upsert(data, {
       conflictFields: ['user_id', 'patient_id'],
     });
