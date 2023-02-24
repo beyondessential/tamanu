@@ -20,8 +20,9 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {
-    api.get(`patient/${patient.id}/certifiableVaccines`).then(response => {
-      setVaccinations(response.data);
+    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
+      const certifiableVaccines = response.data.filter(vaccine => vaccine.certifiable);
+      setVaccinations(certifiableVaccines);
     });
   }, [api, patient.id]);
 

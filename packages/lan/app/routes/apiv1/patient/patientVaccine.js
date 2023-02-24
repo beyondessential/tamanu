@@ -150,18 +150,3 @@ patientVaccineRoutes.get(
     res.send({ count: results.length, data: results });
   }),
 );
-
-patientVaccineRoutes.get(
-  '/:id/certifiableVaccines',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'PatientVaccine');
-
-    // console.log(req.models);
-    const certifiedVaccineIds = await req.models.CertifiableVaccine.allVaccineIds();
-    const patient = await req.models.Patient.findByPk(req.params.id);
-    const results = await patient.getAdministeredVaccines();
-
-    // TODO: enable pagination for this endpoint
-    res.send({ count: results.length, data: results });
-  }),
-);
