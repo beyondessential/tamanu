@@ -22,7 +22,7 @@ describe('initDeviceId', () => {
     expect(ctx.deviceId).toBe('facility-test-device-id');
     expect(newDeviceId).toBe('facility-test-device-id');
   });
-  it('should not generate a deviceId if one already exists', async () => {
+  it('should use existing deviceId if one already exists', async () => {
     const testDeviceId = 'test-device-id-existing';
     await LocalSystemFact.set('deviceId', testDeviceId);
     await initDeviceId(ctx);
