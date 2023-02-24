@@ -134,7 +134,7 @@ describe('CentralServerConnection', () => {
       expect(postSpy).toBeCalledWith(
         'login',
         {},
-        { email: mockEmail, password: mockPassword, deviceId: 'test-device-id' },
+        { email: mockEmail, password: mockPassword, deviceId: 'mobile-test-device-id' },
         {
           backoff: {
             maxAttempts: 1,
@@ -181,7 +181,7 @@ describe('CentralServerConnection', () => {
       expect(postSpy).toBeCalledWith(
         'refresh',
         {},
-        { refreshToken: mockRefreshToken, deviceId: 'test-device-id' },
+        { refreshToken: mockRefreshToken, deviceId: 'mobile-test-device-id' },
         {
           backoff: {
             maxAttempts: 1,
@@ -269,7 +269,7 @@ describe('CentralServerConnection', () => {
         method: 'POST',
         body: JSON.stringify({
           refreshToken: mockRefreshToken,
-          deviceId: 'test-device-id',
+          deviceId: 'mobile-test-device-id',
         }),
       });
       expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/v1/${mockPath}`, {
@@ -283,7 +283,7 @@ describe('CentralServerConnection', () => {
         {
           body: JSON.stringify({
             refreshToken: mockRefreshToken,
-            deviceId: 'test-device-id',
+            deviceId: 'mobile-test-device-id',
           }),
           skipAttemptRefresh: true,
           method: 'POST',
