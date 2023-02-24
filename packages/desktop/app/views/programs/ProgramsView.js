@@ -18,11 +18,14 @@ import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
-  const { navigateToPatient } = usePatientNavigation();
+  const { encounter } = useEncounter();
+  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
@@ -76,7 +79,11 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: getAnswersFromData(data, survey),
       actions: getActionsFromData(data, survey),
     });
-    navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    if(encounter && !encounter.endDate){
+      navigateToEncounter(encounter.id, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
+    }else{
+      navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    }
   };
 
   if (!programs) {

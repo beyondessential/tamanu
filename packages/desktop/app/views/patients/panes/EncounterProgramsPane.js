@@ -11,7 +11,7 @@ export const EncounterProgramsPane = React.memo(({ endpoint }) => {
   const params = useParams();
 
   const handleNewSurvey = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
+    dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/programs/new`));
 
   return (
     <TabPane>

@@ -23,7 +23,7 @@ import {
   EncounterInfoPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
@@ -62,8 +62,8 @@ const TABS = [
   {
     label: 'Programs',
     key: ENCOUNTER_TAB_NAMES.PROGRAMS,
-    render: ({ encounter, ...props }) => (
-      <EncounterProgramsPane endpoint={`encounter/${encounter.id}/programResponses`} {...props} />
+    render: (props) => (
+      <EncounterProgramsPane endpoint={`encounter/${props?.encounter.id}/programResponses`} {...props} />
     ),
   },
   {
