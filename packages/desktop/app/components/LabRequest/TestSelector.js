@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -6,13 +6,11 @@ import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { FormSeparatorLine } from '../FormSeparatorLine';
-import { Field, Form, SearchField } from '../Field';
+import { SearchField, SuggesterSelectField } from '../Field';
 import { Card } from '../Card';
 import { Colors } from '../../constants';
 import { SelectableTestItem, TestItem } from './TestItem';
 import { TextButton } from '../Button';
-import { LabTestCategoryField } from '../../views/reports/LabTestCategoryField';
-import { LabTestPanelField } from './LabTestPanelField';
 import { useApi } from '../../api';
 
 const NoTestRow = styled.div`
@@ -91,6 +89,12 @@ const StyledSearchField = styled(SearchField)`
   }
 `;
 
+const StyledSuggesterSelectField = styled(SuggesterSelectField)`
+  .MuiInputBase-input.Mui-disabled {
+    background: #f3f5f7;
+  }
+`;
+
 const filterByTestTypeQuery = (testTypes, { labTestCategoryId, search }) =>
   testTypes
     // Filter out tests that don't match the search query or category
@@ -108,72 +112,73 @@ const filterByTestTypeQuery = (testTypes, { labTestCategoryId, search }) =>
 export const TestSelectorInput = ({
   name,
   testTypes,
-  selected = [],
+  value = [],
+  values: { requestType = LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL },
   onChange,
-  selectMethod = LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
 }) => {
-  const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
-  return (
-    <Form
-      initialValues={{ search: '', labTestCategoryId: '', labTestPanelId: '', selectMethod }}
-      style={{ height: '100%' }}
-      render={props => {
-        const { setFieldValue } = props;
-        const handleClear = () => {
-          setFieldValue('labTestPanelId', '');
-          handleChange([]);
-        };
-        return (
-          <TestSelectorForm
-            {...props}
-            selected={selected}
-            testTypes={testTypes}
-            onChange={handleChange}
-            onClear={handleClear}
-          />
-        );
-      }}
-    />
-  );
-};
-
-const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) => {
-
   const api = useApi();
-
+  const [query, setQuery] = useState({
+    labTestPanelId: '',
+    labTestCategoryId: '',
+    search: '',
+  });
   const { data: testTypeData, isFetching } = useQuery(
-    ['labTestTypes', values.labTestPanelId],
-    () => api.get(`labTestPanel/${encodeURIComponent(values.labTestPanelId)}/labTestTypes`),
+    ['labTestTypes', query.labTestPanelId],
+    () => api.get(`labTestPanel/${encodeURIComponent(query.labTestPanelId)}/labTestTypes`),
     {
       onSuccess: data => {
         onChange(data.map(type => type.id));
       },
-      enabled:
-        values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && !!values.labTestPanelId,
+      enabled: requestType === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && !!query.labTestPanelId,
       initialData: testTypes,
     },
   );
 
-  const queriedTypes = filterByTestTypeQuery(testTypeData, values);
+  const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
 
-  const isSelected = type => selected.includes(type.id);
+  const handleChangeQuery = event =>
+    setQuery({ ...query, [event.target.name]: event.target.value });
+  const handleClear = () => {
+    setQuery(values => ({ ...values, labTestPanelId: '' }));
+    handleChange([]);
+  };
 
+  const queriedTypes = filterByTestTypeQuery(testTypeData, query);
+
+  const isSelected = type => value.includes(type.id);
   const allSelected = queriedTypes.length && queriedTypes.every(isSelected);
   const someSelected = queriedTypes.length && queriedTypes.some(isSelected);
 
-  const handleSelectAll = () => onChange(allSelected ? [] : queriedTypes.map(type => type.id));
-
+  const handleSelectAll = () => handleChange(allSelected ? [] : queriedTypes.map(type => type.id));
   const handleCheck = ({ target: { name: testId, checked } }) => {
-    onChange(checked ? [...selected, testId] : selected.filter(id => id !== testId));
+    handleChange(checked ? [...value, testId] : value.filter(id => id !== testId));
   };
   return (
     <WrapperCard>
       <SelectorContainer>
-        {values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL && (
-          <LabTestCategoryField name="labTestCategoryId" includeAllOption />
+        {requestType === LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL && (
+          <SuggesterSelectField
+            field={{
+              value: query.labTestCategoryId,
+              onChange: handleChangeQuery,
+            }}
+            label="Test Category"
+            endpoint="labTestCategory"
+            name="labTestCategoryId"
+            includeAllOption
+          />
         )}
-        {values.selectMethod === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && (
-          <LabTestPanelField name="labTestPanelId" disabled={values.labTestPanelId} />
+        {requestType === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && (
+          <StyledSuggesterSelectField
+            field={{
+              value: query.labTestPanelId,
+              onChange: handleChangeQuery,
+            }}
+            label="Test Panel"
+            endpoint="labTestPanel"
+            name="labTestPanelId"
+            disabled={query.labTestPanelId}
+          />
         )}
         <FormSeparatorLine />
         <Box display="flex" alignItems="center">
@@ -183,7 +188,14 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
             checked={allSelected}
             onChange={handleSelectAll}
           />
-          <Field placeholder="Search" name="search" component={StyledSearchField} />
+          <StyledSearchField
+            field={{
+              value: query.search,
+              onChange: handleChangeQuery,
+            }}
+            placeholder="Search"
+            name="search"
+          />
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
@@ -208,11 +220,11 @@ const TestSelectorForm = ({ values, selected, onChange, onClear, testTypes }) =>
       <SelectorContainer>
         <Box display="flex" justifyContent="space-between">
           <SectionHeader>Selected tests</SectionHeader>
-          {selected.length > 0 && <ClearAllButton onClick={onClear}>Clear all</ClearAllButton>}
+          {value.length > 0 && <ClearAllButton onClick={handleClear}>Clear all</ClearAllButton>}
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
-          {selected.map(testId => {
+          {value.map(testId => {
             const testType = testTypeData.find(type => type.id === testId);
             if (!testType) return null;
             return (
