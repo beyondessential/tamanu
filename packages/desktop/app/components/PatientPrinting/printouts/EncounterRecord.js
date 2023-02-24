@@ -153,7 +153,7 @@ const COLUMNS = {
     {
       key: 'diagnoses',
       title: 'Diagnoses',
-      accessor: ({ diagnosis }) => diagnosis?.name,
+      accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
       style: { width: '60%' },
     },
     {
@@ -174,7 +174,7 @@ const COLUMNS = {
     {
       key: 'procedure',
       title: 'Procedure',
-      accessor: ({ procedureType }) => procedureType?.name,
+      accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
       style: { width: '80%' },
     },
     {
