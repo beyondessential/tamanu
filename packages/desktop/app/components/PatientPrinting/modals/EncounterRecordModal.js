@@ -149,6 +149,10 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
 
+  const medications = encounter.medications.filter(medication => {
+    return !medication.discontinued
+  });
+
   const dishchargeQuery = useEncounterDischarge(encounter);
   const discharge = dishchargeQuery.data;
 
@@ -256,6 +260,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           pad={padData}
+          medications={medications}
         />
       )}
     </Modal>

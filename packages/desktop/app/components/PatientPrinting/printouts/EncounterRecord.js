@@ -14,7 +14,6 @@ import { CertificateLabel } from './reusable/CertificateLabels';
 import {
   noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
-  CERTAINTY_OPTIONS_BY_VALUE,
   ENCOUNTER_OPTIONS_BY_VALUE,
 } from '../../../constants';
 
@@ -296,6 +295,7 @@ export const EncounterRecord = React.memo(
     discharge,
     village,
     pad,
+    medications,
   }) => {
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
@@ -404,10 +404,10 @@ export const EncounterRecord = React.memo(
             </>
           ) : null}
 
-          {encounter.medications.length > 0 ? (
+          {medications.length > 0 ? (
             <>
               <TableHeading>Medications</TableHeading>
-              <CompactListTable data={encounter.medications} columns={COLUMNS.medications} />
+              <CompactListTable data={medications} columns={COLUMNS.medications} />
             </>
           ) : null}
 
