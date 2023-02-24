@@ -29,7 +29,7 @@ export class CentralServerConnection {
 
   connect(host: string): void {
     this.host = host;
-    this.deviceId = getUniqueId();
+    this.deviceId = `mobile-${getUniqueId()}`;
   }
 
   async fetch(
