@@ -5,7 +5,7 @@ import { buildAbilityForUser } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { ForbiddenError } from 'shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import { notifyError } from '../utils';
+import { getDeviceId, notifyError } from '../utils';
 
 const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS } = LOCAL_STORAGE_KEYS;
 
@@ -103,6 +103,7 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.user = null;
+    this.deviceId = getDeviceId();
 
     const host = window.localStorage.getItem(HOST);
     if (host) {
@@ -146,8 +147,7 @@ export class TamanuApi {
       {
         email,
         password,
-        // Device id is only used in refresh token logic
-        deviceId: 'placeholder',
+        deviceId: this.deviceId,
       },
       { returnResponse: true },
     );

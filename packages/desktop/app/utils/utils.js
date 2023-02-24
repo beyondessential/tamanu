@@ -25,16 +25,8 @@ export const prepareToastMessage = msg => {
   );
 };
 
-export const initClient = () => {
-  const clientId = localStorage.getItem('clientId');
-  if (!clientId) {
-    localStorage.setItem('clientId', shortid.generate());
-  }
-};
-
-export const getClient = () => {
-  initClient();
-  return localStorage.getItem('clientId');
+export const getDeviceId = () => {
+  return `desktop-${shortid.generate()}`;
 };
 
 export const notify = (message, props) => {
