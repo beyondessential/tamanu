@@ -150,7 +150,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   }
 
   const medications = encounter.medications.filter(medication => {
-    return !medication.discontinued
+    return !medication.discontinued;
   });
 
   const dishchargeQuery = useEncounterDischarge(encounter);
