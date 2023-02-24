@@ -20,7 +20,7 @@ const NoTestRow = styled.div`
 const WrapperCard = styled(Card)`
   display: flex;
   padding: 10px;
-  height: 100%;
+  height: 500px;
 `;
 
 const SelectorTable = styled.div`

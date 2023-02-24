@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Button, ButtonRow, Form, FormGrid, OutlinedButton } from '../components';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
-// Wizard is a single Formik instance whose children are each page of the
+// MultiStepForm is a single Formik instance whose children are each page of the
 // multi-step form. The form is submitted on each forward transition (can only
 // progress with valid input), whereas a backwards step is allowed with
 // incomplete data. A snapshot of form state is used as initialValues after each
 // transition. Each page has an optional submit handler, and the top-level
 // submit is called when the final page is submitted.
-export const Wizard = ({ children, initialValues, onSubmit, onCancel }) => {
+export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) => {
   const [stepNumber, setStepNumber] = useState(0);
   const steps = React.Children.toArray(children);
   const [snapshot, setSnapshot] = useState(initialValues);
@@ -66,4 +66,4 @@ export const Wizard = ({ children, initialValues, onSubmit, onCancel }) => {
   );
 };
 
-export const WizardStep = ({ children, ...props }) => React.cloneElement(children, props);
+export const FormStep = ({ children, ...props }) => React.cloneElement(children, props);

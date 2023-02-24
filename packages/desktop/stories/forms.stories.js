@@ -16,6 +16,7 @@ import {
 } from 'shared/demoData';
 
 import { Box } from '@material-ui/core';
+import styled from 'styled-components';
 import { MockedApi } from './utils/mockedApi';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
@@ -224,9 +225,17 @@ const labRequestEndpoints = {
   ...mockTestSelectorEndpoints,
 };
 
+const StyledBox = styled(Box)`
+  background-color: white;
+  padding: 20px;
+  box-shadow: 2px 2px 25px rgb(0 0 0 / 10%);
+  border-radius: 5px;
+  width: 800px;
+`;
+
 storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (
   <MockedApi endpoints={labRequestEndpoints}>
-    <Box width={800}>
+    <StyledBox width={800}>
       <LabRequestForm
         onNext={action('next')}
         onSubmit={action('submit')}
@@ -235,6 +244,6 @@ storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (
         practitionerSuggester={practitionerSuggester}
         departmentSuggester={departmentSuggester}
       />
-    </Box>
+    </StyledBox>
   </MockedApi>
 ));

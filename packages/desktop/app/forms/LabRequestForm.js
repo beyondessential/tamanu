@@ -17,7 +17,7 @@ import {
   RadioField,
 } from '../components/Field';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { Wizard, WizardStep } from './MultistepWizard';
+import { MultiStepForm, FormStep } from './MultiStepForm';
 import { TestSelectorField } from '../components/LabRequest/TestSelector';
 import { useApi } from '../api';
 
@@ -186,7 +186,7 @@ export const LabRequestForm = ({
 }) => {
   const { currentUser } = useAuth();
   return (
-    <Wizard
+    <MultiStepForm
       onCancel={onCancel}
       onSubmit={onSubmit}
       initialValues={{
@@ -202,16 +202,16 @@ export const LabRequestForm = ({
       }}
       validationSchema={labRequestValidationSchema}
     >
-      <WizardStep validationSchema={labRequestValidationSchema}>
+      <FormStep validationSchema={labRequestValidationSchema}>
         <LabRequestFormScreen1
           practitionerSuggester={practitionerSuggester}
           departmentSuggester={departmentSuggester}
         />
-      </WizardStep>
-      <WizardStep validationSchema={labRequestTestSelectorSchema}>
+      </FormStep>
+      <FormStep validationSchema={labRequestTestSelectorSchema}>
         <LabRequestFormScreen2 />
-      </WizardStep>
-    </Wizard>
+      </FormStep>
+    </MultiStepForm>
   );
 };
 
