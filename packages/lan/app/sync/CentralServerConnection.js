@@ -44,10 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor() {
+  constructor({ deviceId }) {
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
+    this.deviceId = deviceId;
   }
 
   async fetch(endpoint, params = {}) {
@@ -185,7 +186,7 @@ export class CentralServerConnection {
           password,
           facilityId: config.serverFacilityId,
           // Device id is only used in refresh token logic
-          deviceId: 'placeholder',
+          deviceId: this.deviceId,
         },
         awaitConnection: false,
         retryAuth: false,
