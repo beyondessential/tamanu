@@ -236,7 +236,7 @@ export class CentralServerConnection {
     );
     if (!data.token || !data.refreshToken) {
       // auth failed in some other regard
-      console.warn('Auth failed with an inexplicable error', data);
+      console.warn('Token refresh failed with an inexplicable error', data);
       throw new AuthenticationError(generalErrorMessage);
     }
     this.setRefreshToken(data.refreshToken);
