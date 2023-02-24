@@ -1,6 +1,8 @@
 import React from 'react';
 
 import { NOTE_TYPES } from 'shared/constants/notes';
+import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';
@@ -84,6 +86,7 @@ const extractLocationHistory = (notes, encounterData) => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
+  const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
 
   const patientQuery = usePatientData(encounter.patientId);
@@ -92,35 +95,59 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const padDataQuery = usePatientAdditionalData(patient?.id);
   const padData = padDataQuery.data;
 
+  const labFilterStatuses = [
+    LAB_REQUEST_STATUSES.CANCELLED,
+    LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+    LAB_REQUEST_STATUSES.DELETED,
+  ];
+
   const labRequestsQuery = useLabRequests(encounter.id, {
     order: 'asc',
     orderBy: 'requestedDate',
   });
+
   const labRequests = labRequestsQuery.data;
   const updatedLabRequests = [];
   if (labRequests) {
     labRequests.data.forEach(labRequest => {
-      labRequest.tests.forEach(test => {
-        updatedLabRequests.push({
-          testType: test.labTestType.name,
-          testCategory: labRequest.category.name,
-          requestingClinician: labRequest.requestedBy.displayName,
-          requestDate: labRequest.requestedDate,
-          completedDate: test.completedDate,
+      if (!labFilterStatuses.includes(labRequest.status)) {
+        labRequest.tests.forEach(test => {
+          updatedLabRequests.push({
+            testType: test.labTestType.name,
+            testCategory: labRequest.category.name,
+            requestingClinician: labRequest.requestedBy.displayName,
+            requestDate: labRequest.requestedDate,
+            completedDate: test.completedDate,
+          });
         });
-      });
+      }
     });
   }
 
-  const imagingRequestsQuery = useImagingRequests(encounter.id);
-  const imagingRequests = imagingRequestsQuery.data;
+  const imagingFilterStatuses = [
+    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+    IMAGING_REQUEST_STATUS_TYPES.DELETED,
+  ];
 
-  const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  const updatedImagingRequests = imagingRequests?.data.map(imagingRequest => ({
-    ...imagingRequest,
-    imagingName: imagingTypes[imagingRequest.imagingType],
-  }));
+
+  const imagingRequestsQuery = useImagingRequests(encounter.id, {
+    order: 'asc',
+    orderBy: 'requestedDate',
+  });
+  const imagingRequests = imagingRequestsQuery.data;
+  const updatedImagingRequests = [];
+  if (imagingRequests) {
+    imagingRequests.data.forEach(imagingRequest => {
+      if (!imagingFilterStatuses.includes(imagingRequest.status)) {
+        updatedImagingRequests.push({
+          ...imagingRequest,
+          imagingName: imagingTypes[imagingRequest.imagingType],
+        });
+      }
+    });
+  }
 
   const dishchargeQuery = useEncounterDischarge(encounter);
   const discharge = dishchargeQuery.data;
