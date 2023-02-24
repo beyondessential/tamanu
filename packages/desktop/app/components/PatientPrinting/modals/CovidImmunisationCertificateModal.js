@@ -26,7 +26,7 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
     });
   }, [api, patient.id]);
 
-  const createImmunisationCertificateNotification = useCallback(
+  const createCovidImmunisationCertificateNotification = useCallback(
     data => {
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
@@ -50,7 +50,7 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
       printable
       keepMounted
       onPrint={() => printPDF('vaccine-certificate')}
-      additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
+      additionalActions={<EmailButton onEmail={createCovidImmunisationCertificateNotification} />}
     >
       <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
