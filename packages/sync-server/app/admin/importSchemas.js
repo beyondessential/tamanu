@@ -59,6 +59,10 @@ export const Patient = Base.shape({
   villageId: yup.string(),
 });
 
+export const PatientAdditionalData = yup.object().shape({
+  patientId: yup.string().required(),
+});
+
 export const User = Base.shape({
   email: yup.string().required(),
   displayName: yup.string().required(),
