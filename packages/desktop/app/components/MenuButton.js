@@ -70,6 +70,7 @@ export const MenuButton = React.memo(({ actions, className, iconDirection, iconC
         transition
         disablePortal
         placement="bottom-end"
+        style={{ zIndex: 10 }}
       >
         {() => (
           <Paper id="menu-list-grow" variant="outlined">
