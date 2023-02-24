@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
 import { startCase } from 'lodash';
+import { parseDate } from 'shared/utils/dateTime';
 
 import { LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { DateDisplay } from '../../DateDisplay';
+import { DateDisplay, formatTime, formatShort } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
@@ -111,7 +112,13 @@ export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   }
 `;
 
-// COLUMN LAYOUTSs
+const customDateFormat = ({ date }) => {
+  const dateObj = parseDate(date);
+  return `${formatShort(dateObj)} ${formatTime(dateObj)
+    .split(' ')
+    .join('')}`;
+};
+
 const COLUMNS = {
   encounterTypes: [
     {
@@ -123,7 +130,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime />,
+      accessor: customDateFormat,
       style: { width: '30%' },
     },
   ],
@@ -144,7 +151,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime />,
+      accessor: customDateFormat,
       style: { width: '30%' },
     },
   ],
