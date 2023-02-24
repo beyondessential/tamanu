@@ -21,6 +21,7 @@ export * from './SearchBar';
 export * from './Table';
 export * from './TamanuLogo';
 export * from './Tile';
+export * from './Tag';
 export * from './Typography';
 export * from './ImmunisationsTable';
 export * from './LocalisedText';

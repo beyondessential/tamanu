@@ -6,7 +6,14 @@ import { Timelapse, Business, AssignmentLate, Category } from '@material-ui/icon
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { Heading2, Tile, MenuButton, DateDisplay, OutlinedButton } from '../../components';
+import {
+  Heading2,
+  Tile,
+  TileContainer,
+  MenuButton,
+  DateDisplay,
+  OutlinedButton,
+} from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
@@ -20,27 +27,6 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 const Container = styled.div`
   padding: 12px 30px;
-`;
-
-const TileContainer = styled.div`
-  display: flex;
-  align-items: stretch;
-  overflow: auto;
-  padding-bottom: 20px;
-
-  > div {
-    flex: 1;
-    min-width: 140px;
-    margin: 0 8px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
 `;
 
 const Rule = styled(Divider)`
@@ -113,7 +99,7 @@ export const LabRequestView = () => {
           )
         }
       />
-      <LabRequestNoteForm labRequest={labRequest} isReadOnly={isReadOnly} />
+      <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
         {/* Todo: Add Tile component in WAITM-646 */}
         <Tile title="Test Category" Icon={Category} text={(labRequest.category || {}).name} />
