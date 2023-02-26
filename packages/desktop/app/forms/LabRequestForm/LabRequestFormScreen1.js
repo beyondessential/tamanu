@@ -1,27 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-
 import { LAB_REQUEST_FORM_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
-import { useQuery } from '@tanstack/react-query';
-import { foreignKey } from '../utils/validation';
-import { binaryOptions } from '../constants';
-import { useAuth } from '../contexts/Auth';
-
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import {
-  Field,
   AutocompleteField,
-  SuggesterSelectField,
   DateTimeField,
+  Field,
+  FormSeparatorLine,
   RadioField,
-} from '../components/Field';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { MultiStepForm, FormStep } from './MultiStepForm';
-import { TestSelectorField } from '../views/labRequest/TestSelector';
-import { useApi } from '../api';
+  SuggesterSelectField,
+} from '../../components';
+import { binaryOptions } from '../../constants';
+import { foreignKey } from '../../utils/validation';
 
-const labRequestValidationSchema = yup.object().shape({
+export const screen1ValidationFields = {
   requestedById: foreignKey('Requesting clinician is required'),
   requestedDate: yup.date().required('Request date is required'),
   requestType: yup
@@ -41,16 +33,11 @@ const labRequestValidationSchema = yup.object().shape({
     .string()
     .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.NOT_COLLECTED])
     .required(),
-});
+};
 
-const labRequestTestSelectorSchema = yup.object().shape({
-  labTestIds: yup
-    .array()
-    .of(yup.string())
-    .required(),
-});
+export const screen1ValidationSchema = yup.object().shape(screen1ValidationFields);
 
-const LabRequestFormScreen1 = ({
+export const LabRequestFormScreen1 = ({
   values,
   setFieldValue,
   handleChange,
@@ -148,83 +135,4 @@ const LabRequestFormScreen1 = ({
       </div>
     </>
   );
-};
-
-const LabRequestFormScreen2 = props => {
-  const api = useApi();
-  const { data: testTypesData, isLoading } = useQuery(
-    ['labTestTypes'],
-    () => api.get('labTestType'),
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  if (isLoading) return null;
-
-  return (
-    <div style={{ gridColumn: '1 / -1' }}>
-      <Field
-        name="labTestIds"
-        label="Lab tests"
-        component={TestSelectorField}
-        testTypes={testTypesData}
-        {...props}
-      />
-    </div>
-  );
-};
-
-export const LabRequestForm = ({
-  practitionerSuggester,
-  departmentSuggester,
-  encounter,
-  onSubmit,
-  onCancel,
-  editedObject,
-  generateDisplayId,
-}) => {
-  const { currentUser } = useAuth();
-  return (
-    <MultiStepForm
-      onCancel={onCancel}
-      onSubmit={onSubmit}
-      initialValues={{
-        displayId: generateDisplayId(),
-        requestedById: currentUser.id,
-        departmentId: encounter.departmentId,
-        requestedDate: getCurrentDateTimeString(),
-        specimenAttached: 'no',
-        status: LAB_REQUEST_STATUSES.NOT_COLLECTED,
-        // LabTest date
-        date: getCurrentDateString(),
-        ...editedObject,
-      }}
-      validationSchema={labRequestValidationSchema}
-    >
-      <FormStep validationSchema={labRequestValidationSchema}>
-        <LabRequestFormScreen1
-          practitionerSuggester={practitionerSuggester}
-          departmentSuggester={departmentSuggester}
-        />
-      </FormStep>
-      <FormStep validationSchema={labRequestTestSelectorSchema}>
-        <LabRequestFormScreen2 />
-      </FormStep>
-    </MultiStepForm>
-  );
-};
-
-LabRequestForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  practitionerSuggester: PropTypes.object.isRequired,
-  encounter: PropTypes.object,
-  generateDisplayId: PropTypes.func.isRequired,
-  editedObject: PropTypes.object,
-};
-
-LabRequestForm.defaultProps = {
-  encounter: {},
-  editedObject: {},
 };

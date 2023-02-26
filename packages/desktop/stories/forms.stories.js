@@ -27,7 +27,7 @@ import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
-import { LabRequestForm } from '../app/forms/LabRequestForm';
+import { LabRequestForm } from '../app/forms/LabRequestForm/LabRequestForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
