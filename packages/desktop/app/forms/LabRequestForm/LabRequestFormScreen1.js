@@ -13,7 +13,7 @@ import {
 import { binaryOptions } from '../../constants';
 import { foreignKey } from '../../utils/validation';
 
-export const screen1ValidationFields = {
+export const screen1ValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
   requestedDate: yup.date().required('Request date is required'),
   requestType: yup
@@ -33,9 +33,7 @@ export const screen1ValidationFields = {
     .string()
     .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.NOT_COLLECTED])
     .required(),
-};
-
-export const screen1ValidationSchema = yup.object().shape(screen1ValidationFields);
+});
 
 export const LabRequestFormScreen1 = ({
   values,
