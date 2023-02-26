@@ -14,7 +14,7 @@ const combinedValidationSchema = yup.object().shape({
   ...screen2ValidationSchema.fields,
 });
 
-export const LabRequestForm = ({
+export const LabRequestMultiStepForm = ({
   practitionerSuggester,
   departmentSuggester,
   encounter,
@@ -55,7 +55,7 @@ export const LabRequestForm = ({
   );
 };
 
-LabRequestForm.propTypes = {
+LabRequestMultiStepForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   practitionerSuggester: PropTypes.object.isRequired,
@@ -64,7 +64,7 @@ LabRequestForm.propTypes = {
   editedObject: PropTypes.object,
 };
 
-LabRequestForm.defaultProps = {
+LabRequestMultiStepForm.defaultProps = {
   encounter: {},
   editedObject: {},
 };

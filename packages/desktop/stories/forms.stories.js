@@ -27,7 +27,7 @@ import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
-import { LabRequestForm } from '../app/forms/LabRequestForm/LabRequestForm';
+import { LabRequestMultiStepForm } from '../app/forms/LabRequestForm/LabRequestMultiStepForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
@@ -222,7 +222,7 @@ const StyledBox = styled(Box)`
 storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (
   <MockedApi endpoints={mockLabRequestFormEndpoints}>
     <StyledBox width={800}>
-      <LabRequestForm
+      <LabRequestMultiStepForm
         onNext={action('next')}
         onSubmit={action('submit')}
         onCancel={action('cancel')}
