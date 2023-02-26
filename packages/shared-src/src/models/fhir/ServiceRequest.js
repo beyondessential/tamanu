@@ -2,7 +2,6 @@ import config from 'config';
 import { DataTypes } from 'sequelize';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 
 import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
 import {
@@ -26,7 +25,7 @@ export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.JSONB),
+        identifier: DataTypes.JSONB,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -35,17 +34,17 @@ export class FhirServiceRequest extends FhirResource {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        category: arrayOf('category', DataTypes.JSONB),
+        category: DataTypes.JSONB,
         priority: DataTypes.TEXT,
         code: DataTypes.JSONB,
-        orderDetail: arrayOf('orderDetail', DataTypes.JSONB),
+        orderDetail: DataTypes.JSONB,
         subject: {
           type: DataTypes.JSONB,
           allowNull: false,
         },
         occurrenceDateTime: DataTypes.DATE,
         requester: DataTypes.JSONB,
-        locationCode: arrayOf('locationCode', DataTypes.JSONB),
+        locationCode: DataTypes.JSONB,
       },
       options,
     );

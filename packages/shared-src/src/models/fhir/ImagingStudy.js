@@ -2,7 +2,6 @@ import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
 import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, IMAGING_REQUEST_STATUS_TYPES } from '../../constants';
@@ -13,14 +12,14 @@ export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.JSONB),
-        basedOn: arrayOf('basedOn', DataTypes.JSONB),
+        identifier: DataTypes.JSONB,
+        basedOn: DataTypes.JSONB,
         started: DataTypes.DATE,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        note: arrayOf('note', DataTypes.JSONB),
+        note: DataTypes.JSONB,
       },
       options,
     );

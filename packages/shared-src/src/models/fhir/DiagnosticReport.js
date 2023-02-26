@@ -4,7 +4,6 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { FHIR_INTERACTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -18,8 +17,8 @@ export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.JSONB), // This field is part of DomainResource
-        identifier: arrayOf('identifier', DataTypes.JSONB),
+        extension: DataTypes.JSONB, // This field is part of DomainResource
+        identifier: DataTypes.JSONB,
         status: {
           type: Sequelize.TEXT,
           allowNull: false,
@@ -40,8 +39,8 @@ export class FhirDiagnosticReport extends FhirResource {
           type: DataTypes.DATE,
           allowNull: true,
         },
-        performer: arrayOf('performer', DataTypes.JSONB),
-        result: arrayOf('result', DataTypes.JSONB),
+        performer: DataTypes.JSONB,
+        result: DataTypes.JSONB,
       },
       options,
     );

@@ -3,7 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
-import { arrayOf, activeFromVisibility } from './utils';
+import { activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
 import {
@@ -26,23 +26,23 @@ export class FhirPatient extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.JSONB),
-        identifier: arrayOf('identifier', DataTypes.JSONB),
+        extension: DataTypes.JSONB,
+        identifier: DataTypes.JSONB,
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
           defaultValue: true,
         },
-        name: arrayOf('name', DataTypes.JSONB),
-        telecom: arrayOf('telecom', DataTypes.JSONB),
+        name: DataTypes.JSONB,
+        telecom: DataTypes.JSONB,
         gender: {
           type: Sequelize.STRING(10),
           allowNull: false,
         },
         birthDate: dateType('birthDate', { allowNull: true }),
         deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
-        address: arrayOf('address', DataTypes.JSONB),
-        link: arrayOf('link', DataTypes.JSONB),
+        address: DataTypes.JSONB,
+        link: DataTypes.JSONB,
       },
       options,
     );
