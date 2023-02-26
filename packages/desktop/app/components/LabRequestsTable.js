@@ -23,10 +23,10 @@ import {
 
 const encounterColumns = [
   { key: 'requestId', title: 'Test ID', sortable: false, accessor: getRequestId },
-  { key: 'labRequestType', title: 'Category', accessor: getRequestType },
+  { key: 'category.name', title: 'Category', accessor: getRequestType },
   { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
   { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
-  { key: 'priority', title: 'Priority', accessor: getPriority },
+  { key: 'priority.name', title: 'Priority', accessor: getPriority },
   { key: 'status', title: 'Status', accessor: getStatus },
 ];
 
