@@ -13,7 +13,7 @@ export async function up(query) {
       allowNull: false,
     },
     device_id: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       allowNull: false,
     },
     user_id: {
@@ -48,6 +48,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeIndex('refresh_tokens', 'refresh_tokens_user_id_device_id');
   await query.dropTable('refresh_tokens');
 }
