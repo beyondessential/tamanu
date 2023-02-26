@@ -61,7 +61,7 @@ export const LabRequestCard = ({ labRequest, actions }) => (
       </CardItem>
       <BorderSection>
         <CardLabel>Requesting clinician:</CardLabel>
-        <CardValue>{labRequest.requestedBy.displayName}</CardValue>
+        <CardValue>{labRequest.requestedBy?.displayName}</CardValue>
         <CardLabel>Department:</CardLabel>
         {/* Todo: display department from labRequest once model is updated */}
         <CardValue>Cardiology</CardValue>
