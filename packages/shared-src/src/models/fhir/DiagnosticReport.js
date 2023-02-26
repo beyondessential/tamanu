@@ -18,18 +18,18 @@ export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION), // This field is part of DomainResource
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        extension: arrayOf('extension', DataTypes.JSONB), // This field is part of DomainResource
+        identifier: arrayOf('identifier', DataTypes.JSONB),
         status: {
           type: Sequelize.TEXT,
           allowNull: false,
         },
         code: {
-          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         subject: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: true,
         },
         effectiveDateTime: {
@@ -40,8 +40,8 @@ export class FhirDiagnosticReport extends FhirResource {
           type: DataTypes.DATE,
           allowNull: true,
         },
-        performer: arrayOf('performer', DataTypes.FHIR_REFERENCE),
-        result: arrayOf('result', DataTypes.FHIR_REFERENCE),
+        performer: arrayOf('performer', DataTypes.JSONB),
+        result: arrayOf('result', DataTypes.JSONB),
       },
       options,
     );

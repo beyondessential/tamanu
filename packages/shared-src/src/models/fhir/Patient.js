@@ -26,23 +26,23 @@ export class FhirPatient extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION),
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        extension: arrayOf('extension', DataTypes.JSONB),
+        identifier: arrayOf('identifier', DataTypes.JSONB),
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
           defaultValue: true,
         },
-        name: arrayOf('name', DataTypes.FHIR_HUMAN_NAME),
-        telecom: arrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
+        name: arrayOf('name', DataTypes.JSONB),
+        telecom: arrayOf('telecom', DataTypes.JSONB),
         gender: {
           type: Sequelize.STRING(10),
           allowNull: false,
         },
         birthDate: dateType('birthDate', { allowNull: true }),
         deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
-        address: arrayOf('address', DataTypes.FHIR_ADDRESS),
-        link: arrayOf('link', DataTypes.FHIR_PATIENT_LINK),
+        address: arrayOf('address', DataTypes.JSONB),
+        link: arrayOf('link', DataTypes.JSONB),
       },
       options,
     );

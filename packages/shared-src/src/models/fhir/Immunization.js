@@ -28,22 +28,22 @@ export class FhirImmunization extends FhirResource {
           allowNull: false,
         },
         vaccineCode: {
-          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         patient: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         encounter: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: true,
         },
         occurrenceDateTime: dateTimeType('occurrenceDateTime', { allowNull: true }),
         lotNumber: Sequelize.TEXT,
-        site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
-        performer: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PERFORMER),
-        protocolApplied: arrayOf('protocolApplied', DataTypes.FHIR_IMMUNIZATION_PROTOCOL_APPLIED),
+        site: arrayOf('site', DataTypes.JSONB),
+        performer: arrayOf('performer', DataTypes.JSONB),
+        protocolApplied: arrayOf('protocolApplied', DataTypes.JSONB),
       },
       options,
     );

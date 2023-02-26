@@ -13,14 +13,14 @@ export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
-        basedOn: arrayOf('basedOn', DataTypes.FHIR_REFERENCE),
+        identifier: arrayOf('identifier', DataTypes.JSONB),
+        basedOn: arrayOf('basedOn', DataTypes.JSONB),
         started: DataTypes.DATE,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        note: arrayOf('note', DataTypes.FHIR_ANNOTATION),
+        note: arrayOf('note', DataTypes.JSONB),
       },
       options,
     );

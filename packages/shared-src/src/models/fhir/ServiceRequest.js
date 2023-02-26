@@ -26,7 +26,7 @@ export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: arrayOf('identifier', DataTypes.JSONB),
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -35,17 +35,17 @@ export class FhirServiceRequest extends FhirResource {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
+        category: arrayOf('category', DataTypes.JSONB),
         priority: DataTypes.TEXT,
-        code: DataTypes.FHIR_CODEABLE_CONCEPT,
-        orderDetail: arrayOf('orderDetail', DataTypes.FHIR_CODEABLE_CONCEPT),
+        code: DataTypes.JSONB,
+        orderDetail: arrayOf('orderDetail', DataTypes.JSONB),
         subject: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         occurrenceDateTime: DataTypes.DATE,
-        requester: DataTypes.FHIR_REFERENCE,
-        locationCode: arrayOf('locationCode', DataTypes.FHIR_CODEABLE_CONCEPT),
+        requester: DataTypes.JSONB,
+        locationCode: arrayOf('locationCode', DataTypes.JSONB),
       },
       options,
     );
