@@ -26,7 +26,12 @@ export const prepareToastMessage = msg => {
 };
 
 export const getDeviceId = () => {
-  return `desktop-${shortid.generate()}`;
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    deviceId = `desktop-${shortid.generate()}`;
+    localStorage.setItem('deviceId', deviceId);
+  }
+  return deviceId;
 };
 
 export const notify = (message, props) => {
