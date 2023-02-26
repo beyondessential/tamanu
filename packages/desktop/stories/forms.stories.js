@@ -35,7 +35,7 @@ import { createDummySuggester, mapToSuggestions } from './utils';
 import { Modal } from '../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
-import { mockLabTestTypes, mockTestSelectorEndpoints } from './testSelector.stories';
+import { mockLabTestTypes, mockTestSelectorEndpoints } from './utils/mockTestTypes';
 
 const PATIENTS = new Array(20).fill(0).map(() => createDummyPatient());
 
