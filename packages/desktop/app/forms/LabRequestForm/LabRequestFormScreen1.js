@@ -16,7 +16,7 @@ import { foreignKey } from '../../utils/validation';
 export const screen1ValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
   requestedDate: yup.date().required('Request date is required'),
-  requestType: yup
+  requestFormType: yup
     .string()
     .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
     .required('Select type must be selected'),
@@ -114,7 +114,7 @@ export const LabRequestFormScreen1 = ({
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
           required
-          name="requestType"
+          name="requestFormType"
           label="Select your request type"
           component={RadioField}
           options={[

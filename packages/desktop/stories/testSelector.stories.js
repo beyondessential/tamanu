@@ -9,7 +9,7 @@ export default {
   title: 'Forms/TestSelector',
   component: TestSelectorInput,
   argTypes: {
-    selectMethod: {
+    requestFormType: {
       control: 'select',
       options: Object.values(LAB_REQUEST_FORM_TYPES),
     },
@@ -33,7 +33,7 @@ const Template = args => {
       <div style={{ width: 800, height: 500 }}>
         <TestSelectorInput
           testTypes={mockLabTestTypes}
-          selected={selected}
+          value={selected}
           onChange={onChange}
           {...args}
         />
@@ -44,10 +44,10 @@ const Template = args => {
 
 export const Individual = Template.bind({});
 Individual.args = {
-  selectMethod: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+  requestFormType: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
 };
 
 export const Panel = Template.bind({});
 Panel.args = {
-  selectMethod: LAB_REQUEST_FORM_TYPES.PANEL,
+  requestFormType: LAB_REQUEST_FORM_TYPES.PANEL,
 };

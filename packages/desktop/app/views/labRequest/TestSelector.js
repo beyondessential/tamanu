@@ -122,7 +122,7 @@ export const TestSelectorInput = ({
   name,
   testTypes,
   value,
-  values: { requestType = LAB_REQUEST_FORM_TYPES.INDIVIDUAL },
+  requestFormType = LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   isLoading,
   onChange,
 }) => {
@@ -165,7 +165,7 @@ export const TestSelectorInput = ({
   return (
     <WrapperCard>
       <SelectorContainer>
-        {requestType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
+        {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
           <SuggesterSelectField
             field={{
               value: testFilters.labTestCategoryId,
@@ -178,7 +178,7 @@ export const TestSelectorInput = ({
             includeAllOption
           />
         )}
-        {requestType === LAB_REQUEST_FORM_TYPES.PANEL && (
+        {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
           <StyledSuggesterSelectField
             field={{
               value: testFilters.labTestPanelId,
