@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-
 import { subStrSearch } from '../../utils/subStringSearch';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { Field, Form, SearchField } from '../Field';
