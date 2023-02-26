@@ -4,14 +4,14 @@ import { Box } from '@material-ui/core';
 import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
-import { FormSeparatorLine } from '../FormSeparatorLine';
-import { SearchField, SuggesterSelectField } from '../Field';
-import { Card } from '../Card';
+import { FormSeparatorLine } from '../../components/FormSeparatorLine';
+import { SearchField, SuggesterSelectField } from '../../components/Field';
+import { Card } from '../../components/Card';
 import { Colors } from '../../constants';
 import { SelectableTestItem, TestItem } from './TestItem';
-import { TextButton } from '../Button';
+import { TextButton } from '../../components/Button';
 import { useApi } from '../../api';
-import { BodyText } from '../Typography';
+import { BodyText } from '../../components/Typography';
 
 const WrapperCard = styled(Card)`
   display: flex;

@@ -18,7 +18,7 @@ import {
 } from '../components/Field';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { MultiStepForm, FormStep } from './MultiStepForm';
-import { TestSelectorField } from '../components/LabRequest/TestSelector';
+import { TestSelectorField } from '../views/labRequest/TestSelector';
 import { useApi } from '../api';
 
 const labRequestValidationSchema = yup.object().shape({

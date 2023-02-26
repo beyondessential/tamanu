@@ -1,7 +1,7 @@
 import { action } from '@storybook/addon-actions';
 import React from 'react';
 import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
-import { TestSelectorInput } from '../app/components/LabRequest/TestSelector';
+import { TestSelectorInput } from '../app/views/labRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
 import { mockLabTestTypes, mockTestSelectorEndpoints } from './utils/mockLabData';
 
