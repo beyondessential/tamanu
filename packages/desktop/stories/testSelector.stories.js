@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions';
 import React from 'react';
-import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { TestSelectorInput } from '../app/views/labRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
 import { mockLabTestTypes, mockTestSelectorEndpoints } from './utils/mockLabData';
@@ -11,7 +11,7 @@ export default {
   argTypes: {
     selectMethod: {
       control: 'select',
-      options: Object.values(LAB_REQUEST_SELECT_LAB_METHOD),
+      options: Object.values(LAB_REQUEST_FORM_TYPES),
     },
   },
 };
@@ -44,10 +44,10 @@ const Template = args => {
 
 export const Individual = Template.bind({});
 Individual.args = {
-  selectMethod: LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
+  selectMethod: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
 };
 
 export const Panel = Template.bind({});
 Panel.args = {
-  selectMethod: LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
+  selectMethod: LAB_REQUEST_FORM_TYPES.PANEL,
 };

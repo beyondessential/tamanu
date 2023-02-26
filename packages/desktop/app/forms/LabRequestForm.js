@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
-import { LAB_REQUEST_SELECT_LAB_METHOD, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { foreignKey } from '../utils/validation';
 import { binaryOptions } from '../constants';
@@ -26,7 +26,7 @@ const labRequestValidationSchema = yup.object().shape({
   requestedDate: yup.date().required('Request date is required'),
   requestType: yup
     .string()
-    .oneOf(Object.values(LAB_REQUEST_SELECT_LAB_METHOD))
+    .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
     .required('Select type must be selected'),
   specimenAttached: yup
     .string()
@@ -136,12 +136,12 @@ const LabRequestFormScreen1 = ({
             {
               label: 'Panel',
               description: 'Select from a list of test panels',
-              value: LAB_REQUEST_SELECT_LAB_METHOD.PANEL,
+              value: LAB_REQUEST_FORM_TYPES.PANEL,
             },
             {
               label: 'Individual',
               description: 'Select any individual or range of individual test types',
-              value: LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL,
+              value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
             },
           ]}
         />

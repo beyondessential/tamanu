@@ -5,9 +5,9 @@ import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 
 export const SuggesterSelectField = React.memo(
-  ({ field, endpoint, filterByFacility, includeAllOption, ...props }) => {
+  ({ field, endpoint, filterByFacility, initialOptions = [], ...props }) => {
     const api = useApi();
-    const [options, setOptions] = useState(includeAllOption ? [{ label: 'All', value: '' }] : []);
+    const [options, setOptions] = useState(initialOptions);
 
     useEffect(() => {
       // If a value is set, fetch the record to display it's name

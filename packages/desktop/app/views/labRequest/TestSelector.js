@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
@@ -109,7 +109,7 @@ export const TestSelectorInput = ({
   name,
   testTypes,
   value = [],
-  values: { requestType = LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL },
+  values: { requestType = LAB_REQUEST_FORM_TYPES.INDIVIDUAL },
   onChange,
 }) => {
   const api = useApi();
@@ -125,7 +125,7 @@ export const TestSelectorInput = ({
       onSuccess: data => {
         onChange(data.map(type => type.id));
       },
-      enabled: requestType === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && !!query.labTestPanelId,
+      enabled: requestType === LAB_REQUEST_FORM_TYPES.PANEL && !!query.labTestPanelId,
       initialData: testTypes,
     },
   );
@@ -152,19 +152,20 @@ export const TestSelectorInput = ({
   return (
     <WrapperCard>
       <SelectorContainer>
-        {requestType === LAB_REQUEST_SELECT_LAB_METHOD.INDIVIDUAL && (
+        {requestType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
           <SuggesterSelectField
             field={{
               value: query.labTestCategoryId,
               onChange: handleChangeQuery,
             }}
+            initialOptions={[[{ label: 'All', value: '' }]]}
             label="Test Category"
             endpoint="labTestCategory"
             name="labTestCategoryId"
             includeAllOption
           />
         )}
-        {requestType === LAB_REQUEST_SELECT_LAB_METHOD.PANEL && (
+        {requestType === LAB_REQUEST_FORM_TYPES.PANEL && (
           <StyledSuggesterSelectField
             field={{
               value: query.labTestPanelId,
