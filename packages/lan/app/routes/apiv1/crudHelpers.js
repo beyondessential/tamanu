@@ -97,6 +97,7 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
 
   const count = await models[modelName].count({
     ...baseQueryOptions,
+    distinct: true,
   });
 
   const objects = await models[modelName].findAll({

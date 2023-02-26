@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 
@@ -60,7 +61,11 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
             as: 'noteItems',
           },
         ],
-        where: { recordId: labRequest.id, recordType: NOTE_RECORD_TYPES.LAB_REQUEST },
+        where: {
+          recordId: labRequest.id,
+          recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
       });
 
       labRequest.notePages = notePages;

@@ -3,7 +3,7 @@ import { useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { LabRequestPrintout } from '../../../components/PatientPrinting/LabRequestPrintout';
+import { LabRequestPrintout } from '../../../components/PatientPrinting/printouts/LabRequestPrintout';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
