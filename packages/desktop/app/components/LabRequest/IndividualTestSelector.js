@@ -9,10 +9,7 @@ import { Colors } from '../../constants';
 import { SelectableTestItem, TestItem } from './TestItem';
 import { TextButton } from '../Button';
 import { LabTestCategoryField } from '../../views/reports/LabTestCategoryField';
-
-const NoTestRow = styled.div`
-  color: ${Colors.softText};
-`;
+import { BodyText } from '../Typography';
 
 const WrapperCard = styled(Card)`
   display: flex;
@@ -63,11 +60,11 @@ const ClearAllButton = styled(TextButton)`
   line-height: 18px;
   font-weight: 400;
   text-decoration: underline;
-  color: ${Colors.primary};
+  color: ${({ theme }) => theme.palette.primary.main};
   &:hover {
     font-weight: 400;
     text-decoration: underline;
-    color: ${Colors.primary};
+    color: ${({ theme }) => theme.palette.primary.main};
   }
 `;
 
@@ -150,7 +147,7 @@ export const TestSelectorInput = ({ name, testTypes, selected = [], onChange }) 
                     />
                   ))
                 ) : (
-                  <NoTestRow>No tests found.</NoTestRow>
+                  <BodyText>No tests found.</BodyText>
                 )}
               </SelectorTable>
             </SelectorContainer>
