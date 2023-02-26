@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-
 import { LAB_REQUEST_SELECT_LAB_METHOD } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
@@ -12,10 +11,7 @@ import { Colors } from '../../constants';
 import { SelectableTestItem, TestItem } from './TestItem';
 import { TextButton } from '../Button';
 import { useApi } from '../../api';
-
-const NoTestRow = styled.div`
-  color: ${Colors.softText};
-`;
+import { BodyText } from '../Typography';
 
 const WrapperCard = styled(Card)`
   display: flex;
@@ -66,11 +62,11 @@ const ClearAllButton = styled(TextButton)`
   line-height: 18px;
   font-weight: 400;
   text-decoration: underline;
-  color: ${Colors.primary};
+  color: ${({ theme }) => theme.palette.primary.main};
   &:hover {
     font-weight: 400;
     text-decoration: underline;
-    color: ${Colors.primary};
+    color: ${({ theme }) => theme.palette.primary.main};
   }
 `;
 
@@ -199,7 +195,7 @@ export const TestSelectorInput = ({
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
-          {isFetching && <NoTestRow>Loading tests</NoTestRow>}
+          {isFetching && <BodyText>Loading tests</BodyText>}
           {!isFetching &&
             (queriedTypes.length > 0 ? (
               queriedTypes.map(type => (
@@ -213,7 +209,7 @@ export const TestSelectorInput = ({
                 />
               ))
             ) : (
-              <NoTestRow>No tests found.</NoTestRow>
+              <BodyText>No tests found.</BodyText>
             ))}
         </SelectorTable>
       </SelectorContainer>
