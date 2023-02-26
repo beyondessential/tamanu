@@ -1,6 +1,8 @@
 import Sequelize from 'sequelize';
 import jwt from 'jsonwebtoken';
-import { randomBytes } from 'crypto';
+import { randomBytes, randomInt } from 'crypto';
+
+const MAX_U32_VALUE = 2 ** 32 - 1;
 
 export const stripUser = user => {
   const { password, ...userData } = user;
@@ -18,13 +20,8 @@ export const getRandomBase64String = async length => {
   });
 };
 
-export const getRandomU32 = async () => {
-  return new Promise((resolve, reject) => {
-    randomBytes(4, (err, buf) => {
-      if (err) reject(err);
-      resolve(buf.readUInt32BE(0, true));
-    });
-  });
+export const getRandomU32 = () => {
+  return randomInt(0, MAX_U32_VALUE);
 };
 
 export const verifyToken = (token, secret, options) => jwt.verify(token, secret, options);

@@ -55,7 +55,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     }
 
     // issue new access token
-    const accessTokenJwtId = await getRandomU32();
+    const accessTokenJwtId = getRandomU32();
     const token = getToken(
       {
         userId: user.id,
@@ -71,7 +71,7 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     // rotate refresh token
     const newRefreshId = await getRandomBase64String(refreshIdLength);
-    const refreshTokenJwtId = await getRandomU32();
+    const refreshTokenJwtId = getRandomU32();
     const hashedRefreshId = await bcrypt.hash(newRefreshId, saltRounds);
 
     const newRefreshToken = getToken(
