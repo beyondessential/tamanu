@@ -22,10 +22,10 @@ const StyledFormControlLabel = styled(FormControlLabel)`
     line-height: 18px;
     color: #cccccc;
     &.fa-check-square {
-      color: ${Colors.primary};
+      color: ${({ theme }) => theme.palette.primary.main};
     }
     &.fa-minus-square {
-      color: ${Colors.primary};
+      color: ${({ theme }) => theme.palette.secondary.main};
     }
   }
   .MuiFormControlLabel-label {

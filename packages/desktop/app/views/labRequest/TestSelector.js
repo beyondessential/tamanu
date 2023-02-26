@@ -118,19 +118,21 @@ export const TestSelectorInput = ({
     labTestCategoryId: '',
     search: '',
   });
+
+  const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
+
   const { data: testTypeData, isFetching } = useQuery(
     ['labTestTypes', query.labTestPanelId],
     () => api.get(`labTestPanel/${encodeURIComponent(query.labTestPanelId)}/labTestTypes`),
     {
       onSuccess: data => {
-        onChange(data.map(type => type.id));
+        // Select all tests in panel by default
+        handleChange(data.map(type => type.id));
       },
       enabled: requestType === LAB_REQUEST_FORM_TYPES.PANEL && !!query.labTestPanelId,
       initialData: testTypes,
     },
   );
-
-  const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
 
   const handleChangeQuery = event =>
     setQuery({ ...query, [event.target.name]: event.target.value });
