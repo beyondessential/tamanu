@@ -93,7 +93,7 @@ const StyledSuggesterSelectField = styled(SuggesterSelectField)`
 
 const usePanelTestTypes = (labTestPanelId, initialData, onSuccess) => {
   const api = useApi();
-  const query = useQuery(
+  return useQuery(
     ['labTestTypes', labTestPanelId],
     () => api.get(`labTestPanel/${encodeURIComponent(labTestPanelId)}/labTestTypes`),
     {
@@ -102,7 +102,6 @@ const usePanelTestTypes = (labTestPanelId, initialData, onSuccess) => {
       enabled: !!labTestPanelId,
     },
   );
-  return query;
 };
 
 const filterByTestTypeQuery = (testTypes, { labTestCategoryId, search }) =>
