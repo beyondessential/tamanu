@@ -48,4 +48,18 @@ export const mockTestSelectorEndpoints = {
   },
 };
 
+export const mockLabRequestFormEndpoints = {
+  'suggestions/labSampleSite/all': () => [
+    { id: '1', name: 'Arm' },
+    { id: '2', name: 'Leg' },
+    { id: '3', name: 'Shoulder' },
+  ],
+  'suggestions/labTestPriority/all': () => [
+    { id: '1', name: 'Normal' },
+    { id: '2', name: 'Urgent' },
+  ],
+  labTestType: () => mockLabTestTypes,
+  ...mockTestSelectorEndpoints
+};
+
 export const mockLabTestTypes = Object.values(mockPanels).flat();

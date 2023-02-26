@@ -35,7 +35,7 @@ import { createDummySuggester, mapToSuggestions } from './utils';
 import { Modal } from '../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
-import { mockLabTestTypes, mockTestSelectorEndpoints } from './utils/mockTestTypes';
+import { mockLabRequestFormEndpoints } from './utils/mockLabData';
 
 const PATIENTS = new Array(20).fill(0).map(() => createDummyPatient());
 
@@ -211,20 +211,6 @@ storiesOf('Forms', module).add('MedicationForm', () => (
   />
 ));
 
-const labRequestEndpoints = {
-  'suggestions/labSampleSite/all': () => [
-    { id: '1', name: 'Arm' },
-    { id: '2', name: 'Leg' },
-    { id: '3', name: 'Shoulder' },
-  ],
-  'suggestions/labTestPriority/all': () => [
-    { id: '1', name: 'Normal' },
-    { id: '2', name: 'Urgent' },
-  ],
-  labTestType: () => mockLabTestTypes,
-  ...mockTestSelectorEndpoints,
-};
-
 const StyledBox = styled(Box)`
   background-color: white;
   padding: 20px;
@@ -234,7 +220,7 @@ const StyledBox = styled(Box)`
 `;
 
 storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (
-  <MockedApi endpoints={labRequestEndpoints}>
+  <MockedApi endpoints={mockLabRequestFormEndpoints}>
     <StyledBox width={800}>
       <LabRequestForm
         onNext={action('next')}
