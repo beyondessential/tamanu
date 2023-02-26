@@ -10,7 +10,7 @@ export const StyledCheckboxControl = styled(Checkbox)`
   padding-top: 0;
   padding-bottom: 0;
   margin-left: 3px;
-  width: max-content;
+  display: inline-block;
 `;
 
 const StyledFormControlLabel = styled(FormControlLabel)`
@@ -24,7 +24,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
       color: ${({ theme }) => theme.palette.primary.main};
     }
     &.fa-minus-square {
-      color: ${({ theme }) => theme.palette.secondary.main};
+      color: ${({ theme }) => theme.palette.primary.main};
     }
   }
   .MuiFormControlLabel-label {

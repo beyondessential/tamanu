@@ -59,7 +59,7 @@ export const mockLabRequestFormEndpoints = {
     { id: '2', name: 'Urgent' },
   ],
   labTestType: () => mockLabTestTypes,
-  ...mockTestSelectorEndpoints
+  ...mockTestSelectorEndpoints,
 };
 
 export const mockLabTestTypes = Object.values(mockPanels).flat();
