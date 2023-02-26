@@ -113,7 +113,7 @@ export const TestSelectorInput = ({
   onChange,
 }) => {
   const api = useApi();
-  const [query, setQuery] = useState({
+  const [testFilters, setTestFilters] = useState({
     labTestPanelId: '',
     labTestCategoryId: '',
     search: '',
@@ -122,26 +122,26 @@ export const TestSelectorInput = ({
   const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
 
   const { data: testTypeData, isFetching } = useQuery(
-    ['labTestTypes', query.labTestPanelId],
-    () => api.get(`labTestPanel/${encodeURIComponent(query.labTestPanelId)}/labTestTypes`),
+    ['labTestTypes', testFilters.labTestPanelId],
+    () => api.get(`labTestPanel/${encodeURIComponent(testFilters.labTestPanelId)}/labTestTypes`),
     {
       onSuccess: data => {
         // Select all tests in panel by default
         handleChange(data.map(type => type.id));
       },
-      enabled: requestType === LAB_REQUEST_FORM_TYPES.PANEL && !!query.labTestPanelId,
+      enabled: requestType === LAB_REQUEST_FORM_TYPES.PANEL && !!testFilters.labTestPanelId,
       initialData: testTypes,
     },
   );
 
   const handleChangeQuery = event =>
-    setQuery({ ...query, [event.target.name]: event.target.value });
+    setTestFilters({ ...testFilters, [event.target.name]: event.target.value });
   const handleClear = () => {
-    setQuery(values => ({ ...values, labTestPanelId: '' }));
+    setTestFilters(values => ({ ...values, labTestPanelId: '' }));
     handleChange([]);
   };
 
-  const queriedTypes = filterByTestTypeQuery(testTypeData, query);
+  const queriedTypes = filterByTestTypeQuery(testTypeData, testFilters);
 
   const isSelected = type => value.includes(type.id);
   const allSelected = queriedTypes.length && queriedTypes.every(isSelected);
@@ -157,7 +157,7 @@ export const TestSelectorInput = ({
         {requestType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
           <SuggesterSelectField
             field={{
-              value: query.labTestCategoryId,
+              value: testFilters.labTestCategoryId,
               onChange: handleChangeQuery,
             }}
             initialOptions={[[{ label: 'All', value: '' }]]}
@@ -170,13 +170,13 @@ export const TestSelectorInput = ({
         {requestType === LAB_REQUEST_FORM_TYPES.PANEL && (
           <StyledSuggesterSelectField
             field={{
-              value: query.labTestPanelId,
+              value: testFilters.labTestPanelId,
               onChange: handleChangeQuery,
             }}
             label="Test Panel"
             endpoint="labTestPanel"
             name="labTestPanelId"
-            disabled={query.labTestPanelId}
+            disabled={testFilters.labTestPanelId}
           />
         )}
         <FormSeparatorLine />
@@ -189,7 +189,7 @@ export const TestSelectorInput = ({
           />
           <StyledSearchField
             field={{
-              value: query.search,
+              value: testFilters.search,
               onChange: handleChangeQuery,
             }}
             placeholder="Search"
