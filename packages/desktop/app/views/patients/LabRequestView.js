@@ -79,7 +79,7 @@ const Menu = ({ setModal, status }) => {
 
 export const LabRequestView = () => {
   const query = useUrlSearchParams();
-  const [modal, setModal] = useState(query.get('modal') || null);
+  const [modal, setModal] = useState(query.get('modal'));
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
 
@@ -103,7 +103,7 @@ export const LabRequestView = () => {
       <Heading2 gutterBottom>Labs</Heading2>
       <LabRequestCard
         labRequest={labRequest}
-        Actions={
+        actions={
           !isReadOnly && (
             <Box display="flex" alignItems="center">
               <OutlinedButton>Print request</OutlinedButton>
@@ -158,30 +158,30 @@ export const LabRequestView = () => {
         status={status}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_STATUS}
-        onClose={() => closeModal()}
+        onClose={closeModal}
       />
       <LabRequestPrintModal
         labRequest={labRequest}
         patient={patient}
         open={modal === MODALS.PRINT}
-        onClose={() => closeModal()}
+        onClose={closeModal}
       />
       <LabRequestChangeLabModal
         laboratory={labRequest.laboratory}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_LABORATORY}
-        onClose={() => closeModal()}
+        onClose={closeModal}
       />
       <LabRequestCancelModal
         updateLabReq={updateLabReq}
         labRequestId={labRequest.id}
         open={modal === MODALS.CANCEL}
-        onClose={() => closeModal()}
+        onClose={closeModal}
       />
       <LabRequestLogModal
         labRequest={labRequest}
         open={modal === MODALS.VIEW_STATUS_LOG}
-        onClose={() => closeModal()}
+        onClose={closeModal}
       />
     </Container>
   );

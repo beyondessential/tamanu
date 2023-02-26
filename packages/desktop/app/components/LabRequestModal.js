@@ -14,7 +14,7 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
     <Modal width="md" title="New lab request" open={open} onClose={onClose}>
       <LabRequestForm
         onSubmit={async data =>
-          api.post(`labRequest`, {
+          api.post('labRequest', {
             ...data,
             encounterId: encounter.id,
           })
