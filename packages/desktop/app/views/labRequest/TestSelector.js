@@ -91,20 +91,20 @@ const StyledSuggesterSelectField = styled(SuggesterSelectField)`
   }
 `;
 
-const usePanelTestTypes = (labTestPanelId, initialData, onSuccess) => {
+const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   const api = useApi();
   return useQuery(
     ['labTestTypes', labTestPanelId],
     () => api.get(`labTestPanel/${encodeURIComponent(labTestPanelId)}/labTestTypes`),
     {
       onSuccess,
-      initialData,
+      placeholderData,
       enabled: !!labTestPanelId,
     },
   );
 };
 
-const filterByTestTypeQuery = (testTypes, { labTestCategoryId, search }) =>
+const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
   testTypes
     // Filter out tests that don't match the search query or category
     .filter(
@@ -121,8 +121,9 @@ const filterByTestTypeQuery = (testTypes, { labTestCategoryId, search }) =>
 export const TestSelectorInput = ({
   name,
   testTypes,
-  value = [],
+  value,
   values: { requestType = LAB_REQUEST_FORM_TYPES.INDIVIDUAL },
+  isLoading,
   onChange,
 }) => {
   const [testFilters, setTestFilters] = useState({
@@ -143,11 +144,13 @@ export const TestSelectorInput = ({
   const handleChangeTestFilters = event =>
     setTestFilters({ ...testFilters, [event.target.name]: event.target.value });
 
-  const { data: testTypeData, isFetching } = usePanelTestTypes(
+  const { data: testTypeData, isFetching } = useTestTypes(
     testFilters.labTestPanelId,
     testTypes,
     handleChangePanel,
   );
+
+  const showLoadingText = isLoading || isFetching;
 
   const queriedTypes = filterByTestTypeQuery(testTypeData, testFilters);
 
@@ -206,8 +209,8 @@ export const TestSelectorInput = ({
         </Box>
         <FormSeparatorLine />
         <SelectorTable>
-          {isFetching && <BodyText>Loading tests</BodyText>}
-          {!isFetching &&
+          {showLoadingText && <BodyText>Loading tests</BodyText>}
+          {!showLoadingText &&
             (queriedTypes.length > 0 ? (
               queriedTypes.map(type => (
                 <SelectableTestItem

@@ -14,15 +14,9 @@ export const screen2ValidationSchema = yup.object().shape({
 
 export const LabRequestFormScreen2 = props => {
   const api = useApi();
-  const { data: testTypesData, isLoading } = useQuery(
-    ['labTestTypes'],
-    () => api.get('labTestType'),
-    {
-      refetchOnWindowFocus: false,
-    },
+  const { data: testTypesData, isLoading } = useQuery(['labTestTypes'], () =>
+    api.get('labTestType'),
   );
-
-  if (isLoading) return null;
 
   return (
     <div style={{ gridColumn: '1 / -1' }}>
@@ -31,6 +25,7 @@ export const LabRequestFormScreen2 = props => {
         label="Lab tests"
         component={TestSelectorField}
         testTypes={testTypesData}
+        isLoading={isLoading}
         {...props}
       />
     </div>

@@ -35,6 +35,7 @@ export const LabRequestForm = ({
         requestedDate: getCurrentDateTimeString(),
         specimenAttached: 'no',
         status: LAB_REQUEST_STATUSES.NOT_COLLECTED,
+        labTestIds: [],
         // LabTest date
         date: getCurrentDateString(),
         ...editedObject,
