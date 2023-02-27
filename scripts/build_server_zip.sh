@@ -35,8 +35,9 @@ pwd
 # along with the facility server
 if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     if [ ! -d "$DESKTOP_RELEASE_DIR" ]; then
-        echo "Building desktopr"
-        ./scripts/build_desktop.sh build-only
+        echo "Building desktop"
+        echo "Current directory: $PWD"
+        ./build_desktop.sh build-only
     fi
 
     echo "Packaging desktop with facility server"
