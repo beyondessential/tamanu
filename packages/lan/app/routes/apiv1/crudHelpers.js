@@ -91,7 +91,9 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
       ...(foreignKey && { [foreignKey]: params.id }),
       ...additionalFilters,
     },
-    order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    // ['association', 'column', 'direction'] is the sequlize format to sort by foreign column
+    // allow 'association.column' as a valid sort query
+    order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
     include: [...associations, ...include],
   };
 
@@ -151,7 +153,9 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
 
     const objects = await models[modelName].findAll({
       ...queryOpts,
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      // ['association', 'column', 'direction'] is the sequlize format to sort by foreign column
+      // allow 'association.column' as a valid sort query
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
       limit: rowsPerPage || undefined,
       offset,
     });
