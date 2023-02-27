@@ -84,7 +84,6 @@ async function connectToDatabase(dbOptions) {
     host,
     port,
     logging,
-    timezone: dbOptions.timezone,
   });
   setupQuote(sequelize);
   await sequelize.authenticate();

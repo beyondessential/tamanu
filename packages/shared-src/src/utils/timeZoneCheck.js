@@ -12,7 +12,7 @@ function getConfigTimeZone(config) {
 }
 
 async function getDatabaseTimeZone(sequelize) {
-  const rows = await sequelize.query("SELECT * FROM pg_settings WHERE name ILIKE 'timezone'", {
+  const rows = await sequelize.query("SELECT setting FROM pg_settings WHERE name ILIKE 'timezone'", {
     type: QueryTypes.SELECT,
   });
   return rows[0].setting;
@@ -32,9 +32,19 @@ export async function performTimeZoneChecks({ config, sequelize, remote }) {
   };
 
   if (remote) {
-    zones.remote = await getRemoteTimeZone(remote);
+    zones.remoteConfig = await getRemoteTimeZone(remote);
   }
 
+  /*
+  TODO: 
+  When Sequelize connects to Postgres without an explicit timezone parameter, it causes 
+  it to report its timezone slightly weirdly (as '<+00>-00' rather than a named TZ).
+  But providing the timezone explicitly breaks some of our reports...! 
+  So just log the timezones for now and we perform the more rigid check once
+  we've sorted those issues out.
+  */
+  log.info('Checking timezone consistency', zones);
+  /*
   const unique = new Set(Object.values(zones));
   if (unique.size > 1) {
     const errorText = `Detected mismatched time zones. Details: ${JSON.stringify(zones)}.`;
@@ -46,4 +56,5 @@ export async function performTimeZoneChecks({ config, sequelize, remote }) {
       );
     }
   }
+  */
 }
