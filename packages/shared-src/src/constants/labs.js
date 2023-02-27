@@ -6,7 +6,7 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
   CANCELLED: 'cancelled',
   DELETED: 'deleted',
-  SAMPLE_NOT_COLLECTED: 'not-collected',
+  SAMPLE_NOT_COLLECTED: 'sample-not-collected',
   ENTERED_IN_ERROR: 'entered-in-error',
 };
 

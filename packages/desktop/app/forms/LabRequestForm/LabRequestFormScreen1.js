@@ -26,7 +26,7 @@ export const screen1ValidationSchema = yup.object().shape({
     .required(),
   sampleTime: yup.string().when('specimenAttached', {
     is: 'yes',
-    then: yup.string().required(''),
+    then: yup.string().required(),
     otherwise: yup.string().nullable(),
   }),
   status: yup
