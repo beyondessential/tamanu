@@ -1,5 +1,6 @@
 import React from 'react';
 import shortid from 'shortid';
+import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import {
@@ -11,7 +12,10 @@ import {
   FACILITIES,
   LOCATIONS,
   USERS,
+  DEPARTMENTS,
 } from 'shared/demoData';
+import { MockedApi } from '../utils/mockedApi';
+import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
 import { EncounterForm } from '../../app/forms/EncounterForm';
 import { TriageForm } from '../../app/forms/TriageForm';
 import { ProcedureForm } from '../../app/forms/ProcedureForm';
@@ -21,19 +25,22 @@ import { OngoingConditionForm } from '../../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../../app/forms/DischargeForm';
 import { NewPatientForm } from '../../app/forms/NewPatientForm';
 import { PatientDetailsForm } from '../../app/forms/PatientDetailsForm';
-import { LabRequestForm } from '../../app/forms/LabRequestForm';
+import { LabRequestMultiStepForm } from '../../app/forms/LabRequestForm/LabRequestMultiStepForm';
 import { MedicationForm } from '../../app/forms/MedicationForm';
 import { DeathForm } from '../../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
 import { createDummySuggester, mapToSuggestions } from '../utils';
-import { TestSelectorInput } from '../../app/components/TestSelector';
 import { Modal } from '../../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 
-const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
+const PATIENTS = new Array(20).fill(0).map(() => createDummyPatient());
 
-const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
+const departmentSuggester = createDummySuggester(mapToSuggestions(DEPARTMENTS));
+const practitionerSuggester = createDummySuggester([
+  ...mapToSuggestions(USERS),
+  { label: 'Storybook test user', value: 'test-user-id' },
+]);
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
 const dispositionSuggester = createDummySuggester(mapToSuggestions(DISPOSITIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
@@ -183,45 +190,6 @@ storiesOf('Forms', module).add('PatientDetailsForm', () => (
   />
 ));
 
-const testCategories = [
-  { label: 'Sweet', value: 'sweet' },
-  { label: 'Savoury', value: 'savoury' },
-];
-
-const testTypes = [
-  { name: 'Grape', id: 'grape', labTestCategoryId: 'sweet' },
-  { name: 'Vanilla', id: 'vanilla', labTestCategoryId: 'sweet' },
-  { name: 'Chocolate', id: 'chocolate', labTestCategoryId: 'sweet' },
-  { name: 'Boysenberry', id: 'boysenberry', labTestCategoryId: 'sweet' },
-  { name: 'Strawberry', id: 'strawb', labTestCategoryId: 'sweet' },
-  { name: 'Lemon', id: 'lemon', labTestCategoryId: 'sweet' },
-  { name: 'Pepper', id: 'pepper', labTestCategoryId: 'savoury' },
-  { name: 'Cabbage', id: 'cabbage', labTestCategoryId: 'savoury' },
-  { name: 'Sprout', id: 'sprout', labTestCategoryId: 'savoury' },
-  { name: 'Yeast', id: 'yeast', labTestCategoryId: 'savoury' },
-  { name: 'Zucchini', id: 'zuc', labTestCategoryId: 'savoury' },
-  { name: 'Egg', id: 'egg', labTestCategoryId: 'savoury' },
-  { name: 'Chicken', id: 'chicken', labTestCategoryId: 'savoury' },
-  { name: 'Leek', id: 'leek', labTestCategoryId: 'savoury' },
-  { name: 'Chilli', id: 'chilli', labTestCategoryId: 'savoury' },
-  { name: 'Fennel', id: 'fennel', labTestCategoryId: 'savoury' },
-];
-
-const StorybookableTestSelector = () => {
-  const [value, setValue] = React.useState([]);
-  const changeAction = action('change');
-  const onChange = React.useCallback(
-    e => {
-      const newValue = e.target.value;
-      changeAction(newValue);
-      setValue(newValue);
-    },
-    [setValue],
-  );
-
-  return <TestSelectorInput testTypes={testTypes} value={value} onChange={onChange} />;
-};
-
 storiesOf('Forms', module).add('FamilyHistoryForm', () => (
   <FamilyHistoryForm
     onSubmit={action('submit')}
@@ -240,22 +208,24 @@ storiesOf('Forms', module).add('MedicationForm', () => (
   />
 ));
 
-storiesOf('Forms/LabRequestForm', module)
-  .add('LabRequestForm', () => (
-    <LabRequestForm
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
-      visit={{
-        visitType: 'admission',
-        startDate: new Date(),
-        examiner: {
-          displayName: 'Dr Jim Taylor',
-        },
-      }}
-      testTypes={testTypes}
-      testCategories={testCategories}
-      generateDisplayId={shortid.generate}
-      practitionerSuggester={practitionerSuggester}
-    />
-  ))
-  .add('TestSelector', () => <StorybookableTestSelector />);
+const WrapperCard = styled.div`
+  display: flex;
+  padding: 20px;
+  width: 800px;
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+`;
+
+storiesOf('Forms', module).add('LabRequestForm', () => (
+  <MockedApi endpoints={mockLabRequestFormEndpoints}>
+    <WrapperCard>
+      <LabRequestMultiStepForm
+        onNext={action('next')}
+        onSubmit={action('submit')}
+        onCancel={action('cancel')}
+        generateDisplayId={shortid.generate}
+        practitionerSuggester={practitionerSuggester}
+        departmentSuggester={departmentSuggester}
+      />
+    </WrapperCard>
+  </MockedApi>
+));

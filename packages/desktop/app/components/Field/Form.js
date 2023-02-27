@@ -135,10 +135,10 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { render } = this.props;
+    const { render, style } = this.props;
 
     return (
-      <form onSubmit={submitForm} noValidate>
+      <form style={style} onSubmit={submitForm} noValidate>
         {render({
           ...formProps,
           setValues,

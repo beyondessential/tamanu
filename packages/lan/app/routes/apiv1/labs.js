@@ -222,6 +222,22 @@ labTest.put('/:id', simplePut('LabTest'));
 
 export const labTestType = express.Router();
 labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
+labTestType.get(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    req.checkPermission('list', 'LabTestType');
+    const labTests = await models.LabTestType.findAll({
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'category',
+        },
+      ],
+    });
+    res.send(labTests);
+  }),
+);
 
 export const labTestPanel = express.Router();
 
