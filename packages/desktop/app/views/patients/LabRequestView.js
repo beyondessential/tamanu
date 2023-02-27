@@ -2,10 +2,19 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { Timelapse, Business, AssignmentLate, Category } from '@material-ui/icons';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { Heading2, MenuButton, OutlinedButton } from '../../components';
+import {
+  Heading2,
+  Tile,
+  TileContainer,
+  MenuButton,
+  DateDisplay,
+  OutlinedButton,
+  TileTag,
+} from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
@@ -15,31 +24,11 @@ import { LabRequestCancelModal } from './components/LabRequestCancelModal';
 import { LabRequestResultsTable } from './components/LabRequestResultsTable';
 import { LabRequestLogModal } from './components/LabRequestLogModal';
 import { LabRequestCard } from './components/LabRequestCard';
+import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 const Container = styled.div`
   padding: 12px 30px;
-`;
-
-const TileContainer = styled.div`
-  display: flex;
-  align-items: stretch;
-  overflow: auto;
-  padding-bottom: 20px;
-
-  > div {
-    flex: 1;
-    min-width: 140px;
-    margin: 0 8px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
 `;
 
 const Rule = styled(Divider)`
@@ -103,59 +92,63 @@ export const LabRequestView = () => {
       <Heading2 gutterBottom>Labs</Heading2>
       <LabRequestCard
         labRequest={labRequest}
+        isReadOnly={isReadOnly}
         actions={
-          !isReadOnly && (
-            <Box display="flex" alignItems="center">
-              <OutlinedButton>Print request</OutlinedButton>
-              <Menu setModal={setModal} status={labRequest.status} />
-            </Box>
-          )
+          <Box display="flex" alignItems="center">
+            <OutlinedButton>Print request</OutlinedButton>
+            <Menu setModal={setModal} status={labRequest.status} />
+          </Box>
         }
       />
-      {/* Todo: Add custom styled in WAITM-642 */}
-
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
-        {/* Todo: Add Tile component in WAITM-646 */}
-        {/* <Tile title="Test Category" Icon={Category} text={(labRequest.category || {}).name} /> */}
-        {/* <Tile */}
-        {/*  title="Status" */}
-        {/*  Icon={Timelapse} */}
-        {/*  text={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'} */}
-        {/*  actions={ */}
-        {/*    !isReadOnly && { */}
-        {/*      'Change status': () => { */}
-        {/*        setModal(MODALS.CHANGE_STATUS); */}
-        {/*      }, */}
-        {/*      'View status log': () => { */}
-        {/*        setModal(MODALS.VIEW_STATUS_LOG); */}
-        {/*      }, */}
-        {/*    } */}
-        {/*  } */}
-        {/* /> */}
-        {/* <Tile title="Sample collected" text={<DateDisplay date={labRequest.requestedDate} />} /> */}
-        {/* <Tile */}
-        {/*  title="Laboratory" */}
-        {/*  Icon={Business} */}
-        {/*  text={(labRequest.laboratory || {}).name || 'Unknown'} */}
-        {/*  actions={ */}
-        {/*    !isReadOnly && { */}
-        {/*      'Change laboratory': () => { */}
-        {/*        setModal(MODALS.CHANGE_LABORATORY); */}
-        {/*      }, */}
-        {/*    } */}
-        {/*  } */}
-        {/* /> */}
-        {/* <Tile */}
-        {/*  title="Priority" */}
-        {/*  Icon={AssignmentLate} */}
-        {/*  text={(labRequest.priority || {}).name || 'Unknown'} */}
-        {/* /> */}
+        <Tile Icon={Category} text="Test Category" main={(labRequest.category || {}).name} />
+        <Tile
+          Icon={Timelapse}
+          text="Status"
+          main={
+            <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
+              {LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+            </TileTag>
+          }
+          isReadOnly={isReadOnly}
+          actions={{
+            'Change status': () => {
+              setModal(MODALS.CHANGE_STATUS);
+            },
+            'View status log': () => {
+              setModal(MODALS.VIEW_STATUS_LOG);
+            },
+          }}
+        />
+        <Tile text="Sample collected" main={<DateDisplay date={labRequest.requestedDate} />} />
+        <Tile
+          Icon={Business}
+          text="Laboratory"
+          main={(labRequest.laboratory || {}).name || 'Unknown'}
+          isReadOnly={isReadOnly}
+          actions={{
+            'Change laboratory': () => {
+              setModal(MODALS.CHANGE_LABORATORY);
+            },
+          }}
+        />
+        <Tile
+          Icon={AssignmentLate}
+          text="Priority"
+          main={(labRequest.priority || {}).name || 'Unknown'}
+          isReadOnly={isReadOnly}
+          actions={{
+            'Change priority': () => {
+              setModal(MODALS.CHANGE_PRIORITY);
+            },
+          }}
+        />
       </TileContainer>
       <Rule />
       <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
       <LabRequestChangeStatusModal
-        status={status}
+        status={labRequest.status}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_STATUS}
         onClose={closeModal}
@@ -167,7 +160,7 @@ export const LabRequestView = () => {
         onClose={closeModal}
       />
       <LabRequestChangeLabModal
-        laboratory={labRequest.laboratory}
+        labTestLaboratoryId={labRequest.laboratory?.id}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_LABORATORY}
         onClose={closeModal}
@@ -181,6 +174,12 @@ export const LabRequestView = () => {
       <LabRequestLogModal
         labRequest={labRequest}
         open={modal === MODALS.VIEW_STATUS_LOG}
+        onClose={closeModal}
+      />
+      <LabRequestChangePriorityModal
+        priority={labRequest.labTestPriorityId}
+        updateLabReq={updateLabReq}
+        open={modal === MODALS.CHANGE_PRIORITY}
         onClose={closeModal}
       />
     </Container>

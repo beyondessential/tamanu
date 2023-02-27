@@ -112,7 +112,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               saveNote({ values, formProps });
             }}
             render={({ values }) => {
-              const formSubmitIsDisabled = !values.content.trim();
+              const formSubmitIsDisabled = !values.content?.trim();
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />

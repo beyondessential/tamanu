@@ -5,25 +5,33 @@ const DEFAULTS = {
   background: '#F4F4F4',
 };
 
-export const Tag = styled.div`
+const BaseTag = styled.div`
   position: relative;
-  background: ${p => (p.$background ? p.$background : DEFAULTS.background)};
+  display: inline-block;
+  background: ${({ $background, $color }) => {
+    if ($background) {
+      return $background;
+    }
+    if ($color) {
+      // If no background-color prop was provided then use a semi-transparent version of the color
+      return `${$color}1A`;
+    }
+    return DEFAULTS.background;
+  }};
   color: ${p => (p.$color ? p.$color : DEFAULTS.color)};
+  font-weight: 400;
+`;
+
+export const FormFieldTag = styled(BaseTag)`
   padding: 3px 13px;
   border-radius: 20px;
-  font-weight: 400;
   font-size: 14px;
   line-height: 18px;
 `;
 
-export const StatusTag = styled.div`
-  position: relative;
-  display: inline-block;
-  background: ${p => p.$background || DEFAULTS.background};
-  color: ${p => p.$color || DEFAULTS.color};
-  padding: 6px 13px;
-  border-radius: 20px;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 16px;
+export const TableCellTag = styled(BaseTag)`
+  padding: 5px 10px;
+  border-radius: 25px;
+  font-size: 11px;
+  line-height: 15px;
 `;
