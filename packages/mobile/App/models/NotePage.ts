@@ -1,5 +1,4 @@
-import { Entity, Column } from 'typeorm/browser';
-import { OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm/browser';
 
 import { DateTimeStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';

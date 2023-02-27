@@ -1,37 +1,45 @@
 import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
-import { OneToMany } from 'typeorm';
-import { BaseModel } from './BaseModel';
-import { INotePage } from '~/types';
-import { SYNC_DIRECTIONS } from './types';
-import { Encounter } from './Encounter';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { LabTest } from './LabTest';
-import { User } from './User';
-import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
-import { DateTimeStringColumn } from './DateColumns';
 
-@Entity('notePage')
+import { DateTimeStringColumn } from './DateColumns';
+import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
+
+import { ID, INoteItem, INotePage, NoteRecordType, NoteType, DateString } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
+
+import { BaseModel } from './BaseModel';
+import { User } from './User';
+import { NotePage } from './NotePage';
+
+
+@Entity('noteItem')
 export class NoteItem extends BaseModel implements INoteItem {
   static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
-
   // id: ID;
-  @DateTimeStringColumn({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT });
+  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   date: DateString;
+  @Column({ type: 'varchar', nullable: false })
   content: string;
 
   // Not sure what this does exactly
+  @Column({ type: 'varchar', nullable: false })
   revisedById?: string;
 
-  notePage: INotePage
+  @ManyToOne(
+    () => NotePage,
+    notePage => notePage.noteItems,
+  )
+  notePage: INotePage;
+  @RelationId(({ notePage }) => notePage)
   notePageId: ID;
 
   @ManyToOne(
     () => User,
-    user => user.labRequests,
+    user => user.not,
   )
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
+
   author: IUser;
   authorId: ID;
 
