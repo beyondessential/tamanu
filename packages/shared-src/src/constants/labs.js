@@ -45,7 +45,8 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
   [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: {
     label: 'Entered in error',
-    color: '#444444',
+    color: '#F76853',
+    background: '#FFCEC7',
   },
   unknown: {
     label: 'Unknown',
