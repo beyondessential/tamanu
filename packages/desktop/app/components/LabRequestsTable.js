@@ -16,19 +16,18 @@ import {
   getStatus,
   getRequestType,
   getPriority,
-  getDate,
+  getDateTime,
   getRequestId,
   getLaboratory,
 } from '../utils/lab';
 
 const encounterColumns = [
-  { key: 'requestId', title: 'Request ID', sortable: false, accessor: getRequestId },
-  { key: 'labRequestType', title: 'Type', accessor: getRequestType, sortable: false },
-  { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
+  { key: 'requestId', title: 'Test ID', sortable: false, accessor: getRequestId },
+  { key: 'category.name', title: 'Category', accessor: getRequestType },
+  { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
   { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
-  { key: 'requestedDate', title: 'Request date', accessor: getDate, sortable: false },
-  { key: 'priority', title: 'Priority', accessor: getPriority },
-  { key: 'laboratory', title: 'Laboratory', accessor: getLaboratory },
+  { key: 'priority.name', title: 'Priority', accessor: getPriority },
+  { key: 'status', title: 'Status', accessor: getStatus },
 ];
 
 const globalColumns = [
@@ -38,6 +37,7 @@ const globalColumns = [
     accessor: getPatientDisplayId,
     sortable: false,
   },
+  { key: 'laboratory', title: 'Laboratory', accessor: getLaboratory },
   ...encounterColumns,
 ];
 
@@ -74,6 +74,7 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
       onRowClick={selectLab}
       fetchOptions={searchParameters}
       elevated={false}
+      initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
     />
   );
 });
