@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { Typography } from '@material-ui/core';
 import LabelIcon from '@material-ui/icons/Label';
 import { MenuButton } from './MenuButton';
-import { StatusTag } from './Tag';
+import { TableCellTag } from './Tag';
 
 const Container = styled.div`
   background: white;
@@ -59,6 +59,7 @@ Tile.propTypes = {
   text: PropTypes.string,
   Icon: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.object]),
   actions: PropTypes.objectOf(PropTypes.func),
+  isReadOnly: PropTypes.bool,
 };
 
 Tile.defaultProps = {
@@ -66,6 +67,7 @@ Tile.defaultProps = {
   main: null,
   text: null,
   actions: null,
+  isReadOnly: false,
 };
 
 export const TileContainer = styled.div`
@@ -101,7 +103,7 @@ export const TileTooltip = React.memo(({ text, ...props }) => (
   </Tooltip>
 ));
 
-export const TileTag = styled(StatusTag)`
+export const TileTag = styled(TableCellTag)`
   margin-left: -2px;
   margin-right: -2px;
 `;

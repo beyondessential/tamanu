@@ -23,7 +23,7 @@ const BaseTag = styled.div`
 `;
 
 // Used in form fields such as Autocomplete and Select
-export const Tag = styled(BaseTag)`
+export const FormFieldTag = styled(BaseTag)`
   padding: 3px 13px;
   border-radius: 20px;
   font-size: 14px;
@@ -31,7 +31,7 @@ export const Tag = styled(BaseTag)`
 `;
 
 // Used in tables
-export const StatusTag = styled(BaseTag)`
+export const TableCellTag = styled(BaseTag)`
   padding: 5px 10px;
   border-radius: 25px;
   font-size: 11px;

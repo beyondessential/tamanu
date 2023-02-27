@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
-import { Tag } from '../Tag';
+import { FormFieldTag } from '../Tag';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -22,11 +22,11 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const SelectTag = styled(Tag)`
+const SelectTag = styled(FormFieldTag)`
   right: 5px;
 `;
 
-const OptionTag = styled(Tag)`
+const OptionTag = styled(FormFieldTag)`
   right: 20px;
 `;
 

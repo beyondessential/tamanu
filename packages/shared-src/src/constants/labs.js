@@ -17,7 +17,7 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: {
     label: 'Results pending',
-    color: '#19934E',
+    color: '#CB6100',
   },
   [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: {
     label: 'To be verified',
