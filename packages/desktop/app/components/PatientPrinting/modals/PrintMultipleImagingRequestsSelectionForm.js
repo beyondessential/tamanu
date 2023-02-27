@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
 import { Table, useSelectableColumn } from '../../Table';
 import { OuterLabelFieldWrapper } from '../../Field';
 import { ConfirmCancelRow } from '../../ButtonRow';
@@ -21,7 +22,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
         `encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
         {
           includeNotePages: 'true',
-          status: 'reception_pending',
+          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
           orderBy: 'requestedDate',
           order: 'ASC',
         },

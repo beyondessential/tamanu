@@ -126,18 +126,9 @@ encounterRelations.get(
   '/:id/labRequests',
   getLabRequestList('encounterId', {
     additionalFilters: {
-      [Op.and]: [
-        {
-          status: {
-            [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
-          },
-        },
-        {
-          status: {
-            [Op.ne]: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-          },
-        },
-      ],
+      status: {
+        [Op.notIn]: [LAB_REQUEST_STATUSES.DELETED, LAB_REQUEST_STATUSES.ENTERED_IN_ERROR],
+      },
     },
   }),
 );

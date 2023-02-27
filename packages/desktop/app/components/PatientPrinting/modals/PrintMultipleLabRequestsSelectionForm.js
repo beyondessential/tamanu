@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
+import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { Table, useSelectableColumn } from '../../Table';
 import { OuterLabelFieldWrapper } from '../../Field';
 import { ConfirmCancelRow } from '../../ButtonRow';
@@ -62,7 +63,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     async () => {
       const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
         includeNotePages: 'true',
-        status: 'reception_pending',
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         order: 'asc',
         orderBy: 'requestedDate',
       });
