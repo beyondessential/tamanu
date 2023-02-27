@@ -181,7 +181,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const discharge = dishchargeQuery.data;
 
   const villageQuery = useReferenceData(patient?.villageId);
-  const village = villageQuery.name;
+  const village = villageQuery?.data?.name;
 
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;

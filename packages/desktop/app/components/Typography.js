@@ -15,3 +15,9 @@ export const SmallBodyText = styled(Typography)`
   font-size: 11px;
   line-height: 15px;
 `;
+
+export const Heading2 = styled(Typography)`
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+`;
