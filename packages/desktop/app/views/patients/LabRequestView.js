@@ -112,45 +112,45 @@ export const LabRequestView = () => {
           )
         }
       />
-      {/*Todo: Add custom styled in WAITM-642*/}
+      {/* Todo: Add custom styled in WAITM-642 */}
 
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
         {/* Todo: Add Tile component in WAITM-646 */}
-        {/*<Tile title="Test Category" Icon={Category} text={(labRequest.category || {}).name} />*/}
-        {/*<Tile*/}
-        {/*  title="Status"*/}
-        {/*  Icon={Timelapse}*/}
-        {/*  text={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}*/}
-        {/*  actions={*/}
-        {/*    !isReadOnly && {*/}
-        {/*      'Change status': () => {*/}
-        {/*        setModal(MODALS.CHANGE_STATUS);*/}
-        {/*      },*/}
-        {/*      'View status log': () => {*/}
-        {/*        setModal(MODALS.VIEW_STATUS_LOG);*/}
-        {/*      },*/}
-        {/*    }*/}
-        {/*  }*/}
-        {/*/>*/}
-        {/*<Tile title="Sample collected" text={<DateDisplay date={labRequest.requestedDate} />} />*/}
-        {/*<Tile*/}
-        {/*  title="Laboratory"*/}
-        {/*  Icon={Business}*/}
-        {/*  text={(labRequest.laboratory || {}).name || 'Unknown'}*/}
-        {/*  actions={*/}
-        {/*    !isReadOnly && {*/}
-        {/*      'Change laboratory': () => {*/}
-        {/*        setModal(MODALS.CHANGE_LABORATORY);*/}
-        {/*      },*/}
-        {/*    }*/}
-        {/*  }*/}
-        {/*/>*/}
-        {/*<Tile*/}
-        {/*  title="Priority"*/}
-        {/*  Icon={AssignmentLate}*/}
-        {/*  text={(labRequest.priority || {}).name || 'Unknown'}*/}
-        {/*/>*/}
+        {/* <Tile title="Test Category" Icon={Category} text={(labRequest.category || {}).name} /> */}
+        {/* <Tile */}
+        {/*  title="Status" */}
+        {/*  Icon={Timelapse} */}
+        {/*  text={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'} */}
+        {/*  actions={ */}
+        {/*    !isReadOnly && { */}
+        {/*      'Change status': () => { */}
+        {/*        setModal(MODALS.CHANGE_STATUS); */}
+        {/*      }, */}
+        {/*      'View status log': () => { */}
+        {/*        setModal(MODALS.VIEW_STATUS_LOG); */}
+        {/*      }, */}
+        {/*    } */}
+        {/*  } */}
+        {/* /> */}
+        {/* <Tile title="Sample collected" text={<DateDisplay date={labRequest.requestedDate} />} /> */}
+        {/* <Tile */}
+        {/*  title="Laboratory" */}
+        {/*  Icon={Business} */}
+        {/*  text={(labRequest.laboratory || {}).name || 'Unknown'} */}
+        {/*  actions={ */}
+        {/*    !isReadOnly && { */}
+        {/*      'Change laboratory': () => { */}
+        {/*        setModal(MODALS.CHANGE_LABORATORY); */}
+        {/*      }, */}
+        {/*    } */}
+        {/*  } */}
+        {/* /> */}
+        {/* <Tile */}
+        {/*  title="Priority" */}
+        {/*  Icon={AssignmentLate} */}
+        {/*  text={(labRequest.priority || {}).name || 'Unknown'} */}
+        {/* /> */}
       </TileContainer>
       <Rule />
       <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
