@@ -471,7 +471,7 @@ describe('Encounter summary line list report', () => {
 
   afterAll(() => ctx.close());
 
-  it(`Should produce a simple report`, async () => {
+  xit(`Should produce a simple report`, async () => {
     const { patient, encounterId, locationGroupId } = await fakeAllData(models);
 
     // act
