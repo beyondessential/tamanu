@@ -216,7 +216,6 @@ export const VitalsDataElements = {
   dateRecorded: 'pde-PatientVitalsDate',
 };
 
-
 export const NOTE_RECORD_TYPES = {
   ENCOUNTER: 'Encounter',
   PATIENT: 'Patient',
@@ -242,6 +241,7 @@ export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
 };
+
 export const FORM_STATUSES = {
   SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
 };
