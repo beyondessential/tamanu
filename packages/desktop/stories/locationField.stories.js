@@ -6,6 +6,10 @@ import { Typography, Box } from '@material-ui/core';
 import { Form, Field, LocationField } from '../app/components';
 import { MockedApi } from './utils/mockedApi';
 
+/**
+ * TODO: Semi-broken from changes to suggester logic
+ */
+
 const Container = styled.div`
   max-width: 600px;
   padding: 2rem;

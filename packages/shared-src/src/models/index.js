@@ -18,6 +18,7 @@ export * from './PatientFieldValue';
 export * from './PatientDeathData';
 export * from './PatientBirthData';
 export * from './ContributingDeathCause';
+export * from './DeathRevertLog';
 
 export * from './Encounter';
 export * from './Discharge';

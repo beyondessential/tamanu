@@ -30,7 +30,7 @@ export const PatientDetailsSection = ({
   ];
   return (
     <Row>
-      <Col style={{ width: '80%' }}>
+      <Col style={{ width: '68%' }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
@@ -38,18 +38,22 @@ export const PatientDetailsSection = ({
 
             return (
               <Col key={key}>
-                <P>{`${label}: ${value}`}</P>
+                <P mb={5}>
+                  <P bold>{label}:</P> {value}
+                </P>
               </Col>
             );
           })}
         </Row>
         {uvci && (
           <Row>
-            <P>UVCI: {uvci}</P>
+            <P>
+              <P bold>UVCI:</P> {uvci}
+            </P>
           </Row>
         )}
       </Col>
-      <Col style={{ width: '20%' }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
+      <Col style={{ width: '32%' }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
     </Row>
   );
 };

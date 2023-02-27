@@ -53,7 +53,7 @@ export const OuterLabelFieldWrapper = React.memo(
   React.forwardRef(({ children, required, label, infoTooltip, style, className }, ref) => (
     <div style={style} className={className} ref={ref}>
       {label && (
-        <OuterLabel>
+        <OuterLabel className="label-field">
           {label}
           {required && <OuterLabelRequired>*</OuterLabelRequired>}
         </OuterLabel>

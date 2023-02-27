@@ -2,11 +2,10 @@ import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
 import { OutlinedButton } from '../Button';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
-import { PatientPrintDetailsModal } from '../PatientPrinting';
+import { PrintPatientDetailsModal } from '../PatientPrinting';
 import {
   AllergyForm,
   OngoingConditionForm,
@@ -27,6 +26,7 @@ import {
 } from './paneTitles';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { LoadingIndicator } from '../LoadingIndicator';
+import { RecordDeathSection } from '../RecordDeathSection';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -36,9 +36,10 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     endpoint="ongoingCondition"
     getEndpoint={`patient/${patient.id}/conditions`}
     Form={OngoingConditionForm}
-    getName={({ condition, resolved }) =>
-      resolved ? `${condition.name} (resolved)` : condition.name
-    }
+    getName={({ condition, resolved }) => {
+      const { name } = condition;
+      return resolved ? `${name} (resolved)` : name;
+    }}
   />
 ));
 
@@ -107,32 +108,11 @@ const CauseOfDeathButton = memo(({ openModal }) => {
   );
 });
 
-const RecordDeathSection = memo(({ patient, openModal }) => {
-  const isPatientDead = Boolean(patient.dateOfDeath);
-  const actionText = isPatientDead ? 'Revert death' : 'Record death';
-  const [isModalOpen, setModalOpen] = useState(false);
-  const openRevertModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-
-  return (
-    <>
-      <TypographyLink onClick={isPatientDead ? openRevertModal : openModal}>
-        {actionText}
-      </TypographyLink>
-      {/*
-      PLACEHOLDER
-      <RevertDeathModal
-        open={isModalOpen}
-        onClose={closeModal}
-        patient={patient}
-      />
-      */}
-    </>
-  );
-});
-
-const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
+const PrintSection = memo(({ patient }) => <PrintPatientDetailsModal patient={patient} />);
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   position: relative;
   background: ${Colors.white};
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
@@ -141,6 +121,9 @@ const Container = styled.div`
 `;
 
 const ListsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
   padding: 5px 25px 25px 25px;
 `;
 
@@ -156,16 +139,6 @@ const Buttons = styled.div`
       margin: 0;
     }
   }
-`;
-
-const TypographyLink = styled(Typography)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 18px;
-  text-decoration: underline;
-  text-align: right;
-  cursor: pointer;
 `;
 
 export const PatientInfoPane = () => {
@@ -199,8 +172,9 @@ export const PatientInfoPane = () => {
           {showCauseOfDeathButton && <CauseOfDeathButton openModal={openModal} />}
           <PrintSection patient={patient} readonly={readonly} />
         </Buttons>
-        <Box mt={12} />
-        {showRecordDeathActions && <RecordDeathSection patient={patient} openModal={openModal} />}
+        {showRecordDeathActions && (
+          <RecordDeathSection patient={patient} openDeathModal={openModal} />
+        )}
       </ListsSection>
       {patientDeathsEnabled && (
         <DeathModal open={isModalOpen} onClose={closeModal} deathData={deathData} />

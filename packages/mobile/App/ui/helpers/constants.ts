@@ -242,3 +242,6 @@ export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
 };
+export const FORM_STATUSES = {
+  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+};

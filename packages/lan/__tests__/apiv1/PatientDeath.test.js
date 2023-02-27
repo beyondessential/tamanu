@@ -1,3 +1,4 @@
+import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 import { fake } from 'shared/test-helpers/fake';
 import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -321,6 +322,65 @@ describe('PatientDeath', () => {
 
       const deathData = await PatientDeathData.findByPk(formerDeathData.id);
       expect(deathData.manner).toEqual(mod);
+    });
+  });
+
+  describe('Revert death', () => {
+    it('should revert patient death', async () => {
+      const { Patient, PatientDeathData } = models;
+      const { clinicianId } = commons;
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
+      await PatientDeathData.create({
+        patientId: id,
+        clinicianId,
+        timeOfDeath: '2021-01-01 00:01:00',
+        isFinal: false,
+      });
+
+      const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
+      expect(result).toHaveSucceeded();
+      const deathData = await PatientDeathData.findAll({
+        where: { patientId: id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      });
+      expect(deathData.length).toBe(0);
+    });
+
+    it('should not revert patient death when its final', async () => {
+      const { Patient, PatientDeathData } = models;
+      const { clinicianId, cond1Id } = commons;
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
+      await PatientDeathData.create({
+        patientId: id,
+        clinicianId,
+        timeOfDeath: '2021-01-01 00:01:00',
+        primaryCauseConditionId: cond1Id,
+        manner: 'Accident',
+        isFinal: true,
+      });
+
+      const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
+      expect(result).not.toHaveSucceeded();
+      const deathData = await PatientDeathData.findAll({
+        where: { patientId: id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      });
+      expect(deathData.length).toBe(1);
+    });
+
+    it('should create a death revert log', async () => {
+      const { Patient, PatientDeathData, DeathRevertLog } = models;
+      const { clinicianId } = commons;
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
+      await PatientDeathData.create({
+        patientId: id,
+        clinicianId,
+        timeOfDeath: '2021-01-01 00:01:00',
+        isFinal: false,
+      });
+
+      const result = await app.post(`/v1/patient/${id}/revertDeath`).send({});
+      expect(result).toHaveSucceeded();
+      const revertLog = await DeathRevertLog.findOne({ where: { patientId: id } });
+      expect(revertLog).toBeTruthy();
     });
   });
 });

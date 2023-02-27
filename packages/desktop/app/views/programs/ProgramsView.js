@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
 import { useSelector, useDispatch } from 'react-redux';
 import { useApi } from 'desktop/app/api';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { SURVEY_TYPES } from 'shared/constants';
-
 import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
-
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
 import { FormGrid } from 'desktop/app/components/FormGrid';
@@ -20,9 +17,12 @@ import {
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { PATIENT_TABS } from '../../constants/patientPaths';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
+  const { navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
@@ -67,18 +67,17 @@ const SurveyFlow = ({ patient, currentUser }) => {
     [api, selectedProgramId],
   );
 
-  const submitSurveyResponse = useCallback(
-    data =>
-      api.post('surveyResponse', {
-        surveyId: survey.id,
-        startTime,
-        patientId: patient.id,
-        endTime: getCurrentDateTimeString(),
-        answers: getAnswersFromData(data, survey),
-        actions: getActionsFromData(data, survey),
-      }),
-    [api, startTime, survey, patient],
-  );
+  const submitSurveyResponse = async data => {
+    navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    await api.post('surveyResponse', {
+      surveyId: survey.id,
+      startTime,
+      patientId: patient.id,
+      endTime: getCurrentDateTimeString(),
+      answers: getAnswersFromData(data, survey),
+      actions: getActionsFromData(data, survey),
+    });
+  };
 
   if (!programs) {
     return <LoadingIndicator />;

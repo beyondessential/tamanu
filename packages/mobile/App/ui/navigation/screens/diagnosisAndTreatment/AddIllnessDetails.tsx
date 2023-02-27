@@ -26,8 +26,10 @@ import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserFi
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const IllnessFormSchema = Yup.object().shape({
-  certainty: Yup.mixed().oneOf(Object.values(Certainty)),
-  diagnosis: Yup.string(),
+  certainty: Yup.mixed()
+    .oneOf(Object.values(Certainty))
+    .required(),
+  diagnosis: Yup.string().required(),
 });
 
 const styles = StyleSheet.create({
@@ -51,6 +53,8 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   const onRecordIllness = useCallback(async ({ diagnosis, certainty, clinicalNote }: any): Promise<
   any
   > => {
+  // const onRecordIllness = useCallback(async ({ diagnosis, certainty }: any): Promise<any> => {
+    // TODO: persist fields other than diagnosis and certainty
     const encounter = await models.Encounter.getOrCreateCurrentEncounter(
       selectedPatient.id,
       user.id,

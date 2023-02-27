@@ -10,6 +10,8 @@ import { User } from './User';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
 
+const HIDDEN_STATUSES = ['deleted', 'entered-in-error', 'cancelled'];
+
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -86,6 +88,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
       .createQueryBuilder('labRequest')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })
+      .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
       .getMany();
   }

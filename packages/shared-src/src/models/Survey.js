@@ -43,4 +43,18 @@ export class Survey extends Model {
       where: { surveyType: SURVEY_TYPES.REFERRAL },
     });
   }
+
+  static getVitalsSurvey() {
+    return this.findOne({
+      where: { surveyType: SURVEY_TYPES.VITALS },
+    });
+  }
+
+  static async getResponsePermissionCheck(id) {
+    const vitalsSurvey = await this.getVitalsSurvey();
+    if (vitalsSurvey && id === vitalsSurvey.id) {
+      return 'Vitals';
+    }
+    return 'SurveyResponse';
+  }
 }

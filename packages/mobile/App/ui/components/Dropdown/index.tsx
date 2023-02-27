@@ -3,6 +3,8 @@ import { StyledView } from '/styled/common';
 import MultiSelect, { MultiSelectProps } from 'react-native-multiple-select';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -27,7 +29,6 @@ const STYLE_PROPS: Record<string, MultiSelectProps> = {
     },
   },
   ERROR: {
-    textColor: theme.colors.ERROR,
     styleInputGroup: {
       borderColor: theme.colors.ERROR,
       borderWidth: 1,
@@ -76,9 +77,12 @@ export const Dropdown = React.memo(
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
     if (disabled) return null;
-
     return (
-      <StyledView width="100%" marginTop={10}>
+      <StyledView
+        width="100%"
+        height={screenPercentageToDP(6.68, Orientation.Height)}
+        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
+      >
         <MultiSelect
           single={!multiselect}
           items={options}
@@ -100,10 +104,15 @@ export const Dropdown = React.memo(
           styleMainWrapper={{ zIndex: 999 }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
+          styleDropdownMenu={{
+            height: screenPercentageToDP(6.8, Orientation.Height),
+            marginBottom: 0,
+          }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
           {...getStyleProps(error, disabled)}
         />
+        {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
       </StyledView>
     );
   },

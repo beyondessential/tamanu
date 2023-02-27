@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
-import Search from '@material-ui/icons/Search';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import ExpandLess from '@material-ui/icons/ExpandLess';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -52,7 +53,7 @@ const SuggestionsList = styled(Paper)`
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
-    color: ${props => props.theme.palette.text.secondary};
+    color: ${Colors.softText};
     font-size: 20px;
   }
 `;
@@ -228,6 +229,7 @@ class BaseAutocomplete extends Component {
 
   renderInputComponent = inputProps => {
     const { label, required, className, infoTooltip, tag, value, ...other } = inputProps;
+    const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
         label={label}
@@ -247,7 +249,7 @@ class BaseAutocomplete extends Component {
                   </SelectTag>
                 )}
                 <Icon position="end">
-                  <Search />
+                  {suggestions.length > 0 ? <ExpandLess /> : <ExpandMore />}
                 </Icon>
               </>
             ),
@@ -271,6 +273,7 @@ class BaseAutocomplete extends Component {
       error,
       helperText,
       placeholder = 'Search...',
+      inputRef,
     } = this.props;
 
     return (
@@ -297,6 +300,7 @@ class BaseAutocomplete extends Component {
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
+            inputRef,
           }}
         />
       </>
