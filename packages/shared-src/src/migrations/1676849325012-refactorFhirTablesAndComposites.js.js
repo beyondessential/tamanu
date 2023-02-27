@@ -34,8 +34,6 @@ const TABLES = {
   },
 };
 
-const UUID_COLUMNS = ['id', 'version_id'];
-
 // All FHIR types that are an array have/need default values -
 // this is a helper function to check that.
 function isFhirTypeArray(typeName) {
@@ -48,15 +46,6 @@ function isFhirTypeArray(typeName) {
 export async function up(query) {
   // Alter tables
   for (const [tableName, columns] of Object.entries(TABLES)) {
-    // Change UUIDs columns
-    for (const columnName of UUID_COLUMNS) {
-      await query.sequelize.query(`
-        ALTER TABLE "fhir.${tableName}"
-          ALTER COLUMN "${columnName}"
-            TYPE VARCHAR(255)
-      `);
-    }
-
     // Alter FHIR-type columns
     for (const [columnName, columnType] of Object.entries(columns)) {
       if (isFhirTypeArray(columnType)) {
@@ -202,15 +191,6 @@ export async function down(query) {
     await query.sequelize.query(`TRUNCATE TABLE fhir.${tableName}`);
 
     const table = { schema: 'fhir', tableName };
-    // Change UUIDs columns
-    for (const columnName of UUID_COLUMNS) {
-      await query.sequelize.query(`
-        ALTER TABLE "fhir.${tableName}"
-          ALTER COLUMN "${columnName}"
-            TYPE UUID
-      `);
-    }
-
     // Alter FHIR-type columns
     for (const [columnName, columnType] of Object.entries(columns)) {
       await query.removeColumn(table, columnName);
