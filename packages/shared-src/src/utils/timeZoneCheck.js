@@ -1,8 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import { log } from '../services/logging';
 
-class TimeZoneMismatchError extends Error {}
-
 function getSystemTimeZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
@@ -12,9 +10,12 @@ function getConfigTimeZone(config) {
 }
 
 async function getDatabaseTimeZone(sequelize) {
-  const rows = await sequelize.query("SELECT setting FROM pg_settings WHERE name ILIKE 'timezone'", {
-    type: QueryTypes.SELECT,
-  });
+  const rows = await sequelize.query(
+    "SELECT setting FROM pg_settings WHERE name ILIKE 'timezone'",
+    {
+      type: QueryTypes.SELECT,
+    },
+  );
   return rows[0].setting;
 }
 
@@ -51,7 +52,7 @@ export async function performTimeZoneChecks({ config, sequelize, remote }) {
     if (config.allowMismatchedTimeZones) {
       log.warn(errorText);
     } else {
-      throw new TimeZoneMismatchError(
+      throw new InvalidConfigError(
         `${errorText} Please ensure these are consistent, or set config.allowMismatchedTimeZones to true.`,
       );
     }
