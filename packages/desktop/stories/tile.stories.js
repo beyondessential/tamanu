@@ -102,8 +102,6 @@ WithTooltip.args = {
   },
 };
 
-// With and without scroll
-
 const actions = {
   Etendre: () => {},
   Relever: () => {},

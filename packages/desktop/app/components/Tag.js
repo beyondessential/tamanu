@@ -13,6 +13,7 @@ const BaseTag = styled.div`
       return $background;
     }
     if ($color) {
+      // If no background-color prop was provided then use a semi-transparent version of the color
       return `${$color}1A`;
     }
     return DEFAULTS.background;
