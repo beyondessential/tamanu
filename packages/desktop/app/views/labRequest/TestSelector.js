@@ -171,7 +171,7 @@ export const TestSelectorInput = ({
               value: testFilters.labTestCategoryId,
               onChange: handleChangeTestFilters,
             }}
-            initialOptions={[[{ label: 'All', value: '' }]]}
+            initialOptions={[{ label: 'All', value: '' }]}
             label="Test Category"
             endpoint="labTestCategory"
             name="labTestCategoryId"
@@ -217,7 +217,7 @@ export const TestSelectorInput = ({
                   key={`${type.id}-checkbox`}
                   label={type.name}
                   name={type.id}
-                  category={type.labTestCategoryId}
+                  category={type.category.name}
                   checked={isSelected(type)}
                   onChange={handleCheck}
                 />
