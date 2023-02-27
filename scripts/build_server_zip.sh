@@ -4,6 +4,7 @@ set -euxo pipefail
 WORKSPACE="${1?must specify a workspace}"
 LINUX_RELEASE_FOLDER="release-nodejs"
 WINDOWS_RELEASE_FOLDER="release-windows"
+WINDOWS_RELEASE_DIR="./packages/$WORKSPACE/$WINDOWS_RELEASE_FOLDER"
 TARGET_PATH="${2-.}"
 RELEASE_NODE_JS_DIR="./packages/$WORKSPACE/$LINUX_RELEASE_FOLDER"
 FACILITY_DESKTOP_UPGRADE_DIR="$RELEASE_NODE_JS_DIR/dist/upgrade"
@@ -26,10 +27,10 @@ if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
 fi
 
 # copy folder before modifying so we don't break the linux release
-cp -r "$RELEASE_NODE_JS_DIR" "./packages/$WORKSPACE/$WINDOWS_RELEASE_FOLDER"
+cp -r "$RELEASE_NODE_JS_DIR" "$WINDOWS_RELEASE_DIR"
 
 # get rid of node_modules from the copied linux release
-pushd "./packages/$WORKSPACE/$WINDOWS_RELEASE_FOLDER"
+pushd "$WINDOWS_RELEASE_DIR"
 mv ./node_modules/shared .
 rm -rf node_modules
 popd
