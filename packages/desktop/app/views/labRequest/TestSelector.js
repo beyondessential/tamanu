@@ -110,19 +110,16 @@ const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
     .filter(
       result =>
         subStrSearch(search, result.name) &&
-        (!labTestCategoryId || result.labTestCategoryId === labTestCategoryId),
+        (!labTestCategoryId || result.category.id === labTestCategoryId),
     )
     // Sort by category then title alphabetically
-    .sort(
-      (a, b) =>
-        a.labTestCategoryId.localeCompare(b.labTestCategoryId) || a.name.localeCompare(b.name),
-    );
+    .sort((a, b) => a.category.name.localeCompare(b.category.name) || a.name.localeCompare(b.name));
 
 export const TestSelectorInput = ({
   name,
   testTypes,
   value,
-  requestFormType = LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+  requestFormType,
   isLoading,
   onChange,
 }) => {
@@ -242,7 +239,7 @@ export const TestSelectorInput = ({
                 key={`${testId}-selected`}
                 label={testType.name}
                 name={testId}
-                category={testType.labTestCategoryId}
+                category={testType.category.name}
                 onRemove={handleCheck}
               />
             );

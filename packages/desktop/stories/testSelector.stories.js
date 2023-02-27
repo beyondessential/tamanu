@@ -6,14 +6,13 @@ import { MockedApi } from './utils/mockedApi';
 import { mockLabTestTypes, mockTestSelectorEndpoints } from './utils/mockLabData';
 
 export default {
-  title: 'Forms/TestSelector',
-  component: TestSelectorInput,
   argTypes: {
     requestFormType: {
-      control: 'select',
       options: Object.values(LAB_REQUEST_FORM_TYPES),
     },
   },
+  title: 'Forms/TestSelector',
+  component: TestSelectorInput,
 };
 
 const Template = args => {
@@ -32,10 +31,10 @@ const Template = args => {
     <MockedApi endpoints={mockTestSelectorEndpoints}>
       <div style={{ width: 800, height: 500 }}>
         <TestSelectorInput
+          {...args}
           testTypes={mockLabTestTypes}
           value={selected}
           onChange={onChange}
-          {...args}
         />
       </div>
     </MockedApi>

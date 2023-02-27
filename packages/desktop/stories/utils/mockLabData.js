@@ -1,34 +1,39 @@
+const categories = {
+  sweet: { id: 'sweet', name: 'Sweet' },
+  savoury: { id: 'savoury', name: 'Savoury' },
+};
+
 const mockPanels = {
   baking: [
-    { name: 'Chocolate', id: 'chocolate', category: { name: 'Sweet' } },
-    { name: 'Egg', id: 'egg', category: { name: 'Savoury' } },
-    { name: 'Vanilla', id: 'vanilla', category: { name: 'Sweet' } },
-    { name: 'Yeast', id: 'yeast', category: { name: 'Savoury' } },
-    { name: 'Baking Powder', id: 'bakingpowder', category: { name: 'Savoury' } },
+    { name: 'Chocolate', id: 'chocolate', category: categories.sweet },
+    { name: 'Egg', id: 'egg', category: categories.savoury },
+    { name: 'Vanilla', id: 'vanilla', category: categories.sweet },
+    { name: 'Yeast', id: 'yeast', category: categories.savoury },
+    { name: 'Baking Powder', id: 'bakingpowder', category: categories.savoury },
   ],
   meat: [
-    { name: 'Beef', id: 'beef', category: { name: 'Savoury' } },
-    { name: 'Chicken Breast', id: 'chicken_breast', category: { name: 'Savoury' } },
-    { name: 'Pork', id: 'pork', category: { name: 'Savoury' } },
-    { name: 'Salmon', id: 'salmon', category: { name: 'Savoury' } },
-    { name: 'Tuna', id: 'tuna', category: { name: 'Savoury' } },
+    { name: 'Beef', id: 'beef', category: categories.savoury },
+    { name: 'Chicken Breast', id: 'chicken_breast', category: categories.savoury },
+    { name: 'Pork', id: 'pork', category: categories.savoury },
+    { name: 'Salmon', id: 'salmon', category: categories.savoury },
+    { name: 'Tuna', id: 'tuna', category: categories.savoury },
   ],
   vegetables: [
-    { name: 'Cabbage', id: 'cabbage', category: { name: 'Savoury' } },
-    { name: 'Chilli', id: 'chilli', category: { name: 'Savoury' } },
-    { name: 'Fennel', id: 'fennel', category: { name: 'Savoury' } },
-    { name: 'Leek', id: 'leek', category: { name: 'Savoury' } },
-    { name: 'Pepper', id: 'pepper', category: { name: 'Savoury' } },
-    { name: 'Sprout', id: 'sprout', category: { name: 'Savoury' } },
-    { name: 'Zucchini', id: 'zuc', category: { name: 'Savoury' } },
+    { name: 'Cabbage', id: 'cabbage', category: categories.savoury },
+    { name: 'Chilli', id: 'chilli', category: categories.savoury },
+    { name: 'Fennel', id: 'fennel', category: categories.savoury },
+    { name: 'Leek', id: 'leek', category: categories.savoury },
+    { name: 'Pepper', id: 'pepper', category: categories.savoury },
+    { name: 'Sprout', id: 'sprout', category: categories.savoury },
+    { name: 'Zucchini', id: 'zuc', category: categories.savoury },
   ],
   fruit: [
-    { name: 'Apple', id: 'apple', category: { name: 'Sweet' } },
-    { name: 'Banana', id: 'banana', category: { name: 'Sweet' } },
-    { name: 'Boysenberry', id: 'boysenberry', category: { name: 'Sweet' } },
-    { name: 'Grape', id: 'grape', category: { name: 'Sweet' } },
-    { name: 'Lemon', id: 'lemon', category: { name: 'Sweet' } },
-    { name: 'Strawberry', id: 'strawb', category: { name: 'Sweet' } },
+    { name: 'Apple', id: 'apple', category: categories.sweet },
+    { name: 'Banana', id: 'banana', category: categories.sweet },
+    { name: 'Boysenberry', id: 'boysenberry', category: categories.sweet },
+    { name: 'Grape', id: 'grape', category: categories.sweet },
+    { name: 'Lemon', id: 'lemon', category: categories.sweet },
+    { name: 'Strawberry', id: 'strawb', category: categories.sweet },
   ],
 };
 
@@ -39,10 +44,7 @@ export const mockTestSelectorEndpoints = {
     { id: 'meat', name: 'Meat' },
     { id: 'baking', name: 'Baking' },
   ],
-  'suggestions/labTestCategory/:query': () => [
-    { id: 'Savoury', name: 'Savoury' },
-    { id: 'Sweet', name: 'Sweet' },
-  ],
+  'suggestions/labTestCategory/:query': () => Object.values(categories),
   'labTestPanel/:id/labTestTypes': (_, id) => {
     return mockPanels[id] || [];
   },
