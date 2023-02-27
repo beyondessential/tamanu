@@ -1,5 +1,6 @@
 import React from 'react';
 import shortid from 'shortid';
+import styled from 'styled-components'
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import {
@@ -13,6 +14,7 @@ import {
   USERS,
   DEPARTMENTS,
 } from 'shared/demoData';
+import { MockedApi } from '../utils/mockedApi';
 import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
 import { EncounterForm } from '../../app/forms/EncounterForm';
 import { TriageForm } from '../../app/forms/TriageForm';
@@ -31,9 +33,6 @@ import { createDummySuggester, mapToSuggestions } from '../utils';
 import { Modal } from '../../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
-import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import { MockedApi } from '../utils/mockedApi';
 
 const PATIENTS = new Array(20).fill(0).map(() => createDummyPatient());
 
@@ -209,17 +208,16 @@ storiesOf('Forms', module).add('MedicationForm', () => (
   />
 ));
 
-const StyledBox = styled(Box)`
-  background-color: white;
+const WrapperCard = styled.div`
+  display: flex;
   padding: 20px;
-  box-shadow: 2px 2px 25px rgb(0 0 0 / 10%);
-  border-radius: 5px;
   width: 800px;
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
 `;
 
-storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (
+storiesOf('Forms', module).add('LabRequestForm', () => (
   <MockedApi endpoints={mockLabRequestFormEndpoints}>
-    <StyledBox width={800}>
+    <WrapperCard>
       <LabRequestMultiStepForm
         onNext={action('next')}
         onSubmit={action('submit')}
@@ -228,6 +226,6 @@ storiesOf('Forms/LabRequestForm', module).add('LabRequestForm', () => (
         practitionerSuggester={practitionerSuggester}
         departmentSuggester={departmentSuggester}
       />
-    </StyledBox>
+    </WrapperCard>
   </MockedApi>
 ));

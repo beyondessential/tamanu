@@ -6,17 +6,18 @@ import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { SearchField, SuggesterSelectField } from '../../components/Field';
-import { Card } from '../../components/Card';
 import { Colors } from '../../constants';
 import { SelectableTestItem, TestItem } from './TestItem';
 import { TextButton } from '../../components/Button';
 import { useApi } from '../../api';
 import { BodyText } from '../../components/Typography';
 
-const WrapperCard = styled(Card)`
+const Wrapper = styled.div`
   display: flex;
   padding: 10px;
-  height: 500px;
+  width: 100%;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
 `;
 
 const SelectorTable = styled.div`
@@ -160,7 +161,7 @@ export const TestSelectorInput = ({
     handleChange(checked ? [...value, testId] : value.filter(id => id !== testId));
   };
   return (
-    <WrapperCard>
+    <Wrapper>
       <SelectorContainer>
         {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
           <SuggesterSelectField
@@ -245,7 +246,7 @@ export const TestSelectorInput = ({
           })}
         </SelectorTable>
       </SelectorContainer>
-    </WrapperCard>
+    </Wrapper>
   );
 };
 

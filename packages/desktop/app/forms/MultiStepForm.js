@@ -43,6 +43,7 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) =
       initialValues={snapshot}
       onSubmit={handleSubmit}
       validationSchema={step.props.validationSchema}
+      style={{ width: '100%' }}
       showInlineErrorsOnly
       render={props => {
         return (
