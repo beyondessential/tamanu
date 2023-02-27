@@ -3,9 +3,10 @@ import { DataTypes, Sequelize } from 'sequelize';
 export async function up(query) {
   await query.createTable('lab_panel_requests', {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.UUIDV4,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -22,7 +23,7 @@ export async function up(query) {
       allowNull: true,
     },
     lab_test_panel_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'lab_test_panels',
