@@ -11,26 +11,6 @@ import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
 import { DropdownButton } from '../../../components/DropdownButton';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
-
-const OuterContainer = styled.div`
-  position: relative;
-`;
-
-const ContentContainer = styled.div`
-  padding: 20px;
-`;
-
-const LoadingContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  z-index: 9999;
-`;
-
-const Title = styled.h1`
-  padding-bottom: 20px;
-  margin: 0px;
-`;
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -168,10 +148,9 @@ const OutcomeDisplay = ({ result }) => {
   );
 };
 
-export const ImporterView = memo(({ endpoint, title, dataTypes, dataTypesSelectable }) => {
+export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, setIsLoading }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   const api = useApi();
 
@@ -197,7 +176,7 @@ export const ImporterView = memo(({ endpoint, title, dataTypes, dataTypesSelecta
         setIsLoading(false);
       }
     },
-    [api, endpoint],
+    [api, endpoint, setIsLoading],
   );
 
   const renderForm = useCallback(
@@ -210,32 +189,24 @@ export const ImporterView = memo(({ endpoint, title, dataTypes, dataTypesSelecta
   const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
 
   return (
-    <OuterContainer>
-      {isLoading && (
-        <LoadingContainer>
-          <LoadingIndicator />
-        </LoadingContainer>
-      )}
-      <ContentContainer>
-        <Title>{title}</Title>
-        <Form
-          key={resetKey}
-          onSubmit={onSubmitUpload}
-          validationSchema={yup.object().shape({
-            includedDataTypes: yup
-              .array()
-              .of(yup.string())
-              .required()
-              .min(1),
-            file: yup.string().required(),
-          })}
-          initialValues={{
-            includedDataTypes: initialDataTypes,
-          }}
-          render={renderForm}
-        />
-        <OutcomeDisplay result={result} />
-      </ContentContainer>
-    </OuterContainer>
+    <>
+      <Form
+        key={resetKey}
+        onSubmit={onSubmitUpload}
+        validationSchema={yup.object().shape({
+          includedDataTypes: yup
+            .array()
+            .of(yup.string())
+            .required()
+            .min(1),
+          file: yup.string().required(),
+        })}
+        initialValues={{
+          includedDataTypes: initialDataTypes,
+        }}
+        render={renderForm}
+      />
+      <OutcomeDisplay result={result} />
+    </>
   );
 });

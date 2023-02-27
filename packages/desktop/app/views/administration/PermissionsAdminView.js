@@ -1,6 +1,6 @@
 import React from 'react';
-import { ImporterView } from './components/ImporterView';
+import { ImportExportView } from './components/ImportExportView';
 
 export const PermissionsAdminView = () => (
-  <ImporterView title="Permissions" endpoint="refData" dataTypes={['permissions']} />
+  <ImportExportView title="Permissions" endpoint="refData" dataTypes={['permissions']} />
 );
