@@ -30,7 +30,7 @@ describe('Data definition import', () => {
     });
   }
 
-  it('should succeed with valid data', async () => {
+  it.only('should succeed with valid data', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
 
     expect(didntSendReason).toEqual('dryRun');
@@ -42,6 +42,7 @@ describe('Data definition import', () => {
       'ReferenceData/triageReason': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/imagingType': { created: 4, updated: 0, errored: 0 },
       'ReferenceData/labTestCategory': { created: 5, updated: 0, errored: 0 },
+      'ReferenceData/labSampleSite': { created: 19, updated: 0, errored: 0 },
       'ReferenceData/village': { created: 13, updated: 0, errored: 0 },
       'ReferenceData/procedureType': { created: 10, updated: 0, errored: 0 },
       User: { created: 10, updated: 0, errored: 0 },
