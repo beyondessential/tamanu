@@ -148,7 +148,7 @@ export const LabRequestView = () => {
       <Rule />
       <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
       <LabRequestChangeStatusModal
-        status={status}
+        status={labRequest.status}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_STATUS}
         onClose={closeModal}
@@ -160,7 +160,7 @@ export const LabRequestView = () => {
         onClose={closeModal}
       />
       <LabRequestChangeLabModal
-        labId={labRequest.laboratory.id}
+        labId={labRequest.laboratory?.id}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_LABORATORY}
         onClose={closeModal}
