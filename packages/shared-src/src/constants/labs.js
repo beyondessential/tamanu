@@ -13,53 +13,44 @@ export const LAB_REQUEST_STATUSES = {
 export const LAB_REQUEST_STATUS_CONFIG = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: {
     label: 'Reception pending',
-    color: '#CB6100',
-    background: '#FAF0E6',
+    color: '#D10580',
   },
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: {
     label: 'Results pending',
-    color: '#19934E',
-    background: '#DEF0EE',
+    color: '#CB6100',
   },
   [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: {
     label: 'To be verified',
-    color: '#4101C9;',
-    background: '#ECE6FA',
+    color: '#BD9503',
   },
   [LAB_REQUEST_STATUSES.VERIFIED]: {
     label: 'Verified',
-    color: '#4101C9;',
-    background: '#ECE6FA',
+    color: '#1172D1',
   },
   [LAB_REQUEST_STATUSES.PUBLISHED]: {
     label: 'Published',
-    color: '#4101C9',
-    background: '#ECE6FA',
+    color: '#19934E',
   },
   [LAB_REQUEST_STATUSES.NOT_COLLECTED]: {
     label: 'Not collected',
     color: '#4101C9',
-    background: '#ECE6FA',
   },
   [LAB_REQUEST_STATUSES.CANCELLED]: {
     label: 'Cancelled',
     color: '#444444',
-    background: '#EDEDED',
   },
   [LAB_REQUEST_STATUSES.DELETED]: {
     label: 'Deleted',
     color: '#444444',
-    background: '#EDEDED',
   },
   [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: {
     label: 'Entered in error',
-    color: '#444444',
-    background: '#EDEDED',
+    color: '#F76853',
+    background: '#FFCEC7',
   },
   unknown: {
     label: 'Unknown',
     color: '#444444',
-    background: '#EDEDED',
   },
 };
 
