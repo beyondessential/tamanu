@@ -50,16 +50,16 @@ export async function up(query) {
     for (const [columnName, columnType] of Object.entries(columns)) {
       if (isFhirTypeArray(columnType)) {
         await query.sequelize.query(`
-          ALTER TABLE "fhir.${tableName}"
-            ALTER COLUMN "${columnName}"
+          ALTER TABLE fhir.${tableName}
+            ALTER COLUMN ${columnName}
               DROP DEFAULT
         `);
       }
       await query.sequelize.query(`
-        ALTER TABLE "fhir.${tableName}"
-          ALTER COLUMN "${columnName}"
+        ALTER TABLE fhir.${tableName}
+          ALTER COLUMN ${columnName}
             TYPE JSONB
-              USING to_json("value")::jsonb
+              USING to_json(${columnName})::jsonb
       `);
     }
   }
@@ -68,16 +68,16 @@ export async function up(query) {
   await query.sequelize.query('DROP TYPE fhir.address');
   await query.sequelize.query('DROP TYPE fhir.contact_point');
   await query.sequelize.query('DROP TYPE fhir.human_name');
-  await query.sequelize.query('DROP TYPE fhir.codeable_concept');
-  await query.sequelize.query('DROP TYPE fhir.coding');
-  await query.sequelize.query('DROP TYPE fhir.period');
-  await query.sequelize.query('DROP TYPE fhir.identifier');
-  await query.sequelize.query('DROP TYPE fhir.reference');
   await query.sequelize.query('DROP TYPE fhir.patient_link');
   await query.sequelize.query('DROP TYPE fhir.immunization_protocol_applied');
   await query.sequelize.query('DROP TYPE fhir.immunization_performer');
   await query.sequelize.query('DROP TYPE fhir.extension');
   await query.sequelize.query(`DROP TYPE fhir.annotation`);
+  await query.sequelize.query('DROP TYPE fhir.identifier');
+  await query.sequelize.query('DROP TYPE fhir.period');
+  await query.sequelize.query('DROP TYPE fhir.reference');
+  await query.sequelize.query('DROP TYPE fhir.codeable_concept');
+  await query.sequelize.query('DROP TYPE fhir.coding');
 }
 
 export async function down(query) {
