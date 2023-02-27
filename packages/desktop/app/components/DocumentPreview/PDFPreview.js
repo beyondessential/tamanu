@@ -8,9 +8,11 @@ import { PDFPage } from './PDFPage';
 
 // Prevent the modal header scrolling away by making the preview scrollable
 const PDFDocument = styled.div`
-  overflow-y: scroll;
-  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  min-height: 400px;
 `;
 
 // Calculate which page we're scrolled to "Page X of Y"
@@ -86,7 +88,7 @@ export default function PDFPreview({
     <PDFDocument ref={scrollRef}>
       {pages.map((p, i) => (
         // eslint-disable-next-line react/no-array-index-key
-        <PDFPage page={p} key={i} />
+        <PDFPage page={p} key={i} parentRef={scrollRef} />
       ))}
     </PDFDocument>
   );

@@ -3,6 +3,7 @@
     "allowAdminRoutes": false
   },
   "discovery": {
+    "enabled": true,
     "overrideAddress": "",
     "overridePort": null,
     "protocol": "https"
