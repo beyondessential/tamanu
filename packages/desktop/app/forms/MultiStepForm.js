@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, ButtonRow, Form, FormGrid, OutlinedButton } from '../components';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
-
-const StyledFormSeperatorLine = styled(FormSeparatorLine)`
-  margin-bottom: 0;
-`;
-
-const StyledButtonRow = styled(ButtonRow)`
-  margin-top: 0;
-`;
+import {
+  Button,
+  ButtonRow,
+  Form,
+  FormGrid,
+  FormSeparatorLine,
+  OutlinedButton,
+} from '../components';
 
 const StyledBackButton = styled(OutlinedButton)`
   margin-right: auto;
@@ -63,8 +61,8 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) =
         return (
           <FormGrid>
             {React.cloneElement(step, props)}
-            <StyledFormSeperatorLine />
-            <StyledButtonRow>
+            <FormSeparatorLine />
+            <ButtonRow>
               {stepNumber > 0 && (
                 <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
               )}
@@ -72,7 +70,7 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) =
               <Button disabled={props.isSubmitting} type="submit">
                 {isLastStep ? 'Submit' : 'Next'}
               </Button>
-            </StyledButtonRow>
+            </ButtonRow>
           </FormGrid>
         );
       }}
