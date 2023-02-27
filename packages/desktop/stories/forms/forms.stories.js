@@ -1,5 +1,4 @@
 import React from 'react';
-
 import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -14,28 +13,27 @@ import {
   USERS,
   DEPARTMENTS,
 } from 'shared/demoData';
-
-import { Box } from '@material-ui/core';
-import styled from 'styled-components';
-import { MockedApi } from './utils/mockedApi';
-import { EncounterForm } from '../app/forms/EncounterForm';
-import { TriageForm } from '../app/forms/TriageForm';
-import { ProcedureForm } from '../app/forms/ProcedureForm';
-import { AllergyForm } from '../app/forms/AllergyForm';
-import { ImmunisationForm } from '../app/forms/ImmunisationForm';
-import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
-import { DischargeForm } from '../app/forms/DischargeForm';
-import { NewPatientForm } from '../app/forms/NewPatientForm';
-import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
-import { LabRequestMultiStepForm } from '../app/forms/LabRequestForm/LabRequestMultiStepForm';
-import { MedicationForm } from '../app/forms/MedicationForm';
-import { DeathForm } from '../app/forms/DeathForm';
-import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
-import { createDummySuggester, mapToSuggestions } from './utils';
-import { Modal } from '../app/components/Modal';
+import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
+import { EncounterForm } from '../../app/forms/EncounterForm';
+import { TriageForm } from '../../app/forms/TriageForm';
+import { ProcedureForm } from '../../app/forms/ProcedureForm';
+import { AllergyForm } from '../../app/forms/AllergyForm';
+import { ImmunisationForm } from '../../app/forms/ImmunisationForm';
+import { OngoingConditionForm } from '../../app/forms/OngoingConditionForm';
+import { DischargeForm } from '../../app/forms/DischargeForm';
+import { NewPatientForm } from '../../app/forms/NewPatientForm';
+import { PatientDetailsForm } from '../../app/forms/PatientDetailsForm';
+import { LabRequestMultiStepForm } from '../../app/forms/LabRequestForm/LabRequestMultiStepForm';
+import { MedicationForm } from '../../app/forms/MedicationForm';
+import { DeathForm } from '../../app/forms/DeathForm';
+import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
+import { createDummySuggester, mapToSuggestions } from '../utils';
+import { Modal } from '../../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
-import { mockLabRequestFormEndpoints } from './utils/mockLabData';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
+import { MockedApi } from '../utils/mockedApi';
 
 const PATIENTS = new Array(20).fill(0).map(() => createDummyPatient());
 
