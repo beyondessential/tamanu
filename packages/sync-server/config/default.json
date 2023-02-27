@@ -51,7 +51,7 @@
         ],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
-        "queueTimeout": 500
+        "queueTimeout": 7500
       },
       // global queue for non-sync non-attachment requests
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
@@ -62,7 +62,7 @@
         ],
         "maxActiveRequests": 8,
         "maxQueuedRequests": 32,
-        "queueTimeout": 2000
+        "queueTimeout": 7500
       }
     ]
   },
