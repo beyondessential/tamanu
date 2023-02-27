@@ -19,7 +19,7 @@ export * from './IDiagnosis';
 export * from './IScheduledVaccine';
 export * from './IMedication';
 export * from './IReferral';
-export * from './IPatientAditionalData';
+export * from './IPatientAdditionalData';
 export * from './IFacility';
 export * from './ILocation';
 export * from './ILocationGroup';
