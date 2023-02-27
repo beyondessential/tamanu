@@ -34,7 +34,7 @@ export const LabRequestMultiStepForm = ({
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
         specimenAttached: 'no',
-        status: LAB_REQUEST_STATUSES.NOT_COLLECTED,
+        status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
         labTestIds: [],
         notes: '',
         // LabTest date
