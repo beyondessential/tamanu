@@ -1,20 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-
 import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { binaryOptions } from '../constants';
 import { useAuth } from '../contexts/Auth';
-
 import {
   Form,
   Field,
   AutocompleteField,
   SuggesterSelectField,
-  DateTimeField,
   RadioField,
+  DateTimeField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { Button, OutlinedButton } from '../components/Button';
@@ -52,15 +50,19 @@ export const LabRequestForm = ({
   practitionerSuggester,
   departmentSuggester,
   encounter,
-  onNext,
-  onSubmit,
   onCancel,
+  onSubmit,
   editedObject,
   generateDisplayId,
 }) => {
   const { currentUser } = useAuth();
 
-  const renderForm = ({ values, setFieldValue, handleChange }) => {
+  const renderForm = ({ values, validateForm, submitForm, setFieldValue, handleChange }) => {
+    const onNext = async event => {
+      await validateForm();
+      await submitForm(event);
+    };
+
     const handleToggleSampleCollected = event => {
       handleChange(event);
       const isSampleCollected = event.target.value === 'yes';
@@ -149,7 +151,6 @@ export const LabRequestForm = ({
             ]}
           />
         </div>
-
         <FormSeparatorLine />
         <ButtonRow>
           <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
@@ -180,7 +181,6 @@ export const LabRequestForm = ({
 };
 
 LabRequestForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   practitionerSuggester: PropTypes.object.isRequired,
   encounter: PropTypes.object,

@@ -33,7 +33,7 @@ const StyledButton = styled(MuiButton)`
   font-size: 14px;
   line-height: 16px;
   text-transform: none;
-  padding: 12px 20px;
+  padding: 11px 18px 12px 18px;
   box-shadow: none;
 
   .MuiSvgIcon-root {
