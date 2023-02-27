@@ -22,7 +22,6 @@ const BaseTag = styled.div`
   font-weight: 400;
 `;
 
-// Used in form fields such as Autocomplete and Select
 export const FormFieldTag = styled(BaseTag)`
   padding: 3px 13px;
   border-radius: 20px;
@@ -30,7 +29,6 @@ export const FormFieldTag = styled(BaseTag)`
   line-height: 18px;
 `;
 
-// Used in tables
 export const TableCellTag = styled(BaseTag)`
   padding: 5px 10px;
   border-radius: 25px;

@@ -1,14 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Timelapse, Business, AssignmentLate, Category } from '@material-ui/icons';
-import {
-  TileContainer,
-  Tile,
-  TileTag,
-  TileTooltip,
-  STATUS_TAG_COLORS,
-  DateDisplay,
-} from '../app/components';
+import { TileContainer, Tile, TileTag, TileTooltip, DateDisplay } from '../app/components';
 
 export default {
   title: 'Tile',
@@ -32,7 +25,7 @@ Simple.args = {
 export const WithTag = Template.bind({});
 WithTag.args = {
   Icon: Business,
-  main: <TileTag $color={STATUS_TAG_COLORS.ORANGE}>Reception pending</TileTag>,
+  main: <TileTag $color="#CB6100">Reception pending</TileTag>,
   text: 'Status',
   actions: {
     Etendre: () => {},
