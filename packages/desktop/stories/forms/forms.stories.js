@@ -1,6 +1,6 @@
 import React from 'react';
 import shortid from 'shortid';
-import styled from 'styled-components'
+import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import {

@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { Button, ButtonRow, Form, FormGrid, OutlinedButton } from '../components';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
+
+const StyledFormSeperatorLine = styled(FormSeparatorLine)`
+  margin-bottom: 0;
+`;
+
+const StyledButtonRow = styled(ButtonRow)`
+  margin-top: 0;
+`;
+
+const StyledBackButton = styled(OutlinedButton)`
+  margin-right: auto;
+  margin-left: 0 !important;
+`;
 
 // MultiStepForm is a single Formik instance whose children are each page of the
 // multi-step form. The form is submitted on each forward transition (can only
@@ -49,17 +63,16 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) =
         return (
           <FormGrid>
             {React.cloneElement(step, props)}
-            <FormSeparatorLine />
-            <ButtonRow>
-              {stepNumber > 0 ? (
-                <OutlinedButton onClick={() => previous(props.values)}>Back</OutlinedButton>
-              ) : (
-                <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+            <StyledFormSeperatorLine />
+            <StyledButtonRow>
+              {stepNumber > 0 && (
+                <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
               )}
+              <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
               <Button disabled={props.isSubmitting} type="submit">
                 {isLastStep ? 'Submit' : 'Next'}
               </Button>
-            </ButtonRow>
+            </StyledButtonRow>
           </FormGrid>
         );
       }}

@@ -4,20 +4,27 @@ import { Box } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
+import { Colors } from '../../constants';
+import { useApi } from '../../api';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { SearchField, SuggesterSelectField } from '../../components/Field';
-import { Colors } from '../../constants';
-import { SelectableTestItem, TestItem } from './TestItem';
 import { TextButton } from '../../components/Button';
-import { useApi } from '../../api';
 import { BodyText } from '../../components/Typography';
+import { SelectableTestItem, TestItem } from './TestItem';
 
 const Wrapper = styled.div`
   display: flex;
   padding: 10px;
   width: 100%;
+  height: 359px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
+`;
+
+const LabelText = styled(BodyText)`
+  color: ${({ theme }) => theme.palette.text.secondary};
+  margin-bottom: 10px;
+  font-weight: 500;
 `;
 
 const SelectorTable = styled.div`
@@ -161,92 +168,97 @@ export const TestSelectorInput = ({
     handleChange(checked ? [...value, testId] : value.filter(id => id !== testId));
   };
   return (
-    <Wrapper>
-      <SelectorContainer>
-        {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
-          <SuggesterSelectField
-            field={{
-              value: testFilters.labTestCategoryId,
-              onChange: handleChangeTestFilters,
-            }}
-            initialOptions={[{ label: 'All', value: '' }]}
-            label="Test Category"
-            endpoint="labTestCategory"
-            name="labTestCategoryId"
-          />
-        )}
-        {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
-          <StyledSuggesterSelectField
-            field={{
-              value: testFilters.labTestPanelId,
-              onChange: handleChangeTestFilters,
-            }}
-            label="Test Panel"
-            endpoint="labTestPanel"
-            name="labTestPanelId"
-            disabled={!!testFilters.labTestPanelId}
-          />
-        )}
-        <FormSeparatorLine />
-        <Box display="flex" alignItems="center">
-          <SelectableTestItem
-            name="selectAll"
-            indeterminate={someSelected && !allSelected}
-            checked={allSelected}
-            onChange={handleSelectAll}
-          />
-          <StyledSearchField
-            field={{
-              value: testFilters.search,
-              onChange: handleChangeTestFilters,
-            }}
-            placeholder="Search"
-            name="search"
-          />
-        </Box>
-        <FormSeparatorLine />
-        <SelectorTable>
-          {showLoadingText && <BodyText>Loading tests</BodyText>}
-          {!showLoadingText &&
-            (queriedTypes.length > 0 ? (
-              queriedTypes.map(type => (
-                <SelectableTestItem
-                  key={`${type.id}-checkbox`}
-                  label={type.name}
-                  name={type.id}
-                  category={type.category.name}
-                  checked={isSelected(type)}
-                  onChange={handleCheck}
+    <>
+      <LabelText>
+        Select the test {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? 'panel' : 'category'}
+      </LabelText>
+      <Wrapper>
+        <SelectorContainer>
+          {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
+            <SuggesterSelectField
+              field={{
+                value: testFilters.labTestCategoryId,
+                onChange: handleChangeTestFilters,
+              }}
+              initialOptions={[{ label: 'All', value: '' }]}
+              label="Test Category"
+              endpoint="labTestCategory"
+              name="labTestCategoryId"
+            />
+          )}
+          {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
+            <StyledSuggesterSelectField
+              field={{
+                value: testFilters.labTestPanelId,
+                onChange: handleChangeTestFilters,
+              }}
+              label="Test Panel"
+              endpoint="labTestPanel"
+              name="labTestPanelId"
+              disabled={!!testFilters.labTestPanelId}
+            />
+          )}
+          <FormSeparatorLine />
+          <Box display="flex" alignItems="center">
+            <SelectableTestItem
+              name="selectAll"
+              indeterminate={someSelected && !allSelected}
+              checked={allSelected}
+              onChange={handleSelectAll}
+            />
+            <StyledSearchField
+              field={{
+                value: testFilters.search,
+                onChange: handleChangeTestFilters,
+              }}
+              placeholder="Search"
+              name="search"
+            />
+          </Box>
+          <FormSeparatorLine />
+          <SelectorTable>
+            {showLoadingText && <BodyText>Loading tests</BodyText>}
+            {!showLoadingText &&
+              (queriedTypes.length > 0 ? (
+                queriedTypes.map(type => (
+                  <SelectableTestItem
+                    key={`${type.id}-checkbox`}
+                    label={type.name}
+                    name={type.id}
+                    category={type.category.name}
+                    checked={isSelected(type)}
+                    onChange={handleCheck}
+                  />
+                ))
+              ) : (
+                <BodyText>No tests found.</BodyText>
+              ))}
+          </SelectorTable>
+        </SelectorContainer>
+        <SelectorContainer>
+          <Box display="flex" justifyContent="space-between">
+            <SectionHeader>Selected tests</SectionHeader>
+            {value.length > 0 && <ClearAllButton onClick={handleClear}>Clear all</ClearAllButton>}
+          </Box>
+          <FormSeparatorLine />
+          <SelectorTable>
+            {value.map(testId => {
+              const testType = testTypeData.find(type => type.id === testId);
+              if (!testType) return null;
+              return (
+                <TestItem
+                  key={`${testId}-selected`}
+                  label={testType.name}
+                  name={testId}
+                  category={testType.category.name}
+                  onRemove={handleCheck}
                 />
-              ))
-            ) : (
-              <BodyText>No tests found.</BodyText>
-            ))}
-        </SelectorTable>
-      </SelectorContainer>
-      <SelectorContainer>
-        <Box display="flex" justifyContent="space-between">
-          <SectionHeader>Selected tests</SectionHeader>
-          {value.length > 0 && <ClearAllButton onClick={handleClear}>Clear all</ClearAllButton>}
-        </Box>
-        <FormSeparatorLine />
-        <SelectorTable>
-          {value.map(testId => {
-            const testType = testTypeData.find(type => type.id === testId);
-            if (!testType) return null;
-            return (
-              <TestItem
-                key={`${testId}-selected`}
-                label={testType.name}
-                name={testId}
-                category={testType.category.name}
-                onRemove={handleCheck}
-              />
-            );
-          })}
-        </SelectorTable>
-      </SelectorContainer>
-    </Wrapper>
+              );
+            })}
+          </SelectorTable>
+        </SelectorContainer>
+      </Wrapper>
+    </>
   );
 };
 

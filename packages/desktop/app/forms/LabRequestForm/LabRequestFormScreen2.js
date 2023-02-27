@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../api';
-import { Field } from '../../components';
+import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 
 export const screen2ValidationSchema = yup.object().shape({
@@ -10,6 +10,7 @@ export const screen2ValidationSchema = yup.object().shape({
     .array()
     .of(yup.string())
     .required(),
+  notes: yup.string(),
 });
 
 export const LabRequestFormScreen2 = props => {
@@ -22,16 +23,21 @@ export const LabRequestFormScreen2 = props => {
   );
 
   return (
-    <div style={{ gridColumn: '1 / -1' }}>
-      <Field
-        name="labTestIds"
-        label="Lab tests"
-        component={TestSelectorField}
-        requestFormType={requestFormType}
-        testTypes={testTypesData}
-        isLoading={isLoading}
-        {...props}
-      />
-    </div>
+    <>
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field
+          name="labTestIds"
+          label="Lab tests"
+          component={TestSelectorField}
+          requestFormType={requestFormType}
+          testTypes={testTypesData}
+          isLoading={isLoading}
+          {...props}
+        />
+      </div>
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field name="notes" label="Notes" component={TextField} multiline rows={3} />
+      </div>
+    </>
   );
 };
