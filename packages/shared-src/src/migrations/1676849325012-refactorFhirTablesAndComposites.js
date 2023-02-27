@@ -40,9 +40,6 @@ function isFhirTypeArray(typeName) {
   return typeName.slice(-2) === '[]';
 }
 
-// Down migrations will get rid of all data, which
-// essentially means that a downtime will be needed to wait for
-// rematerialisation.
 export async function up(query) {
   // Alter tables
   for (const [tableName, columns] of Object.entries(TABLES)) {
@@ -80,6 +77,9 @@ export async function up(query) {
   await query.sequelize.query('DROP TYPE fhir.coding');
 }
 
+// Down migration will get rid of all data, which
+// essentially means that downtime will be needed to wait for
+// rematerialisation.
 export async function down(query) {
   // From 100_fhirTypes.js except identifier
   // which was changed on a more recent migration
