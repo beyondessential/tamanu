@@ -61,3 +61,8 @@ export const LAB_TEST_RESULT_TYPES = {
   NUMBER: 'Number',
   SELECT: 'Select',
 };
+
+export const LAB_REQUEST_FORM_TYPES = {
+  PANEL: 'panel',
+  INDIVIDUAL: 'individual',
+};

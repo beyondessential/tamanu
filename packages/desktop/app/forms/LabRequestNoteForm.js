@@ -77,7 +77,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const { mutate: saveNote } = useMutation(
     ({ values }) => {
       return api.post(`labRequest/${labRequestId}/notes`, {
-        content: values.content.trim(),
+        content: values.content?.trim(),
         authorId: api.user.id,
         noteType: NOTE_TYPES.OTHER,
       });
