@@ -6,7 +6,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.UUIDV4,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     created_at: {
       type: DataTypes.DATE,
