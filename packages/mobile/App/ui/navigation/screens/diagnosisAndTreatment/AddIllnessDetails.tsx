@@ -50,16 +50,14 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const user = useSelector(authUserSelector);
 
-  const onRecordIllness = useCallback(async ({ diagnosis, certainty, clinicalNote }: any): Promise<
-  any
-  > => {
-  // const onRecordIllness = useCallback(async ({ diagnosis, certainty }: any): Promise<any> => {
-    // TODO: persist fields other than diagnosis and certainty
-    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-      selectedPatient.id,
-      user.id,
-    );
-    if (diagnosis) {
+  const onRecordIllness = useCallback(
+    async ({ diagnosis, certainty, clinicalNote }: any): Promise<any> => {
+      // TODO: persist fields other than diagnosis and certainty
+      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        user.id,
+      );
+
       await models.Diagnosis.createAndSaveOne({
         // TODO: support selecting multiple diagnoses and flagging as primary/non primary
         isPrimary: true,
@@ -68,19 +66,22 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
         diagnosis,
         certainty,
       });
-    }
-    if (clinicalNote) {
-      await models.N.createAndSaveOne({
-        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-        isPrimary: true,
-        encounter: encounter.id,
-        date: getCurrentDateTimeString(),
-        diagnosis,
-        certainty,
-      });
-    }
-    navigateToHistory();
-  }, []);
+
+      if (clinicalNote) {
+        await models.N.createAndSaveOne({
+          // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+          isPrimary: true,
+          encounter: encounter.id,
+          date: getCurrentDateTimeString(),
+          diagnosis,
+          certainty,
+        });
+      }
+
+      navigateToHistory();
+    },
+    [],
+  );
 
   const icd10Suggester = new Suggester(models.ReferenceData, {
     where: {
@@ -142,8 +143,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
               </ScrollView>
             </KeyboardAvoidingView>
           </FullView>
-        )
-        }
+        )}
       </Formik>
     </FullView>
   );

@@ -69,7 +69,7 @@ export const Dropdown = React.memo(
     const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
     const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
-      (items) => {
+      items => {
         setSelectedItems(items);
         onChange(items.join(', ')); // Form submits selected items as comma separated string.
       },
