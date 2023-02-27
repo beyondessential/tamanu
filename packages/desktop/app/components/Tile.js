@@ -5,20 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { Typography } from '@material-ui/core';
 import LabelIcon from '@material-ui/icons/Label';
 import { MenuButton } from './MenuButton';
-
-const OverflowContainer = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-export const TileTooltip = ({ text, ...props }) => {
-  return (
-    <Tooltip title={text} placement="top" {...props}>
-      <OverflowContainer>{text}</OverflowContainer>
-    </Tooltip>
-  );
-};
+import { StatusTag } from './Tag';
 
 const Container = styled.div`
   background: white;
@@ -56,18 +43,16 @@ const Main = styled.div`
   line-height: 18px;
 `;
 
-export const Tile = React.memo(({ Icon, main, text, actions, ...props }) => {
-  return (
-    <Container {...props}>
-      <Header>
-        <Icon color="primary" />
-        {actions && <MenuButton actions={actions} iconDirection="horizontal" />}
-      </Header>
-      <Text>{text}</Text>
-      <Main>{main}</Main>
-    </Container>
-  );
-});
+export const Tile = React.memo(({ Icon, main, text, actions, ...props }) => (
+  <Container {...props}>
+    <Header>
+      <Icon color="primary" />
+      {actions && <MenuButton actions={actions} iconDirection="horizontal" />}
+    </Header>
+    <Text>{text}</Text>
+    <Main>{main}</Main>
+  </Container>
+));
 
 Tile.propTypes = {
   main: PropTypes.oneOfType([PropTypes.string, PropTypes.node, PropTypes.element]),
@@ -102,4 +87,21 @@ export const TileContainer = styled.div`
       margin-left: 0;
     }
   }
+`;
+
+const OverflowContainer = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const TileTooltip = React.memo(({ text, ...props }) => (
+  <Tooltip title={text} placement="top" {...props}>
+    <OverflowContainer>{text}</OverflowContainer>
+  </Tooltip>
+));
+
+export const TileTag = styled(StatusTag)`
+  margin-left: -2px;
+  margin-right: -2px;
 `;

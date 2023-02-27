@@ -36,20 +36,3 @@ export const StatusTag = styled(BaseTag)`
   font-size: 11px;
   line-height: 15px;
 `;
-
-// Used in Tiles
-export const TileTag = styled(StatusTag)`
-  margin-left: -2px;
-  margin-right: -2px;
-`;
-
-// Not sure where this lives
-export const STATUS_TAG_COLORS = {
-  ORANGE: '#CB6100',
-  GREEN: '#19934E',
-  PURPLE: '#4101C9',
-  BLUE: '#1172D1',
-  PINK: '#D10580',
-  YELLOW: '#BD9503',
-  GREY: '#444444',
-};

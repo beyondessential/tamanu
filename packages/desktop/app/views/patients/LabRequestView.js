@@ -13,6 +13,7 @@ import {
   MenuButton,
   DateDisplay,
   OutlinedButton,
+  TileTag,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -101,12 +102,15 @@ export const LabRequestView = () => {
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
-        {/* Todo: Add Tile component in WAITM-646 */}
-        <Tile title="Test Category" Icon={Category} text={(labRequest.category || {}).name} />
+        <Tile Icon={Category} text="Test Category" main={(labRequest.category || {}).name} />
         <Tile
-          title="Status"
           Icon={Timelapse}
-          text={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+          text="Status"
+          main={
+            <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
+              {LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+            </TileTag>
+          }
           actions={
             !isReadOnly && {
               'Change status': () => {
@@ -118,11 +122,11 @@ export const LabRequestView = () => {
             }
           }
         />
-        <Tile title="Sample collected" text={<DateDisplay date={labRequest.requestedDate} />} />
+        <Tile text="Sample collected" main={<DateDisplay date={labRequest.requestedDate} />} />
         <Tile
-          title="Laboratory"
           Icon={Business}
-          text={(labRequest.laboratory || {}).name || 'Unknown'}
+          text="Laboratory"
+          main={(labRequest.laboratory || {}).name || 'Unknown'}
           actions={
             !isReadOnly && {
               'Change laboratory': () => {
@@ -132,9 +136,9 @@ export const LabRequestView = () => {
           }
         />
         <Tile
-          title="Priority"
           Icon={AssignmentLate}
-          text={(labRequest.priority || {}).name || 'Unknown'}
+          text="Priority"
+          main={(labRequest.priority || {}).name || 'Unknown'}
         />
       </TileContainer>
       <Rule />

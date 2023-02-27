@@ -115,7 +115,7 @@ const Template2 = () => (
     <Tile
       Icon={Business}
       text="Status"
-      main={<TileTag $color={STATUS_TAG_COLORS.ORANGE}>Reception pending</TileTag>}
+      main={<TileTag $color="#19934E">Reception pending</TileTag>}
       actions={actions}
     />
     <Tile
@@ -124,7 +124,7 @@ const Template2 = () => (
       main={
         <div>
           <div style={{ marginBottom: 3 }}>ED Bed 1</div>
-          <TileTag $color={STATUS_TAG_COLORS.BLUE}>Planned: ED Bed 2</TileTag>
+          <TileTag $color="#19934E">Planned: ED Bed 2</TileTag>
         </div>
       }
       actions={actions}
@@ -134,7 +134,7 @@ const Template2 = () => (
       main={
         <div>
           <TileTooltip style={{ marginBottom: 5 }} text="Emergency department" />
-          <TileTag $color={STATUS_TAG_COLORS.BLUE}>Planned: ED Bed 2</TileTag>
+          <TileTag $color="#19934E">Planned: ED Bed 2</TileTag>
         </div>
       }
       actions={actions}
