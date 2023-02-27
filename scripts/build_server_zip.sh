@@ -26,7 +26,24 @@ VERSION="${MAYBE_VERSION?could not calculate version}"
 DIR_NAME="release-v$VERSION"
 SUFFIX="$CI_BRANCH-v$VERSION-${CI_COMMIT_ID:0:10}"
 ZIP_NAME="tamanu-$WORKSPACE-$SUFFIX.zip"
+DESKTOP_UPGRADE_DIR="$DIR_NAME/dist/upgrade"
 mv "$WINDOWS_RELEASE_FOLDER" "$DIR_NAME"
+
+pwd 
+
+# If package-desktop then package the latest Tmanu desktop
+# along with the facility server
+if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
+    if [ ! -d "$DESKTOP_RELEASE_DIR" ]; then
+        echo "Building desktopr"
+        ./scripts/build_desktop.sh build-only
+    fi
+
+    echo "Packaging desktop with facility server"
+    mkdir -p "$DESKTOP_UPGRADE_DIR"
+    cp -r "$DESKTOP_RELEASE_DIR" "$DESKTOP_UPGRADE_DIR"
+fi
+
 zip -r "$ZIP_NAME" "$DIR_NAME"
 rm -rf "$DIR_NAME"
 popd

@@ -7,8 +7,8 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
-import { autoUpdater } from 'electron-updater';
-import { app, BrowserWindow } from 'electron';
+import { NsisUpdater } from 'electron-updater';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
@@ -78,12 +78,24 @@ app.on('ready', async () => {
       : `file://${__dirname}/app.html`;
   mainWindow.loadURL(htmlLocation);
 
-  mainWindow.on('ready-to-show', () => {
+  let checkForUpdateInterval;
+
+  ipcMain.handle('host-submitted', (_event, host) => {
+    const autoUpdater = new NsisUpdater({
+      provider: 'generic',
+      url: `${host}/upgrade`,
+    });
     const notificationDetails = {
       title: 'A new update is ready to install',
       body: `To update to {version}, please close {appName} and wait for 30 seconds before re-opening.`,
     };
+
     autoUpdater.checkForUpdatesAndNotify(notificationDetails);
+
+    if (checkForUpdateInterval) {
+      clearInterval(checkForUpdateInterval);
+    }
+  
     setInterval(
       () => autoUpdater.checkForUpdatesAndNotify(notificationDetails),
       UPDATE_CHECK_INTERVAL,
