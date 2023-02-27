@@ -16,9 +16,8 @@
       steps:
         - name: build lan and desktop
           exclude: ^deploy-meta$
-          service: app-without-db
           type: serial
-          steps: build
+          steps:
             - name: for desktop installer
               exclude: ^deploy-meta$
               command: ./scripts/build_desktop.sh build-only
