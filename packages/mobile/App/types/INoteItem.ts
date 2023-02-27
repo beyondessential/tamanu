@@ -1,29 +1,25 @@
 import { ID } from './ID';
-import { INoteItem } from './INoteItem';
+import { INotePage } from './INotePage';
+import { IUser } from './IUser';
 // import { IReferenceData } from './IReferenceData';
-import { DateString } from './DateString';
+import { DateTimeString } from './DateString';
 
 export interface INoteItem {
   id: ID;
-  date: DateString,
-  
-  revisedById: NoteType,
-  
-  // Can't link to record
-  recordType: NoteRecordType,
-  recordId: ID,
+  date: DateTimeString,
+  content: string,
 
-  noteItems: INoteItem[],
+  // Not sure what this does exactly
+  revisedById?: string,
+
+  notePage: INotePage
+  notePageId: ID,
+
+  author: IUser,
+  authorId: ID,
+
+  onBehalfOf: IUser,
+  onBehalfOfId: ID,
 }
 
-export interface IDataRequiredToCreateNoteItem {
-  id?: ID;
-  noteType: NoteType,
-  date?: DateString,
-
-  // Can't link to record
-  recordType: NoteRecordType,
-  recordId: ID,
-
-  // noteItems: INoteItem[],
-}
+export interface IDataRequiredToCreateNoteItem {}
