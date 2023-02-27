@@ -21,7 +21,7 @@ if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     # fi
 
     echo "Packaging desktop with facility server"
-    mkdir -p "$DESKTOP_UPGRADE_DIR"
+    mkdir -p "$FACILITY_DESKTOP_UPGRADE_DIR"
     cp -r "$DESKTOP_RELEASE_DIR" "$FACILITY_DESKTOP_UPGRADE_DIR"
 fi
 
