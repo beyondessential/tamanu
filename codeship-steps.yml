@@ -25,9 +25,9 @@
             - name: package windows release
               tag: ^(master$|dev$|staging-|ci-)
               command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
-        - name: for desktop installer
-          exclude: ^deploy-meta$
-          command: ./scripts/build_desktop.sh build-only
+        # - name: for desktop installer
+        #   exclude: ^deploy-meta$
+        #   command: ./scripts/build_desktop.sh build-only
         - name: for sync release
           exclude: ^deploy-meta$
           type: serial
