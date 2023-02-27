@@ -160,7 +160,7 @@ export const LabRequestView = () => {
         onClose={closeModal}
       />
       <LabRequestChangeLabModal
-        labId={labRequest.laboratory?.id}
+        labTestLaboratoryId={labRequest.laboratory?.id}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_LABORATORY}
         onClose={closeModal}
