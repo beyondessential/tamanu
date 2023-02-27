@@ -22,7 +22,7 @@
               command: ./scripts/build_package_release.sh lan
             - name: package windows release
               tag: ^(master$|dev$|staging-|ci-)
-              command: ./scripts/build_server_zip.sh lan ./deploy
+              command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
         - name: for desktop installer
           exclude: ^deploy-meta$
           command: ./scripts/build_desktop.sh build-only
