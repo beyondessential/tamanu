@@ -131,7 +131,7 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('user', 5, 'id is a required field');
   });
 
-  it.only('should import user passwords correctly', async () => {
+  it('should import user passwords correctly', async () => {
     // create our two existing users to see how their passwords
     // are affected
 
