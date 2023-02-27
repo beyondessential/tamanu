@@ -42,6 +42,8 @@ const ModalContent = styled.div`
 
 const ModalContainer = styled.div`
   background: ${props => props.$color};
+  // Overflow in the modal content ensures that the modal header stays fixed
+  overflow: auto;
 
   @media print {
     background: none;
@@ -55,6 +57,7 @@ export const FullWidthRow = styled.div`
 
 const ModalTitle = styled(DialogTitle)`
   padding: 14px 14px 14px 32px;
+  border-bottom: 1px solid ${Colors.softOutline};
 
   h2 {
     display: flex;
