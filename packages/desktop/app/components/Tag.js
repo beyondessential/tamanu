@@ -8,7 +8,7 @@ const DEFAULTS = {
 const BaseTag = styled.div`
   position: relative;
   display: inline-block;
-  background: ${({ $background, $color }) => {
+  background: ${({ $background = DEFAULTS.background, $color = DEFAULTS.color }) => {
     if ($background) {
       return $background;
     }
@@ -16,9 +16,9 @@ const BaseTag = styled.div`
       // If no background-color prop was provided then use a semi-transparent version of the color
       return `${$color}1A`;
     }
-    return DEFAULTS.background;
+    return $background;
   }};
-  color: ${p => (p.$color ? p.$color : DEFAULTS.color)};
+  color: ${({ $color = DEFAULTS.color }) => $color};
   font-weight: 400;
 `;
 
