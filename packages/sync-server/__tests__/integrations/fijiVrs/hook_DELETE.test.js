@@ -10,7 +10,7 @@ describe('VRS integration - hook - DELETE', () => {
   let ctx;
   let app;
   beforeAll(async () => {
-    ctx = await createTestContext('fiji-vrs');
+    ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(async () => ctx.close());

@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import config from 'config';
+import { JWT_TOKEN_TYPES } from '../../../../shared-src/src/constants/auth';
 import { DEFAULT_JWT_SECRET } from '../../auth';
 import { getToken } from '../../auth/utils';
 import { initDatabase, closeDatabase } from '../../database';
@@ -36,8 +37,7 @@ export const genToken = async (keyType, email, { expiresIn }) => {
       userId: user.id,
     },
     secret,
-    // TODO: sort out audience for these integrations
-    { expiresIn, audience: 'Tamanu Mobile', issuer: config.canonicalHostName },
+    { expiresIn, audience: JWT_TOKEN_TYPES.ACCESS, issuer: config.canonicalHostName },
   );
 
   // cleanup

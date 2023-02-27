@@ -3,6 +3,7 @@ import config from 'config';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { verifyToken, stripUser, findUser, findUserById } from './utils';
+import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
 
 const FAKE_TOKEN = 'fake-token';
 
@@ -31,11 +32,12 @@ export const userMiddleware = ({ secret }) =>
       return;
     }
 
-    const clientId = req.header('X-Tamanu-Client');
-
     let contents = null;
     try {
-      contents = verifyToken(token, secret, { issuer: canonicalHostName, audience: clientId });
+      contents = verifyToken(token, secret, {
+        issuer: canonicalHostName,
+        audience: JWT_TOKEN_TYPES.ACCESS,
+      });
     } catch (e) {
       throw new BadAuthenticationError('Invalid token');
     }

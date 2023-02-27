@@ -11,6 +11,7 @@ import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
+import { JWT_TOKEN_TYPES } from '../../shared-src/src/constants/auth';
 
 jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 jest.mock('../app/utils/getFreeDiskSpace');
@@ -115,23 +116,20 @@ class MockApplicationContext {
   };
 }
 
-export async function createTestContext(clientId = 'Tamanu Mobile') {
+export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
 
-  baseApp.set('X-Tamanu-Client', clientId);
-
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
       expiresIn: '1d',
-      audience: clientId,
+      audience: JWT_TOKEN_TYPES.ACCESS,
       issuer: config.canonicalHostName,
     });
     agent.set('authorization', `Bearer ${token}`);
-    agent.set('X-Tamanu-Client', clientId);
     agent.user = user;
     return agent;
   };

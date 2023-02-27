@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from 'config';
 import { createTestContext, withDate } from '../utilities';
+import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
@@ -56,7 +57,7 @@ describe('Auth', () => {
       const contents = jwt.decode(response.body.token);
 
       expect(contents).toEqual({
-        aud: 'Tamanu Mobile',
+        aud: JWT_TOKEN_TYPES.ACCESS,
         iss: config.canonicalHostName,
         userId: expect.any(String),
         jti: expect.any(String),
@@ -79,7 +80,7 @@ describe('Auth', () => {
       const contents = jwt.decode(refreshToken);
 
       expect(contents).toEqual({
-        aud: 'Tamanu Mobile',
+        aud: JWT_TOKEN_TYPES.REFRESH,
         iss: config.canonicalHostName,
         userId: expect.any(String),
         refreshId: expect.any(String),
@@ -171,7 +172,7 @@ describe('Auth', () => {
       const newTokenContents = jwt.decode(refreshResponse.body.token);
 
       expect(newTokenContents).toEqual({
-        aud: 'Tamanu Mobile',
+        aud: JWT_TOKEN_TYPES.ACCESS,
         iss: config.canonicalHostName,
         userId: expect.any(String),
         jti: expect.any(String),
@@ -208,7 +209,7 @@ describe('Auth', () => {
       const oldRefreshTokenContents = jwt.decode(refreshToken);
 
       expect(newRefreshTokenContents).toEqual({
-        aud: 'Tamanu Mobile',
+        aud: JWT_TOKEN_TYPES.REFRESH,
         iss: config.canonicalHostName,
         userId: expect.any(String),
         refreshId: expect.any(String),
@@ -244,7 +245,7 @@ describe('Auth', () => {
       });
       expect(refreshResponse).toHaveRequestError();
     });
-    it('Should fail if refresh token requested from different audience', async () => {
+    it('Should fail if refresh token requested with a token with aud not of refresh', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
@@ -252,15 +253,13 @@ describe('Auth', () => {
       });
       expect(loginResponse).toHaveSucceeded();
 
-      const { refreshToken } = loginResponse.body;
+      const { token } = loginResponse.body;
 
-      const refreshResponse = await baseApp
-        .post('/v1/refresh')
-        .set('X-Tamanu-Client', 'Tamanu Desktop')
-        .send({
-          refreshToken,
-          deviceId: TEST_DEVICE_ID,
-        });
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        // Incorrectly send token instead
+        refreshToken: token,
+        deviceId: TEST_DEVICE_ID,
+      });
       expect(refreshResponse).toHaveRequestError();
     });
     it('Should fail if refresh token requested from different device', async () => {

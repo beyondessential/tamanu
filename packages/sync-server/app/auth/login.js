@@ -7,6 +7,7 @@ import { BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import { getToken, stripUser, findUser, getRandomBase64String, getRandomU32 } from './utils';
+import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
@@ -40,8 +41,6 @@ export const login = ({ secret, refreshSecret }) =>
       refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
     } = auth;
 
-    const clientId = req.header('X-Tamanu-Client');
-
     const accessTokenJwtId = getRandomU32();
     const token = getToken(
       {
@@ -50,7 +49,7 @@ export const login = ({ secret, refreshSecret }) =>
       secret,
       {
         expiresIn: tokenDuration,
-        audience: clientId,
+        audience: JWT_TOKEN_TYPES.ACCESS,
         issuer: canonicalHostName,
         jwtid: `${accessTokenJwtId}`,
       },
@@ -68,7 +67,7 @@ export const login = ({ secret, refreshSecret }) =>
       refreshSecret,
       {
         expiresIn: refreshTokenDuration,
-        audience: clientId,
+        audience: JWT_TOKEN_TYPES.REFRESH,
         issuer: canonicalHostName,
         jwtid: `${refreshTokenJwtId}`,
       },

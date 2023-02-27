@@ -12,7 +12,7 @@ describe('Version compatibility', () => {
   let app;
   let close;
   beforeAll(async () => {
-    const ctx = await createTestContext('Tamanu Desktop');
+    const ctx = await createTestContext();
     baseApp = ctx.baseApp;
     close = ctx.close;
     app = await baseApp.asRole('practitioner');

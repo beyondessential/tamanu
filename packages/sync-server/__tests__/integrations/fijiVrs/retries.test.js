@@ -8,7 +8,7 @@ const { host } = config.integrations.fijiVrs;
 describe('VRS integration - VRSActionRetrier', () => {
   let ctx;
   beforeAll(async () => {
-    ctx = await createTestContext('fiji-vrs');
+    ctx = await createTestContext();
   });
   afterAll(async () => ctx.close());
 

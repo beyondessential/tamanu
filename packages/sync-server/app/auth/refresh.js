@@ -4,6 +4,7 @@ import { BadAuthenticationError } from 'shared/errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { getToken, verifyToken, findUserById, getRandomU32, getRandomBase64String } from './utils';
+import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
 
 export const refresh = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
@@ -17,12 +18,10 @@ export const refresh = ({ secret, refreshSecret }) =>
       refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
     } = auth;
 
-    const clientId = req.header('X-Tamanu-Client');
-
     let contents = null;
     try {
       contents = verifyToken(refreshToken, refreshSecret, {
-        audience: clientId,
+        audience: JWT_TOKEN_TYPES.REFRESH,
         issuer: canonicalHostName,
       });
     } catch (e) {
@@ -63,7 +62,7 @@ export const refresh = ({ secret, refreshSecret }) =>
       secret,
       {
         expiresIn: tokenDuration,
-        audience: clientId,
+        audience: JWT_TOKEN_TYPES.ACCESS,
         issuer: canonicalHostName,
         jwtid: `${accessTokenJwtId}`,
       },
@@ -82,7 +81,7 @@ export const refresh = ({ secret, refreshSecret }) =>
       refreshSecret,
       {
         expiresIn: refreshTokenDuration,
-        audience: clientId,
+        audience: JWT_TOKEN_TYPES.REFRESH,
         issuer: canonicalHostName,
         jwtid: `${refreshTokenJwtId}`,
       },
