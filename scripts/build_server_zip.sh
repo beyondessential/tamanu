@@ -8,6 +8,7 @@ WINDOWS_RELEASE_DIR="./packages/$WORKSPACE/$WINDOWS_RELEASE_FOLDER"
 TARGET_PATH="${2-.}"
 RELEASE_NODE_JS_DIR="./packages/$WORKSPACE/$LINUX_RELEASE_FOLDER"
 FACILITY_DESKTOP_UPGRADE_DIR="$RELEASE_NODE_JS_DIR/dist/upgrade"
+DESKTOP_RELEASE_DIR="./packages/desktop/release"
 
 # this script depends on the following steps having been run:
 # ./scripts/build_shared.sh
@@ -18,12 +19,12 @@ FACILITY_DESKTOP_UPGRADE_DIR="$RELEASE_NODE_JS_DIR/dist/upgrade"
 if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     # if [ ! -d "$DESKTOP_RELEASE_DIR" ]; then
     #     echo "Building desktop"
-    #     ../../scripts/build_desktop.sh build-only
+    #     ./scripts/build_desktop.sh build-only
     # fi
 
     echo "Packaging desktop with facility server"
     mkdir -p "$FACILITY_DESKTOP_UPGRADE_DIR"
-    cp -r "$DESKTOP_RELEASE_DIR" "$FACILITY_DESKTOP_UPGRADE_DIR"
+    cp -r "$DESKTOP_RELEASE_DIR/." "$FACILITY_DESKTOP_UPGRADE_DIR"
 fi
 
 # copy folder before modifying so we don't break the linux release
