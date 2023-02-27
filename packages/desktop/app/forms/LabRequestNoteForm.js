@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
@@ -70,7 +70,6 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const queryClient = useQueryClient();
   const [active, setActive] = useState(false);
 
-  // Add sorting
   const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId], () =>
     api.get(`labRequest/${labRequestId}/notes`),
   );
@@ -78,7 +77,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const { mutate: saveNote } = useMutation(
     ({ values }) => {
       return api.post(`labRequest/${labRequestId}/notes`, {
-        content: values.content,
+        content: values.content.trim(),
         authorId: api.user.id,
         noteType: NOTE_TYPES.OTHER,
       });
@@ -113,14 +112,14 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               saveNote({ values, formProps });
             }}
             render={({ values }) => {
-              const formSubmitIsDisabled = !values.content || values.content.length < 2;
+              const formSubmitIsDisabled = !values.content.trim();
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />
-                  <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
-                  <TextButton type="submit" $underline disabled={formSubmitIsDisabled}>
+                  <TextButton type="submit" disabled={formSubmitIsDisabled}>
                     Save
                   </TextButton>
+                  <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
                 </Box>
               ) : (
                 <TextButton $underline onClick={() => setActive(true)}>

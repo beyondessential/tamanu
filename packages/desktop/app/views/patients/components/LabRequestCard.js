@@ -47,7 +47,7 @@ const CardValue = styled(CardLabel)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const LabRequestCard = ({ labRequest, Actions }) => (
+export const LabRequestCard = ({ labRequest, actions }) => (
   <Container>
     <Box display="flex" alignItems="center">
       <LabIcon src={labsIcon} />
@@ -67,6 +67,6 @@ export const LabRequestCard = ({ labRequest, Actions }) => (
         <CardValue>Cardiology</CardValue>
       </BorderSection>
     </Box>
-    {Actions || null}
+    {actions || null}
   </Container>
 );
