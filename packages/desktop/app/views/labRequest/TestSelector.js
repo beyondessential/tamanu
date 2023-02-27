@@ -172,7 +172,6 @@ export const TestSelectorInput = ({
             label="Test Category"
             endpoint="labTestCategory"
             name="labTestCategoryId"
-            includeAllOption
           />
         )}
         {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
@@ -184,7 +183,7 @@ export const TestSelectorInput = ({
             label="Test Panel"
             endpoint="labTestPanel"
             name="labTestPanelId"
-            disabled={testFilters.labTestPanelId}
+            disabled={!!testFilters.labTestPanelId}
           />
         )}
         <FormSeparatorLine />
