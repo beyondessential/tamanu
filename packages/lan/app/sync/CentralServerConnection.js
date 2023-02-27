@@ -185,7 +185,6 @@ export class CentralServerConnection {
           email,
           password,
           facilityId: config.serverFacilityId,
-          // Device id is only used in refresh token logic
           deviceId: this.deviceId,
         },
         awaitConnection: false,
