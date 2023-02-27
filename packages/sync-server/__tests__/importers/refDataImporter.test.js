@@ -1,4 +1,6 @@
 import { Op } from 'sequelize';
+import { fake } from 'shared/test-helpers/fake';
+
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
@@ -124,10 +126,50 @@ describe('Data definition import', () => {
     });
 
     expect(didntSendReason).toEqual('validationFailed');
-    expect(errors).toContainValidationError('user', 2, 'password is a required field');
     expect(errors).toContainValidationError('user', 3, 'email is a required field');
     expect(errors).toContainValidationError('user', 4, 'displayName is a required field');
     expect(errors).toContainValidationError('user', 5, 'id is a required field');
+  });
+
+  it.only('should import user passwords correctly', async () => {
+    // create our two existing users to see how their passwords
+    // are affected
+
+    // this user has a password change in the doc and should update
+    const User = ctx.store.models.User.scope('withPassword');
+    const beforeUserUpdate = await User.create({
+      ...fake(User),
+      id: 'existing-user-with-new-password',
+    })
+    const updateOldPassword = beforeUserUpdate.password;
+    expect(updateOldPassword).toBeTruthy();
+
+    // this user's password is blank in the doc and should stay intact
+    const beforeUserBlank = await User.create({
+      ...fake(User),
+      id: 'existing-user-with-blank-password',
+    })
+    const blankOldPassword = beforeUserBlank.password;
+    expect(blankOldPassword).toBeTruthy();
+    
+    // now actually do the import
+    const { stats, errors } = await doImport({
+      file: 'user-password',
+    });
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      'User': { created: 2, updated: 2 },
+    });
+
+    // "Update" user's password should have been updated
+    const afterUserUpdate = await User.findByPk(beforeUserUpdate.id);
+    expect(afterUserUpdate.password).toBeTruthy()
+    expect(updateOldPassword).not.toEqual(afterUserUpdate.password);
+    
+    // "Blank" user's password should not have been changed (or blanked!)
+    const afterUserBlank = await User.findByPk(beforeUserBlank.id);
+    expect(afterUserBlank.password).toBeTruthy()
+    expect(blankOldPassword).toEqual(afterUserBlank.password);
   });
 
   it('should validate foreign keys', async () => {

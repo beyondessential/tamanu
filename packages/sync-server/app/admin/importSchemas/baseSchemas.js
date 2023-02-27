@@ -64,7 +64,7 @@ export const Patient = Base.shape({
 export const User = Base.shape({
   email: yup.string().required(),
   displayName: yup.string().required(),
-  password: yup.string().required(),
+  password: yup.string(),
 });
 
 export const Facility = Base.shape({
