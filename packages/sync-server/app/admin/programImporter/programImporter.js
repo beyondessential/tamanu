@@ -13,7 +13,7 @@ import { importSurveySheet } from './screens';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export async function programImporter({ errors, models, stats, file, whitelist = [] }) {
+export async function programImporter({ errors, models, stats, file }) {
   log.info('Importing programs from file', { file });
 
   log.info(`Reading surveys from ${file}...`);
@@ -125,13 +125,6 @@ export async function programImporter({ errors, models, stats, file, whitelist =
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
 
   const shouldImportSurvey = ({ status = '', name, code }, row) => {
-    // check against whitelist
-    if (whitelist && whitelist.length > 0) {
-      if (!whitelist.some(x => x === name || x === code)) {
-        return false;
-      }
-    }
-
     // check against home server & publication status
     switch (status) {
       case 'publish':

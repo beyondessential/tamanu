@@ -48,7 +48,7 @@ export class Form extends React.PureComponent {
     setSubmitting,
     getValues,
     ...rest
-  }) => async event => {
+  }) => async (event, extraValues) => {
     event.preventDefault();
     event.persist();
 
@@ -60,7 +60,7 @@ export class Form extends React.PureComponent {
     setSubmitting(true);
 
     // validation phase
-    const values = getValues();
+    const values = { ...getValues(), ...extraValues };
     const formErrors = await validateForm(values);
     if (Object.entries(formErrors).length) {
       this.setErrors(formErrors);

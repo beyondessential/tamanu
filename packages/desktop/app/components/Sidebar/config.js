@@ -192,7 +192,7 @@ export const FACILITY_MENU_ITEMS = [
 export const SYNC_MENU_ITEMS = [
   {
     key: 'refdata',
-    label: 'Data import',
+    label: 'Reference data',
     path: '/admin/refdata',
   },
   {

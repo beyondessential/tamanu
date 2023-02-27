@@ -1,17 +1,25 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useMemo } from 'react';
 import { startCase, sum } from 'lodash';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { useApi } from '../../../api';
-import { ContentPane } from '../../../components';
-import { Form, Field, CheckField } from '../../../components/Field';
+import { Form, Field } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
-import { CheckArrayInput } from '../../../components/Field/CheckArrayInput';
+import { SelectOrSelectAllField } from '../../../components/Field/SelectOrSelectAllField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
-import { Button } from '../../../components/Button';
 import { Table } from '../../../components/Table';
+import { DropdownButton } from '../../../components/DropdownButton';
+
+const Container = styled.div`
+  padding: 20px;
+`;
+
+const Title = styled.h1`
+  padding-bottom: 20px;
+  margin: 0px;
+`;
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -54,9 +62,8 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const UploadForm = ({ isSubmitting, whitelist }) => (
+const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
-    <Field component={CheckField} label="Test run" name="dryRun" required />
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
@@ -64,18 +71,33 @@ const UploadForm = ({ isSubmitting, whitelist }) => (
       name="file"
       required
     />
-    {whitelist && (
+    {dataTypes && dataTypesSelectable && (
       <Field
-        name="whitelist"
-        label="Only import some (select none to import everything)"
-        component={CheckArrayInput}
-        options={whitelist.map(value => ({ value, label: startCase(value) }))}
+        name="includedDataTypes"
+        label="Select data types to import"
+        component={SelectOrSelectAllField}
+        options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
     <ButtonRow>
-      <Button disabled={isSubmitting} type="submit">
-        Import data
-      </Button>
+      <DropdownButton
+        disabled={isSubmitting}
+        size="large"
+        actions={[
+          {
+            label: 'Test import',
+            onClick: event => {
+              submitForm(event, { dryRun: true });
+            },
+          },
+          {
+            label: 'Import',
+            onClick: event => {
+              submitForm(event);
+            },
+          },
+        ]}
+      />
     </ButtonRow>
   </FormGrid>
 );
@@ -135,7 +157,7 @@ const OutcomeDisplay = ({ result }) => {
   );
 };
 
-export const ImporterView = memo(({ title, endpoint, whitelist }) => {
+export const ImporterView = memo(({ endpoint, title, dataTypes, dataTypesSelectable }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
 
@@ -143,7 +165,11 @@ export const ImporterView = memo(({ title, endpoint, whitelist }) => {
 
   const onSubmitUpload = useCallback(
     async ({ file, ...data }) => {
-      const intermediateResult = await api.postWithFileUpload(endpoint, file, data);
+      const intermediateResult = await api.postWithFileUpload(
+        `admin/import/${endpoint}`,
+        file,
+        data,
+      );
 
       if (intermediateResult.sentData) {
         // reset the form
@@ -156,26 +182,35 @@ export const ImporterView = memo(({ title, endpoint, whitelist }) => {
     [api, endpoint],
   );
 
-  const renderForm = useCallback(props => <UploadForm whitelist={whitelist} {...props} />, [
-    whitelist,
-  ]);
+  const renderForm = useCallback(
+    props => (
+      <ImportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
+    ),
+    [dataTypes, dataTypesSelectable],
+  );
+
+  const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
 
   return (
-    <ContentPane>
-      <h1>{title}</h1>
+    <Container>
+      <Title>{title}</Title>
       <Form
         key={resetKey}
         onSubmit={onSubmitUpload}
         validationSchema={yup.object().shape({
-          dryRun: yup.bool(),
-          file: yup.string(),
+          includedDataTypes: yup
+            .array()
+            .of(yup.string())
+            .required()
+            .min(1),
+          file: yup.string().required(),
         })}
         initialValues={{
-          dryRun: true,
+          includedDataTypes: initialDataTypes,
         }}
         render={renderForm}
       />
       <OutcomeDisplay result={result} />
-    </ContentPane>
+    </Container>
   );
 });

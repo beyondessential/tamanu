@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImporterView } from './components/ImporterView';
 
-const ALLOWLIST = [
+const DATA_TYPES = [
   'additionalInvoiceLine',
   'administeredVaccine',
   'allergy',
@@ -64,8 +64,9 @@ const ALLOWLIST = [
 
 export const ReferenceDataAdminView = () => (
   <ImporterView
-    title="Import reference data"
-    endpoint="admin/importRefData"
-    whitelist={ALLOWLIST}
+    title="Reference data"
+    endpoint="refData"
+    dataTypes={DATA_TYPES}
+    dataTypesSelectable
   />
 );

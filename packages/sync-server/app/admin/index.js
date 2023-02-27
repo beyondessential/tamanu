@@ -10,7 +10,6 @@ import { refDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './refDataIm
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
-import { exportRefData } from './exportRefData';
 
 export const adminRoutes = express.Router();
 
@@ -58,15 +57,13 @@ adminRoutes.get(
 );
 
 adminRoutes.post(
-  '/importRefData',
+  '/import/refData',
   createDataImporterEndpoint(refDataImporter, REFDATA_PERMISSIONS),
 );
 
 adminRoutes.post(
-  '/importProgram',
+  '/import/program',
   createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
 );
-
-adminRoutes.get('/exportRefData', exportRefData);
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
