@@ -51,6 +51,10 @@ SUFFIX="$CI_BRANCH-v$VERSION-${CI_COMMIT_ID:0:10}"
 ZIP_NAME="tamanu-$WORKSPACE-$SUFFIX.zip"
 mv "$WINDOWS_RELEASE_FOLDER" "$DIR_NAME"
 
+echo "folder ./packages/lan/release-nodejs/dist"
+cd "$DIR_NAME"
+ls -l
+
 pwd 
 
 zip -r "$ZIP_NAME" "$DIR_NAME"
