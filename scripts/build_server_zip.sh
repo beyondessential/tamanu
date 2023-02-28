@@ -17,11 +17,6 @@ DESKTOP_RELEASE_DIR="./packages/desktop/release"
 # If package-desktop then package the latest Tmanu desktop
 # along with the facility server
 if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
-    # if [ ! -d "$DESKTOP_RELEASE_DIR" ]; then
-    #     echo "Building desktop"
-    #     ./scripts/build_desktop.sh build-only
-    # fi
-
     echo "Packaging desktop with facility server"
     mkdir -p "$FACILITY_DESKTOP_UPGRADE_DIR"
     cp -r "$DESKTOP_RELEASE_DIR/." "$FACILITY_DESKTOP_UPGRADE_DIR"
