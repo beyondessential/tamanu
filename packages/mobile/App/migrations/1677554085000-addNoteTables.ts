@@ -91,18 +91,22 @@ const NoteItemTable = new Table({
       name: 'revisedById',
       type: 'varchar',
       isNullable: true,
+      // Tried a default here and it worked
     }),
     new TableColumn({
       name: 'notePageId',
       type: 'varchar',
+      isNullable: false,
     }),
     new TableColumn({
       name: 'authorId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'onBehalfOfId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
