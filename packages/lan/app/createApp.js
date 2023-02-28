@@ -49,6 +49,7 @@ export function createApp({ sequelize, models, syncManager }) {
 
   app.use('/', routes);
 
+  console.log('pathhhhhh', path.join(process.cwd(), 'upgrade'));
   app.use('/upgrade', express.static(path.join(process.cwd(), 'upgrade')));
 
   // Dis-allow all other routes
