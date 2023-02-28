@@ -262,8 +262,6 @@ labTestPanel.get(
       ],
     });
 
-    console.log(JSON.stringify(response));
-
     res.send(response);
   }),
 );

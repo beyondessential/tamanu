@@ -126,15 +126,15 @@ export const LabRequestView = () => {
         <Tile
           text="Sample collected"
           main={
-            <Box>
+            <>
               <DateDisplay date={labRequest.sampleTime} showTime />
               <Box display="flex" alignItem="center">
-                <SmallBodyText style={{ marginRight: 3 }} color="tertiary">
+                <SmallBodyText style={{ marginRight: 3 }} color="textTertiary">
                   Site:
                 </SmallBodyText>
                 <SmallBodyText>{labRequest?.site?.name || '-'}</SmallBodyText>
               </Box>
-            </Box>
+            </>
           }
           actions={{
             [labRequest.sampleTime ? 'Edit' : 'Record sample']: () => {
