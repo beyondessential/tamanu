@@ -259,7 +259,13 @@ class BaseAutocomplete extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                <Icon position="end">
+                <Icon
+                  position="end"
+                  onClick={event => {
+                    event.preventDefault();
+                    this.anchorEl.click();
+                  }}
+                >
                   {suggestions.length > 0 ? (
                     <ExpandLess style={iconStyle} />
                   ) : (
