@@ -14,8 +14,8 @@ DESKTOP_RELEASE_DIR="./packages/desktop/release"
 # ./scripts/build_shared.sh
 # ./scripts/build_package_release.sh "$WORKSPACE"
 
-# If package-desktop then package the latest Tmanu desktop
-# along with the facility server
+# If package-desktop is true and server is facility then package the latest Tamanu desktop
+# along with the server
 if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     echo "Packaging desktop with facility server"
     mkdir -p "$FACILITY_DESKTOP_UPGRADE_DIR"
