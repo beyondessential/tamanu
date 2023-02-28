@@ -37,10 +37,7 @@ rm -rf node_modules
 popd
 
 echo "folder ./packages/lan/release-nodejs/dist"
-for eachfile in "./packages/lan/release-nodejs/dist"
-do
-   echo $eachfile
-done
+ls "./packages/lan/release-nodejs/dist"
 
 # zip and rename
 pushd "./packages/$WORKSPACE"
