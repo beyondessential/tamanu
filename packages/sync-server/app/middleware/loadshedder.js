@@ -39,10 +39,9 @@ export class RequestQueue {
   //
   // if this function completes successfully, the caller MUST call the returned
   // `release` function, otherwise the queue will be blocked!
-  async acquire(originalUrl) {
+  async acquire() {
     const logEvent = eventName => {
       log.debug(`RequestQueue.acquire(): ${eventName}`, {
-        url: originalUrl,
         queue: this.queueName,
         queued: `${this.queuedRequests.length}/${this.maxQueuedRequests}`,
         active: `${this.activeRequestCount}/${this.maxActiveRequests}`,
@@ -136,7 +135,7 @@ export const loadshedder = (options = config.loadshedder) => {
     const queue = manager.getQueue(req.path);
     if (queue) {
       // acquire a lock from the queue and release it when the request is disposed of
-      const release = await queue.acquire(req.originalUrl);
+      const release = await queue.acquire();
       res.once('close', () => {
         release();
       });
