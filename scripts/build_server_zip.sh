@@ -25,6 +25,8 @@ if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     echo "Packaging desktop with facility server"
     mkdir -p "$FACILITY_DESKTOP_UPGRADE_DIR"
     cp -r "$DESKTOP_RELEASE_DIR/." "$FACILITY_DESKTOP_UPGRADE_DIR"
+    echo "folder ./packages/lan/release-nodejs/dist"
+    basename "$RELEASE_NODE_JS_DIR/dist"
 fi
 
 # copy folder before modifying so we don't break the linux release
@@ -35,11 +37,6 @@ pushd "$WINDOWS_RELEASE_DIR"
 mv ./node_modules/shared .
 rm -rf node_modules
 popd
-
-echo "folder ./packages/lan/release-nodejs/dist"
-basename "./packages/lan/release-nodejs/dist"
-
-ls "./packages/lan/release-nodejs/dist"
 
 # zip and rename
 pushd "./packages/$WORKSPACE"
