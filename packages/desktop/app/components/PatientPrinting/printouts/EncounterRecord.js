@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
 import { startCase } from 'lodash';
+import { parseDate } from 'shared/utils/dateTime';
 
 import { LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { DateDisplay } from '../../DateDisplay';
+import { DateDisplay, formatTime, formatShort } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
@@ -14,7 +15,7 @@ import { CertificateLabel } from './reusable/CertificateLabels';
 import {
   noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
-  CERTAINTY_OPTIONS_BY_VALUE,
+  ENCOUNTER_OPTIONS_BY_VALUE,
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
@@ -111,19 +112,25 @@ export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   }
 `;
 
-// COLUMN LAYOUTSs
+const customDateFormat = ({ date }) => {
+  const dateObj = parseDate(date);
+  return `${formatShort(dateObj)} ${formatTime(dateObj)
+    .split(' ')
+    .join('')}`;
+};
+
 const COLUMNS = {
   encounterTypes: [
     {
       key: 'encounterType',
       title: 'Type',
-      accessor: ({ newEncounterType }) => startCase(newEncounterType),
+      accessor: ({ newEncounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[newEncounterType].label,
       style: { width: '70%' },
     },
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime />,
+      accessor: customDateFormat,
       style: { width: '30%' },
     },
   ],
@@ -144,7 +151,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) => <DateDisplay date={date} showDate showTime />,
+      accessor: customDateFormat,
       style: { width: '30%' },
     },
   ],
@@ -153,13 +160,13 @@ const COLUMNS = {
     {
       key: 'diagnoses',
       title: 'Diagnoses',
-      accessor: ({ diagnosis }) => diagnosis?.name,
+      accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
       style: { width: '60%' },
     },
     {
-      key: 'certainty',
-      title: 'Certainty',
-      accessor: ({ certainty }) => CERTAINTY_OPTIONS_BY_VALUE[certainty].label || '',
+      key: 'type',
+      title: 'Type',
+      accessor: ({ isPrimary }) => (isPrimary ? 'Primary' : 'Secondary'),
       style: { width: '20%' },
     },
     {
@@ -174,7 +181,7 @@ const COLUMNS = {
     {
       key: 'procedure',
       title: 'Procedure',
-      accessor: ({ procedureType }) => procedureType?.name,
+      accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
       style: { width: '80%' },
     },
     {
@@ -295,6 +302,7 @@ export const EncounterRecord = React.memo(
     discharge,
     village,
     pad,
+    medications,
   }) => {
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
@@ -403,10 +411,10 @@ export const EncounterRecord = React.memo(
             </>
           ) : null}
 
-          {encounter.medications.length > 0 ? (
+          {medications.length > 0 ? (
             <>
               <TableHeading>Medications</TableHeading>
-              <CompactListTable data={encounter.medications} columns={COLUMNS.medications} />
+              <CompactListTable data={medications} columns={COLUMNS.medications} />
             </>
           ) : null}
 
