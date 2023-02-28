@@ -10,13 +10,15 @@ import {
 
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
+    const isEdit = !!labRequest.sampleTime;
     const [sampleTime, setSampleTime] = useState(labRequest.sampleTime);
     const [labSampleSiteId, setLabSampleSiteId] = useState(labRequest.labSampleSiteId);
 
-    const updateLabStatus = async () => {
+    const updateSample = async () => {
       await updateLabReq({
         sampleTime,
         labSampleSiteId,
+        // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
         ...(labRequest.status === LAB_REQUEST_STATUSES.NOT_COLLECTED && {
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
           specimenCollected: true,
@@ -30,7 +32,7 @@ export const LabRequestRecordSampleModal = React.memo(
         <Modal
           open={open}
           onClose={onClose}
-          title={sampleTime ? 'Edit sample date and time' : 'Record sample'}
+          title={isEdit ? 'Edit sample date and time' : 'Record sample'}
         >
           <FormGrid columns={1}>
             <DateTimeInput
@@ -49,11 +51,7 @@ export const LabRequestRecordSampleModal = React.memo(
               }}
               endpoint="labSampleSite"
             />
-            <ConfirmCancelRow
-              onConfirm={updateLabStatus}
-              confirmText="Comfirm"
-              onCancel={onClose}
-            />
+            <ConfirmCancelRow onConfirm={updateSample} confirmText="Confirm" onCancel={onClose} />
           </FormGrid>
         </Modal>
       </>

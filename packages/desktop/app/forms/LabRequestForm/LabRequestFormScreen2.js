@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../api';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
+import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 
 export const screen2ValidationSchema = yup.object().shape({
   labTestIds: yup
@@ -27,7 +28,9 @@ export const LabRequestFormScreen2 = props => {
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
           name="labTestIds"
-          label="Lab tests"
+          label={`Select the test ${
+            requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? 'panel' : 'category'
+          }`}
           component={TestSelectorField}
           requestFormType={requestFormType}
           testTypes={testTypesData}

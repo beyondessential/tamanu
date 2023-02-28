@@ -14,6 +14,7 @@ import {
   DateDisplay,
   OutlinedButton,
   TileTag,
+  SmallBodyText,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -125,8 +126,14 @@ export const LabRequestView = () => {
         <Tile
           text="Sample collected"
           main={
-            <Box display="flex" alignItems="center">
-              <DateDisplay date={labRequest.sampleTime} />
+            <Box>
+              <DateDisplay date={labRequest.sampleTime} showTime />
+              <Box display="flex" alignItem="center">
+                <SmallBodyText style={{ marginRight: 3 }} color="tertiary">
+                  Site:
+                </SmallBodyText>
+                <SmallBodyText>{labRequest?.site?.name || '-'}</SmallBodyText>
+              </Box>
             </Box>
           }
           actions={{

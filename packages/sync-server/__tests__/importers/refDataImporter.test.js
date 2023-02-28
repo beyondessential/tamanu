@@ -30,7 +30,7 @@ describe('Data definition import', () => {
     });
   }
 
-  it.only('should succeed with valid data', async () => {
+  it('should succeed with valid data', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
 
     expect(didntSendReason).toEqual('dryRun');

@@ -125,6 +125,7 @@ const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
 
 export const TestSelectorInput = ({
   name,
+  label,
   testTypes,
   value,
   requestFormType,
@@ -169,9 +170,7 @@ export const TestSelectorInput = ({
   };
   return (
     <>
-      <LabelText>
-        Select the test {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? 'panel' : 'category'}
-      </LabelText>
+      <LabelText>{label}</LabelText>
       <Wrapper>
         <SelectorContainer>
           {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (

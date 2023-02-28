@@ -142,6 +142,7 @@ export class LabRequest extends Model {
       'category',
       'priority',
       'laboratory',
+      'site',
       { association: 'tests', include: ['labTestType'] },
     ];
   }

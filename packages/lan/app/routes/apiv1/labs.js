@@ -117,6 +117,8 @@ labRequest.get(
           ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
         LEFT JOIN reference_data AS laboratory
           ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
+        LEFT JOIN reference_data AS site
+          ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
