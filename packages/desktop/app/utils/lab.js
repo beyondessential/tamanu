@@ -31,3 +31,4 @@ export const getRequestType = ({ categoryName, category }) =>
 export const getPriority = ({ priorityName, priority }) =>
   priorityName || (priority || {}).name || 'Unknown';
 export const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
+export const getDateTime = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
