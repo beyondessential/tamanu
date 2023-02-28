@@ -36,7 +36,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       status,
       reasonForCancellation,
     });
-    onClose()
+    onClose();
   };
 
   return (
