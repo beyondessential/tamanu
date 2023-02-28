@@ -1,20 +1,19 @@
-//TODO: facility srever
 export async function up(query) {
   // copy id into display_id
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_requests
     ADD COLUMN display_id VARCHAR(255) NOT NULL
     USING (id::VARCHAR);
   `);
 
   // add index
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_requests
     ADD INDEX imaging_requests_display_id (display_id);
   `);
 
   // add cascading to related tables
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_results
     ALTER CONSTRAINT imaging_results_imaging_request_id_fkey
     FOREIGN KEY (imaging_request_id)
@@ -35,7 +34,7 @@ export async function up(query) {
   `);
 
   // assign new UUIDs in a deterministic way
-  query.sequelize.query(`
+  await query.sequelize.query(`
     UPDATE imaging_requests
     SET id = uuid_generate_v5(
       uuid_generate_v5(uuid_nil(), 'imaging_requests'),
@@ -44,7 +43,7 @@ export async function up(query) {
   `);
 
   // rewrite note pages relationship
-  query.sequelize.query(`
+  await query.sequelize.query(`
     UPDATE note_pages
     SET record_id = imaging_requests.id
     FROM imaging_requests
@@ -53,7 +52,7 @@ export async function up(query) {
   `);
 
   // change id to UUID
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_requests
     ALTER COLUMN id TYPE UUID USING id::UUID;
 
@@ -70,7 +69,7 @@ export async function up(query) {
 
 export async function down(query) {
   // rewrite note pages relationship
-  query.sequelize.query(`
+  await query.sequelize.query(`
     UPDATE note_pages
     SET record_id = imaging_requests.display_id
     FROM imaging_requests
@@ -79,7 +78,7 @@ export async function down(query) {
   `);
 
   // change id to varchar
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_requests
     ALTER COLUMN id TYPE VARCHAR(255) USING id::VARCHAR;
 
@@ -94,13 +93,13 @@ export async function down(query) {
   `);
 
   // assign old display IDs
-  query.sequelize.query(`
+  await query.sequelize.query(`
     UPDATE imaging_requests
     SET id = display_id;
   `);
 
   // remove cascading from related tables
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_results
     ALTER CONSTRAINT imaging_results_imaging_request_id_fkey
     FOREIGN KEY (imaging_request_id)
@@ -118,13 +117,13 @@ export async function down(query) {
   `);
 
   // remove index
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_requests
     DROP INDEX imaging_requests_display_id;
   `);
 
   // remove display_id column
-  query.sequelize.query(`
+  await query.sequelize.query(`
     ALTER TABLE imaging_requests
     DROP COLUMN display_id;
   `);
