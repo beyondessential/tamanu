@@ -47,7 +47,7 @@ export class AuthService {
       console.log(`Set local password for ${user.email}`);
     })();
 
-    // return the user that was saved to the database
+    // return the user that was saved to the database 
     return user;
   }
 

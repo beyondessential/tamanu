@@ -67,6 +67,10 @@ export const saveIncomingChanges = async (
   let savedRecordsCount = 0;
 
   for (const model of sortedModels) {
+    if (model.getTableNameForSync() === 'note_pages') {
+      console.log(model, incomingChangesCount);
+      console.log(model, incomingChangesCount);
+    }
     const recordType = model.getTableNameForSync();
     const files = await RNFS.readDir(
       `${RNFS.DocumentDirectoryPath}/${getDirPath(sessionId, recordType)}`,
@@ -75,12 +79,15 @@ export const saveIncomingChanges = async (
     for (const { path } of files) {
       const base64 = await readFileInDocuments(path);
       const batchString = Buffer.from(base64, 'base64').toString();
-
+      
       const batch = JSON.parse(batchString);
       const sanitizedBatch = model.sanitizePulledRecordData
-        ? model.sanitizePulledRecordData(batch)
-        : batch;
-
+      ? model.sanitizePulledRecordData(batch)
+      : batch;
+      
+      if (model.getTableNameForSync() === 'note_pages') {
+        console.log(sanitizedBatch);
+      }
       await saveChangesForModel(model, sanitizedBatch);
 
       savedRecordsCount += sanitizedBatch.length;

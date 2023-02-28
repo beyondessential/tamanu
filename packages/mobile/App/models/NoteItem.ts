@@ -23,7 +23,7 @@ export class NoteItem extends BaseModel implements INoteItem {
   content: string;
 
   // Not sure what this does exactly
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   revisedById?: string;
 
   @ManyToOne(() => NotePage, notePage => notePage.noteItems)
@@ -32,14 +32,14 @@ export class NoteItem extends BaseModel implements INoteItem {
   notePageId: ID;
 
   @ManyToOne(() => User, user => user.authoredNoteItems)
-  author: IUser;
+  author?: IUser;
   @RelationId(({ author }) => author)
-  authorId: ID;
+  authorId?: ID;
 
   @ManyToOne(() => User, user => user.onBehalfOfNoteItems)
-  onBehalfOf: IUser;
+  onBehalfOf?: IUser;
   @RelationId(({ onBehalfOf }) => onBehalfOf)
-  onBehalfOfId: ID;
+  onBehalfOfId?: ID;
 
   static getTableNameForSync(): string {
     return 'note_items'; // unusual camel case table here on mobile

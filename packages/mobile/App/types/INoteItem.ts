@@ -15,11 +15,11 @@ export interface INoteItem {
   notePage: INotePage
   notePageId: ID;
 
-  author: IUser;
-  authorId: ID;
+  author?: IUser;
+  authorId?: ID;
 
-  onBehalfOf: IUser;
-  onBehalfOfId: ID;
+  onBehalfOf?: IUser;
+  onBehalfOfId?: ID;
 }
 
 // export interface IDataRequiredToCreateNoteItem {}

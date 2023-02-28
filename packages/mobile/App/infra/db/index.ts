@@ -144,6 +144,7 @@ if (__DEV__) {
   DevSettings.addMenuItem('Drop database', async () => {
     await Database.client.dropDatabase();
     await Database.forceSync();
+    await clear();
     DevSettings.reload();
   });
 }
