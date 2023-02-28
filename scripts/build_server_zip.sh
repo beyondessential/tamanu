@@ -36,6 +36,12 @@ mv ./node_modules/shared .
 rm -rf node_modules
 popd
 
+echo "folder ./packages/lan/release-nodejs/dist"
+for eachfile in "./packages/lan/release-nodejs/dist"
+do
+   echo $eachfile
+done
+
 # zip and rename
 pushd "./packages/$WORKSPACE"
 MAYBE_VERSION="$(jq '.version' ./package.json --raw-output)"
