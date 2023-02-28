@@ -8,7 +8,7 @@ export async function up(query) {
 
     ALTER TABLE imaging_requests
     ALTER COLUMN display_id SET NOT NULL,
-    ALTER COLUMN id SET DEFAULT id;
+    ALTER COLUMN display_id SET DEFAULT uuid_generate_v4();
   `);
 
   // add index
