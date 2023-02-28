@@ -75,7 +75,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
           View discharge summary
         </Button>
         <br />
-        <TypographyLink onClick={onViewEncounterRecord}>Encounter Record</TypographyLink>
+        <TypographyLink onClick={onViewEncounterRecord}>Encounter record</TypographyLink>
       </div>
     );
   }
