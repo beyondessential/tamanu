@@ -2,26 +2,29 @@ export async function up(query) {
   // copy id into display_id
   await query.sequelize.query(`
     ALTER TABLE imaging_requests
-    ADD COLUMN display_id VARCHAR(255) NOT NULL
-    USING (id::VARCHAR);
+    ADD COLUMN display_id VARCHAR(255);
+    UPDATE imaging_requests SET display_id = id;
+    ALTER TABLE imaging_requests
+    ALTER COLUMN display_id SET NOT NULL;
   `);
 
   // add index
   await query.sequelize.query(`
-    ALTER TABLE imaging_requests
-    ADD INDEX imaging_requests_display_id (display_id);
+    CREATE INDEX imaging_requests_display_id ON imaging_requests (display_id);
   `);
 
   // add cascading to related tables
   await query.sequelize.query(`
     ALTER TABLE imaging_results
-    ALTER CONSTRAINT imaging_results_imaging_request_id_fkey
+    DROP CONSTRAINT imaging_results_imaging_request_id_fkey,
+    ADD CONSTRAINT imaging_results_imaging_request_id_fkey
     FOREIGN KEY (imaging_request_id)
     REFERENCES imaging_requests (id)
     ON UPDATE CASCADE;
 
     ALTER TABLE imaging_request_areas
-    ALTER CONSTRAINT imaging_request_area_imaging_request_id_fkey
+    DROP CONSTRAINT imaging_request_area_imaging_request_id_fkey,
+    ADD CONSTRAINT imaging_request_area_imaging_request_id_fkey
     FOREIGN KEY (imaging_request_id)
     REFERENCES imaging_requests (id)
     ON UPDATE CASCADE;
@@ -53,6 +56,10 @@ export async function up(query) {
 
   // change id to UUID
   await query.sequelize.query(`
+    ALTER TABLE imaging_results DROP CONSTRAINT imaging_results_imaging_request_id_fkey;
+    ALTER TABLE imaging_request_areas DROP CONSTRAINT imaging_request_area_imaging_request_id_fkey;
+    ALTER TABLE fhir.service_requests DROP CONSTRAINT service_requests_imaging_request_id_fkey;
+
     ALTER TABLE imaging_requests
     ALTER COLUMN id TYPE UUID USING id::UUID;
 
@@ -64,6 +71,24 @@ export async function up(query) {
 
     ALTER TABLE fhir.service_requests
     ALTER COLUMN upstream_id TYPE UUID USING upstream_id::UUID;
+    
+    ALTER TABLE imaging_results
+    ADD CONSTRAINT imaging_results_imaging_request_id_fkey
+    FOREIGN KEY (imaging_request_id)
+    REFERENCES imaging_requests (id)
+    ON UPDATE CASCADE;
+
+    ALTER TABLE imaging_request_areas
+    ADD CONSTRAINT imaging_request_area_imaging_request_id_fkey
+    FOREIGN KEY (imaging_request_id)
+    REFERENCES imaging_requests (id)
+    ON UPDATE CASCADE;
+
+    ALTER TABLE fhir.service_requests
+    ADD CONSTRAINT service_requests_imaging_request_id_fkey
+    FOREIGN KEY (upstream_id)
+    REFERENCES imaging_requests (id)
+    ON UPDATE CASCADE;
   `);
 }
 
@@ -73,12 +98,16 @@ export async function down(query) {
     UPDATE note_pages
     SET record_id = imaging_requests.display_id
     FROM imaging_requests
-    WHERE note_pages.record_id = imaging_requests.id
+    WHERE note_pages.record_id = imaging_requests.id::varchar
     AND note_pages.record_type = 'ImagingRequest';
   `);
 
   // change id to varchar
   await query.sequelize.query(`
+    ALTER TABLE imaging_results DROP CONSTRAINT imaging_results_imaging_request_id_fkey;
+    ALTER TABLE imaging_request_areas DROP CONSTRAINT imaging_request_area_imaging_request_id_fkey;
+    ALTER TABLE fhir.service_requests DROP CONSTRAINT service_requests_imaging_request_id_fkey;
+
     ALTER TABLE imaging_requests
     ALTER COLUMN id TYPE VARCHAR(255) USING id::VARCHAR;
 
@@ -90,6 +119,24 @@ export async function down(query) {
 
     ALTER TABLE fhir.service_requests
     ALTER COLUMN upstream_id TYPE VARCHAR(255) USING upstream_id::VARCHAR;
+
+    ALTER TABLE imaging_results
+    ADD CONSTRAINT imaging_results_imaging_request_id_fkey
+    FOREIGN KEY (imaging_request_id)
+    REFERENCES imaging_requests (id)
+    ON UPDATE CASCADE;
+
+    ALTER TABLE imaging_request_areas
+    ADD CONSTRAINT imaging_request_area_imaging_request_id_fkey
+    FOREIGN KEY (imaging_request_id)
+    REFERENCES imaging_requests (id)
+    ON UPDATE CASCADE;
+
+    ALTER TABLE fhir.service_requests
+    ADD CONSTRAINT service_requests_imaging_request_id_fkey
+    FOREIGN KEY (upstream_id)
+    REFERENCES imaging_requests (id)
+    ON UPDATE CASCADE;
   `);
 
   // assign old display IDs
@@ -101,13 +148,15 @@ export async function down(query) {
   // remove cascading from related tables
   await query.sequelize.query(`
     ALTER TABLE imaging_results
-    ALTER CONSTRAINT imaging_results_imaging_request_id_fkey
+    DROP CONSTRAINT imaging_results_imaging_request_id_fkey,
+    ADD CONSTRAINT imaging_results_imaging_request_id_fkey
     FOREIGN KEY (imaging_request_id)
     REFERENCES imaging_requests (id)
     ON UPDATE NO ACTION;
 
     ALTER TABLE imaging_request_areas
-    ALTER CONSTRAINT imaging_request_area_imaging_request_id_fkey
+    DROP CONSTRAINT imaging_request_area_imaging_request_id_fkey,
+    ADD CONSTRAINT imaging_request_area_imaging_request_id_fkey
     FOREIGN KEY (imaging_request_id)
     REFERENCES imaging_requests (id)
     ON UPDATE NO ACTION;
@@ -117,14 +166,8 @@ export async function down(query) {
   `);
 
   // remove index
-  await query.sequelize.query(`
-    ALTER TABLE imaging_requests
-    DROP INDEX imaging_requests_display_id;
-  `);
+  await query.sequelize.query(`DROP INDEX imaging_requests_display_id;`);
 
   // remove display_id column
-  await query.sequelize.query(`
-    ALTER TABLE imaging_requests
-    DROP COLUMN display_id;
-  `);
+  await query.sequelize.query(`ALTER TABLE imaging_requests DROP COLUMN display_id;`);
 }
