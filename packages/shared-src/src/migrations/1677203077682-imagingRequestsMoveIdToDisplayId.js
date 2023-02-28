@@ -3,9 +3,12 @@ export async function up(query) {
   await query.sequelize.query(`
     ALTER TABLE imaging_requests
     ADD COLUMN display_id VARCHAR(255);
+
     UPDATE imaging_requests SET display_id = id;
+
     ALTER TABLE imaging_requests
-    ALTER COLUMN display_id SET NOT NULL;
+    ALTER COLUMN display_id SET NOT NULL,
+    ALTER COLUMN id SET DEFAULT id;
   `);
 
   // add index
@@ -61,7 +64,8 @@ export async function up(query) {
     ALTER TABLE fhir.service_requests DROP CONSTRAINT service_requests_imaging_request_id_fkey;
 
     ALTER TABLE imaging_requests
-    ALTER COLUMN id TYPE UUID USING id::UUID;
+    ALTER COLUMN id SET DATA TYPE UUID USING id::UUID,
+    ALTER COLUMN id SET DEFAULT uuid_generate_v4();
 
     ALTER TABLE imaging_results
     ALTER COLUMN imaging_request_id TYPE UUID USING imaging_request_id::UUID;
@@ -109,7 +113,8 @@ export async function down(query) {
     ALTER TABLE fhir.service_requests DROP CONSTRAINT service_requests_imaging_request_id_fkey;
 
     ALTER TABLE imaging_requests
-    ALTER COLUMN id TYPE VARCHAR(255) USING id::VARCHAR;
+    ALTER COLUMN id SET DATA TYPE VARCHAR(255) USING id::VARCHAR,
+    ALTER COLUMN id DROP DEFAULT;
 
     ALTER TABLE imaging_results
     ALTER COLUMN imaging_request_id TYPE VARCHAR(255) USING imaging_request_id::VARCHAR;
