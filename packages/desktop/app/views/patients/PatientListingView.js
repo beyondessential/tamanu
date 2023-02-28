@@ -29,6 +29,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { TableWithSearchBarContainer } from '../../components/Table/TableWithSearchBarContainer';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -141,13 +142,18 @@ export const PatientListingView = ({ onViewPatient }) => {
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <RecentlyViewedPatientsList />
-      <AllPatientsSearchBar onSearch={setSearchParameters} />
       <ContentPane>
-        <PatientTable
-          onViewPatient={onViewPatient}
-          fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={searchParameters}
-          columns={LISTING_COLUMNS}
+        <TableWithSearchBarContainer
+          table={
+            <PatientTable
+              onViewPatient={onViewPatient}
+              fetchOptions={{ matchSecondaryIds: true }}
+              searchParameters={searchParameters}
+              columns={LISTING_COLUMNS}
+            />
+          }
+          searchBar={<AllPatientsSearchBar onSearch={setSearchParameters} />}
+          title="Patient search"
         />
       </ContentPane>
     </PageContainer>
