@@ -79,9 +79,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: getAnswersFromData(data, survey),
       actions: getActionsFromData(data, survey),
     });
-    if(encounter && !encounter.endDate){
+    if (encounter && !encounter.endDate) {
       navigateToEncounter(encounter.id, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
-    }else{
+    } else {
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }
   };
