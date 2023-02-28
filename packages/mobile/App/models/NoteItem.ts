@@ -3,13 +3,12 @@ import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { DateTimeStringColumn } from './DateColumns';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
-import { ID, INoteItem, INotePage, NoteRecordType, NoteType, DateString } from '~/types';
+import { ID, INoteItem, INotePage, NoteRecordType, NoteType, DateString, IUser } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
 import { User } from './User';
 import { NotePage } from './NotePage';
-
 
 @Entity('noteItem')
 export class NoteItem extends BaseModel implements INoteItem {
@@ -24,23 +23,20 @@ export class NoteItem extends BaseModel implements INoteItem {
   @Column({ type: 'varchar', nullable: false })
   revisedById?: string;
 
-  @ManyToOne(
-    () => NotePage,
-    notePage => notePage.noteItems,
-  )
+  // @ManyToOne(() => NotePage, notePage => notePage.noteItems, { nullable: false }) // Idea
+  @ManyToOne(() => NotePage, notePage => notePage.noteItems)
   notePage: INotePage;
   @RelationId(({ notePage }) => notePage)
   notePageId: ID;
 
-  @ManyToOne(
-    () => User,
-    user => user.not,
-  )
+  @ManyToOne(() => User, user => user.requestedNoteItems)
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
 
+  @ManyToOne(() => User, user => user.authoredNoteItems)
   author: IUser;
+  @RelationId(({ author }) => author)
   authorId: ID;
 
   onBehalfOf: IUser;

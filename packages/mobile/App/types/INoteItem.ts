@@ -6,20 +6,20 @@ import { DateTimeString } from './DateString';
 
 export interface INoteItem {
   id: ID;
-  date: DateTimeString,
-  content: string,
+  date: DateTimeString;
+  content: string;
 
   // Not sure what this does exactly
-  revisedById?: string,
+  revisedById?: string;
 
   notePage: INotePage
-  notePageId: ID,
+  notePageId: ID;
 
-  author: IUser,
-  authorId: ID,
+  author: IUser;
+  authorId: ID;
 
-  onBehalfOf: IUser,
-  onBehalfOfId: ID,
+  onBehalfOf: IUser;
+  onBehalfOfId: ID;
 }
 
-export interface IDataRequiredToCreateNoteItem {}
+// export interface IDataRequiredToCreateNoteItem {}
