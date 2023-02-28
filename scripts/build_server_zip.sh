@@ -25,12 +25,6 @@ if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     echo "Packaging desktop with facility server"
     mkdir -p "$FACILITY_DESKTOP_UPGRADE_DIR"
     cp -r "$DESKTOP_RELEASE_DIR/." "$FACILITY_DESKTOP_UPGRADE_DIR"
-    # echo "folder ./packages/lan/release-nodejs/dist"
-    # basename "$RELEASE_NODE_JS_DIR/*"
-    # basename "$RELEASE_NODE_JS_DIR/dist/*"
-    # basename "$RELEASE_NODE_JS_DIR/dist/upgrade/*"
-    # cd "$FACILITY_DESKTOP_UPGRADE_DIR"
-    # ls -l
 fi
 
 # copy folder before modifying so we don't break the linux release
@@ -49,14 +43,8 @@ VERSION="${MAYBE_VERSION?could not calculate version}"
 DIR_NAME="release-v$VERSION"
 SUFFIX="$CI_BRANCH-v$VERSION-${CI_COMMIT_ID:0:10}"
 ZIP_NAME="tamanu-$WORKSPACE-$SUFFIX.zip"
-mv "$WINDOWS_RELEASE_FOLDER" "$DIR_NAME"
 
-echo "folder ./packages/lan/release-nodejs/dist"
-cd "$DIR_NAME/dist/upgrade"
-ls -l
-
-pwd 
-
+mv "$WINDOWS_RELEASE_FOLDER" "$DIR_NAME" 
 zip -r "$ZIP_NAME" "$DIR_NAME"
 rm -rf "$DIR_NAME"
 popd

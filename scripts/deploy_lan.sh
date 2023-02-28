@@ -2,12 +2,7 @@
 set -euxo pipefail
 cd "$(realpath $(dirname "$(realpath "$BASH_SOURCE")")/..)"
 
-echo "folder ./packages/lan/release-nodejs/dist"
-for eachfile in "./packages/lan/release-nodejs/dist"
-do
-   echo $eachfile
-done
-
+echo "deploy_lan"
 FACILITY_DESKTOP_UPGRADE_DIR="./packages/lan/release-nodejs/dist/upgrade"
 cd "$FACILITY_DESKTOP_UPGRADE_DIR"
 ls -l
