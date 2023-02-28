@@ -14,6 +14,13 @@ function get_version {
 }
 
 OLD_VERSION="$(get_version)"
+
+echo "folder $CODE_PATH/dist"
+for eachfile in "$CODE_PATH/dist"
+do
+   echo $eachfile
+done
+
 codeship_aws eb_deploy "$CODE_PATH" "$EB_APP" "$EB_ENV" "$S3_PATH" ||
     "$(dirname $0)/eb_wait_until_healthy.sh" "$EB_APP" "$EB_ENV"
 NEW_VERSION="$(get_version)"
