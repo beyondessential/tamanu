@@ -7,7 +7,7 @@ WINDOWS_RELEASE_FOLDER="release-windows"
 WINDOWS_RELEASE_DIR="./packages/$WORKSPACE/$WINDOWS_RELEASE_FOLDER"
 TARGET_PATH="${2-.}"
 RELEASE_NODE_JS_DIR="./packages/$WORKSPACE/$LINUX_RELEASE_FOLDER"
-FACILITY_DESKTOP_UPGRADE_DIR="$RELEASE_NODE_JS_DIR/dist/upgrade"
+FACILITY_DESKTOP_UPGRADE_DIR="$RELEASE_NODE_JS_DIR/upgrade"
 DESKTOP_RELEASE_DIR="./packages/desktop/release"
 
 # this script depends on the following steps having been run:
