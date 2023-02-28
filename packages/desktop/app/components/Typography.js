@@ -1,5 +1,10 @@
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Typography as MuiTypography } from '@material-ui/core';
+import { Colors } from '../constants';
+
+const Typography = styled(MuiTypography)`
+  color: ${({ color }) => (color === 'textTertiary' ? Colors.midText : null)};
+`;
 
 export const LargeBodyText = styled(Typography)`
   font-size: 16px;
