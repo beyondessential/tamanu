@@ -21,7 +21,16 @@ export class ImagingRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          type: Sequelize.UUID,
+          allowNull: false,
+          default: Sequelize.fn('uuid_generate_v4'),
+          primaryKey: true,
+        },
+        displayId: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
 
         imagingType: {
           type: Sequelize.ENUM(ALL_IMAGING_TYPES),
