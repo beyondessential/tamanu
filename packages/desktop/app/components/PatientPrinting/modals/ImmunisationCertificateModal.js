@@ -12,7 +12,7 @@ import { usePatientAdditionalData } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
-export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
+export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
@@ -21,12 +21,12 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
 
   useEffect(() => {
     api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      const certifiableVaccines = response.data.filter(vaccine => vaccine.certifiable);
-      setVaccinations(certifiableVaccines);
+      const vaccines = response.data;
+      setVaccinations(vaccines);
     });
   }, [api, patient.id]);
 
-  const createCovidImmunisationCertificateNotification = useCallback(
+  const createImmunisationCertificateNotification = useCallback(
     data => {
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
@@ -50,7 +50,7 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
       printable
       keepMounted
       onPrint={() => printPDF('vaccine-certificate')}
-      additionalActions={<EmailButton onEmail={createCovidImmunisationCertificateNotification} />}
+      additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
       <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
@@ -61,7 +61,6 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
           signingSrc={footerImg}
           printedBy={printedBy}
           getLocalisation={getLocalisation}
-          covidCertified
         />
       </PDFViewer>
     </Modal>

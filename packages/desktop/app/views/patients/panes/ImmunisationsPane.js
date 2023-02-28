@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../../api';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
-import { CovidImmunisationCertificateModal } from '../../../components/PatientPrinting';
-// import { GeneralImmunisationCertificateModal } from '../../../components/PatientPrinting';
+import {
+  CovidImmunisationCertificateModal,
+  ImmunisationCertificateModal,
+} from '../../../components/PatientPrinting';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 
@@ -69,11 +71,11 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
         patient={patient}
         onClose={() => setIsCovidCertificateModalOpen(false)}
       />
-      {/* <GeneralImmunisationCertificateModal
-        open={isCertificateModalOpen}f
-        patient={patient}s
+      <ImmunisationCertificateModal
+        open={isGeneralCertificateModalOpen}
+        patient={patient}
         onClose={() => setIsGeneralCertificateModalOpen(false)}
-      /> */}
+      />
     </>
   );
 });

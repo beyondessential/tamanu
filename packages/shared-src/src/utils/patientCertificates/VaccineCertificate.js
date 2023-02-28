@@ -64,6 +64,7 @@ export const VaccineCertificate = ({
   uvci,
   getLocalisation,
   extraPatientFields,
+  covidCertified,
 }) => {
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
@@ -74,7 +75,7 @@ export const VaccineCertificate = ({
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
   let actualUvci;
-  if (vaccinations.some(v => v.certifiable)) {
+  if (vaccinations.some(v => v.certifiable) && covidCertified) {
     if (uvci) {
       actualUvci = uvci;
     } else {
