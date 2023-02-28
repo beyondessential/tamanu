@@ -193,7 +193,7 @@ export class MobileSyncManager {
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
     const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
-
+ 
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): Finished snapshot ${outgoingChanges.length} outgoing changes`,
     );

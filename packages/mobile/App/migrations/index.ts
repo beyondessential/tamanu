@@ -13,6 +13,7 @@ import { addDefaultLastSuccessfulSyncPull1669160460000 } from './1669160460000-a
 import { resyncPatientAdditionalData1669855692000 } from './1669855692000-resyncPatientAdditionalData';
 import { wipeAllDataAndResync1675907161000 } from './1675907161000-wipeAllDataAndResync';
 import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationGroupTable';
+import { addNoteTables1677554085000 } from './1677554085000-addNoteTables';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -29,4 +30,5 @@ export const migrationList = [
   resyncPatientAdditionalData1669855692000,
   wipeAllDataAndResync1675907161000,
   addLocationGroupTable1673396917000,
+  addNoteTables1677554085000,
 ];

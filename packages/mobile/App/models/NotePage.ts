@@ -1,6 +1,6 @@
 import { Entity, Column, OneToMany } from 'typeorm/browser';
 
-import { DateTimeStringColumn } from './DateColumns';
+import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
 import { ID, INoteItem, INotePage, NoteRecordType, NoteType, DateString } from '~/types';
@@ -11,65 +11,24 @@ import { NoteItem } from './NoteItem';
 
 @Entity('notePage')
 export class NotePage extends BaseModel implements INotePage {
-  static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ type: 'varchar', nullable: false })
   noteType: NoteType;
 
-  @DateTimeStringColumn({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT })
+  @DateStringColumn({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT })
   date: DateString;
 
   // Can't link to record
-  // @ManyToOne(
-  //   () => Encounter,
-  //   encounter => encounter.labRequests,
-  // )
-  // encounter: Encounter;
-  // @RelationId(({ encounter }) => encounter)
-  // encounterId: string;
-
   @Column({ type: 'varchar', nullable: false })
   recordType: NoteRecordType;
   @Column({ type: 'varchar', nullable: false })
   recordId: ID;
 
-  @OneToMany(
-    () => NoteItem,
-    noteItem => noteItem.notePage,
-  )
-  noteItems: INoteItem[]
+  @OneToMany(() => NoteItem, noteItem => noteItem.notePage)
+  noteItems: INoteItem[];
 
   static getTableNameForSync(): string {
-    return 'note_page'; // unusual camel case table here on mobile
+    return 'note_pages'; // unusual camel case table here on mobile
   }
-
-  // static async getForPatient(patientId: string): Promise<LabRequest[]> {
-  //   return this.getRepository()
-  //     .createQueryBuilder('labRequest')
-  //     .leftJoinAndSelect('labRequest.encounter', 'encounter')
-  //     .where('encounter.patient = :patientId', { patientId })
-  //     .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
-  //     .getMany();
-  // }
-
-  // static async createWithTests(data: IDataRequiredToCreateLabRequest): Promise<BaseModel> {
-  //   const { labTestTypeIds = [] } = data;
-  //   if (!labTestTypeIds.length) {
-  //     throw new Error('A request must have at least one test');
-  //   }
-
-  //   const labRequest = await this.createAndSaveOne(data);
-
-  //   // then create tests
-  //   await Promise.all(
-  //     labTestTypeIds.map(labTestTypeId =>
-  //       LabTest.createAndSaveOne({
-  //         labTestType: labTestTypeId,
-  //         labRequest: labRequest.id,
-  //       }),
-  //     ),
-  //   );
-
-  //   return labRequest;
-  // }
 }
