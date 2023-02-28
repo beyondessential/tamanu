@@ -253,7 +253,16 @@ labTestPanel.get(
     req.checkPermission('list', 'LabTests');
 
     const panel = await models.LabTestPanel.findByPk(panelId);
-    const response = await panel.getLabTestTypes();
+    const response = await panel.getLabTestTypes({
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'category',
+        },
+      ],
+    });
+
+    console.log(JSON.stringify(response));
 
     res.send(response);
   }),
