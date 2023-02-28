@@ -2,10 +2,10 @@
 set -euxo pipefail
 cd "$(realpath $(dirname "$(realpath "$BASH_SOURCE")")/..)"
 
-echo "deploy_lan"
-FACILITY_DESKTOP_UPGRADE_DIR="./packages/lan/release-nodejs/dist/upgrade"
-cd "$FACILITY_DESKTOP_UPGRADE_DIR"
-ls -l
+# echo "deploy_lan"
+# FACILITY_DESKTOP_UPGRADE_DIR="./packages/lan/release-nodejs/dist/upgrade"
+# cd "$FACILITY_DESKTOP_UPGRADE_DIR"
+# ls -l
 
 BUCKET_DIR="${1:?Must pass a bucket directory like dev, staging}"
 ENV_NAME="${2:?Must pass an environment like tamanu-central-server-dev}"
