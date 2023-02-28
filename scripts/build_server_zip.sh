@@ -30,6 +30,7 @@ if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     basename "$RELEASE_NODE_JS_DIR/dist/*"
     basename "$RELEASE_NODE_JS_DIR/dist/upgrade/*"
     cd "$FACILITY_DESKTOP_UPGRADE_DIR"
+    ls -l
 fi
 
 # copy folder before modifying so we don't break the linux release
