@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
-import { ipcRenderer } from 'electron';
 
 import { TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -74,7 +73,6 @@ export const LoginView = () => {
     }
 
     dispatch(login(host, email, password));
-    ipcRenderer.invoke('host-submitted', host);
   };
 
   return (
