@@ -245,6 +245,8 @@ export class TamanuApi {
       const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
         if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
+          // If detect that desktop version is lower than facility server version,
+          // communicate with main process to initiate the auto upgrade
           ipcRenderer.invoke('host-submitted', this.host);
         }
         if (this.onVersionIncompatible) {
