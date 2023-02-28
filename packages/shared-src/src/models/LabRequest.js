@@ -101,6 +101,11 @@ export class LabRequest extends Model {
     });
 
     this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labSampleSiteId',
+      as: 'site',
+    });
+
+    this.belongsTo(models.ReferenceData, {
       foreignKey: 'labTestPriorityId',
       as: 'priority',
     });
@@ -137,6 +142,7 @@ export class LabRequest extends Model {
       'category',
       'priority',
       'laboratory',
+      'site',
       { association: 'tests', include: ['labTestType'] },
     ];
   }
