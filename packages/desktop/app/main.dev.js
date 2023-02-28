@@ -79,7 +79,6 @@ app.on('ready', async () => {
   mainWindow.loadURL(htmlLocation);
 
   let checkForUpdateInterval;
-
   ipcMain.handle('host-submitted', (_event, host) => {
     const autoUpdater = new NsisUpdater({
       provider: 'generic',
@@ -96,7 +95,7 @@ app.on('ready', async () => {
       clearInterval(checkForUpdateInterval);
     }
   
-    setInterval(
+    checkForUpdateInterval = setInterval(
       () => autoUpdater.checkForUpdatesAndNotify(notificationDetails),
       UPDATE_CHECK_INTERVAL,
     );

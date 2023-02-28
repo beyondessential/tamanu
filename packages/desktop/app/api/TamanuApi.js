@@ -116,7 +116,6 @@ export class TamanuApi {
   setHost(host) {
     this.host = host;
     this.prefix = `${host}/v1`;
-    ipcRenderer.invoke('host-submitted', host);
 
     // save host in local storage
     window.localStorage.setItem(HOST, host);
@@ -145,11 +144,7 @@ export class TamanuApi {
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post(
-      'login',
-      { email, password },
-      { returnResponse: true, checkVersionCompatibility: false },
-    );
+    const response = await this.post('login', { email, password }, { returnResponse: true });
     const serverType = response.headers.get('X-Tamanu-Server');
     if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
@@ -202,7 +197,6 @@ export class TamanuApi {
       headers,
       returnResponse = false,
       showUnknownErrorToast = false,
-      checkVersionCompatibility = true,
       isErrorUnknown = isErrorUnknownDefault,
       ...otherConfig
     } = config;
@@ -247,9 +241,12 @@ export class TamanuApi {
     }
 
     // handle version incompatibility
-    if (response.status === 400 && error && checkVersionCompatibility) {
+    if (response.status === 400 && error) {
       const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
+        if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
+          ipcRenderer.invoke('host-submitted', this.host);
+        }
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
         }
