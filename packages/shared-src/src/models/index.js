@@ -1,4 +1,5 @@
 export * from './User';
+export * from './UserRecentlyViewedPatient';
 export * from './LocalSystemFact';
 
 export * from './Patient';
