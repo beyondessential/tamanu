@@ -34,10 +34,13 @@ export async function up(query) {
     ON UPDATE CASCADE;
   `);
 
-  // assign new UUIDs
+  // assign new UUIDs in a deterministic way
   query.sequelize.query(`
     UPDATE imaging_requests
-    SET id = uuid_generate_v4();
+    SET id = uuid_generate_v5(
+      uuid_generate_v5(uuid_nil(), 'imaging_requests'),
+      display_id
+    );
   `);
 
   // rewrite note pages relationship
