@@ -37,6 +37,8 @@ rm -rf node_modules
 popd
 
 echo "folder ./packages/lan/release-nodejs/dist"
+basename "./packages/lan/release-nodejs/dist"
+
 ls "./packages/lan/release-nodejs/dist"
 
 # zip and rename
