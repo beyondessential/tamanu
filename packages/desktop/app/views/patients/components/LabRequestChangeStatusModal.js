@@ -26,19 +26,18 @@ const validationSchema = yup.object().shape({
   labSampleSiteId: yup.string(),
 });
 
-export const LabRequestChangeStatusModal = React.memo(({ status, updateLabReq, open, onClose }) => {
-  const updateLabStatus = async formValues => {
-    console.log('values', formValues);
-    // await updateLabReq({ status: values.status });
-    onClose();
-  };
+export const LabRequestChangeStatusModal = React.memo(
+  ({ labRequest, updateLabReq, open, onClose }) => {
+    const updateLabStatus = async formValues => {
+      await updateLabReq(formValues);
+      onClose();
+    };
 
-  return (
-    <>
-      <Modal open={true} onClose={onClose} title="Change lab request status">
+    return (
+      <Modal open={open} onClose={onClose} title="Change lab request status">
         <Form
           onSubmit={updateLabStatus}
-          initialValues={{ status }}
+          initialValues={labRequest}
           validationSchema={validationSchema}
           showInlineErrorsOnly
           render={({ values, submitForm }) => (
@@ -71,6 +70,6 @@ export const LabRequestChangeStatusModal = React.memo(({ status, updateLabReq, o
           )}
         />
       </Modal>
-    </>
-  );
-});
+    );
+  },
+);
