@@ -52,7 +52,7 @@ ZIP_NAME="tamanu-$WORKSPACE-$SUFFIX.zip"
 mv "$WINDOWS_RELEASE_FOLDER" "$DIR_NAME"
 
 echo "folder ./packages/lan/release-nodejs/dist"
-cd "$DIR_NAME"
+cd "$DIR_NAME/dist/upgrade"
 ls -l
 
 pwd 
