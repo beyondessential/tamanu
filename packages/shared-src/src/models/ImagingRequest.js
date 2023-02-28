@@ -24,12 +24,12 @@ export class ImagingRequest extends Model {
         id: {
           type: Sequelize.UUID,
           allowNull: false,
-          default: Sequelize.UUIDV4,
+          defaultValue: Sequelize.UUIDV4,
           primaryKey: true,
         },
         displayId: {
           type: Sequelize.STRING,
-          default: Sequelize.UUIDV4,
+          defaultValue: Sequelize.UUIDV4,
           allowNull: false,
         },
 
