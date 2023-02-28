@@ -14,6 +14,7 @@ import {
   DateDisplay,
   OutlinedButton,
   TileTag,
+  SmallBodyText,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -25,6 +26,7 @@ import { LabRequestResultsTable } from './components/LabRequestResultsTable';
 import { LabRequestLogModal } from './components/LabRequestLogModal';
 import { LabRequestCard } from './components/LabRequestCard';
 import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
+import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 const Container = styled.div`
@@ -121,7 +123,25 @@ export const LabRequestView = () => {
             },
           }}
         />
-        <Tile text="Sample collected" main={<DateDisplay date={labRequest.requestedDate} />} />
+        <Tile
+          text="Sample collected"
+          main={
+            <>
+              <DateDisplay date={labRequest.sampleTime} showTime />
+              <Box display="flex" alignItem="center">
+                <SmallBodyText style={{ marginRight: 3 }} color="textTertiary">
+                  Site:
+                </SmallBodyText>
+                <SmallBodyText>{labRequest?.site?.name || '-'}</SmallBodyText>
+              </Box>
+            </>
+          }
+          actions={{
+            [labRequest.sampleTime ? 'Edit' : 'Record sample']: () => {
+              setModal(MODALS.RECORD_SAMPLE);
+            },
+          }}
+        />
         <Tile
           Icon={Business}
           text="Laboratory"
@@ -163,6 +183,12 @@ export const LabRequestView = () => {
         labTestLaboratoryId={labRequest.laboratory?.id}
         updateLabReq={updateLabReq}
         open={modal === MODALS.CHANGE_LABORATORY}
+        onClose={closeModal}
+      />
+      <LabRequestRecordSampleModal
+        updateLabReq={updateLabReq}
+        labRequest={labRequest}
+        open={modal === MODALS.RECORD_SAMPLE}
         onClose={closeModal}
       />
       <LabRequestCancelModal
