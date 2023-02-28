@@ -27,6 +27,7 @@ if [[ $WORKSPACE == "lan" && $3 == "package-desktop" ]]; then
     cp -r "$DESKTOP_RELEASE_DIR/." "$FACILITY_DESKTOP_UPGRADE_DIR"
     echo "folder ./packages/lan/release-nodejs/dist"
     basename "$RELEASE_NODE_JS_DIR/dist/*"
+    basename "$RELEASE_NODE_JS_DIR/dist/upgrade/*"
     cd "$FACILITY_DESKTOP_UPGRADE_DIR"
 fi
 
