@@ -14,20 +14,22 @@
       service: app-without-db
       type: parallel
       steps:
-        - name: for lan
+        - name: for desktop and lan
           exclude: ^deploy-meta$
           type: serial
           steps:
-            - name: build desktop for lan package
+            - name: for desktop installer
+              exclude: ^deploy-meta$
               command: ./scripts/build_desktop.sh build-only
-            - name: build linux release
-              command: ./scripts/build_package_release.sh lan
-            - name: package windows release
-              tag: ^(master$|dev$|staging-|ci-)
-              command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
-        # - name: for desktop installer
-        #   exclude: ^deploy-meta$
-        #   command: ./scripts/build_desktop.sh build-only
+            - name: for lan
+              exclude: ^deploy-meta$
+              type: serial
+              steps:
+                - name: build linux release
+                  command: ./scripts/build_package_release.sh lan
+                - name: package windows release
+                  tag: ^(master$|dev$|staging-|ci-)
+                  command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
         - name: for sync release
           exclude: ^deploy-meta$
           type: serial
