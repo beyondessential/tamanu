@@ -1,6 +1,7 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
+import config from 'config';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -19,6 +20,14 @@ function findFieldName(values, fkField) {
   if (values[fkFieldSplit]) return fkFieldSplit;
   if (values[fkFieldSplitUcwords]) return fkFieldSplitUcwords;
   return null;
+}
+
+function getPrimaryKey(model, values) {
+  if (model === 'PatientAdditionalData') {
+    return values.patientId;
+  }
+
+  return values.id;
 }
 
 function loadExisting(Model, id) {
@@ -138,7 +147,7 @@ export async function importRows(
         const { type } = values;
         const specificSchemaName = `SSC${type}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
-        if (specificSchemaExists) {
+        if (config.validateQuestionConfigs.enabled && specificSchemaExists) {
           schemaName = specificSchemaName;
         } else {
           schemaName = 'SurveyScreenComponent';
@@ -176,7 +185,8 @@ export async function importRows(
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
-    const existing = await loadExisting(Model, values.id);
+    const primaryKey = getPrimaryKey(model, values);
+    const existing = await loadExisting(Model, primaryKey);
     try {
       if (existing) {
         if (values.deletedAt) {

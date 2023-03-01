@@ -17,6 +17,39 @@ import { CentralConnectionStatus } from '~/types';
 
 const API_VERSION = 1;
 
+const fetchAndParse = async (
+  url: string,
+  config: FetchOptions,
+  isLogin: boolean,
+): Promise<Record<string, unknown>> => {
+  const response = await fetchWithTimeout(url, config);
+  if (response.status === 401) {
+    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+  }
+
+  if (response.status === 400) {
+    const { error } = await getResponseJsonSafely(response);
+    if (error?.name === 'InvalidClientVersion') {
+      throw new OutdatedVersionError(error.updateUrl);
+    }
+  }
+
+  if (response.status === 422) {
+    const { error } = await getResponseJsonSafely(response);
+    throw new RemoteError(error?.message, error, response.status);
+  }
+
+  if (!response.ok) {
+    const { error } = await getResponseJsonSafely(response);
+    // User will be shown a generic error message;
+    // log it out here to help with debugging
+    console.error('Response had non-OK value', { url, response });
+    throw new RemoteError(generalErrorMessage, error, response.status);
+  }
+
+  return response.json();
+};
+
 export class CentralServerConnection {
   host: string;
 
@@ -49,44 +82,10 @@ export class CentralServerConnection {
       ...extraHeaders,
     };
     const response = await callWithBackoff(
-      () => fetchWithTimeout(url, {
-        ...config,
-        headers,
-      }),
+      async () => fetchAndParse(url, { ...config, headers }, path.startsWith('login')),
       backoff,
     );
-
-    if (response.status === 401) {
-      const isLogin = path.startsWith('login');
-      if (!isLogin) {
-        this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Disconnected);
-      }
-       throw new AuthenticationError(
-       isLogin ? invalidUserCredentialsMessage : invalidTokenMessage,
-      );
-    }
-
-    if (response.status === 400) {
-      const { error } = await getResponseJsonSafely(response);
-      if (error?.name === 'InvalidClientVersion') {
-        throw new OutdatedVersionError(error.updateUrl);
-      }
-    }
-
-    if (response.status === 422) {
-      const { error } = await getResponseJsonSafely(response);
-      throw new RemoteError(error?.message, error, response.status);
-    }
-
-    if (!response.ok) {
-      const { error } = await getResponseJsonSafely(response);
-      // User will be shown a generic error message;
-      // log it out here to help with debugging
-      console.error('Response had non-OK value', { url, response });
-      throw new RemoteError(generalErrorMessage, error, response.status);
-    }
-
-    return response.json();
+    return response;
   }
 
   async get(path: string, query: Record<string, string | number | boolean>) {
@@ -126,7 +125,7 @@ export class CentralServerConnection {
     const { sessionId } = await this.post('sync', {}, {});
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
-    // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked 
+    // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persist records from another client
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
 

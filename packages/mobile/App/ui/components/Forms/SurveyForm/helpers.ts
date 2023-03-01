@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
-import { getAgeFromDate } from '~/ui/helpers/date';
+import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import { IPatient, ISurveyScreenComponent, IUser, SurveyScreenValidationCriteria } from '~/types';
@@ -25,6 +25,8 @@ function transformPatientData(patient: IPatient, config): string {
   switch (column) {
     case 'age':
       return getAgeFromDate(dateOfBirth).toString();
+    case 'ageWithMonths':
+      return getAgeWithMonthsFromDate(dateOfBirth);
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:

@@ -29,7 +29,6 @@ const DEFAULT_STYLE_PROPS = {
 };
 
 const ERROR_STYLE_PROPS = {
-  textColor: theme.colors.ERROR,
   styleInputGroup: {
     borderColor: theme.colors.ERROR,
     borderWidth: 1,
