@@ -14,6 +14,10 @@ import {
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUS_CONFIG,
+  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
 import {
@@ -289,6 +293,34 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   label: status,
   value: status,
 }));
+
+export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
+  .filter(
+    type =>
+      ![
+        IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      ].includes(type),
+  )
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
+  }));
+
+export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
+  .filter(
+    status =>
+      ![
+        LAB_REQUEST_STATUSES.DELETED,
+        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        LAB_REQUEST_STATUSES.CANCELLED,
+      ].includes(status),
+  )
+  .map(status => ({
+    label: LAB_REQUEST_STATUS_CONFIG[status].label,
+    value: status,
+  }));
 
 export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless

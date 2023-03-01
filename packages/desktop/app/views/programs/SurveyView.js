@@ -1,11 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
 import { SurveyScreenPaginator } from '../../components/Surveys';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -22,15 +21,10 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const { components } = survey;
   const initialValues = getFormInitialValues(components, patient, currentUser);
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
-  const { navigateToPatient } = usePatientNavigation();
 
-  const onSubmitSurvey = useCallback(
-    async data => {
-      await onSubmit(data);
-      navigateToPatient(patient.id, undefined, 'Programs');
-    },
-    [onSubmit, navigateToPatient, patient.id],
-  );
+  const onSubmitSurvey = data => {
+    onSubmit(data);
+  };
 
   const renderSurvey = props => {
     const {
@@ -76,23 +70,19 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
     );
   };
 
-  const surveyContents = (
-    <Form
-      initialValues={initialValues}
-      onSubmit={onSubmitSurvey}
-      render={renderSurvey}
-      validationSchema={validationSchema}
-      validateOnChange
-      validateOnBlur
-    />
-  );
-
   return (
     <ProgramsPane>
       <SurveyPaneHeader>
         <SurveyPaneHeading variant="h6">{survey.name}</SurveyPaneHeading>
       </SurveyPaneHeader>
-      {surveyContents}
+      <Form
+        initialValues={initialValues}
+        onSubmit={onSubmitSurvey}
+        render={renderSurvey}
+        validationSchema={validationSchema}
+        validateOnChange
+        validateOnBlur
+      />
     </ProgramsPane>
   );
 };

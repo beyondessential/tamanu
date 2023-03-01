@@ -365,25 +365,29 @@ left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 WHERE true
   AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')
   AND e.end_date IS NOT NULL
-  AND (e.end_date::timestamp at time zone $timezone_string) >= $from_date::timestamptz
-  AND (e.end_date::timestamp at time zone $timezone_string) <= $to_date::timestamptz
+  AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
+    THEN (e.end_date::timestamp at time zone $timezone_string) >= $from_date::timestamptz
+  ELSE
+    true
+  END
+  AND CASE WHEN coalesce($to_date, 'not_a_date') != 'not_a_date'
+    THEN (e.end_date::timestamp at time zone $timezone_string) <= $to_date::timestamptz
+  ELSE
+    true
+  END
   AND CASE WHEN coalesce(array_length($input_encounter_ids::varchar[], 1), 0) != 0
     THEN e.id = ANY(SELECT unnest($input_encounter_ids::varchar[]))
   ELSE
     true
   END
 
-ORDER BY e.start_date DESC
+ORDER BY e.end_date DESC
 LIMIT $limit OFFSET $offset;
 `;
 
 const parseDateParam = date => {
   const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
-  if (!parsedDate) {
-    throw Error('period.start and period.end must be supplied and in ISO8061 format');
-  }
-
-  return parsedDate;
+  return parsedDate || null;
 };
 
 routes.use(requireClientHeaders);
@@ -394,7 +398,7 @@ routes.get(
     const {
       'period.start': fromDate,
       'period.end': toDate,
-      limit,
+      limit = 100,
       encounters,
       offset = 0,
     } = req.query;
@@ -409,7 +413,7 @@ routes.get(
         to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
-        limit: limit ?? null, // Limit of null means no limit
+        limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
         timezone_string: COUNTRY_TIMEZONE,
       },

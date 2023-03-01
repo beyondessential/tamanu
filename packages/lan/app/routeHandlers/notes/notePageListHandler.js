@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 
@@ -27,7 +28,7 @@ export const notePageListHandler = recordType =>
           ],
         },
       ],
-      where: { recordType, recordId },
+      where: { recordType, recordId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
     });
 
@@ -55,6 +56,7 @@ export const notePagesWithSingleItemListHandler = recordType =>
       where: {
         recordId,
         recordType,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       order: [['createdAt', 'ASC']],
     });

@@ -26,9 +26,12 @@
   "sync": {
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
-    "lapsedSessionSeconds": 3600,
-    "lapsedSessionCheckFrequencySeconds": 60,
-    "syncAllEncountersForTheseVaccines": []
+    "adjustDataBatchSize": 20000,
+    "syncAllEncountersForTheseVaccines": [],
+    "numberConcurrentPullSnapshots": 4,
+    // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
+    // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
+    "maxRecordsPerPullSnapshotChunk": 1000000000
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -50,7 +53,7 @@
         ],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
-        "queueTimeout": 500
+        "queueTimeout": 7500
       },
       // global queue for non-sync non-attachment requests
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
@@ -61,7 +64,7 @@
         ],
         "maxActiveRequests": 8,
         "maxQueuedRequests": 32,
-        "queueTimeout": 2000
+        "queueTimeout": 7500
       }
     ]
   },
@@ -178,6 +181,11 @@
       "timeoutHours": 24,
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "staleSyncSessionCleaner": {
+      "enabled": true,
+      "schedule": "* * * * *",
+      "staleSessionSeconds": 3600
     }
   },
   "integrations": {
@@ -563,12 +571,12 @@
         },
         "prescriber": {
           "shortLabel": "Prescriber",
-          "longLabel":  "Prescriber",
+          "longLabel": "Prescriber",
           "hidden": false
         },
         "prescriberId": {
           "shortLabel": "Prescriber ID",
-          "longLabel":  "Prescriber ID",
+          "longLabel": "Prescriber ID",
           "hidden": false
         },
         "facility": {
@@ -641,7 +649,11 @@
         },
         "plannedMoveTimeoutHours": 24
       },
-      "imagingTypes": {},
+      "imagingTypes": {
+        // keys are taken from IMAGING_TYPES in shared/constants/imaging
+        // e.g.
+        // "xRay": { "label": "X-Ray" }
+      },
       "imagingPriorities": [
         {
           "value": "routine",
@@ -820,6 +832,9 @@
     // DESTROY sets deleted_at to a timestamp
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
+  },
+  "validateQuestionConfigs": {
+    "enabled": false
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones

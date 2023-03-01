@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
@@ -31,6 +31,7 @@ export class PatientDeathData extends Model {
         antecedentCause1TimeAfterOnset: Sequelize.INTEGER, // minutes
         antecedentCause2TimeAfterOnset: Sequelize.INTEGER, // minutes
         isFinal: Sequelize.BOOLEAN,
+        visibilityStatus: { type: Sequelize.TEXT, defaultValue: VISIBILITY_STATUSES.CURRENT },
       },
       {
         ...options,

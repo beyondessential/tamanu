@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { DischargeModal } from '../../../components/DischargeModal';
@@ -12,6 +14,24 @@ import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
+import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
+import { Colors } from '../../../constants';
+
+const TypographyLink = styled(Typography)`
+  color: ${Colors.primary};
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  text-decoration: underline;
+  text-align: right;
+  cursor: pointer;
+  padding-top: 10px;
+  margin-top: auto;
+  transition: 0.5s;
+  &:hover {
+    color: ${Colors.primaryDark};
+  }
+`;
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
@@ -26,6 +46,8 @@ const ENCOUNTER_MODALS = {
   BEGIN_MOVE: 'beginMove',
   FINALISE_MOVE: 'finaliseMove',
   CANCEL_MOVE: 'cancelMove',
+
+  ENCOUNTER_RECORD: 'encounterRecord',
 };
 
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
@@ -44,12 +66,17 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onCancelLocationChange = () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE);
   const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
+  const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
 
   if (encounter.endDate) {
     return (
-      <Button variant="outlined" color="primary" onClick={onViewSummary}>
-        View discharge summary
-      </Button>
+      <div>
+        <Button variant="outlined" color="primary" onClick={onViewSummary}>
+          View discharge summary
+        </Button>
+        <br />
+        <TypographyLink onClick={onViewEncounterRecord}>Encounter record</TypographyLink>
+      </div>
     );
   }
 
@@ -172,6 +199,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <CancelPatientMoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
+        onClose={onClose}
+      />
+      <EncounterRecordModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD}
         onClose={onClose}
       />
     </>

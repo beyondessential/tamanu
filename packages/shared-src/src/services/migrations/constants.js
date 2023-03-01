@@ -10,4 +10,5 @@ export const NON_SYNCING_TABLES = [
   'sync_sessions',
   'user_localisation_caches',
   'fhir_materialise_jobs',
+  'user_recently_viewed_patients',
 ];
