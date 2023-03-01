@@ -12,7 +12,7 @@ export const getCovidClearanceCertificateFilter = async models => {
     labTestCategories = [],
     labTestTypes = [],
     labTestResults = ['Positive'],
-  } = await models.Setting.get('certifications.covidClearanceCertificate');
+  } = (await models.Setting.get('certifications.covidClearanceCertificate')) || {};
 
   // mandatory filters
   const labRequestsWhere = {
