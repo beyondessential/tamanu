@@ -9,6 +9,7 @@ export class SyncSession extends Model {
         id: primaryKey,
         startTime: { type: DataTypes.DATE },
         lastConnectionTime: { type: DataTypes.DATE },
+        snapshotStartedAt: { type: DataTypes.DATE },
         snapshotCompletedAt: { type: DataTypes.DATE },
         persistCompletedAt: { type: DataTypes.DATE },
         completedAt: { type: DataTypes.DATE },
