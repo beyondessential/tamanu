@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { Collapse, Divider, IconButton, ListItem, List, Typography } from '@material-ui/core';
+import { Collapse, Divider, IconButton, ListItem, Typography } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { ExpandMore, ExpandLess, NavigateBefore, NavigateNext } from '@material-ui/icons';
@@ -62,7 +62,7 @@ const CardText = styled(Typography)`
 `;
 
 const Container = styled(ListItem)`
-  margin: 10px 30px 20px 30px;
+  margin: 10px 0px 20px 0px;
   display: inherit;
   position: inherit;
   padding: 0;
@@ -76,6 +76,7 @@ const ContainerTitle = styled.div`
   flex-direction: row;
   align-items: center;
   cursor: pointer;
+  margin-left: 30px;
 `;
 
 const EncounterTypeIndicator = styled.div`
@@ -86,15 +87,15 @@ const EncounterTypeIndicator = styled.div`
 `;
 
 const RightArrowButton = styled(IconButton)`
-  position: absolute;
-  right: 0px;
   padding: 2px;
 `;
 
 const LeftArrowButton = styled(IconButton)`
-  position: absolute;
-  margin-left: -30px;
   padding: 2px;
+`;
+
+const MarginDiv = styled.div`
+  width: 30px;
 `;
 
 const colorFromEncounterType = {
@@ -136,10 +137,12 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
           </ContainerTitle>
           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
             <CardListContainer>
-              {pageIndex > 0 && (
+              {pageIndex > 0 ? (
                 <LeftArrowButton onClick={() => setPageIndex(0)}>
                   <NavigateBefore />
                 </LeftArrowButton>
+              ) : (
+                <MarginDiv />
               )}
               <CardList>
                 {recentlyViewedPatients
@@ -169,15 +172,19 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
                         </CardTitle>
                         <CardText>{patient.displayId}</CardText>
                         <CardText style={{ textTransform: 'capitalize' }}>{patient.sex}</CardText>
-                        <CardText>DOB: {dateFnsFormat(new Date(patient.dateOfBirth), 'dd/MM/yy')}</CardText>
+                        <CardText>
+                          DOB: {dateFnsFormat(new Date(patient.dateOfBirth), 'dd/MM/yy')}
+                        </CardText>
                       </div>
                     </Card>
                   ))}
               </CardList>
-              {recentlyViewedPatients?.length > 6 && pageIndex === 0 && (
+              {recentlyViewedPatients?.length > 6 && pageIndex === 0 ? (
                 <RightArrowButton onClick={() => setPageIndex(1)}>
                   <NavigateNext />
                 </RightArrowButton>
+              ) : (
+                <MarginDiv />
               )}
             </CardListContainer>
           </Collapse>
@@ -186,4 +193,4 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
       </>
     )
   );
-}
+};
