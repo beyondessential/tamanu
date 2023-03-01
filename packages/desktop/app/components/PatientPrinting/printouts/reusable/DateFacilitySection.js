@@ -26,7 +26,7 @@ export const DateFacilitySection = ({ encounter }) => {
       </div>
       <div>
         <LocalisedLabel name="facility" size="14px">
-          {encounter?.location?.facility.name}
+          {encounter?.location?.facility?.name}
         </LocalisedLabel>
       </div>
       <div>
