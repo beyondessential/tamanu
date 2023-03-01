@@ -337,7 +337,7 @@ describe('Patient', () => {
     });
   });
 
-  describe.only('Get patient covid lab tests', () => {
+  describe('Get patient covid lab tests', () => {
     let user;
     let lab;
     let category;
