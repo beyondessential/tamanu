@@ -5,7 +5,7 @@ import { generateUVCI } from 'shared/utils/uvci';
 
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
-import { PatientDetailsSection } from './PatientDetailsSection';
+import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
@@ -92,7 +92,7 @@ export const CovidVaccineCertificate = ({
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>Vaccination Certification</H3>
-        <PatientDetailsSection
+        <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}

@@ -66,7 +66,6 @@ export const VaccineCertificate = ({
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryCode = getLocalisation('country.alpha-3');
   const countryName = getLocalisation('country.name');
-  const uvciFormat = getLocalisation('previewUvciFormat');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
