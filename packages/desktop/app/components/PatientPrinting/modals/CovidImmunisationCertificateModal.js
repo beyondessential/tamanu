@@ -49,10 +49,10 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
       width="md"
       printable
       keepMounted
-      onPrint={() => printPDF('vaccine-certificate')}
+      onPrint={() => printPDF('covid-vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createCovidImmunisationCertificateNotification} />}
     >
-      <PDFViewer id="vaccine-certificate">
+      <PDFViewer id="covid-vaccine-certificate">
         <VaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
