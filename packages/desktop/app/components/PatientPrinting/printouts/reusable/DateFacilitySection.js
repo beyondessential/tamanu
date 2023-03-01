@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
-import { useAuth } from '../../../../contexts/Auth';
 import { getFullLocationName } from '../../../../utils/location';
 import { DateDisplay } from '../../../DateDisplay';
 
@@ -16,7 +15,6 @@ const RowContainer = styled.div`
 `;
 
 export const DateFacilitySection = ({ encounter }) => {
-  const { facility } = useAuth();
   return (
     <RowContainer>
       <div>
