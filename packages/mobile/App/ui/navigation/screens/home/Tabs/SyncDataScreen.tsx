@@ -59,11 +59,15 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
         case SYNC_EVENT_ACTIONS.SYNC_STARTED:
           setSyncStarted(true);
           setIsSyncing(true);
+          setProgress(0);
+          setProgressMessage('Initialising sync');
           setHasError(false);
           activateKeepAwake(); // don't let the device sleep while syncing
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ENDED:
           setIsSyncing(false);
+          setProgress(0);
+          setProgressMessage('');
           deactivateKeepAwake();
           break;
         case SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED:
