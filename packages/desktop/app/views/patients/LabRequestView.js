@@ -112,11 +112,7 @@ export const LabRequestView = () => {
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
-        <Tile
-          Icon={Category}
-          text="Test Category"
-          main={(labRequest.labTestType.name || {}).name}
-        />
+        <Tile Icon={Category} text="Test Category" main={(labRequest.category?.name || {}).name} />
         <Tile
           Icon={Timelapse}
           text="Status"

@@ -54,7 +54,6 @@ export class LabRequest extends Model {
 
   static createWithTests(data) {
     return this.sequelize.transaction(async () => {
-      const { models } = this.sequelize;
       const { labTestTypeIds = [] } = data;
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
@@ -62,9 +61,7 @@ export class LabRequest extends Model {
 
       const { date, ...requestData } = data;
 
-      // Save the first category to the lab request record (hacky workaround)
-      const { labTestCategoryId } = await models.LabTestType.findByPk(labTestTypeIds[0]);
-      const base = await this.create({ ...requestData, labTestCategoryId });
+      const base = await this.create(requestData);
 
       // then create tests
       const { LabTest } = this.sequelize.models;

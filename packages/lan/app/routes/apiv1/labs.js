@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes, fn, col } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
@@ -45,17 +45,46 @@ labRequest.put(
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models } = req;
-    const { note } = req.body;
+    const { models, body } = req;
+    const { note } = body;
     req.checkPermission('create', 'LabRequest');
-    const object = await models.LabRequest.createWithTests(req.body);
-    if (note) {
-      const notePage = await object.createNotePage({
-        noteType: NOTE_TYPES.OTHER,
-      });
-      await notePage.createNoteItem({ content: note });
+
+    const { labTestTypeIds } = req.body;
+
+    if (!labTestTypeIds.length) {
+      throw new InvalidOperationError('A lab request must have at least one test');
     }
-    res.send(object);
+
+    const categories = await models.LabTestType.findAll({
+      attributes: [[fn('array_agg', col('id')), 'lab_test_type_ids'], 'lab_test_category_id'],
+      where: {
+        id: {
+          [Op.in]: labTestTypeIds,
+        },
+      },
+      group: ['lab_test_category_id'],
+    });
+
+    const response = await Promise.all(
+      categories.map(async category => {
+        const labRequestData = {
+          ...body,
+          labTestTypeIds: category.get('lab_test_type_ids'),
+          labTestCategoryId: category.get('lab_test_category_id'),
+        };
+
+        const object = await models.LabRequest.createWithTests(labRequestData);
+        if (note) {
+          const notePage = await object.createNotePage({
+            noteType: NOTE_TYPES.OTHER,
+          });
+          await notePage.createNoteItem({ content: note });
+        }
+        return object;
+      }),
+    );
+
+    res.send(response);
   }),
 );
 
