@@ -23,7 +23,7 @@ export async function up(query) {
       allowNull: true,
     },
     lab_test_panel_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
       references: {
         model: 'lab_test_panels',
