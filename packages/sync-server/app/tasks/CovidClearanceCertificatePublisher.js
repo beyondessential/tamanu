@@ -28,27 +28,36 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
       labTestCategories,
       labTestTypes,
       daysSinceSampleTime,
+      labTestResults = [],
     } = config.schedules.covidClearanceCertificatePublisher;
     const { LabRequest, LabTest, CertificateNotification, Encounter } = this.models;
     const questionId = config.questionCodeIds?.email;
 
+    const labRequestsWhere = {
+      status: LAB_REQUEST_STATUSES.PUBLISHED,
+      sampleTime: {
+        [Op.lt]: subDays(startOfDay(new Date()), daysSinceSampleTime),
+        [Op.gt]: after,
+      },
+      labTestCategoryId: {
+        [Op.in]: labTestCategories,
+      },
+      '$tests.lab_test_type_id$': {
+        [Op.in]: labTestTypes,
+      },
+      '$certificate_notification.id$': null,
+    };
+
+    if (labTestResults.length) {
+      labRequestsWhere['$tests.result$'] = {
+        [Op.in]: labTestResults,
+      };
+    }
+
     // Get lab requests that were sampled 13 days before the start
     // of today, and with configured lab test categories
     const clearedRequests = await LabRequest.findAll({
-      where: {
-        status: LAB_REQUEST_STATUSES.PUBLISHED,
-        sampleTime: {
-          [Op.lt]: subDays(startOfDay(new Date()), daysSinceSampleTime),
-          [Op.gt]: after,
-        },
-        labTestCategoryId: {
-          [Op.in]: labTestCategories,
-        },
-        '$tests.lab_test_type_id$': {
-          [Op.in]: labTestTypes,
-        },
-        '$certificate_notification.id$': null,
-      },
+      where: labRequestsWhere,
       include: [
         {
           model: LabTest,
