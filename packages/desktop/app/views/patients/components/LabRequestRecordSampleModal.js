@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
+import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import {
   ConfirmCancelRow,
   FormGrid,
   Modal,
-  DateTimeInput,
   SuggesterSelectField,
+  Form,
+  Field,
+  DateTimeField,
 } from '../../../components';
+
+const validationSchema = yup.object().shape({
+  sampleTime: yup.date().required(),
+  labSampleSiteId: yup.string(),
+});
 
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const isEdit = !!labRequest.sampleTime;
-    const [sampleTime, setSampleTime] = useState(labRequest.sampleTime);
-    const [labSampleSiteId, setLabSampleSiteId] = useState(labRequest.labSampleSiteId);
 
-    const updateSample = async () => {
+    const updateSample = async formValues => {
       await updateLabReq({
-        sampleTime,
-        labSampleSiteId,
+        ...formValues,
         // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
         ...(labRequest.status === LAB_REQUEST_STATUSES.NOT_COLLECTED && {
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
@@ -34,25 +39,32 @@ export const LabRequestRecordSampleModal = React.memo(
           onClose={onClose}
           title={isEdit ? 'Edit sample date and time' : 'Record sample'}
         >
-          <FormGrid columns={1}>
-            <DateTimeInput
-              label="Sample date & time"
-              name="sampleTime"
-              required
-              value={sampleTime}
-              onChange={({ target: { value } }) => setSampleTime(value)}
-            />
-            <SuggesterSelectField
-              label="Site"
-              name="labSampleSiteId"
-              field={{
-                value: labSampleSiteId,
-                onChange: ({ target: { value } }) => setLabSampleSiteId(value),
-              }}
-              endpoint="labSampleSite"
-            />
-            <ConfirmCancelRow onConfirm={updateSample} confirmText="Confirm" onCancel={onClose} />
-          </FormGrid>
+          <Form
+            onSubmit={updateSample}
+            validationSchema={validationSchema}
+            showInlineErrorsOnly
+            initialValues={{
+              sampleTime: labRequest.sampleTime,
+              labSampleSiteId: labRequest.labSampleSiteId,
+            }}
+            render={({ submitForm }) => (
+              <FormGrid columns={1}>
+                <Field
+                  name="sampleTime"
+                  label="Sample date & time"
+                  required
+                  component={DateTimeField}
+                />
+                <Field
+                  name="labSampleSiteId"
+                  label="Site"
+                  component={SuggesterSelectField}
+                  endpoint="labSampleSite"
+                />
+                <ConfirmCancelRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
+              </FormGrid>
+            )}
+          />
         </Modal>
       </>
     );
