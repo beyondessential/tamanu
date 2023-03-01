@@ -3,6 +3,8 @@ import { Op } from 'sequelize';
 
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
+import { toDateTimeString } from './dateTime';
+
 export const getCovidClearanceCertificateFilter = async models => {
   const {
     after = '2022-09-01',
@@ -10,18 +12,18 @@ export const getCovidClearanceCertificateFilter = async models => {
     labTestCategories = [],
     labTestTypes = [],
     labTestResults = ['Positive'],
-  } = await models.Setting.get('covidClearanceCertificate');
+  } = await models.Setting.get('certifications.covidClearanceCertificate');
 
+  // mandatory filters
   const labRequestsWhere = {
     status: LAB_REQUEST_STATUSES.PUBLISHED,
-  };
-
-  labRequestsWhere.sampleTime = {
-    [Op.lt]: subDays(startOfDay(new Date()), daysSinceSampleTime),
-    [Op.gt]: after,
+    sampleTime: {
+      [Op.lt]: toDateTimeString(subDays(startOfDay(new Date()), daysSinceSampleTime)),
+      [Op.gt]: after,
+    },
     '$tests.result$': {
       [Op.in]: labTestResults,
-    }
+    },
   };
 
   if (labTestCategories.length) {
