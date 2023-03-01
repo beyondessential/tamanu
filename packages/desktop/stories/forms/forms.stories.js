@@ -29,6 +29,7 @@ import { LabRequestMultiStepForm } from '../../app/forms/LabRequestForm/LabReque
 import { MedicationForm } from '../../app/forms/MedicationForm';
 import { DeathForm } from '../../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
+import { LabRequestSummaryPane } from '../../app/views/patients/components/LabRequestSummaryPane';
 import { createDummySuggester, mapToSuggestions } from '../utils';
 import { Modal } from '../../app/components/Modal';
 
@@ -208,24 +209,25 @@ storiesOf('Forms', module).add('MedicationForm', () => (
   />
 ));
 
-const WrapperCard = styled.div`
-  display: flex;
-  padding: 20px;
-  width: 800px;
-  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
-`;
-
-storiesOf('Forms', module).add('LabRequestForm', () => (
-  <MockedApi endpoints={mockLabRequestFormEndpoints}>
-    <WrapperCard>
-      <LabRequestMultiStepForm
-        onNext={action('next')}
-        onSubmit={action('submit')}
-        onCancel={action('cancel')}
-        generateDisplayId={shortid.generate}
-        practitionerSuggester={practitionerSuggester}
-        departmentSuggester={departmentSuggester}
-      />
-    </WrapperCard>
-  </MockedApi>
-));
+storiesOf('Forms', module)
+  .add('LabRequestForm', () => (
+    <MockedApi endpoints={mockLabRequestFormEndpoints}>
+      <Modal width="md" title="New lab request" open>
+        <LabRequestMultiStepForm
+          onNext={action('next')}
+          onSubmit={action('submit')}
+          onCancel={action('cancel')}
+          generateDisplayId={shortid.generate}
+          practitionerSuggester={practitionerSuggester}
+          departmentSuggester={departmentSuggester}
+        />
+      </Modal>
+    </MockedApi>
+  ))
+  .add('LabRequestSummaryPane', () => (
+    <MockedApi endpoints={mockLabRequestFormEndpoints}>
+      <Modal width="md" title="New lab request" open>
+        <LabRequestSummaryPane labRequest={{}} />
+      </Modal>
+    </MockedApi>
+  ));

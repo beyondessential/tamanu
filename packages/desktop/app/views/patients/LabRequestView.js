@@ -54,11 +54,13 @@ const MODALS = {
 };
 
 const Menu = ({ setModal, status }) => {
-  const menuActions = {
-    'Print label': () => {
-      setModal(MODALS.PRINT);
-    },
-  };
+  // Todo: add print label action in WAITM-659
+  // const menuActions = {
+  //   'Print label': () => {
+  //     setModal(MODALS.PRINT);
+  //   },
+  // };
+  const menuActions = {};
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions['Cancel request'] = () => {
@@ -97,14 +99,24 @@ export const LabRequestView = () => {
         isReadOnly={isReadOnly}
         actions={
           <Box display="flex" alignItems="center">
-            <OutlinedButton>Print request</OutlinedButton>
+            <OutlinedButton
+              onClick={() => {
+                setModal(MODALS.PRINT);
+              }}
+            >
+              Print request
+            </OutlinedButton>
             <Menu setModal={setModal} status={labRequest.status} />
           </Box>
         }
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
-        <Tile Icon={Category} text="Test Category" main={(labRequest.category || {}).name} />
+        <Tile
+          Icon={Category}
+          text="Test Category"
+          main={(labRequest.labTestType.name || {}).name}
+        />
         <Tile
           Icon={Timelapse}
           text="Status"

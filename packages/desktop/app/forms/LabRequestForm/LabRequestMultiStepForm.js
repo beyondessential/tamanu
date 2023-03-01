@@ -18,12 +18,13 @@ export const LabRequestMultiStepForm = ({
   practitionerSuggester,
   departmentSuggester,
   encounter,
-  onSubmit,
   onCancel,
+  onSubmit,
   editedObject,
   generateDisplayId,
 }) => {
   const { currentUser } = useAuth();
+
   return (
     <MultiStepForm
       onCancel={onCancel}
@@ -36,7 +37,7 @@ export const LabRequestMultiStepForm = ({
         requestedDate: getCurrentDateTimeString(),
         specimenAttached: 'no',
         status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-        labTestIds: [],
+        labTestTypeIds: [],
         notes: '',
         // LabTest date
         date: getCurrentDateString(),
@@ -50,7 +51,7 @@ export const LabRequestMultiStepForm = ({
           departmentSuggester={departmentSuggester}
         />
       </FormStep>
-      <FormStep validationSchema={screen2ValidationSchema}>
+      <FormStep validationSchema={screen2ValidationSchema} submitButtonText="Finalise">
         <LabRequestFormScreen2 />
       </FormStep>
     </MultiStepForm>

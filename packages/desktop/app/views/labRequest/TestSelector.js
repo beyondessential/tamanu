@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box, FormHelperText } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
@@ -11,6 +11,15 @@ import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
+
+const Container = styled.div`
+  .MuiFormHelperText-root {
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    margin: 4px 2px 2px;
+  }
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -99,6 +108,11 @@ const StyledSuggesterSelectField = styled(SuggesterSelectField)`
   }
 `;
 
+const RequiredLabel = styled.span`
+  color: ${Colors.alert};
+  padding-left: 3px;
+`;
+
 const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   const api = useApi();
   return useQuery(
@@ -126,11 +140,14 @@ const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
 export const TestSelectorInput = ({
   name,
   label,
-  testTypes,
+  testTypes = [],
   value,
   requestFormType,
   isLoading,
   onChange,
+  required,
+  helperText,
+  error,
 }) => {
   const [testFilters, setTestFilters] = useState({
     labTestPanelId: '',
@@ -168,9 +185,13 @@ export const TestSelectorInput = ({
   const handleCheck = ({ target: { name: testId, checked } }) => {
     handleChange(checked ? [...value, testId] : value.filter(id => id !== testId));
   };
+
   return (
-    <>
-      <LabelText>{label}</LabelText>
+    <Container>
+      <LabelText>
+        {label}
+        {required && <RequiredLabel>*</RequiredLabel>}
+      </LabelText>
       <Wrapper>
         <SelectorContainer>
           {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
@@ -257,7 +278,8 @@ export const TestSelectorInput = ({
           </SelectorTable>
         </SelectorContainer>
       </Wrapper>
-    </>
+      {helperText && <FormHelperText error={error}>{helperText}</FormHelperText>}
+    </Container>
   );
 };
 
