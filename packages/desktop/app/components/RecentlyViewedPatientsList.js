@@ -99,7 +99,8 @@ const LeftArrowButton = styled(IconButton)`
 
 const colorFromEncounterType = {
   admission: '#19934E',
-  clinic: '#CB6100',
+  clinic: '#E9AC50',
+  triage: '#CB6100',
   default: '#1172D1',
 };
 
