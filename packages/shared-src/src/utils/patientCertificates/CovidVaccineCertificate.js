@@ -1,6 +1,8 @@
 import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 
+import { generateUVCI } from 'shared/utils/uvci';
+
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
@@ -50,14 +52,16 @@ const columns = [
   },
 ];
 
-export const VaccineCertificate = ({
+export const CovidVaccineCertificate = ({
   patient,
   printedBy,
   vaccinations,
   certificateId,
   signingSrc,
   watermarkSrc,
+  vdsSrc,
   logoSrc,
+  uvci,
   getLocalisation,
   extraPatientFields,
 }) => {
@@ -69,6 +73,18 @@ export const VaccineCertificate = ({
   const uvciFormat = getLocalisation('previewUvciFormat');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
+  let actualUvci;
+  if (vaccinations.some(v => v.certifiable)) {
+    if (uvci) {
+      actualUvci = uvci;
+    } else {
+      const vaxes = vaccinations.filter(v => v.certifiable);
+      vaxes.sort((a, b) => +a.date - +b.date);
+      actualUvci = generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode });
+    }
+  } else {
+    actualUvci = null;
+  }
 
   return (
     <Document>
@@ -78,10 +94,11 @@ export const VaccineCertificate = ({
         <H3>Vaccination Certification</H3>
         <PatientDetailsSection
           patient={patient}
+          vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
           certificateId={certificateId}
           extraFields={extraPatientFields}
-          uvci={null}
+          uvci={actualUvci}
         />
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />

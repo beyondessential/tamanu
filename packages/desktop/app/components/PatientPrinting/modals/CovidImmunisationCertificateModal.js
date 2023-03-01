@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils/patientCertificates';
+import { CovidVaccineCertificate } from 'shared/utils/patientCertificates';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -53,7 +53,7 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
       additionalActions={<EmailButton onEmail={createCovidImmunisationCertificateNotification} />}
     >
       <PDFViewer id="covid-vaccine-certificate">
-        <VaccineCertificate
+        <CovidVaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
           watermarkSrc={watermark}
@@ -61,7 +61,6 @@ export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, pa
           signingSrc={footerImg}
           printedBy={printedBy}
           getLocalisation={getLocalisation}
-          covidCertified
         />
       </PDFViewer>
     </Modal>
