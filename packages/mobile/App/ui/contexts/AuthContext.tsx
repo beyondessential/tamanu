@@ -46,6 +46,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 const Provider = ({
   setToken,
+  setRefreshToken,
   setUser,
   setSignedInStatus,
   setCentralConnectionStatus,
@@ -100,8 +101,9 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user: usr, token } = await backend.auth.remoteSignIn(params);
+    const { user: usr, token, refreshToken } = await backend.auth.remoteSignIn(params);
     setToken(token);
+    setRefreshToken(refreshToken);
     signInAs(usr);
   };
 
@@ -161,8 +163,8 @@ const Provider = ({
   useEffect(() => {
 
     if (props.token && props.user) {
+      backend.auth.startSession(props.token, props.refreshToken);
       setCentralConnectionStatus(CentralConnectionStatus.Connected);
-      backend.auth.startSession(props.token);
     } else {
       setCentralConnectionStatus(CentralConnectionStatus.Disconnected);
       backend.auth.endSession();

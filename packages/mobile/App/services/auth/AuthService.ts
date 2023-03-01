@@ -73,7 +73,9 @@ export class AuthService {
 
   async remoteSignIn(
     params: SyncConnectionParameters,
-  ): Promise<{ user: IUser; token: string; localisation: object }> {
+  ): Promise<{
+      user: IUser; token: string; refreshToken: string; localisation: object
+    }> {
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
     // to another!
@@ -83,7 +85,13 @@ export class AuthService {
     // create the sync source and log in to it
     this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
-    const { user, token, localisation, permissions } = await this.centralServer.login(
+    const {
+      user,
+      token,
+      refreshToken,
+      localisation,
+      permissions,
+    } = await this.centralServer.login(
       params.email,
       params.password,
     );
@@ -98,17 +106,19 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    const result = { user: userData, token, localisation, permissions };
+    const result = { user: userData, token, refreshToken, localisation, permissions };
     this.emitter.emit('remoteSignIn', result);
     return result;
   }
 
-  startSession(token: string): void {
+  startSession(token: string, refreshToken: string): void {
     this.centralServer.setToken(token);
+    this.centralServer.setRefreshToken(refreshToken);
   }
 
   endSession(): void {
     this.centralServer.clearToken();
+    this.centralServer.clearRefreshToken();
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {

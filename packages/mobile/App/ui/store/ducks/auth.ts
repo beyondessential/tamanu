@@ -4,7 +4,9 @@ import { CentralConnectionStatus, IUser } from '~/types';
 export type WithAuthStoreProps = WithAuthActions & AuthStateProps;
 export interface WithAuthActions {
   setUser: (payload: IUser) => PayloadAction<IUser>;
-  setToken: (payload: string) => PayloadAction<IUser>;
+  setToken: (payload: string) =>
+  PayloadAction<string>;
+  setRefreshToken: (payload: string) => PayloadAction<string>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
   setCentralConnectionStatus: (
@@ -15,6 +17,7 @@ export interface WithAuthActions {
 
 export interface AuthStateProps {
   token: string;
+  refreshToken: string;
   user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
@@ -23,6 +26,7 @@ export interface AuthStateProps {
 
 const initialState: AuthStateProps = {
   token: null,
+  refreshToken: null,
   user: null,
   signedIn: false,
   isFirstTime: true,
@@ -33,13 +37,23 @@ export const PatientSlice = createSlice({
   name: 'patient',
   initialState: initialState,
   reducers: {
-    setToken(state, { payload: token }: PayloadAction<string>): AuthStateProps {
+    setToken(state, { payload: token }:
+    PayloadAction<string>): AuthStateProps {
       return {
         ...state,
         token,
       };
     },
-    setSignedInStatus(state, { payload: signInStatus }: PayloadAction<boolean>): AuthStateProps {
+    setRefreshToken(state, { payload: refreshToken }: PayloadAction<string>): AuthStateProps {
+      return {
+        ...state,
+        refreshToken,
+      };
+    },
+    setSignedInStatus(
+      state,
+      { payload: signInStatus }: PayloadAction<boolean>,
+    ): AuthStateProps {
       return {
         ...state,
         signedIn: signInStatus,
@@ -61,6 +75,7 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         token: null,
+        refreshToken: null,
       };
     },
     setCentralConnectionStatus(
