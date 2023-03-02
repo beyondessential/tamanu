@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
@@ -6,9 +7,17 @@ import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
 function stringifyError(e): string {
   const error = e.error || e;
   if (typeof error === 'string') return error;
-  if (error.name || error.message) return `${error.name}: ${error.message}`;
+  if (error.name && error.message) return `${error.name}: ${error.message}`;
+  if (error.message) return error.message;
   return JSON.stringify(e);
 }
+
+// italicised, smaller and light grey text
+const RemoteErrorText = styled(StyledText)`
+  font-size: 12px;
+  color: #c4c4c4;
+  font-style: italic;
+`;
 
 export const SyncErrorDisplay = (): ReactElement => {
   const [error, setError] = useState(null);
@@ -44,6 +53,9 @@ export const SyncErrorDisplay = (): ReactElement => {
     >
       <StyledView margin={8}>
         <StyledText color="#FFFFFF">{stringifyError(error)}</StyledText>
+        {error.remoteError && (
+          <RemoteErrorText>{stringifyError(error.remoteError)}</RemoteErrorText>
+        )}
       </StyledView>
     </StyledView>
   );

@@ -40,6 +40,8 @@ const servers = [
   { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-tonga-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
+  { name: 'Test (Samoa)', type: 'demo', host: 'https://central-samoa-clone.tamanu.io' },
+
   // development servers
   { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
