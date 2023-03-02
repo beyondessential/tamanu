@@ -15,10 +15,6 @@ export class LabTestPanelRequest extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.LabRequest, {
-      foreignKey: 'labTestPanelRequestId',
-      as: 'labRequests',
-    });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
