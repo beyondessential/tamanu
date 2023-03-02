@@ -158,11 +158,7 @@
     },
     "covidClearanceCertificatePublisher": {
       "enabled": false,
-      "schedule": "*/30 * * * *",
-      "daysSinceSampleTime": 13,
-      "after": "2022-09-01",
-      "labTestCategories": [],
-      "labTestTypes": []
+      "schedule": "*/30 * * * *"
     },
     "fhirMaterialiser": {
       "enabled": true, // only when integrations.fhir is on
