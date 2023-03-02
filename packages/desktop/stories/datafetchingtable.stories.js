@@ -12,6 +12,7 @@ function fakePatient() {
   return {
     name: chance.name({ gender }),
     age: chance.age(),
+    location: chance.address(),
   };
 }
 
@@ -19,7 +20,8 @@ const dummyData = new Array(500).fill(0).map(fakePatient);
 
 const dummyColumns = [
   { key: 'name', title: 'Patient' },
-  { key: 'age', title: 'Age', numeric: true },
+  { key: 'location', title: 'Location' },
+  { key: 'age', title: 'Age' },
 ];
 
 function sleep(milliseconds) {
@@ -39,6 +41,7 @@ const dummyApi = {
     });
     const startIndex = page * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
+
     return {
       data: sortedData.slice(startIndex, endIndex),
       count: dummyData.length,
@@ -48,7 +51,7 @@ const dummyApi = {
 
 const paginationErrorApi = {
   get: async (endpoint, query) => {
-    if (query.page > 1) throw new Error('Hardcoded pagination error.');
+    if (query.page) throw new Error('Hardcoded pagination error.');
     return dummyApi.get(endpoint, query);
   },
 };
@@ -59,7 +62,7 @@ storiesOf('DataFetchingTable', module)
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>
   ))
-  .add('With error', () => (
+  .add('With pagination error', () => (
     <ApiContext.Provider value={paginationErrorApi}>
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>

@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
-import { getAgeFromDate } from '~/ui/helpers/date';
+import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import { IPatient, ISurveyScreenComponent, IUser, SurveyScreenValidationCriteria } from '~/types';
@@ -25,6 +25,8 @@ function transformPatientData(patient: IPatient, config): string {
   switch (column) {
     case 'age':
       return getAgeFromDate(dateOfBirth).toString();
+    case 'ageWithMonths':
+      return getAgeWithMonthsFromDate(dateOfBirth);
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
@@ -110,7 +112,7 @@ export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectS
 
     if (!validator) return acc;
     if (validationCriteria.mandatory) {
-      acc[propName] = validator.required(`${dataElement.name} is a required field`);
+      acc[propName] = validator.required('Required');
     } else {
       acc[propName] = validator.nullable();
     }

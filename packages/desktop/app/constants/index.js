@@ -14,6 +14,10 @@ import {
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUS_CONFIG,
+  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
 import {
@@ -54,6 +58,7 @@ export const Colors = {
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
+  veryLightBlue: '#F4F9FF',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };
@@ -289,6 +294,34 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   value: status,
 }));
 
+export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
+  .filter(
+    type =>
+      ![
+        IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      ].includes(type),
+  )
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
+  }));
+
+export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
+  .filter(
+    status =>
+      ![
+        LAB_REQUEST_STATUSES.DELETED,
+        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        LAB_REQUEST_STATUSES.CANCELLED,
+      ].includes(status),
+  )
+  .map(status => ({
+    label: LAB_REQUEST_STATUS_CONFIG[status].label,
+    value: status,
+  }));
+
 export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless
   // eslint-disable-next-line no-useless-concat
@@ -380,6 +413,10 @@ export const DRUG_ROUTE_VALUE_TO_LABEL = {
   sublingual: 'Sublingual',
   topical: 'Topical',
   vaginal: 'Vaginal',
+};
+
+export const FORM_STATUSES = {
+  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
 };
 
 export const SUPPORTED_DOCUMENT_TYPES = {
