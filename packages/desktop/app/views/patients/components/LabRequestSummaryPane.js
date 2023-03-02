@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
 import {
@@ -88,12 +88,6 @@ const CardItem = ({ label, value, ...props }) => (
     <CardValue>{value}</CardValue>
   </CardCell>
 );
-
-const useLabRequest = labRequestId => {
-  const api = useApi();
-  // return useQuery(['encounter', labRequestId], () => api.get(`labRequest/${labRequestId}`));
-  return { error: {}, data: testData, isLoading: false };
-};
 
 const testData = {
   id: '76d09622-b6b3-48cc-b778-303f57a10205',
@@ -214,7 +208,7 @@ const testData = {
 
 const COLUMNS = [
   {
-    key: 'id',
+    key: 'displayId',
     title: 'Test ID',
     sortable: false,
   },
@@ -228,19 +222,49 @@ const COLUMNS = [
     key: 'labTestCategory',
     title: 'Category',
     sortable: false,
-    accessor: ({ labTestType }) => labTestType?.name || '',
+    accessor: ({ category }) => category?.name || '',
   },
 ];
 
-export const LabRequestSummaryPane = React.memo(({ labRequestId, onClose }) => {
-  const { data, error, isLoading } = useLabRequest(labRequestId);
-  console.log('dat', data);
+const testIds = [
+  'ad86448e-0165-4a24-8db5-235e26ada29d',
+  'c702b9db-3e30-4261-bf2a-03fe107c23a0',
+  '0e068d1b-9b18-43f6-b6a2-739dc32b63a9',
+];
 
-  // if (data) {
-  //   console.log(JSON.stringify(data));
-  // }
+const combineQueries = queries => {
+  console.log('input', queries);
+  return {
+    isLoading: !!queries.find(q => q.isLoading),
+    isFetching: !!queries.find(q => q.isFetching),
 
-  const { selectedRows, selectableColumn } = useSelectableColumn(data?.tests || [], {
+    // How to do opposite for success
+    isSuccess: !!queries.find(q => q.isSuccess),
+    error: queries.find(q => q.error)?.error ?? null,
+    data: queries.reduce((accumulator, query) => {
+      return query.data ? [...accumulator, query.data] : accumulator;
+    }, []),
+  };
+};
+
+const useLabRequests = labRequestIds => {
+  const api = useApi();
+  const queries = useQueries({
+    queries: labRequestIds.map(labRequestId => {
+      return {
+        queryKey: ['labRequest', labRequestId],
+        queryFn: () => api.get(`labRequest/${labRequestId}`),
+      };
+    }),
+  });
+  return combineQueries(queries);
+};
+
+export const LabRequestSummaryPane = React.memo(({ labRequestIds, onClose }) => {
+  const queries = useLabRequests(testIds);
+  const { isLoading, error, data } = queries;
+
+  const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     columnKey: 'selected',
   });
   const handlePrintConfirm = () => {
@@ -251,7 +275,7 @@ export const LabRequestSummaryPane = React.memo(({ labRequestId, onClose }) => {
     return 'loading...';
   }
 
-  const { sampleTime, requestedDate, requestedBy, department, priority, tests } = data;
+  const { sampleTime, requestedDate, requestedBy, department, priority, site } = data[0];
 
   return (
     <Container>
@@ -268,16 +292,15 @@ export const LabRequestSummaryPane = React.memo(({ labRequestId, onClose }) => {
             value={<DateDisplay date={requestedDate} showTime />}
           />
           <CardItem label="Priority" value={priority.name} />
-          <CardItem label="Site" value="??" />
+          <CardItem label="Site" value={site.name} />
         </BorderColumn>
       </Card>
       <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
       <CardTable
         headerColor={Colors.white}
         columns={[selectableColumn, ...COLUMNS]}
-        data={tests || []}
+        data={data}
         elevated={false}
-        isLoading={isLoading}
         errorMessage={error?.message}
         noDataMessage="No lab requests found"
         allowExport={false}

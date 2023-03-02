@@ -21,7 +21,6 @@ export const LabRequestMultiStepForm = ({
   onCancel,
   onSubmit,
   editedObject,
-  generateDisplayId,
 }) => {
   const { currentUser } = useAuth();
 
@@ -31,7 +30,6 @@ export const LabRequestMultiStepForm = ({
       onSubmit={onSubmit}
       initialValues={{
         requestFormType: LAB_REQUEST_FORM_TYPES.PANEL,
-        displayId: generateDisplayId(),
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
@@ -63,7 +61,6 @@ LabRequestMultiStepForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   practitionerSuggester: PropTypes.object.isRequired,
   encounter: PropTypes.object,
-  generateDisplayId: PropTypes.func.isRequired,
   editedObject: PropTypes.object,
 };
 
