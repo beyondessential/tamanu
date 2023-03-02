@@ -27,10 +27,11 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     [],
   );
 
-  const handleResetIdle = (): boolean => {
-    if (signedIn) {
+  const handleResetIdle = (shouldReset: boolean): boolean => {
+    if (shouldReset) {
       debouncedResetIdle();
     }
+    
     // Returns false to indicate that this component
     // shouldn't block native components from becoming the JS responder
     return false;
@@ -44,8 +45,8 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     let hideEvent;
     let showEvent;
     if (signedIn) {
-      hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
-      showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
+      hideEvent = Keyboard.addListener('keyboardDidHide', () => handleResetIdle(signedIn));
+      showEvent = Keyboard.addListener('keyboardDidShow', () => handleResetIdle(signedIn));
     }
     return () => {
       hideEvent?.remove();
@@ -71,9 +72,9 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponderCapture: handleResetIdle,
-      onStartShouldSetPanResponderCapture: handleResetIdle,
-      onPanResponderTerminationRequest: handleResetIdle,
+      onMoveShouldSetPanResponderCapture: () => handleResetIdle(signedIn),
+      onStartShouldSetPanResponderCapture: () => handleResetIdle(signedIn),
+      onPanResponderTerminationRequest: () => handleResetIdle(signedIn),
     }),
   );
 

@@ -249,6 +249,7 @@ export class CentralServerConnection {
       console.warn('Token refresh failed with an inexplicable error', data);
       throw new AuthenticationError(generalErrorMessage);
     }
+    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Connected);
     this.setRefreshToken(data.refreshToken);
     this.setToken(data.token);
   }

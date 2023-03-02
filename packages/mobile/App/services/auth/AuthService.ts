@@ -95,6 +95,7 @@ export class AuthService {
       params.email,
       params.password,
     );
+    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Connected);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
