@@ -14,6 +14,7 @@ import { resyncPatientAdditionalData1669855692000 } from './1669855692000-resync
 import { wipeAllDataAndResync1675907161000 } from './1675907161000-wipeAllDataAndResync';
 import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationGroupTable';
 import { addDepartmentIdToLabRequest1676853984000 } from './1676853984000-addDepartmentIdToLabRequest';
+import { addLabSampleSiteIdToLabRequest1677723905000 } from './1677723905000-addLabSampleSiteIdToLabRequest';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -31,4 +32,5 @@ export const migrationList = [
   wipeAllDataAndResync1675907161000,
   addLocationGroupTable1673396917000,
   addDepartmentIdToLabRequest1676853984000,
+  addLabSampleSiteIdToLabRequest1677723905000,
 ];
