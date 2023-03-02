@@ -6,7 +6,7 @@ export async function up(query) {
     ALTER TABLE fhir.service_requests DROP CONSTRAINT service_requests_imaging_request_id_fkey;
 
     ALTER TABLE imaging_requests
-    ALTER COLUMN id SET DATA TYPE varchar USING id::varchar,
+    ALTER COLUMN id SET DATA TYPE varchar USING id::varchar;
 
     ALTER TABLE imaging_results
     ALTER COLUMN imaging_request_id SET DATA TYPE varchar USING imaging_request_id::varchar;
@@ -45,7 +45,7 @@ export async function down(query) {
     ALTER TABLE fhir.service_requests DROP CONSTRAINT service_requests_imaging_request_id_fkey;
 
     ALTER TABLE imaging_requests
-    ALTER COLUMN id SET DATA TYPE uuid USING id::uuid,
+    ALTER COLUMN id SET DATA TYPE uuid USING id::uuid;
 
     ALTER TABLE imaging_results
     ALTER COLUMN imaging_request_id SET DATA TYPE uuid USING imaging_request_id::uuid;
