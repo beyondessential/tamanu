@@ -80,7 +80,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
 
   return (
     <FormGrid columns={3}>
-      <TextInput value={imagingRequest.id} label="Request ID" disabled />
+      <TextInput value={imagingRequest.displayId} label="Request ID" disabled />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
         label="Request type"
