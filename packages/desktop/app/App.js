@@ -9,6 +9,7 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { LabRequestSummaryPane } from './views/patients/components/LabRequestSummaryPane';
 
 const AppContainer = styled.div`
   display: flex;
@@ -35,7 +36,8 @@ export function App({ sidebar, children }) {
       <PromiseErrorBoundary>
         <ErrorBoundary errorKey={currentRoute}>
           <AppContentsContainer>
-            {children}
+            <LabRequestSummaryPane />
+            {/*{children}*/}
             <ForbiddenErrorModal />
           </AppContentsContainer>
         </ErrorBoundary>
