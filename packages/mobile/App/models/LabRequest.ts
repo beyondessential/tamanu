@@ -76,6 +76,11 @@ export class LabRequest extends BaseModel implements ILabRequest {
   labTestCategoryId: string;
 
   @ReferenceDataRelation()
+  labSampleSite: ReferenceData;
+  @RelationId(({ labSampleSite }) => labSampleSite)
+  labSampleSiteId: string;
+
+  @ReferenceDataRelation()
   labTestPriority: ReferenceData;
   @RelationId(({ labTestPriority }) => labTestPriority)
   labTestPriorityId: string;

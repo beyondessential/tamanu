@@ -43,6 +43,9 @@ export interface ILabRequest {
   labTestPriority?: IReferenceData;
   labTestPriorityId?: string;
 
+  labSampleSite?: IReferenceData;
+  labSampleSiteId?: string;
+
   tests: ILabTest[];
 }
 
