@@ -1,20 +1,19 @@
 import React from 'react';
-import { Logo, LetterHead } from './Layout';
-import { H3, RightAligned } from './Typography';
+import { Logo, LetterHead, CertificateLogo } from './Layout';
+import { CertificateAddress, CertificateTitle } from './Typography';
 
 export const LetterheadSection = ({ getLocalisation, logoSrc, certificateTitle }) => {
   const title = getLocalisation('templates.letterhead.title');
   const subTitle = getLocalisation('templates.letterhead.subTitle');
   return (
     <>
-      {logoSrc && <Logo logoSrc={logoSrc} />}
+      {logoSrc && <CertificateLogo logoSrc={logoSrc} />}
       <LetterHead>
-        <H3>{subTitle}</H3>
-        <H3>{title}</H3>
+        <CertificateAddress>{title}</CertificateAddress>
+        <CertificateAddress>{subTitle}</CertificateAddress>
       </LetterHead>
-      <H3>
-        <RightAligned>{certificateTitle}</RightAligned>
-      </H3>
+
+      <CertificateTitle>{certificateTitle}</CertificateTitle>
     </>
   );
 };

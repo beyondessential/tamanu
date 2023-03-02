@@ -65,6 +65,14 @@ export const styles = StyleSheet.create({
   },
   letterhead: {
     textAlign: 'right',
+    marginBottom: 13,
+  },
+  certificateLogo: {
+    position: 'absolute',
+    top: 26,
+    left: 60,
+    height: 'auto',
+    width: 66,
   },
 });
 
@@ -99,3 +107,7 @@ export const Logo = ({ logoSrc }) => <Image src={logoSrc} style={styles.logo} ca
 export const VDSImage = ({ src }) => <Image src={src} style={styles.vds} />;
 
 export const LetterHead = props => <View style={styles.letterhead} {...props} />;
+
+export const CertificateLogo = ({ logoSrc }) => (
+  <Image src={logoSrc} style={styles.certificateLogo} cache={false} />
+);

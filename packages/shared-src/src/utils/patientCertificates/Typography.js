@@ -29,8 +29,15 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     marginBottom: 15,
   },
-  rightAligned: {
+  certificateAddress: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: '14px',
+  },
+  certificateTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: '18px',
     textAlign: 'right',
+    marginBottom: '14px',
   },
 });
 
@@ -47,4 +54,5 @@ export const P = ({ mt = 0, mb, bold = false, ...props }) => (
     ]}
   />
 );
-export const RightAligned = props => <Text style={styles.rightAligned} {...props} />;
+export const CertificateAddress = props => <Text style={styles.certificateAddress} {...props} />;
+export const CertificateTitle = props => <Text style={styles.certificateTitle} {...props} />;

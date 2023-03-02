@@ -2,7 +2,7 @@ import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 
 import { Table } from './Table';
-import { styles, Col, Box, Row, Watermark, Logo } from './Layout';
+import { styles, Col, Box, Row, Watermark } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { P } from './Typography';
@@ -95,10 +95,16 @@ export const VaccineCertificate = ({
         <Box>
           <Row>
             <Col>
-              <P>Printed by: {printedBy}</P>
+              <P>
+                <P bold>Printed by: </P>
+                {printedBy}
+              </P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
+              <P>
+                <P bold>Printing date: </P>
+                {getDisplayDate(undefined, undefined, getLocalisation)}
+              </P>
             </Col>
           </Row>
         </Box>
