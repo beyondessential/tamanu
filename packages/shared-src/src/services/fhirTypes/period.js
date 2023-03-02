@@ -39,8 +39,8 @@ export class FhirPeriod extends Composite {
 
   asFhir() {
     return {
-      start: formatDateTime(this.params.start, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
-      end: formatDateTime(this.params.end, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      start: formatDateTime(this.start, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      end: formatDateTime(this.end, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
     };
   }
 
