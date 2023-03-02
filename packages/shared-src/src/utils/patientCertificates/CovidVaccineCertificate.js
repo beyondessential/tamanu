@@ -8,7 +8,7 @@ import { styles, Col, Box, Row, Watermark } from './Layout';
 import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
-import { LetterheadSection } from './LetterheadSection';
+import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
@@ -90,7 +90,7 @@ export const CovidVaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>Vaccination Certification</H3>
         <CovidPatientDetailsSection
           patient={patient}
