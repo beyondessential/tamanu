@@ -145,7 +145,7 @@ imaging_info as (
       )
     ) "Imaging requests"
   from imaging_requests ir
-  left join notes_info ni on ni.record_id = ir.id::varchar
+  left join notes_info ni on ni.record_id = ir.id
   left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
   group by encounter_id
 ),

@@ -21,7 +21,6 @@ const SNAKE_CASE_COLUMN_NAMES = {
   firstName: 'first_name',
   lastName: 'last_name',
   displayId: 'display_id',
-  requestId: 'ImagingRequest.display_id',
   id: 'ImagingRequest.id',
   name: 'name',
 };
