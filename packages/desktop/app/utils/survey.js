@@ -198,7 +198,10 @@ function transformPatientData(patient, config) {
     case 'age':
       return years.toString();
     case 'ageWithMonths':
-      return `${years} years, ${months} months`;
+      if (!years) {
+        return `${months} month${months !== 1 ? 's' : ''}`;
+      }
+      return `${years} years, ${months} month${months !== 1 ? 's' : ''}`;
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:

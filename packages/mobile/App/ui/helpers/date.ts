@@ -13,7 +13,10 @@ export function getAgeWithMonthsFromDate(date: string): string {
     start: parseISO(date),
     end: new Date(),
   });
-  return `${years} years, ${months} months`;
+  if (!years) {
+    return `${months} month${months !== 1 ? 's' : ''}`;
+  }
+  return `${years} years, ${months} month${months !== 1 ? 's' : ''}`;
 }
 
 export function formatStringDate(date: string, dateFormat: string): string {
