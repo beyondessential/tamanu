@@ -39,7 +39,7 @@ async function comparePassword(user, password) {
   }
 }
 
-export async function centralServerLogin(models, email, password) {
+export async function centralServerLogin(models, email, password, deviceId) {
   // try logging in to sync server
   const centralServer = new CentralServerConnection();
   const response = await centralServer.fetch('login', {
@@ -49,6 +49,7 @@ export async function centralServerLogin(models, email, password) {
     body: {
       email,
       password,
+      deviceId,
     },
     backoff: {
       maxAttempts: 1,
@@ -100,14 +101,14 @@ async function localLogin(models, email, password) {
   return { token, central: false, localisation, permissions };
 }
 
-async function centralServerLoginWithLocalFallback(models, email, password) {
+async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test') {
     return localLogin(models, email, password);
   }
 
   try {
-    return await centralServerLogin(models, email, password);
+    return await centralServerLogin(models, email, password, deviceId);
   } catch (e) {
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
@@ -120,14 +121,19 @@ async function centralServerLoginWithLocalFallback(models, email, password) {
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models } = req;
+  const { body, models, deviceId } = req;
   const { email, password } = body;
 
   // no permission needed for login
   req.flagPermissionChecked();
 
   try {
-    const responseData = await centralServerLoginWithLocalFallback(models, email, password);
+    const responseData = await centralServerLoginWithLocalFallback(
+      models,
+      email,
+      password,
+      deviceId,
+    );
     const facility = await models.Facility.findByPk(config.serverFacilityId);
     res.send({
       ...responseData,
