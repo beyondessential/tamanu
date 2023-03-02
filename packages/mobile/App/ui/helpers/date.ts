@@ -13,10 +13,14 @@ export function getAgeWithMonthsFromDate(date: string): string {
     start: parseISO(date),
     end: new Date(),
   });
+
+  const yearPlural = years !== 1 ? 's' : '';
+  const monthPlural = months !== 1 ? 's' : '';
+
   if (!years) {
-    return `${months} month${months !== 1 ? 's' : ''}`;
+    return `${months} month${monthPlural}`;
   }
-  return `${years} years, ${months} month${months !== 1 ? 's' : ''}`;
+  return `${years} year${yearPlural}, ${months} month${monthPlural}`;
 }
 
 export function formatStringDate(date: string, dateFormat: string): string {
