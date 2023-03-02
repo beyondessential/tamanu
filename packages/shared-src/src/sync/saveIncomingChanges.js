@@ -1,11 +1,8 @@
-import { trace } from '@opentelemetry/api';
 import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
-
-import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
-import { log, spanWrapFn } from '../services/logging';
-
+import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
+import { log } from 'shared/services/logging/log';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';
@@ -50,13 +47,10 @@ const saveDeletes = async (model, recordIds) => {
 };
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
-  const span = trace.getActiveSpan();
-
   const sanitizeData = d =>
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
-  span.addEvent('split');
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   const existingRecords = await model.findByIds(idsForUpsert);
@@ -78,15 +72,10 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
 
   // run each import process
   log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
-  span.addEvent('create', { count: recordsForCreate.length });
   await saveCreates(model, recordsForCreate);
-
   log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
-  span.addEvent('update', { count: recordsForUpdate.length });
   await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
-
   log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
-  span.addEvent('delete', { count: idsForDelete.length });
   await saveDeletes(model, idsForDelete);
 };
 
@@ -97,8 +86,6 @@ const saveChangesForModelInBatches = async (
   recordType,
   isCentralServer,
 ) => {
-  const span = trace.getActiveSpan();
-
   const syncRecordsCount = await countSyncSnapshotRecords(
     sequelize,
     sessionId,
@@ -108,12 +95,9 @@ const saveChangesForModelInBatches = async (
   log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
-  span.addEvent('recordCount', { count: syncRecordsCount, batchCount });
-
   let fromId;
 
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-    span.addEvent('batchStart', { batchIndex, batchCount, fromId });
     const batchRecords = await findSyncSnapshotRecords(
       sequelize,
       sessionId,
@@ -125,19 +109,9 @@ const saveChangesForModelInBatches = async (
     fromId = batchRecords[batchRecords.length - 1].id;
 
     try {
-      await spanWrapFn(
-        'saveChangesForModel',
-        () => saveChangesForModel(model, batchRecords, isCentralServer),
-        {
-          'app.sync.sessionId': sessionId,
-          'app.sync.model': model.tableName,
-          'app.sync.batchCount': batchRecords.length,
-        },
-      );
-      span.addEvent('batchDone', { batchIndex, batchCount });
+      await saveChangesForModel(model, batchRecords, isCentralServer);
     } catch (error) {
       log.error(`Failed to save changes for ${model.name}`);
-      span.recordException(error);
       throw error;
     }
   }
@@ -152,14 +126,12 @@ export const saveIncomingChanges = async (
   const sortedModels = sortInDependencyOrder(pulledModels);
 
   for (const model of sortedModels) {
-    await spanWrapFn(
-      'saveChangesForModelInBatches',
-      () =>
-        saveChangesForModelInBatches(model, sequelize, sessionId, model.tableName, isCentralServer),
-      {
-        'app.sync.sessionId': sessionId,
-        'app.sync.model': model.tableName,
-      },
+    await saveChangesForModelInBatches(
+      model,
+      sequelize,
+      sessionId,
+      model.tableName,
+      isCentralServer,
     );
   }
 };
