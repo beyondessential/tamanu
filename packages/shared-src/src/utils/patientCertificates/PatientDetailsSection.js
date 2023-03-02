@@ -24,7 +24,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
   ];
   return (
     <Row>
-      <Col style={{ width: '90%', margin: '10px auto' }}>
+      <Col style={{ width: '90%', margin: '0 auto', marginBottom: '5px' }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
