@@ -62,12 +62,7 @@ const TABS = [
   {
     label: 'Programs',
     key: ENCOUNTER_TAB_NAMES.PROGRAMS,
-    render: props => (
-      <EncounterProgramsPane
-        endpoint={`encounter/${props?.encounter.id}/programResponses`}
-        {...props}
-      />
-    ),
+    render: props => <EncounterProgramsPane {...props} />,
   },
   {
     label: 'Documents',
