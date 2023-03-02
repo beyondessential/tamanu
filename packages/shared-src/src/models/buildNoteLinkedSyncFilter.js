@@ -16,7 +16,7 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
 
   let joins = NOTE_RECORD_TYPE_VALUES.filter(r => r !== NOTE_RECORD_TYPES.PATIENT).map(
     r =>
-      `LEFT JOIN ${recordTypesToTables[r]} ON note_pages.record_id = ${recordTypesToTables[r]}.id AND note_pages.record_type = '${r}'`,
+      `LEFT JOIN ${recordTypesToTables[r]} ON note_pages.record_id = ${recordTypesToTables[r]}.id::text AND note_pages.record_type = '${r}'`,
   );
   joins = joins.concat(
     recordTypesWithPatientViaEncounter.map(
