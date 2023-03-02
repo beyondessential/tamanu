@@ -18564,6 +18564,11 @@ react-fast-compare@^2.0.1:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-2.0.4.tgz#e84b4d455b0fec113e0402c329352715196f81f9"
   integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
 
+react-idle-timer@^5.4.2:
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.5.3.tgz#e1428095e124dea9277f45b68fa4f856a448a6d9"
+  integrity sha512-fn2kNPz4BVEN/U05IzBQGPIfFlkjk0ekj8uKQaHAH/uBbATJDFmyxK0k36hv4kmzN8oFr8pe+C4zU5NJDBnfBQ==
+
 react-input-autosize@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-3.0.0.tgz#6b5898c790d4478d69420b55441fcc31d5c50a85"

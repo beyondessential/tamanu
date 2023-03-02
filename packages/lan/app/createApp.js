@@ -12,7 +12,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-export function createApp({ sequelize, models, syncManager }) {
+export function createApp({ sequelize, models, syncManager, deviceId }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -33,6 +33,7 @@ export function createApp({ sequelize, models, syncManager }) {
     req.models = models;
     req.db = sequelize;
     req.syncManager = syncManager;
+    req.deviceId = deviceId;
 
     next();
   });
