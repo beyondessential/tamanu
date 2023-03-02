@@ -5,47 +5,53 @@ import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
-import { H3, P } from './Typography';
+import { H1, H3, P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
+
+const cellPadding = '10px 5px';
 
 const columns = [
   {
     key: 'vaccine',
     title: 'Vaccine',
-    customStyles: { minWidth: 30 },
+    customStyles: { minWidth: 30, padding: cellPadding },
     accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).label,
   },
   {
     key: 'vaccineBrand',
     title: 'Vaccine brand',
-    customStyles: { minWidth: 30 },
+    customStyles: { minWidth: 30, padding: cellPadding },
     accessor: ({ scheduledVaccine }) => ((scheduledVaccine || {}).vaccine || {}).name,
   },
   {
     key: 'schedule',
     title: 'Schedule',
+    customStyles: { padding: cellPadding },
     accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
   },
   {
     key: 'countryName',
     title: 'Country',
+    customStyles: { padding: cellPadding },
     accessor: ({ countryName }) => countryName,
   },
   {
     key: 'healthFacility',
     title: 'Health facility',
-    customStyles: { minWidth: 30 },
+    customStyles: { minWidth: 30, padding: cellPadding },
     accessor: ({ healthFacility }) => healthFacility,
   },
   {
     key: 'date',
     title: 'Date',
+    customStyles: { padding: cellPadding },
     accessor: ({ date }, getLocalisation) => getDisplayDate(date, undefined, getLocalisation),
   },
   {
     key: 'batch',
     title: 'Batch Number',
+    customStyles: { minWidth: 30, padding: cellPadding },
     accessor: ({ batch }) => batch,
   },
 ];
@@ -64,7 +70,6 @@ export const VaccineCertificate = ({
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
-  const countryCode = getLocalisation('country.alpha-3');
   const countryName = getLocalisation('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
@@ -74,13 +79,11 @@ export const VaccineCertificate = ({
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
-        <H3>Vaccination Certification</H3>
         <PatientDetailsSection
           patient={patient}
           getLocalisation={getLocalisation}
           certificateId={certificateId}
           extraFields={extraPatientFields}
-          uvci={null}
         />
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />
