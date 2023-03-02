@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
@@ -23,7 +23,7 @@ import {
   EncounterInfoPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
@@ -62,9 +62,7 @@ const TABS = [
   {
     label: 'Programs',
     key: ENCOUNTER_TAB_NAMES.PROGRAMS,
-    render: ({ encounter, ...props }) => (
-      <EncounterProgramsPane endpoint={`encounter/${encounter.id}/programResponses`} {...props} />
-    ),
+    render: props => <EncounterProgramsPane {...props} />,
   },
   {
     label: 'Documents',
@@ -122,7 +120,7 @@ export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
-  const [currentTab, setCurrentTab] = React.useState(query.get('tab') || 'vitals');
+  const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
   const disabled = encounter?.endDate || patient.death;
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;

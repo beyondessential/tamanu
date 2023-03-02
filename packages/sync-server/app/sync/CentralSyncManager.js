@@ -1,4 +1,6 @@
 import { Op, Transaction } from 'sequelize';
+import _config from 'config';
+
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
@@ -6,19 +8,22 @@ import {
   createSnapshotTable,
   insertSnapshotRecords,
   updateSnapshotRecords,
-  completeInactiveSyncSessions,
   completeSyncSession,
   countSyncSnapshotRecords,
   findSyncSnapshotRecords,
   getModelsForDirection,
   removeEchoedChanges,
   saveIncomingChanges,
+  adjustDataPostSyncPush,
+  waitForPendingEditsUsingSyncTick,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { injectConfig, uuidToFairlyUniqueInteger } from 'shared/utils';
+import { uuidToFairlyUniqueInteger } from 'shared/utils';
+
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
+import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -27,9 +32,17 @@ const errorMessageFromSession = session =>
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
 
-export
-@injectConfig
-class CentralSyncManager {
+export class CentralSyncManager {
+  static config = _config;
+
+  static overrideConfig(override) {
+    this.config = override;
+  }
+
+  static restoreConfig() {
+    this.config = _config;
+  }
+
   currentSyncTick;
 
   store;
@@ -38,21 +51,10 @@ class CentralSyncManager {
 
   constructor(ctx) {
     this.store = ctx.store;
-    this.purgeInterval = setInterval(
-      this.purgeLapsedSessions,
-      this.constructor.config.sync.lapsedSessionCheckFrequencySeconds * 1000,
-    );
     ctx.onClose(this.close);
   }
 
   close = () => clearInterval(this.purgeInterval);
-
-  purgeLapsedSessions = async () => {
-    await completeInactiveSyncSessions(
-      this.store,
-      this.constructor.config.sync.lapsedSessionSeconds,
-    );
-  };
 
   async tickTockGlobalClock() {
     // rather than just incrementing by one tick, we "tick, tock" the clock so we guarantee the
@@ -60,7 +62,7 @@ class CentralSyncManager {
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
     const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
-    return { tick: tock - 1, tock };
+    return { tick: tock - 1, tock, previousTick: tock - 3, previousTock: tock - 2 };
   }
 
   async startSession() {
@@ -73,13 +75,26 @@ class CentralSyncManager {
       startTime,
       lastConnectionTime: startTime,
     });
-    await createSnapshotTable(this.store.sequelize, syncSession.id);
+
+    // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
+    // and take a while if the central server is concurrently persisting records from another client.
+    // Client should poll for the result later.
+    this.prepareSession(syncSession);
 
     log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
 
+    return { sessionId: syncSession.id };
+  }
+
+  async prepareSession(syncSession) {
+    await createSnapshotTable(this.store.sequelize, syncSession.id);
+
     const { tick } = await this.tickTockGlobalClock();
 
-    return { sessionId: syncSession.id, tick };
+    await this.store.sequelize.models.SyncSession.update(
+      { startedAtTick: tick },
+      { where: { id: syncSession.id } },
+    );
   }
 
   async connectToSession(sessionId) {
@@ -137,30 +152,48 @@ class CentralSyncManager {
     return rows[0].snapshot_is_processing;
   }
 
-  // set pull filter begins creating a snapshot of changes to pull at this point in time, and
-  // returns a sync tick that we can safely consider the snapshot to be up to (because we use the
-  // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
-  // process is ongoing, will have a later updated_at_sync_tick)
-  async setPullFilter(sessionId, params) {
-    const { tick } = await this.tickTockGlobalClock();
+  // set pull filter begins creating a snapshot of changes to pull at this point in time
+  async initiatePull(sessionId, params) {
+    await this.connectToSession(sessionId);
+
+    // first check if the snapshot is already being processed, to throw a sane error if (for some
+    // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
+    const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
+    if (isAlreadyProcessing) {
+      throw new Error(`Snapshot for session ${sessionId} is already being processed`);
+    }
+
     const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
-    this.setupSnapshot(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
-    return { tick };
+    this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
   }
 
-  async setupSnapshot(
+  async setupSnapshotForPull(
     sessionId,
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
     unmarkSnapshotAsProcessing,
   ) {
-    const { models } = this.store;
+    const { models, sequelize } = this.store;
 
     const session = await this.connectToSession(sessionId);
 
+    // will wait for concurrent snapshots to complete if we are currently at capacity, then
+    // set the snapshot_started_at timestamp before we proceed with the heavy work below
+    await startSnapshotWhenCapacityAvailable(sequelize, sessionId);
+
     try {
+      // get a sync tick that we can safely consider the snapshot to be up to (because we use the
+      // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+      // process is ongoing, will have a later updated_at_sync_tick)
+      const { tick, previousTock } = await this.tickTockGlobalClock();
+      // wait for any transactions that were in progress using the previous central server "tock"
+      await waitForPendingEditsUsingSyncTick(sequelize, previousTock);
+      await models.SyncSession.update(
+        { pullSince: since, pullUntil: tick },
+        { where: { id: sessionId } },
+      );
+
       await models.SyncSession.addDebugInfo(sessionId, {
         facilityId,
-        since,
         isMobile,
         tablesForFullResync,
       });
@@ -175,11 +208,11 @@ class CentralSyncManager {
         where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug(
-        `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
+        `CentralSyncManager.initiatePull: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
       );
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-      const { syncAllLabRequests } = await models.Setting.forFacility(facilityId);
+      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
@@ -251,18 +284,30 @@ class CentralSyncManager {
       // time throughout the snapshot process
       await session.update({ snapshotCompletedAt: new Date() });
     } catch (error) {
-      log.error('CentralSyncManager.setPullFilter encountered an error', error);
+      log.error('CentralSyncManager.initiatePull encountered an error', error);
       await session.update({ error: error.message });
     } finally {
       await unmarkSnapshotAsProcessing();
     }
   }
 
-  async fetchPullCount(sessionId) {
-    // if this snapshot still processing, return null to tell the client to keep waiting
+  async checkSessionReady(sessionId) {
+    await this.connectToSession(sessionId);
+    const session = await this.connectToSession(sessionId);
+    if (session.startedAtTick === null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async checkPullReady(sessionId) {
+    await this.connectToSession(sessionId);
+
+    // if this snapshot still processing, return false to tell the client to keep waiting
     const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
     if (snapshotIsProcessing) {
-      return null;
+      return false;
     }
 
     // if this snapshot is not marked as processing, but also never completed, record an error
@@ -274,12 +319,26 @@ class CentralSyncManager {
       throw new Error(errorMessageFromSession(session));
     }
 
-    // snapshot processing complete! return the actual count
-    return countSyncSnapshotRecords(
+    // snapshot processing complete!
+    return true;
+  }
+
+  async fetchSyncMetadata(sessionId) {
+    // Minimum metadata info for now but can grow in the future
+    const { startedAtTick } = await this.connectToSession(sessionId);
+    return { startedAtTick };
+  }
+
+  async fetchPullMetadata(sessionId) {
+    const session = await this.connectToSession(sessionId);
+    const totalToPull = await countSyncSnapshotRecords(
       this.store.sequelize,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
+    await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
+    const { pullUntil } = session;
+    return { totalToPull, pullUntil };
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
@@ -293,8 +352,57 @@ class CentralSyncManager {
     );
   }
 
-  async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }, tablesToInclude) {
-    const { models, sequelize } = this.store;
+  async persistIncomingChanges(sessionId, tablesToInclude) {
+    const { sequelize, models } = this.store;
+    const totalPushed = await countSyncSnapshotRecords(
+      sequelize,
+      sessionId,
+      SYNC_SESSION_DIRECTION.INCOMING,
+    );
+    await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date(), totalPushed });
+
+    const modelsToInclude = tablesToInclude
+      ? filterModelsFromName(models, tablesToInclude)
+      : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+
+    try {
+      // commit the changes to the db
+      await sequelize.transaction(async () => {
+        // we tick-tock the global clock to make sure there is a unique tick for these changes
+        // n.b. this used to also be used for concurrency control, but that is now handled by
+        // shared advisory locks taken using the current sync tick as the id, which are waited on
+        // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
+        // saving with a unique tick
+        const { tock } = await this.tickTockGlobalClock();
+        await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
+        // store the sync tick on save with the incoming changes, so they can be compared for
+        // edits with the outgoing changes
+        await updateSnapshotRecords(
+          sequelize,
+          sessionId,
+          { savedAtSyncTick: tock },
+          { direction: SYNC_SESSION_DIRECTION.INCOMING },
+        );
+      });
+
+      // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
+      // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
+      await this.tickTockGlobalClock();
+      await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+
+      // mark persisted so that client polling "completePush" can stop
+      await models.SyncSession.update(
+        { persistCompletedAt: new Date() },
+        { where: { id: sessionId } },
+      );
+    } catch (error) {
+      log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
+      await models.SyncSession.update({ error: error.message }, { where: { id: sessionId } });
+    }
+  }
+
+  async addIncomingChanges(sessionId, changes) {
+    const { sequelize } = this.store;
     await this.connectToSession(sessionId);
     const incomingSnapshotRecords = changes.map(c => ({
       ...c,
@@ -308,35 +416,22 @@ class CentralSyncManager {
       `CentralSyncManager.addIncomingChanges: Adding ${incomingSnapshotRecords.length} changes for ${sessionId}`,
     );
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
+  }
 
-    if (pushedSoFar === totalToPush) {
-      const modelsToInclude = tablesToInclude
-        ? filterModelsFromName(models, tablesToInclude)
-        : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+  async completePush(sessionId, tablesToInclude) {
+    await this.connectToSession(sessionId);
 
-      // commit the changes to the db
-      await sequelize.transaction(async () => {
-        // we tick-tock the global clock to make sure there is a unique tick for these changes, and
-        // to acquire a lock on the sync time row in the local system facts table, so that no sync
-        // pull snapshot can start while this save is still in progress
-        // the pull snapshot starts by updating the current time, so this locks that out while the
-        // save transaction happens, to avoid the snapshot missing records that get during this save
-        // but aren't visible in the db to be snapshot until the transaction commits, so would
-        // otherwise be completely skipped over by that sync client
-        const { tock } = await this.tickTockGlobalClock();
-        await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
-        // store the sync tick on save with the incoming changes, so they can be compared for
-        // edits with the outgoing changes
-        await updateSnapshotRecords(
-          sequelize,
-          sessionId,
-          { savedAtSyncTick: tock },
-          { direction: SYNC_SESSION_DIRECTION.INCOMING },
-        );
-      });
-      await models.SyncSession.addDebugInfo(sessionId, {
-        pushCompletedAt: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-      });
+    // don't await persisting, the client should asynchronously poll as it may take longer than
+    // the http request timeout
+    this.persistIncomingChanges(sessionId, tablesToInclude);
+  }
+
+  async checkPushComplete(sessionId) {
+    const session = await this.connectToSession(sessionId);
+    // respond with whether the push is properly complete, i.e. has been persisted to the db tables
+    if (!session.persistCompletedAt) {
+      return false;
     }
+    return true;
   }
 }

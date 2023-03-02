@@ -26,9 +26,12 @@
   "sync": {
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
-    "lapsedSessionSeconds": 3600,
-    "lapsedSessionCheckFrequencySeconds": 60,
-    "syncAllEncountersForTheseVaccines": []
+    "adjustDataBatchSize": 20000,
+    "syncAllEncountersForTheseVaccines": [],
+    "numberConcurrentPullSnapshots": 4,
+    // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
+    // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
+    "maxRecordsPerPullSnapshotChunk": 1000000000
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -50,7 +53,7 @@
         ],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
-        "queueTimeout": 500
+        "queueTimeout": 7500
       },
       // global queue for non-sync non-attachment requests
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
@@ -61,12 +64,12 @@
         ],
         "maxActiveRequests": 8,
         "maxQueuedRequests": 32,
-        "queueTimeout": 2000
+        "queueTimeout": 7500
       }
     ]
   },
   "auth": {
-    // this secret should be set if more than one process of the sync-server is running
+    // these secrets should be set if more than one process of the sync-server is running
     // otherwise, each process will use a different key and tokens won't match
     "secret": null,
     "saltRounds": 12,
@@ -79,6 +82,11 @@
       "displayName": "Initial Admin",
       "role": "admin",
       "password": "admin"
+    },
+    "refreshToken": {
+      "secret": null,
+      "tokenDuration": "30d",
+      "refreshIdLength": 54
     },
     "resetPassword": {
       "tokenLength": 6,
@@ -99,7 +107,7 @@
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
     "outpatientDischarger": {
       // every day at 11 PM
-      "schedule": "0 11 * * *",
+      "schedule": "0 23 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
@@ -155,11 +163,7 @@
     },
     "covidClearanceCertificatePublisher": {
       "enabled": false,
-      "schedule": "*/30 * * * *",
-      "daysSinceSampleTime": 13,
-      "after": "2022-09-01",
-      "labTestCategories": [],
-      "labTestTypes": []
+      "schedule": "*/30 * * * *"
     },
     "fhirMaterialiser": {
       "enabled": true, // only when integrations.fhir is on
@@ -173,6 +177,11 @@
       "timeoutHours": 24,
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "staleSyncSessionCleaner": {
+      "enabled": true,
+      "schedule": "* * * * *",
+      "staleSessionSeconds": 3600
     }
   },
   "integrations": {
@@ -558,12 +567,12 @@
         },
         "prescriber": {
           "shortLabel": "Prescriber",
-          "longLabel":  "Prescriber",
+          "longLabel": "Prescriber",
           "hidden": false
         },
         "prescriberId": {
           "shortLabel": "Prescriber ID",
-          "longLabel":  "Prescriber ID",
+          "longLabel": "Prescriber ID",
           "hidden": false
         },
         "facility": {
@@ -594,7 +603,15 @@
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
-        "patientPlannedMove": false
+        "patientPlannedMove": false,
+        "idleTimeout": {
+          "enabled": false,
+          // All values in seconds
+          "timeoutDuration": 600,
+          "warningPromptDuration": 30,
+          "refreshInterval": 150
+        },
+        "fhirNewZealandEthnicity": false
       },
       "templates": {
         "letterhead": {
@@ -623,11 +640,16 @@
           "healthFacility": "State level"
         },
         "covidTestCertificate": {
-          "laboratoryName": "Approved test provider"
+          "laboratoryName": "Approved test provider",
+          "clearanceCertRemark": "This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue."
         },
         "plannedMoveTimeoutHours": 24
       },
-      "imagingTypes": {},
+      "imagingTypes": {
+        // keys are taken from IMAGING_TYPES in shared/constants/imaging
+        // e.g.
+        // "xRay": { "label": "X-Ray" }
+      },
       "imagingPriorities": [
         {
           "value": "routine",
@@ -646,6 +668,44 @@
           "label": "STAT"
         }
       ],
+      "imagingCancellationReasons": [{
+        "value": "clinical",
+        "label": "Clinical reason"
+      },{
+        "value": "duplicate",
+        "label": "Duplicate"
+      },{
+        "value": "entered-in-error",
+        "label": "Entered in error"
+      },{
+        "value": "patient-discharged",
+        "label": "Patient discharged"
+      },{
+        "value": "patient-refused",
+        "label": "Patient refused"
+      },{
+        "value": "other",
+        "label": "Other"
+      }],
+      "labsCancellationReasons": [{
+        "value": "clinical",
+        "label": "Clinical reason"
+      },{
+        "value": "duplicate",
+        "label": "Duplicate"
+      },{
+        "value": "entered-in-error",
+        "label": "Entered in error"
+      },{
+        "value": "patient-discharged",
+        "label": "Patient discharged"
+      },{
+        "value": "patient-refused",
+        "label": "Patient refused"
+      },{
+        "value": "other",
+        "label": "Other"
+      }],
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",
@@ -720,7 +780,8 @@
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
       "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
-      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html"
+      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
+      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html"
     }
   },
   "s3": {},
@@ -768,7 +829,11 @@
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
   },
+  "validateQuestionConfigs": {
+    "enabled": false
+  },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "countryTimeZone": null
+  "countryTimeZone": "Australia/Melbourne",
+  "allowMismatchedTimeZones": false
 }

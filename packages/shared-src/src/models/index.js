@@ -1,4 +1,5 @@
 export * from './User';
+export * from './UserRecentlyViewedPatient';
 export * from './LocalSystemFact';
 
 export * from './Patient';
@@ -71,6 +72,7 @@ export * from './Appointment';
 export * from './DocumentMetadata';
 
 export * from './OneTimeLogin';
+export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
 

@@ -77,6 +77,7 @@ export const VitalsTable = memo(
             tableHeader={vitalsTableHeader}
             rows={components.map(component => {
               const rowValidationCriteria = component.getValidationCriteriaObject();
+              const config = component.getConfigObject();
               const { dataElement } = component;
               const { name, id } = dataElement;
               return {
@@ -90,6 +91,7 @@ export const VitalsTable = memo(
                   return (
                     <VitalsTableCell
                       data={cellData}
+                      config={config}
                       key={cellData?.id || id}
                       needsAttention={needsAttention}
                       isOdd={i % 2 === 0}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';

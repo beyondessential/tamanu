@@ -8,6 +8,7 @@ import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
+import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
@@ -776,6 +777,9 @@ describe('CentralSyncManager', () => {
         });
       });
     });
+    
+  describe('setupSnapshotForPull', () => {
+    it.todo('all');
   });
 
   describe('addIncomingChanges', () => {

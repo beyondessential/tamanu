@@ -17,6 +17,7 @@ import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { getFullLocationName } from '../../utils/location';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -120,8 +121,11 @@ const MedicationsList = ({ medications }) => {
 const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { title, subTitle, logo } = useCertificate();
 
-  const patient = useSelector(state => state.patient);
+  const { getLocalisation } = useLocalisation();
+  const dischargeDispositionVisible =
+    getLocalisation('fields.dischargeDisposition.hidden') === false;
 
+  const patient = useSelector(state => state.patient);
   const {
     diagnoses,
     procedures,
@@ -169,7 +173,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <Label>Department: </Label>
           {getFullLocationName(location)}
         </div>
-        {discharge && (
+        {discharge && dischargeDispositionVisible && (
           <div>
             <Label>Discharge disposition: </Label>
             {discharge.disposition?.name}
@@ -212,10 +216,14 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             <ProceduresList procedures={procedures} />
           </ul>
         </ListColumn>
-        <Label>Medications: </Label>
+        <Label>Discharge medications: </Label>
         <ListColumn>
           <ul>
-            <MedicationsList medications={medications} />
+            <MedicationsList
+              medications={medications.filter(
+                medication => !medication.discontinued && medication.isDischarge,
+              )}
+            />
           </ul>
         </ListColumn>
         <div>

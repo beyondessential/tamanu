@@ -12,7 +12,8 @@ import { ForbiddenError } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../contexts/Auth';
 
-const ErrorMessage = () => {
+// eslint-disable-next-line no-unused-vars
+const ErrorMessage = ({ error }) => {
   return (
     <Box p={5} mb={4}>
       <Alert severity="error">
@@ -42,7 +43,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   }
 
   if (isError) {
-    return <ErrorMessage />;
+    return <ErrorMessage error={error} />;
   }
 
   const handleSubmit = data => {
@@ -52,6 +53,9 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   return (
     <Form
       onSubmit={handleSubmit}
+      showInlineErrorsOnly
+      validateOnChange
+      validateOnBlur
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
@@ -59,28 +63,24 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       }}
       validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};
-
-        // All readings are either numbers or strings
-        if (!Object.values(values).some(x => ['number', 'string'].includes(typeof x))) {
+        if (Object.values(values).every(x => x === '' || x === null || x === undefined)) {
           errors.form = 'At least one recording must be entered.';
         }
 
         return errors;
       }}
-      render={({ submitForm, values, setFieldValue }) => {
-        return (
-          <SurveyScreen
-            components={vitalsSurvey.components}
-            patient={patient}
-            cols={2}
-            values={values}
-            setFieldValue={setFieldValue}
-            submitButton={
-              <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
-            }
-          />
-        );
-      }}
+      render={({ submitForm, values, setFieldValue }) => (
+        <SurveyScreen
+          components={vitalsSurvey.components}
+          patient={patient}
+          cols={2}
+          values={values}
+          setFieldValue={setFieldValue}
+          submitButton={
+            <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+          }
+        />
+      )}
     />
   );
 });
