@@ -23,6 +23,8 @@ import {
 import { Exception } from '../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
+  static UPSTREAM_UUID = true;
+
   static init(options, models) {
     super.init(
       {
@@ -183,7 +185,7 @@ export class FhirServiceRequest extends FhirResource {
       subject: new FhirReference({
         type: 'upstream://patient',
         reference: upstream.encounter.patient.id,
-        display: upstream.encounter.patient.displayId,
+        display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
       }),
       occurrenceDateTime: dateTimeStringIntoCountryTimezone(upstream.requestedDate),
       requester: new FhirReference({

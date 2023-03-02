@@ -1,13 +1,17 @@
 import React, { ReactElement } from 'react';
 import { useFormikContext } from 'formik';
 import { theme } from '/styled/theme';
-import { Button } from '/components/Button';
+import { Button, StyledButtonProps } from '/components/Button';
 
-export const SubmitButton = (props): ReactElement => {
+interface SubmitButtonProps extends StyledButtonProps {
+  onSubmit?: () => Promise<void>;
+}
+
+export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactElement => {
   const { isSubmitting, submitForm } = useFormikContext();
   return (
     <Button
-      onPress={submitForm}
+      onPress={onSubmit || submitForm}
       disabled={isSubmitting}
       buttonText={isSubmitting ? 'Submitting...' : 'Submit'}
       backgroundColor={theme.colors.PRIMARY_MAIN}

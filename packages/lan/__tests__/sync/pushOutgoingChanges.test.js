@@ -26,7 +26,10 @@ describe('pushOutgoingChanges', () => {
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
               const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
-              const centralServer = { push: jest.fn().mockImplementation(async () => {}) };
+              const centralServer = {
+                push: jest.fn().mockImplementation(async () => {}),
+                completePush: jest.fn().mockImplementation(async () => true),
+              };
               await pushOutgoingChanges(centralServer, 'sessionId', changes);
               expect(centralServer.push).toHaveBeenCalled();
             },
@@ -52,7 +55,10 @@ describe('pushOutgoingChanges', () => {
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
               const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
-              const centralServer = { push: jest.fn().mockImplementation(async () => {}) };
+              const centralServer = {
+                push: jest.fn().mockImplementation(async () => {}),
+                completePush: jest.fn().mockImplementation(async () => true),
+              };
               await pushOutgoingChanges(centralServer, 'sessionId', changes);
               expect(centralServer.push.mock.calls.length).toBeGreaterThanOrEqual(2);
             },
@@ -77,7 +83,10 @@ describe('pushOutgoingChanges', () => {
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
               const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
-              const centralServer = { push: jest.fn().mockImplementation(async () => {}) };
+              const centralServer = {
+                push: jest.fn().mockImplementation(async () => {}),
+                completePush: jest.fn().mockImplementation(async () => true),
+              };
               await pushOutgoingChanges(centralServer, 'sessionId', changes);
               expect(
                 centralServer.push.mock.calls.flatMap(([_sessionId, page]) => page).length,
