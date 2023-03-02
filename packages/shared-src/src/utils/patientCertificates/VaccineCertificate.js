@@ -2,10 +2,10 @@ import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 
 import { Table } from './Table';
-import { styles, Col, Box, Row, Watermark } from './Layout';
+import { styles, Col, Box, Row, Watermark, Logo } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
-import { H1, H3, P } from './Typography';
+import { P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 
@@ -78,7 +78,11 @@ export const VaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+        <LetterheadSection
+          getLocalisation={getLocalisation}
+          logoSrc={logoSrc}
+          title="Vaccination Certificate"
+        />
         <PatientDetailsSection
           patient={patient}
           getLocalisation={getLocalisation}

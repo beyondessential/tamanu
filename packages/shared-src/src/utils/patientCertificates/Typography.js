@@ -29,6 +29,9 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     marginBottom: 15,
   },
+  rightAligned: {
+    textAlign: 'right',
+  },
 });
 
 export const H1 = props => <Text style={styles.h1} {...props} />;
@@ -44,3 +47,4 @@ export const P = ({ mt = 0, mb, bold = false, ...props }) => (
     ]}
   />
 );
+export const RightAligned = props => <Text style={styles.rightAligned} {...props} />;

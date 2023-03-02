@@ -1,6 +1,6 @@
 import React from 'react';
 import { Logo, LetterHead } from './Layout';
-import { H3 } from './Typography';
+import { H3, RightAligned } from './Typography';
 
 export const LetterheadSection = ({ getLocalisation, logoSrc }) => {
   const title = getLocalisation('templates.letterhead.title');
@@ -12,6 +12,9 @@ export const LetterheadSection = ({ getLocalisation, logoSrc }) => {
         <H3>{subTitle}</H3>
         <H3>{title}</H3>
       </LetterHead>
+      <H3>
+        <RightAligned>Vaccination Certificate</RightAligned>
+      </H3>
     </>
   );
 };

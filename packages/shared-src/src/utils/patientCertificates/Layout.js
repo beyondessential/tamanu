@@ -63,6 +63,9 @@ export const styles = StyleSheet.create({
     left: -30,
     width: 140,
   },
+  letterhead: {
+    textAlign: 'right',
+  },
 });
 
 export const Row = props => <View {...props} style={styles.row} />;
@@ -94,3 +97,5 @@ png or jpg src image
 export const Logo = ({ logoSrc }) => <Image src={logoSrc} style={styles.logo} cache={false} />;
 
 export const VDSImage = ({ src }) => <Image src={src} style={styles.vds} />;
+
+export const LetterHead = props => <View style={styles.letterhead} {...props} />;
