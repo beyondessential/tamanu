@@ -3,7 +3,9 @@ import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 
+import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
+import { initDeviceId } from '../sync/initDeviceId';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
@@ -28,12 +30,19 @@ async function serve({ skipMigrationCheck }) {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
+  await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
+
+  await performTimeZoneChecks({
+    remote: context.centralServer,
+    sequelize: context.sequelize,
+    config,
+  });
 
   const app = createApp(context);
 
