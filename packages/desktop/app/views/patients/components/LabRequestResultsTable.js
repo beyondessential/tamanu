@@ -54,7 +54,7 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
 };
 
 const columns = sex => [
-  { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
+  { title: 'Test type', key: 'type', accessor: row => row.labTestType.name },
   {
     title: 'Result',
     key: 'result',
@@ -62,7 +62,7 @@ const columns = sex => [
   },
   { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
-  { title: 'Laboratory officer', key: 'laboratoryOfficer' },
+  { title: 'Lab officer', key: 'laboratoryOfficer' },
   { title: 'Verification', key: 'verification' },
   { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
 ];

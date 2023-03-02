@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useAuth } from '../../contexts/Auth';
 
 import { MultiStepForm, FormStep } from '../MultiStepForm';
@@ -29,12 +29,13 @@ export const LabRequestMultiStepForm = ({
       onCancel={onCancel}
       onSubmit={onSubmit}
       initialValues={{
+        requestFormType: LAB_REQUEST_FORM_TYPES.PANEL,
         displayId: generateDisplayId(),
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
         specimenAttached: 'no',
-        status: LAB_REQUEST_STATUSES.NOT_COLLECTED,
+        status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
         labTestIds: [],
         notes: '',
         // LabTest date
