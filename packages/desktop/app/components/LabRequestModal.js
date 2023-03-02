@@ -6,14 +6,18 @@ import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSu
 
 export const LabRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
-  const [labRequests, setLabRequests] = useState(null);
+  const [labRequestIds, setLabRequestIds] = useState(null);
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department');
 
   return (
     <Modal maxWidth="md" title="New lab request" open={open} onClose={onClose}>
-      {labRequests ? (
-        <LabRequestSummaryPane labRequests={labRequests} />
+      {labRequestIds ? (
+        <LabRequestSummaryPane
+          encounter={encounter}
+          labRequestIds={labRequestIds}
+          onClose={onClose}
+        />
       ) : (
         <LabRequestMultiStepForm
           onSubmit={async data => {
@@ -21,7 +25,7 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
               ...data,
               encounterId: encounter.id,
             });
-            setLabRequests(response);
+            setLabRequestIds(response.map(request => request.id));
           }}
           onCancel={onClose}
           encounter={encounter}
