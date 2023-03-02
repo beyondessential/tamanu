@@ -2,7 +2,7 @@ import React from 'react';
 import { Logo, LetterHead } from './Layout';
 import { H3, RightAligned } from './Typography';
 
-export const LetterheadSection = ({ getLocalisation, logoSrc }) => {
+export const LetterheadSection = ({ getLocalisation, logoSrc, certificateTitle }) => {
   const title = getLocalisation('templates.letterhead.title');
   const subTitle = getLocalisation('templates.letterhead.subTitle');
   return (
@@ -13,7 +13,7 @@ export const LetterheadSection = ({ getLocalisation, logoSrc }) => {
         <H3>{title}</H3>
       </LetterHead>
       <H3>
-        <RightAligned>Vaccination Certificate</RightAligned>
+        <RightAligned>{certificateTitle}</RightAligned>
       </H3>
     </>
   );
