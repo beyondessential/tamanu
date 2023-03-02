@@ -69,7 +69,7 @@
     ]
   },
   "auth": {
-    // this secret should be set if more than one process of the sync-server is running
+    // these secrets should be set if more than one process of the sync-server is running
     // otherwise, each process will use a different key and tokens won't match
     "secret": null,
     "saltRounds": 12,
@@ -82,6 +82,11 @@
       "displayName": "Initial Admin",
       "role": "admin",
       "password": "admin"
+    },
+    "refreshToken": {
+      "secret": null,
+      "tokenDuration": "30d",
+      "refreshIdLength": 54
     },
     "resetPassword": {
       "tokenLength": 6,
@@ -158,11 +163,7 @@
     },
     "covidClearanceCertificatePublisher": {
       "enabled": false,
-      "schedule": "*/30 * * * *",
-      "daysSinceSampleTime": 13,
-      "after": "2022-09-01",
-      "labTestCategories": [],
-      "labTestTypes": []
+      "schedule": "*/30 * * * *"
     },
     "fhirMaterialiser": {
       "enabled": true, // only when integrations.fhir is on
@@ -603,6 +604,13 @@
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
         "patientPlannedMove": false,
+        "idleTimeout": {
+          "enabled": false,
+          // All values in seconds
+          "timeoutDuration": 600,
+          "warningPromptDuration": 30,
+          "refreshInterval": 150
+        },
         "fhirNewZealandEthnicity": false
       },
       "templates": {

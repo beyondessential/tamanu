@@ -5,6 +5,7 @@ import { log } from 'shared/services/logging';
 
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
+import { initDeviceId } from '../sync/initDeviceId';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
@@ -29,6 +30,7 @@ async function serve({ skipMigrationCheck }) {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
+  await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
 
