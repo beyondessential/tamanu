@@ -23,8 +23,6 @@ import {
 import { Exception } from '../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
-  static UPSTREAM_UUID = true;
-
   static init(options, models) {
     super.init(
       {
