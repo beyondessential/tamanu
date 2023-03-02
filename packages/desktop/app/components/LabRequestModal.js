@@ -11,12 +11,15 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
   const departmentSuggester = useSuggester('department');
 
   return (
-    <Modal maxWidth="md" title="New lab request" open={open} onClose={onClose}>
+    <Modal maxWidth="md" title="New lab request" open={open} onClose={onClose} minHeight={500}>
       {labRequestIds ? (
         <LabRequestSummaryPane
           encounter={encounter}
           labRequestIds={labRequestIds}
-          onClose={onClose}
+          onClose={() => {
+            setLabRequestIds(null);
+            onClose();
+          }}
         />
       ) : (
         <LabRequestMultiStepForm

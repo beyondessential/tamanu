@@ -12,6 +12,7 @@ import {
   DateDisplay,
   Table,
   useSelectableColumn,
+  ModalLoader,
 } from '../../../components';
 import { useApi } from '../../../api';
 
@@ -142,13 +143,17 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onC
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
     columnKey: 'selected',
   });
+
   const handlePrintConfirm = () => {
-    console.log('selected', selectedRows);
     setIsOpen(true);
   };
 
   if (isLoading) {
-    return 'loading...';
+    return (
+      <Box display="flex" flexDirection="column" minHeight={400}>
+        <ModalLoader />
+      </Box>
+    );
   }
 
   // All the lab requests were made in a batch and have the same details
@@ -183,18 +188,15 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onC
         allowExport={false}
       />
       <Actions>
-        {/* Todo: add print label action in WAITM-659*/}
-        {/*<OutlinedButton size="small">Print label</OutlinedButton>*/}
-        {/* Todo: add print action */}
-        {/*<OutlinedButton size="small" onClick={handlePrintConfirm}>*/}
-        {/*  Print request*/}
-        {/*</OutlinedButton>*/}
-        {/*<MultipleLabRequestsPrintoutModal*/}
-        {/*  encounter={encounter}*/}
-        {/*  labRequests={labRequests}*/}
-        {/*  open={isOpen}*/}
-        {/*  onClose={() => setIsOpen(false)}*/}
-        {/*/>*/}
+        <OutlinedButton size="small" onClick={handlePrintConfirm}>
+          Print request
+        </OutlinedButton>
+        <MultipleLabRequestsPrintoutModal
+          encounter={encounter}
+          labRequests={selectedRows}
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
       </Actions>
       <FormSeparatorLine />
       <Box display="flex" justifyContent="flex-end" pt={3}>
