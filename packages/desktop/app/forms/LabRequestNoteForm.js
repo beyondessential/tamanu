@@ -70,7 +70,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const queryClient = useQueryClient();
   const [active, setActive] = useState(false);
 
-  const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId], () =>
+  const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>
     api.get(`labRequest/${labRequestId}/notes`),
   );
 
@@ -86,7 +86,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       onSuccess: (responseData, { formProps }) => {
         setActive(false);
         formProps.resetForm();
-        queryClient.invalidateQueries(['labRequest', labRequestId]);
+        queryClient.invalidateQueries(['labRequest', labRequestId, 'notes']);
       },
     },
   );
@@ -116,7 +116,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />
-                  <TextButton type="submit" disabled={formSubmitIsDisabled}>
+                  <TextButton type="submit" $underline disabled={formSubmitIsDisabled}>
                     Save
                   </TextButton>
                   <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
