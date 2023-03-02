@@ -10,7 +10,7 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
-import { DropdownButton } from '../../../components/DropdownButton';
+import { LargeButton, LargeOutlineButton } from '../../../components/Button';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
 const OuterContainer = styled.div`
@@ -91,24 +91,24 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
       />
     )}
     <ButtonRow>
-      <DropdownButton
+      <LargeOutlineButton
         disabled={isSubmitting}
         size="large"
-        actions={[
-          {
-            label: 'Test import',
-            onClick: event => {
-              submitForm(event, { dryRun: true });
-            },
-          },
-          {
-            label: 'Import',
-            onClick: event => {
-              submitForm(event);
-            },
-          },
-        ]}
-      />
+        onClick={event => {
+          submitForm(event, { dryRun: true });
+        }}
+      >
+        Test import
+      </LargeOutlineButton>
+      <LargeButton
+        disabled={isSubmitting}
+        size="large"
+        onClick={event => {
+          submitForm(event);
+        }}
+      >
+        Import
+      </LargeButton>
     </ButtonRow>
   </FormGrid>
 );
