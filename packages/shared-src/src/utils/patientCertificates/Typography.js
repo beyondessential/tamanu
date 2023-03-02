@@ -31,13 +31,15 @@ const styles = StyleSheet.create({
   },
   certificateAddress: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: '14px',
+    fontSize: 14,
+    marginRight: 18,
   },
   certificateTitle: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: '18px',
+    fontSize: 18,
     textAlign: 'right',
-    marginBottom: '14px',
+    marginBottom: 14,
+    marginRight: 18,
   },
 });
 

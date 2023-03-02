@@ -1,5 +1,5 @@
 import React from 'react';
-import { Logo, LetterHead, CertificateLogo } from './Layout';
+import { LetterHead, CertificateLogo } from './Layout';
 import { CertificateAddress, CertificateTitle } from './Typography';
 
 export const LetterheadSection = ({ getLocalisation, logoSrc, certificateTitle }) => {
