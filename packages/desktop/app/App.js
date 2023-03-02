@@ -9,6 +9,7 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 const AppContainer = styled.div`
   display: flex;
@@ -25,6 +26,7 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
+
   if (!isUserLoggedIn) {
     return <LoginView />;
   }
@@ -37,6 +39,7 @@ export function App({ sidebar, children }) {
           <AppContentsContainer>
             {children}
             <ForbiddenErrorModal />
+            <UserActivityMonitor />
           </AppContentsContainer>
         </ErrorBoundary>
       </PromiseErrorBoundary>
