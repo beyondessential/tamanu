@@ -28,6 +28,8 @@ export const simpleUpdateModels = [
   'DocumentMetadata',
   'CertificateNotification',
   'PatientFieldValue',
+  'DeathRevertLog',
+  'UserRecentlyViewedPatient',
 ];
 
 // These ones need a little more attention.

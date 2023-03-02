@@ -1,7 +1,7 @@
 - name: tamanu deployment
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
-  tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$)
+  tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
   steps:
     - name: copy files
       service: app-without-db
@@ -16,13 +16,25 @@
       steps:
         - name: for lan
           exclude: ^deploy-meta$
-          command: ./scripts/build_package_release.sh lan
+          type: serial
+          steps:
+            - name: build linux release
+              command: ./scripts/build_package_release.sh lan
+            - name: package windows release
+              tag: ^(master$|dev$|staging-|ci-)
+              command: ./scripts/build_server_zip.sh lan ./deploy
         - name: for desktop installer
           exclude: ^deploy-meta$
           command: ./scripts/build_desktop.sh build-only
         - name: for sync release
           exclude: ^deploy-meta$
-          command: ./scripts/build_package_release.sh sync-server
+          type: serial
+          steps:
+            - name: build linux release
+              command: ./scripts/build_package_release.sh sync-server
+            - name: package windows release
+              tag: ^(master$|dev$|staging-|ci-)
+              command: ./scripts/build_server_zip.sh sync-server ./deploy
         - name: for meta release
           tag: ^(dev$|deploy-meta$|master$|ci-)
           command: ./scripts/build_package_release.sh meta-server
@@ -56,7 +68,7 @@
               tag: ^(staging-)
               command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
             - name: onto nauru demo
-              tag: ^(master$)
+              tag: ^(deploy-nauru-demo$)
               command: ./scripts/deploy_sync.sh nauru-demo tamanu-central-server-nauru-demo
             - name: onto klaus
               tag: ^(klaus-)
@@ -96,6 +108,9 @@
             - name: onto da A
               tag: ^(da-)
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
+            - name: onto da B
+              tag: ^(da-)
+              command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-b
             - name: onto uat
               tag: ^uat-
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
@@ -112,10 +127,10 @@
               tag: ^(staging-)
               command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
             - name: onto nauru demo
-              tag: ^(master$)
+              tag: ^(deploy-nauru-demo$)
               command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo
             - name: onto nauru demo 2
-              tag: ^(master$)
+              tag: ^(deploy-nauru-demo$)
               command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo-2
         - name: the meta server
           service: awsdeployment
@@ -127,15 +142,6 @@
             - name: onto prod
               tag: ^(master|deploy-meta)$
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
-        - name: package server zips
-          tag: ^(master$|dev$|staging-|ci-)
-          service: app-without-db
-          type: serial
-          steps:
-            - name: build central server zip
-              command: ./scripts/build_server_zip.sh sync-server ./deploy
-            - name: build facility server zip
-              command: ./scripts/build_server_zip.sh lan ./deploy
         - name: upload all artefacts to s3
           exclude: ^(release-desktop-|deploy-meta$)
           service: awsdeployment

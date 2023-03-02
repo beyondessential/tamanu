@@ -46,6 +46,7 @@ reports.get(
         id: version.id,
         name: r.name,
         dataSourceOptions: version.queryOptions.dataSources,
+        filterDateRangeAsStrings: true,
         dateRangeLabel:
           version.queryOptions.dateRangeLabel ||
           REPORT_DATE_RANGE_LABELS[version.queryOptions.defaultDateRange],

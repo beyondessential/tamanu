@@ -167,6 +167,93 @@ describe('Encounter', () => {
       ).toBe(true);
     });
 
+    it('Should not include lab requests with a status of deleted or entered in error', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.CANCELLED,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.DELETED,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        })),
+      });
+
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(3);
+      expect(result.body.data.length).toEqual(3);
+    });
+
+    it('should get the correct count for a list of lab requests', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest1 = await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+
+      // Ensure that the count of results is correct even if Lab Lab Requests have many LabTests
+      // to ensure that count is not flattening the count results
+      await models.LabTest.create({
+        labRequestId: labRequest1.id,
+      });
+      await models.LabTest.create({
+        labRequestId: labRequest1.id,
+      });
+      await models.LabTest.create({
+        labRequestId: labRequest1.id,
+      });
+
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(2);
+      expect(result.body.data.length).toEqual(2);
+    });
+
     it('should get a list of lab requests filtered by status query parameter', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
@@ -476,6 +563,7 @@ describe('Encounter', () => {
         const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('triage') && x.content.includes('admission');
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should fail to change encounter type to an invalid type', async () => {
@@ -513,6 +601,7 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should change encounter location and add a note', async () => {
@@ -534,6 +623,7 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should include comma separated location_group and location name in created note on updating encounter location', async () => {
@@ -599,6 +689,7 @@ describe('Encounter', () => {
         expect(noteItems[0].content).toEqual(
           `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
         );
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should discharge a patient', async () => {
@@ -637,6 +728,7 @@ describe('Encounter', () => {
         const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('Discharged');
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should only update medications marked for discharge', async () => {

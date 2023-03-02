@@ -61,14 +61,6 @@ export const ProcedureForm = React.memo(
                 </div>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
-                    locationGroupLabel="Procedure area"
-                    label="Procedure location"
-                    name="locationId"
-                    enableLocationStatus={false}
-                    required
-                    component={LocationField}
-                  />
-                  <Field
                     name="physicianId"
                     label="Clinician"
                     required
@@ -81,6 +73,14 @@ export const ProcedureForm = React.memo(
                     saveDateAsString
                     required
                     component={DateField}
+                  />
+                  <Field
+                    locationGroupLabel="Procedure area"
+                    label="Procedure location"
+                    name="locationId"
+                    enableLocationStatus={false}
+                    required
+                    component={LocationField}
                   />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>

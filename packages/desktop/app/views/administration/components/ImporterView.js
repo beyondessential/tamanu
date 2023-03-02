@@ -6,11 +6,11 @@ import * as yup from 'yup';
 import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
-import { SelectOrSelectAllField } from '../../../components/Field/SelectOrSelectAllField';
+import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
-import { DropdownButton } from '../../../components/DropdownButton';
+import { LargeButton, LargeOutlineButton } from '../../../components/Button';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -66,29 +66,29 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
       <Field
         name="includedDataTypes"
         label="Select data types to import"
-        component={SelectOrSelectAllField}
+        component={ExpandedMultiSelectField}
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
     <ButtonRow>
-      <DropdownButton
+      <LargeOutlineButton
         disabled={isSubmitting}
         size="large"
-        actions={[
-          {
-            label: 'Test import',
-            onClick: event => {
-              submitForm(event, { dryRun: true });
-            },
-          },
-          {
-            label: 'Import',
-            onClick: event => {
-              submitForm(event);
-            },
-          },
-        ]}
-      />
+        onClick={event => {
+          submitForm(event, { dryRun: true });
+        }}
+      >
+        Test import
+      </LargeOutlineButton>
+      <LargeButton
+        disabled={isSubmitting}
+        size="large"
+        onClick={event => {
+          submitForm(event);
+        }}
+      >
+        Import
+      </LargeButton>
     </ButtonRow>
   </FormGrid>
 );
@@ -194,11 +194,13 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
         key={resetKey}
         onSubmit={onSubmitUpload}
         validationSchema={yup.object().shape({
-          includedDataTypes: yup
-            .array()
-            .of(yup.string())
-            .required()
-            .min(1),
+          includedDataTypes: dataTypesSelectable
+            ? yup
+                .array()
+                .of(yup.string())
+                .required()
+                .min(1)
+            : undefined,
           file: yup.string().required(),
         })}
         initialValues={{
