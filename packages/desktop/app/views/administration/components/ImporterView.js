@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
-import { SelectOrSelectAllField } from '../../../components/Field/SelectOrSelectAllField';
+import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
@@ -86,7 +86,7 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
       <Field
         name="includedDataTypes"
         label="Select data types to import"
-        component={SelectOrSelectAllField}
+        component={ExpandedMultiSelectField}
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}

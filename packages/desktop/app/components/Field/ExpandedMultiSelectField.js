@@ -28,7 +28,7 @@ const OptionsContainer = styled.div`
   border-top: 1px solid #ccc;
 `;
 
-export const SelectOrSelectAllField = ({
+export const ExpandedMultiSelectField = ({
   options,
   field,
   label,
