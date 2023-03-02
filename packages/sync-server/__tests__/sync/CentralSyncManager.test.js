@@ -777,6 +777,7 @@ describe('CentralSyncManager', () => {
         });
       });
     });
+  });
     
   describe('setupSnapshotForPull', () => {
     it.todo('all');
