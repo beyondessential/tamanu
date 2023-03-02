@@ -6,7 +6,7 @@ import { TableButtonRow, Button } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TabPane } from '../components';
 
-export const EncounterProgramsPane = React.memo((props) => {
+export const EncounterProgramsPane = React.memo(props => {
   const dispatch = useDispatch();
   const params = useParams();
 
