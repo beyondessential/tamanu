@@ -72,6 +72,7 @@ export * from './Appointment';
 export * from './DocumentMetadata';
 
 export * from './OneTimeLogin';
+export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
 
