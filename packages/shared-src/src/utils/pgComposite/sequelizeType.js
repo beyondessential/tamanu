@@ -18,22 +18,22 @@ export class Composite {
     const withoutNulls = Object.fromEntries(
       Object.entries(params).filter(([, value]) => value !== null && value !== undefined),
     );
-    this.params = this.constructor.SCHEMA().validateSync(withoutNulls);
+    const validatedParams = this.constructor.SCHEMA().validateSync(withoutNulls);
 
-    for (const name of Object.keys(this.params)) {
+    for (const [name, value] of Object.entries(validatedParams)) {
       // exclude phantom fields (used only for advanced yup validations)
-      if (name.startsWith('_')) {
-        delete this.params[name];
+      if (name.startsWith('_') === false) {
+        this[name] = value;
       }
     }
   }
 
   sqlFields() {
-    return this.constructor.FIELD_ORDER.map(name => this.params[name]);
+    return this.constructor.FIELD_ORDER.map(name => this[name]);
   }
 
   asFhir() {
-    return objectAsFhir(this.params);
+    return objectAsFhir(this);
   }
 
   /**
