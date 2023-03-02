@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { constructPermission } from 'shared/permissions/middleware';
-import { loginHandler, authMiddleware } from '../../middleware/auth';
+import { loginHandler, refreshHandler, authMiddleware } from '../../middleware/auth';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -55,6 +55,7 @@ apiv1.use('/changePassword', changePassword);
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 
+apiv1.post('/refresh', refreshHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics

@@ -13,6 +13,7 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 import { FORM_STATUSES } from '/helpers/constants';
+import { GenericFormValues } from '~/models/Forms';
 
 interface UseScrollToFirstError {
   setQuestionPosition: (yPosition: string) => void;
@@ -56,10 +57,14 @@ interface FormFieldsProps {
   note: string;
 }
 
-export const FormFields = ({ components, note, patient }: FormFieldsProps): ReactElement => {
+export const FormFields = ({
+  components,
+  note,
+  patient,
+}: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
-  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext();
+  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<GenericFormValues>();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
 
   const maxIndex = components

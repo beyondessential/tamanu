@@ -406,6 +406,15 @@ const rootLocalisationSchema = yup
         enableCovidClearanceCertificate: yup.boolean().required(),
         editDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
+        idleTimeout: yup
+          .object()
+          .shape({
+            enabled: yup.boolean().required(),
+            timeoutDuration: yup.number().required(),
+            warningPromptDuration: yup.number().required(),
+            refreshInterval: yup.number().required(),
+          })
+          .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
       })
       .required()
