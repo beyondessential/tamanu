@@ -58,6 +58,13 @@ export async function up(query) {
             TYPE JSONB
               USING to_json(${columnName})::jsonb
       `);
+      if (isFhirTypeArray(columnType)) {
+        await query.sequelize.query(`
+          ALTER TABLE fhir.${tableName}
+            ALTER COLUMN ${columnName}
+              SET DEFAULT '[]'::jsonb
+        `);
+      }
     }
   }
 
