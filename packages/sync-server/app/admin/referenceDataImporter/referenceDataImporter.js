@@ -12,7 +12,13 @@ import DEPENDENCIES from './dependencies';
 
 export const PERMISSIONS = ['Permission', 'Role', 'User', 'ReferenceData'];
 
-export async function refDataImporter({ errors, models, stats, file, includedDataTypes = [] }) {
+export async function referenceDataImporter({
+  errors,
+  models,
+  stats,
+  file,
+  includedDataTypes = [],
+}) {
   log.info('Importing data definitions from file', { file });
 
   log.debug('Parse XLSX workbook');

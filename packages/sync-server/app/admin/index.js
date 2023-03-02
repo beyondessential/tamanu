@@ -6,7 +6,7 @@ import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter, PERMISSIONS as PROGRAM_PERMISSIONS } from './programImporter';
-import { refDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './refDataImporter';
+import { referenceDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './referenceDataImporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
@@ -58,7 +58,7 @@ adminRoutes.get(
 
 adminRoutes.post(
   '/import/refData',
-  createDataImporterEndpoint(refDataImporter, REFDATA_PERMISSIONS),
+  createDataImporterEndpoint(referenceDataImporter, REFDATA_PERMISSIONS),
 );
 
 adminRoutes.post(

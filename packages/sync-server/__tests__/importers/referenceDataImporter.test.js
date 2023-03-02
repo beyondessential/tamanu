@@ -1,5 +1,5 @@
 import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { refDataImporter } from '../../app/admin/refDataImporter';
+import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 
@@ -22,7 +22,7 @@ describe('Data definition import', () => {
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
-      refDataImporter,
+      referenceDataImporter,
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
       ...opts,
