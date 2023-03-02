@@ -29,12 +29,6 @@ const Card = styled(Box)`
 `;
 
 const CardTable = styled(Table)`
-  //background: white;
-  //border-radius: 5px;
-  // border: 1px solid ${Colors.outline};
-  //padding: 20px 10px;
-  //display: flex;
-  //align-items: flex-start;
   margin-top: 10px;
   margin-left: 40px;
 
