@@ -222,11 +222,13 @@ export const ImporterView = memo(({ endpoint, title, dataTypes, dataTypesSelecta
           key={resetKey}
           onSubmit={onSubmitUpload}
           validationSchema={yup.object().shape({
-            includedDataTypes: yup
-              .array()
-              .of(yup.string())
-              .required()
-              .min(1),
+            includedDataTypes: dataTypesSelectable
+              ? yup
+                  .array()
+                  .of(yup.string())
+                  .required()
+                  .min(1)
+              : undefined,
             file: yup.string().required(),
           })}
           initialValues={{

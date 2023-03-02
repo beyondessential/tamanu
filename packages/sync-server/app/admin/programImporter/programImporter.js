@@ -8,7 +8,7 @@ import { importSurvey } from './importSurvey';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export async function importer({ errors, models, stats, file, whitelist = [] }) {
+export async function programImporter({ errors, models, stats, file, whitelist = [] }) {
   const createContext = sheetName => ({
     errors,
     log: log.child({
