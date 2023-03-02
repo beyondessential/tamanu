@@ -112,15 +112,14 @@ const COLUMNS = [
 
 const combineQueries = queries => {
   return {
-    isLoading: !!queries.find(q => q.isLoading),
-    isFetching: !!queries.find(q => q.isFetching),
-
-    // How to do opposite for success
-    isSuccess: !!queries.find(q => q.isSuccess),
+    isLoading: queries.some(q => q.isLoading),
+    isFetching: queries.some(q => q.isFetching),
+    isSuccess: queries.every(q => q.isSuccess),
     error: queries.find(q => q.error)?.error ?? null,
-    data: queries.reduce((accumulator, query) => {
-      return query.data ? [...accumulator, query.data] : accumulator;
-    }, []),
+    data: queries.reduce(
+      (accumulator, query) => (query.data ? [...accumulator, query.data] : accumulator),
+      [],
+    ),
   };
 };
 
@@ -139,9 +138,7 @@ const useLabRequests = labRequestIds => {
 
 export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const queries = useLabRequests(labRequestIds);
-  const { isLoading, error, data: labRequests } = queries;
-
+  const { isLoading, error, data: labRequests } = useLabRequests(labRequestIds);
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
     columnKey: 'selected',
   });
@@ -154,6 +151,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onC
     return 'loading...';
   }
 
+  // All the lab requests were made in a batch and have the same details
   const { sampleTime, requestedDate, requestedBy, department, priority, site } = labRequests[0];
 
   return (

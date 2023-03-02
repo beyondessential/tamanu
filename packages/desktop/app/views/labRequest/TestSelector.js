@@ -140,7 +140,7 @@ const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
 export const TestSelectorInput = ({
   name,
   label,
-  testTypes = [],
+  testTypes,
   value,
   requestFormType,
   isLoading,

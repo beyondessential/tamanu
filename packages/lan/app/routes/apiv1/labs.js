@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { Op, QueryTypes, fn, col } from 'sequelize';
+import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
@@ -56,7 +56,10 @@ labRequest.post(
     }
 
     const categories = await models.LabTestType.findAll({
-      attributes: [[fn('array_agg', col('id')), 'lab_test_type_ids'], 'lab_test_category_id'],
+      attributes: [
+        [Sequelize.fn('array_agg', Sequelize.col('id')), 'lab_test_type_ids'],
+        'lab_test_category_id',
+      ],
       where: {
         id: {
           [Op.in]: labTestTypeIds,
@@ -73,14 +76,14 @@ labRequest.post(
           labTestCategoryId: category.get('lab_test_category_id'),
         };
 
-        const object = await models.LabRequest.createWithTests(labRequestData);
+        const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
         if (note) {
-          const notePage = await object.createNotePage({
+          const notePage = await newLabRequest.createNotePage({
             noteType: NOTE_TYPES.OTHER,
           });
           await notePage.createNoteItem({ content: note });
         }
-        return object;
+        return newLabRequest;
       }),
     );
 
