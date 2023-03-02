@@ -36,6 +36,7 @@ export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './LabTestPanel';
+export * from './LabPanelRequest';
 export * from './LabTestPanelLabTestTypes';
 export * from './ImagingRequest';
 export * from './ImagingRequestArea';

@@ -118,6 +118,11 @@ export class LabRequest extends Model {
       as: 'laboratory',
     });
 
+    this.hasMany(models.LabPanelRequest, {
+      foreignKey: 'labPanelRequestId',
+      as: 'panelRequest',
+    });
+
     this.hasMany(models.LabTest, {
       foreignKey: 'labRequestId',
       as: 'tests',
@@ -144,8 +149,10 @@ export class LabRequest extends Model {
       'requestedBy',
       'category',
       'priority',
+      'panelRequest',
       'laboratory',
       'site',
+      { association: 'panelRequest', include: ['panel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
   }
