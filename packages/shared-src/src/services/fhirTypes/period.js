@@ -13,11 +13,11 @@ export class FhirPeriod extends Composite {
     return yup
       .object({
         start: yup
-          .date()
+          .string()
           .nullable()
           .default(null),
         end: yup
-          .date()
+          .string()
           .when('start', (start, schema) =>
             start
               ? schema.test(
@@ -49,8 +49,8 @@ export class FhirPeriod extends Composite {
     const start = end - random(0, end);
 
     return new this({
-      start: new Date(start),
-      end: new Date(end),
+      start: formatDateTime(new Date(start), FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      end: formatDateTime(new Date(end), FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
     });
   }
 }
