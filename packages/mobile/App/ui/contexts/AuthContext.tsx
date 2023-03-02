@@ -16,10 +16,11 @@ import { withAuth } from '~/ui/containers/Auth';
 import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { IUser, SyncConnectionParameters } from '~/types';
+import { CentralConnectionStatus, IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
+import { User } from '~/models/User';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -30,8 +31,11 @@ interface AuthContextData {
   ability: PureAbility;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
+  reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
+  signOutClient: (signedOutFromInactivity: boolean) => void;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
+  setCentralConnectionStatus: (status: CentralConnectionStatus) => void;
   checkFirstSession: () => boolean;
   requestResetPassword: (params: ResetPasswordFormModel) => void;
   resetPasswordLastEmailUsed: string;
@@ -42,8 +46,10 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 const Provider = ({
   setToken,
+  setRefreshToken,
   setUser,
   setSignedInStatus,
+  setCentralConnectionStatus,
   children,
   signOutUser,
   navRef,
@@ -51,9 +57,10 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const backend = useContext(BackendContext);
   const checkFirstSession = (): boolean => props.isFirstTime;
-  const [user, setUserData] = useState();
+  const [user, setUserData] = useState<User>();
   const [ability, setAbility] = useState(null);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
+  const [preventSignOutOnFailure, setPreventSignOutOnFailure] = useState(false);
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -81,9 +88,22 @@ const Provider = ({
     signInAs(usr);
   };
 
+  const reconnectWithPassword = async (params: ReconnectWithPasswordParameters): Promise<void> => {
+    const serverLocation = await readConfig('syncServerLocation');
+    const payload = {
+      email: user?.email,
+      server: serverLocation,
+      password: params.password,
+    };
+    setPreventSignOutOnFailure(true);
+
+    await remoteSignIn(payload);
+  };
+
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user: usr, token } = await backend.auth.remoteSignIn(params);
+    const { user: usr, token, refreshToken } = await backend.auth.remoteSignIn(params);
     setToken(token);
+    setRefreshToken(refreshToken);
     signInAs(usr);
   };
 
@@ -105,6 +125,12 @@ const Provider = ({
   const signOut = (): void => {
     backend.stopSyncService(); // we deliberately don't await this
     signOutUser();
+    signOutClient(false);
+  };
+
+  // Sign out UI while preserving sync service
+  const signOutClient = (signedOutFromInactivity: boolean): void => {
+    setSignedInStatus(false);
     const currentRoute = navRef.current?.getCurrentRoute().name;
     const signUpRoutes = [
       Routes.SignUpStack.Index,
@@ -114,7 +140,12 @@ const Provider = ({
     if (!signUpRoutes.includes(currentRoute)) {
       navRef.current?.reset({
         index: 0,
-        routes: [{ name: Routes.SignUpStack.Index }],
+        routes: [{
+          name: Routes.SignUpStack.Index,
+          params: {
+            signedOutFromInactivity,
+          },
+        }],
       });
     }
   };
@@ -130,9 +161,12 @@ const Provider = ({
 
   // start a session if there's a stored token
   useEffect(() => {
+
     if (props.token && props.user) {
-      backend.auth.startSession(props.token);
+      backend.auth.startSession(props.token, props.refreshToken);
+      setCentralConnectionStatus(CentralConnectionStatus.Connected);
     } else {
+      setCentralConnectionStatus(CentralConnectionStatus.Disconnected);
       backend.auth.endSession();
     }
   }, [backend, props.token, props.user]);
@@ -144,24 +178,38 @@ const Provider = ({
     }
   }, []);
 
-  // sign user out if an auth error was thrown
+  // Sign user out if an auth error was thrown
+  // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
-    const handler = (err: Error): void => {
-      console.log(`signing out user with token ${props.token}: received auth error:`, err);
-      signOut();
+    const errHandler = (err: Error): void => {
+      if (preventSignOutOnFailure) {
+        // reset flag to prevent sign out being
+        // skipped on subsequent failed authentications
+        setPreventSignOutOnFailure(true)
+      } else {
+        signOut();
+      }
     };
-    backend.auth.emitter.on('authError', handler);
+    const centralStatusChangeHandler = (status: CentralConnectionStatus) => {
+      setCentralConnectionStatus(status)
+    }
+    backend.auth.emitter.on('authError', errHandler);
+    backend.auth.emitter.on('centralConnectionStatusChange', centralStatusChangeHandler)
     return () => {
-      backend.auth.emitter.off('authError', handler);
+      backend.auth.emitter.off('authError', errHandler);
+      backend.auth.emitter.off('centralConnectionStatusChange', centralStatusChangeHandler)
     };
-  }, [backend, props.token]);
+  }, [backend, props.token, preventSignOutOnFailure]);
 
   return (
     <AuthContext.Provider
       value={{
         setUserFirstSignIn,
+        setCentralConnectionStatus,
         signIn,
         signOut,
+        reconnectWithPassword,
+        signOutClient,
         isUserAuthenticated,
         checkFirstSession,
         user,
