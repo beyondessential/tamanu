@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
-export class LabPanelRequest extends Model {
+export class LabTestPanelRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -16,7 +16,7 @@ export class LabPanelRequest extends Model {
 
   static initRelations(models) {
     this.hasMany(models.LabRequest, {
-      foreignKey: 'labPanelRequestId',
+      foreignKey: 'labTestPanelRequestId',
       as: 'labRequests',
     });
     this.belongsTo(models.Encounter, {
@@ -25,7 +25,7 @@ export class LabPanelRequest extends Model {
     });
     this.belongsTo(models.LabTestPanel, {
       foreignKey: 'labTestPanelId',
-      as: 'panel',
+      as: 'labTestPanel',
     });
   }
 }
