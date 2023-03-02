@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Logo } from './Layout';
-import { H1, H2 } from './Typography';
+import { Logo, LetterHead } from './Layout';
+import { H3 } from './Typography';
 
 export const LetterheadSection = ({ getLocalisation, logoSrc }) => {
   const title = getLocalisation('templates.letterhead.title');
@@ -8,16 +8,10 @@ export const LetterheadSection = ({ getLocalisation, logoSrc }) => {
   return (
     <>
       {logoSrc && <Logo logoSrc={logoSrc} />}
-      <Box
-        style={{
-          maxWidth: 400,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}
-      >
-        <H1>{title}</H1>
-        <H2>{subTitle}</H2>
-      </Box>
+      <LetterHead>
+        <H3>{subTitle}</H3>
+        <H3>{title}</H3>
+      </LetterHead>
     </>
   );
 };
