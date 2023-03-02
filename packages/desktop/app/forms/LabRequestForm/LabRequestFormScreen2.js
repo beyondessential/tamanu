@@ -7,7 +7,7 @@ import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 
 export const screen2ValidationSchema = yup.object().shape({
-  labTestIds: yup
+  labTestTypeIds: yup
     .array()
     .of(yup.string())
     .required(),
@@ -27,7 +27,7 @@ export const LabRequestFormScreen2 = props => {
     <>
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
-          name="labTestIds"
+          name="labTestTypeIds"
           label={`Select the test ${
             requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? 'panel' : 'category'
           }`}
@@ -35,6 +35,7 @@ export const LabRequestFormScreen2 = props => {
           requestFormType={requestFormType}
           testTypes={testTypesData}
           isLoading={isLoading}
+          required
           {...props}
         />
       </div>

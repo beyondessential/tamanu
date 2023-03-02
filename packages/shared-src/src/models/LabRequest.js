@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { generateDisplayId } from '../utils/generateDisplayId';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -46,6 +46,9 @@ export class LabRequest extends Model {
         displayId: {
           type: Sequelize.STRING,
           allowNull: false,
+          defaultValue() {
+            return generateDisplayId();
+          },
         },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },

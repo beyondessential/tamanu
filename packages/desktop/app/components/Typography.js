@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import { Typography as MuiTypography } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { Colors } from '../constants';
 
-const Typography = styled(MuiTypography)`
+const Typography = styled(Box)`
   color: ${({ color }) => (color === 'textTertiary' ? Colors.midText : null)};
 `;
 
@@ -25,4 +25,16 @@ export const Heading2 = styled(Typography)`
   font-weight: 500;
   font-size: 20px;
   line-height: 28px;
+`;
+
+export const Heading3 = styled(Typography)`
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+`;
+
+export const Heading4 = styled(Typography)`
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 21px;
 `;

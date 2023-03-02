@@ -68,7 +68,7 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) =
               )}
               <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
               <Button disabled={props.isSubmitting} type="submit">
-                {isLastStep ? 'Submit' : 'Next'}
+                {step.props.submitButtonText || 'Next'}
               </Button>
             </ButtonRow>
           </FormGrid>
