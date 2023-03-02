@@ -40,8 +40,15 @@ describe('Patients import', () => {
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
-      Patient: { created: 1, updated: 0, errored: 0 },
-      PatientAdditionalData: { created: 1, updated: 0, errored: 0 },
+      Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
+      PatientAdditionalData: {
+        created: 1,
+        updated: 0,
+        errored: 0,
+        deleted: 0,
+        restored: 0,
+        skipped: 0,
+      },
     });
   });
 
@@ -97,8 +104,15 @@ describe('Patients import', () => {
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
-      Patient: { created: 1, updated: 0, errored: 0 },
-      PatientAdditionalData: { created: 1, updated: 0, errored: 0 },
+      Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
+      PatientAdditionalData: {
+        created: 1,
+        updated: 0,
+        errored: 0,
+        deleted: 0,
+        restored: 0,
+        skipped: 0,
+      },
     });
   });
 
@@ -111,7 +125,7 @@ describe('Patients import', () => {
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
-      Patient: { created: 1, updated: 0, errored: 0 },
+      Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
     });
   });
 
@@ -124,7 +138,7 @@ describe('Patients import', () => {
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
-      Patient: { created: 1, updated: 0, errored: 0 },
+      Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
     });
   });
 });

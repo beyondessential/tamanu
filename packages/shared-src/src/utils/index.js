@@ -13,3 +13,4 @@ export * from './uvci';
 export * from './valueIndex';
 export * from './withConfig';
 export * from './dischargeOutpatientEncounters';
+export * from './getCovidClearanceCertificateFilter';
