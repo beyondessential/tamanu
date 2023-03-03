@@ -186,7 +186,7 @@ const COLUMNS = {
     },
     {
       key: 'procedureDate',
-      title: 'Procedure Date',
+      title: 'Procedure date',
       accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
       style: { width: '20%' },
     },
@@ -195,28 +195,28 @@ const COLUMNS = {
   labRequests: [
     {
       key: 'testType',
-      title: 'Test Type',
+      title: 'Test type',
       style: { width: '20%' },
     },
     {
       key: 'testCategory',
-      title: 'Test Category',
+      title: 'Test category',
       style: { width: '20%' },
     },
     {
       key: 'requestingClinician',
-      title: 'Requesting Clinician',
+      title: 'Requesting clinician',
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
-      title: 'Request Date',
+      title: 'Request date',
       accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
-      title: 'Completed Date',
+      title: 'Completed date',
       accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate /> || {},
       style: { width: '20%' },
     },
@@ -237,19 +237,19 @@ const COLUMNS = {
     },
     {
       key: 'requestingClinician',
-      title: 'Requesting Clinician',
+      title: 'Requesting clinician',
       accessor: ({ requestedBy }) => requestedBy?.displayName,
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
-      title: 'Request Date',
+      title: 'Request date',
       accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate />,
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
-      title: 'Completed Date',
+      title: 'Completed date',
       accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="completedDate" />,
       style: { width: '20%' },
     },
@@ -282,7 +282,7 @@ const COLUMNS = {
     },
     {
       key: 'prescriptionDate',
-      title: 'Prescription Date',
+      title: 'Prescription date',
       accessor: ({ date }) => <DateDisplay date={date} showDate />,
       style: { width: '20%' },
     },
