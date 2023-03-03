@@ -54,6 +54,7 @@ export const makeCovidVaccineCertificate = async (
 
   try {
     const vaccinations = await patient.getAdministeredVaccines();
+    const certifiableVaccines = vaccinations.filter(vaccine => vaccine.certifiable);
     const additionalData = await models.PatientAdditionalData.findOne({
       where: { patientId: patient.id },
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
@@ -65,7 +66,7 @@ export const makeCovidVaccineCertificate = async (
         patient={patientData}
         printedBy={printedBy}
         uvci={uvci}
-        vaccinations={vaccinations}
+        vaccinations={certifiableVaccines}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
         logoSrc={logo?.data}
