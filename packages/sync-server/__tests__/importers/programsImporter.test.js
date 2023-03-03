@@ -182,7 +182,7 @@ describe('Programs import', () => {
       expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
     });
 
-    it.only('Should import a valid vitals survey', async () => {
+    it('Should import a valid vitals survey', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'vitals-valid',
         dryRun: true,
