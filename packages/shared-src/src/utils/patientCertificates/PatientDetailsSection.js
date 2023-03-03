@@ -31,7 +31,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
             const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
             return (
-              <Col style={{ width: '33%', padding: '0 15px' }} key={key}>
+              <Col style={{ width: '33%' }} key={key}>
                 <P mb={6}>
                   <P bold>{label}:</P> {value}
                 </P>

@@ -31,16 +31,16 @@ const styles = StyleSheet.create({
   },
   certificateAddress: {
     fontFamily: 'Helvetica-Bold',
+    textAlign: 'right',
     fontSize: 14,
-    marginRight: 18,
+    marginBottom: 13,
   },
   certificateTitle: {
     fontFamily: 'Helvetica-Bold',
     fontSize: 18,
     textAlign: 'right',
-    marginBottom: 14,
-    marginRight: 18,
     color: '#444444',
+    marginBottom: 14,
   },
 });
 

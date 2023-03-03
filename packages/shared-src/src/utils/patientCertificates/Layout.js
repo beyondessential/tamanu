@@ -64,16 +64,18 @@ export const styles = StyleSheet.create({
     left: -30,
     width: 140,
   },
-  letterhead: {
-    textAlign: 'right',
-    marginBottom: 13,
-  },
   certificateLogo: {
     position: 'absolute',
-    top: 26,
-    left: 60,
+    top: 0,
+    left: 0,
     height: 'auto',
     width: 66,
+  },
+  certificateHeader: {
+    margin: '0 18px',
+  },
+  certificateFooter: {
+    margin: '0 18px',
   },
 });
 
@@ -107,8 +109,9 @@ export const Logo = ({ logoSrc }) => <Image src={logoSrc} style={styles.logo} ca
 
 export const VDSImage = ({ src }) => <Image src={src} style={styles.vds} />;
 
-export const LetterHead = props => <View style={styles.letterhead} {...props} />;
-
 export const CertificateLogo = ({ logoSrc }) => (
   <Image src={logoSrc} style={styles.certificateLogo} cache={false} />
 );
+
+export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
+export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;

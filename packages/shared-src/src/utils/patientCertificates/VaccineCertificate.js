@@ -2,7 +2,7 @@ import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 
 import { Table } from './Table';
-import { styles, Col, Box, Row, Watermark } from './Layout';
+import { styles, Col, Box, Row, Watermark, CertificateHeader, CertificateFooter } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { P } from './Typography';
@@ -78,41 +78,45 @@ export const VaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection
-          getLocalisation={getLocalisation}
-          logoSrc={logoSrc}
-          certificateTitle="Vaccination Certificate"
-        />
-        <PatientDetailsSection
-          patient={patient}
-          getLocalisation={getLocalisation}
-          certificateId={certificateId}
-          extraFields={extraPatientFields}
-        />
+        <CertificateHeader>
+          <LetterheadSection
+            getLocalisation={getLocalisation}
+            logoSrc={logoSrc}
+            certificateTitle="Vaccination Certificate"
+          />
+          <PatientDetailsSection
+            patient={patient}
+            getLocalisation={getLocalisation}
+            certificateId={certificateId}
+            extraFields={extraPatientFields}
+          />
+        </CertificateHeader>
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />
         </Box>
-        <Box>
-          <Row>
-            <Col>
-              <P>
-                <P bold>Printed by: </P>
-                {printedBy}
-              </P>
-            </Col>
-            <Col>
-              <P>
-                <P bold>Printing date: </P>
-                {getDisplayDate(undefined, undefined, getLocalisation)}
-              </P>
-            </Col>
-          </Row>
-        </Box>
-        <SigningSection signingSrc={signingSrc} />
-        <Box>
-          {contactEmail ? <P>Email address: {contactEmail}</P> : null}
-          {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
-        </Box>
+        <CertificateFooter>
+          <Box>
+            <Row>
+              <Col>
+                <P>
+                  <P bold>Printed by: </P>
+                  {printedBy}
+                </P>
+              </Col>
+              <Col>
+                <P>
+                  <P bold>Printing date: </P>
+                  {getDisplayDate(undefined, undefined, getLocalisation)}
+                </P>
+              </Col>
+            </Row>
+          </Box>
+          <SigningSection signingSrc={signingSrc} />
+          <Box>
+            {contactEmail ? <P>Email address: {contactEmail}</P> : null}
+            {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
+          </Box>
+        </CertificateFooter>
       </Page>
     </Document>
   );

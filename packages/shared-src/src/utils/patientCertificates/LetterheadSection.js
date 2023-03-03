@@ -1,5 +1,5 @@
 import React from 'react';
-import { LetterHead, CertificateLogo } from './Layout';
+import { CertificateLogo } from './Layout';
 import { CertificateAddress, CertificateTitle } from './Typography';
 
 export const LetterheadSection = ({ getLocalisation, logoSrc, certificateTitle }) => {
@@ -8,11 +8,11 @@ export const LetterheadSection = ({ getLocalisation, logoSrc, certificateTitle }
   return (
     <>
       {logoSrc && <CertificateLogo logoSrc={logoSrc} />}
-      <LetterHead>
-        <CertificateAddress>{title}</CertificateAddress>
-        <CertificateAddress>{subTitle}</CertificateAddress>
-      </LetterHead>
-
+      <CertificateAddress>
+        {title}
+        {'\n'}
+        {subTitle}
+      </CertificateAddress>
       <CertificateTitle>{certificateTitle}</CertificateTitle>
     </>
   );
