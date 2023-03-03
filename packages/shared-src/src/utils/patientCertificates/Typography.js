@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: 14,
     marginRight: 18,
+    color: '#444444',
   },
 });
 
