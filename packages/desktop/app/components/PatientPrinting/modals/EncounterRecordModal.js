@@ -102,8 +102,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       return !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(diagnosis.certainty);
     });
 
-    console.log(encounter.diagnoses)
-    console.log(diagnoses)
+    diagnoses.sort((a, b) => {
+      if (a.isPrimary !== b.isPrimary) {
+        return a.isPrimary ? -1 : 1;
+      }
+      return new Date(a.date) - new Date(b.date);
+    });
   }
 
   const labFilterStatuses = [
