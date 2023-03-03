@@ -8,6 +8,7 @@ import {
   ICAO_DOCUMENT_TYPES,
   CERTIFICATE_NOTIFICATION_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
+  VACCINATION_CERTIFICATE
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
@@ -170,6 +171,11 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               models,
               qrData,
             );
+            break;
+
+          case VACCINATION_CERTIFICATE:
+            template = 'vaccineCertificateEmail';
+            pdf = await makeVaccineCertificate(patient, printedBy, models);
             break;
 
           default:

@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { VACCINATION_CERTIFICATE } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils/patientCertificates';
 
 import { Modal } from '../../Modal';
@@ -29,8 +29,8 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
   const createImmunisationCertificateNotification = useCallback(
     data => {
       api.post('certificateNotification', {
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
-        requireSigning: true,
+        type: VACCINATION_CERTIFICATE,
+        requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
