@@ -272,6 +272,11 @@ describe('CentralServerConnection', () => {
       expect(fetchWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/v1/${mockPath}`, {
         headers: getHeadersWithToken(mockToken),
       });
+      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
+        1,
+        'centralConnectionStatusChange',
+        CentralConnectionStatus.Disconnected,
+      )
       expect(fetchWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/v1/refresh`, {
         headers: { ...getHeadersWithToken(mockToken), 'Content-Type': 'application/json' },
         method: 'POST',
@@ -280,6 +285,12 @@ describe('CentralServerConnection', () => {
           deviceId: 'mobile-test-device-id',
         }),
       });
+
+      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
+        2,
+        'centralConnectionStatusChange',
+        CentralConnectionStatus.Connected,
+      )
       expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/v1/${mockPath}`, {
         headers: getHeadersWithToken(mockNewToken),
       });
