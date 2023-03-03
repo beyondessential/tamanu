@@ -296,6 +296,7 @@ export const EncounterRecord = React.memo(
     certificateData,
     encounterTypeHistory,
     locationHistory,
+    diagnoses,
     labRequests,
     imagingRequests,
     notes,
@@ -322,7 +323,7 @@ export const EncounterRecord = React.memo(
           <Divider />
           <RowContainer>
             <div>
-              <DisplayValue name="Full Name">
+              <DisplayValue name="Patient Name">
                 {firstName} {lastName}
               </DisplayValue>
               <LocalisedDisplayValue name="dateOfBirth">
@@ -383,10 +384,10 @@ export const EncounterRecord = React.memo(
             </>
           ) : null}
 
-          {encounter.diagnoses.length > 0 ? (
+          {diagnoses.length > 0 ? (
             <>
               <TableHeading>Diagnoses</TableHeading>
-              <CompactListTable data={encounter.diagnoses} columns={COLUMNS.diagnoses} />
+              <CompactListTable data={diagnoses} columns={COLUMNS.diagnoses} />
             </>
           ) : null}
 

@@ -3,6 +3,7 @@ import React from 'react';
 import { NOTE_TYPES } from 'shared/constants/notes';
 import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants/diagnoses';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';
@@ -94,6 +95,16 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   const padDataQuery = usePatientAdditionalData(patient?.id);
   const padData = padDataQuery.data;
+
+  let diagnoses = [];
+  if (encounter.diagnoses) {
+    diagnoses = encounter.diagnoses.filter(diagnosis => {
+      return !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(diagnosis.certainty);
+    });
+
+    console.log(encounter.diagnoses)
+    console.log(diagnoses)
+  }
 
   const labFilterStatuses = [
     LAB_REQUEST_STATUSES.CANCELLED,
@@ -254,6 +265,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
+          diagnoses={diagnoses}
           labRequests={updatedLabRequests}
           imagingRequests={updatedImagingRequests}
           notes={orderedNotes}
