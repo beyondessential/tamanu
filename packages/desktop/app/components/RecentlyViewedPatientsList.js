@@ -37,6 +37,9 @@ const Card = styled.div`
   &:hover {
     background-color: ${Colors.hoverGrey};
   }
+  &:first-child {
+    margin-left: 0;
+  }
 `;
 
 const CardList = styled.div`
@@ -105,7 +108,10 @@ const colorFromEncounterType = {
   default: '#1172D1',
 };
 
+const PATIENTS_PER_PAGE = 6;
+
 export const RecentlyViewedPatientsList = ({ encounterType }) => {
+
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -114,10 +120,11 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   const api = useApi();
 
   const { data: { data: recentlyViewedPatients } = {} } = useQuery(['recentlyViewedPatients'], () =>
-    api.get(
-      `user/recently-viewed-patients${encounterType ? `?encounterType=${encounterType}` : ''}`,
-    ),
+    api.get('user/recently-viewed-patients', { encounterType }),
   );
+
+  const pageCount = Math.floor(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
+  const changePage = (delta) => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta));
 
   const cardOnClick = useCallback(
     async patientId => {
@@ -127,70 +134,69 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
     [dispatch, navigateToPatient],
   );
 
+  if (!recentlyViewedPatients?.length) {
+    return null;
+  }
+
   return (
-    recentlyViewedPatients?.length > 0 && (
-      <>
-        <Container>
-          <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
-            <SectionLabel>Recently Viewed</SectionLabel>
-            {isExpanded ? <ExpandLess /> : <ExpandMore />}
-          </ContainerTitle>
-          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-            <CardListContainer>
-              {pageIndex > 0 ? (
-                <LeftArrowButton onClick={() => setPageIndex(0)}>
-                  <NavigateBefore />
-                </LeftArrowButton>
-              ) : (
-                <MarginDiv />
-              )}
-              <CardList>
-                {recentlyViewedPatients
-                  .slice(0 + pageIndex * 6, 6 + pageIndex * 6)
-                  .map((patient, index) => (
-                    <Card
-                      key={patient.id}
-                      onClick={() => cardOnClick(patient.id)}
-                      style={!index ? { marginLeft: 0 } : undefined}
+    <Container>
+      <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
+        <SectionLabel>Recently Viewed</SectionLabel>
+        {isExpanded ? <ExpandLess /> : <ExpandMore />}
+      </ContainerTitle>
+      <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+        <CardListContainer>
+          {pageIndex > 0 ? (
+            <LeftArrowButton onClick={() => setPageIndex(0)}>
+              <NavigateBefore />
+            </LeftArrowButton>
+          ) : (
+            <MarginDiv />
+          )}
+          <CardList>
+            {recentlyViewedPatients
+              .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
+              .map((patient, index) => (
+                <Card
+                  key={patient.id}
+                  onClick={() => cardOnClick(patient.id)}
+                >
+                  <EncounterTypeIndicator
+                    style={{
+                      backgroundColor:
+                        colorFromEncounterType[patient.encounter_type || 'default'] ||
+                        colorFromEncounterType.default,
+                    }}
+                  />
+                  <div>
+                    <CardTitle
+                      style={{
+                        color:
+                          colorFromEncounterType[patient.encounter_type || 'default'] ||
+                          colorFromEncounterType.default,
+                      }}
                     >
-                      <EncounterTypeIndicator
-                        style={{
-                          backgroundColor:
-                            colorFromEncounterType[patient.encounter_type || 'default'] ||
-                            colorFromEncounterType.default,
-                        }}
-                      />
-                      <div>
-                        <CardTitle
-                          style={{
-                            color:
-                              colorFromEncounterType[patient.encounter_type || 'default'] ||
-                              colorFromEncounterType.default,
-                          }}
-                        >
-                          {patient.firstName} {patient.lastName}
-                        </CardTitle>
-                        <CardText>{patient.displayId}</CardText>
-                        <CardText style={{ textTransform: 'capitalize' }}>{patient.sex}</CardText>
-                        <CardText>
-                          DOB: {dateFnsFormat(new Date(patient.dateOfBirth), 'dd/MM/yy')}
-                        </CardText>
-                      </div>
-                    </Card>
-                  ))}
-              </CardList>
-              {recentlyViewedPatients?.length > 6 && pageIndex === 0 ? (
-                <RightArrowButton onClick={() => setPageIndex(1)}>
-                  <NavigateNext />
-                </RightArrowButton>
-              ) : (
-                <MarginDiv />
-              )}
-            </CardListContainer>
-          </Collapse>
-          {!isExpanded && <ComponentDivider />}
-        </Container>
-      </>
-    )
+                      {patient.firstName} {patient.lastName}
+                    </CardTitle>
+                    <CardText>{patient.displayId}</CardText>
+                    <CardText style={{ textTransform: 'capitalize' }}>{patient.sex}</CardText>
+                    <CardText>
+                      DOB: {dateFnsFormat(new Date(patient.dateOfBirth), 'dd/MM/yy')}
+                    </CardText>
+                  </div>
+                </Card>
+              ))}
+          </CardList>
+          {pageIndex < (pageCount - 1) ? (
+            <RightArrowButton onClick={() => changePage(1)}>
+              <NavigateNext />
+            </RightArrowButton>
+          ) : (
+            <MarginDiv />
+          )}
+        </CardListContainer>
+      </Collapse>
+      {!isExpanded && <ComponentDivider />}
+    </Container>
   );
 };
