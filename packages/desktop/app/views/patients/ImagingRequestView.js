@@ -29,7 +29,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
 const PrintButton = ({ imagingRequest, patient }) => {
