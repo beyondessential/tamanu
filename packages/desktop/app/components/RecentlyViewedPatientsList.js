@@ -111,7 +111,6 @@ const colorFromEncounterType = {
 const PATIENTS_PER_PAGE = 6;
 
 export const RecentlyViewedPatientsList = ({ encounterType }) => {
-
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -124,7 +123,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   );
 
   const pageCount = Math.floor(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
-  const changePage = (delta) => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
+  const changePage = delta => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(
     async patientId => {
@@ -156,11 +155,8 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
           <CardList>
             {recentlyViewedPatients
               .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
-              .map((patient, index) => (
-                <Card
-                  key={patient.id}
-                  onClick={() => cardOnClick(patient.id)}
-                >
+              .map((patient) => (
+                <Card key={patient.id} onClick={() => cardOnClick(patient.id)}>
                   <EncounterTypeIndicator
                     style={{
                       backgroundColor:
@@ -187,7 +183,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
                 </Card>
               ))}
           </CardList>
-          {pageIndex < (pageCount - 1) ? (
+          {pageIndex < pageCount - 1 ? (
             <RightArrowButton onClick={() => changePage(1)}>
               <NavigateNext />
             </RightArrowButton>
