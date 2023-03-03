@@ -124,7 +124,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   );
 
   const pageCount = Math.floor(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
-  const changePage = (delta) => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta));
+  const changePage = (delta) => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(
     async patientId => {
