@@ -110,6 +110,13 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
 
+  let procedures = [];
+  if (encounter.procedures) {
+    procedures = encounter.procedures.sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    });
+  }
+
   const labFilterStatuses = [
     LAB_REQUEST_STATUSES.CANCELLED,
     LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -270,6 +277,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
           diagnoses={diagnoses}
+          procedures={procedures}
           labRequests={updatedLabRequests}
           imagingRequests={updatedImagingRequests}
           notes={orderedNotes}

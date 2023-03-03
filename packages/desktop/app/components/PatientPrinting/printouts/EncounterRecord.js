@@ -297,6 +297,7 @@ export const EncounterRecord = React.memo(
     encounterTypeHistory,
     locationHistory,
     diagnoses,
+    procedures,
     labRequests,
     imagingRequests,
     notes,
@@ -391,10 +392,10 @@ export const EncounterRecord = React.memo(
             </>
           ) : null}
 
-          {encounter.procedures.length > 0 ? (
+          {procedures.length > 0 ? (
             <>
               <TableHeading>Procedures</TableHeading>
-              <CompactListTable data={encounter.procedures} columns={COLUMNS.procedures} />
+              <CompactListTable data={procedures} columns={COLUMNS.procedures} />
             </>
           ) : null}
 
