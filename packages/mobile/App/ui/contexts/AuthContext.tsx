@@ -164,9 +164,7 @@ const Provider = ({
 
     if (props.token && props.user) {
       backend.auth.startSession(props.token, props.refreshToken);
-      setCentralConnectionStatus(CentralConnectionStatus.Connected);
     } else {
-      setCentralConnectionStatus(CentralConnectionStatus.Disconnected);
       backend.auth.endSession();
     }
   }, [backend, props.token, props.user]);

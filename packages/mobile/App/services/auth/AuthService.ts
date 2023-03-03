@@ -95,7 +95,6 @@ export class AuthService {
       params.email,
       params.password,
     );
-    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Connected);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
@@ -113,11 +112,13 @@ export class AuthService {
   }
 
   startSession(token: string, refreshToken: string): void {
+    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Connected)
     this.centralServer.setToken(token);
     this.centralServer.setRefreshToken(refreshToken);
   }
 
   endSession(): void {
+    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Disconnected)
     this.centralServer.clearToken();
     this.centralServer.clearRefreshToken();
   }

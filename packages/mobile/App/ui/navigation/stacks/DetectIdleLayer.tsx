@@ -54,8 +54,7 @@ export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactEleme
   }, []);
 
   useEffect(() => {
-    let timer;
-    timer = setInterval(() => {
+    const timer = setInterval(() => {
       const newIdle = idle + ONE_MINUTE;
       setIdle(newIdle);
       if (newIdle >= UI_EXPIRY_TIME) {
@@ -82,11 +81,7 @@ export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactEleme
   );
 };
 
-export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
+export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement | ReactNode => {
   const signedIn = useSelector(authSignedInSelector);
-  return signedIn ? (
-    <PanResponderView>{children}</PanResponderView>
-  ) : (
-    <StyledView height="100%">{children}</StyledView>
-  );
+  return signedIn ? <PanResponderView>{children}</PanResponderView> : children;
 };
