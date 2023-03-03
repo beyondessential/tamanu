@@ -1,5 +1,13 @@
 import { debounce } from 'lodash';
-import React, { ReactElement, ReactNode, useCallback, useRef, useEffect, useState, ReactChildren } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+  ReactChildren,
+} from 'react';
 import { Keyboard, PanResponder } from 'react-native';
 import { useSelector } from 'react-redux';
 import { authSignedInSelector } from '~/ui/helpers/selectors';
@@ -15,21 +23,16 @@ const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
 export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
-  const signedIn = useSelector(authSignedInSelector);
   const { signOutClient } = useAuth();
 
   const resetIdle = (): void => {
     setIdle(0);
   };
 
-  const debouncedResetIdle = useCallback(
-    debounce(resetIdle, 300),
-    [],
-  );
+  const debouncedResetIdle = useCallback(debounce(resetIdle, 300), []);
 
-  const handleResetIdle = (shouldReset: boolean): boolean => {
-     debouncedResetIdle();
-   
+  const handleResetIdle = (): boolean => {
+    debouncedResetIdle();
     // Returns false to indicate that this component
     // shouldn't block native components from becoming the JS responder
     return false;
@@ -42,45 +45,48 @@ export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactEleme
   useEffect(() => {
     let hideEvent;
     let showEvent;
-      hideEvent = Keyboard.addListener('keyboardDidHide', () => handleResetIdle(signedIn));
-      showEvent = Keyboard.addListener('keyboardDidShow', () => handleResetIdle(signedIn));
+    hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
+    showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
     return () => {
       hideEvent?.remove();
       showEvent?.remove();
     };
-  }, [signedIn]);
+  }, []);
 
   useEffect(() => {
     let timer;
-      timer = setInterval(() => {
-        const newIdle = idle + ONE_MINUTE;
-        setIdle(newIdle);
-        if (newIdle >= UI_EXPIRY_TIME) {
-          handleIdleLogout();
-        }
-      }, ONE_MINUTE);
+    timer = setInterval(() => {
+      const newIdle = idle + ONE_MINUTE;
+      setIdle(newIdle);
+      if (newIdle >= UI_EXPIRY_TIME) {
+        handleIdleLogout();
+      }
+    }, ONE_MINUTE);
     return () => {
       clearInterval(timer);
     };
-  }, [idle, signedIn]);
+  }, [idle]);
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponderCapture: () => handleResetIdle(signedIn),
-      onStartShouldSetPanResponderCapture: () => handleResetIdle(signedIn),
-      onPanResponderTerminationRequest: () => handleResetIdle(signedIn),
+      onMoveShouldSetPanResponderCapture: handleResetIdle,
+      onStartShouldSetPanResponderCapture: handleResetIdle,
+      onPanResponderTerminationRequest: handleResetIdle,
     }),
   );
 
   return (
-    <StyledView  height="100%" {...panResponder.current.panHandlers}>
+    <StyledView height="100%" {...panResponder.current.panHandlers}>
       {children}
     </StyledView>
   );
 };
 
-
-export const DetectIdleLayer =({children}: DetectIdleLayerProps): ReactElement => {
+export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const signedIn = useSelector(authSignedInSelector);
-  return signedIn ? <PanResponderView>{children}</PanResponderView> : <StyledView height="100%">{children}</StyledView>
-}
+  return signedIn ? (
+    <PanResponderView>{children}</PanResponderView>
+  ) : (
+    <StyledView height="100%">{children}</StyledView>
+  );
+};
