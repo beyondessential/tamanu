@@ -27,7 +27,7 @@ describe('Programs import', () => {
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
-      programImporter,
+      importer: programImporter,
       file: `./__tests__/importers/programs-${file}.xlsx`,
       models: ctx.store.models,
       ...opts,
@@ -182,7 +182,7 @@ describe('Programs import', () => {
       expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
     });
 
-    it('Should import a valid vitals survey', async () => {
+    it.only('Should import a valid vitals survey', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'vitals-valid',
         dryRun: true,
