@@ -22,7 +22,7 @@ export class ImagingRequest extends Model {
     super.init(
       {
         id: {
-          type: Sequelize.UUID,
+          type: Sequelize.STRING,
           allowNull: false,
           defaultValue: Sequelize.UUIDV4,
           primaryKey: true,
