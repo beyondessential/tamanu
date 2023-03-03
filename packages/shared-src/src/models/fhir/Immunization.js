@@ -8,7 +8,6 @@ import {
 } from 'shared/constants/fhir';
 
 import { FhirResource } from './Resource';
-import { dateTimeType } from '../dateTimeTypes';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -38,7 +37,7 @@ export class FhirImmunization extends FhirResource {
           type: DataTypes.JSONB,
           allowNull: true,
         },
-        occurrenceDateTime: dateTimeType('occurrenceDateTime', { allowNull: true }),
+        occurrenceDateTime: Sequelize.TEXT,
         lotNumber: Sequelize.TEXT,
         site: DataTypes.JSONB,
         performer: DataTypes.JSONB,

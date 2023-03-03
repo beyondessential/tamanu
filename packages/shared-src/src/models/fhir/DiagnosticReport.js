@@ -32,11 +32,11 @@ export class FhirDiagnosticReport extends FhirResource {
           allowNull: true,
         },
         effectiveDateTime: {
-          type: DataTypes.DATE,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
         issued: {
-          type: DataTypes.DATE,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
         performer: DataTypes.JSONB,

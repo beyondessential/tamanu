@@ -42,7 +42,7 @@ export class FhirServiceRequest extends FhirResource {
           type: DataTypes.JSONB,
           allowNull: false,
         },
-        occurrenceDateTime: DataTypes.DATE,
+        occurrenceDateTime: DataTypes.TEXT,
         requester: DataTypes.JSONB,
         locationCode: DataTypes.JSONB,
       },
