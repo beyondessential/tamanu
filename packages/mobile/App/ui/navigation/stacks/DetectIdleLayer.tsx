@@ -43,10 +43,8 @@ export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactEleme
   };
 
   useEffect(() => {
-    let hideEvent;
-    let showEvent;
-    hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
-    showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
+    const hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
+    const showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
     return () => {
       hideEvent?.remove();
       showEvent?.remove();
