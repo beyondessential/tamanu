@@ -155,7 +155,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
           <CardList>
             {recentlyViewedPatients
               .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
-              .map((patient) => (
+              .map(patient => (
                 <Card key={patient.id} onClick={() => cardOnClick(patient.id)}>
                   <EncounterTypeIndicator
                     style={{
