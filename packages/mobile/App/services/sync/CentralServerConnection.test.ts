@@ -1,3 +1,4 @@
+import { CentralConnectionStatus } from '~/types';
 import {
   AuthenticationError,
   generalErrorMessage,
@@ -39,6 +40,9 @@ describe('CentralServerConnection', () => {
 
   beforeEach(() => {
     centralServerConnection = new CentralServerConnection();
+    centralServerConnection.emitter = {
+      emit: jest.fn(),
+    };
     centralServerConnection.connect(mockHost);
     jest.clearAllMocks();
   });
@@ -188,6 +192,10 @@ describe('CentralServerConnection', () => {
           },
           skipAttemptRefresh: true,
         },
+      );
+      expect(centralServerConnection.emitter.emit).toBeCalledWith(
+        'centralConnectionStatusChange',
+        CentralConnectionStatus.Connected,
       );
       expect(setTokenSpy).toBeCalledWith(mockToken);
       expect(setRefreshTokenSpy).toBeCalledWith(mockNewRefreshToken);
