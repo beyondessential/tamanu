@@ -6,16 +6,27 @@ import { get } from 'lodash';
 import config from 'config';
 
 import { log } from 'shared/services/logging';
-import { tmpdir, VaccineCertificate, getPatientSurveyResponseAnswer } from 'shared/utils';
+import {
+  tmpdir,
+  VaccineCertificate,
+  getPatientSurveyResponseAnswer,
+  CovidVaccineCertificate,
+} from 'shared/utils';
 import { CovidLabCertificate } from 'shared/utils/patientCertificates';
 import { getLocalisation } from '../localisation';
 
-export const makeVaccineCertificate = async (patient, printedBy, models, uvci, qrData = null) => {
+export const makeCovidVaccineCertificate = async (
+  patient,
+  printedBy,
+  models,
+  uvci,
+  qrData = null,
+) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
   const folder = await tmpdir();
-  const fileName = `vaccine-certificate-${patient.id}.pdf`;
+  const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
 
   const logo = await models.Asset.findOne({
@@ -50,7 +61,7 @@ export const makeVaccineCertificate = async (patient, printedBy, models, uvci, q
     const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
 
     await ReactPDF.render(
-      <VaccineCertificate
+      <CovidVaccineCertificate
         patient={patientData}
         printedBy={printedBy}
         uvci={uvci}
@@ -59,6 +70,66 @@ export const makeVaccineCertificate = async (patient, printedBy, models, uvci, q
         watermarkSrc={watermark?.data}
         logoSrc={logo?.data}
         vdsSrc={vds}
+        getLocalisation={getLocalisationData}
+      />,
+      filePath,
+    );
+  } catch (error) {
+    log.info(`Error creating Patient Certificate ${patient.id}`);
+    throw error;
+  }
+
+  return {
+    status: 'success',
+    filePath,
+  };
+};
+
+export const makeVaccineCertificate = async (patient, printedBy, models) => {
+  const localisation = await getLocalisation();
+  const getLocalisationData = key => get(localisation, key);
+
+  const folder = await tmpdir();
+  const fileName = `vaccine-certificate-${patient.id}.pdf`;
+  const filePath = path.join(folder, fileName);
+
+  const logo = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'letterhead-logo',
+    },
+  });
+
+  const signingImage = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'certificate-bottom-half-img',
+    },
+  });
+
+  const watermark = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'vaccine-certificate-watermark',
+    },
+  });
+
+  try {
+    const vaccinations = await patient.getAdministeredVaccines();
+    const additionalData = await models.PatientAdditionalData.findOne({
+      where: { patientId: patient.id },
+      include: models.PatientAdditionalData.getFullReferenceAssociations(),
+    });
+    const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+
+    await ReactPDF.render(
+      <VaccineCertificate
+        patient={patientData}
+        printedBy={printedBy}
+        vaccinations={vaccinations}
+        signingSrc={signingImage?.data}
+        watermarkSrc={watermark?.data}
+        logoSrc={logo?.data}
         getLocalisation={getLocalisationData}
       />,
       filePath,
