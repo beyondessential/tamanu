@@ -151,9 +151,9 @@ function singleMatch(path, paramQuery, paramDef, Model) {
         // instead of being able to use sequelize's utilities.
         // path: ['a', 'b', '[]', 'c', '[]', 'd']
         // sql: value operator ANY(SELECT jsonb_path_query(a, '$.b[*].c[*].d') #>> '{}');
-        const selector = `ANY(SELECT jsonb_path_query(${entirePath[0]}, ${getJsonbPath(
+        const selector = `ANY(SELECT jsonb_path_query(${entirePath[0]}, '${getJsonbPath(
           entirePath,
-        )}) #>> '{}')`;
+        )}') #>> '{}')`;
 
         return Sequelize.literal(`${escaped} ${inverseOp} ${selector}`);
       }
