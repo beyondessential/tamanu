@@ -75,15 +75,6 @@ export function buildSearchQuery(query, parameters, FhirResource) {
   return sql;
 }
 
-function nestPath(path) {
-  // TODO: figure out how to stick the table name on there so it survives joins
-  let nested = Sequelize.col(path[0]);
-  for (const level of path.slice(1)) {
-    nested = Sequelize.fn(level, nested);
-  }
-  return nested;
-}
-
 function addUnnests(path) {
   return path.map(step => (step === '[]' ? 'unnest' : step));
 }
@@ -91,7 +82,7 @@ function addUnnests(path) {
 // path: ['a', 'b', '[]', 'c', '[]', 'd']
 // sql: d(unnest(c(unnest(b(a)))))
 function nestWithUnnests(path) {
-  return nestPath(addUnnests(path));
+  return null; // nestPath(addUnnests(path));
 }
 
 const INVERSE_OPS = new Map([
@@ -115,10 +106,8 @@ function singleMatch(path, paramQuery, paramDef, Model) {
       const entirePath = [...path, ...extraPath];
 
       // optimisation in the simple case
-      if (!path.includes('[]')) {
-        // path: ['a', 'b', 'c']
-        // sql: c(b(a)) operator value
-        return Sequelize.where(nestPath(entirePath), op, val);
+      if (entirePath.length === 1) {
+        return Sequelize.where(Sequelize.col(path[0]), op, val);
       }
 
       const escaped =
@@ -168,10 +157,8 @@ function singleOrder(path, order, def, _Model) {
   }
 
   // optimisation in the simple case
-  if (!path.includes('[]')) {
-    // path: ['a', 'b', 'c']
-    // sql: order by c(b(a)) desc
-    return [nestPath(path), order];
+  if (entirePath.length === 1) {
+    return [Sequelize.col(path[0]), order];
   }
 
   // TODO (EPI-202)
