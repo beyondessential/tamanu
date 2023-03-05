@@ -107,7 +107,7 @@ function singleMatch(path, paramQuery, paramDef, Model) {
 
       // optimisation in the simple case
       if (entirePath.length === 1) {
-        return Sequelize.where(Sequelize.col(path[0]), op, val);
+        return Sequelize.where(Sequelize.col(entirePath[0]), op, val);
       }
 
       const escaped =
@@ -158,7 +158,7 @@ function singleOrder(path, order, def, _Model) {
 
   // optimisation in the simple case
   if (entirePath.length === 1) {
-    return [Sequelize.col(path[0]), order];
+    return [Sequelize.col(entirePath[0]), order];
   }
 
   // TODO (EPI-202)
