@@ -1,6 +1,9 @@
 import { Op } from 'sequelize';
 import { fake } from 'shared/test-helpers/fake';
-
+import {
+  GENERAL_IMPORTABLE_DATA_TYPES,
+  PERMISSION_IMPORTABLE_DATA_TYPES,
+} from 'shared/constants/importable';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
@@ -28,6 +31,7 @@ describe('Data definition import', () => {
       importer: referenceDataImporter,
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
+      includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
       ...opts,
     });
   }
@@ -296,6 +300,7 @@ describe('Permissions import', () => {
       importer: referenceDataImporter,
       file: `./__tests__/importers/permissions-${file}.xlsx`,
       models: ctx.store.models,
+      includedDataTypes: PERMISSION_IMPORTABLE_DATA_TYPES,
       ...opts,
     });
   }
