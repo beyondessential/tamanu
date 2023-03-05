@@ -2,6 +2,7 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
+import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 
 import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
@@ -22,6 +23,11 @@ export const serve = async ({ skipMigrationCheck }) => {
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const app = createApp(context);
+
+  await performTimeZoneChecks({
+    sequelize: store.sequelize,
+    config,
+  });
 
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
