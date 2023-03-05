@@ -27,6 +27,7 @@ describe('Patients import', () => {
       importer: referenceDataImporter,
       file: `./__tests__/importers/patient/${file}.xlsx`,
       models: ctx.store.models,
+      includedDataTypes: ['patient'],
       ...opts,
     });
   }
