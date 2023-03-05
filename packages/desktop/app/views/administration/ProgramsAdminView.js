@@ -1,6 +1,6 @@
 import React from 'react';
-import { ImporterView } from './components/ImporterView';
+import { ImportExportView } from './components/ImportExportView';
 
 export const ProgramsAdminView = () => (
-  <ImporterView title="Programs (aka surveys)" endpoint="program" />
+  <ImportExportView title="Programs (aka surveys)" endpoint="program" />
 );

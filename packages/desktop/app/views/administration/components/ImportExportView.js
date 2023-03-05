@@ -11,7 +11,6 @@ const OuterContainer = styled.div`
 `;
 
 const ContentContainer = styled.div`
-  padding: 20px;
   background-color: white;
   height: 100%;
 `;

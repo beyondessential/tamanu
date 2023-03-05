@@ -4,7 +4,7 @@ import * as yup from 'yup';
 
 import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
-import { SelectOrSelectAllField } from '../../../components/Field/SelectOrSelectAllField';
+import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Button } from '../../../components/Button';
@@ -15,7 +15,7 @@ const ExportForm = ({ isSubmitting, dataTypes }) => (
       <Field
         name="includedDataTypes"
         label="Select data types to export"
-        component={SelectOrSelectAllField}
+        component={ExpandedMultiSelectField}
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}

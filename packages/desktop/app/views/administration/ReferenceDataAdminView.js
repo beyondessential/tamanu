@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImporterView } from './components/ImporterView';
+import { ImportExportView } from './components/ImportExportView';
 
 const DATA_TYPES = [
   'additionalInvoiceLine',
@@ -63,7 +63,7 @@ const DATA_TYPES = [
 ].sort();
 
 export const ReferenceDataAdminView = () => (
-  <ImporterView
+  <ImportExportView
     title="Reference data"
     endpoint="refData"
     dataTypes={DATA_TYPES}
