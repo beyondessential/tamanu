@@ -49,7 +49,7 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
             disabled={readonly}
           >
             <i style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
-            COVID-19 Certificate
+            COVID-19 certificate
           </Button>
           <Button
             onClick={() => setIsCertificateModalOpen(true)}
