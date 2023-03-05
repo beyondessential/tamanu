@@ -4,7 +4,6 @@ import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
 import { activeFromVisibility } from './utils';
-import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
