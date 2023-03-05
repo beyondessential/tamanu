@@ -195,7 +195,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
   const filteredNotes = linkedNotes?.map(note => {
-    const noteCopy = JSON.parse(JSON.stringify(note));
+    const noteCopy = note;
     noteCopy.noteItems = noteCopy.noteItems.reverse().filter(noteItem => {
       const duplicate = seen.has(noteItem.originalNote?.id);
       seen.add(noteItem.originalNote?.id);
