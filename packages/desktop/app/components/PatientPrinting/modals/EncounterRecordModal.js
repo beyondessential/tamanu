@@ -175,6 +175,10 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return !medication.discontinued;
   });
 
+  medications.sort((a, b) => {
+    return new Date(a.date) - new Date(b.date);
+  });
+
   const dishchargeQuery = useEncounterDischarge(encounter);
   const discharge = dishchargeQuery.data;
 
