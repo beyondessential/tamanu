@@ -75,14 +75,38 @@ export function buildSearchQuery(query, parameters, FhirResource) {
   return sql;
 }
 
-function addUnnests(path) {
-  return path.map(step => (step === '[]' ? 'unnest' : step));
+// Specifies the jsonb path without the first level (column name)
+// path: ['a', 'b', '[]', 'c', '[]', 'd']
+// jsonb path: '$.b[*].c[*].d'
+function getJsonbPath(path) {
+  const basePath = '$';
+  const actualPath = path.slice(1).map(step => (step === '[]' ? '[*]' : `.${step}`));
+  const jsonbPath = basePath + actualPath.join('');
+  return jsonbPath;
 }
 
-// path: ['a', 'b', '[]', 'c', '[]', 'd']
-// sql: d(unnest(c(unnest(b(a)))))
-function nestWithUnnests(path) {
-  return null; // nestPath(addUnnests(path));
+// Depends on the appearance of an array in its last position
+function getJsonbQueryFn(path) {
+  const lastElement = path[path.length - 1];
+  const pathWithoutLastElement = path.slice(0, path.length - 1);
+  const jsonbPath = getJsonbPath(pathWithoutLastElement);
+
+  // path: ['a', 'b', '[]', 'c', '[]']
+  // sql: jsonb_array_elements_text(jsonb_path_query(a, '$.b[*].c'))
+  if (lastElement === '[]') {
+    return Sequelize.fn(
+      'jsonb_array_elements_text',
+      Sequelize.fn('jsonb_path_query', Sequelize.col(path[0]), Sequelize.literal(`'${jsonbPath}'`)),
+    );
+  }
+
+  // path: ['a', 'b', '[]', 'c', '[]', 'd']
+  // sql: jsonb_extract_path_text(jsonb_path_query(a, '$.b[*].c[*]'), 'd')
+  return Sequelize.fn(
+    'jsonb_extract_path_text',
+    Sequelize.fn('jsonb_path_query', Sequelize.col(path[0]), Sequelize.literal(`'${jsonbPath}'`)),
+    lastElement,
+  );
 }
 
 const INVERSE_OPS = new Map([
@@ -123,20 +147,20 @@ function singleMatch(path, paramQuery, paramDef, Model) {
         // need to write literals for them. also see:
         // https://github.com/sequelize/sequelize/issues/13011
 
-        // see below for the expected sql. we're just writing the literal
+        // we're just writing the literal
         // instead of being able to use sequelize's utilities.
-        const selector = `ANY(SELECT ${addUnnests(path).reduce(
-          (acc, step) => (acc === null ? `"${step}"` : `${step}(${acc})`),
-          null,
-        )})`;
+        // path: ['a', 'b', '[]', 'c', '[]', 'd']
+        // sql: value operator ANY(SELECT jsonb_path_query(a, '$.b[*].c[*].d') #>> '{}');
+        const selector = `ANY(SELECT jsonb_path_query(${entirePath[0]}, ${getJsonbPath(
+          entirePath,
+        )}) #>> '{}')`;
 
         return Sequelize.literal(`${escaped} ${inverseOp} ${selector}`);
       }
 
-      // path: ['a', 'b', '[]', 'c', '[]', 'd']
-      // sql: value operator any(select(d(unnest(c(unnest(b(a)))))))
-      const selector = Sequelize.fn('any', Sequelize.fn('select', nestWithUnnests(entirePath)));
-
+      // while #>> works regardless of the jsonb path, using
+      // explicit function names needs different treatment.
+      const selector = Sequelize.fn('any', Sequelize.fn('select', getJsonbQueryFn(entirePath)));
       return Sequelize.where(Sequelize.literal(escaped), inverseOp, selector);
     });
 
