@@ -8,10 +8,11 @@ import { ExporterView } from './ExporterView';
 
 const OuterContainer = styled.div`
   position: relative;
+  background-color: white;
+  height: 100%;
 `;
 
 const ContentContainer = styled.div`
-  background-color: white;
   height: 100%;
 `;
 

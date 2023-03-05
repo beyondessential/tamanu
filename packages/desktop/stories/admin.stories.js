@@ -78,6 +78,8 @@ storiesOf('Admin/ImportExportView', module).add('Whole view', () => (
     onSubmit={dummySubmit()}
     onReceiveResult={action('result')}
     onCancel={action('cancel')}
+    dataTypes={['referenceData', 'user', 'patient']}
+    dataTypesSelectable
   />
 ));
 

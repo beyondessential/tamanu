@@ -9,9 +9,9 @@ import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Button } from '../../../components/Button';
 
-const ExportForm = ({ isSubmitting, dataTypes }) => (
+const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
-    {dataTypes && (
+    {dataTypesSelectable && (
       <Field
         name="includedDataTypes"
         label="Select data types to export"
@@ -36,7 +36,7 @@ const saveAs = (blob, filename) => {
   window.URL.revokeObjectURL(url);
 };
 
-export const ExporterView = memo(({ endpoint, dataTypes }) => {
+export const ExporterView = memo(({ endpoint, dataTypes, dataTypesSelectable }) => {
   const api = useApi();
 
   const onSubmit = useCallback(
@@ -47,9 +47,12 @@ export const ExporterView = memo(({ endpoint, dataTypes }) => {
     [api, endpoint],
   );
 
-  const renderForm = useCallback(props => <ExportForm dataTypes={dataTypes} {...props} />, [
-    dataTypes,
-  ]);
+  const renderForm = useCallback(
+    props => (
+      <ExportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
+    ),
+    [dataTypes, dataTypesSelectable],
+  );
 
   return (
     <>
