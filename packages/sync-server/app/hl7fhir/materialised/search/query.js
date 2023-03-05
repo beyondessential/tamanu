@@ -186,13 +186,12 @@ function singleOrder(path, order, def, _Model) {
   }
 
   // TODO (EPI-202)
-  // it *does* generate sql, but it results in inconsistent or maybe random(!)
+  // It *used to* generate sql, new functionality needs to be tested.
+  // Previous results were inconsistent or maybe random(!)
   // ordering from run to run so it's disabled for now.
   throw new Unsupported('order with nested arrays is not supported yet');
 
-  // path: ['a', 'b', '[]', 'c', '[]', 'd']
-  // sql: order by d(unnest(c(unnest(b(a)))))
-  // return [nestWithUnnests(path), order];
+  // return [getJsonbQueryFn(entirePath), order];
 }
 
 function typedMatch(value, query, def) {
