@@ -27,7 +27,7 @@ describe('Programs import', () => {
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
-      programImporter,
+      importer: programImporter,
       file: `./__tests__/importers/programs-${file}.xlsx`,
       models: ctx.store.models,
       ...opts,
