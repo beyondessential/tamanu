@@ -300,7 +300,7 @@ describe('Permissions import', () => {
       importer: referenceDataImporter,
       file: `./__tests__/importers/permissions-${file}.xlsx`,
       models: ctx.store.models,
-      includedDataTypes: PERMISSIONS_DATA_TYPES,
+      includedDataTypes: PERMISSION_IMPORTABLE_DATA_TYPES,
       ...opts,
     });
   }
