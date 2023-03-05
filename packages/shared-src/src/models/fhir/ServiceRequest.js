@@ -147,11 +147,7 @@ export class FhirServiceRequest extends FhirResource {
           value: upstream.displayId,
         }),
       ],
-      status: {
-        [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
-        [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: FHIR_REQUEST_STATUS.ACTIVE,
-        [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: FHIR_REQUEST_STATUS.COMPLETED,
-      }[upstream.status],
+      status: status(upstream),
       intent: FHIR_REQUEST_INTENT.ORDER._,
       category: [
         new FhirCodeableConcept({
@@ -269,4 +265,17 @@ function locationCode(upstream) {
       text: facility.name,
     }),
   ];
+}
+
+function status(upstream) {
+  return (
+    {
+      [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: FHIR_REQUEST_STATUS.REVOKED,
+      [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: FHIR_REQUEST_STATUS.COMPLETED,
+      [IMAGING_REQUEST_STATUS_TYPES.DELETED]: FHIR_REQUEST_STATUS.REVOKED,
+      [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: FHIR_REQUEST_STATUS.ENTERED_IN_ERROR,
+      [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: FHIR_REQUEST_STATUS.ACTIVE,
+      [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
+    }[upstream.status] ?? FHIR_REQUEST_STATUS.UNKNOWN
+  );
 }
