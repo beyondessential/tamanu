@@ -112,13 +112,6 @@ export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   }
 `;
 
-const customDateFormat = ({ date }) => {
-  const dateObj = parseDate(date);
-  return `${formatShort(dateObj)} ${formatTime(dateObj)
-    .split(' ')
-    .join('')}`;
-};
-
 const COLUMNS = {
   encounterTypes: [
     {
@@ -130,7 +123,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: customDateFormat,
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
       style: { width: '30%' },
     },
   ],
@@ -151,7 +144,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: customDateFormat,
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
       style: { width: '30%' },
     },
   ],
