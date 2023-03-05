@@ -198,7 +198,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   // Add orignal note to each note object linked to an edited note
   const linkedNotes = displayNotes?.map(note => {
-    const updatedNote = note;
+    const updatedNote = JSON.parse(JSON.stringify(note));
     updatedNote.noteItems = note.noteItems.map(noteItem => {
       const updatedNoteItem = noteItem;
       const linkedNote = note.noteItems.find(item => item.id === noteItem.revisedById);
