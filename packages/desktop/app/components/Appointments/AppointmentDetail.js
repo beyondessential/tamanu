@@ -14,7 +14,6 @@ import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
 import { Colors, appointmentStatusOptions } from '../../constants';
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
@@ -67,10 +66,10 @@ const PatientInfo = ({ patient }) => {
     })();
   }, [id, api]);
 
-  const handlePatientInfoContainerClick = useCallback(async () => {
-    await dispatch(reloadPatient(id));
-    dispatch(push(`/patients/all/${id}`));
-  }, [dispatch, id]);
+  const handlePatientInfoContainerClick = useCallback(() => dispatch(push(`/patients/all/${id}`)), [
+    dispatch,
+    id,
+  ]);
 
   return (
     <PatientInfoContainer onClick={handlePatientInfoContainerClick}>
