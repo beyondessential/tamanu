@@ -13,12 +13,12 @@
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
     "build-watch": "yarn run build --watch",
     "test": "NODE_ENV=test jest",
-    "test-coverage": "yarn test --coverage",
     "lint": "eslint src"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",
     "@tamanu/build-tooling": "*",
+    "@jest/globals": "^29.4.3",
     "@swc/jest": "^0.2.24",
     "@types/node": "^18.14.6",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
