@@ -113,7 +113,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       return new Date(a.date) - new Date(b.date);
     }) || [];
 
-  // Remove cancelled/entered in error labs. Attach parent lab request data to each test in order to be displayed in table format
+  // Remove cancelled/entered in error labs. Attach parent lab request data to each test object in order to be displayed in table format
   const labFilterStatuses = [
     LAB_REQUEST_STATUSES.CANCELLED,
     LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -142,7 +142,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
 
-  // Remove cancelled/entered in error imaging requests. Attach parent lab request data to each test in order to be displayed in table format
+  // Remove cancelled/entered in error imaging requests.
   const imagingFilterStatuses = [
     IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
     IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
