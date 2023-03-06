@@ -102,12 +102,14 @@ patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientVaccine');
+    if (!req.body.scheduledVaccineId) {
+      res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
+    }
 
     const { models } = req;
     const { vaccineCreationType } = req.body;
 
     let { locationId, departmentId } = req.body;
-    res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
 
     // Find default department and location when vaccine is not given
     if (vaccineCreationType === VACCINE_RECORDING_TYPES.NOT_GIVEN) {

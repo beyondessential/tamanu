@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PropTypes } from 'prop-types';
+import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { VACCINE_CATEGORY_OPTIONS } from 'shared/constants';
@@ -41,6 +42,10 @@ export const VaccineNotGivenForm = ({
     initialValues={{
       date: getCurrentDateTimeString(),
     }}
+    validationSchema={yup.object().shape({
+      date: yup.string().required(),
+      scheduledVaccineId: yup.string().required(),
+    })}
     render={({ submitForm }) => (
       <TwoTwoGrid>
         <FullWidthCol>

@@ -78,7 +78,7 @@ const getScheduledVaccines = () => {
 };
 
 storiesOf('Forms', module).add('VaccineForm', () => (
-  <Modal title="Give vaccine" open>
+  <Modal title="Record vaccine" open>
     <VaccineForm
       onSubmit={action('submit')}
       onCancel={action('cancel')}

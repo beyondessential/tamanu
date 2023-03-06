@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import * as yup from 'yup';
 import { PropTypes } from 'prop-types';
+import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { INJECTION_SITE_OPTIONS, VACCINE_CATEGORY_OPTIONS } from 'shared/constants';
@@ -50,6 +50,8 @@ export const VaccineGivenForm = ({
         date: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
+        scheduledVaccineId: yup.string().required(),
+        date: yup.string().required(),
         consent: yup
           .boolean()
           .oneOf([true])

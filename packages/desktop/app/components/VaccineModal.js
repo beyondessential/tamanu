@@ -64,7 +64,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   ];
 
   return (
-    <Modal title="Give vaccine" open={open} onClose={onClose}>
+    <Modal title="Record vaccine" open={open} onClose={onClose}>
       <SegmentTabDisplay
         tabs={TABS}
         currentTabKey={currentTabKey}

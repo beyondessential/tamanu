@@ -48,7 +48,7 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
             View certificate
           </Button>
           <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
-            Give vaccine
+            Record vaccine
           </Button>
         </TableButtonRow>
         <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
