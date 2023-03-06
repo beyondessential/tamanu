@@ -67,7 +67,7 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   // location and department should be sortable
   .concat([locationGroup, location, department]);
 
-const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters, containerStyle }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
@@ -88,6 +88,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
+      containerStyle={containerStyle}
     />
   );
 };
