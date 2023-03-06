@@ -58,7 +58,7 @@ export const TabDisplay = React.memo(
       <TabBar className={className}>
         <TabContainer
           variant={scrollable ? 'scrollable' : 'fixed'}
-          scrollButtons="on"
+          scrollButtons={scrollable ? 'on' : 'off'}
           value={currentTab}
         >
           {buttons}
