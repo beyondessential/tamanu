@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
 import { startCase } from 'lodash';
-import { parseDate } from 'shared/utils/dateTime';
 
 import { LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { DateDisplay, formatTime, formatShort } from '../../DateDisplay';
+import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
