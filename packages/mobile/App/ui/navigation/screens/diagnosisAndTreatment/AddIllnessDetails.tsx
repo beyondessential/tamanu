@@ -3,8 +3,10 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
+// import { InputLabel } from '@material-ui/core';
 
 import { Field } from '/components/Forms/FormField';
+import { Spacer } from '/components/Spacer';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
 import { TextField } from '/components/TextField/TextField';
@@ -25,6 +27,8 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
+const XYX = () => <TextInput placeholder="Clinical Note"/>;
+
 const IllnessFormSchema = Yup.object().shape({
   diagnosis: Yup.string(),
   certainty: Yup.mixed()
@@ -44,6 +48,10 @@ const styles = StyleSheet.create({
   },
   ScrollView: { flex: 1 },
 });
+
+const ClinicalNoteField = () => (
+  <Field component={TextField} name="clinicalNote" multiline />
+)
 
 export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
@@ -96,7 +104,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik onSubmit={onRecordIllness} initialValues={{}} validationSchema={IllnessFormSchema}>
+      <Formik onSubmit={onRecordIllness} initialValues={{ clinicalNote: null }} validationSchema={IllnessFormSchema}>
         {({ handleSubmit, values }): ReactElement => console.log(values) || (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
@@ -119,7 +127,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   <SectionHeader h3>INFORMATION</SectionHeader>
                 </StyledView>
                 <StyledView justifyContent="space-between">
-                  <CurrentUserField name="examiner" label="Examiner" />
                   <Field
                     component={AutocompleteModalField}
                     placeholder="Search diagnoses"
@@ -135,8 +142,14 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     label="Certainty"
                     disabled={!values?.diagnosis}
                   />
-                  <SectionHeader h3>Treatment notes</SectionHeader>
-                  <Field component={TextField} name="clinicalNote" multiline />
+                  <Spacer height='24px'/>
+                  <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" fontSize="14px"/>
+                  {/* //   <InputLabel shrink>
+                  //     Clinical Note 
+                  //   </InputLabel>
+                  // } /> */}
+                  <Spacer height='24px'/>
+                  <CurrentUserField name="examiner" label="Recorded By" />
                   <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     backgroundColor={theme.colors.PRIMARY_MAIN}
