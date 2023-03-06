@@ -3,12 +3,10 @@ import styled from 'styled-components';
 import { useQueries } from '@tanstack/react-query';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
-import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
   Button,
   BodyText,
   FormSeparatorLine,
-  OutlinedButton,
   DateDisplay,
   Table,
   useSelectableColumn,
@@ -136,13 +134,16 @@ const useLabRequests = labRequestIds => {
   return combineQueries(queries);
 };
 
-export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onClose }) => {
+export const LabRequestSummaryPane = React.memo(({ labRequestIds, onClose }) => {
+  // eslint-disable-next-line no-unused-vars
   const [isOpen, setIsOpen] = useState(false);
   const { isLoading, error, data: labRequests } = useLabRequests(labRequestIds);
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
     columnKey: 'selected',
   });
+  // eslint-disable-next-line no-unused-vars
   const handlePrintConfirm = () => {
+    // eslint-disable-next-line no-console
     console.log('selected', selectedRows);
     setIsOpen(true);
   };
@@ -183,18 +184,18 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onC
         allowExport={false}
       />
       <Actions>
-        {/* Todo: add print label action in WAITM-659*/}
-        {/*<OutlinedButton size="small">Print label</OutlinedButton>*/}
+        {/* Todo: add print label action in WAITM-659 */}
+        {/* <OutlinedButton size="small">Print label</OutlinedButton> */}
         {/* Todo: add print action */}
-        {/*<OutlinedButton size="small" onClick={handlePrintConfirm}>*/}
-        {/*  Print request*/}
-        {/*</OutlinedButton>*/}
-        {/*<MultipleLabRequestsPrintoutModal*/}
-        {/*  encounter={encounter}*/}
-        {/*  labRequests={labRequests}*/}
-        {/*  open={isOpen}*/}
-        {/*  onClose={() => setIsOpen(false)}*/}
-        {/*/>*/}
+        {/* <OutlinedButton size="small" onClick={handlePrintConfirm}> */}
+        {/*  Print request */}
+        {/* </OutlinedButton> */}
+        {/* <MultipleLabRequestsPrintoutModal */}
+        {/*  encounter={encounter} */}
+        {/*  labRequests={labRequests} */}
+        {/*  open={isOpen} */}
+        {/*  onClose={() => setIsOpen(false)} */}
+        {/* /> */}
       </Actions>
       <FormSeparatorLine />
       <Box display="flex" justifyContent="flex-end" pt={3}>
