@@ -18,7 +18,7 @@ export class ScheduledTask {
     this.schedule = schedule;
     this.job = null;
     this.log = log;
-    this.currentlyRunningTask = false;
+    this.isRunning = false;
     this.start = null;
     this.subtasks = [];
   }
@@ -45,7 +45,7 @@ export class ScheduledTask {
         }
       }
 
-      if (this.currentlyRunningTask) {
+      if (this.isRunning) {
         const durationMs = Date.now() - this.start;
         this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`, {
           durationMs,
@@ -87,7 +87,7 @@ export class ScheduledTask {
       try {
         // eslint-disable-next-line no-shadow
         await spanWrapFn('run', async span => {
-          this.currentlyRunningTask = true;
+          this.isRunning = true;
           await this.run(span);
         });
 
@@ -109,7 +109,7 @@ export class ScheduledTask {
         return false;
       } finally {
         this.start = null;
-        this.currentlyRunningTask = false;
+        this.isRunning = false;
         span.addEvent('end');
       }
     }
