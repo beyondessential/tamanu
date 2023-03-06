@@ -20,6 +20,7 @@ export class AdministeredVaccine extends Model {
         reason: Sequelize.STRING,
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
         givenBy: Sequelize.TEXT,
+        supervisingClinician: Sequelize.TEXT,
         date: dateTimeType('date', {
           allowNull: false,
         }),
@@ -78,11 +79,6 @@ export class AdministeredVaccine extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'notGivenReasonId',
       as: 'notGivenReason',
-    });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'supervisingClinicianId',
-      as: 'supervisingClinician',
     });
   }
 
