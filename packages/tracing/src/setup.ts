@@ -44,11 +44,11 @@ export function setupTracing(config: TracingConfig = {}) {
             };
 
             if (
-              ENV === 'production' &&
-              (spanName.startsWith('pg.query:UPDATE') ||
-                spanName.startsWith('pg.query:INSERT') ||
-                query.text.startsWith('INSERT') ||
-                query.text.startsWith('UPDATE'))
+              ENV === 'production'
+              && (spanName.startsWith('pg.query:UPDATE')
+                || spanName.startsWith('pg.query:INSERT')
+                || query.text.startsWith('INSERT')
+                || query.text.startsWith('UPDATE'))
             ) {
               span.setAttribute('db.statement', 'REDACTED UPDATE/INSERT');
             }
