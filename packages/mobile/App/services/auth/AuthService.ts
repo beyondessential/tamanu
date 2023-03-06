@@ -76,6 +76,7 @@ export class AuthService {
     // create the sync source and log in to it
     this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
+    console.log(`Signing in remotely as ${params.email} (password: ${params.password})`);
     const { user, token, localisation, permissions } = await this.centralServer.login(
       params.email,
       params.password,

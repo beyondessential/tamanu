@@ -7,8 +7,9 @@ POST {{server}}/v1/login
 Content-Type: application/json
 
 {
-  "email": "",
-  "password": ""
+  "email": "admin@tamanu.io",
+  "password": "admin",
+  "deviceId": "test-Al20230306-5248430d-0292-4309-8ae2-56e836f7ef6a"
 }
 
 ### Retrieve first 100 patient records for sync

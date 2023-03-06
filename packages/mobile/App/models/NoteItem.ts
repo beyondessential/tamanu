@@ -12,7 +12,7 @@ import { NotePage } from './NotePage';
 
 @Entity('noteItem')
 export class NoteItem extends BaseModel implements INoteItem {
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   date: DateString;

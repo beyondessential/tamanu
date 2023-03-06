@@ -78,7 +78,7 @@ export class CentralServerConnection {
       const { error } = await getResponseJsonSafely(response);
       // User will be shown a generic error message;
       // log it out here to help with debugging
-      console.error('Response had non-OK value', { url, response });
+      console.error('Response had non-OK value', JSON.stringify({ url, headers, response }, null, 3));
       throw new RemoteError(generalErrorMessage, error, response.status);
     }
 
