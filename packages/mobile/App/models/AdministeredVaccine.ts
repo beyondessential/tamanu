@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
@@ -82,6 +82,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @NullableReferenceDataRelation()
   notGivenReason?: ReferenceData;
+
+  @IdRelation()
+  notGivenReasonId?: string | null;
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
     return this.getRepository()
