@@ -15,21 +15,23 @@ export async function up(query) {
             JOIN links ON fhir.patients.upstream_id = jsonb_extract_path_text(links.link, 'other', 'reference')
         ),
         new_links AS (
-          SELECT id, array_agg(
-            jsonb_build_object(
-              'other',
+          SELECT id, to_jsonb(
+            array_agg(
               jsonb_build_object(
-                'reference',
-                'Patient/' || link_id,
+                'other',
+                jsonb_build_object(
+                  'reference',
+                  'Patient/' || link_id,
+                  'type',
+                  'Patient',
+                  'identifier',
+                  jsonb_extract_path(other, 'identifier'),
+                  'display',
+                  jsonb_extract_path(other, 'display')
+                ),
                 'type',
-                'Patient',
-                'identifier',
-                jsonb_extract_path(other, 'identifier'),
-                'display',
-                jsonb_extract_path(other, 'display')
-              ),
-              'type',
-              type
+                type
+              )
             )
           ) new_link
             FROM downstreamed
