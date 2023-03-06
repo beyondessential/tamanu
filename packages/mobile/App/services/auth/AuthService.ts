@@ -112,15 +112,15 @@ export class AuthService {
   }
 
   startSession(token: string, refreshToken: string): void {
-    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Connected)
     this.centralServer.setToken(token);
     this.centralServer.setRefreshToken(refreshToken);
+    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Connected)
   }
 
   endSession(): void {
-    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Disconnected)
     this.centralServer.clearToken();
     this.centralServer.clearRefreshToken();
+    this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Disconnected)
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
