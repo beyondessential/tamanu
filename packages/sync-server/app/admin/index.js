@@ -7,6 +7,7 @@ import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
 import { referenceDataImporter } from './referenceDataImporter';
+import { referenceDataExporter } from './referenceDataExporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
@@ -60,6 +61,13 @@ adminRoutes.post('/import/referenceData', createDataImporterEndpoint(referenceDa
 
 adminRoutes.post('/import/program', createDataImporterEndpoint(programImporter));
 
+adminRoutes.get(
+  '/export/referenceData',
+  asyncHandler(async (req, res) => {
+    const { store, query } = req;
+    const filename = await referenceDataExporter(store.models, query.includedDataTypes);
+    res.download(filename);
+  }),
 );
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
