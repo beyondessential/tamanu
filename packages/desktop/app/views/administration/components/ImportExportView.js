@@ -79,7 +79,7 @@ export const ImportExportView = memo(
           ),
         },
       ],
-      [endpoint, dataTypes, dataTypesSelectable],
+      [endpoint, dataTypes, dataTypesSelectable, disableExport],
     );
 
     return (
