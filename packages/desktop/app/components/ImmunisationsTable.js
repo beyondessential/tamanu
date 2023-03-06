@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { CheckInput } from './Field';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
 const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
@@ -22,11 +23,25 @@ const columns = [
   { key: 'batch', title: 'Batch', accessor: getBatch },
 ];
 
-export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
-  <DataFetchingTable
-    endpoint={`patient/${patient.id}/administeredVaccines`}
-    columns={columns}
-    onRowClick={row => onItemClick(row)}
-    noDataMessage="No vaccinations found"
-  />
-));
+export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => {
+  const [ includeNotGiven, setIncludeNotGiven ] = useState(false);
+
+  const notGivenCheckBox = (
+    <CheckInput 
+      label="Include not given"
+      value={includeNotGiven}
+      onClick={() => setIncludeNotGiven(!includeNotGiven)}
+    />
+  );
+
+  return (
+    <DataFetchingTable
+      endpoint={`patient/${patient.id}/administeredVaccines`}
+      fetchOptions={{ includeNotGiven }}
+      columns={columns}
+      optionRow={notGivenCheckBox}
+      onRowClick={row => onItemClick(row)}
+      noDataMessage="No vaccinations found"
+    />
+  );
+});
