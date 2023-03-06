@@ -275,7 +275,7 @@ describe('Data definition import', () => {
     const { baseApp } = ctx;
     const nonAdminApp = await baseApp.asRole('practitioner');
 
-    const response = await nonAdminApp.post('/v1/admin/importRefData');
+    const response = await nonAdminApp.post('/v1/admin/import/referenceData');
     expect(response).toBeForbidden();
   });
 });

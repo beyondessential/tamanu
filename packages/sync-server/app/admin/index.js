@@ -57,7 +57,7 @@ adminRoutes.get(
 );
 
 adminRoutes.post(
-  '/import/refData',
+  '/import/referenceData',
   createDataImporterEndpoint(referenceDataImporter, REFDATA_PERMISSIONS),
 );
 

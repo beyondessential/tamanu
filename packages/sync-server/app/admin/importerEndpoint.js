@@ -71,7 +71,7 @@ export async function importerTransaction({
 
     return { errors: [], stats: coalesceStats(stats) };
   } catch (err) {
-    log.error(`while importing refdata: ${err.stack}`);
+    log.error(`while importing reference data: ${err.stack}`);
     if (dryRun && err instanceof DryRun) {
       return {
         didntSendReason: 'dryRun',

@@ -60,11 +60,11 @@ export async function referenceDataImporter({
     models,
   });
 
-  const refDataTypes = ['diagnosis', ...REFERENCE_TYPE_VALUES];
+  const referenceDataTypes = ['diagnosis', ...REFERENCE_TYPE_VALUES];
 
-  log.debug('Import all reference data', { types: refDataTypes });
+  log.debug('Import all reference data', { types: referenceDataTypes });
   const importedRef = [];
-  for (const refType of refDataTypes) {
+  for (const refType of referenceDataTypes) {
     log.debug('Look for reference data in sheets', { refType });
     const sheet = sheets.get(refType);
     if (!sheet) continue;
@@ -83,22 +83,27 @@ export async function referenceDataImporter({
 
   // sort by length of needs, so that stuff that doesn't depend on anything else gets done first
   // (as an optimisation, the algorithm doesn't need this, but it saves a few cycles)
-  const nonRefDataTypes = Object.entries(DEPENDENCIES).map(([k, v]) => [normaliseSheetName(k), v]);
+  const nonReferenceDataTypes = Object.entries(DEPENDENCIES).map(([k, v]) => [
+    normaliseSheetName(k),
+    v,
+  ]);
   // eslint-disable-next-line no-unused-vars
-  nonRefDataTypes.sort(([_ka, a], [_kb, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
+  nonReferenceDataTypes.sort(
+    ([_ka, a], [_kb, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0),
+  );
 
-  log.debug('Importing other data types', { nonRefDataTypes });
+  log.debug('Importing other data types', { nonReferenceDataTypes });
   const importedData = [];
   const droppedData = [];
 
   let loopProtection = 100;
-  while (nonRefDataTypes.length > 0 && loopProtection > 0) {
+  while (nonReferenceDataTypes.length > 0 && loopProtection > 0) {
     loopProtection -= 1;
 
     const [
       dataType,
       { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] },
-    ] = nonRefDataTypes.shift();
+    ] = nonReferenceDataTypes.shift();
 
     log.debug('Look for data type in sheets', { dataType });
     const sheet = sheets.get(dataType);
@@ -114,7 +119,7 @@ export async function referenceDataImporter({
       log.debug('Resolve data type needs', { dataType, needs });
       if (!needs.every(need => importedData.includes(need) || droppedData.includes(need))) {
         log.debug('Some needs are missing, deferring');
-        nonRefDataTypes.push([dataType, { loader, model, needs }]);
+        nonReferenceDataTypes.push([dataType, { loader, model, needs }]);
         continue;
       }
     }

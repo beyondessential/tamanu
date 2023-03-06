@@ -191,9 +191,9 @@ export const FACILITY_MENU_ITEMS = [
 
 export const SYNC_MENU_ITEMS = [
   {
-    key: 'refdata',
+    key: 'referenceData',
     label: 'Reference data',
-    path: '/admin/refdata',
+    path: '/admin/referenceData',
   },
   {
     key: 'permissions',

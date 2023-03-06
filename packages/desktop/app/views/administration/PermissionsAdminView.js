@@ -5,7 +5,7 @@ import { ImportExportView } from './components/ImportExportView';
 export const PermissionsAdminView = () => (
   <ImportExportView
     title="Permissions"
-    endpoint="refData"
+    endpoint="referenceData"
     dataTypes={PERMISSION_IMPORTABLE_DATA_TYPES}
   />
 );
