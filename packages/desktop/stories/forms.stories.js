@@ -17,7 +17,7 @@ import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
-import { ImmunisationForm } from '../app/forms/ImmunisationForm';
+import { VaccineGivenForm } from '../app/forms/VaccineGivenForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
@@ -74,9 +74,9 @@ const getScheduledVaccines = () => {
   return [];
 };
 
-storiesOf('Forms', module).add('ImmunisationForm', () => (
+storiesOf('Forms', module).add('VaccineGivenForm', () => (
   <Modal title="Give vaccine" open>
-    <ImmunisationForm
+    <VaccineGivenForm
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       practitionerSuggester={practitionerSuggester}

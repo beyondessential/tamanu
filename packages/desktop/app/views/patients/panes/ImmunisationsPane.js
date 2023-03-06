@@ -3,7 +3,7 @@ import { useApi } from '../../../api';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import { ImmunisationCertificateModal } from '../../../components/PatientPrinting';
-import { ImmunisationModal } from '../../../components/ImmunisationModal';
+import { VaccineModal } from '../../../components/VaccineModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 
 export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
@@ -27,7 +27,7 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
 
   return (
     <>
-      <ImmunisationModal
+      <VaccineModal
         open={isAdministerModalOpen}
         patientId={patient.id}
         onClose={() => setIsAdministerModalOpen(false)}

@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
+import config from 'config';
+
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
@@ -100,12 +102,27 @@ patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientVaccine');
-    if (!req.body.scheduledVaccineId) {
-      res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
+
+    const { models } = req;
+    const { vaccineCreationType } = req.body;
+
+    let defaultDepartment;
+    let defaultLocation;
+    if (vaccineCreationType === 'given') {
+      if (!req.body.scheduledVaccineId) {
+        res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
+      }
+    } else {
+      defaultDepartment = await models.Department.findOne({
+        where: { facilityId: config.serverFacilityId },
+      });
+      defaultLocation = await models.Location.findOne({
+        where: { facilityId: config.serverFacilityId },
+      });
     }
 
     let encounterId;
-    const existingEncounter = await req.models.Encounter.findOne({
+    const existingEncounter = await models.Encounter.findOne({
       where: {
         endDate: {
           [Op.is]: null,
@@ -122,9 +139,9 @@ patientVaccineRoutes.post(
         startDate: req.body.date,
         endDate: req.body.date,
         patientId: req.params.id,
-        locationId: req.body.locationId,
+        locationId: req.body.locationId || defaultLocation.id,
         examinerId: req.body.recorderId,
-        departmentId: req.body.departmentId,
+        departmentId: req.body.departmentId || defaultDepartment.id,
       });
       encounterId = newEncounter.get('id');
     }

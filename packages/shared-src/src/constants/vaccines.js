@@ -4,6 +4,12 @@ export const VACCINE_CATEGORIES = {
   CAMPAIGN: 'Campaign',
 };
 
+export const VACCINE_CATEGORY_OPTIONS = [
+  { value: VACCINE_CATEGORIES.ROUTINE, label: 'Routine' },
+  { value: VACCINE_CATEGORIES.CATCHUP, label: 'Catch-up' },
+  { value: VACCINE_CATEGORIES.CAMPAIGN, label: 'Campaign' },
+];
+
 export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);
 
 export const INJECTION_SITE_OPTIONS = {
