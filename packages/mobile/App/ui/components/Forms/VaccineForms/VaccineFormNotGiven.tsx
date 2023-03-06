@@ -5,6 +5,8 @@ import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 import { FormSectionHeading } from '../FormSectionHeading';
+import { SuggesterDropdown } from '../../Dropdown';
+import { ReferenceDataType } from '~/types';
 
 export function VaccineFormNotGiven(): JSX.Element {
   return (
@@ -12,7 +14,12 @@ export function VaccineFormNotGiven(): JSX.Element {
       <FormSectionHeading text="Date" />
       <Field component={DateField} name="date" label="Date" />
       <FormSectionHeading text="Reason" />
-      <Field component={TextField} name="reason" label="Reason" />
+      <Field
+        component={SuggesterDropdown}
+        name="notGivenReasonId"
+        label="Reason"
+        referenceDataType={ReferenceDataType.VaccineNotGivenReason}
+      />
       <StyledView width="100%">
         <FormSectionHeading text="Given by" />
         <Field component={TextField} name="givenBy" marginTop={0} />
