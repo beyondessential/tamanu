@@ -2,6 +2,7 @@ import { createDummyEncounter, createDummyPatient, randomVitals } from 'shared/d
 import { VACCINE_CATEGORIES } from 'shared/constants';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
+import { VACCINE_STATUS } from 'shared/constants/vaccines';
 
 describe('PatientVaccine', () => {
   let patient = null;
@@ -111,7 +112,18 @@ describe('PatientVaccine', () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(1);
-      expect(result.body.data[0].status).toEqual('GIVEN');
+      expect(result.body.data[0].status).toEqual(VACCINE_STATUS.GIVEN);
+    });
+
+    it('Should include not given vaccines', async () => {
+      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`, {
+        includeNotGiven: true
+      });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(2);
+      expect(result.body.data[0].status).toEqual(VACCINE_STATUS.GIVEN);
+      expect(result.body.data[1].status).toEqual(VACCINE_STATUS.NOT_GIVEN);
     });
 
     it('Should mark an administered vaccine as recorded in error', async () => {

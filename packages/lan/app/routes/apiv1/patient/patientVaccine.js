@@ -143,8 +143,12 @@ patientVaccineRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
+    const where = req.params.includeNotGiven ? { 
+      status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
+    } : {};
+
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const results = await patient.getAdministeredVaccines();
+    const results = await patient.getAdministeredVaccines({ where });
 
     // TODO: enable pagination for this endpoint
     res.send({ count: results.length, data: results });
