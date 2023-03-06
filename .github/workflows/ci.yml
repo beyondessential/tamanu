@@ -34,6 +34,7 @@ jobs:
           - meta-server
           - "@tamanu/shared"
           - sync-server
+          - "@tamanu/tracing"
 
     name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }}
       pg=${{ matrix.postgres }}
@@ -77,6 +78,7 @@ jobs:
           - meta-server
           - "@tamanu/shared"
           - sync-server
+          - "@tamanu/tracing"
 
     name: Lint ${{ matrix.package }} node=${{ matrix.node }}
     runs-on: ubuntu-latest
