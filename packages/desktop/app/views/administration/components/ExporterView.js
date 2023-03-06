@@ -8,6 +8,7 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Button } from '../../../components/Button';
+import { saveBlobAs } from '../../../utils/saveBlobAs';
 
 const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
@@ -27,24 +28,15 @@ const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
   </FormGrid>
 );
 
-const saveAs = (blob, filename) => {
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  window.URL.revokeObjectURL(url);
-};
-
-export const ExporterView = memo(({ endpoint, dataTypes, dataTypesSelectable }) => {
+export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
   const api = useApi();
 
   const onSubmit = useCallback(
     async ({ includedDataTypes }) => {
       const blob = await api.download(`admin/export/${endpoint}`, { includedDataTypes });
-      saveAs(blob, `export-${endpoint}.xlsx`);
+      saveBlobAs(blob, { defaultFileName: `Export ${title.toLowerCase}.xlsx` });
     },
-    [api, endpoint],
+    [api, title, endpoint],
   );
 
   const renderForm = useCallback(

@@ -70,6 +70,7 @@ export const ImportExportView = memo(
           render: () => (
             <TabContainer>
               <ExporterView
+                title={title}
                 endpoint={endpoint}
                 dataTypes={dataTypes}
                 dataTypesSelectable={dataTypesSelectable}
@@ -79,7 +80,7 @@ export const ImportExportView = memo(
           ),
         },
       ],
-      [endpoint, dataTypes, dataTypesSelectable, disableExport],
+      [title, endpoint, dataTypes, dataTypesSelectable, disableExport],
     );
 
     return (
