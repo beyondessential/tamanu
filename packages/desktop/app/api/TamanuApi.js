@@ -6,7 +6,7 @@ import { buildAbilityForUser } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { ForbiddenError } from 'shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import { notifyError } from '../utils';
+import { getDeviceId, notifyError } from '../utils';
 
 const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS } = LOCAL_STORAGE_KEYS;
 
@@ -20,8 +20,6 @@ const getResponseJsonSafely = async response => {
     return {};
   }
 };
-
-const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -106,6 +104,7 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.user = null;
+    this.deviceId = getDeviceId();
 
     const host = window.localStorage.getItem(HOST);
     if (host) {
@@ -144,7 +143,15 @@ export class TamanuApi {
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post('login', { email, password }, { returnResponse: true });
+    const response = await this.post(
+      'login',
+      {
+        email,
+        password,
+        deviceId: this.deviceId,
+      },
+      { returnResponse: true },
+    );
     const serverType = response.headers.get('X-Tamanu-Server');
     if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
@@ -213,12 +220,6 @@ export class TamanuApi {
       ...otherConfig,
     });
     if (response.ok) {
-      const timeSinceRefresh = Date.now() - this.lastRefreshed;
-      if (timeSinceRefresh > REFRESH_DURATION) {
-        this.lastRefreshed = Date.now();
-        this.refreshToken();
-      }
-
       if (returnResponse) {
         return response;
       }
