@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
 import { startCase } from 'lodash';
-import { parseDate } from 'shared/utils/dateTime';
 
 import { LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { DateDisplay, formatTime, formatShort } from '../../DateDisplay';
+import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
@@ -112,13 +111,6 @@ export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   }
 `;
 
-const customDateFormat = ({ date }) => {
-  const dateObj = parseDate(date);
-  return `${formatShort(dateObj)} ${formatTime(dateObj)
-    .split(' ')
-    .join('')}`;
-};
-
 const COLUMNS = {
   encounterTypes: [
     {
@@ -130,7 +122,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: customDateFormat,
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
       style: { width: '30%' },
     },
   ],
@@ -151,7 +143,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: customDateFormat,
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
       style: { width: '30%' },
     },
   ],
@@ -186,7 +178,7 @@ const COLUMNS = {
     },
     {
       key: 'procedureDate',
-      title: 'Procedure Date',
+      title: 'Procedure date',
       accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
       style: { width: '20%' },
     },
@@ -195,28 +187,28 @@ const COLUMNS = {
   labRequests: [
     {
       key: 'testType',
-      title: 'Test Type',
+      title: 'Test type',
       style: { width: '20%' },
     },
     {
       key: 'testCategory',
-      title: 'Test Category',
+      title: 'Test category',
       style: { width: '20%' },
     },
     {
       key: 'requestingClinician',
-      title: 'Requesting Clinician',
+      title: 'Requesting clinician',
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
-      title: 'Request Date',
+      title: 'Request date',
       accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
-      title: 'Completed Date',
+      title: 'Completed date',
       accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate /> || {},
       style: { width: '20%' },
     },
@@ -237,19 +229,19 @@ const COLUMNS = {
     },
     {
       key: 'requestingClinician',
-      title: 'Requesting Clinician',
+      title: 'Requesting clinician',
       accessor: ({ requestedBy }) => requestedBy?.displayName,
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
-      title: 'Request Date',
+      title: 'Request date',
       accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate />,
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
-      title: 'Completed Date',
+      title: 'Completed date',
       accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="completedDate" />,
       style: { width: '20%' },
     },
@@ -282,7 +274,7 @@ const COLUMNS = {
     },
     {
       key: 'prescriptionDate',
-      title: 'Prescription Date',
+      title: 'Prescription date',
       accessor: ({ date }) => <DateDisplay date={date} showDate />,
       style: { width: '20%' },
     },
@@ -296,6 +288,8 @@ export const EncounterRecord = React.memo(
     certificateData,
     encounterTypeHistory,
     locationHistory,
+    diagnoses,
+    procedures,
     labRequests,
     imagingRequests,
     notes,
@@ -322,7 +316,7 @@ export const EncounterRecord = React.memo(
           <Divider />
           <RowContainer>
             <div>
-              <DisplayValue name="Full Name">
+              <DisplayValue name="Patient Name">
                 {firstName} {lastName}
               </DisplayValue>
               <LocalisedDisplayValue name="dateOfBirth">
@@ -383,17 +377,17 @@ export const EncounterRecord = React.memo(
             </>
           ) : null}
 
-          {encounter.diagnoses.length > 0 ? (
+          {diagnoses.length > 0 ? (
             <>
               <TableHeading>Diagnoses</TableHeading>
-              <CompactListTable data={encounter.diagnoses} columns={COLUMNS.diagnoses} />
+              <CompactListTable data={diagnoses} columns={COLUMNS.diagnoses} />
             </>
           ) : null}
 
-          {encounter.procedures.length > 0 ? (
+          {procedures.length > 0 ? (
             <>
               <TableHeading>Procedures</TableHeading>
-              <CompactListTable data={encounter.procedures} columns={COLUMNS.procedures} />
+              <CompactListTable data={procedures} columns={COLUMNS.procedures} />
             </>
           ) : null}
 
