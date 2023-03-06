@@ -1,5 +1,6 @@
 import { writeFile, readFile, cp } from 'fs/promises';
 import { createInterface } from 'readline';
+import { parseDocument } from 'yaml';
 
 const PKG_PATH = './package.json';
 
@@ -24,6 +25,13 @@ async function createPackage(name) {
   console.log('Adding to workspace...');
   pkg.workspaces.packages.push(`packages/${name}`);
   await writeFile(PKG_PATH, JSON.stringify(pkg, null, 2) + '\n');
+
+  console.log('Adding to CI...');
+  const ciPath = './.github/workflows/ci.yml';
+  const ci = parseDocument(await readFile(ciPath, 'utf-8'));
+  ci.contents.addIn(['jobs', 'test', 'strategy', 'matrix', 'package'], `@tamanu/${name}`);
+  ci.contents.addIn(['jobs', 'lint', 'strategy', 'matrix', 'package'], `@tamanu/${name}`);
+  await writeFile(ciPath, ci.toString());
 
   console.log("All done! Don't forget to run yarn and yarn build-shared");
   process.exit(0);
