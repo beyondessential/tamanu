@@ -46,6 +46,7 @@ const PrimaryItemText = styled(ListItemText)`
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
+  max-height: ${props => (props.$invisible ? '18px' : 'default')};
   color: ${props => (props.$invisible ? 'transparent' : '')};
   transition: ${props => props.theme.transitions.create('all')};
 `;
