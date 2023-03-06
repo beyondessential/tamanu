@@ -14,6 +14,7 @@ export enum ReferenceDataType {
   Village = 'village',
   Vaccine = 'vaccine',
   PatientIdType = 'patientIdType',
+  VaccineNotGivenReason = 'vaccineNotGivenReason',
 }
 
 export interface IReferenceData {
