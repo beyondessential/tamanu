@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import config from 'config';
 
-import { ENCOUNTER_TYPES, VACCINE_CREATION_TYPE } from 'shared/constants';
+import { ENCOUNTER_TYPES, VACCINE_RECORDING_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -110,7 +110,7 @@ patientVaccineRoutes.post(
     res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
 
     // Find default department and location when vaccine is not given
-    if (vaccineCreationType === VACCINE_CREATION_TYPE.NOT_GIVEN) {
+    if (vaccineCreationType === VACCINE_RECORDING_TYPES.NOT_GIVEN) {
       const defaultDepartment = await models.Department.findOne({
         where: { facilityId: config.serverFacilityId },
       });

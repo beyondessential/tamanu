@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import Checkbox from '@material-ui/core/Checkbox';
 import * as yup from 'yup';
+import { PropTypes } from 'prop-types';
 
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { INJECTION_SITE_OPTIONS, VACCINE_CATEGORY_OPTIONS } from 'shared/constants';
 
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
-import { ControlLabel } from '../components/ControlLabel';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { AdministeredVaccineSchedule } from '../components/AdministeredVaccineSchedule';
 import {
   Form,
   Field,
@@ -21,22 +21,11 @@ import {
   CheckField,
   LocalisedLocationField,
 } from '../components/Field';
-import { Colors } from '../constants';
 import { useSuggester } from '../api';
-
-const AdministeredCheckbox = styled(Checkbox)`
-  .MuiSvgIcon-root path {
-    color: ${Colors.safe};
-  }
-`;
 
 const FullWidthCol = styled.div`
   grid-column: 1/-1;
 `;
-
-const AdministeredVaccineSchedule = ({ option }) => (
-  <ControlLabel control={<AdministeredCheckbox checked disabled />} label={option.label} />
-);
 
 export const VaccineGivenForm = ({
   vaccineLabel,
@@ -164,4 +153,17 @@ export const VaccineGivenForm = ({
       )}
     />
   );
+};
+
+VaccineGivenForm.propTypes = {
+  vaccineLabel: PropTypes.string.isRequired,
+  vaccineOptions: PropTypes.array.isRequired,
+  administeredOptions: PropTypes.array.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  category: PropTypes.string.isRequired,
+  scheduleOptions: PropTypes.array.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  setCategory: PropTypes.func.isRequired,
+  setVaccineLabel: PropTypes.func.isRequired,
+  currentUser: PropTypes.object.isRequired,
 };

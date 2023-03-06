@@ -1,5 +1,8 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { PropTypes } from 'prop-types';
+
+import { VACCINE_RECORDING_TYPES } from 'shared/constants';
 
 import { VaccineGivenForm } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
@@ -44,31 +47,29 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineC
     fetchScheduledVaccines();
   }, [category, getScheduledVaccines]);
 
-  return vaccineCreationType === 'given' ? (
-    <VaccineGivenForm
-      vaccineLabel={vaccineLabel}
-      vaccineOptions={vaccineOptions}
-      category={category}
-      setCategory={setCategory}
-      setVaccineLabel={setVaccineLabel}
-      administeredOptions={administeredOptions}
-      scheduleOptions={scheduleOptions}
-      onSubmit={onSubmit}
-      onCancel={onCancel}
-      currentUser={currentUser}
-    />
+  const baseProps = {
+    vaccineLabel,
+    vaccineOptions,
+    category,
+    setCategory,
+    setVaccineLabel,
+    administeredOptions,
+    scheduleOptions,
+    onSubmit,
+    onCancel,
+    currentUser,
+  };
+
+  return vaccineCreationType === VACCINE_RECORDING_TYPES.GIVEN ? (
+    <VaccineGivenForm {...baseProps} />
   ) : (
-    <VaccineNotGivenForm
-      vaccineLabel={vaccineLabel}
-      vaccineOptions={vaccineOptions}
-      category={category}
-      setCategory={setCategory}
-      setVaccineLabel={setVaccineLabel}
-      administeredOptions={administeredOptions}
-      scheduleOptions={scheduleOptions}
-      onSubmit={onSubmit}
-      onCancel={onCancel}
-      currentUser={currentUser}
-    />
+    <VaccineNotGivenForm {...baseProps} />
   );
+};
+
+VaccineForm.propTypes = {
+  onCancel: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  getScheduledVaccines: PropTypes.func.isRequired,
+  vaccineCreationType: PropTypes.string.isRequired,
 };

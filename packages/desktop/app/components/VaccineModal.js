@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VACCINE_STATUS, VACCINE_CREATION_TYPE } from 'shared/constants';
+import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from 'shared/constants';
 
 import { Modal } from './Modal';
 import { VaccineForm } from '../forms/VaccineForm';
@@ -11,7 +11,7 @@ import { reloadPatient } from '../store/patient';
 import { getCurrentUser } from '../store/auth';
 
 export const VaccineModal = ({ open, onClose, patientId }) => {
-  const [currentTabKey, setCurrentTabKey] = useState(VACCINE_CREATION_TYPE.GIVEN);
+  const [currentTabKey, setCurrentTabKey] = useState(VACCINE_RECORDING_TYPES.GIVEN);
 
   const api = useApi();
   const dispatch = useDispatch();
@@ -39,25 +39,25 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   const TABS = [
     {
       label: 'Given',
-      key: VACCINE_CREATION_TYPE.GIVEN,
+      key: VACCINE_RECORDING_TYPES.GIVEN,
       render: () => (
         <VaccineForm
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
           getScheduledVaccines={getScheduledVaccines}
-          vaccineCreationType={VACCINE_CREATION_TYPE.GIVEN}
+          vaccineCreationType={VACCINE_RECORDING_TYPES.GIVEN}
         />
       ),
     },
     {
       label: 'Not given',
-      key: VACCINE_CREATION_TYPE.NOT_GIVEN,
+      key: VACCINE_RECORDING_TYPES.NOT_GIVEN,
       render: () => (
         <VaccineForm
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
           getScheduledVaccines={getScheduledVaccines}
-          vaccineCreationType={VACCINE_CREATION_TYPE.NOT_GIVEN}
+          vaccineCreationType={VACCINE_RECORDING_TYPES.NOT_GIVEN}
         />
       ),
     },

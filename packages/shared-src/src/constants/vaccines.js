@@ -77,7 +77,7 @@ export const VACCINE_STATUS = {
   RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
 };
 
-export const VACCINE_CREATION_TYPE = {
+export const VACCINE_RECORDING_TYPES = {
   GIVEN: 'given',
   NOT_GIVEN: 'not_given',
 };
