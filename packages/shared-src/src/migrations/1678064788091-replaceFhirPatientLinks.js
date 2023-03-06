@@ -55,9 +55,9 @@ export async function up(query) {
             'type',
             'Patient',
             'identifier',
-            (sr.subject).identifier,
+            jsonb_extract_path_text(sr.subject, 'identifier'),
             'display',
-            (sr.subject).display
+            jsonb_extract_path_text(sr.subject, 'display')
           )
         FROM fhir.patients p
         WHERE true
