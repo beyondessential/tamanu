@@ -11,7 +11,8 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../services/fhirTypes';
-import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
+import { latestDateTime } from '../../utils/dateTime';
+import { dateTimeStringToFhir } from './utils';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -121,8 +122,8 @@ export class FhirDiagnosticReport extends FhirResource {
       status: status(labRequest),
       code: code(labTestType),
       subject: patientReference(patient),
-      effectiveDateTime: dateTimeStringIntoCountryTimezone(labRequest.sampleTime),
-      issued: dateTimeStringIntoCountryTimezone(labRequest.requestedDate),
+      effectiveDateTime: dateTimeStringToFhir(labRequest.sampleTime),
+      issued: dateTimeStringToFhir(labRequest.requestedDate),
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
     });

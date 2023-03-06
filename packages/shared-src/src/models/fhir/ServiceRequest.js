@@ -3,7 +3,7 @@ import { DataTypes } from 'sequelize';
 
 import { FhirResource } from './Resource';
 
-import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
+import { latestDateTime } from '../../utils/dateTime';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -20,6 +20,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
 } from '../../constants';
 import { Exception } from '../../utils/fhir';
+import { dateTimeStringToFhir } from './utils';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
@@ -184,7 +185,7 @@ export class FhirServiceRequest extends FhirResource {
         reference: upstream.encounter.patient.id,
         display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
       }),
-      occurrenceDateTime: dateTimeStringIntoCountryTimezone(upstream.requestedDate),
+      occurrenceDateTime: dateTimeStringToFhir(upstream.requestedDate),
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
       }),

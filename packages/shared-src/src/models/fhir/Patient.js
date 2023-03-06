@@ -4,7 +4,7 @@ import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
 import { activeFromVisibility } from './utils';
-import { latestDateTime } from '../../utils/dateTime';
+import { latestDateTime, toDateString } from '../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
@@ -79,7 +79,7 @@ export class FhirPatient extends FhirResource {
       telecom: telecoms(upstream),
       gender: upstream.sex,
       birthDate: upstream.dateOfBirth,
-      deceasedDateTime: upstream.dateOfDeath,
+      deceasedDateTime: toDateString(upstream.dateOfDeath),
       address: addresses(upstream),
       link: await mergeLinks(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
