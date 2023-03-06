@@ -13,7 +13,11 @@ import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { generateUVCI } from 'shared/utils/uvci';
 import { CertificateTypes } from 'shared/utils/patientCertificates';
-import { makeVaccineCertificate, makeCovidCertificate } from '../../utils/makePatientCertificate';
+import {
+  makeVaccineCertificate,
+  makeCovidVaccineCertificate,
+  makeCovidCertificate,
+} from '../../utils/makePatientCertificate';
 import { getLocalisation } from '../../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
 import { createEuDccVaccinationData, HCERTPack } from '../../integrations/EuDcc';
@@ -130,7 +134,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
+            pdf = await makeCovidVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;
           }
 
