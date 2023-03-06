@@ -74,6 +74,11 @@ export class AdministeredVaccine extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'notGivenReasonId',
+      as: 'notGivenReason',
+    });
   }
 
   static buildSyncFilter(patientIds, { syncAllEncountersForTheseVaccines }) {
