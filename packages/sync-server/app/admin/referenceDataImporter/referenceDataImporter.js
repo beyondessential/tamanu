@@ -10,8 +10,6 @@ import { referenceDataLoaderFactory, loaderFactory } from './loaders';
 import { importSheet } from './sheet';
 import DEPENDENCIES from './dependencies';
 
-export const PERMISSIONS = ['Permission', 'Role', 'User', 'ReferenceData'];
-
 export async function referenceDataImporter({
   errors,
   models,

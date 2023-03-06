@@ -6,8 +6,6 @@ import { importRows } from '../importRows';
 import { readMetadata } from './readMetadata';
 import { importSurvey } from './importSurvey';
 
-export const PERMISSIONS = ['Program', 'Survey'];
-
 export async function programImporter({ errors, models, stats, file, whitelist = [] }) {
   const createContext = sheetName => ({
     errors,
