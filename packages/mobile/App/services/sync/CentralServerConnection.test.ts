@@ -169,6 +169,7 @@ describe('CentralServerConnection', () => {
     it('should set new token and refreshToken', async () => {
       const setTokenSpy = jest.spyOn(centralServerConnection, 'setToken');
       const setRefreshTokenSpy = jest.spyOn(centralServerConnection, 'setRefreshToken');
+      const setStatusSpy = jest.spyOn(centralServerConnection, 'setStatus');
       const mockToken = 'test-token';
       const mockRefreshToken = 'test-refresh-token';
       const mockNewRefreshToken = 'test-new-refresh-token';
@@ -193,10 +194,7 @@ describe('CentralServerConnection', () => {
           skipAttemptRefresh: true,
         },
       );
-      expect(centralServerConnection.emitter.emit).toBeCalledWith(
-        'centralConnectionStatusChange',
-        CentralConnectionStatus.Connected,
-      );
+      expect(setStatusSpy).toBeCalledWith(CentralConnectionStatus.Connected)
       expect(setTokenSpy).toBeCalledWith(mockToken);
       expect(setRefreshTokenSpy).toBeCalledWith(mockNewRefreshToken);
     });
@@ -235,6 +233,7 @@ describe('CentralServerConnection', () => {
     it('should invoke itself after invalid token and refresh endpoint', async () => {
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
       const fetchSpy = jest.spyOn(centralServerConnection, 'fetch');
+      const setStatusSpy = jest.spyOn(centralServerConnection, 'setStatus');
       const mockToken = 'test-token';
       const mockRefreshToken = 'test-refresh-token';
       const mockNewToken = 'test-new-token';
@@ -272,11 +271,7 @@ describe('CentralServerConnection', () => {
       expect(fetchWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/v1/${mockPath}`, {
         headers: getHeadersWithToken(mockToken),
       });
-      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
-        1,
-        'centralConnectionStatusChange',
-        CentralConnectionStatus.Disconnected,
-      )
+      expect(setStatusSpy).toHaveBeenNthCalledWith(1, CentralConnectionStatus.Disconnected)
       expect(fetchWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/v1/refresh`, {
         headers: { ...getHeadersWithToken(mockToken), 'Content-Type': 'application/json' },
         method: 'POST',
@@ -285,12 +280,7 @@ describe('CentralServerConnection', () => {
           deviceId: 'mobile-test-device-id',
         }),
       });
-
-      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
-        2,
-        'centralConnectionStatusChange',
-        CentralConnectionStatus.Connected,
-      )
+      expect(setStatusSpy).toHaveBeenNthCalledWith(2, CentralConnectionStatus.Connected)
       expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/v1/${mockPath}`, {
         headers: getHeadersWithToken(mockNewToken),
       });

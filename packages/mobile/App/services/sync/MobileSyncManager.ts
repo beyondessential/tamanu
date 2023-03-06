@@ -49,7 +49,7 @@ export class MobileSyncManager {
 
   models: typeof MODELS_MAP;
 
-  centralServer: CentralServerConnection;
+  ver: CentralServerConnection;
 
   constructor(centralServer: CentralServerConnection) {
     this.centralServer = centralServer;

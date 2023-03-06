@@ -1,7 +1,6 @@
 import { CentralServerConnection } from '../sync';
 import { AuthService } from './AuthService';
 import { MODELS_MAP } from '~/models/modelsMap';
-import { CentralConnectionStatus } from '~/types';
 
 jest.mock('../sync/CentralServerConnection', () => ({
   CentralServerConnection: jest.fn().mockImplementation(() => ({
@@ -22,10 +21,6 @@ describe('AuthService', () => {
   beforeEach(() => {
     centralServerConnection = new CentralServerConnection();
     authService = new AuthService(MODELS_MAP, centralServerConnection);
-    authService.emitter = {
-      emit: jest.fn(),
-      on: jest.fn(),
-    };
     (CentralServerConnection as jest.Mock<CentralServerConnection>).mockClear();
     jest.clearAllMocks();
   });
@@ -37,10 +32,6 @@ describe('AuthService', () => {
       authService.startSession(mockToken, mockRefreshToken);
       expect(centralServerConnection.setToken).toHaveBeenCalledWith(mockToken);
       expect(centralServerConnection.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
-      expect(authService.emitter.emit).toHaveBeenCalledWith(
-        'centralConnectionStatusChange',
-        CentralConnectionStatus.Connected,
-      );
     });
   });
   describe('endSession', () => {
@@ -48,10 +39,6 @@ describe('AuthService', () => {
       authService.endSession();
       expect(centralServerConnection.clearToken).toHaveBeenCalled();
       expect(centralServerConnection.clearRefreshToken).toHaveBeenCalled();
-      expect(authService.emitter.emit).toHaveBeenCalledWith(
-        'centralConnectionStatusChange',
-        CentralConnectionStatus.Disconnected,
-      );
     });
   });
 });
