@@ -315,7 +315,6 @@ export async function down(query) {
             FROM downstreamed
             GROUP by id
         )
-      SELECT new_links.new_link FROM new_links;
       UPDATE fhir.patients p
         SET link = n.new_link
         FROM new_links n
