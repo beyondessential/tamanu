@@ -4,13 +4,13 @@ import { CheckInput } from './CheckField';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const ScrollingContainer = styled.div`
-  max-height: 350px;
   overflow-y: auto;
   background-color: white;
   display: flex;
   flex-direction: column;
   padding: 10px;
   border: 1px solid #dedede;
+  height: 100%;
 `;
 
 const MultiSelectItem = styled.div`

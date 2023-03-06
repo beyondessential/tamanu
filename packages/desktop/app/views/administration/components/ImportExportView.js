@@ -1,43 +1,60 @@
 import React, { memo, useState, useMemo } from 'react';
 import styled from 'styled-components';
-
+import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { ImporterView } from './ImporterView';
 import { ExporterView } from './ExporterView';
+import { Colors } from '../../../constants';
 
-const OuterContainer = styled.div`
+const PageContainer = styled.div`
   position: relative;
-  background-color: white;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+
+  > div:first-child {
+    flex: 0;
+  }
+
+  > div:last-child {
+    flex: 1;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    height: 100%;
+  }
 `;
 
-const ContentContainer = styled.div`
-  height: 100%;
+const StyledTabDisplay = styled(TabDisplay)`
+  > div:last-child {
+    position: relative;
+    flex: 1;
+  }
+
+  .MuiTabs-root {
+    padding: 0 20px;
+    border-bottom: 1px solid ${Colors.softOutline};
+  }
 `;
 
 const LoadingContainer = styled.div`
   position: absolute;
   width: 100%;
+  height: 100%;
   z-index: 9999;
-`;
-
-const Title = styled.h1`
-  padding: 20px;
-  margin: 0px;
-`;
-
-const StyledTabDisplay = styled(TabDisplay)`
-  margin-top: 20px;
-  border-top: 1px solid #dededede;
-
-  .MuiTabs-root {
-    padding: 0px 20px;
-    border-bottom: 1px solid #dededede;
-  }
+  overflow: hidden;
 `;
 
 const TabContainer = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
   padding: 20px;
 `;
 
@@ -84,22 +101,20 @@ export const ImportExportView = memo(
     );
 
     return (
-      <OuterContainer>
+      <PageContainer>
+        <TopBar title={title} />
         {isLoading && (
           <LoadingContainer>
             <LoadingIndicator />
           </LoadingContainer>
         )}
-        <ContentContainer>
-          <Title>{title}</Title>
-          <StyledTabDisplay
-            tabs={tabs}
-            currentTab={currentTab}
-            onTabSelect={setCurrentTab}
-            scrollable={false}
-          />
-        </ContentContainer>
-      </OuterContainer>
+        <StyledTabDisplay
+          tabs={tabs}
+          currentTab={currentTab}
+          onTabSelect={setCurrentTab}
+          scrollable={false}
+        />
+      </PageContainer>
     );
   },
 );

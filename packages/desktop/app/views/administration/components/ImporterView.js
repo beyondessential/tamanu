@@ -7,7 +7,6 @@ import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
-import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
 import { LargeButton, LargeOutlineButton } from '../../../components/Button';
@@ -54,7 +53,7 @@ const ImportStatsDisplay = ({ stats }) => (
 );
 
 const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }) => (
-  <FormGrid columns={1}>
+  <>
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
@@ -64,6 +63,7 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
     />
     {dataTypes && dataTypesSelectable && (
       <Field
+        style={{ flex: 1, height: 0, marginBottom: 40, marginTop: 15 }}
         name="includedDataTypes"
         label="Select data types to import"
         component={ExpandedMultiSelectField}
@@ -90,7 +90,7 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
         Import
       </LargeButton>
     </ButtonRow>
-  </FormGrid>
+  </>
 );
 
 function sumStat(stats, fields = ['created', 'updated', 'errored']) {
@@ -128,6 +128,7 @@ const OutcomeHeader = ({ result }) => {
 };
 
 const OutcomeDisplay = ({ result }) => {
+  console.log('result', result);
   if (!result) {
     return null;
   }

@@ -6,15 +6,15 @@ import { getCurrentCountryTimeZoneDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
-import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Button } from '../../../components/Button';
 import { saveBlobAs } from '../../../utils/saveBlobAs';
 
 const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
-  <FormGrid columns={1}>
+  <>
     {dataTypesSelectable && (
       <Field
+        style={{ flex: 1, height: 0, marginBottom: 40, marginTop: 15 }}
         name="includedDataTypes"
         label="Select data types to export"
         component={ExpandedMultiSelectField}
@@ -26,7 +26,7 @@ const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
         Export
       </Button>
     </ButtonRow>
-  </FormGrid>
+  </>
 );
 
 export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
@@ -53,17 +53,15 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
   );
 
   return (
-    <>
-      <Form
-        onSubmit={onSubmit}
-        validationSchema={yup.object().shape({
-          includedDataTypes: yup.array(),
-        })}
-        initialValues={{
-          includedDataTypes: [...dataTypes],
-        }}
-        render={renderForm}
-      />
-    </>
+    <Form
+      onSubmit={onSubmit}
+      validationSchema={yup.object().shape({
+        includedDataTypes: yup.array(),
+      })}
+      initialValues={{
+        includedDataTypes: [...dataTypes],
+      }}
+      render={renderForm}
+    />
   );
 });
