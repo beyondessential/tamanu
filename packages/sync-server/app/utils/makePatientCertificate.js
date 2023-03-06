@@ -116,7 +116,10 @@ export const makeVaccineCertificate = async (patient, printedBy, models) => {
   });
 
   try {
-    const vaccinations = await patient.getAdministeredVaccines();
+    const vaccinations = await patient.getAdministeredVaccines()
+    vaccinations.sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    });
     const additionalData = await models.PatientAdditionalData.findOne({
       where: { patientId: patient.id },
       include: models.PatientAdditionalData.getFullReferenceAssociations(),

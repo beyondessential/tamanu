@@ -21,7 +21,9 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
 
   useEffect(() => {
     api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      const vaccines = response.data;
+      const vaccines = response.data.sort((a, b) => {
+        return new Date(a.date) - new Date(b.date);
+      });
       setVaccinations(vaccines);
     });
   }, [api, patient.id]);
