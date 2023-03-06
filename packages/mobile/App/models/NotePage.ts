@@ -1,5 +1,6 @@
 import { Entity, Column, OneToMany } from 'typeorm/browser';
 
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
@@ -30,5 +31,24 @@ export class NotePage extends BaseModel implements INotePage {
 
   static getTableNameForSync(): string {
     return 'note_pages'; // unusual camel case table here on mobile
+  }
+
+  static async createForRecord({recordId, recordType, noteType, content, authorId}) {
+    const notePage = await NotePage.createAndSaveOne({
+      recordId,
+      recordType,
+      noteType,
+      date: getCurrentDateTimeString(),
+    });
+    console.log(notePage.id, authorId);
+
+    await NoteItem.createAndSaveOne({
+      notePage: notePage.id,
+      content,
+      date: getCurrentDateTimeString(),
+      author: authorId,
+    });
+
+    return notePage;
   }
 }

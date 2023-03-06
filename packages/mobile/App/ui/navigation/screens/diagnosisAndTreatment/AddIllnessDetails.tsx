@@ -18,7 +18,7 @@ import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType } from '~/types';
+import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType, NoteRecordType, NoteType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { authUserSelector } from '~/ui/helpers/selectors';
@@ -26,10 +26,14 @@ import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserFi
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const IllnessFormSchema = Yup.object().shape({
+  diagnosis: Yup.string(),
   certainty: Yup.mixed()
     .oneOf(Object.values(Certainty))
-    .required(),
-  diagnosis: Yup.string().required(),
+    .when("diagnosis", {
+      is: (diagnosis: string) => diagnosis,
+      then: Yup.mixed().required(),
+    }),
+  clinicalNote: Yup.string(),
 });
 
 const styles = StyleSheet.create({
@@ -52,29 +56,30 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const onRecordIllness = useCallback(
     async ({ diagnosis, certainty, clinicalNote }: any): Promise<any> => {
-      // TODO: persist fields other than diagnosis and certainty
+      console.log('onRecordIllness', diagnosis, certainty, clinicalNote)
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
       );
 
-      await models.Diagnosis.createAndSaveOne({
-        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-        isPrimary: true,
-        encounter: encounter.id,
-        date: getCurrentDateTimeString(),
-        diagnosis,
-        certainty,
-      });
-
-      if (clinicalNote) {
-        await models.N.createAndSaveOne({
+      if (diagnosis) {
+        await models.Diagnosis.createAndSaveOne({
           // TODO: support selecting multiple diagnoses and flagging as primary/non primary
           isPrimary: true,
           encounter: encounter.id,
           date: getCurrentDateTimeString(),
           diagnosis,
           certainty,
+        });
+      }
+
+      if (clinicalNote) {
+        await models.NotePage.createForRecord({
+          recordId: encounter.id,
+          recordType: NoteRecordType.ENCOUNTER,
+          noteType: NoteType.MEDICAL,
+          content: clinicalNote,
+          authorId: user.id,
         });
       }
 

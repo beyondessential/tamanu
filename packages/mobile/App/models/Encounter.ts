@@ -171,11 +171,12 @@ export class Encounter extends BaseModel implements IEncounter {
     // Read the selected facility for this client
     const facilityId = await readConfig('facilityId', '');
 
+    console.log(facilityId, 'facilityId');
     // Find the first department and location that matches the
     // selected facility to provide the default value for mobile.
-    const defaultDepartment = await Department.findOne({
-      where: { facility: { id: facilityId } },
-    });
+    const defaultDepartment = await Department.findOne();
+    //   where: { facility: { id: facilityId } },
+    // });
 
     if (!defaultDepartment) {
       throw new Error(
@@ -183,9 +184,10 @@ export class Encounter extends BaseModel implements IEncounter {
       );
     }
 
-    const defaultLocation = await Location.findOne({
-      where: { facility: { id: facilityId } },
-    });
+    const defaultLocation = await Location.findOne();
+    // const defaultLocation = await Location.findOne({
+    //   where: { facility: { id: facilityId } },
+    // });
 
     if (!defaultLocation) {
       throw new Error(
