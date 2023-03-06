@@ -62,6 +62,15 @@ storiesOf('DataFetchingTable', module)
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>
   ))
+  .add('With optionRow', () => (
+    <ApiContext.Provider value={dummyApi}>
+      <DataFetchingTable 
+        endpoint="ages" 
+        columns={dummyColumns}
+        optionRow={<div>options</div>} 
+      />
+    </ApiContext.Provider>
+  ))
   .add('With pagination error', () => (
     <ApiContext.Provider value={paginationErrorApi}>
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
