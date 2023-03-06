@@ -43,6 +43,28 @@ export async function up(query) {
         WHERE p.id = n.id;
     $$
   `);
+
+  await query.sequelize.query(`
+    CREATE OR REPLACE PROCEDURE fhir.service_requests_resolve_upstream_subject()
+    LANGUAGE SQL
+    AS $$
+      UPDATE fhir.service_requests sr
+        SET subject = jsonb_build_object(
+            'reference',
+            'Patient/' || p.id,
+            'type',
+            'Patient',
+            'identifier',
+            (sr.subject).identifier,
+            'display',
+            (sr.subject).display
+          )
+        FROM fhir.patients p
+        WHERE true
+          AND jsonb_extract_path_text(sr.subject, 'type') = 'upstream://patient'
+          AND p.upstream_id::text = jsonb_extract_path_text(sr.subject, 'reference')
+    $$
+  `);
 }
 
 export async function down(query) {
@@ -81,6 +103,24 @@ export async function down(query) {
         SET link = n.new_link
         FROM new_links n
         WHERE p.id = n.id;
+    $$
+  `);
+
+  await query.sequelize.query(`
+    CREATE OR REPLACE PROCEDURE fhir.service_requests_resolve_upstream_subject()
+    LANGUAGE SQL
+    AS $$
+      UPDATE fhir.service_requests sr
+        SET subject = ROW(
+            'Patient/' || p.id,
+            'Patient',
+            (sr.subject).identifier,
+            (sr.subject).display
+          )::fhir.reference
+        FROM fhir.patients p
+        WHERE true
+          AND (sr.subject).type = 'upstream://patient'
+          AND p.upstream_id::text = (sr.subject).reference
     $$
   `);
 }
