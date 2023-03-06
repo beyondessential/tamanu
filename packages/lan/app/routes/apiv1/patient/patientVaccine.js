@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import config from 'config';
 
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, VACCINE_CREATION_TYPE } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -106,19 +106,31 @@ patientVaccineRoutes.post(
     const { models } = req;
     const { vaccineCreationType } = req.body;
 
-    let defaultDepartment;
-    let defaultLocation;
-    if (vaccineCreationType === 'given') {
-      if (!req.body.scheduledVaccineId) {
-        res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
+    let { locationId, departmentId } = req.body;
+    res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
+
+    // Find default department and location when vaccine is not given
+    if (vaccineCreationType === VACCINE_CREATION_TYPE.NOT_GIVEN) {
+      const defaultDepartment = await models.Department.findOne({
+        where: { facilityId: config.serverFacilityId },
+      });
+      if (!defaultDepartment) {
+        throw new Error(
+          `No default Department is configured for facility: ${config.serverFacilityId}.`,
+        );
       }
-    } else {
-      defaultDepartment = await models.Department.findOne({
+
+      const defaultLocation = await models.Location.findOne({
         where: { facilityId: config.serverFacilityId },
       });
-      defaultLocation = await models.Location.findOne({
-        where: { facilityId: config.serverFacilityId },
-      });
+      if (!defaultLocation) {
+        throw new Error(
+          `No default Location is configured for facility: ${config.serverFacilityId}.`,
+        );
+      }
+
+      locationId = defaultLocation.id;
+      departmentId = defaultDepartment.id;
     }
 
     let encounterId;
@@ -139,9 +151,9 @@ patientVaccineRoutes.post(
         startDate: req.body.date,
         endDate: req.body.date,
         patientId: req.params.id,
-        locationId: req.body.locationId || defaultLocation.id,
+        locationId: req.body.locationId || defaultLocation?.id,
         examinerId: req.body.recorderId,
-        departmentId: req.body.departmentId || defaultDepartment.id,
+        departmentId: req.body.departmentId || defaultDepartment?.id,
       });
       encounterId = newEncounter.get('id');
     }

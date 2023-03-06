@@ -76,3 +76,8 @@ export const VACCINE_STATUS = {
   OVERDUE: 'OVERDUE',
   RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
 };
+
+export const VACCINE_CREATION_TYPE = {
+  GIVEN: 'given',
+  NOT_GIVEN: 'not_given',
+};

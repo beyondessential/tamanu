@@ -51,8 +51,8 @@ const StyledTab = styled(Tab)`
 `;
 
 export const SegmentTabDisplay = React.memo(
-  ({ tabs, currentTab, onTabSelect, className, scrollable, ...tabProps }) => {
-    const currentTabData = tabs.find(t => t.key === currentTab);
+  ({ tabs, currentTabKey, onTabSelect, className, scrollable, ...tabProps }) => {
+    const currentTabData = tabs.find(t => t.key === currentTabKey);
     const buttons = tabs.map(({ key, label, render }) => (
       <StyledTab
         key={key}
@@ -67,7 +67,7 @@ export const SegmentTabDisplay = React.memo(
       <TabBar className={className}>
         <TabContainer
           scrollButtons={scrollable ? 'on' : 'off'}
-          value={currentTab}
+          value={currentTabKey}
           style={{ height: '10px' }}
         >
           {buttons}

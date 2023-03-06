@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VACCINE_STATUS } from 'shared/constants';
+import { VACCINE_STATUS, VACCINE_CREATION_TYPE } from 'shared/constants';
 
 import { Modal } from './Modal';
 import { VaccineForm } from '../forms/VaccineForm';
@@ -11,7 +11,7 @@ import { reloadPatient } from '../store/patient';
 import { getCurrentUser } from '../store/auth';
 
 export const VaccineModal = ({ open, onClose, patientId }) => {
-  const [currentTab, setCurrentTab] = useState('given');
+  const [currentTabKey, setCurrentTabKey] = useState(VACCINE_CREATION_TYPE.GIVEN);
 
   const api = useApi();
   const dispatch = useDispatch();
@@ -24,11 +24,11 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         patientId,
         status: VACCINE_STATUS.GIVEN,
         recorderId: currentUser.id,
-        vaccineCreationType: currentTab,
+        vaccineCreationType: currentTabKey,
       });
       dispatch(reloadPatient(patientId));
     },
-    [api, dispatch, patientId, currentUser.id, currentTab],
+    [api, dispatch, patientId, currentUser.id, currentTabKey],
   );
 
   const getScheduledVaccines = useCallback(
@@ -39,25 +39,25 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   const TABS = [
     {
       label: 'Given',
-      key: 'given',
+      key: VACCINE_CREATION_TYPE.GIVEN,
       render: () => (
         <VaccineForm
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
           getScheduledVaccines={getScheduledVaccines}
-          vaccineCreationType="given"
+          vaccineCreationType={VACCINE_CREATION_TYPE.GIVEN}
         />
       ),
     },
     {
       label: 'Not given',
-      key: 2,
+      key: VACCINE_CREATION_TYPE.NOT_GIVEN,
       render: () => (
         <VaccineForm
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
           getScheduledVaccines={getScheduledVaccines}
-          vaccineCreationType="notGiven"
+          vaccineCreationType={VACCINE_CREATION_TYPE.NOT_GIVEN}
         />
       ),
     },
@@ -65,7 +65,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   return (
     <Modal title="Give vaccine" open={open} onClose={onClose}>
-      <SegmentTabDisplay tabs={TABS} currentTab={currentTab} onTabSelect={setCurrentTab} />
+      <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
     </Modal>
   );
 };
