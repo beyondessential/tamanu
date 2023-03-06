@@ -1,7 +1,7 @@
 import mitt from 'mitt';
 
 import { MODELS_MAP } from '~/models/modelsMap';
-import { IUser, SyncConnectionParameters } from '~/types';
+import { CentralConnectionStatus, IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
 import { CentralServerConnection } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
@@ -19,9 +19,16 @@ export class AuthService {
   constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
     this.centralServer = centralServer;
+
+    this.centralServer.emitter.on('centralConnectionStatusChange', (status) => {
+      this.emitter.emit('centralConnectionStatusChange', status)
+    });
+
     this.centralServer.emitter.on('error', (err) => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
+      } else {
+        this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Error);
       }
     });
   }
@@ -66,7 +73,9 @@ export class AuthService {
 
   async remoteSignIn(
     params: SyncConnectionParameters,
-  ): Promise<{ user: IUser; token: string; localisation: object }> {
+  ): Promise<{
+      user: IUser; token: string; refreshToken: string; localisation: object
+    }> {
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
     // to another!
@@ -78,6 +87,13 @@ export class AuthService {
     console.log(`Getting token from ${server}`);
     console.log(`Signing in remotely as ${params.email} (password: ${params.password})`);
     const { user, token, localisation, permissions } = await this.centralServer.login(
+    const {
+      user,
+      token,
+      refreshToken,
+      localisation,
+      permissions,
+    } = await this.centralServer.login(
       params.email,
       params.password,
     );
@@ -92,17 +108,19 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    const result = { user: userData, token, localisation, permissions };
+    const result = { user: userData, token, refreshToken, localisation, permissions };
     this.emitter.emit('remoteSignIn', result);
     return result;
   }
 
-  startSession(token: string): void {
+  startSession(token: string, refreshToken: string): void {
     this.centralServer.setToken(token);
+    this.centralServer.setRefreshToken(refreshToken);
   }
 
   endSession(): void {
     this.centralServer.clearToken();
+    this.centralServer.clearRefreshToken();
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
