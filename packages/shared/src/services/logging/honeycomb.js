@@ -1,7 +1,8 @@
 import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
-import { SemanticAttributes, serviceContext, serviceName } from './context';
+import { SemanticAttributes, serviceName } from '@tamanu/tracing';
+import { serviceContext } from './context';
 
 const context = serviceContext();
 const legacyNames = {

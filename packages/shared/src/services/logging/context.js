@@ -1,4 +1,4 @@
-import { SemanticAttributes as OpenTelSemantics } from '@opentelemetry/semantic-conventions';
+import { SemanticAttributes } from '@tamanu/tracing';
 import config from 'config';
 import shortid from 'shortid';
 import os from 'os';
@@ -6,21 +6,6 @@ import os from 'os';
 export const ENV = process.env.NODE_ENV ?? 'development';
 export const PROCESS_ID = shortid.generate();
 export const HOSTNAME = os.hostname();
-
-export const SemanticAttributes = {
-  ...OpenTelSemantics,
-  DEPLOYMENT_NAME: 'deployment.name',
-  DEPLOYMENT_ENVIRONMENT: 'deployment.environment',
-  DEPLOYMENT_FACILITY: 'deployment.facility',
-  SERVICE_TYPE: 'service.type',
-  SERVICE_VERSION: 'service.version',
-  SOURCE_BRANCH: 'source.branch',
-  SOURCE_COMMIT_HASH: 'source.commit.hash',
-  SOURCE_COMMIT_SUBJECT: 'source.commit.subject',
-  SOURCE_DATE: 'source.date',
-  SOURCE_DATE_EPOCH: 'source.date.epoch',
-  SOURCE_DATE_ISO: 'source.date.iso',
-};
 
 export function serviceContext() {
   const { serverType = 'unknown', version = '0.0.0' } = global?.serverInfo || {};
@@ -50,16 +35,4 @@ export function serviceContext() {
   }
 
   return context;
-}
-
-export function serviceName(context) {
-  if (!context[SemanticAttributes.DEPLOYMENT_NAME]) return null;
-
-  return [
-    context[SemanticAttributes.DEPLOYMENT_NAME],
-    context[SemanticAttributes.SERVICE_TYPE],
-    context[SemanticAttributes.DEPLOYMENT_FACILITY],
-  ]
-    .filter(Boolean)
-    .join('-');
 }
