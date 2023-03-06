@@ -120,7 +120,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 </StyledView>
                 <StyledView justifyContent="space-between">
                   <CurrentUserField name="examiner" label="Examiner" />
-                  <Field component={TextField} name="labRequest" label="Test Results" />
                   <Field
                     component={AutocompleteModalField}
                     placeholder="Search diagnoses"
