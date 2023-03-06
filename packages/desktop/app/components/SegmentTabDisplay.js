@@ -51,12 +51,12 @@ const StyledTab = styled(Tab)`
 `;
 
 export const SegmentTabDisplay = React.memo(
-  ({ tabs, currentTabKey, onTabSelect, className, scrollable, ...tabProps }) => {
+  ({ tabs, currentTabKey, onTabSelect, className, scrollable, singleTabStyle, ...tabProps }) => {
     const currentTabData = tabs.find(t => t.key === currentTabKey);
     const buttons = tabs.map(({ key, label, render }) => (
       <StyledTab
         key={key}
-        style={{ minWidth: '263px' }}
+        style={singleTabStyle}
         label={label}
         disabled={!render}
         value={key}

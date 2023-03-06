@@ -65,7 +65,12 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   return (
     <Modal title="Give vaccine" open={open} onClose={onClose}>
-      <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
+      <SegmentTabDisplay
+        tabs={TABS}
+        currentTabKey={currentTabKey}
+        onTabSelect={setCurrentTabKey}
+        singleTabStyle={{ minWidth: '263px' }}
+      />
     </Modal>
   );
 };

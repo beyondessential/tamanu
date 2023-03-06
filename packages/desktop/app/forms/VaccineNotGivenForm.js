@@ -14,7 +14,7 @@ import { useApi } from '../api';
 import {
   Form,
   Field,
-  AutocompleteField,
+  TextField,
   DateField,
   RadioField,
   SelectField,
@@ -99,12 +99,7 @@ export const VaccineNotGivenForm = ({
             component={SuggesterSelectField}
             endpoint="vaccineNotGivenReason"
           />
-          <Field
-            name="supervisingClinicianId"
-            label="Supervising clinician"
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-          />
+          <Field name="supervisingClinician" label="Supervising clinician" component={TextField} />
           <Field
             disabled
             name="recorderId"
