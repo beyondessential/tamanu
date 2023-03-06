@@ -4,8 +4,15 @@ import { readFileSync } from 'fs';
 const topPkg = JSON.parse(readFileSync('./package.json'));
 
 for (const name of topPkg.workspaces.packages) {
+  let pkg;
+  try {
+    pkg = JSON.parse(readFileSync(`./${name}/package.json`));
+  } catch (err) {
+    console.log(`Skipping ${name} as we can't read its package.json...`);
+    continue;
+  }
+
   console.log(`Checking ${name}...`);
-  const pkg = JSON.parse(readFileSync(`./${name}/package.json`));
   if (!pkg.name.startsWith('@tamanu/')) continue;
 
   console.log(`Building ${pkg.name}...`);
