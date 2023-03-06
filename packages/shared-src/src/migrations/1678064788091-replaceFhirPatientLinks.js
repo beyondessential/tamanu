@@ -35,7 +35,6 @@ export async function up(query) {
             FROM downstreamed
             GROUP by id
         )
-      SELECT id FROM fhir.patients LIMIT 1;
       UPDATE fhir.patients p
         SET link = n.new_link
         FROM new_links n
