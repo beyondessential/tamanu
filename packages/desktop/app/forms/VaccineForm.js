@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { VaccineGivenForm } from './VaccineGivenForm';
@@ -41,8 +41,7 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineC
       );
     };
 
-    // eslint-disable-next-line no-console
-    fetchScheduledVaccines().catch(err => console.error(err));
+    fetchScheduledVaccines();
   }, [category, getScheduledVaccines]);
 
   return vaccineCreationType === 'given' ? (
