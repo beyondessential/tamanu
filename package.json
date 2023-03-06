@@ -8,7 +8,8 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "build-shared": "yarn workspace @tamanu/shared run build",
+    "create-package": "node scripts/create-package.mjs",
+    "build-shared": "node scripts/build-shared.mjs",
     "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
     "test": "yarn run build-shared && node scripts/test-all.mjs",
     "test-coverage": "yarn run test --coverage",

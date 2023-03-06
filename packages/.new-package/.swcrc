@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/swcrc",
+  "exclude": "node_modules/",
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true
+    }
+  }
+}
