@@ -9,6 +9,7 @@ import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
 import { NoteItem } from './NoteItem';
+import { JoinTable } from 'typeorm';
 
 @Entity('notePage')
 export class NotePage extends BaseModel implements INotePage {
@@ -28,6 +29,9 @@ export class NotePage extends BaseModel implements INotePage {
 
   @OneToMany(() => NoteItem, noteItem => noteItem.notePage)
   noteItems: INoteItem[];
+
+  // Attach dynamically to record
+
 
   static getTableNameForSync(): string {
     return 'note_pages'; // unusual camel case table here on mobile

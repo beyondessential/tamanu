@@ -14,6 +14,18 @@ import { IDiagnosis } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
 
+const displayNotes = (notePages): string => {
+  // Use the content from each noteItem in the note page.noteItems
+  const notes = notePages
+    .map(
+      notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; ')
+    )
+    .join('\n\n');
+
+
+  return notes || DEFAULT_FIELD_VAL;
+};
+
 const visitsHistoryRows = {
   labRequest: {
     name: 'Test results',
@@ -24,13 +36,13 @@ const visitsHistoryRows = {
     accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
       || DEFAULT_FIELD_VAL,
   },
-  reasonForEncounter: {
-    name: 'Treatment notes',
-    accessor: (): string => DEFAULT_FIELD_VAL,
+  notePages: {
+    name: 'Clinical Note',
+    accessor: displayNotes,
   },
 };
 
-export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
+const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
   const activeFilters = {
     count: 0,
   };
@@ -76,4 +88,4 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
   );
 };
 
-export const VisitsScreen = compose(withPatient)(DumbVisistsScreen);
+export const VisitsScreen = compose(withPatient)(DumbVisitsScreen);

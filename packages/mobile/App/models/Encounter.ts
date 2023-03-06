@@ -3,6 +3,7 @@ import {
   BeforeUpdate,
   Column,
   Entity,
+  In,
   Index,
   ManyToOne,
   OneToMany,
@@ -30,6 +31,7 @@ import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
+import { NotePage } from './NotePage';
 
 const TIME_OFFSET = 3;
 
@@ -142,6 +144,12 @@ export class Encounter extends BaseModel implements IEncounter {
   )
   vitals: Vitals[];
 
+  // @OneToMany(
+  //   () => NotePage,
+  //   ({ encounter }) => encounter,
+  // )
+  // notePages: NotePage[];
+
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patient);
@@ -212,11 +220,44 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getForPatient(patientId: string): Promise<Encounter[]> {
     const repo = this.getRepository();
 
-    return repo.find({
+    // const hi = await repo
+    //   .createQueryBuilder('encounter')
+    //   .where('encounter.patientId = :patientId', { patientId })
+    //   .leftJoinAndSelect('encounter.location', 'location')
+    //   .leftJoinAndSelect('location.facility', 'facility')
+    //   .leftJoinAndMapMany(
+    //     'encounter.notePage',
+    //     'notePage',
+    //     'notePage',
+    //     'notePage.recordId = encounter.id',
+    //   )
+    //   .leftJoinAndMapMany(
+    //     'notePages.noteItem',
+    //     'noteItem',
+    //     'noteItem',
+    //     'noteItem.notePageId = notePage.id',
+    //   )
+    //   .orderBy('encounter.startDate', 'DESC')
+    //   .getMany();
+    const encounters = await repo.find({
       where: { patient: { id: patientId } },
       relations: ['location', 'location.facility'],
       order: { startDate: 'DESC' },
     });
+    
+    const notes = await NotePage.find({
+      where: { recordId: In(encounters.map(({ id }) => id)) },
+      relations: ['noteItems'],
+    });
+
+    console.log(notes, 'notes', encounters, 'encounters');
+
+    // Usually a patient won't have too many encounters, but if they do, this will be slow.
+    return encounters.map(encounter => ({
+      ...encounter,
+      notePages: notes.filter(note => note.recordId === encounter.id),
+    }));
+
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
