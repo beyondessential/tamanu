@@ -12,6 +12,7 @@ import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -292,12 +293,8 @@ export class Encounter extends Model {
     return endOfDay(parseISO(startDate));
   }
 
-  static sanitizeForCentralServer(values) {
-    // if the encounter is for an outpatient and started before today, it should be closed
-    if (this.checkNeedsAutoDischarge(values)) {
-      return { ...values, endDate: this.getAutoDischargeEndDate(values) };
-    }
-    return values;
+  static async adjustDataPostSyncPush(recordIds) {
+    await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
   async addLocationChangeNote(contentPrefix, fromLocation, toLocation, submittedTime) {

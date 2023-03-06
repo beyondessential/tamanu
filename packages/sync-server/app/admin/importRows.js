@@ -21,6 +21,14 @@ function findFieldName(values, fkField) {
   return null;
 }
 
+function getPrimaryKey(model, values) {
+  if (model === 'PatientAdditionalData') {
+    return values.patientId;
+  }
+
+  return values.id;
+}
+
 function loadExisting(Model, id) {
   if (!id) return null;
 
@@ -166,7 +174,8 @@ export async function importRows(
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
-    const existing = await loadExisting(Model, values.id);
+    const primaryKey = getPrimaryKey(model, values);
+    const existing = await loadExisting(Model, primaryKey);
     try {
       if (existing) {
         if (values.deletedAt) {
