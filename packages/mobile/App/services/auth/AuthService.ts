@@ -86,7 +86,6 @@ export class AuthService {
     this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
     console.log(`Signing in remotely as ${params.email} (password: ${params.password})`);
-    const { user, token, localisation, permissions } = await this.centralServer.login(
     const {
       user,
       token,
