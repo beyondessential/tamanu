@@ -15,9 +15,12 @@ const TopLevelListItem = styled(ListItem)`
     transform: rotate(0deg);
   }
 
-  background: ${props => (props.selected ? 'rgba(255, 255, 255, 0.15)' : '')};
+  &.Mui-selected {
+    background: ${props => (props.selected ? 'rgba(255, 255, 255, 0.15)' : '')};
+  }
 
-  &:hover {
+  &:hover,
+  &.Mui-selected:hover {
     background: rgba(255, 255, 255, 0.15);
   }
 `;
@@ -34,6 +37,9 @@ const TopLevelItemText = styled(ListItemText)`
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
+  color: ${props => (props.$invisible ? 'transparent' : '')};
+  max-height: ${props => (props.$invisible ? '18px' : 'default')};
+  transition: ${props => props.theme.transitions.create('all')};
 `;
 
 const ListDivider = styled(Divider)`
@@ -49,6 +55,7 @@ export const TopLevelSidebarItem = ({
   disabled,
   onClick,
   divider,
+  retracted,
 }) => (
   <>
     {divider && <ListDivider />}
@@ -61,7 +68,7 @@ export const TopLevelSidebarItem = ({
       data-test-class="toplevel-sidebar-item"
     >
       <SidebarTopLevelIcon src={icon || administrationIcon} />
-      <TopLevelItemText disableTypography primary={label} />
+      <TopLevelItemText disableTypography primary={label} $invisible={retracted} />
     </TopLevelListItem>
   </>
 );

@@ -17,7 +17,9 @@ const PrimaryListItem = styled(ListItem)`
   }
 
   &.Mui-selected {
-    background: none;
+    background: ${props =>
+      props.$highlighted && props.$retracted ? 'rgba(255, 255, 255, 0.15)' : 'none'};
+    transition: ${props => props.theme.transitions.create('all')};
 
     .MuiSvgIcon-root {
       transform: rotate(180deg);
@@ -44,6 +46,8 @@ const PrimaryItemText = styled(ListItemText)`
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
+  color: ${props => (props.$invisible ? 'transparent' : '')};
+  transition: ${props => props.theme.transitions.create('all')};
 `;
 
 const StyledList = styled(List)`
@@ -68,6 +72,7 @@ export const PrimarySidebarItem = ({
   highlighted,
   onClick,
   divider,
+  retracted,
 }) => (
   <>
     {divider && <ListDivider />}
@@ -76,11 +81,12 @@ export const PrimarySidebarItem = ({
       onClick={onClick}
       selected={selected}
       $highlighted={highlighted}
+      $retracted={retracted}
       data-test-class="primary-sidebar-item"
     >
-      <SidebarPrimaryIcon src={icon || administrationIcon} />
-      <PrimaryItemText disableTypography primary={label} />
-      <ExpandMore />
+      <SidebarPrimaryIcon src={icon || administrationIcon} $centered={retracted} />
+      <PrimaryItemText disableTypography $invisible={retracted} primary={label} />
+      {!retracted && <ExpandMore />}
     </PrimaryListItem>
     <Collapse in={selected} timeout="auto" unmountOnExit>
       <StyledList component="div">{children}</StyledList>
