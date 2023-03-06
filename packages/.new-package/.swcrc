@@ -5,6 +5,8 @@
     "parser": {
       "syntax": "typescript",
       "tsx": true
-    }
+    },
+    "target": "es2020",
+    "keepClassNames": true
   }
 }
