@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { showFileDialog } from './dialog';
 
 export async function saveBlobAs(blob, { extensions, defaultFileName } = {}) {
@@ -6,11 +7,8 @@ export async function saveBlobAs(blob, { extensions, defaultFileName } = {}) {
     // user cancelled
     return '';
   }
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = path;
-  a.click();
-  window.URL.revokeObjectURL(url);
+  // save blob to disk
+  const buffer = Buffer.from(await blob.arrayBuffer());
+  fs.writeFileSync(path, buffer);
   return path;
 }
