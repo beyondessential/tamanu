@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
+import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
   Button,
   BodyText,
@@ -9,6 +10,7 @@ import {
   DateDisplay,
   Table,
   useSelectableColumn,
+  OutlinedButton,
 } from '../../../components';
 
 const Container = styled.div`
