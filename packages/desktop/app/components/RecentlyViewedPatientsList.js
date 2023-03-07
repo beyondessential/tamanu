@@ -4,14 +4,14 @@ import { Collapse, Divider, IconButton, ListItem, Typography } from '@material-u
 import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { ExpandMore, ExpandLess, NavigateBefore, NavigateNext } from '@material-ui/icons';
-import { format as dateFnsFormat } from 'date-fns';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
 import { Colors } from '../constants';
+import { DateDisplay } from './DateDisplay';
 
 const ComponentDivider = styled(Divider)`
-  margin-top: 10px;
+  margin: 10px 30px 0px 30px;
   background-color: ${Colors.outline};
 `;
 
@@ -24,7 +24,7 @@ const SectionLabel = styled.div`
   text-decoration: none;
 `;
 
-const Card = styled.div`
+const CardComponent = styled.div`
   padding: 10px;
   padding-bottom: 15px;
   width: 16%;
@@ -110,6 +110,36 @@ const colorFromEncounterType = {
 
 const PATIENTS_PER_PAGE = 6;
 
+const Card = ({ patient, handleClick }) => {
+  return (
+    <CardComponent key={patient.id} onClick={() => handleClick(patient.id)}>
+      <EncounterTypeIndicator
+        style={{
+          backgroundColor:
+            colorFromEncounterType[patient.encounter_type || 'default'] ||
+            colorFromEncounterType.default,
+        }}
+      />
+      <div>
+        <CardTitle
+          style={{
+            color:
+              colorFromEncounterType[patient.encounter_type || 'default'] ||
+              colorFromEncounterType.default,
+          }}
+        >
+          {patient.firstName} {patient.lastName}
+        </CardTitle>
+        <CardText>{patient.displayId}</CardText>
+        <CardText style={{ textTransform: 'capitalize' }}>{patient.sex}</CardText>
+        <CardText>
+          DOB: <DateDisplay date={patient.dateOfBirth} shortYear />
+        </CardText>
+      </div>
+    </CardComponent>
+  );
+};
+
 export const RecentlyViewedPatientsList = ({ encounterType }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -146,7 +176,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         <CardListContainer>
           {pageIndex > 0 ? (
-            <LeftArrowButton onClick={() => setPageIndex(0)}>
+            <LeftArrowButton onClick={() => changePage(-1)}>
               <NavigateBefore />
             </LeftArrowButton>
           ) : (
@@ -156,31 +186,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
             {recentlyViewedPatients
               .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
               .map(patient => (
-                <Card key={patient.id} onClick={() => cardOnClick(patient.id)}>
-                  <EncounterTypeIndicator
-                    style={{
-                      backgroundColor:
-                        colorFromEncounterType[patient.encounter_type || 'default'] ||
-                        colorFromEncounterType.default,
-                    }}
-                  />
-                  <div>
-                    <CardTitle
-                      style={{
-                        color:
-                          colorFromEncounterType[patient.encounter_type || 'default'] ||
-                          colorFromEncounterType.default,
-                      }}
-                    >
-                      {patient.firstName} {patient.lastName}
-                    </CardTitle>
-                    <CardText>{patient.displayId}</CardText>
-                    <CardText style={{ textTransform: 'capitalize' }}>{patient.sex}</CardText>
-                    <CardText>
-                      DOB: {dateFnsFormat(new Date(patient.dateOfBirth), 'dd/MM/yy')}
-                    </CardText>
-                  </div>
-                </Card>
+                <Card patient={patient} handleClick={cardOnClick} />
               ))}
           </CardList>
           {pageIndex < pageCount - 1 ? (
