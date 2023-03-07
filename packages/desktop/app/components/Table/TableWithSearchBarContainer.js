@@ -8,6 +8,12 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
+const Header = styled(Typography)`
+  font-size: 14px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+`;
+
 export function TableWithSearchBarContainer({ table, searchBar, title }) {
   const borderlessTable = React.useMemo(() => {
     return React.cloneElement(table, {
@@ -16,9 +22,7 @@ export function TableWithSearchBarContainer({ table, searchBar, title }) {
   }, [table]);
   return (
     <Box>
-      <Typography variant="h6" style={{ fontSize: 14, marginTop: 12, marginBottom: 8 }}>
-        {title}
-      </Typography>
+      <Header variant="h6">{title}</Header>
       <Container>
         {searchBar}
         {borderlessTable}
