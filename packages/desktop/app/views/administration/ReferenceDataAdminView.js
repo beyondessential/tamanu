@@ -62,6 +62,7 @@ const ALLOWLIST = [
   'vascularStudyImagingArea',
   'village',
   'xRayImagingArea',
+  'vaccineNotGivenReason',
 ].sort();
 
 export const ReferenceDataAdminView = () => (

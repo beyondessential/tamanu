@@ -1,14 +1,19 @@
+import { trace, propagation, context } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { verifyToken, stripUser, findUser, findUserById } from './utils';
+import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
 
 const FAKE_TOKEN = 'fake-token';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
+
+    const { canonicalHostName, auth } = config;
+    const { allowDummyToken } = auth;
 
     // get token
     const { authorization } = headers;
@@ -22,7 +27,7 @@ export const userMiddleware = ({ secret }) =>
       throw new BadAuthenticationError('Only Bearer token is supported');
     }
 
-    if (config.auth.allowDummyToken && token === FAKE_TOKEN) {
+    if (allowDummyToken && token === FAKE_TOKEN) {
       req.user = await findUser(store.models, config.auth.initialUser.email);
       next();
       return;
@@ -30,7 +35,10 @@ export const userMiddleware = ({ secret }) =>
 
     let contents = null;
     try {
-      contents = verifyToken(token, secret);
+      contents = verifyToken(token, secret, {
+        issuer: canonicalHostName,
+        audience: JWT_TOKEN_TYPES.ACCESS,
+      });
     } catch (e) {
       throw new BadAuthenticationError('Invalid token');
     }
@@ -45,7 +53,19 @@ export const userMiddleware = ({ secret }) =>
 
     req.user = stripUser(user);
 
-    next();
+    const spanAttributes = req.user
+      ? {
+          'app.user.id': req.user.id,
+          'app.user.role': req.user.role,
+        }
+      : {};
+
+    // eslint-disable-next-line no-unused-expressions
+    trace.getActiveSpan()?.setAttributes(spanAttributes);
+    context.with(
+      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+      () => next(),
+    );
   });
 
 export const userInfo = asyncHandler(async (req, res) => {

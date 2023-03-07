@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
@@ -8,6 +8,7 @@ import { Department } from './Department';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { User } from './User';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 
 @Entity('administered_vaccine')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {
@@ -78,6 +79,12 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @RelationId(({ department }: AdministeredVaccine) => department)
   departmentId: string;
+
+  @NullableReferenceDataRelation()
+  notGivenReason?: ReferenceData;
+
+  @IdRelation()
+  notGivenReasonId?: string | null;
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
     return this.getRepository()
