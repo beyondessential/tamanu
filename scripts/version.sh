@@ -27,6 +27,7 @@ version packages/desktop/app/package.json
 version packages/sync-server/package.json
 version packages/lan/package.json
 version packages/shared-src/package.json
+version packages/shared-src/shared.package.json
 version packages/meta-server/package.json
 version packages/scripts/package.json
 version packages/qr-tester/package.json
