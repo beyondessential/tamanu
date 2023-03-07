@@ -9,7 +9,7 @@ import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
-import { getCurrentDateString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
