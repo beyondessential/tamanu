@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { CancelModal } from '../../components/CancelModal';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -26,16 +27,10 @@ import {
   TextField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
+import { ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
-
-const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'completed', label: 'Completed' },
-];
 
 const PrintButton = ({ imagingRequest, patient }) => {
   const api = useApi();
@@ -85,7 +80,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
 
   return (
     <FormGrid columns={3}>
-      <TextInput value={imagingRequest.id} label="Request ID" disabled />
+      <TextInput value={imagingRequest.displayId} label="Request ID" disabled />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
         label="Request type"
@@ -100,11 +95,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         name="status"
         label="Status"
         component={SelectField}
-        options={
-          isCancelled
-            ? [{ value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED, label: 'Cancelled' }]
-            : STATUS_OPTIONS
-        }
+        options={IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
@@ -214,19 +205,18 @@ const ImagingRequestInfoPane = React.memo(
     return (
       <Formik
         // Only submit specific fields for update
-        onSubmit={fields =>
-          onSubmit(
-            pick(
-              fields,
-              'status',
-              'completedById',
-              'locationGroupId',
-              'newResultCompletedBy',
-              'newResultDate',
-              'newResultDescription',
-            ),
-          )
-        }
+        onSubmit={fields => {
+          const updateValues = pick(
+            fields,
+            'status',
+            'completedById',
+            'locationGroupId',
+            'newResultCompletedBy',
+            'newResultDate',
+            'newResultDescription',
+          );
+          onSubmit(updateValues);
+        }}
         enableReinitialize // Updates form to reflect changes in initialValues
         initialValues={{
           ...imagingRequest,

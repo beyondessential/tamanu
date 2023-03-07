@@ -48,6 +48,21 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     });
   }
 
+  static async getSelectOptionsForType(
+    referenceDataType: ReferenceDataType,
+  ): Promise<{ label: string; value: string }[]> {
+    const repo = this.getRepository();
+
+    const results = await repo.find({
+      where: {
+        type: referenceDataType,
+        visibilityStatus: VisibilityStatus.Current,
+      },
+    });
+
+    return results.map(r => ({ label: r.name, value: r.id }));
+  }
+
   static getTableNameForSync(): string {
     return 'reference_data';
   }

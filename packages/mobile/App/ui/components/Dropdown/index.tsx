@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useRef, ReactElement } from 'react';
+import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
 import { StyledView } from '/styled/common';
 import MultiSelect from 'react-native-multiple-select';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
+import { useBackend } from '~/ui/hooks';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -29,7 +30,6 @@ const DEFAULT_STYLE_PROPS = {
 };
 
 const ERROR_STYLE_PROPS = {
-  textColor: theme.colors.ERROR,
   styleInputGroup: {
     borderColor: theme.colors.ERROR,
     borderWidth: 1,
@@ -106,3 +106,19 @@ export const Dropdown = React.memo(
 export const MultiSelectDropdown = ({ ...props }): ReactElement => (
   <Dropdown multiselect {...props} />
 );
+
+export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement => {
+  const { models } = useBackend();
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    (async (): Promise<void> => {
+      const results = await models.ReferenceData.getSelectOptionsForType(
+        referenceDataType,
+      );
+      setOptions(results);
+    })();
+  }, []);
+
+  return <Dropdown {...props} options={options}/>;
+};

@@ -1,10 +1,10 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
-import { SurveyCompletedMessage, SurveyScreenPaginator } from '../../components/Surveys';
+import { SurveyScreenPaginator } from '../../components/Surveys';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -22,15 +22,9 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const initialValues = getFormInitialValues(components, patient, currentUser);
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
 
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
-
-  const onSubmitSurvey = useCallback(
-    async data => {
-      await onSubmit(data);
-      setSurveyCompleted(true);
-    },
-    [onSubmit],
-  );
+  const onSubmitSurvey = data => {
+    onSubmit(data);
+  };
 
   const renderSurvey = props => {
     const {
@@ -76,25 +70,19 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
     );
   };
 
-  const surveyContents = surveyCompleted ? (
-    <SurveyCompletedMessage onResetClicked={onCancel} />
-  ) : (
-    <Form
-      initialValues={initialValues}
-      onSubmit={onSubmitSurvey}
-      render={renderSurvey}
-      validationSchema={validationSchema}
-      validateOnChange
-      validateOnBlur
-    />
-  );
-
   return (
     <ProgramsPane>
       <SurveyPaneHeader>
         <SurveyPaneHeading variant="h6">{survey.name}</SurveyPaneHeading>
       </SurveyPaneHeader>
-      {surveyContents}
+      <Form
+        initialValues={initialValues}
+        onSubmit={onSubmitSurvey}
+        render={renderSurvey}
+        validationSchema={validationSchema}
+        validateOnChange
+        validateOnBlur
+      />
     </ProgramsPane>
   );
 };
