@@ -1,5 +1,11 @@
 ## Manual Release Steps 🦀
 
+### Config to update ⚙️
+
+### Db schema or other changes to check against reports 📊
+
+### Other manual release steps 🤏
+
 ## External Changes 🏡
 
 ### Features ⭐
