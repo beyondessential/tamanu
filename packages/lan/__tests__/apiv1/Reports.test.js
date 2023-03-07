@@ -1,9 +1,8 @@
-import * as reportsUtils from 'shared/reports';
 import { fake } from 'shared/test-helpers';
 import { spyOnModule } from 'shared/test-helpers/spyOn';
 import { createTestContext } from '../utilities';
 
-spyOnModule(jest, 'shared/reports');
+const reportsUtils = spyOnModule(jest, 'shared/reports');
 
 describe('Reports', () => {
   let baseApp = null;
