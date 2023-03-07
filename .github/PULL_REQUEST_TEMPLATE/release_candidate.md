@@ -1,4 +1,4 @@
-## External Changes 🏡 
+## External Changes 🏡
 
 ### Manual Release Steps 🦀
 
@@ -8,8 +8,8 @@
 
 ### Bug fixes 🐛
 
-## Internal Changes 🛋️ 
+## Internal Changes 🛋️
 
 ### Infrastructure and maintenance 🛠️
 
-### Miscellaneous / Config changes 🌊 
+### Miscellaneous / Config changes 🌊
