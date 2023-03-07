@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useQueries } from '@tanstack/react-query';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
@@ -13,7 +12,6 @@ import {
   Table,
   useSelectableColumn,
 } from '../../../components';
-import { useApi } from '../../../api';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -31,12 +29,6 @@ const Card = styled(Box)`
 `;
 
 const CardTable = styled(Table)`
-  //background: white;
-  //border-radius: 5px;
-  // border: 1px solid ${Colors.outline};
-  //padding: 20px 10px;
-  //display: flex;
-  //align-items: flex-start;
   margin-top: 10px;
   margin-left: 40px;
 
@@ -110,46 +102,15 @@ const COLUMNS = [
   },
 ];
 
-const combineQueries = queries => {
-  return {
-    isLoading: queries.some(q => q.isLoading),
-    isFetching: queries.some(q => q.isFetching),
-    isSuccess: queries.every(q => q.isSuccess),
-    error: queries.find(q => q.error)?.error ?? null,
-    data: queries.reduce(
-      (accumulator, query) => (query.data ? [...accumulator, query.data] : accumulator),
-      [],
-    ),
-  };
-};
-
-const useLabRequests = labRequestIds => {
-  const api = useApi();
-  const queries = useQueries({
-    queries: labRequestIds.map(labRequestId => {
-      return {
-        queryKey: ['labRequest', labRequestId],
-        queryFn: () => api.get(`labRequest/${labRequestId}`),
-      };
-    }),
-  });
-  return combineQueries(queries);
-};
-
-export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onClose }) => {
+export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoading, error, data: labRequests } = useLabRequests(labRequestIds);
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
     columnKey: 'selected',
   });
+
   const handlePrintConfirm = () => {
-    console.log('selected', selectedRows);
     setIsOpen(true);
   };
-
-  if (isLoading) {
-    return 'loading...';
-  }
 
   // All the lab requests were made in a batch and have the same details
   const { sampleTime, requestedDate, requestedBy, department, priority, site } = labRequests[0];
@@ -178,23 +139,19 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequestIds, onC
         columns={[selectableColumn, ...COLUMNS]}
         data={labRequests}
         elevated={false}
-        errorMessage={error?.message}
         noDataMessage="No lab requests found"
         allowExport={false}
       />
       <Actions>
-        {/* Todo: add print label action in WAITM-659*/}
-        {/*<OutlinedButton size="small">Print label</OutlinedButton>*/}
-        {/* Todo: add print action */}
-        {/*<OutlinedButton size="small" onClick={handlePrintConfirm}>*/}
-        {/*  Print request*/}
-        {/*</OutlinedButton>*/}
-        {/*<MultipleLabRequestsPrintoutModal*/}
-        {/*  encounter={encounter}*/}
-        {/*  labRequests={labRequests}*/}
-        {/*  open={isOpen}*/}
-        {/*  onClose={() => setIsOpen(false)}*/}
-        {/*/>*/}
+        <OutlinedButton size="small" onClick={handlePrintConfirm}>
+          Print request
+        </OutlinedButton>
+        <MultipleLabRequestsPrintoutModal
+          encounter={encounter}
+          labRequests={selectedRows}
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
       </Actions>
       <FormSeparatorLine />
       <Box display="flex" justifyContent="flex-end" pt={3}>

@@ -104,7 +104,7 @@ export class Form extends React.PureComponent {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('Error during form submission: ', e);
-      this.setErrors([e.message]);
+      this.setErrors({ form: e.message });
       throw e;
     } finally {
       setSubmitting(false);
