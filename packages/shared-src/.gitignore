@@ -30,5 +30,8 @@ release
 data
 config
 
+config\.js
+config\.demo\.js
+config/development\.js
+
 dist
-src/package.json
