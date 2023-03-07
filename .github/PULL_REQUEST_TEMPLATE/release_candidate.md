@@ -1,6 +1,6 @@
-## External 🏡 
+## External Changes 🏡 
 
-### Manual Release Steps
+### Manual Release Steps 🦀
 
 ### Features ⭐
 
@@ -8,7 +8,7 @@
 
 ### Bug fixes 🐛
 
-## Internal 🛋️ 
+## Internal Changes 🛋️ 
 
 ### Infrastructure and maintenance 🛠️
 
