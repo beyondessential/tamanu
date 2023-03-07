@@ -22,13 +22,15 @@ const SuggestionsContainer = styled(Popper)`
   .react-autosuggest__suggestions-container {
     max-height: 210px;
     overflow-y: auto;
+    border-color: ${Colors.primary};
   }
 `;
 
 const SuggestionsList = styled(Paper)`
+  margin-top: 1px;
   box-shadow: none;
   border: 1px solid ${Colors.outline};
-  border-radius: 0 0 3px 3px;
+  border-radius: 3px;
 
   .react-autosuggest__suggestions-list {
     margin: 0;
