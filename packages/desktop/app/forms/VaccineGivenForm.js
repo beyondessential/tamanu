@@ -39,7 +39,6 @@ export const VaccineGivenForm = ({
   setVaccineLabel,
   currentUser,
 }) => {
-  const [givenOverseas, setGivenOverseas] = useState(false);
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
