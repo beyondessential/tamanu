@@ -14,19 +14,11 @@ const Header = styled(Typography)`
   margin-bottom: 8px;
 `;
 
-export function TableWithSearchBarContainer({ table, searchBar, title }) {
-  const borderlessTable = React.useMemo(() => {
-    return React.cloneElement(table, {
-      containerStyle: { border: 'none' },
-    });
-  }, [table]);
+export function TableWithTitleContainer({ children, title }) {
   return (
     <Box>
       <Header variant="h6">{title}</Header>
-      <Container>
-        {searchBar}
-        {borderlessTable}
-      </Container>
+      <Container>{children}</Container>
     </Box>
   );
 }

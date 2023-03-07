@@ -29,7 +29,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
-import { TableWithSearchBarContainer } from '../../components/Table/TableWithSearchBarContainer';
+import { TableWithTitleContainer } from '../../components/Table/TableWithTitleContainer';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -67,7 +67,7 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   // location and department should be sortable
   .concat([locationGroup, location, department]);
 
-const PatientTable = ({ columns, fetchOptions, searchParameters, containerStyle }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters, borderless }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
@@ -88,7 +88,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters, containerStyle 
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
-      containerStyle={containerStyle}
+      borderless={borderless}
     />
   );
 };
@@ -144,18 +144,16 @@ export const PatientListingView = ({ onViewPatient }) => {
       </TopBar>
       <RecentlyViewedPatientsList />
       <ContentPane>
-        <TableWithSearchBarContainer
-          table={
-            <PatientTable
-              onViewPatient={onViewPatient}
-              fetchOptions={{ matchSecondaryIds: true }}
-              searchParameters={searchParameters}
-              columns={LISTING_COLUMNS}
-            />
-          }
-          searchBar={<AllPatientsSearchBar onSearch={setSearchParameters} />}
-          title="Patient search"
-        />
+        <TableWithTitleContainer title="Patient search">
+          <AllPatientsSearchBar onSearch={setSearchParameters} />
+          <PatientTable
+            borderless
+            onViewPatient={onViewPatient}
+            fetchOptions={{ matchSecondaryIds: true }}
+            searchParameters={searchParameters}
+            columns={LISTING_COLUMNS}
+          />
+        </TableWithTitleContainer>
       </ContentPane>
     </PageContainer>
   );
