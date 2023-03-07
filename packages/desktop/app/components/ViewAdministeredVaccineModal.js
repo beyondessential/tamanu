@@ -54,6 +54,9 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
     givenBy,
     location,
     encounter,
+    departmentId,
+    date,
+    batch,
   } = vaccineRecord;
 
   return (
@@ -65,36 +68,64 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           {label}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Vaccine name </Label>
+          {'TODO'}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Vaccine brand </Label>
+          {'TODO'}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Disease </Label>
+          {'TODO'}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Batch </Label>
+          {batch}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Schedule </Label>
+          {schedule}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Date </Label>
+          {date}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Injection site </Label>
+          {injectionSite}
         </DisplayField>
         <DisplayField>
-          <Label>Vaccine </Label>
-          {label}
+          <Label>Country </Label>
+          {'TODO'}
+        </DisplayField>
+        <DisplayField>
+          <Label>Facility </Label>
+          {location.facilityId}
+        </DisplayField>
+        <DisplayField>
+          <Label>Area </Label>
+          {location.locationGroup?.name}
+        </DisplayField>
+        <DisplayField>
+          <Label>Location </Label>
+          {location.name}
+        </DisplayField>
+        <DisplayField>
+          <Label>Department </Label>
+          {departmentId}
+        </DisplayField>
+        <DisplayField>
+          <Label>Given by </Label>
+          {givenBy}
+        </DisplayField>
+        <DisplayField>
+          <Label>Recorded by </Label>
+          {recorder?.displayName || encounter?.examiner?.displayName}
+        </DisplayField>
+        <DisplayField>
+          <Label>Status </Label>
+          {status}
         </DisplayField>
       </Container>
     </Modal>
