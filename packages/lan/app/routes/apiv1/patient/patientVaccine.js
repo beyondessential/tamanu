@@ -106,6 +106,10 @@ patientVaccineRoutes.post(
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
+    if (!req.body.vaccineCreationType) {
+      res.status(400).send({ error: { message: 'vaccineCreationType is required' } });
+    }
+
     const { models } = req;
     const { vaccineCreationType } = req.body;
 
