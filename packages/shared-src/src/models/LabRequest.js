@@ -149,10 +149,9 @@ export class LabRequest extends Model {
       'requestedBy',
       'category',
       'priority',
-      'panelRequest',
       'laboratory',
       'site',
-      { association: 'panelRequest', include: ['panel'] },
+      { association: 'labTestPanelRequest', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
   }
