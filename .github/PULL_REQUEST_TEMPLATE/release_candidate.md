@@ -1,6 +1,6 @@
-## External Changes 🏡
+## Manual Release Steps 🦀
 
-### Manual Release Steps 🦀
+## External Changes 🏡
 
 ### Features ⭐
 
