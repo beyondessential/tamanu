@@ -26,7 +26,7 @@ const Container = styled.div`
   color: ${Colors.white};
   overflow: auto;
   height: 100vh;
-  transition: ${props => props.theme.transitions.create('all')};
+  transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
 
   i {
     color: ${Colors.white};
@@ -51,8 +51,13 @@ const RetractButton = styled(RetractExtendButton)``;
 
 const ExtendButton = styled(RetractExtendButton)`
   position: fixed;
-  z-index: 10;
+  z-index: 12;
   transform: translate(100%);
+  &.MuiIconButton-root {
+    &:hover {
+      background-color: ${Colors.primaryDark+'99'};
+    }
+  }
 `;
 
 const ExtendedLogo = styled(TamanuLogoWhite)``;
@@ -71,12 +76,12 @@ const FooterContent = styled.div`
   height: 65px;
   align-items: center;
   justify-content: ${props => (props.$retracted ? 'center' : 'default')};
-  transition: ${props => props.theme.transitions.create('all')};
+  transition: ${props => props.theme.transitions.create('justify-content')};
 `;
 
 const StyledDivider = styled(Divider)`
   background-color: ${props => (props.$invisible ? 'transparent' : 'rgba(255, 255, 255, 0.2)')};
-  transition: ${props => props.theme.transitions.create('all')};
+  transition: ${props => props.theme.transitions.create('background-color')};
   margin-bottom: 14px;
   margin-left: 16px;
 `;
