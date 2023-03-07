@@ -2,11 +2,12 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { List, Divider, Box, Typography, Avatar, Button, IconButton } from '@material-ui/core';
+import { List, Divider, Box, Typography, Button, IconButton } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { Colors } from '../../constants';
 import { Translated } from '../Translated';
+import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
@@ -99,13 +100,8 @@ const ConnectedTo = styled(Typography)`
   line-height: 15px;
 `;
 
-const StyledAvatar = styled(Avatar)`
-  background: #e7b091;
-  font-weight: 500;
-  font-size: 16px;
+const StyledAvatar = styled(HiddenSyncAvatar)`
   margin-right: ${props => (props.$retracted ? '0' : '12px')};
-  margin-top: 5px;
-  text-transform: uppercase;
   cursor: ${props => (props.$retracted ? 'pointer' : 'default')};
 `;
 
@@ -247,9 +243,9 @@ export const Sidebar = React.memo(({ items }) => {
       <Footer $retracted={isRetracted}>
         <StyledDivider $invisible={isRetracted} />
         <FooterContent $retracted={isRetracted}>
-          <StyledAvatar $retracted={isRetracted} onClick={isRetracted ? extendSidebar : undefined}>
+          <HiddenSyncAvatar $retracted={isRetracted} onClick={isRetracted ? extendSidebar : undefined}>
             {initials}
-          </StyledAvatar>
+          </HiddenSyncAvatar>
           {!isRetracted && (
             <Box flex={1}>
               <UserName>{currentUser?.displayName}</UserName>
