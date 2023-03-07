@@ -20,7 +20,7 @@ const StyledBackButton = styled(OutlinedButton)`
 // incomplete data. A snapshot of form state is used as initialValues after each
 // transition. Each page has an optional submit handler, and the top-level
 // submit is called when the final page is submitted.
-export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) => {
+export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel, isSubmitting }) => {
   const [stepNumber, setStepNumber] = useState(0);
   const steps = React.Children.toArray(children);
   const [snapshot, setSnapshot] = useState(initialValues);
@@ -67,7 +67,7 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel }) =
                 <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
               )}
               <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-              <Button disabled={props.isSubmitting} type="submit">
+              <Button isSubmitting={props.isSubmitting || isSubmitting} type="submit">
                 {step.props.submitButtonText || 'Next'}
               </Button>
             </ButtonRow>
