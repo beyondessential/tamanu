@@ -84,7 +84,7 @@ storiesOf('Forms', module).add('VaccineForm', () => (
       onCancel={action('cancel')}
       practitionerSuggester={practitionerSuggester}
       getScheduledVaccines={getScheduledVaccines}
-      vaccineRecordType={VACCINE_RECORDING_TYPES.GIVEN}
+      vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
     />
   </Modal>
 ));

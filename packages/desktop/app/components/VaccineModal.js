@@ -24,7 +24,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         patientId,
         status: VACCINE_STATUS.GIVEN,
         recorderId: currentUser.id,
-        vaccineRecordType: currentTabKey,
+        vaccineRecordingType: currentTabKey,
       });
       dispatch(reloadPatient(patientId));
     },
@@ -45,7 +45,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
           getScheduledVaccines={getScheduledVaccines}
-          vaccineRecordType={VACCINE_RECORDING_TYPES.GIVEN}
+          vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
         />
       ),
     },
@@ -57,7 +57,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
           getScheduledVaccines={getScheduledVaccines}
-          vaccineRecordType={VACCINE_RECORDING_TYPES.NOT_GIVEN}
+          vaccineRecordingType={VACCINE_RECORDING_TYPES.NOT_GIVEN}
         />
       ),
     },
