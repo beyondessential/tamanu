@@ -2,13 +2,10 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-
 import { DataFetchingTable } from './Table';
-
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
-
 import {
   getRequestedBy,
   getPatientName,
@@ -27,7 +24,7 @@ const encounterColumns = [
   { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
   { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
   { key: 'priority.name', title: 'Priority', accessor: getPriority },
-  { key: 'status', title: 'Status', accessor: getStatus },
+  { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 180 },
 ];
 
 const globalColumns = [

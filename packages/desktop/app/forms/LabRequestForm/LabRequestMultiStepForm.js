@@ -15,6 +15,7 @@ const combinedValidationSchema = yup.object().shape({
 });
 
 export const LabRequestMultiStepForm = ({
+  isSubmitting,
   practitionerSuggester,
   departmentSuggester,
   encounter,
@@ -28,6 +29,7 @@ export const LabRequestMultiStepForm = ({
     <MultiStepForm
       onCancel={onCancel}
       onSubmit={onSubmit}
+      isSubmitting={isSubmitting}
       initialValues={{
         requestFormType: LAB_REQUEST_FORM_TYPES.PANEL,
         requestedById: currentUser.id,
@@ -62,9 +64,11 @@ LabRequestMultiStepForm.propTypes = {
   practitionerSuggester: PropTypes.object.isRequired,
   encounter: PropTypes.object,
   editedObject: PropTypes.object,
+  isSubmitting: PropTypes.bool,
 };
 
 LabRequestMultiStepForm.defaultProps = {
   encounter: {},
   editedObject: {},
+  isSubmitting: false,
 };
