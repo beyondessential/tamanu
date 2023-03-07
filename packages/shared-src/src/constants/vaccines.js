@@ -78,6 +78,6 @@ export const VACCINE_STATUS = {
 };
 
 export const VACCINE_RECORDING_TYPES = {
-  GIVEN: 'given',
-  NOT_GIVEN: 'not_given',
+  GIVEN: 'GIVEN',
+  NOT_GIVEN: 'NOT_GIVEN',
 };
