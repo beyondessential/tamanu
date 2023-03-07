@@ -141,7 +141,7 @@ describe(`Materialised FHIR - Immunization`, () => {
         encounter: {
           reference: expect.stringContaining(encounter.id),
         },
-        occurrenceDateTime: administeredVaccine.date,
+        occurrenceDateTime: format(new Date(administeredVaccine.date), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         lotNumber: administeredVaccine.batch,
         site: [
           {
