@@ -53,6 +53,11 @@ export const usePatientRoutes = () => {
               title: 'Discharge Summary',
             },
             {
+              path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
+              component: ProgramsView,
+              title: 'New Survey',
+            },
+            {
               path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
               component: LabRequestView,
               title: 'Lab Request',

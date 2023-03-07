@@ -18,9 +18,6 @@ import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
         },
         onClose: () => {},
       });
-
-      // Also if using this mock remember to call .close() on the instance. i.e.:
-      syncManager.close();
 */
 
 describe('CentralSyncManager', () => {
@@ -42,7 +39,7 @@ describe('CentralSyncManager', () => {
     it.todo('all');
   });
 
-  describe('setupSnapshot', () => {
+  describe('setupSnapshotForPull', () => {
     it.todo('all');
   });
 

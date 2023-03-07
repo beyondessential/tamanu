@@ -23,7 +23,7 @@ import {
   EncounterInfoPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 
@@ -63,9 +63,7 @@ const TABS = [
   {
     label: 'Programs',
     key: ENCOUNTER_TAB_NAMES.PROGRAMS,
-    render: ({ encounter, ...props }) => (
-      <EncounterProgramsPane endpoint={`encounter/${encounter.id}/programResponses`} {...props} />
-    ),
+    render: props => <EncounterProgramsPane {...props} />,
   },
   {
     label: 'Documents',

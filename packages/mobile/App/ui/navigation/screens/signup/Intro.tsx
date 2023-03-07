@@ -17,20 +17,29 @@ import { IntroScreenProps } from '../../../interfaces/Screens/SignUpStack/Intro'
 
 export const IntroScreen: FunctionComponent<any> = ({
   navigation,
+  route,
 }: IntroScreenProps) => {
-  // const onNavigateToNewAccount = useCallback(() => {
-  //   navigation.navigate(Routes.SignUpStack.RegisterAccountStep1);
-  // }, []);
-
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
   }, []);
+
+  const { signedOutFromInactivity } = route.params;
 
   return (
     <FullView background={theme.colors.WHITE}>
       <StyledSafeAreaView>
         <CenterView marginTop={screenPercentageToDP(13.36, Orientation.Height)}>
           <LogoV1Icon />
+        </CenterView>
+        <CenterView>
+          {signedOutFromInactivity && (
+            <StyledText
+              color={theme.colors.ALERT}
+              marginTop={screenPercentageToDP(15.32, Orientation.Height)}
+            >
+              Signed out from inactivity
+            </StyledText>
+          )}
         </CenterView>
         <CenterView marginTop={screenPercentageToDP(26.36, Orientation.Height)}>
           <StyledText
