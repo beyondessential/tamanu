@@ -7,10 +7,12 @@ import {
   AREA_TYPE_TO_IMAGING_TYPE,
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
-import { getNoteWithType, mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
+import { getNoteWithType } from 'shared/utils/notePages';
+import { mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
 
@@ -19,6 +21,7 @@ const SNAKE_CASE_COLUMN_NAMES = {
   firstName: 'first_name',
   lastName: 'last_name',
   displayId: 'display_id',
+  requestId: 'ImagingRequest.display_id',
   id: 'ImagingRequest.id',
   name: 'name',
 };
@@ -121,41 +124,17 @@ imagingRequest.get(
             },
           ],
         },
+        {
+          association: 'notePages',
+          include: [{ association: 'noteItems' }],
+        },
       ],
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
-    const notes = {
-      note: '',
-      areaNote: '',
-    };
-
-    // Get related notes (general, area to be imaged)
-    const relatedNotePages = await imagingRequestObject.getNotePages();
-
-    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
-
-    if (otherNotePage) {
-      const noteItems = await otherNotePage.getNoteItems();
-      const content = noteItems.length && noteItems[0].content;
-      if (content) {
-        notes.note = content;
-      }
-    }
-
-    if (areaNotePage) {
-      // Free text area content fallback
-      const noteItems = await areaNotePage.getNoteItems();
-      const content = noteItems.length && noteItems[0].content;
-      if (content) {
-        notes.areaNote = content;
-      }
-    }
-
     res.send({
       ...imagingRequestObject.get({ plain: true }),
-      ...notes,
+      ...(await imagingRequestObject.extractNotes()),
       results: await renderResults(req.models, imagingRequestObject),
     });
   }),
@@ -192,7 +171,9 @@ imagingRequest.put(
     }
 
     // Get related notes (general, area to be imaged)
-    const relatedNotePages = await imagingRequestObject.getNotePages();
+    const relatedNotePages = await imagingRequestObject.getNotePages({
+      where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
 
     const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
     const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
@@ -273,39 +254,41 @@ imagingRequest.post(
     } = req;
     req.checkPermission('create', 'ImagingRequest');
 
-    const newImagingRequest = await ImagingRequest.create(imagingRequestData);
-
-    // Creates the reference data associations for the areas to be imaged
-    if (areas) {
-      await newImagingRequest.setAreas(areas.split(/,\s/));
-    }
-
+    let newImagingRequest;
     const notes = {
       note: '',
       areaNote: '',
     };
+    await ImagingRequest.sequelize.transaction(async () => {
+      newImagingRequest = await ImagingRequest.create(imagingRequestData);
 
-    if (note) {
-      const notePage = await newImagingRequest.createNotePage({
-        noteType: NOTE_TYPES.OTHER,
-      });
-      const noteItem = await notePage.createNoteItem({
-        content: note,
-        authorId: user.id,
-      });
-      notes.note = noteItem.content;
-    }
+      // Creates the reference data associations for the areas to be imaged
+      if (areas) {
+        await newImagingRequest.setAreas(areas.split(/,\s/));
+      }
 
-    if (areaNote) {
-      const notePage = await newImagingRequest.createNotePage({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      });
-      const noteItem = await notePage.createNoteItem({
-        content: areaNote,
-        authorId: user.id,
-      });
-      notes.areaNote = noteItem.content;
-    }
+      if (note) {
+        const notePage = await newImagingRequest.createNotePage({
+          noteType: NOTE_TYPES.OTHER,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: note,
+          authorId: user.id,
+        });
+        notes.note = noteItem.content;
+      }
+
+      if (areaNote) {
+        const notePage = await newImagingRequest.createNotePage({
+          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: areaNote,
+          authorId: user.id,
+        });
+        notes.areaNote = noteItem.content;
+      }
+    });
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
@@ -411,7 +394,7 @@ globalImagingRequests.get(
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows.map(x => x.get({ plain: true }));
+    const data = rows.map(row => row.get({ plain: true }));
     res.send({
       count,
       data,
