@@ -56,7 +56,7 @@ const ExtendButton = styled(RetractExtendButton)`
   transform: translate(100%);
   &.MuiIconButton-root {
     &:hover {
-      background-color: ${Colors.primaryDark+'99'};
+      background-color: ${`${Colors.primaryDark}99`};
     }
   }
 `;
@@ -100,7 +100,7 @@ const ConnectedTo = styled(Typography)`
   line-height: 15px;
 `;
 
-const StyledAvatar = styled(HiddenSyncAvatar)`
+const StyledHiddenSyncAvatar = styled(HiddenSyncAvatar)`
   margin-right: ${props => (props.$retracted ? '0' : '12px')};
   cursor: ${props => (props.$retracted ? 'pointer' : 'default')};
 `;
@@ -243,9 +243,12 @@ export const Sidebar = React.memo(({ items }) => {
       <Footer $retracted={isRetracted}>
         <StyledDivider $invisible={isRetracted} />
         <FooterContent $retracted={isRetracted}>
-          <HiddenSyncAvatar $retracted={isRetracted} onClick={isRetracted ? extendSidebar : undefined}>
+          <StyledHiddenSyncAvatar
+            $retracted={isRetracted}
+            onClick={isRetracted ? extendSidebar : undefined}
+          >
             {initials}
-          </HiddenSyncAvatar>
+          </StyledHiddenSyncAvatar>
           {!isRetracted && (
             <Box flex={1}>
               <UserName>{currentUser?.displayName}</UserName>

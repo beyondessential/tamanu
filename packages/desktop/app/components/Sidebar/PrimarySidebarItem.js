@@ -61,9 +61,7 @@ const ListDivider = styled(Divider)`
   margin: 2px 10px 2px 16px;
 `;
 
-const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props} />
-))`
+const StyledTooltip = styled(props => <Tooltip classes={{ popper: props.className }} {...props} />)`
   .MuiTooltip-tooltip {
     margin-bottom: -20px;
     margin-left: 25px;
@@ -93,7 +91,7 @@ export const PrimarySidebarItem = ({
 }) => (
   <>
     {divider && <ListDivider />}
-    <StyledTooltip title={retracted ? label : ''} placement='top-end' arrow>
+    <StyledTooltip title={retracted ? label : ''} placement="top-end" arrow>
       <PrimaryListItem
         button
         onClick={onClick}
