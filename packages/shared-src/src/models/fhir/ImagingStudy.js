@@ -48,8 +48,7 @@ export class FhirImagingStudy extends FhirResource {
     const results = this.note.map(n => n.text).join('\n\n');
 
     const imagingAccessCode = this.identifier.find(
-      ({ params: i }) =>
-        i?.system === 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+      ({ system }) => system === 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
     )?.value;
     if (!imagingAccessCode) {
       throw new Invalid('Need to have RIS Accession Number identifier', {
@@ -58,9 +57,9 @@ export class FhirImagingStudy extends FhirResource {
     }
 
     const serviceRequestFhirId = this.basedOn.find(
-      ({ params: b }) =>
-        b?.type === 'ServiceRequest' &&
-        b?.identifier?.system ===
+      ({ type, identifier }) =>
+        type === 'ServiceRequest' &&
+        identifier?.system ===
           'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
     )?.identifier.value;
     if (!serviceRequestFhirId) {
