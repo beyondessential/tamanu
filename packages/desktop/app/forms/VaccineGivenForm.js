@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
@@ -39,9 +39,11 @@ export const VaccineGivenForm = ({
   setVaccineLabel,
   currentUser,
 }) => {
+  const [givenOverseas, setGivenOverseas] = useState(false);
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
+  const countrySuggester = useSuggester('country');
 
   return (
     <Form
@@ -57,7 +59,7 @@ export const VaccineGivenForm = ({
           .oneOf([true])
           .required(),
       })}
-      render={({ submitForm }) => (
+      render={({ submitForm, values }) => (
         <TwoTwoGrid>
           <FullWidthCol>
             <Field
@@ -72,6 +74,9 @@ export const VaccineGivenForm = ({
               }}
               required
             />
+          </FullWidthCol>
+          <FullWidthCol>
+            <Field name="givenOverseas" label="Given overseas" component={CheckField} />
           </FullWidthCol>
           <Field
             name="vaccineLabel"
@@ -123,7 +128,18 @@ export const VaccineGivenForm = ({
             component={AutocompleteField}
             suggester={departmentSuggester}
           />
-          <Field name="givenBy" label="Given by" component={TextField} />
+          {values.givenOverseas ? (
+            <Field
+              name="givenByCountryId"
+              label="Country"
+              component={AutocompleteField}
+              suggester={countrySuggester}
+              required
+            />
+          ) : (
+            <Field name="givenBy" label="Given by" component={TextField} />
+          )}
+
           <Field
             disabled
             name="recorderId"
@@ -141,7 +157,11 @@ export const VaccineGivenForm = ({
             <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
             <Field
               name="consent"
-              label="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+              label={
+                values.givenOverseas
+                  ? 'Do you have consent to record in Tamanu?'
+                  : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
+              }
               component={CheckField}
               required
             />

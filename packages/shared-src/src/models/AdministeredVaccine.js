@@ -21,6 +21,7 @@ export class AdministeredVaccine extends Model {
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
         givenBy: Sequelize.TEXT,
         supervisingClinician: Sequelize.TEXT,
+        givenOverseas: Sequelize.BOOLEAN,
         date: dateTimeType('date', {
           allowNull: false,
         }),

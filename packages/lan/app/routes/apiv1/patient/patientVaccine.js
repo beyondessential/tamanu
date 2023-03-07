@@ -114,6 +114,8 @@ patientVaccineRoutes.post(
     const { vaccineCreationType } = req.body;
 
     let { locationId, departmentId } = req.body;
+    const { givenOverseas, givenByCountryId } = req.body;
+    const vaccineData = { ...req.body };
 
     // Find default department and location when vaccine is not given
     if (vaccineCreationType === VACCINE_RECORDING_TYPES.NOT_GIVEN) {
@@ -137,6 +139,10 @@ patientVaccineRoutes.post(
 
       locationId = defaultLocation.id;
       departmentId = defaultDepartment.id;
+    }
+
+    if (vaccineCreationType === VACCINE_RECORDING_TYPES.GIVEN && givenOverseas) {
+      vaccineData.givenBy = givenByCountryId;
     }
 
     let encounterId;
@@ -166,7 +172,7 @@ patientVaccineRoutes.post(
 
     const newRecord = await req.models.AdministeredVaccine.create({
       status: vaccineCreationType,
-      ...req.body,
+      ...vaccineData,
       encounterId,
     });
     res.send(newRecord);
