@@ -51,6 +51,12 @@ export class ReferenceData extends Model {
     });
   }
 
+  static async getOneById(id, type) {
+    return this.findOne({
+      where: { id, type, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+  }
+
   static async create(values) {
     // the type column is just text in sqlite so validate it here
     const { type } = values;

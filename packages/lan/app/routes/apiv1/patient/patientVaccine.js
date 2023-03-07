@@ -5,6 +5,7 @@ import config from 'config';
 
 import { ENCOUNTER_TYPES, VACCINE_RECORDING_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
+import { REFERENCE_TYPES } from 'shared/constants/importable';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -111,10 +112,8 @@ patientVaccineRoutes.post(
     }
 
     const { models } = req;
-    const { vaccineRecordingType } = req.body;
-
+    const { vaccineRecordingType, givenOverseas, givenByCountryId } = req.body;
     let { locationId, departmentId } = req.body;
-    const { givenOverseas, givenByCountryId } = req.body;
     const vaccineData = { ...req.body };
 
     // Find default department and location when vaccine is not given
@@ -141,8 +140,16 @@ patientVaccineRoutes.post(
       departmentId = defaultDepartment.id;
     }
 
-    if (vaccineCreationType === VACCINE_RECORDING_TYPES.GIVEN && givenOverseas) {
-      vaccineData.givenBy = givenByCountryId;
+    if (vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN && givenOverseas) {
+      const country = await models.ReferenceData.getOneById(
+        givenByCountryId,
+        REFERENCE_TYPES.COUNTRY,
+      );
+
+      if (!country) {
+        throw new Error(`Cannot find country with id '${givenByCountryId}' when recording vaccine`);
+      }
+      vaccineData.givenBy = country.name;
     }
 
     let encounterId;
