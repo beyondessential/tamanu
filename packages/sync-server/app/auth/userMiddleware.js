@@ -4,7 +4,7 @@ import config from 'config';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { verifyToken, stripUser, findUser, findUserById } from './utils';
-import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 
 const FAKE_TOKEN = 'fake-token';
 

@@ -1,6 +1,6 @@
 import { log } from 'shared/services/logging';
 import { QueryTypes } from 'sequelize';
-import { getQueryReplacementsFromParams } from '../../../../shared-src/src/utils/getQueryReplacementsFromParams';
+import { getQueryReplacementsFromParams } from 'shared/utils/getQueryReplacementsFromParams';
 
 export async function findOrCreateDefinition(name, store) {
   const { ReportDefinition } = store.models;
