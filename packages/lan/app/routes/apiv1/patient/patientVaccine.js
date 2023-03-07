@@ -106,19 +106,19 @@ patientVaccineRoutes.post(
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
-    if (!req.body.vaccineCreationType) {
-      res.status(400).send({ error: { message: 'vaccineCreationType is required' } });
+    if (!req.body.vaccineRecordingType) {
+      res.status(400).send({ error: { message: 'vaccineRecordingType is required' } });
     }
 
     const { models } = req;
-    const { vaccineCreationType } = req.body;
+    const { vaccineRecordingType } = req.body;
 
     let { locationId, departmentId } = req.body;
     const { givenOverseas, givenByCountryId } = req.body;
     const vaccineData = { ...req.body };
 
     // Find default department and location when vaccine is not given
-    if (vaccineCreationType === VACCINE_RECORDING_TYPES.NOT_GIVEN) {
+    if (vaccineRecordingType === VACCINE_RECORDING_TYPES.NOT_GIVEN) {
       const defaultDepartment = await models.Department.findOne({
         where: { facilityId: config.serverFacilityId },
       });
@@ -171,7 +171,7 @@ patientVaccineRoutes.post(
     }
 
     const newRecord = await req.models.AdministeredVaccine.create({
-      status: vaccineCreationType,
+      status: vaccineRecordingType,
       ...vaccineData,
       encounterId,
     });
