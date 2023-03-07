@@ -4,6 +4,8 @@ import { VACCINE_STATUS } from 'shared/constants';
 import { Modal } from './Modal';
 import { Colors } from '../constants';
 
+import { DateDisplay } from './DateDisplay';
+
 const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -58,7 +60,6 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-
   const routine = true;
   const other = false;
   const otherOverseas = false;
@@ -113,7 +114,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
 
         <DisplayField>
           <Label>Date </Label>
-          {date}
+          <DateDisplay date={date} />
         </DisplayField>
 
         {(routine || other || otherOverseas || routineOverseas) && (
