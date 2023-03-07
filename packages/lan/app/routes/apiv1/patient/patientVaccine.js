@@ -161,7 +161,7 @@ patientVaccineRoutes.post(
     }
 
     const newRecord = await req.models.AdministeredVaccine.create({
-      status: 'GIVEN',
+      status: vaccineCreationType,
       ...req.body,
       encounterId,
     });
