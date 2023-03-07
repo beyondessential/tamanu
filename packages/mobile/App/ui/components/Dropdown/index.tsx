@@ -76,7 +76,7 @@ export const Dropdown = React.memo(
       [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
-    if (disabled) return null;
+    // if (disabled) return null;
     return (
       <StyledView
         width="100%"
@@ -110,6 +110,7 @@ export const Dropdown = React.memo(
           }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
+          canAddItems={!disabled}
           {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}

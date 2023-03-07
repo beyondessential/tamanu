@@ -7,7 +7,8 @@
     "esModuleInterop": true,
     "isolatedModules": false,
     "baseUrl": ".",
-    "paths": {      
+    "paths": {
+      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"],
       "~/*": ["App/*"],
       "/root/*": ["./*"],
       "/components/*": ["App/ui/components/*"],

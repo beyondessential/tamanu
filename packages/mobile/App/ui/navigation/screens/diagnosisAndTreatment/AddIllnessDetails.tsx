@@ -19,6 +19,8 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
+import { CustomAutocomplete } from '~/ui/components/Dropdown/Autocomplete';
+import { CustomSelect } from '~/ui/components/Dropdown/MUIDropdown';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType, NoteRecordType, NoteType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
@@ -135,14 +137,24 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
+                  <Spacer height='24px'/>
+                  Hi!
                   <Field
-                    component={Dropdown}
+                    component={CustomSelect}
                     options={CERTAINTY_OPTIONS}
                     name="certainty"
                     label="Certainty"
                     disabled={!values?.diagnosis}
                   />
-                  <Spacer height='24px'/>
+                  <StyledView
+                  marginTop={screenPercentageToDP(1.42, Orientation.Height)}
+                  marginBottom={screenPercentageToDP(
+                    0.605,
+                    Orientation.Height,
+                  )}
+                  >
+                    <SectionHeader h3>Prescription notes</SectionHeader>
+                  </StyledView>
                   <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" fontSize="14px"/>
                   {/* //   <InputLabel shrink>
                   //     Clinical Note 
