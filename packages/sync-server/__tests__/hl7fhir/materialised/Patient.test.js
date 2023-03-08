@@ -49,7 +49,7 @@ describe(`Materialised FHIR - Patient`, () => {
         meta: {
           // TODO: uncomment when we support versioning
           // versionId: expect.any(String),
-          lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: format(new Date(additionalData.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         },
         active: true,
         address: [
