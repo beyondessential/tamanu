@@ -3,8 +3,8 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
-import { activeFromVisibility } from './utils';
-import { latestDateTime, toDateString } from '../../utils/dateTime';
+import { activeFromVisibility, toFhirDate } from './utils';
+import { latestDateTime } from '../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
@@ -78,8 +78,8 @@ export class FhirPatient extends FhirResource {
       name: names(upstream),
       telecom: telecoms(upstream),
       gender: upstream.sex,
-      birthDate: upstream.dateOfBirth,
-      deceasedDateTime: toDateString(upstream.dateOfDeath),
+      birthDate: toFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
+      deceasedDateTime: toFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
       address: addresses(upstream),
       link: await mergeLinks(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
