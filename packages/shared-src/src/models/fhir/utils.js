@@ -3,7 +3,6 @@ import array from 'postgres-array';
 
 import { FHIR_DATETIME_PRECISION, VISIBILITY_STATUSES } from '../../constants';
 import { formatDateTime } from '../../utils/fhir';
-import { dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
 
 export function arrayOf(fieldName, Type, overrides = {}) {
   const entryType = typeof Type === 'function' ? new Type() : Type;
@@ -29,9 +28,6 @@ export function activeFromVisibility(upstream) {
   }
 }
 
-export function dateTimeStringToFhir(
-  date,
-  precision = FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
-) {
-  return formatDateTime(dateTimeStringIntoCountryTimezone(date), precision);
+export function toFhirDate(date, precision = FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE) {
+  return formatDateTime(date, precision);
 }
