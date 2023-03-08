@@ -1,11 +1,11 @@
 {
     name: "shared",
     version: .version,
-    main: "index.js",
-    types: "types/",
     description: "\(.description) (generated)",
+    main: "index.js",
+    homepage: .homepage,
+    repository: .repository,
     author: .author,
     license: .license,
-    repository: .repository,
     private: true,
 }
