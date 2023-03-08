@@ -8,7 +8,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "copy-package-json": "jq -f src/package.jq package.json > src/package.json",
+    "copy-package-json": "node copy-package-json.mjs",
     "build": "yarn run copy-package-json && swc --delete-dir-on-start --out-dir ../shared --copy-files --source-maps true src",
     "build-watch": "yarn run build --watch",
     "test": "NODE_ENV=test jest",
