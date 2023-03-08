@@ -3,6 +3,7 @@
 import { promises as fs } from 'fs';
 import { Command } from 'commander';
 import TOML from '@iarna/toml';
+import { canonicalize } from 'json-canonicalize';
 import { buildSettingsRecords } from 'shared/models/Setting';
 
 // it does work, but eslint doesn't like it
@@ -39,7 +40,7 @@ export async function getSetting(key, { facility } = {}) {
   if (setting === undefined) {
     return '(no setting found)';
   } else {
-    return `value: ${JSON.stringify(setting, null, 2)}`;
+    return `value:\n${canonicalize(setting)}`;
   }
 }
 
@@ -51,7 +52,7 @@ export async function setSetting(key, value, { facility } = {}) {
   const setting = await Setting.get(key, facility);
   const preValue =
     setting && JSON.stringify(setting) !== '{}'
-      ? `current: value:\n${JSON.stringify(setting, null, 2)}\n`
+      ? `current value:\n${canonicalize(setting)}\n`
       : 'no current value\n';
 
   const newValue = JSON.parse(value);
