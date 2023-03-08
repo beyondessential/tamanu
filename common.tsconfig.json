@@ -5,6 +5,7 @@
     "isolatedModules": true,
     "module": "CommonJS",
     "moduleResolution": "node",
+    "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "pretty": true,
