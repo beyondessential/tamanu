@@ -72,12 +72,16 @@ export class Setting extends Model {
   static async get(key = '', facilityId = null) {
     const settings = await Setting.findAll({
       where: {
-        ...(key ? { key: {
-          [Op.or]: {
-            [Op.eq]: key,
-            [Op.like]: `${key}.%`,
-        },
-        } } : {}),
+        ...(key
+          ? {
+              key: {
+                [Op.or]: {
+                  [Op.eq]: key,
+                  [Op.like]: `${key}.%`,
+                },
+              },
+            }
+          : {}),
         facilityId: {
           [Op.or]: {
             [Op.eq]: facilityId,
@@ -85,6 +89,12 @@ export class Setting extends Model {
           },
         },
       },
+
+      // we want facility keys to come last so they override global keys
+      order: [
+        ['key', 'ASC'],
+        [Sequelize.fn('coalesce', Sequelize.col('facility_id'), '###'), 'ASC'],
+      ],
     });
 
     const settingsObject = {};
