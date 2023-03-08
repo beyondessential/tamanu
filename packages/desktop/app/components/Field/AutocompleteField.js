@@ -42,8 +42,8 @@ const SuggestionsList = styled(Paper)`
       white-space: normal;
 
       .MuiTypography-root {
-        font-size: 14px;
-        line-height: 18px;
+        font-size: ${props => (props.fontSize ? props.fontSize : '14px')};
+        line-height: 1.125rem;
       }
 
       &:hover {
@@ -215,15 +215,20 @@ class BaseAutocomplete extends Component {
     );
   };
 
-  renderContainer = option => (
-    <SuggestionsContainer
-      anchorEl={this.anchorEl}
-      open={!!option.children}
-      placement="bottom-start"
-    >
-      <SuggestionsList {...option.containerProps}>{option.children}</SuggestionsList>
-    </SuggestionsContainer>
-  );
+  renderContainer = option => {
+    const { fontSize } = this.props;
+    return (
+      <SuggestionsContainer
+        anchorEl={this.anchorEl}
+        open={!!option.children}
+        placement="bottom-start"
+      >
+        <SuggestionsList {...option.containerProps} fontSize={fontSize}>
+          {option.children}
+        </SuggestionsList>
+      </SuggestionsContainer>
+    );
+  };
 
   setAnchorRefForPopper = ref => {
     this.anchorEl = ref;

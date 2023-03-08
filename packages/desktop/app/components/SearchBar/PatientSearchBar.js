@@ -45,11 +45,13 @@ export const PatientSearchBar = React.memo(
           name="locationGroupId"
           defaultLabel="Location"
           component={AutocompleteField}
+          fontSize="11px"
           suggester={locationGroupSuggester}
         />
         <LocalisedField
           name="departmentId"
           defaultLabel="Department"
+          fontSize="11px"
           component={AutocompleteField}
           suggester={departmentSuggester}
         />
@@ -57,6 +59,7 @@ export const PatientSearchBar = React.memo(
           name="clinicianId"
           defaultLabel="Clinician"
           component={AutocompleteField}
+          fontSize="11px"
           suggester={practitionerSuggester}
         />
       </CustomisableSearchBar>
