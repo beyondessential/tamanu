@@ -29,7 +29,7 @@ export const StyledTextInput = styled.TextInput<StyledViewProps>`
   }};
   border: 1px solid
     ${(props: StyledTextInputProps): string => {
-      if (props.error) return theme.colors.ERROR;
+      if (props.error) return theme.colors.ALERT;
       if (props.focused) return theme.colors.PRIMARY_MAIN;
       return theme.colors.DEFAULT_OFF;
     }};

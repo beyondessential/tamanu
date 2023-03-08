@@ -84,41 +84,26 @@ export const TextField = React.memo(
       setFocus(false);
     }, [setFocus, onBlur]);
 
-    const inputMarginTop = useMemo(() => {
-      if (multiline) return 0;
-      if (!label) {
-        return screenPercentageToDP(0.8, Orientation.Height);
-      } else {
-        return screenPercentageToDP(0.3, Orientation.Height);
-      }
-      return 0;
-    }, []);
-
     const inputHeight = useMemo(() => {
-      if (label) {
-        if (multiline) {
-          return '90%';
-        } else {
-          return '65%'
-        }
-      }
-      return '100%';
-    }, []);
+      if (!label) return '100%';
+      if (multiline) return '82%';
+      return '68%';
+    }, [label, multiline]);
+
+    const styledViewHeight = useMemo(() => {
+      if (multiline) return screenPercentageToDP('15.36', Orientation.Height);
+      if (!label) return screenPercentageToDP('6', Orientation.Height)
+      return screenPercentageToDP('8.8', Orientation.Height);
+    }, [label, multiline]);
 
     return (
       <StyledView
-        height={
-          multiline
-            ? screenPercentageToDP('13.36', Orientation.Height)
-            : screenPercentageToDP('9', Orientation.Height)
-        }
-        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
+        height={styledViewHeight}
+        marginBottom={error ? screenPercentageToDP(3, Orientation.Height) : 0}
         width="100%"
       >
-        <InputContainer
-          paddingLeft={`${true ? undefined : screenPercentageToDP(1.5, Orientation.Width)}`}
-        >
-          {!multiline && label && (
+        <InputContainer>
+          {label ? (
             <TextFieldLabel
               error={error}
               focus={focused}
@@ -127,15 +112,14 @@ export const TextField = React.memo(
             >
               {label}
             </TextFieldLabel>
-          )}
+          ) : undefined}
           <StyledTextInput
             disabled={disabled}
             focused={focused}
-            hasValue={value && value.length > 0}
+            hasValue={value?.length > 0}
             error={error}
             testID={label}
             value={!hideValue && value}
-            marginTop={inputMarginTop}
             height={inputHeight}
             ref={ref}
             autoCapitalize={
@@ -159,11 +143,11 @@ export const TextField = React.memo(
             onSubmitEditing={onSubmitEditing}
           />
         </InputContainer>
-        {error && (
+        {error ? (
           <TextFieldErrorMessage>
             {error}
           </TextFieldErrorMessage>
-        )}
+        ) : undefined}
       </StyledView>
     );
   },
