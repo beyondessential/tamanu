@@ -24,12 +24,10 @@
     "setup-dev": "node ./dist/app.bundle.js setup",
     "start-dev": "rimraf ./dist/ && webpack --config webpack.config.dev.mjs",
     "test": "NODE_ENV=test jest",
-    "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
     "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
     "build-dev": "rimraf ./dist/ && NOWATCH=true webpack --config webpack.config.dev.mjs",
     "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
     "shell": "yarn build-dev && node ./dist/app.bundle.js shell"
   },
   "devDependencies": {
