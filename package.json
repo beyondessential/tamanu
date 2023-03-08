@@ -49,7 +49,6 @@
       "packages/qr-tester",
       "packages/desktop",
       "packages/lan",
-      "packages/server",
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
