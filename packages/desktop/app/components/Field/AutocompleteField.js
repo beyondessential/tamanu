@@ -236,7 +236,7 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, ...other } = inputProps;
+    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -244,9 +244,11 @@ class BaseAutocomplete extends Component {
         required={required}
         className={className}
         infoTooltip={infoTooltip}
+        size={size}
       >
         <StyledTextField
           variant="outlined"
+          size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
             endAdornment: (
@@ -278,6 +280,7 @@ class BaseAutocomplete extends Component {
       name,
       infoTooltip,
       disabled,
+      size,
       error,
       helperText,
       placeholder = 'Search...',
@@ -304,6 +307,7 @@ class BaseAutocomplete extends Component {
             name,
             placeholder,
             infoTooltip,
+            size,
             value: selectedOption?.value,
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
