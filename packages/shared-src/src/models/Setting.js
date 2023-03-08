@@ -106,6 +106,11 @@ export class Setting extends Model {
       return settingsObject;
     }
 
+    // just return the object or value below the requested key
+    // e.g. if schedules.outPatientDischarger was requested, the return object will look like
+    // {  schedule: '0 11 * * *', batchSize: 1000 }
+    // rather than
+    // { schedules: { outPatientDischarger: { schedule: '0 11 * * *', batchSize: 1000 } } }
     return getAtPath(settingsObject, key);
   }
 
