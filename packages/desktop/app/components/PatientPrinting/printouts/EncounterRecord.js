@@ -107,8 +107,8 @@ const ChildNote = styled.div`
 
 export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   @media print {
-    // top: -32px;
-    // padding-top: 32px;
+    top: -32px;
+    padding-top: 32px;
   }
 `;
 
@@ -317,7 +317,7 @@ export const EncounterRecord = React.memo(
           <Divider />
           <RowContainer>
             <div>
-              <DisplayValue name="Patient name">
+              <DisplayValue name="Patient Name">
                 {firstName} {lastName}
               </DisplayValue>
               <LocalisedDisplayValue name="dateOfBirth">
