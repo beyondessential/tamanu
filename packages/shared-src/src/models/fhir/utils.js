@@ -29,9 +29,9 @@ export function activeFromVisibility(upstream) {
   }
 }
 
-export function dateTimeStringToFhir(date) {
-  return formatDateTime(
-    dateTimeStringIntoCountryTimezone(date),
-    FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
-  );
+export function dateTimeStringToFhir(
+  date,
+  precision = FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
+) {
+  return formatDateTime(dateTimeStringIntoCountryTimezone(date), precision);
 }
