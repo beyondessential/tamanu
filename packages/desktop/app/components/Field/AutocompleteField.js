@@ -39,11 +39,12 @@ const SuggestionsList = styled(Paper)`
 
     .MuiButtonBase-root {
       padding: 12px 12px 12px 20px;
+      padding: ${props => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
       white-space: normal;
 
       .MuiTypography-root {
-        font-size: ${props => (props.fontSize ? props.fontSize : '14px')};
-        line-height: 1.125rem;
+        font-size: ${props => (props.size === 'small' ? '11px' : '14px')};
+        line-height: 1.3em;
       }
 
       &:hover {
@@ -216,14 +217,14 @@ class BaseAutocomplete extends Component {
   };
 
   renderContainer = option => {
-    const { fontSize } = this.props;
+    const { size = 'medium' } = this.props;
     return (
       <SuggestionsContainer
         anchorEl={this.anchorEl}
         open={!!option.children}
         placement="bottom-start"
       >
-        <SuggestionsList {...option.containerProps} fontSize={fontSize}>
+        <SuggestionsList {...option.containerProps} size={size}>
           {option.children}
         </SuggestionsList>
       </SuggestionsContainer>

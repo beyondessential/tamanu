@@ -59,7 +59,7 @@ export const PatientSearchBar = React.memo(
           name="clinicianId"
           defaultLabel="Clinician"
           component={AutocompleteField}
-          fontSize="11px"
+          variant="small"
           suggester={practitionerSuggester}
         />
       </CustomisableSearchBar>
