@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`settings get (facility) retrieves a non-existent key 1`] = `"(no setting found)"`;
+
+exports[`settings get (facility) retrieves a scalar 1`] = `"value: "test""`;
+
+exports[`settings get (facility) retrieves an array 1`] = `
+"value: [
+  "flower",
+  "girl"
+]"
+`;
+
+exports[`settings get (facility) retrieves an object 1`] = `
+"value: {
+  "leaf": "weed",
+  "root": "root"
+}"
+`;
+
+exports[`settings get (global) retrieves a non-existent key 1`] = `"(no setting found)"`;
+
+exports[`settings get (global) retrieves a scalar 1`] = `"value: "test""`;
+
+exports[`settings get (global) retrieves an array 1`] = `
+"value: [
+  "flower",
+  "girl"
+]"
+`;
+
+exports[`settings get (global) retrieves an object 1`] = `
+"value: {
+  "leaf": "leaf"
+}"
+`;
+
+exports[`settings list (facility) shows all settings 1`] = `
+"test.tree.branch.leaf (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+test.tree.branch.root (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+test.tree.flower (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+test.value (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)"
+`;
+
+exports[
+  `settings list (facility) shows no settings with a non-matching filter 1`
+] = `"No settings found"`;
+
+exports[`settings list (facility) shows some settings with a filter 1`] = `
+"test.tree.branch.leaf (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+test.tree.branch.root (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+test.tree.flower (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)"
+`;
+
+exports[`settings list (global) shows all settings 1`] = `
+"test.tree.branch.leaf
+test.tree.flower
+test.value"
+`;
+
+exports[
+  `settings list (global) shows no settings with a non-matching filter 1`
+] = `"No settings found"`;
+
+exports[`settings list (global) shows some settings with a filter 1`] = `
+"test.tree.branch.leaf
+test.tree.flower"
+`;
