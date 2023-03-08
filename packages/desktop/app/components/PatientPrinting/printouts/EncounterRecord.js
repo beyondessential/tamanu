@@ -420,7 +420,7 @@ export const EncounterRecord = React.memo(
                   <Table>
                     <Row>
                       <Cell width="10%">
-                        <BoldText>Note Type</BoldText>
+                        <BoldText>Note type</BoldText>
                       </Cell>
                       <Cell width="35%">
                         {noteTypes.find(x => x.value === note.noteType).label}
