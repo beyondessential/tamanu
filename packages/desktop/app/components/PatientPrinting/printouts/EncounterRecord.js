@@ -108,6 +108,7 @@ const ChildNote = styled.div`
 export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   @media print {
     top: -32px;
+    padding-top: 32px;
   }
 `;
 
