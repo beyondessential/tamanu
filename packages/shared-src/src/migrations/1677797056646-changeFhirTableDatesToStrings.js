@@ -27,6 +27,11 @@ export async function up(query) {
     throw Error('A countryTimeZone must be configured in local.json for this migration to run.');
   }
 
+  // Save previously set time zone
+  const previousTimeZoneQuery = await query.sequelize.query('show timezone');
+  const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
+
+  // Set time zone defined in config
   await query.sequelize.query(`SET timezone to '${COUNTRY_TIMEZONE}'`);
 
   for (const [tableName, columns] of Object.entries(TABLES)) {
@@ -54,6 +59,9 @@ export async function up(query) {
       }
     }
   }
+
+  // Reset time zone for containment
+  await query.sequelize.query(`SET timezone to '${previousTimeZone}'`);
 }
 
 // Down migration will get rid of all data, which
