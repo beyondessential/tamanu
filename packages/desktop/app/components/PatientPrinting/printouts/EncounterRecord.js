@@ -105,6 +105,8 @@ const ChildNote = styled.div`
   }
 `;
 
+// Needed to do this to get the printing styles to work correctly. Was getting strange behaviour like
+// cutting off the top of the page and overlapping headers without it
 export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   @media print {
     top: -32px;
