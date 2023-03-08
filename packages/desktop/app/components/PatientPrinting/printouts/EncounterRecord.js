@@ -315,7 +315,7 @@ export const EncounterRecord = React.memo(
             pageTitle="Patient Encounter Record"
           />
 
-          <SummaryHeading>Patient Details</SummaryHeading>
+          <SummaryHeading>Patient details</SummaryHeading>
           <Divider />
           <RowContainer>
             <div>
