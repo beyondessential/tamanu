@@ -24,16 +24,6 @@ import { Model } from './Model';
  * yyy   | schedules.outpatientDischarger.batchSize  | 1000
  * zzz   | schedules.automaticLabTestResultPublisher | false
  */
-
-function buildSettingsRecords(keyPrefix, value, facilityId) {
-  if (isPlainObject(value)) {
-    return Object.entries(value).flatMap(([k, v]) =>
-      buildSettingsRecords([keyPrefix, k].join('.'), v, facilityId),
-    );
-  }
-  return [{ key: keyPrefix, value, facilityId }];
-}
-
 export class Setting extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -146,4 +136,13 @@ export class Setting extends Model {
       },
     );
   }
+}
+
+export function buildSettingsRecords(keyPrefix, value, facilityId) {
+  if (isPlainObject(value)) {
+    return Object.entries(value).flatMap(([k, v]) =>
+      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId),
+    );
+  }
+  return [{ key: keyPrefix, value, facilityId }];
 }
