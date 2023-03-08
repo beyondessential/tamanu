@@ -16,6 +16,9 @@ describe('PatientVaccine', () => {
   let scheduled2 = null;
   let scheduled3 = null;
   let clinician = null;
+  let location = null;
+  let department = null;
+  let facility = null;
   let ctx;
 
   beforeAll(async () => {
@@ -24,7 +27,7 @@ describe('PatientVaccine', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     clinician = await models.User.create(fake(models.User));
-    await models.Facility.upsert({
+    [facility] = await models.Facility.upsert({
       id: config.serverFacilityId,
       name: config.serverFacilityId,
       code: config.serverFacilityId,
@@ -52,6 +55,19 @@ describe('PatientVaccine', () => {
     scheduled3 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.CAMPAIGN }),
     );
+    const locationGroup = await models.LocationGroup.create({
+      ...fake(models.LocationGroup),
+      facilityId: facility.id,
+    });
+    location = await models.Location.create({
+      ...fake(models.Location),
+      locationGroupId: locationGroup.id,
+      facilityId: facility.id,
+    });
+    department = await models.Department.create({
+      ...fake(models.Department),
+      facilityId: facility.id,
+    });
 
     // add an administered vaccine for patient1, of schedule 2
     const encounter = await models.Encounter.create(
@@ -139,20 +155,6 @@ describe('PatientVaccine', () => {
         type: 'country',
         name: 'Australia',
         code: 'Australia',
-      });
-      const facility = await models.Facility.create(fake(models.Facility));
-      const locationGroup = await models.LocationGroup.create({
-        ...fake(models.LocationGroup),
-        facilityId: facility.id,
-      });
-      const location = await models.Location.create({
-        ...fake(models.Location),
-        locationGroupId: locationGroup.id,
-        facilityId: facility.id,
-      });
-      const department = await models.Department.create({
-        ...fake(models.Department),
-        facilityId: facility.id,
       });
 
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
