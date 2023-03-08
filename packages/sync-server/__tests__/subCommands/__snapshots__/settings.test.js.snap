@@ -2,37 +2,36 @@
 
 exports[`settings get (facility) retrieves a non-existent key 1`] = `"(no setting found)"`;
 
-exports[`settings get (facility) retrieves a scalar 1`] = `"value: "test""`;
+exports[`settings get (facility) retrieves a scalar 1`] = `
+"value:
+"test""
+`;
 
 exports[`settings get (facility) retrieves an array 1`] = `
-"value: [
-  "flower",
-  "girl"
-]"
+"value:
+["flower","girl"]"
 `;
 
 exports[`settings get (facility) retrieves an object 1`] = `
-"value: {
-  "leaf": "weed",
-  "root": "root"
-}"
+"value:
+{"leaf":"weed","root":"root"}"
 `;
 
 exports[`settings get (global) retrieves a non-existent key 1`] = `"(no setting found)"`;
 
-exports[`settings get (global) retrieves a scalar 1`] = `"value: "test""`;
+exports[`settings get (global) retrieves a scalar 1`] = `
+"value:
+"test""
+`;
 
 exports[`settings get (global) retrieves an array 1`] = `
-"value: [
-  "flower",
-  "girl"
-]"
+"value:
+["flower","girl"]"
 `;
 
 exports[`settings get (global) retrieves an object 1`] = `
-"value: {
-  "leaf": "leaf"
-}"
+"value:
+{"leaf":"leaf"}"
 `;
 
 exports[`settings list (facility) shows all settings 1`] = `
@@ -42,9 +41,7 @@ test.tree.flower (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
 test.value (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)"
 `;
 
-exports[
-  `settings list (facility) shows no settings with a non-matching filter 1`
-] = `"No settings found"`;
+exports[`settings list (facility) shows no settings with a non-matching filter 1`] = `"No settings found"`;
 
 exports[`settings list (facility) shows some settings with a filter 1`] = `
 "test.tree.branch.leaf (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
@@ -58,11 +55,87 @@ test.tree.flower
 test.value"
 `;
 
-exports[
-  `settings list (global) shows no settings with a non-matching filter 1`
-] = `"No settings found"`;
+exports[`settings list (global) shows no settings with a non-matching filter 1`] = `"No settings found"`;
 
 exports[`settings list (global) shows some settings with a filter 1`] = `
 "test.tree.branch.leaf
 test.tree.flower"
+`;
+
+exports[`settings set (facility) sets a new array 1`] = `
+"no current value
+
+new value set"
+`;
+
+exports[`settings set (facility) sets a new array over a global one 1`] = `
+"current value:
+["flower","girl"]
+
+new value set"
+`;
+
+exports[`settings set (facility) sets a new object 1`] = `
+"no current value
+
+new value set"
+`;
+
+exports[`settings set (facility) sets a new object over a global one 1`] = `
+"current value:
+{"leaf":"weed","root":"root"}
+
+new value set"
+`;
+
+exports[`settings set (facility) sets a new scalar 1`] = `
+"no current value
+
+new value set"
+`;
+
+exports[`settings set (facility) sets a new scalar over a global one 1`] = `
+"current value:
+"test"
+
+new value set"
+`;
+
+exports[`settings set (global) overwrites a scalar 1`] = `
+"current value:
+"test"
+
+new value set"
+`;
+
+exports[`settings set (global) overwrites an array 1`] = `
+"current value:
+["flower","girl"]
+
+new value set"
+`;
+
+exports[`settings set (global) overwrites an object 1`] = `
+"current value:
+{"leaf":"leaf"}
+
+new value set"
+`;
+
+exports[`settings set (global) sets a new array 1`] = `
+"no current value
+
+new value set"
+`;
+
+exports[`settings set (global) sets a new object 1`] = `
+"no current value
+
+new value set"
+`;
+
+exports[`settings set (global) sets a new scalar 1`] = `
+"no current value
+
+new value set"
 `;
