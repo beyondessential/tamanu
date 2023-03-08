@@ -72,10 +72,18 @@ export class Setting extends Model {
   static async get(key = '', facilityId = null) {
     const settings = await Setting.findAll({
       where: {
-        key: {
-          [Op.startsWith]: key, // LIKE '{key}%'
+        ...(key ? { key: {
+          [Op.or]: {
+            [Op.eq]: key,
+            [Op.like]: `${key}.%`,
         },
-        facilityId,
+        } } : {}),
+        facilityId: {
+          [Op.or]: {
+            [Op.eq]: facilityId,
+            [Op.is]: null,
+          },
+        },
       },
     });
 
@@ -88,11 +96,6 @@ export class Setting extends Model {
       return settingsObject;
     }
 
-    // just return the object or value below the requested key
-    // e.g. if schedules.outPatientDischarger was requested, the return object will look like
-    // {  schedule: '0 11 * * *', batchSize: 1000 }
-    // rather than
-    // { schedules: { outPatientDischarger: { schedule: '0 11 * * *', batchSize: 1000 } } }
     return getAtPath(settingsObject, key);
   }
 
