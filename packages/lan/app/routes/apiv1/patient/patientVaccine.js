@@ -6,6 +6,7 @@ import config from 'config';
 import { ENCOUNTER_TYPES, VACCINE_RECORDING_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { REFERENCE_TYPES } from 'shared/constants/importable';
+import { VACCINE_CATEGORIES } from 'shared/constants/vaccines';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -103,7 +104,9 @@ patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientVaccine');
-    if (!req.body.scheduledVaccineId) {
+
+    // Require scheduledVaccineId if vaccine category is not OTHER
+    if (req.body.category !== VACCINE_CATEGORIES.OTHER && !req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
@@ -112,9 +115,15 @@ patientVaccineRoutes.post(
     }
 
     const { models } = req;
-    const { vaccineRecordingType, givenOverseas, givenByCountryId } = req.body;
+    const { vaccineRecordingType, givenOverseas, givenByCountryId, category } = req.body;
     let { locationId, departmentId } = req.body;
     const vaccineData = { ...req.body };
+
+    if (category === VACCINE_CATEGORIES.OTHER) {
+      vaccineData.scheduledVaccineId = (
+        await models.ScheduledVaccine.getOtherCategoryScheduledVaccine()
+      )?.id;
+    }
 
     // Find default department and location when vaccine is not given
     if (vaccineRecordingType === VACCINE_RECORDING_TYPES.NOT_GIVEN) {

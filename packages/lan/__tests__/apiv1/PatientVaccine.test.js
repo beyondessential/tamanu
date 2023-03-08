@@ -176,5 +176,38 @@ describe('PatientVaccine', () => {
       expect(vaccine.givenOverseas).toEqual(true);
       expect(vaccine.givenBy).toEqual(country.name);
     });
+
+    it('Should record vaccine with correct values when category is Other', async () => {
+      const VACCINE_BRAND = 'Test Vaccine Brand';
+      const VACCINE_NAME = 'Test Vaccine Name';
+      const VACCINE_DISEASE = 'Test Vaccine Disease';
+
+      const otherScheduledVaccine = await models.ScheduledVaccine.create(
+        await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.OTHER }),
+      );
+
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        vaccineRecordingType: VACCINE_RECORDING_TYPES.GIVEN,
+        category: VACCINE_CATEGORIES.OTHER,
+        locationId: location.id,
+        departmentId: department.id,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        patientId: patient.id,
+        date: new Date(),
+        vaccineBrand: VACCINE_BRAND,
+        vaccineName: VACCINE_NAME,
+        disease: VACCINE_DISEASE,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+
+      expect(vaccine.scheduledVaccineId).toEqual(otherScheduledVaccine.id);
+      expect(vaccine.vaccineBrand).toEqual(VACCINE_BRAND);
+      expect(vaccine.vaccineName).toEqual(VACCINE_NAME);
+      expect(vaccine.disease).toEqual(VACCINE_DISEASE);
+    });
   });
 });

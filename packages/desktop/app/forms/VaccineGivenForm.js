@@ -4,7 +4,11 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { INJECTION_SITE_OPTIONS, VACCINE_CATEGORY_OPTIONS } from 'shared/constants';
+import {
+  INJECTION_SITE_OPTIONS,
+  VACCINE_CATEGORY_OPTIONS,
+  VACCINE_CATEGORIES,
+} from 'shared/constants';
 
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
@@ -51,7 +55,6 @@ export const VaccineGivenForm = ({
         date: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
-        scheduledVaccineId: yup.string().required(),
         date: yup.string().required(),
         consent: yup
           .boolean()
@@ -77,15 +80,24 @@ export const VaccineGivenForm = ({
           <FullWidthCol>
             <Field name="givenOverseas" label="Given overseas" component={CheckField} />
           </FullWidthCol>
-          <Field
-            name="vaccineLabel"
-            label="Vaccine"
-            value={vaccineLabel}
-            component={SelectField}
-            options={vaccineOptions}
-            onChange={e => setVaccineLabel(e.target.value)}
-            required
-          />
+          {category === VACCINE_CATEGORIES.OTHER ? (
+            <>
+              <Field name="vaccineName" label="Vaccine name" component={TextField} required />
+
+              <Field name="vaccineBrand" label="Vaccine brand" component={TextField} required />
+              <Field name="disease" label="Disease" component={TextField} required />
+            </>
+          ) : (
+            <Field
+              name="vaccineLabel"
+              label="Vaccine"
+              value={vaccineLabel}
+              component={SelectField}
+              options={vaccineOptions}
+              onChange={e => setVaccineLabel(e.target.value)}
+              required
+            />
+          )}
           <Field name="batch" label="Batch" component={TextField} />
           {administeredOptions.length || scheduleOptions.length ? (
             <FullWidthCol>
@@ -167,7 +179,7 @@ export const VaccineGivenForm = ({
           </FullWidthCol>
           <ConfirmCancelRow
             onConfirm={submitForm}
-            confirmDisabled={scheduleOptions.length === 0}
+            confirmDisabled={category !== VACCINE_CATEGORIES.OTHER && scheduleOptions.length === 0}
             onCancel={onCancel}
           />
         </TwoTwoGrid>

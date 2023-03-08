@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { PropTypes } from 'prop-types';
 
-import { VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { VACCINE_RECORDING_TYPES, VACCINE_CATEGORIES } from 'shared/constants';
 
 import { VaccineGivenForm } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
@@ -30,7 +30,7 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineR
 
   useEffect(() => {
     const fetchScheduledVaccines = async () => {
-      if (!category) {
+      if (!category || category === VACCINE_CATEGORIES.OTHER) {
         setVaccineOptions([]);
         return;
       }
@@ -55,7 +55,9 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineR
     setVaccineLabel,
     administeredOptions,
     scheduleOptions,
-    onSubmit,
+    onSubmit: data => {
+      onSubmit({ ...data, category });
+    },
     onCancel,
     currentUser,
   };

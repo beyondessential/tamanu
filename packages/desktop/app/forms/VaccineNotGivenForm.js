@@ -4,7 +4,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { VACCINE_CATEGORY_OPTIONS } from 'shared/constants';
+import { VACCINE_CATEGORY_OPTIONS, VACCINE_CATEGORIES } from 'shared/constants';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -62,15 +62,23 @@ export const VaccineNotGivenForm = ({
             required
           />
         </FullWidthCol>
-        <Field
-          name="vaccineLabel"
-          label="Vaccine"
-          value={vaccineLabel}
-          component={SelectField}
-          options={vaccineOptions}
-          onChange={e => setVaccineLabel(e.target.value)}
-          required
-        />
+        {category === VACCINE_CATEGORIES.OTHER ? (
+          <>
+            <Field name="vaccineName" label="Vaccine name" component={TextField} required />
+
+            <Field name="disease" label="Disease" component={TextField} required />
+          </>
+        ) : (
+          <Field
+            name="vaccineLabel"
+            label="Vaccine"
+            value={vaccineLabel}
+            component={SelectField}
+            options={vaccineOptions}
+            onChange={e => setVaccineLabel(e.target.value)}
+            required
+          />
+        )}
         {administeredOptions.length || scheduleOptions.length ? (
           <FullWidthCol>
             {administeredOptions.length > 0 && (

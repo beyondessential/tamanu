@@ -22,6 +22,9 @@ export class AdministeredVaccine extends Model {
         givenBy: Sequelize.TEXT,
         supervisingClinician: Sequelize.TEXT,
         givenOverseas: Sequelize.BOOLEAN,
+        vaccineBrand: Sequelize.TEXT,
+        vaccineName: Sequelize.TEXT,
+        disease: Sequelize.TEXT,
         date: dateTimeType('date', {
           allowNull: false,
         }),
