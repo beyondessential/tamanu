@@ -12,8 +12,7 @@
     "build": "rm -rf build; tsc --build tsconfig.json",
     "test": "yarn build",
     "cli": "yarn build && node build",
-    "lint": "eslint src/**/*.ts",
-    "lint-stats": "eslint --format ../scripts/eslint-stats.js src/**/*.ts"
+    "lint": "eslint src/**/*.ts"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",
