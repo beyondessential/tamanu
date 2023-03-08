@@ -13,6 +13,7 @@ export default {
         use: {
           loader: 'babel-loader',
           options: {
+            cacheDirectory: true,
             rootMode: 'upward',
           },
         },
