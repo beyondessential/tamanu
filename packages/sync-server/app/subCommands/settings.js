@@ -39,9 +39,9 @@ export async function getSetting(key, { facility } = {}) {
   const setting = await Setting.get(key, facility);
   if (setting === undefined) {
     return '(no setting found)';
-  } else {
-    return `value:\n${canonicalize(setting)}`;
   }
+
+  return `value:\n${canonicalize(setting)}`;
 }
 
 export async function setSetting(key, value, { facility } = {}) {
@@ -105,7 +105,7 @@ export const settingsCommand = new Command('settings')
       .description('get a setting')
       .argument('<key>', 'key to retrieve')
       .option('--facility <facility>', 'ID of facility to scope to')
-      .action((...args) => console.log(`-------------------------\n${getSettings(...args)}`)),
+      .action((...args) => console.log(`-------------------------\n${getSetting(...args)}`)),
   )
   .addCommand(
     new Command('set')
@@ -113,7 +113,7 @@ export const settingsCommand = new Command('settings')
       .argument('<key>', 'key to create/update')
       .argument('<value>', 'value in JSON')
       .option('--facility <facility>', 'ID of facility to scope to')
-      .action((...args) => console.log(`-------------------------\n${setSettings(...args)}`)),
+      .action((...args) => console.log(`-------------------------\n${setSetting(...args)}`)),
   )
   .addCommand(
     new Command('load')
