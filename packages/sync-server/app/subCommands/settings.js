@@ -119,7 +119,7 @@ export const settingsCommand = new Command('settings')
     new Command('load')
       .description('load settings from a file')
       .argument('<key>', 'key to load to')
-      .argument('<file>', 'JSON or TOML file to load settings from')
+      .argument('<file>', 'JSON, TOML, or KDL file to load settings from')
       .option('--facility <facility>', 'ID of facility to scope to')
       .option('--preview', 'Print the settings that would be loaded in JSON')
       .action((...args) => console.log(`-------------------------\n${loadSettings(...args)}`)),

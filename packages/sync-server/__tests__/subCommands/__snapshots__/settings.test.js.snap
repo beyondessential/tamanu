@@ -62,6 +62,96 @@ exports[`settings list (global) shows some settings with a filter 1`] = `
 test.tree.flower"
 `;
 
+exports[`settings load a KDL file preview only 1`] = `
+"{
+  "character": "Claire Augustus",
+  "firstAppearance": 2203,
+  "human": true
+}"
+`;
+
+exports[`settings load a KDL file to a facility 1`] = `
+"{
+  "character": "Pintsize",
+  "firstAppearance": 1,
+  "human": false
+}"
+`;
+
+exports[`settings load a KDL file to global namespace 1`] = `
+"{
+  "character": "Marten Reed",
+  "firstAppearance": 1,
+  "human": true
+}"
+`;
+
+exports[`settings load a TOML file preview only 1`] = `
+"{
+  "name": {
+    "first": "Mozzie",
+    "aliases": [
+      "Haversham",
+      "The Dentist of Detroit"
+    ]
+  }
+}"
+`;
+
+exports[`settings load a TOML file to a facility 1`] = `
+"{
+  "name": {
+    "aliases": [
+      "Leed",
+      "Morris",
+      "Nevins",
+      "Satchmo"
+    ],
+    "first": "Peter",
+    "last": "Burke"
+  }
+}"
+`;
+
+exports[`settings load a TOML file to global namespace 1`] = `
+"{
+  "name": {
+    "aliases": [
+      "Halden",
+      "Bennett",
+      "Monroe",
+      "Dietrick"
+    ],
+    "first": "Neil",
+    "last": "Caffrey"
+  }
+}"
+`;
+
+exports[`settings load a json file preview only 1`] = `
+"{
+  "really": {
+    "dull": "eyes"
+  }
+}"
+`;
+
+exports[`settings load a json file to a facility 1`] = `
+"{
+  "really": {
+    "blue": "eyes"
+  }
+}"
+`;
+
+exports[`settings load a json file to global namespace 1`] = `
+"{
+  "really": {
+    "nice": "eyes"
+  }
+}"
+`;
+
 exports[`settings set (facility) sets a new array 1`] = `
 "no current value
 

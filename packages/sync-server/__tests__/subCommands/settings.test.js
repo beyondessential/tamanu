@@ -1,3 +1,6 @@
+import { join } from 'path';
+import { mkdtemp, writeFile, rmdir } from 'fs/promises';
+import { tmpdir } from 'os';
 import { fake } from 'shared/test-helpers/fake';
 import { Op } from 'sequelize';
 import { listSettings, getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
@@ -200,6 +203,183 @@ describe('settings', () => {
         branch: {
           leaf: 'leaf',
         },
+      });
+    });
+  });
+
+  describe.only('load', () => {
+    let tempdir;
+    beforeEach(async () => {
+      tempdir = await mkdtemp(join(tmpdir(), 'settings-'));
+    });
+    afterEach(async () => {
+      await rmdir(tempdir, { recursive: true });
+    });
+
+    describe.only('a json file', () => {
+      it('to global namespace', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.json');
+        await writeFile(file, JSON.stringify({ really: { nice: 'eyes' } }));
+
+        await expect(loadSettings('test.json', file)).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.json')).resolves.toStrictEqual({ really: { nice: 'eyes' } });
+      });
+
+      it('to a facility', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.json');
+        await writeFile(file, JSON.stringify({ really: { blue: 'eyes' } }));
+
+        await expect(loadSettings('test.json', file, { facility })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.json')).resolves.toBe(undefined);
+        await expect(Setting.get('test.json', facility)).resolves.toStrictEqual({
+          really: { blue: 'eyes' },
+        });
+      });
+
+      it('preview only', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.json');
+        await writeFile(file, JSON.stringify({ really: { dull: 'eyes' } }));
+
+        await expect(loadSettings('test.json', file, { preview: true })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.json')).resolves.toBe(undefined);
+      });
+    });
+
+    describe.only('a TOML file', () => {
+      it('to global namespace', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.toml');
+        await writeFile(
+          file,
+          `
+          [name]
+          first = "Neil"
+          last = "Caffrey"
+          aliases = ["Halden", "Bennett", "Monroe", "Dietrick"]
+          `,
+        );
+
+        await expect(loadSettings('test.toml', file)).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.toml')).resolves.toStrictEqual({
+          name: {
+            first: 'Neil',
+            last: 'Caffrey',
+            aliases: ['Halden', 'Bennett', 'Monroe', 'Dietrick'],
+          },
+        });
+      });
+
+      it('to a facility', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.toml');
+        await writeFile(
+          file,
+          `
+          [name]
+          first = "Peter"
+          last = "Burke"
+          aliases = ["Leed", "Morris", "Nevins", "Satchmo"]
+          `,
+        );
+
+        await expect(loadSettings('test.toml', file, { facility })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.toml')).resolves.toBe(undefined);
+        await expect(Setting.get('test.toml', facility)).resolves.toStrictEqual({
+          name: { first: 'Peter', last: 'Burke', aliases: ['Leed', 'Morris', 'Nevins', 'Satchmo'] },
+        });
+      });
+
+      it('preview only', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.toml');
+        await writeFile(
+          file,
+          `
+          [name]
+          first = "Mozzie"
+          aliases = ["Haversham", "The Dentist of Detroit"]
+          `,
+        );
+
+        await expect(loadSettings('test.toml', file, { preview: true })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.toml')).resolves.toBe(undefined);
+      });
+    });
+
+    describe.only('a KDL file', () => {
+      it('to global namespace', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.kdl');
+        await writeFile(
+          file,
+          `
+          test.kdl {
+            character "Marten Reed"
+            firstAppearance 1
+            human true
+          }
+          `,
+        );
+
+        await expect(loadSettings('test.kdl', file)).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.kdl')).resolves.toStrictEqual({
+          character: 'Marten Reed',
+          firstAppearance: 1,
+          human: true,
+        });
+      });
+
+      it('to a facility', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.kdl');
+        await writeFile(
+          file,
+          `
+          test.kdl {
+            character "Pintsize"
+            firstAppearance 1
+            human false
+          }
+          `,
+        );
+
+        await expect(loadSettings('test.kdl', file, { facility })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.kdl')).resolves.toBe(undefined);
+        await expect(Setting.get('test.kdl', facility)).resolves.toStrictEqual({
+          character: 'Pintsize',
+          firstAppearance: 1,
+          human: false,
+        });
+      });
+
+      it('preview only', async () => {
+        const { Setting } = ctx.store.models;
+        const file = join(tempdir, 'test.kdl');
+        await writeFile(
+          file,
+          `
+          test.kdl {
+            character "Claire Augustus"
+            firstAppearance 2203
+            human true
+          }
+          `,
+        );
+
+        await expect(loadSettings('test.kdl', file, { preview: true })).resolves.toMatchSnapshot();
+
+        await expect(Setting.get('test.kdl')).resolves.toBe(undefined);
       });
     });
   });
