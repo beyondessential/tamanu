@@ -12,6 +12,7 @@ import {
   PatientSearchBar,
   ContentPane,
 } from '../../components';
+import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '../../components/Button';
 import { NewPatientModal } from './components';
 import {
@@ -133,11 +134,13 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
+
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
+      <RecentlyViewedPatientsList />
       <AllPatientsSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientTable
@@ -160,6 +163,7 @@ export const AdmittedPatientsView = () => {
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
+      <RecentlyViewedPatientsList encounterType="admission" />
       <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
@@ -181,6 +185,7 @@ export const OutpatientsView = () => {
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
+      <RecentlyViewedPatientsList encounterType="clinic" />
       <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
