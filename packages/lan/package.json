@@ -16,11 +16,9 @@
     "start": "node ./dist/app.bundle.js",
     "start-dev": "rimraf ./dist/ && webpack --config webpack.config.dev.mjs",
     "test": "NODE_ENV=test jest",
-    "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
     "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
-    "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
+    "lint": "eslint app"
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",

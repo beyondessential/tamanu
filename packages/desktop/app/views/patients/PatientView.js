@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
@@ -100,6 +100,10 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+
+  useEffect(() => {
+    api.post(`user/recently-viewed-patients/${patient.id}`);
+  }, [api, patient.id]);
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
