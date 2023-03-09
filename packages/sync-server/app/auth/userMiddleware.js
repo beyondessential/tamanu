@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
-import { verifyToken, stripUser, findUser, findUserById } from './utils';
 import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { verifyToken, stripUser, findUser, findUserById } from './utils';
 
 const FAKE_TOKEN = 'fake-token';
 
