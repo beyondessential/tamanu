@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
-import { LargeButton, LargeOutlineButton } from '../Button';
+import { Button, OutlinedButton } from '../Button';
 import { Form } from '../Field';
 import { Colors } from '../../constants';
 
@@ -67,12 +67,12 @@ export const CustomisableSearchBar = ({
             >
               {renderCheckField}
               <Box marginLeft="auto">
-                <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
+                <OutlinedButton style={{ marginRight: 12 }} onClick={clearForm}>
                   Clear search
-                </LargeOutlineButton>
-                <LargeButton onClick={submitForm} type="submit">
+                </OutlinedButton>
+                <Button onClick={submitForm} type="submit">
                   Search
-                </LargeButton>
+                </Button>
               </Box>
             </Box>
           </>

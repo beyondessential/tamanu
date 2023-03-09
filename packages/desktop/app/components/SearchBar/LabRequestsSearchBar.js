@@ -1,6 +1,6 @@
 import React from 'react';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { DateField, SelectField, LocalisedField } from '../Field';
+import { DateField, SelectField, Field, LocalisedField, SearchField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
 
@@ -9,22 +9,23 @@ export const LabRequestsSearchBar = () => {
   return (
     <CustomisableSearchBar
       title="Search lab requests"
+      variant="small"
       initialValues={{ displayIdExact: true, ...searchParameters }}
       onSearch={setSearchParameters}
     >
-      <LocalisedField name="firstName" />
-      <LocalisedField name="lastName" />
-      <LocalisedField name="displayId" />
-      <LocalisedField name="requestId" defaultLabel="Request ID" />
-      <LocalisedField name="category" defaultLabel="Type" />
+      <Field name="displayId" label="NHN" component={SearchField} />
+      <Field name="firstName" label="Patient name" component={SearchField} />
+      <Field name="requestId" label="Test ID" component={SearchField} />
+      <Field name="category" label="Test category" component={SearchField} />
+      <Field name="locationGroup" label="Area" component={SearchField} />
+      <Field name="department" label="Department" />
+      <LocalisedField name="laboratory" defaultLabel="Laboratory" component={SearchField} />
       <LocalisedField
         name="status"
         defaultLabel="Status"
         component={SelectField}
         options={LAB_REQUEST_STATUS_OPTIONS}
       />
-      <LocalisedField name="priority" defaultLabel="Priority" />
-      <LocalisedField name="laboratory" defaultLabel="Laboratory" />
       <LocalisedField
         name="requestedDateFrom"
         defaultLabel="Requested from"
@@ -37,6 +38,8 @@ export const LabRequestsSearchBar = () => {
         saveDateAsString
         component={DateField}
       />
+      <Field name="author" label="Requested by" component={SearchField} />
+      <LocalisedField name="priority" defaultLabel="Priority" />
     </CustomisableSearchBar>
   );
 };
