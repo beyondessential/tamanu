@@ -95,7 +95,7 @@ export const CustomisableSearchBar = ({
                   >
                     <img
                       src={expanded ? doubleUp : doubleDown}
-                      alt={`${expanded ? 'hide' : 'show'} advanded filters`}
+                      alt={`${expanded ? 'hide' : 'show'} advanced filters`}
                     />
                   </IconButton>
                 )}
