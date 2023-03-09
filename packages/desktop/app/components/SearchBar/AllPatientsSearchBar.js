@@ -30,7 +30,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         name="villageId"
         component={AutocompleteField}
         suggester={villageSuggester}
-        style={{ fontSize: '11px' }}
+        size="small"
       />
       <DisplayIdField />
       <DOBFields />
