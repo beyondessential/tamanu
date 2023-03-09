@@ -19,27 +19,19 @@ const Container = styled.div`
 
 const DisplayField = styled.div`
   width: 50%;
-  margin-bottom: 20px;
+  padding-bottom: 20px;
   color: ${Colors.darkestText};
   font-weight: 500;
   padding-left: 30px;
-  &:nth-of-type(odd) {
+  &:nth-of-type(even) {
     padding-left: 20px;
+    border-left: 1px solid ${Colors.outline};
   }
 `;
 
 const Label = styled.div`
   font-weight: 400;
   color: ${Colors.midText};
-`;
-
-const Divider = styled.div`
-  width: 1px;
-  background-color: ${Colors.outline};
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  height: 85%;
 `;
 
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
@@ -72,7 +64,6 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose}>
       <Container>
-        <Divider />
         {(routine || notGiven) && (
           <DisplayField>
             <Label>Vaccine </Label>
