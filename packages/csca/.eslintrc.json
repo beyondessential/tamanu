@@ -1,5 +1,7 @@
 {
   "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "extends": ["../../.eslintrc-typescript.json"],
   "rules": {
     "no-console": "off",
