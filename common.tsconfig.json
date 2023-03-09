@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "importsNotUsedAsValues": true,
+    "isolatedModules": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "strict": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "build",
+    "dist",
+    "jest.config.js",
+    "node_modules"
+  ]
+}
