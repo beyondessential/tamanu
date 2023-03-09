@@ -21,7 +21,7 @@ const WarningModalContainer = styled.div`
   padding-bottom: 2rem;
 `;
 
-const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onLogout }) => {
+const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }) => {
   const [, updateState] = useState({});
   // Re-render modal on timer so countdown updates correctly
   useEffect(() => {
@@ -47,7 +47,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onLogout })
         confirmText="Stay logged in"
         cancelText="Logout"
         onConfirm={onStayLoggedIn}
-        onCancel={onLogout}
+        onCancel={onTimeout}
       />
     </Modal>
   );
@@ -56,7 +56,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onLogout })
 export const UserActivityMonitor = () => {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const [showWarning, setShowWarning] = useState(false);
-  const { onLogout, refreshToken } = useAuth();
+  const { onTimeout, refreshToken } = useAuth();
   const { getLocalisation } = useLocalisation();
 
   // Can't fetch localisation prior to login so add defaults
@@ -65,7 +65,7 @@ export const UserActivityMonitor = () => {
 
   const onIdle = () => {
     // TODO: WAITM-598 Replace this full logout with a login modal
-    onLogout();
+    onTimeout();
   };
 
   const onAction = () => {
@@ -98,7 +98,7 @@ export const UserActivityMonitor = () => {
         setShowWarning(false);
         reset();
       }}
-      onLogout={onLogout}
+      onTimeout={onTimeout}
     />
   );
 };
