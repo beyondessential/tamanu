@@ -108,16 +108,6 @@ export const FACILITY_MENU_ITEMS = [
         path: '/imaging-requests/all',
         ability: { action: 'read' },
       },
-      {
-        label: 'Completed',
-        path: '/imaging-requests/completed',
-        ability: { action: 'read' },
-      },
-      {
-        label: 'New request',
-        path: '/imaging-requests/new',
-        ability: { action: 'create' },
-      },
     ],
   },
   {
@@ -132,16 +122,6 @@ export const FACILITY_MENU_ITEMS = [
         path: '/lab-requests/all',
         ability: { action: 'read' },
       },
-      {
-        label: 'Completed',
-        path: '/lab-requests/completed',
-        ability: { action: 'read' },
-      },
-      {
-        label: 'New request',
-        path: '/lab-requests/new',
-        ability: { action: 'create' },
-      },
     ],
   },
   {
@@ -154,10 +134,6 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Immunisation register',
         path: `/immunisations/all`,
-      },
-      {
-        label: 'COVID campaign',
-        path: `/immunisations/covid-campaign`,
       },
     ],
   },

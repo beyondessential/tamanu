@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { BadAuthenticationError } from 'shared/errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { getToken, verifyToken, findUserById, getRandomU32, getRandomBase64String } from './utils';
-import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
 
 export const refresh = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
