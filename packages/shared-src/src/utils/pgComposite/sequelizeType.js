@@ -1,6 +1,5 @@
 import { object, mixed } from 'yup';
 import { enumerate, parse } from './parse';
-import { formatFhirDate } from '../fhir';
 
 export class Composite {
   static SCHEMA() {
