@@ -21,15 +21,6 @@ export class FhirExtension extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ url, valueCodeableConcept, ...fields }) {
-    return new this({
-      url,
-      valueCodeableConcept:
-        valueCodeableConcept && FhirCodeableConcept.fromSql(valueCodeableConcept),
-      ...fields,
-    });
-  }
-
   static fake(...args) {
     return new this({
       url: `https://tamanu.io/extension/${uuidv4()}`,

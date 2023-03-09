@@ -1,5 +1,4 @@
 import { random } from 'lodash';
-import array from 'postgres-array';
 import * as yup from 'yup';
 
 import { Composite } from '../../utils/pgComposite';
@@ -22,13 +21,6 @@ export class FhirCodeableConcept extends Composite {
           .default(null),
       })
       .noUnknown();
-  }
-
-  static validateAndTransformFromSql({ coding, ...fields }) {
-    return new this({
-      coding: coding && array.parse(coding, el => FhirCoding.fromSql(el)),
-      ...fields,
-    });
   }
 
   static fake(...args) {

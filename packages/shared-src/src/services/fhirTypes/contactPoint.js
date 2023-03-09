@@ -41,13 +41,6 @@ export class FhirContactPoint extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ period, ...fields }) {
-    return new this({
-      period: period && FhirPeriod.fromSql(period),
-      ...fields,
-    });
-  }
-
   static fake(model, { fieldName }, id) {
     return new this({
       system: sample(SYSTEMS),

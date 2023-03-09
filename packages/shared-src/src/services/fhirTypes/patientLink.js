@@ -21,13 +21,6 @@ export class FhirPatientLink extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ other, ...fields }) {
-    return new this({
-      other: other && FhirReference.fromSql(other),
-      ...fields,
-    });
-  }
-
   static fake(model, { fieldName }, id) {
     return new this({
       type: sample(TYPES),

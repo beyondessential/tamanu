@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import array from 'postgres-array';
 import { Chance } from 'chance';
 import { random } from 'lodash';
 
@@ -62,15 +61,6 @@ export class FhirImmunizationProtocolApplied extends Composite {
         },
       )
       .noUnknown();
-  }
-
-  static validateAndTransformFromSql({ authority, targetDisease, ...fields }) {
-    return new this({
-      authority: authority && FhirReference.fromSql(authority),
-      targetDisease:
-        targetDisease && array.parse(targetDisease, el => FhirCodeableConcept.fromSql(el)),
-      ...fields,
-    });
   }
 
   static fake(...args) {

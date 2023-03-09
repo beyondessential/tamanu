@@ -18,13 +18,6 @@ export class FhirImmunizationPerformer extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ function: functionField, actor }) {
-    return new this({
-      function: functionField && FhirCodeableConcept.fromSql(functionField),
-      actor: actor && FhirReference.fromSql(actor),
-    });
-  }
-
   static fake(...args) {
     return new this({
       function: FhirCodeableConcept.fake(...args),

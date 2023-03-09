@@ -33,13 +33,6 @@ export class FhirAnnotation extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ authorReference, ...fields }) {
-    return new this({
-      authorReference: authorReference && FhirReference.fromSql(authorReference),
-      ...fields,
-    });
-  }
-
   static fake(model, { fieldName }, id) {
     return new this({
       authorString: `${model.name}.${fieldName}.author.${id}`,

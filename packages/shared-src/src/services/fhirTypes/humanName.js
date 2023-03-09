@@ -1,6 +1,5 @@
 import { Chance } from 'chance';
-import { identity, sample } from 'lodash';
-import array from 'postgres-array';
+import { sample } from 'lodash';
 import * as yup from 'yup';
 
 import { Composite } from '../../utils/pgComposite';
@@ -47,16 +46,6 @@ export class FhirHumanName extends Composite {
           .default(null),
       })
       .noUnknown();
-  }
-
-  static validateAndTransformFromSql({ given, prefix, suffix, period, ...fields }) {
-    return new this({
-      given: given && array.parse(given, identity),
-      prefix: prefix && array.parse(prefix, identity),
-      suffix: suffix && array.parse(suffix, identity),
-      period: period && FhirPeriod.fromSql(period),
-      ...fields,
-    });
   }
 
   static fake() {

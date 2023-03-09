@@ -1,6 +1,5 @@
 import { Chance } from 'chance';
 import { sample } from 'lodash';
-import array from 'postgres-array';
 import * as yup from 'yup';
 
 import { Composite } from '../../utils/pgComposite';
@@ -78,14 +77,6 @@ export class FhirAddress extends Composite {
   // > updating an address SHALL ensure that when both text and parts are present, no content is
   // > included in the text that isn't found in a part.
   // -- https://www.hl7.org/fhir/datatypes.html#Address
-
-  static validateAndTransformFromSql({ line, period, ...fields }) {
-    return new this({
-      line: line && array.parse(line, l => l),
-      period: period && FhirPeriod.fromSql(period),
-      ...fields,
-    });
-  }
 
   static fake() {
     const chance = new Chance();

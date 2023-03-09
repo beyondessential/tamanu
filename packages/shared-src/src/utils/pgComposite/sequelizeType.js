@@ -53,12 +53,7 @@ export class Composite {
       assembled[name] = fields[n];
     }
 
-    return this.validateAndTransformFromSql(assembled);
-  }
-
-  // override this if you want to customise parsing
-  static validateAndTransformFromSql(fields) {
-    return new this(fields);
+    return new this(assembled);
   }
 
   /**

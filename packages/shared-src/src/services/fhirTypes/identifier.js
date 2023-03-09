@@ -43,15 +43,6 @@ export class FhirIdentifier extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ type, period, assigner, ...fields }) {
-    return new this({
-      type: type && FhirCodeableConcept.fromSql(type),
-      period: period && FhirPeriod.fromSql(period),
-      assigner: assigner && FhirReference.fromSql(assigner),
-      ...fields,
-    });
-  }
-
   static fake(model, { fieldName }, id) {
     return new this({
       use: sample(USES),

@@ -34,14 +34,6 @@ export class FhirReference extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ identifier, ...fields }) {
-    return new this({
-      // stored in postgres as JSONB to avoid type cycle
-      identifier: identifier && new FhirIdentifier(JSON.parse(identifier)),
-      ...fields,
-    });
-  }
-
   static fake(model, { fieldName }, id) {
     return new this({
       type: model,
