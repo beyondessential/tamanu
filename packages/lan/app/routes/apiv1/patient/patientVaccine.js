@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, VACCINE_STATUS } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -143,9 +143,11 @@ patientVaccineRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
-    const where = req.params.includeNotGiven ? { 
-      status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
-    } : {};
+    const where = req.params.includeNotGiven
+      ? {
+          status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
+        }
+      : {};
 
     const patient = await req.models.Patient.findByPk(req.params.id);
     const results = await patient.getAdministeredVaccines({ where });

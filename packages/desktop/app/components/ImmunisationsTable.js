@@ -24,10 +24,10 @@ const columns = [
 ];
 
 export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => {
-  const [ includeNotGiven, setIncludeNotGiven ] = useState(false);
+  const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
   const notGivenCheckBox = (
-    <CheckInput 
+    <CheckInput
       label="Include not given"
       value={includeNotGiven}
       onClick={() => setIncludeNotGiven(!includeNotGiven)}
