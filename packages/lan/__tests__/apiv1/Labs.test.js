@@ -75,7 +75,7 @@ describe('Labs', () => {
     });
     expect(response).toHaveRequestError();
 
-    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
+    const createdRequest = await models.LabRequest.findByPk(response.body.id);
     expect(createdRequest).toBeFalsy();
   });
 

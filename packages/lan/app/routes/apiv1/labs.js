@@ -68,6 +68,17 @@ labRequest.post(
       group: ['lab_test_category_id'],
     });
 
+    // Check to see that all the test types are valid
+    const count = categories.reduce(
+      (validTestTypesCount, category) =>
+        validTestTypesCount + category.get('lab_test_type_ids').length,
+      0,
+    );
+
+    if (count < labTestTypeIds.length) {
+      throw new InvalidOperationError('Invalid test type id');
+    }
+
     const response = await Promise.all(
       categories.map(async category => {
         const labRequestData = {
