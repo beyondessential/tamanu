@@ -11,12 +11,13 @@ export const screen2ValidationSchema = yup.object().shape({
     .array()
     .of(yup.string())
     .required(),
+  labTestPanelId: yup.string(),
   notes: yup.string(),
 });
 
 export const LabRequestFormScreen2 = props => {
   const {
-    values: { requestFormType },
+    values: { requestFormType, labTestPanelId },
   } = props;
   const api = useApi();
   const { data: testTypesData, isLoading } = useQuery(['labTestTypes'], () =>
@@ -33,6 +34,7 @@ export const LabRequestFormScreen2 = props => {
           }`}
           component={TestSelectorField}
           requestFormType={requestFormType}
+          labTestPanelId={labTestPanelId}
           testTypes={testTypesData}
           isLoading={isLoading}
           required

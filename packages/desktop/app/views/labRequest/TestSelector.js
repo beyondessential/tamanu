@@ -7,7 +7,7 @@ import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
-import { SearchField, SuggesterSelectField } from '../../components/Field';
+import { Field, SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
@@ -143,6 +143,7 @@ export const TestSelectorInput = ({
   testTypes,
   value,
   requestFormType,
+  labTestPanelId,
   isLoading,
   onChange,
   required,
@@ -150,12 +151,12 @@ export const TestSelectorInput = ({
   error,
 }) => {
   const [testFilters, setTestFilters] = useState({
-    labTestPanelId: '',
     labTestCategoryId: '',
     search: '',
   });
 
   const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
+
   const handleChangePanel = data => {
     handleChange(data.map(type => type.id));
   };
@@ -168,7 +169,7 @@ export const TestSelectorInput = ({
     setTestFilters({ ...testFilters, [event.target.name]: event.target.value });
 
   const { data: testTypeData, isFetching } = useTestTypes(
-    testFilters.labTestPanelId,
+    labTestPanelId,
     testTypes,
     handleChangePanel,
   );
@@ -207,15 +208,12 @@ export const TestSelectorInput = ({
             />
           )}
           {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
-            <StyledSuggesterSelectField
-              field={{
-                value: testFilters.labTestPanelId,
-                onChange: handleChangeTestFilters,
-              }}
-              label="Test Panel"
-              endpoint="labTestPanel"
+            <Field
               name="labTestPanelId"
-              disabled={!!testFilters.labTestPanelId}
+              label="Test Panel"
+              component={StyledSuggesterSelectField}
+              endpoint="labTestPanel"
+              disabled={!!labTestPanelId}
             />
           )}
           <FormSeparatorLine />

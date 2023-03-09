@@ -7,10 +7,10 @@ import {
   Button,
   BodyText,
   FormSeparatorLine,
-  OutlinedButton,
   DateDisplay,
   Table,
   useSelectableColumn,
+  OutlinedButton,
 } from '../../../components';
 
 const Container = styled.div`
@@ -92,7 +92,7 @@ const COLUMNS = [
     key: 'panelId',
     title: 'Panel',
     sortable: false,
-    accessor: ({ panel }) => panel?.name || 'N/A',
+    accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
   },
   {
     key: 'labTestCategory',
