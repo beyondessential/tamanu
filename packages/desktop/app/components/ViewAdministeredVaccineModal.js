@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { VACCINE_STATUS } from 'shared/constants';
 import { Modal } from './Modal';
 import { Colors } from '../constants';
 
@@ -42,7 +41,7 @@ const Divider = styled.div`
   height: 85%;
 `;
 
-export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
+export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   if (!vaccineRecord) return null;
 
   const {
@@ -55,7 +54,6 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
     department,
     date,
     batch,
-    givenOverseas,
     vaccineName,
     vaccineBrand,
     disease,
@@ -63,52 +61,53 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-  const routine = true;
-  const other = false;
-  const otherOverseas = false;
-  const routineOverseas = false;
+  const routine = false;
+  const other = true;
+
+  const overseas = false;
+
   const notGiven = false;
 
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose}>
       <Container>
         <Divider />
-        {(routine || routineOverseas || notGiven) && (
+        {(routine || notGiven) && (
           <DisplayField>
             <Label>Vaccine </Label>
             {label || '-'}
           </DisplayField>
         )}
 
-        {(other || otherOverseas) && (
+        {other && (
           <DisplayField>
             <Label>Vaccine name </Label>
             {vaccineName || '-'}
           </DisplayField>
         )}
 
-        {(other || otherOverseas) && (
+        {other && (
           <DisplayField>
             <Label>Vaccine brand </Label>
             {vaccineBrand || '-'}
           </DisplayField>
         )}
 
-        {(other || otherOverseas) && (
+        {other && (
           <DisplayField>
             <Label>Disease </Label>
             {disease || '-'}
           </DisplayField>
         )}
 
-        {(routine || other || otherOverseas || routineOverseas) && (
+        {!notGiven && (
           <DisplayField>
             <Label>Batch </Label>
             {batch || '-'}
           </DisplayField>
         )}
 
-        {(routine || notGiven) && (
+        {!overseas && (routine || notGiven) && (
           <DisplayField>
             <Label>Schedule </Label>
             {schedule || '-'}
@@ -120,14 +119,14 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           <DateDisplay date={date} />
         </DisplayField>
 
-        {(routine || other || otherOverseas || routineOverseas) && (
+        {!notGiven && (
           <DisplayField>
             <Label>Injection site </Label>
             {injectionSite || '-'}
           </DisplayField>
         )}
 
-        {(otherOverseas || routineOverseas) && (
+        {overseas && (
           <DisplayField>
             <Label>Country </Label>
             {'TODO' || '-'}
@@ -153,28 +152,28 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           {location.facility.name || '-'}
         </DisplayField>
 
-        {(routine || other) && (
+        {!overseas && !notGiven && (
           <DisplayField>
             <Label>Area </Label>
             {location.locationGroup?.name || '-'}
           </DisplayField>
         )}
 
-        {(routine || other) && (
+        {!overseas && !notGiven && (
           <DisplayField>
             <Label>Location </Label>
             {location.name || '-'}
           </DisplayField>
         )}
 
-        {(routine || other) && (
+        {!overseas && !notGiven && (
           <DisplayField>
             <Label>Department </Label>
             {department.name || '-'}
           </DisplayField>
         )}
 
-        {(routine || other) && (
+        {!overseas && !notGiven && (
           <DisplayField>
             <Label>Given by </Label>
             {givenBy || '-'}
