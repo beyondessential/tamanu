@@ -318,7 +318,7 @@ export const EncounterRecord = React.memo(
         <Divider />
         <RowContainer>
           <div>
-            <DisplayValue name="Patient Name">
+            <DisplayValue name="Patient name">
               {firstName} {lastName}
             </DisplayValue>
             <LocalisedDisplayValue name="dateOfBirth">
