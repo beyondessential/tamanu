@@ -155,21 +155,29 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
-  useEffect(() => {
+  const handleStatusChange = (status: CentralConnectionStatus, isInternetReachable: boolean): void => {
     if (
-      centralServer.status === CentralConnectionStatus.Disconnected
+      status === CentralConnectionStatus.Disconnected
       // Reconnection with central is not possible if there is no internet connection
     ) {
-      if (netInfo.isInternetReachable) {
+      if (isInternetReachable) {
         handleOpen();
       } else if (open) {
         handleClose();
       }
     }
-    if (centralServer.status === CentralConnectionStatus.Connected && open) {
+    if (status === CentralConnectionStatus.Connected && open) {
       handleClose();
     }
-  }, [centralServer.status, netInfo.isInternetReachable]);
+  };
+
+  useEffect(() => {
+    const handler = status => handleStatusChange(status, netInfo.isInternetReachable);
+    centralServer.emitter.on('statusChange', handler);
+    return () => {
+      centralServer.emitter.off('statusChange', handler);
+    };
+  }, [netInfo.isInternetReachable]);
 
   return (
     <>
