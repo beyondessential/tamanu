@@ -40,7 +40,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       <DisplayIdField />
       <LocalisedField component={SearchField} name="firstName" />
       <LocalisedField component={SearchField} name="lastName" />
-      <LocalisedField component={SearchField} name="culturalName" />
       <Field
         name="dateOfBirthExact"
         component={DateField}
