@@ -27,11 +27,11 @@ done
 version package.json
 version packages/desktop/app/package.json
 version packages/shared-src/shared.package.json
+version packages/mobile/package.json
 
 cat << EOF
 
 Don't forget to manually update:
   - packages/lan/app/middleware/versionCompatibility.js
   - packages/sync-server/app/middleware/versionCompatibility.js
-  - packages/mobile/package.json (the patch version of mobile must monotonically increase)
 EOF
