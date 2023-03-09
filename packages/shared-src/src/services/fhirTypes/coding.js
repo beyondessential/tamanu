@@ -2,7 +2,7 @@ import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 
 export class FhirCoding extends Composite {
   static FIELD_ORDER = ['system', 'version', 'code', 'display', 'userSelected'];
@@ -52,8 +52,4 @@ export class FhirCoding extends Composite {
       userSelected: sample([null, true, false]),
     });
   }
-}
-
-export class FHIR_CODING extends COMPOSITE {
-  static ValueClass = FhirCoding;
 }

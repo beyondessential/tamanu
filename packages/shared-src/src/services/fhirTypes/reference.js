@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 // eslint-disable-next-line import/no-cycle
 import { FhirIdentifier } from './identifier';
 
@@ -48,8 +48,4 @@ export class FhirReference extends Composite {
       display: `${fieldName}.${id}`,
     });
   }
-}
-
-export class FHIR_REFERENCE extends COMPOSITE {
-  static ValueClass = FhirReference;
 }

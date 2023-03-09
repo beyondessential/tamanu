@@ -3,7 +3,7 @@ import { sample } from 'lodash';
 import array from 'postgres-array';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirPeriod } from './period';
 
 const USES = ['home', 'work', 'temp', 'old', 'billing'];
@@ -95,8 +95,4 @@ export class FhirAddress extends Composite {
       text: chance.address(),
     });
   }
-}
-
-export class FHIR_ADDRESS extends COMPOSITE {
-  static ValueClass = FhirAddress;
 }

@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { formatFhirDate } from '../../utils/fhir';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirReference } from './reference';
 
 export class FhirAnnotation extends Composite {
@@ -47,8 +47,4 @@ export class FhirAnnotation extends Composite {
       text: `${model.name}.${fieldName}.text.${id}`,
     });
   }
-}
-
-export class FHIR_ANNOTATION extends COMPOSITE {
-  static ValueClass = FhirAnnotation;
 }

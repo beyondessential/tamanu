@@ -3,7 +3,7 @@ import array from 'postgres-array';
 import { Chance } from 'chance';
 import { random } from 'lodash';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';
 
@@ -87,8 +87,4 @@ export class FhirImmunizationProtocolApplied extends Composite {
       seriesDosesString: chance.string(),
     });
   }
-}
-
-export class FHIR_IMMUNIZATION_PROTOCOL_APPLIED extends COMPOSITE {
-  static ValueClass = FhirImmunizationProtocolApplied;
 }

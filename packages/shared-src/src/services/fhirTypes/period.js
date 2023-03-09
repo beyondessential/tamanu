@@ -3,7 +3,7 @@ import * as yup from 'yup';
 
 import { toDateTimeString } from '../../utils/dateTime';
 import { formatFhirDate } from '../../utils/fhir';
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 
 export class FhirPeriod extends Composite {
   static FIELD_ORDER = ['start', 'end'];
@@ -52,8 +52,4 @@ export class FhirPeriod extends Composite {
       end: formatFhirDate(new Date(end)),
     });
   }
-}
-
-export class FHIR_PERIOD extends COMPOSITE {
-  static ValueClass = FhirPeriod;
 }

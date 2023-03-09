@@ -1,7 +1,7 @@
 import { random, sample } from 'lodash';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirPeriod } from './period';
 
 const SYSTEMS = ['phone', 'fax', 'email', 'pager', 'url', 'sms', 'other'];
@@ -56,8 +56,4 @@ export class FhirContactPoint extends Composite {
       rank: random(1, 10),
     });
   }
-}
-
-export class FHIR_CONTACT_POINT extends COMPOSITE {
-  static ValueClass = FhirContactPoint;
 }

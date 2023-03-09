@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';
 
@@ -31,8 +31,4 @@ export class FhirImmunizationPerformer extends Composite {
       actor: FhirReference.fake(...args),
     });
   }
-}
-
-export class FHIR_IMMUNIZATION_PERFORMER extends COMPOSITE {
-  static ValueClass = FhirImmunizationPerformer;
 }

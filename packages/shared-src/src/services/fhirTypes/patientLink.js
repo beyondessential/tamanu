@@ -1,7 +1,7 @@
 import { sample } from 'lodash';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirReference } from './reference';
 
 const TYPES = ['replaced-by', 'replaces', 'refer', 'seealso'];
@@ -34,8 +34,4 @@ export class FhirPatientLink extends Composite {
       other: FhirReference.fake(model, { fieldName }, id),
     });
   }
-}
-
-export class FHIR_PATIENT_LINK extends COMPOSITE {
-  static ValueClass = FhirPatientLink;
 }

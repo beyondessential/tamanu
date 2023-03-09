@@ -2,7 +2,7 @@ import { sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirPeriod } from './period';
 // eslint-disable-next-line import/no-cycle
@@ -59,8 +59,4 @@ export class FhirIdentifier extends Composite {
       value: `${fieldName}.${id}`,
     });
   }
-}
-
-export class FHIR_IDENTIFIER extends COMPOSITE {
-  static ValueClass = FhirIdentifier;
 }

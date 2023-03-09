@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
 
 export class FhirExtension extends Composite {
@@ -36,8 +36,4 @@ export class FhirExtension extends Composite {
       valueCodeableConcept: FhirCodeableConcept.fake(...args),
     });
   }
-}
-
-export class FHIR_EXTENSION extends COMPOSITE {
-  static ValueClass = FhirExtension;
 }

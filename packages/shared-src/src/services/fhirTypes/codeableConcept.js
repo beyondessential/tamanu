@@ -2,7 +2,7 @@ import { random } from 'lodash';
 import array from 'postgres-array';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirCoding } from './coding';
 
 export class FhirCodeableConcept extends Composite {
@@ -41,8 +41,4 @@ export class FhirCodeableConcept extends Composite {
       text: coding.map(c => c.display).join(' '),
     });
   }
-}
-
-export class FHIR_CODEABLE_CONCEPT extends COMPOSITE {
-  static ValueClass = FhirCodeableConcept;
 }

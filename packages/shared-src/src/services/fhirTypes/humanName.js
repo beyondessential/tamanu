@@ -3,7 +3,7 @@ import { identity, sample } from 'lodash';
 import array from 'postgres-array';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { Composite } from '../../utils/pgComposite';
 import { FhirPeriod } from './period';
 
 const USES = ['usual', 'official', 'temp', 'nickname', 'anonymous', 'old', 'maiden'];
@@ -67,8 +67,4 @@ export class FhirHumanName extends Composite {
       given: [chance.first()],
     });
   }
-}
-
-export class FHIR_HUMAN_NAME extends COMPOSITE {
-  static ValueClass = FhirHumanName;
 }
