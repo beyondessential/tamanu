@@ -6,7 +6,7 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
   CANCELLED: 'cancelled',
   DELETED: 'deleted',
-  NOT_COLLECTED: 'not-collected',
+  SAMPLE_NOT_COLLECTED: 'sample-not-collected',
   ENTERED_IN_ERROR: 'entered-in-error',
 };
 
@@ -31,8 +31,8 @@ export const LAB_REQUEST_STATUS_CONFIG = {
     label: 'Published',
     color: '#19934E',
   },
-  [LAB_REQUEST_STATUSES.NOT_COLLECTED]: {
-    label: 'Not collected',
+  [LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED]: {
+    label: 'Sample not collected',
     color: '#4101C9',
   },
   [LAB_REQUEST_STATUSES.CANCELLED]: {

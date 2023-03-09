@@ -6,7 +6,7 @@ import { getAreaNote } from '../../../utils/areaNote';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 export const COLUMN_KEYS = {
-  ID: 'id',
+  ID: 'displayId',
   SELECTED: 'selected',
   REQUESTED_DATE: 'requestedDate',
   REQUESTED_BY: 'requestedBy',

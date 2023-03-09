@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useAuth } from '../../contexts/Auth';
 
 import { MultiStepForm, FormStep } from '../MultiStepForm';
@@ -15,27 +15,29 @@ const combinedValidationSchema = yup.object().shape({
 });
 
 export const LabRequestMultiStepForm = ({
+  isSubmitting,
   practitionerSuggester,
   departmentSuggester,
   encounter,
-  onSubmit,
   onCancel,
+  onSubmit,
   editedObject,
-  generateDisplayId,
 }) => {
   const { currentUser } = useAuth();
+
   return (
     <MultiStepForm
       onCancel={onCancel}
       onSubmit={onSubmit}
+      isSubmitting={isSubmitting}
       initialValues={{
-        displayId: generateDisplayId(),
+        requestFormType: LAB_REQUEST_FORM_TYPES.PANEL,
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
         specimenAttached: 'no',
-        status: LAB_REQUEST_STATUSES.NOT_COLLECTED,
-        labTestIds: [],
+        status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+        labTestTypeIds: [],
         notes: '',
         // LabTest date
         date: getCurrentDateString(),
@@ -49,7 +51,7 @@ export const LabRequestMultiStepForm = ({
           departmentSuggester={departmentSuggester}
         />
       </FormStep>
-      <FormStep validationSchema={screen2ValidationSchema}>
+      <FormStep validationSchema={screen2ValidationSchema} submitButtonText="Finalise">
         <LabRequestFormScreen2 />
       </FormStep>
     </MultiStepForm>
@@ -61,11 +63,12 @@ LabRequestMultiStepForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   practitionerSuggester: PropTypes.object.isRequired,
   encounter: PropTypes.object,
-  generateDisplayId: PropTypes.func.isRequired,
   editedObject: PropTypes.object,
+  isSubmitting: PropTypes.bool,
 };
 
 LabRequestMultiStepForm.defaultProps = {
   encounter: {},
   editedObject: {},
+  isSubmitting: false,
 };

@@ -35,7 +35,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
   const encounterColumns = [
-    { key: 'id', title: 'Request ID' },
+    { key: 'displayId', title: 'Request ID' },
     {
       key: 'imagingType',
       title: 'Type',

@@ -1,8 +1,7 @@
 import config from 'config';
 import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
-import { SYNC_SESSION_DIRECTION } from 'shared/sync';
-import { insertSnapshotRecords } from '../../../shared-src/src/sync';
+import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from 'shared/sync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
@@ -11,17 +10,17 @@ const { persistedCacheBatchSize } = config.sync;
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
+  log.info('Sync: Waiting for central server to prepare records to pull');
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
 
+  log.info('Sync: Pulling changes', { since, totalToPull });
   let fromId;
   let limit = calculatePageLimit();
   let totalPulled = 0;
-  log.debug(`pullIncomingChanges: syncing`, { sessionId });
 
   // pull changes a page at a time
   while (totalPulled < totalToPull) {
-    log.debug(`pullIncomingChanges: pulling records`, {
-      sessionId,
+    log.debug('Sync: Pulling page of records', {
       fromId,
       limit,
     });
@@ -35,11 +34,11 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     const pullTime = Date.now() - startTime;
 
     if (!records.length) {
-      log.debug(`pullIncomingChanges: Pull returned no more changes, finishing`);
+      log.debug(`Sync: Pull returned no more changes, finishing`);
       break;
     }
 
-    log.debug(`pullIncomingChanges: Pulled ${records.length} changes, saving to local cache`);
+    log.info('Sync: Saving changes to cache', { count: records.length });
 
     const recordsToSave = records.map(r => ({
       ...r,

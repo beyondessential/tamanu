@@ -26,12 +26,12 @@ export const screen1ValidationSchema = yup.object().shape({
     .required(),
   sampleTime: yup.string().when('specimenAttached', {
     is: 'yes',
-    then: yup.string().required(''),
+    then: yup.string().required(),
     otherwise: yup.string().nullable(),
   }),
   status: yup
     .string()
-    .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.NOT_COLLECTED])
+    .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED])
     .required(),
 });
 
@@ -50,7 +50,7 @@ export const LabRequestFormScreen1 = ({
       setFieldValue('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
     } else {
       setFieldValue('sampleTime', null);
-      setFieldValue('status', LAB_REQUEST_STATUSES.NOT_COLLECTED);
+      setFieldValue('status', LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
     }
   };
 
