@@ -14,9 +14,7 @@
     "build": "yarn run clean && yarn run compile",
     "build-watch": "yarn run compile --watch",
     "test": "NODE_ENV=test jest",
-    "test-coverage": "yarn test --coverage",
-    "lint": "eslint src",
-    "lint-stats": "eslint src --format ../scripts/eslint-stats.js"
+    "lint": "eslint src"
   },
   "private": true,
   "devDependencies": {
