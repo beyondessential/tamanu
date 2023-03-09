@@ -7,7 +7,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 const AnimatedLabel = posed.Text({
   open: {
-    fontSize: screenPercentageToDP(1.84, Orientation.Height),
+    fontSize: screenPercentageToDP(2.1, Orientation.Height),
   }
 });
 
