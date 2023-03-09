@@ -30,7 +30,7 @@ export const CovidPatientDetailsSection = ({
   ];
   return (
     <Row>
-      <Col style={{ width: '68%' }}>
+      <Col style={{ width: vdsSrc ? '68%' : '80%' }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
@@ -53,7 +53,7 @@ export const CovidPatientDetailsSection = ({
           </Row>
         )}
       </Col>
-      <Col style={{ width: '32%' }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
+      <Col style={{ width: vdsSrc ? '32%' : '20%' }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
     </Row>
   );
 };
