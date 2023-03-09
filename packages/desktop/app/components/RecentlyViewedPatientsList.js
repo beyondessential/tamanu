@@ -69,7 +69,7 @@ const CardListContainer = styled.div`
 const CardTitle = styled(Typography)`
   font-weight: bold;
   font-size: 14px;
-  color: ${ getColorForEncounter };
+  color: ${getColorForEncounter};
 `;
 
 const CardText = styled(Typography)`
@@ -85,7 +85,7 @@ const EncounterTypeIndicator = styled.div`
   border-radius: 10px;
   width: 4px;
   margin-right: 5px;
-  background-color: ${ getColorForEncounter };
+  background-color: ${getColorForEncounter};
 `;
 
 const Container = styled(ListItem)`
