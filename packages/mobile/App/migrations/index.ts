@@ -16,6 +16,7 @@ import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationG
 import { addDepartmentIdToLabRequest1676853984000 } from './1676853984000-addDepartmentIdToLabRequest';
 import { addLabSampleSiteIdToLabRequest1677723905000 } from './1677723905000-addLabSampleSiteIdToLabRequest';
 import { addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000 } from './1678061990000-addNotGivenReasonIdColumnToAdministeredVaccineTable';
+import { addLabTestPanelTables1678397398000 } from './1678397398000-addLabTestPanelTables';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -35,4 +36,5 @@ export const migrationList = [
   addDepartmentIdToLabRequest1676853984000,
   addLabSampleSiteIdToLabRequest1677723905000,
   addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
+  addLabTestPanelTables1678397398000,
 ];
