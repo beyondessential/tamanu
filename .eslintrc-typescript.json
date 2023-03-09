@@ -1,15 +1,11 @@
 {
-  "parser": "@typescript-eslint/parser",
   "root": true,
+  "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "@beyondessential/eslint-config-beyondessential"
   ],
-  "env": {
-    "jest": true,
-    "jasmine": true
-  },
   "settings": {
     "import/resolver": {
       "node": {
@@ -21,7 +17,6 @@
     }
   },
   "rules": {
-    "no-console": "off",
     "no-shadow": "off",
     "indent": "off",
     "@typescript-eslint/indent": [
@@ -30,10 +25,29 @@
         "SwitchCase": 1
       }
     ],
+    "react/jsx-indent": [
+      2,
+      2
+    ],
+    "react/jsx-indent-props": "off",
     "max-classes-per-file": "off",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "class-methods-use-this": "off",
     "curly": "off",
-    "no-dupe-class-members": "off",
-    "@typescript-eslint/no-explicit-any": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-closing-bracket-location": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-curly-newline": "off",
+    "react/prop-types": [
+      "off"
+    ],
+    "react/require-default-props": [
+      2,
+      {
+        "forbidDefaultForRequired": false,
+        "ignoreFunctionalComponents": true
+      }
+    ],
     "@typescript-eslint/no-inferrable-types": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "object-curly-newline": "off",

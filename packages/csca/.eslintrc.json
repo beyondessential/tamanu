@@ -1,4 +1,8 @@
 {
   "root": true,
-  "extends": ["../../.eslintrc-typescript.json"]
+  "extends": ["../../.eslintrc-typescript.json"],
+  "rules": {
+    "no-console": "off",
+    "no-dupe-class-members": "off"
+  }
 }
