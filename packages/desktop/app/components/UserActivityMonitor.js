@@ -21,7 +21,7 @@ const WarningModalContainer = styled.div`
   padding-bottom: 2rem;
 `;
 
-const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
+const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onLogout }) => {
   const [, updateState] = useState({});
   // Re-render modal on timer so countdown updates correctly
   useEffect(() => {
@@ -32,7 +32,7 @@ const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
   }, []);
 
   return (
-    <Modal title="Login timeout" open={open}>
+    <Modal title="Login timeout" open={open} onClose={onStayLoggedIn}>
       <WarningModalContainer>
         <Typography>Your login is about to expire due to inactivity.</Typography>
         <Typography>
@@ -46,8 +46,8 @@ const IdleWarningModal = ({ open, remainingDuration, onConfirm, onClose }) => {
       <ModalActionRow
         confirmText="Stay logged in"
         cancelText="Logout"
-        onConfirm={onConfirm}
-        onCancel={onClose}
+        onConfirm={onStayLoggedIn}
+        onCancel={onLogout}
       />
     </Modal>
   );
@@ -94,11 +94,11 @@ export const UserActivityMonitor = () => {
     <IdleWarningModal
       open={showWarning}
       remainingDuration={getRemainingTime}
-      onConfirm={() => {
+      onStayLoggedIn={() => {
         setShowWarning(false);
         reset();
       }}
-      onClose={onLogout}
+      onLogout={onLogout}
     />
   );
 };
