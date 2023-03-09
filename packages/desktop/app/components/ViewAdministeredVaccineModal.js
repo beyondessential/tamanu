@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Modal } from './Modal';
+import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
 
 import { DateDisplay } from './DateDisplay';
@@ -190,6 +191,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
           {status || '-'}
         </DisplayField>
       </Container>
+      <ModalActionRow confirmText="Close" onConfirm={() => onClose} />
     </Modal>
   );
 };
