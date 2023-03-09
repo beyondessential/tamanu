@@ -1,6 +1,7 @@
 {
   "name": "meta-server",
   "version": "1.25.0",
+  "private": true,
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -36,6 +37,7 @@
     "mocha": "^5.2.0",
     "pkg": "^4.4.8",
     "supertest": "^4.0.2",
+    "terser-webpack-plugin": "^5.3.6",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0",
     "webpack-node-externals": "^3.0.0"
