@@ -56,12 +56,16 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
     departmentId,
     date,
     batch,
+    givenOverseas,
+    vaccineName,
+    vaccineBrand,
+    disease,
   } = vaccineRecord;
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-  const routine = true;
-  const other = false;
+  const routine = false;
+  const other = true;
   const otherOverseas = false;
   const routineOverseas = false;
   const notGiven = false;
@@ -80,21 +84,21 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         {(other || otherOverseas) && (
           <DisplayField>
             <Label>Vaccine name </Label>
-            {'TODO'}
+            {vaccineName}
           </DisplayField>
         )}
 
         {(other || otherOverseas) && (
           <DisplayField>
             <Label>Vaccine brand </Label>
-            {'TODO'}
+            {vaccineBrand}
           </DisplayField>
         )}
 
         {(other || otherOverseas) && (
           <DisplayField>
             <Label>Disease </Label>
-            {'TODO'}
+            {disease}
           </DisplayField>
         )}
 
