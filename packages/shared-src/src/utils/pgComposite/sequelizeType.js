@@ -85,26 +85,8 @@ export class Composite {
 export function objectAsFhir(input) {
   const obj = {};
   for (const [name, value] of Object.entries(input)) {
-    const val = valueAsFhir(value);
-    if (val === null || val === undefined) continue;
-    obj[name] = val;
+    if (value === null || value === undefined) continue;
+    obj[name] = value;
   }
   return obj;
-}
-
-export function valueAsFhir(value) {
-  if (Array.isArray(value)) {
-    return value.map(val => valueAsFhir(val));
-  }
-
-  if (value instanceof Composite) {
-    return value.asFhir();
-  }
-
-  if (value instanceof Date) {
-    // to override precision, transform to string before this point!
-    return formatFhirDate(value);
-  }
-
-  return value;
 }
