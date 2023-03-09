@@ -1,23 +1,18 @@
 import { execFileSync } from 'child_process';
-import { readFileSync } from 'fs';
+import { doWithAllPackages } from './_do-with-all-packages.mjs';
 
-const topPkg = JSON.parse(readFileSync('./package.json'));
+doWithAllPackages((name, pkg) => {
+  console.log(`Checking ${name}...`);
+  if (!pkg.name.startsWith('@tamanu/')) return;
 
-for (const name of topPkg.workspaces.packages) {
-  let pkg;
-  try {
-    pkg = JSON.parse(readFileSync(`./${name}/package.json`));
-  } catch (err) {
-    console.log(`Skipping ${name} as we can't read its package.json...`);
-    continue;
+  if (!pkg.scripts?.build) {
+    console.log(`Skipping ${name} as it doesn't have a build script...`);
+    return;
   }
 
-  console.log(`Checking ${name}...`);
-  if (!pkg.name.startsWith('@tamanu/')) continue;
-
-  console.log(`Building ${pkg.name}...`);
+  console.log(`Building ${name}...`);
   execFileSync('yarn', ['workspace', pkg.name, 'run', 'build'], { stdio: 'inherit' });
-}
+});
 
 console.log('Building shared-src...');
 execFileSync('yarn', ['workspace', 'shared-src', 'run', 'build'], { stdio: 'inherit' });
