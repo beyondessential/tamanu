@@ -28,12 +28,10 @@ export class LabTestPanel extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.LabTestPanelLabTestTypes, {
-      foreignKey: 'labTestPanelId',
-      as: 'panelRelations',
-    });
     this.belongsToMany(models.LabTestType, {
-      through: 'LabTestPanelLabTestTypes',
+      through: models.LabTestPanelLabTestTypes,
+      as: 'labTestTypes',
+      foreignKey: 'labTestPanelId',
     });
   }
 }
