@@ -39,7 +39,7 @@ export class ScheduledTask {
       if (!outcome) {
         // We expect the subtask will have caught & logged all its own errors
         this.log.info(`ScheduledTask: ${name}: Not running (subtask failed)`);
-        span.addEvent('skip');
+        span.addEvent('Skip: subtask failed');
         return false;
       }
     }
@@ -49,7 +49,7 @@ export class ScheduledTask {
       this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`, {
         durationMs,
       });
-      span.addEvent('skip');
+      span.addEvent('Skip: previous task still running');
       return false;
     }
 
@@ -62,7 +62,7 @@ export class ScheduledTask {
       } else if (queueCount === 0) {
         // Nothing to do, don't even run
         this.log.info(`ScheduledTask: ${name}: Nothing to do`, { queueCount });
-        span.addEvent('skip');
+        span.addEvent('Skip: nothing to do');
         return true;
       } else {
         this.log.info(`Queue status: ${name}`, { queueCount });
