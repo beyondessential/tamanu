@@ -207,7 +207,7 @@ describe('settings', () => {
     });
   });
 
-  describe.only('load', () => {
+  describe('load', () => {
     let tempdir;
     beforeEach(async () => {
       tempdir = await mkdtemp(join(tmpdir(), 'settings-'));
@@ -216,7 +216,7 @@ describe('settings', () => {
       await rmdir(tempdir, { recursive: true });
     });
 
-    describe.only('a json file', () => {
+    describe('a json file', () => {
       it('to global namespace', async () => {
         const { Setting } = ctx.store.models;
         const file = join(tempdir, 'test.json');
@@ -251,7 +251,7 @@ describe('settings', () => {
       });
     });
 
-    describe.only('a TOML file', () => {
+    describe('a TOML file', () => {
       it('to global namespace', async () => {
         const { Setting } = ctx.store.models;
         const file = join(tempdir, 'test.toml');
@@ -315,7 +315,7 @@ describe('settings', () => {
       });
     });
 
-    describe.only('a KDL file', () => {
+    describe('a KDL file', () => {
       it('to global namespace', async () => {
         const { Setting } = ctx.store.models;
         const file = join(tempdir, 'test.kdl');
