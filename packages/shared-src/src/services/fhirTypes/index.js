@@ -19,7 +19,7 @@ export { FhirReference } from './reference';
  * CANNOT register an extension of an existing sequelize type (like STRING, etc).
  * Only use with fully-new types.
  */
-function newPgDataType(Klass) {
+export function newPgDataType(Klass) {
   const name = Klass.key;
   DataTypes[name] = Utils.classToInvokable(Klass);
   DataTypes[name].types.postgres = [Klass.pgName];
