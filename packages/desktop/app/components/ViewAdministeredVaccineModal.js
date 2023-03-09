@@ -52,8 +52,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
     recorder,
     givenBy,
     location,
-    encounter,
-    departmentId,
+    department,
     date,
     batch,
     givenOverseas,
@@ -64,8 +63,8 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-  const routine = false;
-  const other = true;
+  const routine = true;
+  const other = false;
   const otherOverseas = false;
   const routineOverseas = false;
   const notGiven = false;
@@ -77,42 +76,42 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         {(routine || routineOverseas || notGiven) && (
           <DisplayField>
             <Label>Vaccine </Label>
-            {label}
+            {label || '-'}
           </DisplayField>
         )}
 
         {(other || otherOverseas) && (
           <DisplayField>
             <Label>Vaccine name </Label>
-            {vaccineName}
+            {vaccineName || '-'}
           </DisplayField>
         )}
 
         {(other || otherOverseas) && (
           <DisplayField>
             <Label>Vaccine brand </Label>
-            {vaccineBrand}
+            {vaccineBrand || '-'}
           </DisplayField>
         )}
 
         {(other || otherOverseas) && (
           <DisplayField>
             <Label>Disease </Label>
-            {disease}
+            {disease || '-'}
           </DisplayField>
         )}
 
         {(routine || other || otherOverseas || routineOverseas) && (
           <DisplayField>
             <Label>Batch </Label>
-            {batch}
+            {batch || '-'}
           </DisplayField>
         )}
 
         {(routine || notGiven) && (
           <DisplayField>
             <Label>Schedule </Label>
-            {schedule}
+            {schedule || '-'}
           </DisplayField>
         )}
 
@@ -124,14 +123,14 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         {(routine || other || otherOverseas || routineOverseas) && (
           <DisplayField>
             <Label>Injection site </Label>
-            {injectionSite}
+            {injectionSite || '-'}
           </DisplayField>
         )}
 
         {(otherOverseas || routineOverseas) && (
           <DisplayField>
             <Label>Country </Label>
-            {'TODO'}
+            {'TODO' || '-'}
           </DisplayField>
         )}
 
@@ -139,57 +138,57 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           <>
             <DisplayField>
               <Label>Supervising Clinician </Label>
-              {'TODO'}
+              {'TODO' || '-'}
             </DisplayField>
 
             <DisplayField>
               <Label>Reason </Label>
-              {'TODO'}
+              {'TODO' || '-'}
             </DisplayField>
           </>
         )}
 
         <DisplayField>
           <Label>Facility </Label>
-          {location.facilityId}
+          {location.facility.name || '-'}
         </DisplayField>
 
         {(routine || other) && (
           <DisplayField>
             <Label>Area </Label>
-            {location.locationGroup?.name}
+            {location.locationGroup?.name || '-'}
           </DisplayField>
         )}
 
         {(routine || other) && (
           <DisplayField>
             <Label>Location </Label>
-            {location.name}
+            {location.name || '-'}
           </DisplayField>
         )}
 
         {(routine || other) && (
           <DisplayField>
             <Label>Department </Label>
-            {departmentId}
+            {department.name || '-'}
           </DisplayField>
         )}
 
         {(routine || other) && (
           <DisplayField>
             <Label>Given by </Label>
-            {givenBy}
+            {givenBy || '-'}
           </DisplayField>
         )}
 
         <DisplayField>
           <Label>Recorded by </Label>
-          {recorder?.displayName || encounter?.examiner?.displayName}
+          {recorder?.displayName || '-'}
         </DisplayField>
 
         <DisplayField>
           <Label>Status </Label>
-          {status}
+          {status || '-'}
         </DisplayField>
       </Container>
     </Modal>
