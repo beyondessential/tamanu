@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { List, Divider, Box, Typography, Avatar, Button } from '@material-ui/core';
+import { List, Divider, Box, Typography, Button } from '@material-ui/core';
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { Colors } from '../../constants';
 import { Translated } from '../Translated';
+import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
@@ -58,15 +59,6 @@ const ConnectedTo = styled(Typography)`
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
-`;
-
-const StyledAvatar = styled(Avatar)`
-  background: #e7b091;
-  font-weight: 500;
-  font-size: 16px;
-  margin-right: 12px;
-  margin-top: 5px;
-  text-transform: uppercase;
 `;
 
 const Version = styled.div`
@@ -173,7 +165,7 @@ export const Sidebar = React.memo(({ items }) => {
       <Footer>
         <StyledDivider />
         <Box display="flex" color="white">
-          <StyledAvatar>{initials}</StyledAvatar>
+          <HiddenSyncAvatar>{initials}</HiddenSyncAvatar>
           <Box flex={1}>
             <UserName>{currentUser?.displayName}</UserName>
             <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>

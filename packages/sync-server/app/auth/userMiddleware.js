@@ -1,9 +1,10 @@
+import { trace, propagation, context } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { verifyToken, stripUser, findUser, findUserById } from './utils';
-import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 
 const FAKE_TOKEN = 'fake-token';
 
@@ -52,7 +53,19 @@ export const userMiddleware = ({ secret }) =>
 
     req.user = stripUser(user);
 
-    next();
+    const spanAttributes = req.user
+      ? {
+          'app.user.id': req.user.id,
+          'app.user.role': req.user.role,
+        }
+      : {};
+
+    // eslint-disable-next-line no-unused-expressions
+    trace.getActiveSpan()?.setAttributes(spanAttributes);
+    context.with(
+      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+      () => next(),
+    );
   });
 
 export const userInfo = asyncHandler(async (req, res) => {
