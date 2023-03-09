@@ -10,6 +10,17 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 
+const colorFromEncounterType = {
+  admission: '#19934E',
+  clinic: '#E9AC50',
+  triage: '#CB6100',
+  default: '#1172D1',
+};
+
+function getColorForEncounter({ encounterType }) {
+  return colorFromEncounterType[encounterType || 'default'] || colorFromEncounterType.default;
+}
+
 const ComponentDivider = styled(Divider)`
   margin: 10px 30px 0px 30px;
   background-color: ${Colors.outline};
@@ -58,10 +69,23 @@ const CardListContainer = styled.div`
 const CardTitle = styled(Typography)`
   font-weight: bold;
   font-size: 14px;
+  color: ${ getColorForEncounter };
 `;
 
 const CardText = styled(Typography)`
   font-size: 14px;
+`;
+
+const CapitalizedCardText = styled(CardText)`
+  text-transform: capitalize;
+`;
+
+const EncounterTypeIndicator = styled.div`
+  height: 75%;
+  border-radius: 10px;
+  width: 4px;
+  margin-right: 5px;
+  background-color: ${ getColorForEncounter };
 `;
 
 const Container = styled(ListItem)`
@@ -82,13 +106,6 @@ const ContainerTitle = styled.div`
   margin-left: 30px;
 `;
 
-const EncounterTypeIndicator = styled.div`
-  height: 75%;
-  border-radius: 10px;
-  width: 4px;
-  margin-right: 5px;
-`;
-
 const RightArrowButton = styled(IconButton)`
   padding: 2px;
 `;
@@ -101,37 +118,18 @@ const MarginDiv = styled.div`
   width: 30px;
 `;
 
-const colorFromEncounterType = {
-  admission: '#19934E',
-  clinic: '#E9AC50',
-  triage: '#CB6100',
-  default: '#1172D1',
-};
-
 const PATIENTS_PER_PAGE = 6;
 
 const Card = ({ patient, handleClick }) => {
   return (
-    <CardComponent key={patient.id} onClick={() => handleClick(patient.id)}>
-      <EncounterTypeIndicator
-        style={{
-          backgroundColor:
-            colorFromEncounterType[patient.encounter_type || 'default'] ||
-            colorFromEncounterType.default,
-        }}
-      />
+    <CardComponent onClick={() => handleClick(patient.id)}>
+      <EncounterTypeIndicator encounterType={patient.encounter_type} />
       <div>
-        <CardTitle
-          style={{
-            color:
-              colorFromEncounterType[patient.encounter_type || 'default'] ||
-              colorFromEncounterType.default,
-          }}
-        >
+        <CardTitle encounterType={patient.encounter_type}>
           {patient.firstName} {patient.lastName}
         </CardTitle>
         <CardText>{patient.displayId}</CardText>
-        <CardText style={{ textTransform: 'capitalize' }}>{patient.sex}</CardText>
+        <CapitalizedCardText>{patient.sex}</CapitalizedCardText>
         <CardText>
           DOB: <DateDisplay date={patient.dateOfBirth} shortYear />
         </CardText>
@@ -186,7 +184,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
             {recentlyViewedPatients
               .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
               .map(patient => (
-                <Card patient={patient} handleClick={cardOnClick} />
+                <Card key={patient.id} patient={patient} handleClick={cardOnClick} />
               ))}
           </CardList>
           {pageIndex < pageCount - 1 ? (
