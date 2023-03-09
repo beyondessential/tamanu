@@ -1,7 +1,9 @@
-import { add } from 'date-fns';
+import { add, subDays, startOfDay } from 'date-fns';
+
 import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
 import { fakeUUID } from 'shared/utils/generateId';
 
+import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 async function prepopulate(models) {
@@ -77,25 +79,64 @@ async function prepopulate(models) {
     code: 'testLabTestCategory',
   });
 
-  await LabRequest.create({
+  const method = await models.ReferenceData.create({
+    type: 'labTestMethod',
+    name: 'Random',
+    code: 'testLabTestMethod',
+  });
+
+  const labRequest1 = await LabRequest.create({
     ...fake(LabRequest),
     encounterId,
     labTestCategoryId: covidCategory.id,
     status: 'published',
+    sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 15)),
   });
 
-  await LabRequest.create({
+  const labRequest2 = await LabRequest.create({
     ...fake(LabRequest),
     encounterId,
     labTestCategoryId: covidCategory.id,
     status: 'published',
+    sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 15)),
   });
 
-  await LabRequest.create({
+  const labRequest3 = await LabRequest.create({
     ...fake(LabRequest),
     encounterId,
     labTestCategoryId: category.id,
     status: 'published',
+    sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 15)),
+  });
+
+  const labTestType = await models.LabTestType.create({
+    labTestCategoryId: category.id,
+    name: 'LabTest111',
+    code: 'LabTest111',
+  });
+
+  await models.LabTest.create({
+    result: 'Positive',
+    labTestTypeId: labTestType.id,
+    labRequestId: labRequest1.id,
+    labTestMethodId: method.id,
+    completedDate: getCurrentDateString(),
+  });
+
+  await models.LabTest.create({
+    result: 'Positive',
+    labTestTypeId: labTestType.id,
+    labRequestId: labRequest2.id,
+    labTestMethodId: method.id,
+    completedDate: getCurrentDateString(),
+  });
+
+  await models.LabTest.create({
+    result: 'Positive',
+    labTestTypeId: labTestType.id,
+    labRequestId: labRequest3.id,
+    labTestMethodId: method.id,
+    completedDate: getCurrentDateString(),
   });
 
   const scheduledVaccineId = fakeUUID();
@@ -150,7 +191,7 @@ describe('Patient', () => {
       const patient = await Patient.findByPk(patientId);
       const results = await patient.getCovidLabTests();
       // Assert
-      expect(results.length).toEqual(2);
+      expect(results.length).toEqual(3);
     });
   });
 

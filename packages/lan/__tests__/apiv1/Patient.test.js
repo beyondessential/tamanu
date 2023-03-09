@@ -1,4 +1,6 @@
+import { subDays, startOfDay } from 'date-fns';
 import config from 'config';
+
 import {
   createDummyEncounter,
   createDummyEncounterMedication,
@@ -7,6 +9,10 @@ import {
 } from 'shared/demoData/patients';
 import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { fake } from 'shared/test-helpers/fake';
+import { randomLabRequest } from 'shared/demoData/labRequests';
+import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
+
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -21,6 +27,11 @@ describe('Patient', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    await models.Facility.upsert({
+      id: config.serverFacilityId,
+      name: config.serverFacilityId,
+      code: config.serverFacilityId,
+    });
     patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());
@@ -323,6 +334,183 @@ describe('Patient', () => {
         where: { value: oldDisplayId },
       });
       expect(secondaryId.typeId).toBe('secondaryIdType-nhn');
+    });
+  });
+
+  describe('Get patient covid lab tests', () => {
+    let user;
+    let lab;
+    let category;
+    let labTestType1;
+    let labTestType2;
+    let method;
+
+    beforeAll(async () => {
+      user = await models.User.create({
+        displayName: 'Test User',
+        email: 'testuser@test.test',
+      });
+      lab = await models.ReferenceData.create({
+        type: REFERENCE_TYPES.LAB_TEST_LABORATORY,
+        name: 'Test Laboratory',
+        code: 'TESTLABORATORY',
+      });
+
+      category = await models.ReferenceData.create({
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        name: 'Test Category',
+        code: 'testLabTestCategory',
+      });
+
+      labTestType1 = await models.LabTestType.create({
+        labTestCategoryId: category.id,
+        name: 'Test Test Type 1',
+        code: 'TESTTESTTYPE1',
+      });
+
+      labTestType2 = await models.LabTestType.create({
+        labTestCategoryId: category.id,
+        name: 'Test Test Type2',
+        code: 'TESTTESTTYPE2',
+      });
+
+      method = await models.ReferenceData.create({
+        type: REFERENCE_TYPES.LAB_TEST_METHOD,
+        name: 'Test Method',
+        code: 'testLabTestMethod',
+      });
+    });
+
+    it('includes lab requests after {daysSinceSampleTime} days', async () => {
+      await models.Setting.set('certifications.covidClearanceCertificate', {
+        labTestResults: ['Positive'],
+        daysSinceSampleTime: 10,
+      });
+
+      const patient1 = await models.Patient.create(await createDummyPatient(models));
+
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient1.id,
+      });
+
+      const labRequest = await models.LabRequest.create({
+        ...(await randomLabRequest(models)),
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedById: user.id,
+        labTestLaboratoryId: lab.id,
+        sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 11)), // 1 day AFTER daysSinceSampleTime
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType1.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType2.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      const result = await app.get(`/v1/patient/${patient1.id}/covidLabTests`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.length).toEqual(2);
+    });
+
+    it('excludes lab requests before {daysSinceSampleTime} days', async () => {
+      await models.Setting.set('certifications.covidClearanceCertificate', {
+        labTestResults: ['Positive'],
+        daysSinceSampleTime: 10,
+      });
+
+      const patient2 = await models.Patient.create(await createDummyPatient(models));
+
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient2.id,
+      });
+      const labRequest = await models.LabRequest.create({
+        ...(await randomLabRequest(models)),
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedById: user.id,
+        labTestLaboratoryId: lab.id,
+        sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 9)), // 1 day BEFORE daysSinceSampleTime
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType1.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType2.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      const result = await app.get(`/v1/patient/${patient2.id}/covidLabTests`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.length).toEqual(0);
+    });
+
+    it('includes lab requests that is in configured "labTestResults"', async () => {
+      await models.Setting.set('certifications.covidClearanceCertificate', {
+        labTestResults: ['Positive'],
+        daysSinceSampleTime: 10,
+      });
+
+      const patient1 = await models.Patient.create(await createDummyPatient(models));
+
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient1.id,
+      });
+
+      const labRequest = await models.LabRequest.create({
+        ...(await randomLabRequest(models)),
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedById: user.id,
+        labTestLaboratoryId: lab.id,
+        sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 11)), // 1 day AFTER daysSinceSampleTime
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType1.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      await models.LabTest.create({
+        result: 'Negative',
+        labTestTypeId: labTestType2.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      const result = await app.get(`/v1/patient/${patient1.id}/covidLabTests`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.length).toEqual(1);
+      expect(result.body.data[0].result).toEqual('Positive');
     });
   });
 });

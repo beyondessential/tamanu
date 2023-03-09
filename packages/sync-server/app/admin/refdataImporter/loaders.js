@@ -87,7 +87,7 @@ export function administeredVaccineLoader(item) {
 }
 
 export function patientDataLoader(item) {
-  const { dateOfBirth, id: patientId, patientAdditionalDataId, ...otherFields } = item;
+  const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 
   const rows = [];
 
@@ -100,11 +100,10 @@ export function patientDataLoader(item) {
     },
   });
 
-  if (patientAdditionalDataId) {
+  if (patientAdditionalData?.toString().toUpperCase() === 'TRUE') {
     rows.push({
       model: 'PatientAdditionalData',
       values: {
-        id: patientAdditionalDataId,
         patientId,
         ...otherFields,
       },

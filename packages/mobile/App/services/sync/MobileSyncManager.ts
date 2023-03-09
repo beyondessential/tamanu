@@ -48,7 +48,6 @@ export class MobileSyncManager {
   emitter = mitt();
 
   models: typeof MODELS_MAP;
-
   centralServer: CentralServerConnection;
 
   constructor(centralServer: CentralServerConnection) {
@@ -236,7 +235,10 @@ export class MobileSyncManager {
     // This is the start of stage 2 which is calling pull/initiate.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
-    this.setProgress(STAGE_MAX_PROGRESS[this.syncStage - 1], 'Preparing data to pull...');
+    this.setProgress(
+      STAGE_MAX_PROGRESS[this.syncStage - 1],
+      'Pausing at 33% while server prepares for pull, please wait...',
+    );
     const tablesForFullResync = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });

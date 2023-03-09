@@ -1,8 +1,8 @@
 import React from 'react';
 import * as yup from 'yup';
 import { inRange } from 'lodash';
+import { intervalToDuration, parseISO } from 'date-fns';
 
-import { ageInYears } from 'shared/utils/dateTime';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -189,9 +189,16 @@ function transformPatientData(patient, config) {
   const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
 
+  const { months, years } = intervalToDuration({
+    start: parseISO(dateOfBirth),
+    end: new Date(),
+  });
+
   switch (column) {
     case 'age':
-      return ageInYears(dateOfBirth).toString();
+      return years.toString();
+    case 'ageWithMonths':
+      return `${years} years, ${months} months`;
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
@@ -228,7 +235,6 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }
-
   return initialValues;
 }
 
