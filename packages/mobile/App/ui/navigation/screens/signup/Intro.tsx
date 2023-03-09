@@ -36,7 +36,6 @@ export const IntroScreen: FunctionComponent<any> = ({
             <StyledText
               color={theme.colors.ALERT}
               marginTop={screenPercentageToDP(12.32, Orientation.Height)}
-              
             >
               Signed out from inactivity
             </StyledText>
