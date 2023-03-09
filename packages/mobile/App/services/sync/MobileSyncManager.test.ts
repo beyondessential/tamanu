@@ -76,7 +76,9 @@ describe('MobileSyncManager', () => {
       jest.spyOn(mobileSyncManager, 'syncIncomingChanges').mockImplementationOnce(jest.fn());
       const startSyncSessionSpy = jest
         .spyOn(centralServerConnection, 'startSyncSession')
-        .mockImplementationOnce(jest.fn(async () => mockSessionId));
+        .mockImplementationOnce(
+          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+        );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       await mobileSyncManager.runSync();
@@ -96,7 +98,9 @@ describe('MobileSyncManager', () => {
         .mockImplementationOnce(jest.fn());
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
-        .mockImplementationOnce(jest.fn(async () => mockSessionId));
+        .mockImplementationOnce(
+          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+        );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       await mobileSyncManager.runSync();
@@ -113,7 +117,9 @@ describe('MobileSyncManager', () => {
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockReturnValueOnce(
-          new Promise(resolve => resolve({ sessionId: mockSessionId, tick: mockSyncTick })),
+          new Promise(resolve =>
+            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick }),
+          ),
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
@@ -131,7 +137,9 @@ describe('MobileSyncManager', () => {
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockReturnValueOnce(
-          new Promise(resolve => resolve({ sessionId: mockSessionId, tick: mockSyncTick })),
+          new Promise(resolve =>
+            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick }),
+          ),
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 

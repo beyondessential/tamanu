@@ -10,6 +10,7 @@ import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
+import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { StatusTag } from './Tag';
 
 const StatusDisplay = React.memo(({ status }) => {
@@ -24,8 +25,6 @@ const StatusDisplay = React.memo(({ status }) => {
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getRequestType = imagingTypes => ({ imagingType }) =>
-  imagingTypes[imagingType]?.label || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
 
 export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters }) => {
@@ -36,8 +35,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
   const encounterColumns = [
-    { key: 'id', title: 'Request ID' },
-    { key: 'imagingType', title: 'Type', accessor: getRequestType(imagingTypes), sortable: false },
+    { key: 'displayId', title: 'Request ID' },
+    {
+      key: 'imagingType',
+      title: 'Type',
+      accessor: getImagingRequestType(imagingTypes),
+      sortable: false,
+    },
     { key: 'status', title: 'Status', accessor: getStatus },
     { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
     { key: 'requestedDate', title: 'Date & time', accessor: getDate },

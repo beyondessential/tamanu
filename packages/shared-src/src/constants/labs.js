@@ -57,13 +57,6 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
 };
 
-export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
-  .filter(x => x !== LAB_REQUEST_STATUSES.DELETED && x !== LAB_REQUEST_STATUSES.ENTERED_IN_ERROR)
-  .map(s => ({
-    label: LAB_REQUEST_STATUS_CONFIG[s].label,
-    value: s,
-  }));
-
 export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 
 export const LAB_TEST_RESULT_TYPES = {

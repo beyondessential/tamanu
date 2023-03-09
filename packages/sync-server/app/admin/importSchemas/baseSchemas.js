@@ -7,7 +7,8 @@ import {
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
-import { jsonString, validationString } from './jsonString';
+import config from 'config';
+import { jsonString, validationString, configString } from './jsonString';
 
 const visibilityStatus = yup
   .string()
@@ -60,10 +61,14 @@ export const Patient = Base.shape({
   villageId: yup.string(),
 });
 
+export const PatientAdditionalData = yup.object().shape({
+  patientId: yup.string().required(),
+});
+
 export const User = Base.shape({
   email: yup.string().required(),
   displayName: yup.string().required(),
-  password: yup.string().required(),
+  password: yup.string(),
 });
 
 export const Facility = Base.shape({
@@ -136,10 +141,14 @@ export const baseValidationShape = yup
   })
   .noUnknown();
 
+export const baseConfigShape = yup.object().noUnknown();
+
 export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
-  validationCriteria: validationString(baseValidationShape),
-  config: jsonString(),
+  validationCriteria: config.validateQuestionConfigs.enabled
+    ? validationString(baseValidationShape)
+    : jsonString(),
+  config: config.validateQuestionConfigs.enabled ? configString(baseConfigShape) : jsonString(),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),
   options: jsonString(),

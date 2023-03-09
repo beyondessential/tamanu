@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { constructPermission } from 'shared/permissions/middleware';
-import { loginHandler, authMiddleware } from '../../middleware/auth';
+import { loginHandler, refreshHandler, authMiddleware } from '../../middleware/auth';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -15,7 +15,7 @@ import { encounter } from './encounter';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
 import { invoices, invoiceLineTypes } from './invoice';
-import { labRequest, labTest } from './labs';
+import { labRequest, labTest, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
 import { locationGroup } from './locationGroup';
@@ -40,6 +40,7 @@ import { syncHealth } from './syncHealth';
 import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
+import { template } from './template';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -54,6 +55,7 @@ apiv1.use('/changePassword', changePassword);
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 
+apiv1.post('/refresh', refreshHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics
@@ -68,6 +70,7 @@ patientDataRoutes.use('/imagingRequest', imagingRequest);
 patientDataRoutes.use('/invoices', invoices);
 patientDataRoutes.use('/labRequest', labRequest);
 patientDataRoutes.use('/labTest', labTest);
+patientDataRoutes.use('/labTestType', labTestType);
 patientDataRoutes.use('/medication', medication);
 patientDataRoutes.use('/notePages', notePages);
 patientDataRoutes.use('/ongoingCondition', ongoingCondition);
@@ -98,6 +101,7 @@ referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
 referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
+referenceDataRoutes.use('/template', template);
 
 // sync endpoints
 syncRoutes.use('/sync', sync);

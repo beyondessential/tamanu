@@ -2,6 +2,7 @@ export const NON_SYNCING_TABLES = [
   'attachments',
   'local_system_facts',
   'one_time_logins',
+  'refresh_tokens',
   'patient_communications',
   'patient_vrs_data',
   'SequelizeMeta',
@@ -11,4 +12,5 @@ export const NON_SYNCING_TABLES = [
   'fhir_materialise_jobs',
   'jobs',
   'job_workers',
+  'user_recently_viewed_patients',
 ];

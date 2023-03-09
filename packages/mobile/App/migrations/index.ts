@@ -11,7 +11,9 @@ import { updateLabRequestDateColumns1666171050000 } from './1666171050000-update
 import { addFieldUpdateTicksToPAD1668987530000 } from './1668987530000-addFieldUpdateTicksToPAD';
 import { addDefaultLastSuccessfulSyncPull1669160460000 } from './1669160460000-addDefaultLastSuccessfulSyncPull';
 import { resyncPatientAdditionalData1669855692000 } from './1669855692000-resyncPatientAdditionalData';
+import { wipeAllDataAndResync1675907161000 } from './1675907161000-wipeAllDataAndResync';
 import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationGroupTable';
+import { addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000 } from './1678061990000-addNotGivenReasonIdColumnToAdministeredVaccineTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -26,5 +28,7 @@ export const migrationList = [
   addFieldUpdateTicksToPAD1668987530000,
   addDefaultLastSuccessfulSyncPull1669160460000,
   resyncPatientAdditionalData1669855692000,
+  wipeAllDataAndResync1675907161000,
   addLocationGroupTable1673396917000,
+  addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
 ];

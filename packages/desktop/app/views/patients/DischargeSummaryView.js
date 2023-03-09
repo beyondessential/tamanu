@@ -216,10 +216,14 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             <ProceduresList procedures={procedures} />
           </ul>
         </ListColumn>
-        <Label>Medications: </Label>
+        <Label>Discharge medications: </Label>
         <ListColumn>
           <ul>
-            <MedicationsList medications={medications} />
+            <MedicationsList
+              medications={medications.filter(
+                medication => !medication.discontinued && medication.isDischarge,
+              )}
+            />
           </ul>
         </ListColumn>
         <div>

@@ -48,7 +48,6 @@ export class MobileSyncManager {
   emitter = mitt();
 
   models: typeof MODELS_MAP;
-
   centralServer: CentralServerConnection;
 
   constructor(centralServer: CentralServerConnection) {
@@ -155,7 +154,10 @@ export class MobileSyncManager {
     await clearPersistedSyncSessionRecords();
 
     // the first step of sync is to start a session and retrieve the session id
-    const { sessionId, tick: newSyncClockTime } = await this.centralServer.startSyncSession();
+    const {
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    } = await this.centralServer.startSyncSession();
 
     console.log('MobileSyncManager.runSync(): Sync started');
 
@@ -190,6 +192,10 @@ export class MobileSyncManager {
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
     const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
+
+    console.log(
+      `MobileSyncManager.syncOutgoingChanges(): Finished snapshot ${outgoingChanges.length} outgoing changes`,
+    );
 
     if (outgoingChanges.length > 0) {
       await pushOutgoingChanges(
@@ -226,14 +232,17 @@ export class MobileSyncManager {
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
 
-    // This is the start of stage 2 which is calling setPullFilter.
+    // This is the start of stage 2 which is calling pull/initiate.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
-    this.setProgress(STAGE_MAX_PROGRESS[this.syncStage - 1], 'Preparing data to pull...');
+    this.setProgress(
+      STAGE_MAX_PROGRESS[this.syncStage - 1],
+      'Pausing at 33% while server prepares for pull, please wait...',
+    );
     const tablesForFullResync = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
-    const { count: incomingChangesCount, tick: safePullTick } = await pullIncomingChanges(
+    const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       sessionId,
       pullSince,
@@ -243,7 +252,7 @@ export class MobileSyncManager {
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
 
-    console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${incomingChangesCount} changes`);
+    console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${totalPulled} changes`);
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
@@ -252,13 +261,8 @@ export class MobileSyncManager {
     // Save all incoming changes in 1 transaction so that the whole sync session save
     // either fail 100% or succeed 100%, no partial save.
     await Database.client.transaction(async () => {
-      if (incomingChangesCount > 0) {
-        await saveIncomingChanges(
-          sessionId,
-          incomingChangesCount,
-          incomingModels,
-          this.updateProgress,
-        );
+      if (totalPulled > 0) {
+        await saveIncomingChanges(sessionId, totalPulled, incomingModels, this.updateProgress);
       }
 
       if (tablesForFullResync) {
@@ -269,13 +273,13 @@ export class MobileSyncManager {
       // if updating the cursor fails, we want to roll back the rest of the saves
       // so that we don't end up detecting them as needing a sync up
       // to the central server when we attempt to resync from the same old cursor
-      await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, safePullTick);
+      await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, pullUntil);
     });
 
-    this.lastSyncPulledRecordsCount = incomingChangesCount;
+    this.lastSyncPulledRecordsCount = totalPulled;
 
     console.log(
-      `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${incomingChangesCount}`,
+      `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${totalPulled}`,
     );
   }
 }

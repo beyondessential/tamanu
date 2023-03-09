@@ -328,7 +328,10 @@ const rootLocalisationSchema = yup
     imagingCancellationReasons: yup
       .array(
         yup.object({
-          value: yup.string().required(),
+          value: yup
+            .string()
+            .required()
+            .max(31),
           label: yup.string().required(),
         }),
       )
@@ -353,7 +356,10 @@ const rootLocalisationSchema = yup
     labsCancellationReasons: yup
       .array(
         yup.object({
-          value: yup.string().required(),
+          value: yup
+            .string()
+            .required()
+            .max(31),
           label: yup.string().required(),
         }),
       )
@@ -400,6 +406,15 @@ const rootLocalisationSchema = yup
         enableCovidClearanceCertificate: yup.boolean().required(),
         editDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
+        idleTimeout: yup
+          .object()
+          .shape({
+            enabled: yup.boolean().required(),
+            timeoutDuration: yup.number().required(),
+            warningPromptDuration: yup.number().required(),
+            refreshInterval: yup.number().required(),
+          })
+          .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
       })
       .required()

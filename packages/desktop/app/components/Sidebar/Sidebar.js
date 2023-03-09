@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { List, Divider, Box, Typography, Avatar, Button } from '@material-ui/core';
+import { List, Divider, Box, Typography, Button } from '@material-ui/core';
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { Colors } from '../../constants';
-import { version } from '../../../package.json';
 import { Translated } from '../Translated';
+import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
+import { useApi } from '../../api';
 
 const Container = styled.div`
   display: flex;
@@ -60,15 +61,6 @@ const ConnectedTo = styled(Typography)`
   line-height: 15px;
 `;
 
-const StyledAvatar = styled(Avatar)`
-  background: #e7b091;
-  font-weight: 500;
-  font-size: 16px;
-  margin-right: 12px;
-  margin-top: 5px;
-  text-transform: uppercase;
-`;
-
 const Version = styled.div`
   color: ${Colors.softText};
   font-size: 9px;
@@ -112,6 +104,7 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen) => {
 
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
+  const { appVersion } = useApi();
   const { facility, centralHost, currentUser, onLogout } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
@@ -172,12 +165,12 @@ export const Sidebar = React.memo(({ items }) => {
       <Footer>
         <StyledDivider />
         <Box display="flex" color="white">
-          <StyledAvatar>{initials}</StyledAvatar>
+          <HiddenSyncAvatar>{initials}</HiddenSyncAvatar>
           <Box flex={1}>
             <UserName>{currentUser?.displayName}</UserName>
             <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>
             <Box display="flex" justifyContent="space-between">
-              <Version>Version {version}</Version>
+              <Version>Version {appVersion}</Version>
               <LogoutButton
                 type="button"
                 onClick={onLogout}

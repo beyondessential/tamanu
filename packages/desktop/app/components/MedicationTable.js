@@ -6,7 +6,7 @@ import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
-import { ENCOUNTER_TAB_NAMES } from '../views/patients/encounterTabNames';
+import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
 

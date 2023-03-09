@@ -74,6 +74,9 @@ labRequest.get(
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
         [LAB_REQUEST_STATUSES.DELETED]: LAB_REQUEST_STATUSES.DELETED,
       })),
+      makeFilter(true, `lab_requests.status != :cancelled`, () => ({
+        [LAB_REQUEST_STATUSES.CANCELLED]: LAB_REQUEST_STATUSES.CANCELLED,
+      })),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
@@ -216,3 +219,6 @@ labRequest.use(labRelations);
 export const labTest = express.Router();
 
 labTest.put('/:id', simplePut('LabTest'));
+
+export const labTestType = express.Router();
+labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));

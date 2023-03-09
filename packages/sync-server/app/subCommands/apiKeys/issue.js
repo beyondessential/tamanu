@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import config from 'config';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { DEFAULT_JWT_SECRET } from '../../auth';
 import { getToken } from '../../auth/utils';
 import { initDatabase, closeDatabase } from '../../database';
@@ -31,7 +32,13 @@ export const genToken = async (keyType, email, { expiresIn }) => {
   }
 
   // generate token
-  const token = await getToken(user, secret, expiresIn);
+  const token = await getToken(
+    {
+      userId: user.id,
+    },
+    secret,
+    { expiresIn, audience: JWT_TOKEN_TYPES.ACCESS, issuer: config.canonicalHostName },
+  );
 
   // cleanup
   if (process.env.NODE_ENV !== 'test') {

@@ -16,7 +16,7 @@ import { fakeUUID } from 'shared/utils/generateId';
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
 
-const readOnlyConfig = readOnly => ({ sync: { readOnly } });
+const syncConfig = readOnly => ({ sync: { readOnly, maxRecordsPerPullSnapshotChunk: 1000 } });
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -56,7 +56,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         '',
         simplestSessionConfig,
-        readOnlyConfig(true),
+        syncConfig(true),
       );
 
       expect(result).toEqual(0);
@@ -178,7 +178,7 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
 
-      const queryReturnValue = [undefined, 0];
+      const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
       const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
@@ -260,7 +260,7 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
 
-      const queryReturnValue = [undefined, 0];
+      const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
       const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);

@@ -19,6 +19,7 @@ import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublish
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { FhirMaterialiser } from './FhirMaterialiser';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
+import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -52,6 +53,10 @@ export async function startScheduledTasks(context) {
 
   if (config.schedules.plannedMoveTimeout.enabled) {
     taskClasses.push(PlannedMoveTimeout);
+  }
+
+  if (config.schedules.staleSyncSessionCleaner.enabled) {
+    taskClasses.push(StaleSyncSessionCleaner);
   }
 
   const reportSchedulers = await getReportSchedulers(context);
