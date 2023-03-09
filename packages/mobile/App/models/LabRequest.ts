@@ -45,9 +45,6 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: false })
   displayId: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  note?: string;
-
   @ManyToOne(
     () => Encounter,
     encounter => encounter.labRequests,
@@ -102,6 +99,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
       .where('encounter.patient = :patientId', { patientId })
       .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
+      .leftJoinAndSelect('labRequest.labSampleSite', 'labSampleSite')
       .getMany();
   }
 

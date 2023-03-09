@@ -25,7 +25,6 @@ export interface ILabRequest {
   status?: LabRequestStatus;
   senaiteId?: string;
   sampleId?: string;
-  note?: string;
   displayId: string;
 
   encounter: IEncounter;
