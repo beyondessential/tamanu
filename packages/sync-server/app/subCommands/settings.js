@@ -66,7 +66,7 @@ export async function loadSettings(key, filepath, { facility, preview } = {}) {
   } = await initDatabase({ testMode: false });
 
   if (key.length < 1) {
-    return 'Key must be specified';
+    throw new Error('Key must be specified');
   }
 
   const file = (await fs.readFile(filepath)).toString();
@@ -78,7 +78,7 @@ export async function loadSettings(key, filepath, { facility, preview } = {}) {
   } else if (filepath.endsWith('.kdl')) {
     value = parseJiK(file);
   } else {
-    return 'File format not supported';
+    throw new Error('File format not supported');
   }
 
   if (preview) {
