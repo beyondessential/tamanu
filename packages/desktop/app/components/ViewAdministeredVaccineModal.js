@@ -54,15 +54,15 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-  const routine = false;
-  const other = true;
+  const routine = true;
+  const other = false;
 
   const overseas = false;
 
   const notGiven = false;
 
   return (
-    <Modal title="View Vaccination Record" open={open} onClose={onClose}>
+    <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
       <Container>
         {(routine || notGiven) && (
           <DisplayField>
