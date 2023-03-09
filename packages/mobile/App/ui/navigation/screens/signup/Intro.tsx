@@ -35,13 +35,14 @@ export const IntroScreen: FunctionComponent<any> = ({
           {signedOutFromInactivity && (
             <StyledText
               color={theme.colors.ALERT}
-              marginTop={screenPercentageToDP(15.32, Orientation.Height)}
+              marginTop={screenPercentageToDP(12.32, Orientation.Height)}
+              
             >
               Signed out from inactivity
             </StyledText>
           )}
         </CenterView>
-        <CenterView marginTop={screenPercentageToDP(26.36, Orientation.Height)}>
+        <CenterView marginTop={screenPercentageToDP(signedOutFromInactivity ? 11.5 : 26.36, Orientation.Height)}>
           <StyledText
             color={theme.colors.PRIMARY_MAIN}
             fontSize={`${screenPercentageToDP('3.4', Orientation.Height)}px`}
