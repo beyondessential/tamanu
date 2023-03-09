@@ -92,7 +92,7 @@ const COLUMNS = [
     key: 'panelId',
     title: 'Panel',
     sortable: false,
-    accessor: ({ panel }) => panel?.name || 'N/A',
+    accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
   },
   {
     key: 'labTestCategory',

@@ -61,25 +61,32 @@ export class LabRequest extends Model {
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
+      const { LabTest, LabTestPanelRequest } = this.sequelize.models;
+      const { date, labTestPanelId, ...requestData } = data;
+      let newLabRequest;
 
-      const { date, ...requestData } = data;
-
-      const base = await this.create(requestData);
+      if (labTestPanelId) {
+        const { id: labTestPanelRequestId } = await LabTestPanelRequest.create({
+          encounterId: data.encounterId,
+          labTestPanelId,
+        });
+        newLabRequest = await this.create({ ...requestData, labTestPanelRequestId });
+      } else {
+        newLabRequest = await this.create(requestData);
+      }
 
       // then create tests
-      const { LabTest } = this.sequelize.models;
-
       await Promise.all(
         labTestTypeIds.map(t =>
           LabTest.create({
             labTestTypeId: t,
-            labRequestId: base.id,
+            labRequestId: newLabRequest.id,
             date,
           }),
         ),
       );
 
-      return base;
+      return newLabRequest;
     });
   }
 
