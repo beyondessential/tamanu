@@ -94,6 +94,9 @@ const vaccineRecord = {
   recorderId: 'bb6512d9-4b94-46ef-8e1b-954bcb820fa7',
   locationId: 'location-ClinicalTreatmentRoom',
   departmentId: 'department-Emergency',
+  department: {
+    name: 'test department',
+  },
   encounter: {
     id: 'ae84c475-fe8c-4189-ab3c-3ad1bc63da9a',
     encounterType: 'clinic',
@@ -181,6 +184,9 @@ const vaccineRecord = {
     createdAt: '2022-12-02T01:58:50.853Z',
     updatedAt: '2023-01-25T20:45:01.380Z',
     facilityId: 'ref/facility/ba',
+    facility: {
+      name: 'test facility',
+    },
     locationGroupId: 'location-group-one',
     locationGroup: {
       id: 'location-group-one',
