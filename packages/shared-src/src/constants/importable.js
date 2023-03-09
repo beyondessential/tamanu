@@ -101,6 +101,7 @@ export const REFERENCE_TYPES = {
   DISCHARGE_DISPOSITION: 'dischargeDisposition',
   REFERRAL_SOURCE: 'referralSource',
   ARRIVAL_MODE: 'arrivalMode',
+  VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   ...IMAGING_AREA_TYPES,
 };
 
