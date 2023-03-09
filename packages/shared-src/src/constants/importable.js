@@ -59,6 +59,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'vascularStudyImagingArea',
   'village',
   'xRayImagingArea',
+  'vaccineNotGivenReason',
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
