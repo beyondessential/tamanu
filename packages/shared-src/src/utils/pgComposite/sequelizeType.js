@@ -1,6 +1,6 @@
 import { object, mixed } from 'yup';
 import { enumerate, parse } from './parse';
-import { formatDateTime } from '../fhir';
+import { formatFhirDate } from '../fhir';
 import { FHIR_DATETIME_PRECISION } from '../../constants';
 
 export class Composite {
@@ -104,7 +104,7 @@ export function valueAsFhir(value) {
 
   if (value instanceof Date) {
     // to override precision, transform to string before this point!
-    return formatDateTime(value, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE);
+    return formatFhirDate(value, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE);
   }
 
   return value;

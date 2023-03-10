@@ -16,7 +16,7 @@ import {
   FhirImmunizationProtocolApplied,
 } from '../../services/fhirTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { toFhirDate } from './utils';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirImmunization extends FhirResource {
   static init(options, models) {
@@ -104,7 +104,7 @@ export class FhirImmunization extends FhirResource {
       vaccineCode: vaccineCode(scheduledVaccine),
       patient: patientReference(patient),
       encounter: encounterReference(encounter),
-      occurrenceDateTime: toFhirDate(administeredVaccine.date),
+      occurrenceDateTime: formatFhirDate(administeredVaccine.date),
       lotNumber: administeredVaccine.batch,
       site: site(administeredVaccine.injectionSite),
       performer: performer(recorder),

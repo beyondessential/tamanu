@@ -19,8 +19,7 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
 } from '../../constants';
-import { Exception } from '../../utils/fhir';
-import { toFhirDate } from './utils';
+import { Exception, formatFhirDate } from '../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
@@ -181,7 +180,7 @@ export class FhirServiceRequest extends FhirResource {
         reference: upstream.encounter.patient.id,
         display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
       }),
-      occurrenceDateTime: toFhirDate(upstream.requestedDate),
+      occurrenceDateTime: formatFhirDate(upstream.requestedDate),
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
       }),

@@ -3,7 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
-import { activeFromVisibility, toFhirDate } from './utils';
+import { activeFromVisibility } from './utils';
 import { latestDateTime } from '../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
@@ -20,6 +20,7 @@ import {
   FhirReference,
 } from '../../services/fhirTypes';
 import { nzEthnicity } from './extensions';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirPatient extends FhirResource {
   static init(options, models) {
@@ -78,8 +79,8 @@ export class FhirPatient extends FhirResource {
       name: names(upstream),
       telecom: telecoms(upstream),
       gender: upstream.sex,
-      birthDate: toFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
-      deceasedDateTime: toFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
+      birthDate: formatFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
+      deceasedDateTime: formatFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
       address: addresses(upstream),
       link: await mergeLinks(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),

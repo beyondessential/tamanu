@@ -1,9 +1,8 @@
 import * as yup from 'yup';
-import { formatDateTime } from '../../utils/fhir';
+import { formatFhirDate } from '../../utils/fhir';
 
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirReference } from './reference';
-import { FHIR_DATETIME_PRECISION } from '../../constants';
 
 export class FhirAnnotation extends Composite {
   static FIELD_ORDER = ['authorReference', 'authorString', 'time', 'text'];
@@ -44,7 +43,7 @@ export class FhirAnnotation extends Composite {
   static fake(model, { fieldName }, id) {
     return new this({
       authorString: `${model.name}.${fieldName}.author.${id}`,
-      time: formatDateTime(new Date(), FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      time: formatFhirDate(new Date()),
       text: `${model.name}.${fieldName}.text.${id}`,
     });
   }

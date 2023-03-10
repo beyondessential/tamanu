@@ -12,7 +12,7 @@ import {
   FhirReference,
 } from '../../services/fhirTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { toFhirDate } from './utils';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -122,8 +122,8 @@ export class FhirDiagnosticReport extends FhirResource {
       status: status(labRequest),
       code: code(labTestType),
       subject: patientReference(patient),
-      effectiveDateTime: toFhirDate(labRequest.sampleTime),
-      issued: toFhirDate(labRequest.requestedDate),
+      effectiveDateTime: formatFhirDate(labRequest.sampleTime),
+      issued: formatFhirDate(labRequest.requestedDate),
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
     });
