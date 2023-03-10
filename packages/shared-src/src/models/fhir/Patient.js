@@ -35,7 +35,7 @@ export class FhirPatient extends FhirResource {
         name: DataTypes.JSONB,
         telecom: DataTypes.JSONB,
         gender: {
-          type: Sequelize.STRING(10),
+          type: Sequelize.TEXT,
           allowNull: false,
         },
         birthDate: DataTypes.TEXT,
