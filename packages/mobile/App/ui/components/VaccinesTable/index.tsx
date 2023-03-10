@@ -16,12 +16,14 @@ interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
   onPressItem: (item: any) => void;
+  headerOffsetPosition: number;
 }
 
 export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
+  headerOffsetPosition,
 }: VaccinesTableProps) : JSX.Element => {
   const isFocused = useIsFocused();
 
@@ -98,6 +100,7 @@ export const VaccinesTable = ({
       cells={cells}
       Title={VaccinesTableTitle}
       tableHeader={vaccineTableHeader}
+      headerOffsetPosition={headerOffsetPosition}
     />
   );
 };

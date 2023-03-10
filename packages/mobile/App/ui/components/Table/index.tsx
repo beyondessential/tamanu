@@ -1,11 +1,13 @@
 import React from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
+import { head } from 'lodash';
 
 export type TableHeader = {
   key: string;
-  accessor: (value: string, onPress: (item: any) => void) => JSX.Element;
-}
+  accessor: (value: string, onPress: (item: any) => void, headerOffsetPosition?: number) => JSX.Element;
+};
 
 export type TableRow = {
   rowKey: string;
@@ -16,7 +18,7 @@ export type TableRow = {
 
 export type TableCells<T> = {
   [key: string]: T[];
-}
+};
 
 interface TableProps {
   Title: React.MemoExoticComponent<() => JSX.Element> | (() => JSX.Element);
@@ -25,6 +27,7 @@ interface TableProps {
   columns: string[];
   tableHeader: TableHeader;
   onPressItem?: (item: any) => void;
+  headerOffsetPosition?: number;
 }
 
 export const Table = ({
@@ -34,23 +37,32 @@ export const Table = ({
   cells,
   tableHeader,
   onPressItem,
-}: TableProps): JSX.Element => (
-  <RowView>
-    <StyledView>
-      <Title />
-      {rows.map((r, i) => r.rowHeader(i))}
-    </StyledView>
-    <ScrollView bounces={false} scrollEnabled showsHorizontalScrollIndicator horizontal>
-      <RowView>
-        {columns.map((column: any) => (
-          <StyledView key={`${column}`}>
-            {tableHeader.accessor(column, onPressItem)}
-            {cells[column]
-              && rows.map((row, i) => row.cell(cells[column]
-                .find(c => c[row.rowKey] === row.rowTitle), i))}
-          </StyledView>
-        ))}
-      </RowView>
-    </ScrollView>
-  </RowView>
-);
+  headerOffsetPosition,
+}: TableProps): JSX.Element => {
+
+  return (
+    <RowView>
+      <StyledView>
+        {/* TODO: push this down too */}
+        <Title />
+        {rows.map((r, i) => r.rowHeader(i))}
+      </StyledView>
+      <ScrollView bounces={false} showsHorizontalScrollIndicator horizontal>
+        <RowView>
+          {columns.map((column: any) => (
+            <StyledView key={`${column}`}>
+              {tableHeader.accessor(column, onPressItem, headerOffsetPosition)}
+              {cells[column] &&
+                rows.map((row, i) =>
+                  row.cell(
+                    cells[column].find(c => c[row.rowKey] === row.rowTitle),
+                    i,
+                  ),
+                )}
+            </StyledView>
+          ))}
+        </RowView>
+      </ScrollView>
+    </RowView>
+  );
+};

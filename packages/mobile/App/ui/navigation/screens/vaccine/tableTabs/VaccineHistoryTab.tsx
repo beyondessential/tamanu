@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { NavigationProp } from '@react-navigation/native';
@@ -36,15 +36,23 @@ export const VaccineHistoryTabComponent = ({
     }
   }, []);
 
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  const handleScroll = event => {
+    const { y, x } = event.nativeEvent.contentOffset;
+    setScrollPosition(y);
+  };
+
   return (
     <StyledSafeAreaView flex={1}>
       <StatusBar barStyle="light-content" />
       <FullView>
-        <ScrollView>
+        <ScrollView bounces={false} onScroll={handleScroll}>
           <VaccinesTable
             selectedPatient={selectedPatient}
             categoryName={category}
             onPressItem={onNavigateToClickedCell}
+            headerOffsetPosition={scrollPosition}
           />
         </ScrollView>
       </FullView>
