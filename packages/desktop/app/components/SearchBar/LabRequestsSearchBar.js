@@ -32,14 +32,12 @@ const SearchInputContainer = styled(Box)`
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
-  const [isOpen, setIsOpen] = useState(false);
-  const handleClick = () => {
-    setIsOpen(current => !current);
-  };
+  const [isOpen, setIsOpen] = useState(true);
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
+
   return (
     <Form
       initialValues={{ displayIdExact: true, ...searchParameters }}
@@ -87,15 +85,22 @@ export const LabRequestsSearchBar = () => {
                 options={LAB_REQUEST_STATUS_OPTIONS}
                 size="small"
               />
-              <SearchBarSubmitButtons width={200} clickToggle={handleClick} clearForm={clearForm} />
+              <SearchBarSubmitButtons
+                width={200}
+                clickToggle={() => {
+                  setIsOpen(current => !current);
+                }}
+                clearForm={clearForm}
+              />
             </SearchInputContainer>
             <Collapse in={isOpen}>
               <SearchInputContainer mt={2}>
                 <LocalisedField
                   name="requestedDateFrom"
-                  defaultLabel="Requested from"
+                  label="Requested from"
                   saveDateAsString
                   component={DateField}
+                  $joined
                 />
                 <LocalisedField
                   name="requestedDateTo"
