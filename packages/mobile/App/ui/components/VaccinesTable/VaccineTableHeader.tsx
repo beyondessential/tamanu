@@ -5,7 +5,7 @@ import { theme } from '/styled/theme';
 
 export const vaccineTableHeader: TableHeader = {
   key: 'date',
-  accessor: (title, onPressItem, headerPosition) => (
+  accessor: (title) => (
     <StyledView
       paddingTop={15}
       paddingBottom={15}
@@ -14,8 +14,6 @@ export const vaccineTableHeader: TableHeader = {
       justifyContent="center"
       alignItems="center"
       background={theme.colors.MAIN_SUPER_DARK}
-      zIndex={1}
-      top={headerPosition}
     >
       <StyledText textAlign="center" fontSize={12} fontWeight={700} color={theme.colors.WHITE}>
         {title}
