@@ -42,14 +42,8 @@ export const CheckInput = React.memo(({ label, value, style, error, helperText, 
   </FormControl>
 ));
 
-export const CheckField = React.memo(({ field, error, ...props }) => (
-  <CheckInput
-    name={field.name}
-    value={field.value || false}
-    onChange={field.onChange}
-    error={error}
-    {...props}
-  />
+export const CheckField = React.memo(({ field, ...props }) => (
+  <CheckInput name={field.name} value={field.value || false} onChange={field.onChange} {...props} />
 ));
 
 CheckInput.propTypes = {

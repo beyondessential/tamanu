@@ -4,6 +4,7 @@ import Chance from 'chance';
 
 import { ApiContext } from '../app/api';
 import { DataFetchingTable } from '../app/components/Table';
+import { CheckInput } from '../app/components/Field';
 
 const chance = new Chance();
 
@@ -67,7 +68,7 @@ storiesOf('DataFetchingTable', module)
       <DataFetchingTable 
         endpoint="ages" 
         columns={dummyColumns}
-        optionRow={<div>options</div>} 
+        optionRow={<CheckInput label={<small>Dummy checkbox</small>} />} 
       />
     </ApiContext.Provider>
   ))
