@@ -80,6 +80,7 @@ export async function startFhirWorkerTasks({ store }) {
   const worker = new FhirWorker(store, log);
   await worker.start();
 
+  // example of how to add a handler for a topic:
   // worker.setHandler('topic', handlerFunction);
 
   worker.processQueueNow();
