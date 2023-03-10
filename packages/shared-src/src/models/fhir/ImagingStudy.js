@@ -14,7 +14,7 @@ export class FhirImagingStudy extends FhirResource {
       {
         identifier: DataTypes.JSONB,
         basedOn: DataTypes.JSONB,
-        started: DataTypes.DATE,
+        started: DataTypes.TEXT,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -34,7 +34,7 @@ export class FhirImagingStudy extends FhirResource {
     return yup.object({
       identifier: yup.array().of(FhirIdentifier.asYup()),
       basedOn: yup.array().of(FhirReference.asYup()),
-      started: yup.date().optional(),
+      started: yup.string().optional(),
       status: yup.string().required(),
       note: yup.array().of(FhirAnnotation.asYup()),
     });
