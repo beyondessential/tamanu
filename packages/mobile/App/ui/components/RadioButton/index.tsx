@@ -8,7 +8,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 export interface FormField {
   value: string;
   selected?: boolean;
-  error?: boolean;
+  error?: string;
   index?: number;
 }
 
@@ -26,6 +26,7 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
 
   const getBorderColor = useCallback(() => {
     if (props.selected) return theme.colors.PRIMARY_MAIN;
+    if (props.error) return theme.colors.ALERT;
     return theme.colors.DEFAULT_OFF;
   }, [props.error, props.selected]);
 
