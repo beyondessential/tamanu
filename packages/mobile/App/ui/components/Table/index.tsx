@@ -43,15 +43,14 @@ export const Table = ({
   return (
     <RowView>
       <StyledView>
-        {/* TODO: push this down too */}
-        <Title />
+        <StyledView zIndex={1} top={headerOffsetPosition}><Title /></StyledView>
         {rows.map((r, i) => r.rowHeader(i))}
       </StyledView>
       <ScrollView bounces={false} showsHorizontalScrollIndicator horizontal>
         <RowView>
           {columns.map((column: any) => (
             <StyledView key={`${column}`}>
-              {tableHeader.accessor(column, onPressItem, headerOffsetPosition)}
+              <StyledView zIndex={1} top={headerOffsetPosition}>{tableHeader.accessor(column, onPressItem)}</StyledView>
               {cells[column] &&
                 rows.map((row, i) =>
                   row.cell(
