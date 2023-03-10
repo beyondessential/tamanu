@@ -9,3 +9,4 @@ export { AdministrationRoutes } from './AdministrationRoutes';
 export { ProgramsRoutes } from './ProgramsRoutes';
 export { ReportsRoutes } from './ReportsRoutes';
 export { ImmunisationRoutes } from './ImmunisationRoutes';
+export { FacilityAdminRoutes } from './FacilityAdminRoutes';
