@@ -32,7 +32,7 @@ const SearchInputContainer = styled(Box)`
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
@@ -86,7 +86,6 @@ export const LabRequestsSearchBar = () => {
                 size="small"
               />
               <SearchBarSubmitButtons
-                width={200}
                 clickToggle={() => {
                   setIsOpen(current => !current);
                 }}

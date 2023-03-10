@@ -23,7 +23,7 @@ const columns = [
     accessor: getPatientDisplayId,
     sortable: false,
   },
-  { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
+  { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false, maxWidth: 200 },
   { key: 'requestId', title: 'Test ID', sortable: false, accessor: getRequestId },
   { key: 'category.name', title: 'Test category', accessor: getRequestType },
   { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },

@@ -21,16 +21,44 @@ export const SearchBarContainer = styled.div`
   }
 `;
 
+const ButtonsContainer = styled(Box)`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  .MuiIconButton-root {
+    padding: 7px;
+    margin-right: 3px;
+  }
+
+  .MuiButton-containedPrimary {
+    flex: 1;
+  }
+
+  .MuiButton-containedPrimary,
+  .MuiButton-textPrimary {
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+
+  .MuiButton-textPrimary {
+    text-decoration: underline;
+    padding-left: 10px;
+    padding-right: 5px;
+    min-width: auto;
+  }
+`;
+
 export const SearchBarSubmitButtons = ({ clearForm, clickToggle, ...props }) => {
   return (
-    <Box display="flex" alignItems="flex-end" justifyContent="space-between" {...props}>
+    <ButtonsContainer {...props}>
       <IconButton onClick={clickToggle} color="primary">
         <ExpandMore />
       </IconButton>
       <Button type="submit">Search</Button>
-      <Button variant="text" style={{ marginLeft: 12 }} onClick={clearForm}>
+      <Button variant="text" onClick={clearForm}>
         Clear
       </Button>
-    </Box>
+    </ButtonsContainer>
   );
 };
