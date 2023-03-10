@@ -1,11 +1,11 @@
 {
   "name": "shared",
-  "version": "1.25.0",
   "main": "index.js",
-  "types": "types/",
-  "description": "Common code across Tamanu packages (generated)",
+  "private": true,
+  "version": "1.25.0",
   "author": "Beyond Essential Systems Pty. Ltd.",
+  "description": "Common code across Tamanu packages (generated)",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "license": "SEE LICENSE IN license",
-  "repository": "git@github.com:beyondessential/tamanu.git",
-  "private": true
+  "repository": "git@github.com:beyondessential/tamanu.git"
 }
