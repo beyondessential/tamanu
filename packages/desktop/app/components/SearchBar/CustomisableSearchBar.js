@@ -44,12 +44,39 @@ const SectionLabel = styled.div`
   letter-spacing: 0;
 `;
 
+const FilterContainer = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+`;
+
 const SearchInputContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 2fr);
   gap: 9px;
 `;
 
+const ActionsContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-left: 8px;
+  padding-bottom: 12px;
+`;
+
+const ExpandButton = styled(IconButton)`
+  padding: 6px 14px;
+`;
+
+const SearchButton = styled(LargeButton)`
+  margin-right: 20px;
+  margin-left: 20px;
+`;
+
+const ClearButton = styled(TextButton)`
+  text-decoration: underline;
+`;
 export const CustomisableSearchBar = ({
   title,
   onSearch,
@@ -75,44 +102,31 @@ export const CustomisableSearchBar = ({
       <Form
         onSubmit={onSearch}
         render={({ submitForm, clearForm }) => (
-          <Box display="flex" justifyContent="space-between">
+          <FilterContainer>
             <SearchInputContainer>{children}</SearchInputContainer>
-            <Box
-              display="flex"
-              alignItems="center"
-              flexDirection="column"
-              justifyContent="space-between"
-              style={{ marginTop: 20, marginLeft: 8, paddingBottom: 12 }}
-            >
+            <ActionsContainer>
               <Box display="flex">
                 {showExpandButton && (
-                  <IconButton
+                  <ExpandButton
                     onClick={() => {
                       switchExpandValue();
                     }}
                     color="primary"
-                    style={{ padding: '6px 14px' }}
                   >
                     <img
                       src={expanded ? doubleUp : doubleDown}
                       alt={`${expanded ? 'hide' : 'show'} advanced filters`}
                     />
-                  </IconButton>
+                  </ExpandButton>
                 )}
-                <LargeButton
-                  style={{ marginRight: 20, marginLeft: 20 }}
-                  onClick={submitForm}
-                  type="submit"
-                >
+                <SearchButton onClick={submitForm} type="submit">
                   Search
-                </LargeButton>
-                <TextButton onClick={clearForm} style={{ textDecoration: 'underline' }}>
-                  Clear
-                </TextButton>
+                </SearchButton>
+                <ClearButton onClick={clearForm}>Clear</ClearButton>
               </Box>
               {renderCheckField}
-            </Box>
-          </Box>
+            </ActionsContainer>
+          </FilterContainer>
         )}
         initialValues={initialValues}
       />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
+import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
   AutocompleteField,
@@ -16,6 +17,21 @@ import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 
 import { useSexOptions } from '../../hooks';
+
+const TwoColumnsField = styled(Box)`
+  grid-column: span 2;
+  display: flex;
+  gap: 10px;
+`;
+
+const SexLocalisedField = styled(LocalisedField)`
+  min-width: 100px;
+  flex: 1;
+`;
+
+const VillageLocalisedField = styled(LocalisedField)`
+  font-size: 11px;
+`;
 
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const villageSuggester = useSuggester('village');
@@ -50,20 +66,19 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       {showAdvancedFields && (
         <>
           <LocalisedField component={SearchField} name="culturalName" />
-          <Box style={{ gridColumn: 'span 2', display: 'flex', gap: 10 }}>
+          <TwoColumnsField>
             <DOBFields showExactBirth={false} />
-            <LocalisedField
-              style={{ minWidth: 100, flex: 1 }}
+            <SexLocalisedField
               name="sex"
               component={SelectField}
               options={sexOptions}
+              size="small"
             />
-          </Box>
-          <LocalisedField
+          </TwoColumnsField>
+          <VillageLocalisedField
             name="villageId"
             component={AutocompleteField}
             suggester={villageSuggester}
-            style={{ fontSize: '11px' }}
             size="small"
           />
         </>

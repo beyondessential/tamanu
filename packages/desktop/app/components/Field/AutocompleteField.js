@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
@@ -73,6 +73,19 @@ const Item = styled(MenuItem)`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+`;
+
+const iconStyle = css`
+  color: ${Colors.midText};
+  font-size: 24;
+`;
+
+const StyledExpandLess = styled(ExpandLess)`
+  ${iconStyle}
+`;
+
+const StyledExpandMore = styled(ExpandMore)`
+  ${iconStyle}
 `;
 
 class BaseAutocomplete extends Component {
@@ -238,7 +251,6 @@ class BaseAutocomplete extends Component {
   renderInputComponent = inputProps => {
     const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
     const { suggestions } = this.state;
-    const iconStyle = { color: Colors.midText, fontSize: 24 };
     return (
       <OuterLabelFieldWrapper
         label={label}
@@ -266,11 +278,7 @@ class BaseAutocomplete extends Component {
                     this.anchorEl.click();
                   }}
                 >
-                  {suggestions.length > 0 ? (
-                    <ExpandLess style={iconStyle} />
-                  ) : (
-                    <ExpandMore style={iconStyle} />
-                  )}
+                  {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
                 </Icon>
               </>
             ),
