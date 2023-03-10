@@ -26,7 +26,6 @@ for package in $(jq -r .workspaces.packages[] package.json); do
 done
 version package.json
 version packages/desktop/app/package.json
-version packages/shared-src/shared.package.json
 version packages/mobile/package.json
 
 cat << EOF
