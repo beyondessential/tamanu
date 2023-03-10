@@ -143,7 +143,7 @@ patientVaccineRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
-    const where = req.params.includeNotGiven
+    const where = req.query.includeNotGiven
       ? {
           status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
         }
