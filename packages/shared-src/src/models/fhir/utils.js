@@ -1,8 +1,7 @@
 import { Sequelize } from 'sequelize';
 import array from 'postgres-array';
 
-import { FHIR_DATETIME_PRECISION, VISIBILITY_STATUSES } from '../../constants';
-import { formatFhirDate } from '../../utils/fhir';
+import { VISIBILITY_STATUSES } from '../../constants';
 
 export function arrayOf(fieldName, Type, overrides = {}) {
   const entryType = typeof Type === 'function' ? new Type() : Type;
