@@ -79,10 +79,8 @@ export function buildSearchQuery(query, parameters, FhirResource) {
 // path: ['a', 'b', '[]', 'c', '[]', 'd']
 // jsonb path: '$.b[*].c[*].d'
 function getJsonbPath(path) {
-  const basePath = '$';
   const actualPath = path.slice(1).map(step => (step === '[]' ? '[*]' : `.${step}`));
-  const jsonbPath = basePath + actualPath.join('');
-  return jsonbPath;
+  return `$${actualPath.join('')}`;
 }
 
 // Depends on the appearance of an array in its last position
