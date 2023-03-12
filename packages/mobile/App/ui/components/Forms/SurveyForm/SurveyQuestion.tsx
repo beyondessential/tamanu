@@ -37,6 +37,7 @@ export const SurveyQuestion = ({
   return (
     <StyledView
       marginTop={10}
+      zIndex={1}
       onLayout={({ nativeEvent }): void => {
         setPosition(nativeEvent.layout.y);
       }}

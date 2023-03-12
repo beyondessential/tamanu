@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { CancelModal } from '../../components/CancelModal';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
@@ -77,6 +77,13 @@ const PrintButton = ({ imagingRequest, patient }) => {
 const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+  // Just needed for read only state
+  const cancelledOption = [
+    {
+      label: LAB_REQUEST_STATUS_CONFIG[IMAGING_REQUEST_STATUS_TYPES.CANCELLED].label,
+      value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+    },
+  ];
 
   return (
     <FormGrid columns={3}>
@@ -95,7 +102,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         name="status"
         label="Status"
         component={SelectField}
-        options={IMAGING_REQUEST_STATUS_OPTIONS}
+        options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
