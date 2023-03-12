@@ -10,7 +10,6 @@
   "main": "src/index.js",
   "scripts": {
     "build": "rm -rf build; tsc --build tsconfig.json",
-    "test": "yarn build",
     "cli": "yarn build && node build",
     "lint": "eslint src/**/*.ts"
   },

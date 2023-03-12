@@ -22,7 +22,7 @@ reportRequest.post(
 
     req.checkPermission('create', 'ReportRequest');
     if (!reportId) {
-      const message = 'Report id not specifed';
+      const message = 'Report id not specified';
       reportRequestLog.error(message);
       res.status(400).send({ error: { message } });
       return;

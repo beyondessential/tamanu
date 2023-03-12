@@ -32,7 +32,7 @@ export async function importerTransaction({
   models,
   file,
   dryRun = false,
-  whitelist = [],
+  includedDataTypes = [],
 }) {
   const errors = [];
   const stats = [];
@@ -58,7 +58,7 @@ export async function importerTransaction({
         });
 
         try {
-          await importer({ errors, models, stats, file, whitelist });
+          await importer({ errors, models, stats, file, includedDataTypes });
         } catch (err) {
           errors.push(err);
         }
@@ -104,7 +104,7 @@ export function createDataImporterEndpoint(importer) {
       file,
       deleteFileAfterImport = true,
       dryRun = false,
-      whitelist = [],
+      includedDataTypes,
     } = await getUploadedData(req);
 
     const result = await importerTransaction({
@@ -112,7 +112,7 @@ export function createDataImporterEndpoint(importer) {
       file,
       models: store.models,
       dryRun,
-      whitelist,
+      includedDataTypes,
     });
 
     // we don't need the file any more
