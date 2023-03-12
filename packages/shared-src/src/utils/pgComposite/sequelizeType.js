@@ -104,7 +104,7 @@ export function valueAsFhir(value) {
 
   if (value instanceof Date) {
     // to override precision, transform to string before this point!
-    return formatFhirDate(value, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE);
+    return formatFhirDate(value);
   }
 
   return value;
