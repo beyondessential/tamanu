@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { formatFhirDate } from '../../utils/fhir';
 
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirReference } from './reference';
@@ -17,7 +18,7 @@ export class FhirAnnotation extends Composite {
           .nullable()
           .default(null),
         time: yup
-          .date()
+          .string()
           .nullable()
           .default(null),
         text: yup.string().required(),
@@ -32,10 +33,9 @@ export class FhirAnnotation extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ authorReference, time, ...fields }) {
+  static validateAndTransformFromSql({ authorReference, ...fields }) {
     return new this({
       authorReference: authorReference && FhirReference.fromSql(authorReference),
-      time: time && new Date(time),
       ...fields,
     });
   }
@@ -43,7 +43,7 @@ export class FhirAnnotation extends Composite {
   static fake(model, { fieldName }, id) {
     return new this({
       authorString: `${model.name}.${fieldName}.author.${id}`,
-      time: new Date(),
+      time: formatFhirDate(new Date()),
       text: `${model.name}.${fieldName}.text.${id}`,
     });
   }

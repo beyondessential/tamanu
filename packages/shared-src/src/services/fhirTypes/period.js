@@ -1,9 +1,8 @@
 import { random } from 'lodash';
 import * as yup from 'yup';
-import { FHIR_DATETIME_PRECISION } from '../../constants';
 
 import { toDateTimeString } from '../../utils/dateTime';
-import { formatDateTime } from '../../utils/fhir';
+import { formatFhirDate } from '../../utils/fhir';
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
 export class FhirPeriod extends Composite {
@@ -13,11 +12,11 @@ export class FhirPeriod extends Composite {
     return yup
       .object({
         start: yup
-          .date()
+          .string()
           .nullable()
           .default(null),
         end: yup
-          .date()
+          .string()
           .when('start', (start, schema) =>
             start
               ? schema.test(
@@ -39,8 +38,8 @@ export class FhirPeriod extends Composite {
 
   asFhir() {
     return {
-      start: formatDateTime(this.params.start, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
-      end: formatDateTime(this.params.end, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      start: formatFhirDate(this.start),
+      end: formatFhirDate(this.end),
     };
   }
 
@@ -49,8 +48,8 @@ export class FhirPeriod extends Composite {
     const start = end - random(0, end);
 
     return new this({
-      start: new Date(start),
-      end: new Date(end),
+      start: formatFhirDate(new Date(start)),
+      end: formatFhirDate(new Date(end)),
     });
   }
 }
