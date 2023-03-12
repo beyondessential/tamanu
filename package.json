@@ -13,7 +13,7 @@
     "test": "yarn run build-shared && node scripts/test-all.mjs",
     "test-coverage": "yarn run test --coverage",
     "lint-all": "node scripts/lint-all.mjs",
-    "lint-fix": "yarn run lint --fix",
+    "lint-fix": "yarn run lint-all --fix",
     "upgrade-lint-rules": "yarn workspaces run yarn upgrade @beyondessential/eslint-config-js --latest",
     "desktop-start-dev": "yarn workspace desktop run start-dev",
     "storybook": "yarn run watch-shared-and desktop storybook",
