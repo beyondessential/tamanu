@@ -115,6 +115,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const response = await app.get(path);
 
       // normalise for comparison
+      // eslint-disable-next-line no-unused-expressions
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
 
       // assert
@@ -338,7 +339,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   });
 
   describe('search', () => {
-    let encounter, irs;
+    let encounter;
+    let irs;
     beforeAll(async () => {
       const {
         Encounter,
