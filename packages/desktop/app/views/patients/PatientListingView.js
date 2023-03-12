@@ -12,6 +12,7 @@ import {
   PatientSearchBar,
   ContentPane,
 } from '../../components';
+import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '../../components/Button';
 import { NewPatientModal } from './components';
 import {
@@ -28,6 +29,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { TableWithTitleContainer } from '../../components/Table/TableWithTitleContainer';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -65,7 +67,7 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   // location and department should be sortable
   .concat([locationGroup, location, department]);
 
-const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters, borderless }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
@@ -86,6 +88,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
+      borderless={borderless}
     />
   );
 };
@@ -133,19 +136,24 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
+
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
-      <AllPatientsSearchBar onSearch={setSearchParameters} />
+      <RecentlyViewedPatientsList />
       <ContentPane>
-        <PatientTable
-          onViewPatient={onViewPatient}
-          fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={searchParameters}
-          columns={LISTING_COLUMNS}
-        />
+        <TableWithTitleContainer title="Patient search">
+          <AllPatientsSearchBar onSearch={setSearchParameters} />
+          <PatientTable
+            borderless
+            onViewPatient={onViewPatient}
+            fetchOptions={{ matchSecondaryIds: true }}
+            searchParameters={searchParameters}
+            columns={LISTING_COLUMNS}
+          />
+        </TableWithTitleContainer>
       </ContentPane>
     </PageContainer>
   );
@@ -160,6 +168,7 @@ export const AdmittedPatientsView = () => {
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
+      <RecentlyViewedPatientsList encounterType="admission" />
       <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
@@ -181,6 +190,7 @@ export const OutpatientsView = () => {
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
+      <RecentlyViewedPatientsList encounterType="clinic" />
       <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable

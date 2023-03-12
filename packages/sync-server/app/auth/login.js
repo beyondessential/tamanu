@@ -18,6 +18,10 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Missing credentials');
     }
 
+    if (!deviceId) {
+      throw new BadAuthenticationError('Missing deviceId');
+    }
+
     const user = await findUser(store.models, email);
 
     if (!user && config.auth.reportNoUserError) {
