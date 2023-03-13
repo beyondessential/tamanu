@@ -8,10 +8,6 @@ export class Composite {
 
   static FIELD_ORDER = [];
 
-  static get fhirName() {
-    return this.name.replace(/^Fhir/, '');
-  }
-
   constructor(params) {
     const withoutNulls = Object.fromEntries(
       Object.entries(params).filter(([, value]) => value !== null && value !== undefined),
