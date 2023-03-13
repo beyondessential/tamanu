@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
@@ -13,20 +13,23 @@ import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
 import { IScheduledVaccine } from '~/types';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
-
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
   onPressItem: (item: any) => void;
-  headerOffsetPosition: number;
 }
 
 export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
-  headerOffsetPosition,
 }: VaccinesTableProps): JSX.Element => {
+  const scrollViewRef = useRef(null);
+
+  const handleScroll = (event: any) => {
+    scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
+  };
+
   const isFocused = useIsFocused();
 
   const [scheduledVaccines, error] = useBackendEffect(
@@ -96,7 +99,7 @@ export const VaccinesTable = ({
     <ScrollView bounces={false} stickyHeaderIndices={[0]}>
       <StyledView flexDirection="row">
         <VaccinesTableTitle />
-        <ScrollView horizontal>
+        <ScrollView ref={scrollViewRef} horizontal>
           {columns.map((column: any) => (
             <StyledView key={`${column}`}>
               {vaccineTableHeader.accessor(column, onPressItem)}
@@ -109,7 +112,7 @@ export const VaccinesTable = ({
         rows={rows}
         columns={columns}
         cells={cells}
-        headerOffsetPosition={headerOffsetPosition}
+        scrollHandler={handleScroll}
       />
     </ScrollView>
   );

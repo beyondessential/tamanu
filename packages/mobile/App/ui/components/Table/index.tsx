@@ -31,7 +31,7 @@ interface TableProps {
   columns: string[];
   tableHeader: TableHeader;
   onPressItem?: (item: any) => void;
-  headerOffsetPosition?: number;
+  scrollHandler?: any;
 }
 
 export const Table = ({
@@ -41,6 +41,7 @@ export const Table = ({
   cells,
   tableHeader,
   onPressItem,
+  scrollHandler
 }: TableProps): JSX.Element => {
   return (
     <RowView>
@@ -48,7 +49,7 @@ export const Table = ({
         {Title && <Title />}
         {rows.map((r, i) => r.rowHeader(i))}
       </StyledView>
-      <ScrollView bounces={false} showsHorizontalScrollIndicator horizontal>
+      <ScrollView bounces={false} showsHorizontalScrollIndicator onScroll={scrollHandler} horizontal>
         <RowView>
           {columns.map((column: any) => (
             <StyledView key={`${column}`}>
