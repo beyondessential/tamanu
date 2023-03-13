@@ -3,7 +3,6 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
   AutocompleteField,
-  CheckField,
   Field,
   LocalisedField,
   DisplayIdField,
@@ -11,6 +10,7 @@ import {
   SearchField,
 } from '../Field';
 import { useSuggester } from '../../api';
+import { SearchBarCheckField } from './SearchBarCheckField';
 
 export const PatientSearchBar = React.memo(
   ({ onSearch, searchParameters, suggestByFacility = true }) => {
@@ -25,9 +25,6 @@ export const PatientSearchBar = React.memo(
       <CustomisableSearchBar
         title="Search for Patients"
         variant="small"
-        renderCheckField={
-          <Field name="deceased" label="Include deceased patients" component={CheckField} />
-        }
         onSearch={onSearch}
         initialValues={{ displayIdExact: true, ...searchParameters }}
       >
@@ -62,6 +59,7 @@ export const PatientSearchBar = React.memo(
           size="small"
           suggester={practitionerSuggester}
         />
+        <SearchBarCheckField name="deceased" label="Include deceased patients" />
       </CustomisableSearchBar>
     );
   },
