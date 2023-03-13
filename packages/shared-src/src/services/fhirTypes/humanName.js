@@ -2,12 +2,12 @@ import { Chance } from 'chance';
 import { sample } from 'lodash';
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirPeriod } from './period';
 
 const USES = ['usual', 'official', 'temp', 'nickname', 'anonymous', 'old', 'maiden'];
 
-export class FhirHumanName extends Composite {
+export class FhirHumanName extends FhirBaseType {
   static FIELD_ORDER = ['use', 'text', 'family', 'given', 'prefix', 'suffix', 'period'];
 
   static SCHEMA() {

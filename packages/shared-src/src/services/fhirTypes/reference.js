@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 // eslint-disable-next-line import/no-cycle
 import { FhirIdentifier } from './identifier';
 
-export class FhirReference extends Composite {
+export class FhirReference extends FhirBaseType {
   static FIELD_ORDER = ['reference', 'type', 'identifier', 'display'];
 
   static SCHEMA() {

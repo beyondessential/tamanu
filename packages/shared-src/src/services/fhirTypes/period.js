@@ -2,9 +2,9 @@ import { random } from 'lodash';
 import * as yup from 'yup';
 
 import { formatFhirDate } from '../../utils/fhir';
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 
-export class FhirPeriod extends Composite {
+export class FhirPeriod extends FhirBaseType {
   static FIELD_ORDER = ['start', 'end'];
 
   static SCHEMA() {

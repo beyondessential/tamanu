@@ -2,13 +2,13 @@ import { Chance } from 'chance';
 import { sample } from 'lodash';
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirPeriod } from './period';
 
 const USES = ['home', 'work', 'temp', 'old', 'billing'];
 const TYPES = ['postal', 'physical', 'both'];
 
-export class FhirAddress extends Composite {
+export class FhirAddress extends FhirBaseType {
   static FIELD_ORDER = [
     'use',
     'type',

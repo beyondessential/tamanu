@@ -2,7 +2,7 @@ import { sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirPeriod } from './period';
 // eslint-disable-next-line import/no-cycle
@@ -10,7 +10,7 @@ import { FhirReference } from './reference';
 
 const USES = ['usual', 'official', 'temp', 'secondary', 'old'];
 
-export class FhirIdentifier extends Composite {
+export class FhirIdentifier extends FhirBaseType {
   static FIELD_ORDER = ['use', 'type', 'system', 'value', 'period', 'assigner'];
 
   static SCHEMA() {

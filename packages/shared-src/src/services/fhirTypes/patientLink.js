@@ -1,12 +1,12 @@
 import { sample } from 'lodash';
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirReference } from './reference';
 
 const TYPES = ['replaced-by', 'replaces', 'refer', 'seealso'];
 
-export class FhirPatientLink extends Composite {
+export class FhirPatientLink extends FhirBaseType {
   static FIELD_ORDER = ['other', 'type'];
 
   static SCHEMA() {

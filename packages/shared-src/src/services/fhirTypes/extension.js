@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
+import { FhirBaseType } from './baseType';
 
-export class FhirExtension extends Composite {
+export class FhirExtension extends FhirBaseType {
   static FIELD_ORDER = ['url', 'valueCodeableConcept'];
 
   static SCHEMA() {

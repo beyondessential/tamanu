@@ -1,13 +1,13 @@
 import { random, sample } from 'lodash';
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirPeriod } from './period';
 
 const SYSTEMS = ['phone', 'fax', 'email', 'pager', 'url', 'sms', 'other'];
 const USES = ['home', 'work', 'temp', 'old', 'mobile'];
 
-export class FhirContactPoint extends Composite {
+export class FhirContactPoint extends FhirBaseType {
   static FIELD_ORDER = ['system', 'value', 'use', 'rank', 'period'];
 
   static SCHEMA() {

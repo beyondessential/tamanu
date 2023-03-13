@@ -1,10 +1,10 @@
 import { random } from 'lodash';
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirCoding } from './coding';
 
-export class FhirCodeableConcept extends Composite {
+export class FhirCodeableConcept extends FhirBaseType {
   static FIELD_ORDER = ['coding', 'text'];
 
   static SCHEMA() {

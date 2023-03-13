@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 import { formatFhirDate } from '../../utils/fhir';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirReference } from './reference';
 
-export class FhirAnnotation extends Composite {
+export class FhirAnnotation extends FhirBaseType {
   static FIELD_ORDER = ['authorReference', 'authorString', 'time', 'text'];
 
   static SCHEMA() {

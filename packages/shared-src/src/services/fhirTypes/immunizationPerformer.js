@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 
-import { Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';
 
-export class FhirImmunizationPerformer extends Composite {
+export class FhirImmunizationPerformer extends FhirBaseType {
   static FIELD_ORDER = ['function', 'actor'];
 
   static SCHEMA() {

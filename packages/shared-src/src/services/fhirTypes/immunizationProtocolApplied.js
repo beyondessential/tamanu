@@ -2,11 +2,11 @@ import * as yup from 'yup';
 import { Chance } from 'chance';
 import { random } from 'lodash';
 
-import { Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';
+import { FhirBaseType } from './baseType';
 
-export class FhirImmunizationProtocolApplied extends Composite {
+export class FhirImmunizationProtocolApplied extends FhirBaseType {
   static FIELD_ORDER = [
     'series',
     'authority',
