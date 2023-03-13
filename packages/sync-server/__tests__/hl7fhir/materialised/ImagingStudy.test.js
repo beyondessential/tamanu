@@ -1,8 +1,8 @@
 import { fake, fakeReferenceData, showError } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
-import { fakeUUID } from 'shared/utils/generateId';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
