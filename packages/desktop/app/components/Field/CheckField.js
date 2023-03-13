@@ -40,12 +40,18 @@ const ControlCheck = styled(CheckControl)`
   width: max-content;
 `;
 
-export const CheckInput = React.memo(({ label, value, style, error, helperText, ...props }) => (
-  <FormControl style={style} error={error}>
-    <ControlLabel control={<ControlCheck value={value} {...props} />} style={style} label={label} />
-    {helperText && <FormHelperText>{helperText}</FormHelperText>}
-  </FormControl>
-));
+export const CheckInput = React.memo(
+  ({ label, value, className, style, error, helperText, ...props }) => (
+    <FormControl style={style} className={className} error={error}>
+      <ControlLabel
+        control={<ControlCheck value={value} {...props} />}
+        style={style}
+        label={label}
+      />
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+    </FormControl>
+  ),
+);
 
 export const CheckField = React.memo(({ field, error, ...props }) => (
   <CheckInput
