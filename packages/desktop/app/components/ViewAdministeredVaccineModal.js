@@ -52,6 +52,8 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     disease,
   } = vaccineRecord;
 
+  console.log(vaccineRecord)
+
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
   const routine = true;
@@ -59,7 +61,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
 
   const overseas = false;
 
-  const notGiven = false;
+  const notGiven = true;
 
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
@@ -144,14 +146,14 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
           {location.facility.name || '-'}
         </DisplayField>
 
-        {!overseas && !notGiven && (
+        {!overseas && (
           <DisplayField>
             <Label>Area </Label>
             {location.locationGroup?.name || '-'}
           </DisplayField>
         )}
 
-        {!overseas && !notGiven && (
+        {!overseas && (
           <DisplayField>
             <Label>Location </Label>
             {location.name || '-'}
@@ -182,7 +184,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
           {status || '-'}
         </DisplayField>
       </Container>
-      <ModalActionRow confirmText="Close" onConfirm={() => onClose} />
+      <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>
   );
 };
