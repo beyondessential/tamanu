@@ -6,7 +6,7 @@ import {
   ContentPane,
   SearchTableTitle,
 } from '../components';
-import { LabRequestsTable } from './LabRequestsTable';
+import { LabRequestsTable } from '../components/LabRequestsTable';
 
 export const LabRequestListingView = React.memo(() => (
   <PageContainer>
