@@ -19,7 +19,7 @@ import {
   FacilityAdminRoutes,
 } from './routes';
 import { Sidebar, FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS } from './components/Sidebar';
-import { TopBar, Notification } from './components';
+import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {
   const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.SYNC);
@@ -28,6 +28,7 @@ export const RoutingApp = () => {
 
 export const RoutingFacilityApp = React.memo(() => (
   <App sidebar={<Sidebar items={FACILITY_MENU_ITEMS} />}>
+    <UserActivityMonitor />
     <Switch>
       <Redirect exact path="/" to="/patients/all" />
       <Route path="/patients" component={PatientsRoutes} />
@@ -60,14 +61,3 @@ export const RoutingAdminApp = React.memo(() => (
     </Switch>
   </App>
 ));
-
-export const AdminPlaceholder = React.memo(() => {
-  const user = useSelector(state => state.auth?.user);
-
-  return (
-    <>
-      <TopBar title="New sync admin panel" />
-      <Notification message={`Successfully logged in as ${user.displayName}`} />
-    </>
-  );
-});
