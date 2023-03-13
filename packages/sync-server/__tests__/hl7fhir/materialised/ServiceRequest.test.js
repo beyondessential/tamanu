@@ -2,10 +2,10 @@ import { addDays, format, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { fakeUUID } from 'shared/utils/generateId';
+import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
-import { fakeUUID } from 'shared/utils/generateId';
-import { dateTimeStringIntoCountryTimezone } from 'shared/utils/dateTime';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -115,6 +115,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const response = await app.get(path);
 
       // normalise for comparison
+      // eslint-disable-next-line no-unused-expressions
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
 
       // assert
@@ -122,7 +123,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         resourceType: 'ServiceRequest',
         id: expect.any(String),
         meta: {
-          lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: formatFhirDate(ir.updatedAt),
         },
         identifier: [
           {
@@ -171,10 +172,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
-        occurrenceDateTime: format(
-          dateTimeStringIntoCountryTimezone('2022-03-04 15:30:00'),
-          "yyyy-MM-dd'T'HH:mm:ssXXX",
-        ),
+        occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
         requester: {
           display: resources.practitioner.displayName,
         },
@@ -258,7 +256,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: formatFhirDate(ir.updatedAt),
         },
         type: 'searchset',
         total: 1,
@@ -274,7 +272,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                lastUpdated: formatFhirDate(ir.updatedAt),
               },
               identifier: [
                 {
@@ -323,10 +321,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
                 type: 'Patient',
                 display: `${resources.patient.firstName} ${resources.patient.lastName}`,
               },
-              occurrenceDateTime: format(
-                dateTimeStringIntoCountryTimezone('2023-11-12 13:14:15'),
-                "yyyy-MM-dd'T'HH:mm:ssXXX",
-              ),
+              occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
               requester: {
                 display: resources.practitioner.displayName,
               },
@@ -344,7 +339,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   });
 
   describe('search', () => {
-    let encounter, irs;
+    let encounter;
+    let irs;
     beforeAll(async () => {
       const {
         Encounter,

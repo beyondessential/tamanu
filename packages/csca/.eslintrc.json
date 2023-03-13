@@ -1,4 +1,11 @@
 {
   "root": true,
-  "extends": ["../../.eslintrc-typescript.json"]
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["../../.eslintrc-typescript.json"],
+  "rules": {
+    "no-console": "off",
+    "no-dupe-class-members": "off",
+    "@typescript-eslint/no-explicit-any": "off"
+  }
 }
