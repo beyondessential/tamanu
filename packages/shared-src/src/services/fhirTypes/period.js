@@ -31,13 +31,6 @@ export class FhirPeriod extends Composite {
       .noUnknown();
   }
 
-  asFhir() {
-    return {
-      start: formatFhirDate(this.start),
-      end: formatFhirDate(this.end),
-    };
-  }
-
   static fake() {
     const end = random(0, Date.now());
     const start = end - random(0, end);

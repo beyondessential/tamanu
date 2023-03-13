@@ -22,10 +22,6 @@ export class Composite {
     }
   }
 
-  asFhir() {
-    return objectAsFhir(this);
-  }
-
   /**
    * Parses a composite record literal. Unlike the stringifier, we can't take the easy route; we
    * have to implement parsing of values as they'll come back from Postgres.
