@@ -1,6 +1,5 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import { StatusBar } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 import { NavigationProp } from '@react-navigation/native';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { VaccinesTable } from '/components/VaccinesTable';
@@ -36,25 +35,15 @@ export const VaccineHistoryTabComponent = ({
     }
   }, []);
 
-  const [scrollPosition, setScrollPosition] = useState(0);
-
-  const handleScroll = event => {
-    const { y, x } = event.nativeEvent.contentOffset;
-    setScrollPosition(y);
-  };
-
   return (
     <StyledSafeAreaView flex={1}>
       <StatusBar barStyle="light-content" />
       <FullView>
-        <ScrollView bounces={false} onScroll={handleScroll}>
-          <VaccinesTable
-            selectedPatient={selectedPatient}
-            categoryName={category}
-            onPressItem={onNavigateToClickedCell}
-            headerOffsetPosition={scrollPosition}
-          />
-        </ScrollView>
+        <VaccinesTable
+          selectedPatient={selectedPatient}
+          categoryName={category}
+          onPressItem={onNavigateToClickedCell}
+        />
       </FullView>
     </StyledSafeAreaView>
   );

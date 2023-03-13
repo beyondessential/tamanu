@@ -6,7 +6,11 @@ import { head } from 'lodash';
 
 export type TableHeader = {
   key: string;
-  accessor: (value: string, onPress: (item: any) => void, headerOffsetPosition?: number) => JSX.Element;
+  accessor: (
+    value: string,
+    onPress: (item: any) => void,
+    headerOffsetPosition?: number,
+  ) => JSX.Element;
 };
 
 export type TableRow = {
@@ -37,20 +41,18 @@ export const Table = ({
   cells,
   tableHeader,
   onPressItem,
-  headerOffsetPosition,
 }: TableProps): JSX.Element => {
-
   return (
     <RowView>
       <StyledView>
-        <StyledView zIndex={1} top={headerOffsetPosition}><Title /></StyledView>
+        {Title && <Title />}
         {rows.map((r, i) => r.rowHeader(i))}
       </StyledView>
       <ScrollView bounces={false} showsHorizontalScrollIndicator horizontal>
         <RowView>
           {columns.map((column: any) => (
             <StyledView key={`${column}`}>
-              <StyledView zIndex={1} top={headerOffsetPosition}>{tableHeader.accessor(column, onPressItem)}</StyledView>
+              {tableHeader?.accessor(column, onPressItem)}
               {cells[column] &&
                 rows.map((row, i) =>
                   row.cell(
