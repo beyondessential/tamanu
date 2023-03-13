@@ -9,12 +9,18 @@ import { Form } from '../Field';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
+  display: flex;
+  justify-content: space-between;
   border: 1px solid ${Colors.outline};
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   background: ${Colors.white};
-  padding: 16px 30px 20px;
+  padding: 16px 30px 25px;
   font-size: 11px;
+
+  @media (max-width: 1200px) {
+    flex-direction: column;
+  }
 
   .MuiInputBase-input,
   .MuiFormControlLabel-label {
@@ -50,7 +56,15 @@ const ActionsContainer = styled(Box)`
   justify-content: space-between;
   margin-top: 20px;
   margin-left: 8px;
-  padding-bottom: 12px;
+
+  @media (max-width: 1200px) {
+    flex-direction: row-reverse;
+  }
+`;
+
+const CheckContainer = styled.div`
+  padding-bottom: 11px;
+  padding-left: 5px;
 `;
 
 const ExpandButton = styled(IconButton)`
@@ -85,38 +99,36 @@ export const CustomisableSearchBar = ({
   }, [setExpanded, onExpandChange]);
 
   return (
-    <Container>
-      <Form
-        onSubmit={onSearch}
-        render={({ submitForm, clearForm }) => (
-          <Box display="flex" justifyContent="space-between">
-            <SearchInputContainer>{children}</SearchInputContainer>
-            <ActionsContainer>
-              <Box display="flex">
-                {showExpandButton && (
-                  <ExpandButton
-                    onClick={() => {
-                      switchExpandValue();
-                    }}
-                    color="primary"
-                  >
-                    <img
-                      src={expanded ? doubleUp : doubleDown}
-                      alt={`${expanded ? 'hide' : 'show'} advanced filters`}
-                    />
-                  </ExpandButton>
-                )}
-                <SearchButton onClick={submitForm} type="submit">
-                  Search
-                </SearchButton>
-                <ClearButton onClick={clearForm}>Clear</ClearButton>
-              </Box>
-              {renderCheckField}
-            </ActionsContainer>
-          </Box>
-        )}
-        initialValues={initialValues}
-      />
-    </Container>
+    <Form
+      onSubmit={onSearch}
+      render={({ submitForm, clearForm }) => (
+        <Container>
+          <SearchInputContainer>{children}</SearchInputContainer>
+          <ActionsContainer>
+            <Box display="flex">
+              {showExpandButton && (
+                <ExpandButton
+                  onClick={() => {
+                    switchExpandValue();
+                  }}
+                  color="primary"
+                >
+                  <img
+                    src={expanded ? doubleUp : doubleDown}
+                    alt={`${expanded ? 'hide' : 'show'} advanced filters`}
+                  />
+                </ExpandButton>
+              )}
+              <SearchButton onClick={submitForm} type="submit">
+                Search
+              </SearchButton>
+              <ClearButton onClick={clearForm}>Clear</ClearButton>
+            </Box>
+            {expanded && <CheckContainer>{renderCheckField}</CheckContainer>}
+          </ActionsContainer>
+        </Container>
+      )}
+      initialValues={initialValues}
+    />
   );
 };
