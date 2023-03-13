@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import Modal from 'react-native-modal';
+import { useSelector } from 'react-redux';
+import * as Yup from 'yup';
+import { useNetInfo } from '@react-native-community/netinfo';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
-import Modal from 'react-native-modal';
 import { theme } from '~/ui/styled/theme';
 import { Alert, AlertSeverity } from './Alert';
 import { CrossIcon } from './Icons';
-import { useSelector } from 'react-redux';
 import { authUserSelector } from '~/ui/helpers/selectors';
-import * as Yup from 'yup';
 import { Form } from './Forms/Form';
 import { Field } from './Forms/FormField';
 import { TextField } from './TextField/TextField';
 import { Button } from './Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { useNetInfo } from '@react-native-community/netinfo';
 import { CentralConnectionStatus } from '~/types';
 import { useBackend } from '../hooks';
 
@@ -30,7 +30,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
   const authCtx = useAuth();
-  const handleSignIn = async (payload: AuthenticationValues) => {
+  const handleSignIn = async (payload: AuthenticationValues): Promise<void> => {
     try {
       await authCtx.reconnectWithPassword(payload);
       onClose();
@@ -155,7 +155,10 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
-  const handleStatusChange = (status: CentralConnectionStatus, isInternetReachable: boolean): void => {
+  const handleStatusChange = (
+    status: CentralConnectionStatus,
+    isInternetReachable: boolean,
+  ): void => {
     if (
       status === CentralConnectionStatus.Disconnected
       // Reconnection with central is not possible if there is no internet connection
@@ -172,12 +175,14 @@ export const SyncInactiveAlert = (): JSX.Element => {
   };
 
   useEffect(() => {
-    const handler = status => handleStatusChange(status, netInfo.isInternetReachable);
+    const handler = (status: CentralConnectionStatus): void => {
+      handleStatusChange(status, netInfo.isInternetReachable);
+    };
     centralServer.emitter.on('statusChange', handler);
     return () => {
       centralServer.emitter.off('statusChange', handler);
     };
-  }, [netInfo.isInternetReachable]);
+  }, [netInfo.isInternetReachable, open]);
 
   return (
     <>
