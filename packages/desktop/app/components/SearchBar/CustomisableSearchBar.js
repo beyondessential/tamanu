@@ -9,18 +9,12 @@ import { Form } from '../Field';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
-  display: flex;
-  justify-content: space-between;
   border: 1px solid ${Colors.outline};
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   background: ${Colors.white};
-  padding: 16px 30px 25px;
+  padding: 16px 25px 10px;
   font-size: 11px;
-
-  @media (max-width: 1200px) {
-    flex-direction: column;
-  }
 
   .MuiInputBase-input,
   .MuiFormControlLabel-label {
@@ -42,30 +36,23 @@ const Container = styled.div`
   }
 `;
 
-export const SearchInputContainer = styled.div`
-  grid-column: 1 / -1;
+const CustomisableSearchBarGrid = styled.div`
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(4, 2fr);
-  gap: 9px;
+  grid-template-columns: repeat(5, 2fr);
+  gap: 10px;
+  margin-bottom: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(4, 2fr);
+  }
 `;
 
 const ActionsContainer = styled(Box)`
   display: flex;
   align-items: center;
-  flex-direction: column;
-  justify-content: space-between;
   margin-top: 20px;
   margin-left: 8px;
-
-  @media (max-width: 1200px) {
-    flex-direction: row-reverse;
-  }
-`;
-
-const CheckContainer = styled.div`
-  padding-bottom: 11px;
-  padding-left: 5px;
 `;
 
 const ExpandButton = styled(IconButton)`
@@ -84,11 +71,11 @@ const ClearButton = styled(TextButton)`
 export const CustomisableSearchBar = ({
   onSearch,
   children,
-  renderCheckField,
   showExpandButton = false,
   isExpanded,
   setIsExpanded,
   initialValues = {},
+  hiddenFields,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded(previous => {
@@ -99,11 +86,11 @@ export const CustomisableSearchBar = ({
   return (
     <Form
       onSubmit={onSearch}
-      render={({ submitForm, clearForm }) => (
+      render={({ clearForm }) => (
         <Container>
-          <SearchInputContainer>{children}</SearchInputContainer>
-          <ActionsContainer>
-            <Box display="flex">
+          <CustomisableSearchBarGrid>
+            {children}
+            <ActionsContainer>
               {showExpandButton && (
                 <ExpandButton
                   onClick={() => {
@@ -117,13 +104,11 @@ export const CustomisableSearchBar = ({
                   />
                 </ExpandButton>
               )}
-              <SearchButton onClick={submitForm} type="submit">
-                Search
-              </SearchButton>
+              <SearchButton type="submit">Search</SearchButton>
               <ClearButton onClick={clearForm}>Clear</ClearButton>
-            </Box>
-            {isExpanded && <CheckContainer>{renderCheckField}</CheckContainer>}
-          </ActionsContainer>
+            </ActionsContainer>
+          </CustomisableSearchBarGrid>
+          {isExpanded && <CustomisableSearchBarGrid>{hiddenFields}</CustomisableSearchBarGrid>}
         </Container>
       )}
       initialValues={initialValues}

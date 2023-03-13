@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
   AutocompleteField,
-  CheckField,
   Field,
   LocalisedField,
   DisplayIdField,
@@ -16,6 +15,7 @@ import {
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';
+import { SearchBarCheckField } from './SearchBarCheckField';
 
 const TwoColumnsField = styled(Box)`
   grid-column: span 2;
@@ -35,31 +35,16 @@ const VillageLocalisedField = styled(LocalisedField)`
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const villageSuggester = useSuggester('village');
   const sexOptions = useSexOptions(true);
-  const [showAdvancedFields, setShowAdvancedFields] = useState();
+  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (
     <CustomisableSearchBar
-      variant="small"
-      renderCheckField={
-        <Field name="deceased" label="Include deceased patients" component={CheckField} />
-      }
       showExpandButton
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       onSearch={onSearch}
       initialValues={{ displayIdExact: true, ...searchParameters }}
-    >
-      <DisplayIdField />
-      <LocalisedField component={SearchField} name="firstName" />
-      <LocalisedField component={SearchField} name="lastName" />
-      <Field
-        name="dateOfBirthExact"
-        component={DateField}
-        saveDateAsString
-        label="DOB"
-        max={getCurrentDateString()}
-      />
-      {showAdvancedFields && (
+      hiddenFields={
         <>
           <LocalisedField component={SearchField} name="culturalName" />
           <TwoColumnsField>
@@ -77,8 +62,20 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             suggester={villageSuggester}
             size="small"
           />
+          <SearchBarCheckField name="deceased" label="Include deceased patients" />
         </>
-      )}
+      }
+    >
+      <DisplayIdField />
+      <LocalisedField component={SearchField} name="firstName" />
+      <LocalisedField component={SearchField} name="lastName" />
+      <Field
+        name="dateOfBirthExact"
+        component={DateField}
+        saveDateAsString
+        label="DOB"
+        max={getCurrentDateString()}
+      />
     </CustomisableSearchBar>
   );
 });
