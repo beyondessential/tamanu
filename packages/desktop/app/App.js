@@ -9,7 +9,6 @@ import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
-import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 const AppContainer = styled.div`
   display: flex;
@@ -39,7 +38,6 @@ export function App({ sidebar, children }) {
           <AppContentsContainer>
             {children}
             <ForbiddenErrorModal />
-            <UserActivityMonitor />
           </AppContentsContainer>
         </ErrorBoundary>
       </PromiseErrorBoundary>
