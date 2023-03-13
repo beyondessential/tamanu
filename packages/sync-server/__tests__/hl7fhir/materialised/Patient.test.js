@@ -1,8 +1,10 @@
-import { format, formatRFC7231 } from 'date-fns';
+import { formatRFC7231 } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 import { fakeUUID } from 'shared/utils/generateId';
+import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
@@ -49,7 +51,7 @@ describe(`Materialised FHIR - Patient`, () => {
         meta: {
           // TODO: uncomment when we support versioning
           // versionId: expect.any(String),
-          lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: formatFhirDate(additionalData.updatedAt),
         },
         active: true,
         address: [
@@ -60,8 +62,8 @@ describe(`Materialised FHIR - Patient`, () => {
             use: 'home',
           },
         ],
-        birthDate: format(new Date(patient.dateOfBirth), 'yyyy-MM-dd'),
-        deceasedDateTime: format(new Date(patient.dateOfDeath), 'yyyy-MM-dd'),
+        birthDate: formatFhirDate(patient.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
+        deceasedDateTime: formatFhirDate(patient.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
         gender: patient.sex,
         identifier: [
           {
@@ -130,7 +132,7 @@ describe(`Materialised FHIR - Patient`, () => {
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: formatFhirDate(patient.updatedAt),
         },
         type: 'searchset',
         total: 1,
@@ -148,7 +150,7 @@ describe(`Materialised FHIR - Patient`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                lastUpdated: formatFhirDate(patient.updatedAt),
               },
               active: true,
               address: [
@@ -159,8 +161,8 @@ describe(`Materialised FHIR - Patient`, () => {
                   use: 'home',
                 },
               ],
-              birthDate: format(new Date(patient.dateOfBirth), 'yyyy-MM-dd'),
-              deceasedDateTime: format(new Date(patient.dateOfDeath), 'yyyy-MM-dd'),
+              birthDate: formatFhirDate(patient.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
+              deceasedDateTime: formatFhirDate(patient.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
               extension: [],
               gender: patient.sex,
               identifier: [
