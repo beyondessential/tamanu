@@ -39,12 +39,3 @@ export class Composite {
     throw new Error('Must be overridden');
   }
 }
-
-export function objectAsFhir(input) {
-  const obj = {};
-  for (const [name, value] of Object.entries(input)) {
-    if (value === null || value === undefined) continue;
-    obj[name] = value;
-  }
-  return obj;
-}
