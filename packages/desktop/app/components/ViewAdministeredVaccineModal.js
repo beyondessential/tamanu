@@ -2,6 +2,9 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { VACCINE_STATUS } from 'shared/constants';
 import { Modal } from './Modal';
+import { ContentPane } from './ContentPane';
+import { TextInput } from './Field';
+import { FormGrid } from './FormGrid';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -56,132 +59,70 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
     batch,
   } = vaccineRecord;
 
-  // this will become some actual logic to determine which version of the modal to show however the fields this depends on
-  // are not yet available
-
-  const routine = true;
-  const other = false;
-  const otherOverseas = false;
-  const routineOverseas = false;
-  const notGiven = false;
-
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose}>
       <Container>
         <Divider />
-        {(routine || routineOverseas || notGiven) && (
-          <DisplayField>
-            <Label>Vaccine </Label>
-            {label}
-          </DisplayField>
-        )}
-
-        {(other || otherOverseas) && (
-          <DisplayField>
-            <Label>Vaccine name </Label>
-            {'TODO'}
-          </DisplayField>
-        )}
-
-        {(other || otherOverseas) && (
-          <DisplayField>
-            <Label>Vaccine brand </Label>
-            {'TODO'}
-          </DisplayField>
-        )}
-
-        {(other || otherOverseas) && (
-          <DisplayField>
-            <Label>Disease </Label>
-            {'TODO'}
-          </DisplayField>
-        )}
-
-        {(routine || other || otherOverseas || routineOverseas) && (
-          <DisplayField>
-            <Label>Batch </Label>
-            {batch}
-          </DisplayField>
-        )}
-
-        {(routine || notGiven) && (
-          <DisplayField>
-            <Label>Schedule </Label>
-            {schedule}
-          </DisplayField>
-        )}
-
+        <DisplayField>
+          <Label>Vaccine </Label>
+          {label}
+        </DisplayField>
+        <DisplayField>
+          <Label>Vaccine name </Label>
+          {'TODO'}
+        </DisplayField>
+        <DisplayField>
+          <Label>Vaccine brand </Label>
+          {'TODO'}
+        </DisplayField>
+        <DisplayField>
+          <Label>Disease </Label>
+          {'TODO'}
+        </DisplayField>
+        <DisplayField>
+          <Label>Batch </Label>
+          {batch}
+        </DisplayField>
+        <DisplayField>
+          <Label>Schedule </Label>
+          {schedule}
+        </DisplayField>
         <DisplayField>
           <Label>Date </Label>
           {date}
         </DisplayField>
-
-        {(routine || other || otherOverseas || routineOverseas) && (
-          <DisplayField>
-            <Label>Injection site </Label>
-            {injectionSite}
-          </DisplayField>
-        )}
-
-        {(otherOverseas || routineOverseas) && (
-          <DisplayField>
-            <Label>Country </Label>
-            {'TODO'}
-          </DisplayField>
-        )}
-
-        {notGiven && (
-          <>
-            <DisplayField>
-              <Label>Supervising Clinician </Label>
-              {'TODO'}
-            </DisplayField>
-
-            <DisplayField>
-              <Label>Reason </Label>
-              {'TODO'}
-            </DisplayField>
-          </>
-        )}
-
+        <DisplayField>
+          <Label>Injection site </Label>
+          {injectionSite}
+        </DisplayField>
+        <DisplayField>
+          <Label>Country </Label>
+          {'TODO'}
+        </DisplayField>
         <DisplayField>
           <Label>Facility </Label>
           {location.facilityId}
         </DisplayField>
-
-        {(routine || other) && (
-          <DisplayField>
-            <Label>Area </Label>
-            {location.locationGroup?.name}
-          </DisplayField>
-        )}
-
-        {(routine || other) && (
-          <DisplayField>
-            <Label>Location </Label>
-            {location.name}
-          </DisplayField>
-        )}
-
-        {(routine || other) && (
-          <DisplayField>
-            <Label>Department </Label>
-            {departmentId}
-          </DisplayField>
-        )}
-
-        {(routine || other) && (
-          <DisplayField>
-            <Label>Given by </Label>
-            {givenBy}
-          </DisplayField>
-        )}
-
+        <DisplayField>
+          <Label>Area </Label>
+          {location.locationGroup?.name}
+        </DisplayField>
+        <DisplayField>
+          <Label>Location </Label>
+          {location.name}
+        </DisplayField>
+        <DisplayField>
+          <Label>Department </Label>
+          {departmentId}
+        </DisplayField>
+        <DisplayField>
+          <Label>Given by </Label>
+          {givenBy}
+        </DisplayField>
         <DisplayField>
           <Label>Recorded by </Label>
           {recorder?.displayName || encounter?.examiner?.displayName}
         </DisplayField>
-
         <DisplayField>
           <Label>Status </Label>
           {status}
