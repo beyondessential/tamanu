@@ -151,19 +151,6 @@ export const FACILITY_MENU_ITEMS = [
     ],
   },
   {
-    key: 'reports',
-    label: 'Reports',
-    path: '/reports',
-    icon: scheduleIcon,
-    ability: { action: 'read', subject: 'report' },
-    children: [
-      {
-        label: 'Report generator',
-        path: `/reports/new`,
-      },
-    ],
-  },
-  {
     key: 'facilityAdmin',
     label: 'Facility admin',
     path: '/facility-admin',
