@@ -43,7 +43,7 @@ export const RadioButtonGroup = ({
 
   return (
     <>
-      {!!label && (
+      {Boolean(label) && (
         <Label>{label}</Label>
       )}
       <RowView>
