@@ -30,7 +30,7 @@ export const MultiplePrescriptionPrintoutModal = ({
     () => api.get(`user/${prescriberId}`),
     {
       enabled: !!prescriberId,
-    }
+    },
   );
 
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
