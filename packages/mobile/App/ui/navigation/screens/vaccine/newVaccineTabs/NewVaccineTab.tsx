@@ -45,9 +45,14 @@ export const NewVaccineTabComponent = ({
       if (isSubmitting) return;
       setSubmitting(true);
       const { scheduledVaccineId, recorderId, date, ...otherValues } = values;
+      const { departmentId, locationId } = await models.Setting.get('vaccinations.defaults');
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
+        {
+          departmentId,
+          locationId,
+        },
       );
 
       await models.AdministeredVaccine.createAndSaveOne({

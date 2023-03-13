@@ -9,7 +9,13 @@ import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { getCurrentUser } from '../store/auth';
 import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
 
-export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineRecordingType }) => {
+export const VaccineForm = ({
+  onCancel,
+  onSubmit,
+  patientId,
+  getScheduledVaccines,
+  vaccineRecordingType,
+}) => {
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(null);
   const [vaccineLabel, setVaccineLabel] = useState();
@@ -63,7 +69,7 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineR
   };
 
   return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
-    <VaccineGivenForm {...baseProps} />
+    <VaccineGivenForm {...baseProps} patientId={patientId} />
   ) : (
     <VaccineNotGivenForm {...baseProps} />
   );
@@ -72,6 +78,7 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineR
 VaccineForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  patientId: PropTypes.string.isRequired,
   getScheduledVaccines: PropTypes.func.isRequired,
   vaccineRecordingType: PropTypes.string.isRequired,
 };

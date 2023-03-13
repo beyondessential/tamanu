@@ -56,6 +56,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         <VaccineForm
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
+          patientId={patientId}
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.NOT_GIVEN}
         />

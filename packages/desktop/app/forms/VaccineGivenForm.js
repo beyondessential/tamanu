@@ -26,12 +26,15 @@ import {
   LocalisedLocationField,
 } from '../components/Field';
 import { useSuggester } from '../api';
+import { usePatientCurrentEncounter } from '../api/queries';
+import { useVaccinationDefaults } from '../api/queries/useVaccinationDefaults';
 
 const FullWidthCol = styled.div`
   grid-column: 1/-1;
 `;
 
 export const VaccineGivenForm = ({
+  patientId,
   vaccineLabel,
   vaccineOptions,
   administeredOptions,
@@ -47,6 +50,16 @@ export const VaccineGivenForm = ({
     baseQueryParameters: { filterByFacility: true },
   });
   const countrySuggester = useSuggester('country');
+  const {
+    data: currentEncounter,
+    error: currentEncounterError,
+    isLoading: currentEncounterLoading,
+  } = usePatientCurrentEncounter(patientId);
+  const {
+    data: vaccinationDefaults = {},
+    error: vaccinationDefaultsError,
+    isLoading: vaccinationDefaultsLoading,
+  } = useVaccinationDefaults();
 
   return (
     <Form
@@ -131,11 +144,24 @@ export const VaccineGivenForm = ({
               value: site,
             }))}
           />
-          <Field name="locationId" component={LocalisedLocationField} required />
+          <Field
+            name="locationId"
+            component={LocalisedLocationField}
+            defaultGroupValue={
+              !currentEncounter ? vaccinationDefaults.data?.defaultLocationGroupId : null
+            }
+            defaultValue={!currentEncounter ? vaccinationDefaults.data?.defaultLocationId : null}
+            required
+          />
           <Field
             name="departmentId"
             label="Department"
             required
+            value={
+              !currentEncounter
+                ? vaccinationDefaults.data?.defaultDepartmentId
+                : values.departmentId
+            }
             component={AutocompleteField}
             suggester={departmentSuggester}
           />
