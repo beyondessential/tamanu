@@ -1,8 +1,6 @@
 import React from 'react';
-import { useRef, useEffect, useState } from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
-import { head } from 'lodash';
 
 export type TableHeader = {
   key: string;
