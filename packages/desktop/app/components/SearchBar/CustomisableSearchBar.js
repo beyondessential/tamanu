@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
 import { IconButton } from '@material-ui/core';
@@ -42,7 +42,8 @@ const Container = styled.div`
   }
 `;
 
-const SearchInputContainer = styled.div`
+export const SearchInputContainer = styled.div`
+  grid-column: 1 / -1;
   flex: 1;
   display: grid;
   grid-template-columns: repeat(4, 2fr);
@@ -85,18 +86,15 @@ export const CustomisableSearchBar = ({
   children,
   renderCheckField,
   showExpandButton = false,
-  onExpandChange,
+  isExpanded,
+  setIsExpanded,
   initialValues = {},
 }) => {
-  const [expanded, setExpanded] = useState(false);
-
   const switchExpandValue = useCallback(() => {
-    setExpanded(previous => {
-      const newValue = !previous;
-      onExpandChange(newValue);
-      return newValue;
+    setIsExpanded(previous => {
+      setIsExpanded(!previous);
     });
-  }, [setExpanded, onExpandChange]);
+  }, [setIsExpanded]);
 
   return (
     <Form
@@ -114,8 +112,8 @@ export const CustomisableSearchBar = ({
                   color="primary"
                 >
                   <img
-                    src={expanded ? doubleUp : doubleDown}
-                    alt={`${expanded ? 'hide' : 'show'} advanced filters`}
+                    src={isExpanded ? doubleUp : doubleDown}
+                    alt={`${isExpanded ? 'hide' : 'show'} advanced filters`}
                   />
                 </ExpandButton>
               )}
@@ -124,7 +122,7 @@ export const CustomisableSearchBar = ({
               </SearchButton>
               <ClearButton onClick={clearForm}>Clear</ClearButton>
             </Box>
-            {expanded && <CheckContainer>{renderCheckField}</CheckContainer>}
+            {isExpanded && <CheckContainer>{renderCheckField}</CheckContainer>}
           </ActionsContainer>
         </Container>
       )}

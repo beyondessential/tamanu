@@ -1,8 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { DataFetchingTable } from '../components';
+import { SearchTable } from '../components';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
@@ -32,13 +31,6 @@ const columns = [
   { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
 ];
 
-const StyledTable = styled(DataFetchingTable)`
-  border-top: none;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  box-shadow: none;
-`;
-
 export const LabRequestsTable = () => {
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
@@ -56,7 +48,7 @@ export const LabRequestsTable = () => {
   };
 
   return (
-    <StyledTable
+    <SearchTable
       endpoint="labRequest"
       columns={columns}
       noDataMessage="No lab requests found"

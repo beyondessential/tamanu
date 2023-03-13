@@ -1,57 +1,100 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { DateField, SelectField, LocalisedField, SuggesterSelectField } from '../Field';
+import {
+  DateField,
+  SelectField,
+  LocalisedField,
+  Field,
+  SuggesterSelectField,
+  SearchField,
+  DisplayIdField,
+  AutocompleteField,
+} from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
+import { useSuggester } from '../../api';
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
+  const [showAdvancedFields, setShowAdvancedFields] = useState();
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   return (
     <CustomisableSearchBar
       title="Search lab requests"
       initialValues={{ displayIdExact: true, ...searchParameters }}
       onSearch={setSearchParameters}
+      isExpanded={showAdvancedFields}
+      setIsExpanded={setShowAdvancedFields}
+      showExpandButton
     >
-      <LocalisedField name="firstName" />
-      <LocalisedField name="lastName" />
-      <LocalisedField name="displayId" />
-      <LocalisedField name="requestId" defaultLabel="Request ID" />
-      <LocalisedField
+      <DisplayIdField />
+      <LocalisedField name="firstName" component={SearchField} />
+      <LocalisedField name="lastName" component={SearchField} />
+      <Field name="requestId" label="Test ID" component={SearchField} />
+      <Field
         name="category"
-        defaultLabel="Type"
+        label="Test category"
         component={SuggesterSelectField}
         endpoint="labTestCategory"
+        size="small"
       />
-      <LocalisedField
-        name="status"
-        defaultLabel="Status"
-        component={SelectField}
-        options={LAB_REQUEST_STATUS_OPTIONS}
+      <Field
+        name="locationGroupId"
+        label="Area"
+        component={AutocompleteField}
+        suggester={locationGroupSuggester}
+        size="small"
       />
-      <LocalisedField
-        name="priority"
-        defaultLabel="Priority"
-        component={SuggesterSelectField}
-        endpoint="labTestPriority"
+      <Field
+        name="departmentId"
+        label="Department"
+        component={AutocompleteField}
+        suggester={departmentSuggester}
+        size="small"
       />
       <LocalisedField
         name="laboratory"
         defaultLabel="Laboratory"
         component={SuggesterSelectField}
         endpoint="labTestLaboratory"
+        size="small"
       />
       <LocalisedField
-        name="requestedDateFrom"
-        defaultLabel="Requested from"
-        saveDateAsString
-        component={DateField}
+        name="status"
+        defaultLabel="Status"
+        component={SelectField}
+        options={LAB_REQUEST_STATUS_OPTIONS}
+        size="small"
       />
-      <LocalisedField
-        name="requestedDateTo"
-        defaultLabel="Requested to"
-        saveDateAsString
-        component={DateField}
-      />
+
+      {showAdvancedFields && (
+        <>
+          <LocalisedField
+            name="requestedDateFrom"
+            label="Requested from"
+            saveDateAsString
+            component={DateField}
+            $joined
+          />
+          <LocalisedField
+            name="requestedDateTo"
+            defaultLabel="Requested to"
+            saveDateAsString
+            component={DateField}
+          />
+          <Field name="author" label="Requested by" component={SearchField} />
+          <LocalisedField
+            name="priority"
+            defaultLabel="Priority"
+            component={SuggesterSelectField}
+            endpoint="labTestPriority"
+            size="small"
+          />
+        </>
+      )}
     </CustomisableSearchBar>
   );
 };

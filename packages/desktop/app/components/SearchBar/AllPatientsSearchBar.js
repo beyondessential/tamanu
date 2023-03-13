@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
@@ -15,7 +15,6 @@ import {
 } from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
-
 import { useSexOptions } from '../../hooks';
 
 const TwoColumnsField = styled(Box)`
@@ -36,22 +35,19 @@ const VillageLocalisedField = styled(LocalisedField)`
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const villageSuggester = useSuggester('village');
   const sexOptions = useSexOptions(true);
-  const [showAdvancedFields, setShowAdvancedFields] = React.useState();
+  const [showAdvancedFields, setShowAdvancedFields] = useState();
 
   return (
     <CustomisableSearchBar
       variant="small"
       renderCheckField={
-        showAdvancedFields && (
-          <Field name="deceased" label="Include deceased patients" component={CheckField} />
-        )
+        <Field name="deceased" label="Include deceased patients" component={CheckField} />
       }
       showExpandButton
+      isExpanded={showAdvancedFields}
+      setIsExpanded={setShowAdvancedFields}
       onSearch={onSearch}
       initialValues={{ displayIdExact: true, ...searchParameters }}
-      onExpandChange={expanded => {
-        setShowAdvancedFields(expanded);
-      }}
     >
       <DisplayIdField />
       <LocalisedField component={SearchField} name="firstName" />
