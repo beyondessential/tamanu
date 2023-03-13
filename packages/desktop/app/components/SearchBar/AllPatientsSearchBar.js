@@ -19,9 +19,9 @@ import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';
 
 const TwoColumnsField = styled(Box)`
+  grid-column: span 2;
   display: flex;
   gap: 10px;
-  grid-column: span 2;
 `;
 
 const SexLocalisedField = styled(LocalisedField)`
