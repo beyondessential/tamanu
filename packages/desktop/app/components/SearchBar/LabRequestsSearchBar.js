@@ -17,7 +17,8 @@ import { useSuggester } from '../../api';
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
-  const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const clinicianSuggester = useSuggester('practitioner');
+  const locationGroupSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -43,7 +44,13 @@ export const LabRequestsSearchBar = () => {
             saveDateAsString
             component={DateField}
           />
-          <Field name="author" label="Requested by" component={SearchField} />
+          <Field
+            name="requestedById"
+            label="Requested by"
+            size="small"
+            component={AutocompleteField}
+            suggester={clinicianSuggester}
+          />
           <LocalisedField
             name="priority"
             defaultLabel="Priority"
