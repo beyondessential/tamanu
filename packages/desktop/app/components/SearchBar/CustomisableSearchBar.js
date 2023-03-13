@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
 import { IconButton } from '@material-ui/core';
@@ -9,18 +9,12 @@ import { Form } from '../Field';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
-  display: flex;
-  justify-content: space-between;
   border: 1px solid ${Colors.outline};
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   background: ${Colors.white};
-  padding: 16px 30px 25px;
+  padding: 16px 25px 10px;
   font-size: 11px;
-
-  @media (max-width: 1200px) {
-    flex-direction: column;
-  }
 
   .MuiInputBase-input,
   .MuiFormControlLabel-label {
@@ -42,29 +36,23 @@ const Container = styled.div`
   }
 `;
 
-const SearchInputContainer = styled.div`
+const CustomisableSearchBarGrid = styled.div`
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(4, 2fr);
-  gap: 9px;
+  grid-template-columns: repeat(5, 2fr);
+  gap: 10px;
+  margin-bottom: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(4, 2fr);
+  }
 `;
 
 const ActionsContainer = styled(Box)`
   display: flex;
   align-items: center;
-  flex-direction: column;
-  justify-content: space-between;
   margin-top: 20px;
   margin-left: 8px;
-
-  @media (max-width: 1200px) {
-    flex-direction: row-reverse;
-  }
-`;
-
-const CheckContainer = styled.div`
-  padding-bottom: 11px;
-  padding-left: 5px;
 `;
 
 const ExpandButton = styled(IconButton)`
@@ -83,29 +71,26 @@ const ClearButton = styled(TextButton)`
 export const CustomisableSearchBar = ({
   onSearch,
   children,
-  renderCheckField,
   showExpandButton = false,
-  onExpandChange,
+  isExpanded,
+  setIsExpanded,
   initialValues = {},
+  hiddenFields,
 }) => {
-  const [expanded, setExpanded] = useState(false);
-
   const switchExpandValue = useCallback(() => {
-    setExpanded(previous => {
-      const newValue = !previous;
-      onExpandChange(newValue);
-      return newValue;
+    setIsExpanded(previous => {
+      setIsExpanded(!previous);
     });
-  }, [setExpanded, onExpandChange]);
+  }, [setIsExpanded]);
 
   return (
     <Form
       onSubmit={onSearch}
-      render={({ submitForm, clearForm }) => (
+      render={({ clearForm }) => (
         <Container>
-          <SearchInputContainer>{children}</SearchInputContainer>
-          <ActionsContainer>
-            <Box display="flex">
+          <CustomisableSearchBarGrid>
+            {children}
+            <ActionsContainer>
               {showExpandButton && (
                 <ExpandButton
                   onClick={() => {
@@ -114,18 +99,16 @@ export const CustomisableSearchBar = ({
                   color="primary"
                 >
                   <img
-                    src={expanded ? doubleUp : doubleDown}
-                    alt={`${expanded ? 'hide' : 'show'} advanced filters`}
+                    src={isExpanded ? doubleUp : doubleDown}
+                    alt={`${isExpanded ? 'hide' : 'show'} advanced filters`}
                   />
                 </ExpandButton>
               )}
-              <SearchButton onClick={submitForm} type="submit">
-                Search
-              </SearchButton>
+              <SearchButton type="submit">Search</SearchButton>
               <ClearButton onClick={clearForm}>Clear</ClearButton>
-            </Box>
-            {expanded && <CheckContainer>{renderCheckField}</CheckContainer>}
-          </ActionsContainer>
+            </ActionsContainer>
+          </CustomisableSearchBarGrid>
+          {isExpanded && <CustomisableSearchBarGrid>{hiddenFields}</CustomisableSearchBarGrid>}
         </Container>
       )}
       initialValues={initialValues}
