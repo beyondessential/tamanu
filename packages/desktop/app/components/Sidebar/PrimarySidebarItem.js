@@ -58,7 +58,7 @@ const StyledList = styled(List)`
 
 const ListDivider = styled(Divider)`
   background-color: rgba(255, 255, 255, 0.2);
-  margin: ${props => props.$retracted ? '2px 10px' : '2px 10px 2px 16px'};
+  margin: ${props => (props.$retracted ? '2px 10px' : '2px 10px 2px 16px')};
   transition: ${props => props.theme.transitions.create('margin')};
 `;
 
