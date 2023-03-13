@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
+import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
 export type TableHeader = {
   key: string;
@@ -29,7 +30,7 @@ interface TableProps {
   columns: string[];
   tableHeader: TableHeader;
   onPressItem?: (item: any) => void;
-  scrollHandler?: any;
+  scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }
 
 export const Table = ({
