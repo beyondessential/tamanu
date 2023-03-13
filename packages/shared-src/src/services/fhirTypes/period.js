@@ -1,7 +1,6 @@
 import { random } from 'lodash';
 import * as yup from 'yup';
 
-import { toDateTimeString } from '../../utils/dateTime';
 import { formatFhirDate } from '../../utils/fhir';
 import { Composite } from '../../utils/pgComposite';
 
