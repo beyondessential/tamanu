@@ -22,10 +22,6 @@ export class Composite {
     }
   }
 
-  sqlFields() {
-    return this.constructor.FIELD_ORDER.map(name => this[name]);
-  }
-
   asFhir() {
     return objectAsFhir(this);
   }

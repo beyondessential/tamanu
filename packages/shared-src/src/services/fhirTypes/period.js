@@ -32,10 +32,6 @@ export class FhirPeriod extends Composite {
       .noUnknown();
   }
 
-  sqlFields(options) {
-    return super.sqlFields(options).map(toDateTimeString);
-  }
-
   asFhir() {
     return {
       start: formatFhirDate(this.start),
