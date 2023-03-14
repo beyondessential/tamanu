@@ -86,6 +86,7 @@
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",
+      "absoluteExpiration": false,
       "refreshIdLength": 54
     },
     "resetPassword": {
