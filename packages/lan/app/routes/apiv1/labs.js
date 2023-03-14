@@ -68,7 +68,13 @@ labRequest.get(
     } = req;
     req.checkPermission('list', 'LabRequest');
 
-    const { rowsPerPage = 10, page = 0, ...filterParams } = query;
+    const {
+      order = 'ASC',
+      orderBy = 'displayId',
+      rowsPerPage = 10,
+      page = 0,
+      ...filterParams
+    } = query;
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
@@ -154,6 +160,20 @@ labRequest.get(
       return;
     }
 
+    const sortKeys = {
+      displayId: 'patient.display_id',
+      patientName: 'UPPER(patient.last_name)',
+      requestId: 'display_id',
+      testCategory: 'category.name',
+      requestedDate: 'requested_date',
+      requestedBy: 'examiner.display_name',
+      priority: 'priority.name',
+      status: 'status',
+    };
+
+    const sortKey = sortKeys[orderBy];
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
     const result = await req.db.query(
       `
         SELECT
@@ -172,7 +192,8 @@ labRequest.get(
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name
         ${from}
-
+        
+        ORDER BY ${sortKey} ${sortDirection}
         LIMIT :limit
         OFFSET :offset
       `,
@@ -181,6 +202,8 @@ labRequest.get(
           ...filterReplacements,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
+          sortKey,
+          sortDirection,
         },
         model: LabRequest,
         type: QueryTypes.SELECT,

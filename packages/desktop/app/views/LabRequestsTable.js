@@ -20,14 +20,18 @@ const columns = [
   {
     key: 'displayId',
     accessor: getPatientDisplayId,
-    sortable: false,
   },
-  { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false, maxWidth: 200 },
-  { key: 'requestId', title: 'Test ID', sortable: false, accessor: getRequestId },
-  { key: 'category.name', title: 'Test category', accessor: getRequestType },
+  {
+    key: 'patientName',
+    title: 'Patient',
+    accessor: getPatientName,
+    maxWidth: 200,
+  },
+  { key: 'requestId', title: 'Test ID', accessor: getRequestId },
+  { key: 'testCategory', title: 'Test category', accessor: getRequestType },
   { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
-  { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
-  { key: 'priority.name', title: 'Priority', accessor: getPriority },
+  { key: 'requestedBy', title: 'Requested by', accessor: getRequestedBy },
+  { key: 'priority', title: 'Priority', accessor: getPriority },
   { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
 ];
 
