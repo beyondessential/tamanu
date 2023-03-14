@@ -16,19 +16,14 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
-  const [hasVaccines, setHasVaccines] = useState();
 
   const onOpenEditModal = useCallback(async row => {
     setIsEditAdministeredModalOpen(true);
     setVaccineData(row);
   }, []);
 
-  const vaccineQuery = useAdministeredVaccines(patient.id);
-  const vaccines = vaccineQuery.data;
-
-  useEffect(() => {
-    setHasVaccines(vaccines);
-  }, [vaccines]);
+  const { data: vaccine } = useAdministeredVaccines(patient.id);
+  const vaccinations = vaccine?.data || [];
 
   return (
     <>
@@ -57,7 +52,7 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
           <Button
             onClick={() => setIsCertificateModalOpen(true)}
             variant="outlined"
-            disabled={!hasVaccines}
+            disabled={!vaccinations.length}
           >
             View certificate
           </Button>
