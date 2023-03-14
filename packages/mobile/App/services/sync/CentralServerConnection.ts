@@ -161,7 +161,7 @@ export class CentralServerConnection {
   ) {
     return this.post(
       `sync/${sessionId}/push`,
-      { pageNumber, totalPages },
+      { pushedSoFar: pageNumber, totalToPush: totalPages },
       { changes, tablesToInclude: tableNames },
     );
   }
