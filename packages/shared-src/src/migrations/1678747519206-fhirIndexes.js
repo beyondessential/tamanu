@@ -43,6 +43,8 @@ export async function up(query) {
           fields: [field],
           using: 'gin',
           operator: 'jsonb_path_ops',
+          // we only use this index for @? queries, so we can use the more
+          // efficient jsonb_path_ops operator class instead of the default
         },
       );
     }
