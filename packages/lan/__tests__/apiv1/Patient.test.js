@@ -12,6 +12,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { getCurrentDateString, toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { CertificateTypes } from 'shared/utils/patientCertificates';
 
 import { createTestContext } from '../utilities';
 
@@ -419,7 +420,9 @@ describe('Patient', () => {
         completedDate: getCurrentDateString(),
       });
 
-      const result = await app.get(`/v1/patient/${patient1.id}/covidClearanceLabTests`);
+      const result = await app.get(
+        `/v1/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+      );
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toEqual(2);
@@ -462,7 +465,9 @@ describe('Patient', () => {
         completedDate: getCurrentDateString(),
       });
 
-      const result = await app.get(`/v1/patient/${patient2.id}/covidClearanceLabTests`);
+      const result = await app.get(
+        `/v1/patient/${patient2.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+      );
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toEqual(0);
@@ -506,7 +511,9 @@ describe('Patient', () => {
         completedDate: getCurrentDateString(),
       });
 
-      const result = await app.get(`/v1/patient/${patient1.id}/covidClearanceLabTests`);
+      const result = await app.get(
+        `/v1/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+      );
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toEqual(1);

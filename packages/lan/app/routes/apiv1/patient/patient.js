@@ -414,26 +414,15 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
 
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { Patient } = models;
+    const { certType } = query;
 
     const patient = await Patient.findByPk(params.id);
-    const labTests = await patient.getCovidLabTests();
-
-    res.json({ data: labTests, count: labTests.length });
-  }),
-);
-
-patientRoute.get(
-  '/:id/covidClearanceLabTests',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Patient');
-
-    const { models, params } = req;
-    const { Patient } = models;
-
-    const patient = await Patient.findByPk(params.id);
-    const labTests = await patient.getCovidClearanceLabTests();
+    const labTests =
+      certType === 'clearance'
+        ? await patient.getCovidClearanceLabTests()
+        : await patient.getCovidLabTests();
 
     res.json({ data: labTests, count: labTests.length });
   }),
