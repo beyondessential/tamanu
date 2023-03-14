@@ -25,6 +25,7 @@ export enum NoteType {
   RESULT_DESCRIPTION = 'resultDescription',
   SYSTEM = 'system',
   OTHER = 'other',
+  CLINICAL_MOBILE = 'clinicalMobile',
 }
 
 export interface INotePage {

@@ -240,6 +240,7 @@ export const NOTE_TYPES = {
   RESULT_DESCRIPTION: 'resultDescription',
   SYSTEM: 'system',
   OTHER: 'other',
+  CLINICAL_MOBILE: 'clinicalMobile',
 };
 
 export const FORM_STATUSES = {

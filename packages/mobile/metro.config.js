@@ -1,4 +1,3 @@
-const path = require('path');
 
 module.exports = {
   transformer: {
@@ -19,11 +18,6 @@ module.exports = {
         keep_classnames: true,
         keep_fnames: true,
       },
-    },
-  },
-  resolver: {
-    extraNodeModules: {
-      '@mui/styled-engine': path.resolve(__dirname, 'node_modules/@mui/styled-engine-sc'),
     },
   },
 };

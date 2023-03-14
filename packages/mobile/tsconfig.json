@@ -9,7 +9,6 @@
     "isolatedModules": false,
     "baseUrl": ".",
     "paths": {
-      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"],
       "~/*": ["App/*"],
       "/root/*": ["./*"],
       "/components/*": ["App/ui/components/*"],
