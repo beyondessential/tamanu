@@ -8,11 +8,7 @@ export const LetterheadSection = ({ getLocalisation, logoSrc, certificateTitle }
   return (
     <>
       {logoSrc && <CertificateLogo logoSrc={logoSrc} />}
-      <CertificateAddress>
-        {title}
-        {'\n'}
-        {subTitle}
-      </CertificateAddress>
+      <CertificateAddress>{`${title}\n${subTitle}`}</CertificateAddress>
       <CertificateTitle>{certificateTitle}</CertificateTitle>
     </>
   );
