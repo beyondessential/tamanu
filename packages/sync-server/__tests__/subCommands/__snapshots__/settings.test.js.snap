@@ -35,7 +35,9 @@ exports[`settings get (global) retrieves an object 1`] = `
 `;
 
 exports[`settings list (facility) shows all settings 1`] = `
-"test.tree.branch.leaf (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+"fhir.worker.assumeDroppedAfter (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+fhir.worker.heartbeat (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
+test.tree.branch.leaf (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
 test.tree.branch.root (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
 test.tree.flower (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
 test.value (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)"
@@ -50,7 +52,9 @@ test.tree.flower (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)"
 `;
 
 exports[`settings list (global) shows all settings 1`] = `
-"test.tree.branch.leaf
+"fhir.worker.assumeDroppedAfter
+fhir.worker.heartbeat
+test.tree.branch.leaf
 test.tree.flower
 test.value"
 `;
