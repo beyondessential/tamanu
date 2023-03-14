@@ -91,7 +91,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
         switch (type) {
           case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON: {
-            template = 'vaccineCertificateEmail';
+            template = 'covidVaccineCertificateEmail';
             const latestCertifiableVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
               certifiableVaccineIds,
