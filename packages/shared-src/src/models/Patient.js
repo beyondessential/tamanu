@@ -159,26 +159,10 @@ export class Patient extends Model {
       ...queryOptions,
       where: await getCovidClearanceCertificateFilter(this.sequelize.models),
       include: [
-        { association: 'requestedBy' },
         {
           association: 'category',
         },
-        {
-          association: 'tests',
-          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
-        },
-        { association: 'laboratory' },
-        {
-          association: 'encounter',
-          required: true,
-          include: [
-            { association: 'examiner' },
-            {
-              association: 'patient',
-              where: { id: this.id },
-            },
-          ],
-        },
+        ...this.getLabTestBaseIncludes(),
       ],
     });
 
@@ -192,31 +176,37 @@ export class Patient extends Model {
       ...queryOptions,
       where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
       include: [
-        { association: 'requestedBy' },
         {
           association: 'category',
           where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
         },
-        {
-          association: 'tests',
-          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
-        },
-        { association: 'laboratory' },
-        {
-          association: 'encounter',
-          required: true,
-          include: [
-            { association: 'examiner' },
-            {
-              association: 'patient',
-              where: { id: this.id },
-            },
-          ],
-        },
+        ...this.getLabTestBaseIncludes(),
       ],
     });
 
     return getLabTestsFromLabRequests(labRequests);
+  }
+
+  getLabTestBaseIncludes() {
+    return [
+      { association: 'requestedBy' },
+      {
+        association: 'tests',
+        include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
+      },
+      { association: 'laboratory' },
+      {
+        association: 'encounter',
+        required: true,
+        include: [
+          { association: 'examiner' },
+          {
+            association: 'patient',
+            where: { id: this.id },
+          },
+        ],
+      },
+    ];
   }
 
   /** Patient this one was merged into (end of the chain) */
