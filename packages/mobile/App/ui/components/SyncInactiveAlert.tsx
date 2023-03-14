@@ -155,7 +155,10 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
-  const handleStatusChange = (status: CentralConnectionStatus, isInternetReachable: boolean): void => {
+  const handleStatusChange = (
+    status: CentralConnectionStatus,
+    isInternetReachable: boolean,
+  ): void => {
     if (
       status === CentralConnectionStatus.Disconnected
       // Reconnection with central is not possible if there is no internet connection
@@ -172,12 +175,14 @@ export const SyncInactiveAlert = (): JSX.Element => {
   };
 
   useEffect(() => {
-    const handler = status => handleStatusChange(status, netInfo.isInternetReachable);
+    const handler = (status: CentralConnectionStatus): void => {
+      handleStatusChange(status, netInfo.isInternetReachable);
+    };
     centralServer.emitter.on('statusChange', handler);
     return () => {
       centralServer.emitter.off('statusChange', handler);
     };
-  }, [netInfo.isInternetReachable]);
+  }, [netInfo.isInternetReachable, open]);
 
   return (
     <>
