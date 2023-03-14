@@ -9,49 +9,44 @@ import { P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 
-const cellPadding = '10px 5px';
-
 const columns = [
   {
     key: 'vaccine',
     title: 'Vaccine',
-    customStyles: { minWidth: 30, padding: cellPadding },
+    customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).label,
   },
   {
     key: 'vaccineBrand',
     title: 'Vaccine brand',
-    customStyles: { minWidth: 30, padding: cellPadding },
+    customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine }) => ((scheduledVaccine || {}).vaccine || {}).name,
   },
   {
     key: 'schedule',
     title: 'Schedule',
-    customStyles: { padding: cellPadding },
     accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
   },
   {
     key: 'countryName',
     title: 'Country',
-    customStyles: { padding: cellPadding },
     accessor: ({ countryName }) => countryName,
   },
   {
     key: 'healthFacility',
     title: 'Health facility',
-    customStyles: { minWidth: 30, padding: cellPadding },
+    customStyles: { minWidth: 30 },
     accessor: ({ healthFacility }) => healthFacility,
   },
   {
     key: 'date',
     title: 'Date',
-    customStyles: { padding: cellPadding },
     accessor: ({ date }, getLocalisation) => getDisplayDate(date, undefined, getLocalisation),
   },
   {
     key: 'batch',
     title: 'Batch Number',
-    customStyles: { minWidth: 30, padding: cellPadding },
+    customStyles: { minWidth: 30 },
     accessor: ({ batch }) => batch,
   },
 ];
@@ -92,7 +87,12 @@ export const VaccineCertificate = ({
           />
         </CertificateHeader>
         <Box mb={20}>
-          <Table data={data} columns={columns} getLocalisation={getLocalisation} />
+          <Table
+            data={data}
+            columns={columns}
+            getLocalisation={getLocalisation}
+            columnStyle={{ padding: '10px 5px' }}
+          />
         </Box>
         <CertificateFooter>
           <Box>
