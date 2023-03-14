@@ -1,7 +1,6 @@
 import { ID } from './ID';
 import { INotePage } from './INotePage';
 import { IUser } from './IUser';
-// import { IReferenceData } from './IReferenceData';
 import { DateTimeString } from './DateString';
 
 export interface INoteItem {
@@ -9,7 +8,6 @@ export interface INoteItem {
   date: DateTimeString;
   content: string;
 
-  // Not sure what this does exactly
   revisedById?: string;
 
   notePage: INotePage
@@ -21,5 +19,3 @@ export interface INoteItem {
   onBehalfOf?: IUser;
   onBehalfOfId?: ID;
 }
-
-// export interface IDataRequiredToCreateNoteItem {}

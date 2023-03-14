@@ -1,9 +1,9 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 
 import { DateTimeStringColumn } from './DateColumns';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
-import { ID, INoteItem, INotePage, NoteRecordType, NoteType, DateString, IUser } from '~/types';
+import { ID, INoteItem, INotePage, DateTimeString, IUser } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
@@ -15,9 +15,9 @@ export class NoteItem extends BaseModel implements INoteItem {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
-  date: DateString;
+  date: DateTimeString;
 
-  // Content has a default or '' on desktop but errors if that default is set
+  // Content has a default of '' on desktop but also doesn't allow null content
   // I'm going to assume it was a workaround that isn't needed here
   @Column({ type: 'varchar', nullable: false })
   content: string;
@@ -50,6 +50,6 @@ export class NoteItem extends BaseModel implements INoteItem {
   }
 
   static getTableNameForSync(): string {
-    return 'note_items'; // unusual camel case table here on mobile
+    return 'note_items';
   }
 }

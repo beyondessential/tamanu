@@ -1,6 +1,5 @@
 import { ID } from './ID';
 import { INoteItem } from './INoteItem';
-// import { IReferenceData } from './IReferenceData';
 import { DateString } from './DateString';
 
 export enum NoteRecordType {
@@ -33,21 +32,8 @@ export interface INotePage {
   noteType: NoteType,
   date: DateString,
 
-  // Can't link to record
   recordType: NoteRecordType,
   recordId: ID,
 
   noteItems: INoteItem[],
-}
-
-export interface IDataRequiredToCreateNotePage {
-  id?: ID;
-  noteType: NoteType,
-  date?: DateString,
-
-  // Can't link to record
-  recordType: NoteRecordType,
-  recordId: ID,
-
-  // noteItems: INoteItem[],
 }

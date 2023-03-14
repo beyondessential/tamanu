@@ -36,11 +36,10 @@ export class User extends BaseModel implements IUser {
   recordedVaccines: AdministeredVaccine[];
 
   @OneToMany(() => NoteItem, noteItem => noteItem.author)
-  authoredNoteItems: INoteItem[];
-  // authoredNoteItems: NoteItem[]; // TODO: Why not this?
+  authoredNoteItems: NoteItem[];
 
   @OneToMany(() => NoteItem, noteItem => noteItem.onBehalfOf)
-  onBehalfOfNoteItems: INoteItem[];
+  onBehalfOfNoteItems: NoteItem[];
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
 }

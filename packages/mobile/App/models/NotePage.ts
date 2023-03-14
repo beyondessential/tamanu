@@ -1,5 +1,6 @@
 import { Entity, Column, OneToMany } from 'typeorm/browser';
 
+import { JoinTable } from 'typeorm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
@@ -9,7 +10,6 @@ import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
 import { NoteItem } from './NoteItem';
-import { JoinTable } from 'typeorm';
 
 @Entity('notePage')
 export class NotePage extends BaseModel implements INotePage {
@@ -30,21 +30,19 @@ export class NotePage extends BaseModel implements INotePage {
   @OneToMany(() => NoteItem, noteItem => noteItem.notePage)
   noteItems: INoteItem[];
 
-  // Attach dynamically to record
-
-
   static getTableNameForSync(): string {
     return 'note_pages'; // unusual camel case table here on mobile
   }
 
-  static async createForRecord({recordId, recordType, noteType, content, authorId}) {
-    const notePage = await NotePage.createAndSaveOne({
+  static async createForRecord(
+    { recordId, recordType, noteType, content, authorId },
+  ): Promise<NotePage> {
+    const notePage = await NotePage.createAndSaveOne<NotePage>({
       recordId,
       recordType,
       noteType,
       date: getCurrentDateTimeString(),
     });
-    console.log(notePage.id, authorId);
 
     await NoteItem.createAndSaveOne({
       notePage: notePage.id,

@@ -61,14 +61,8 @@ const NotePageTable = new Table({
       isNullable: false,
     }),
   ],
-  // Can't use foreign keys as record types are different
-  // foreignKeys: [
-  //   new TableForeignKey({
-  //     columnNames: ['diagnosisId'],
-  //     referencedTableName: 'reference_data',
-  //     referencedColumnNames: ['id'],
-  //   }),
-  // ],
+  // Can't use foreign keys as recordId could refer to any of a few tables
+  // foreignKeys: [],
   indices: [baseIndex],
 });
 
@@ -91,7 +85,6 @@ const NoteItemTable = new Table({
       name: 'revisedById',
       type: 'varchar',
       isNullable: true,
-      // Tried a default here and it worked
     }),
     new TableColumn({
       name: 'notePageId',

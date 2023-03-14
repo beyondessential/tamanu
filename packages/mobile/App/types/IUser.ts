@@ -6,10 +6,4 @@ export interface IUser {
   localPassword?: string;
   displayName: string;
   role: string;
-
-  // referrals: Referral[];
-  // labRequests: LabRequest[];
-  // recordedVaccines: AdministeredVaccine[];
-  // authoredNoteItems: INoteItem[];
-  // onBehalfOfNoteItems: INoteItem[];
 }

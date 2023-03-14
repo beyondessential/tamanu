@@ -1,6 +1,5 @@
 import {
   BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
   In,
@@ -144,12 +143,6 @@ export class Encounter extends BaseModel implements IEncounter {
   )
   vitals: Vitals[];
 
-  // @OneToMany(
-  //   () => NotePage,
-  //   ({ encounter }) => encounter,
-  // )
-  // notePages: NotePage[];
-
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patient);
@@ -179,7 +172,6 @@ export class Encounter extends BaseModel implements IEncounter {
     // Read the selected facility for this client
     const facilityId = await readConfig('facilityId', '');
 
-    console.log(facilityId, 'facilityId');
     // Find the first department and location that matches the
     // selected facility to provide the default value for mobile.
     const defaultDepartment = await Department.findOne();
@@ -220,44 +212,22 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getForPatient(patientId: string): Promise<Encounter[]> {
     const repo = this.getRepository();
 
-    // const hi = await repo
-    //   .createQueryBuilder('encounter')
-    //   .where('encounter.patientId = :patientId', { patientId })
-    //   .leftJoinAndSelect('encounter.location', 'location')
-    //   .leftJoinAndSelect('location.facility', 'facility')
-    //   .leftJoinAndMapMany(
-    //     'encounter.notePage',
-    //     'notePage',
-    //     'notePage',
-    //     'notePage.recordId = encounter.id',
-    //   )
-    //   .leftJoinAndMapMany(
-    //     'notePages.noteItem',
-    //     'noteItem',
-    //     'noteItem',
-    //     'noteItem.notePageId = notePage.id',
-    //   )
-    //   .orderBy('encounter.startDate', 'DESC')
-    //   .getMany();
     const encounters = await repo.find({
       where: { patient: { id: patientId } },
       relations: ['location', 'location.facility'],
       order: { startDate: 'DESC' },
     });
-    
+
     const notes = await NotePage.find({
       where: { recordId: In(encounters.map(({ id }) => id)) },
       relations: ['noteItems'],
     });
-
-    console.log(notes, 'notes', encounters, 'encounters');
 
     // Usually a patient won't have too many encounters, but if they do, this will be slow.
     return encounters.map(encounter => ({
       ...encounter,
       notePages: notes.filter(note => note.recordId === encounter.id),
     }));
-
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
@@ -289,6 +259,7 @@ export class Encounter extends BaseModel implements IEncounter {
     return query.getRawMany();
   }
 
+  // is this even used any more?
   static includedSyncRelations = [
     'administeredVaccines',
     'surveyResponses',
@@ -300,7 +271,8 @@ export class Encounter extends BaseModel implements IEncounter {
     'completedReferrals',
     'labRequests',
     'labRequests.tests',
-    'notePages',
-    'notePages.noteItems',
+    // Can't add these here as there's no ORM relation
+    // 'notePages',
+    // 'notePages.noteItems',
   ];
 }

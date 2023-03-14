@@ -48,7 +48,7 @@ export class AuthService {
       console.log(`Set local password for ${user.email}`);
     })();
 
-    // return the user that was saved to the database 
+    // return the user that was saved to the database
     return user;
   }
 
@@ -79,7 +79,6 @@ export class AuthService {
     // create the sync source and log in to it
     this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
-    console.log(`Signing in remotely as ${params.email} (password: ${params.password})`);
     const {
       user,
       token,
