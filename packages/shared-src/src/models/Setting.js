@@ -24,16 +24,6 @@ import { Model } from './Model';
  * yyy   | schedules.outpatientDischarger.batchSize  | 1000
  * zzz   | schedules.automaticLabTestResultPublisher | false
  */
-
-function buildSettingsRecords(keyPrefix, value, facilityId) {
-  if (isPlainObject(value)) {
-    return Object.entries(value).flatMap(([k, v]) =>
-      buildSettingsRecords([keyPrefix, k].join('.'), v, facilityId),
-    );
-  }
-  return [{ key: keyPrefix, value, facilityId }];
-}
-
 export class Setting extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -82,11 +72,29 @@ export class Setting extends Model {
   static async get(key = '', facilityId = null) {
     const settings = await Setting.findAll({
       where: {
-        key: {
-          [Op.startsWith]: key, // LIKE '{key}%'
+        ...(key
+          ? {
+              key: {
+                [Op.or]: {
+                  [Op.eq]: key,
+                  [Op.like]: `${key}.%`,
+                },
+              },
+            }
+          : {}),
+        facilityId: {
+          [Op.or]: {
+            [Op.eq]: facilityId,
+            [Op.is]: null,
+          },
         },
-        facilityId,
       },
+
+      // we want facility keys to come last so they override global keys
+      order: [
+        ['key', 'ASC'],
+        [Sequelize.fn('coalesce', Sequelize.col('facility_id'), '###'), 'ASC'],
+      ],
     });
 
     const settingsObject = {};
@@ -146,4 +154,13 @@ export class Setting extends Model {
       },
     );
   }
+}
+
+export function buildSettingsRecords(keyPrefix, value, facilityId) {
+  if (isPlainObject(value)) {
+    return Object.entries(value).flatMap(([k, v]) =>
+      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId),
+    );
+  }
+  return [{ key: keyPrefix, value, facilityId }];
 }
