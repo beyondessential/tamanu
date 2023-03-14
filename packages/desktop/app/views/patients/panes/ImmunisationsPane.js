@@ -8,6 +8,7 @@ import {
 } from '../../../components/PatientPrinting';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
+import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
 
 export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
@@ -22,12 +23,12 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
     setVaccineData(row);
   }, []);
 
-  const api = useApi();
+  const vaccineQuery = useAdministeredVaccines(patient.id);
+  const vaccines = vaccineQuery.data;
+
   useEffect(() => {
-    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      setHasVaccines(response.data.length > 0);
-    });
-  }, [api, patient.id]);
+    setHasVaccines(vaccines);
+  }, [vaccines]);
 
   return (
     <>
