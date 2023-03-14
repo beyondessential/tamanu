@@ -4,5 +4,5 @@ export const getLabTestsFromLabRequests = async labRequests => {
     return { ...labRequestData, ...tests };
   });
 
-  return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  return labTests.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
 };
