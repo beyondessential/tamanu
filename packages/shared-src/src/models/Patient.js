@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { getCovidClearanceCertificateFilter } from 'shared/utils';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
@@ -152,7 +152,7 @@ export class Patient extends Model {
     return data;
   }
 
-  async getCovidLabTests(queryOptions) {
+  async getCovidClearanceLabTests(queryOptions) {
     const labRequests = await this.sequelize.models.LabRequest.findAll({
       raw: true,
       nest: true,
@@ -162,6 +162,47 @@ export class Patient extends Model {
         { association: 'requestedBy' },
         {
           association: 'category',
+        },
+        {
+          association: 'tests',
+          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
+        },
+        { association: 'laboratory' },
+        {
+          association: 'encounter',
+          required: true,
+          include: [
+            { association: 'examiner' },
+            {
+              association: 'patient',
+              where: { id: this.id },
+            },
+          ],
+        },
+      ],
+    });
+
+    // Place the tests data at the top level of the object as this is a getter for lab tests
+    // After the merge, id is the lab test id and labRequestId is the lab request id
+    const labTests = labRequests.map(labRequest => {
+      const { tests, ...labRequestData } = labRequest;
+      return { ...labRequestData, ...tests };
+    });
+
+    return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  }
+
+  async getCovidLabTests(queryOptions) {
+    const labRequests = await this.sequelize.models.LabRequest.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
+      where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
+      include: [
+        { association: 'requestedBy' },
+        {
+          association: 'category',
+          where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
         },
         {
           association: 'tests',

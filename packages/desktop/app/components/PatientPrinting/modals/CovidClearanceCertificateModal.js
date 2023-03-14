@@ -21,7 +21,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {
-    api.get(`patient/${patient.id}/covidLabTests`).then(response => {
+    api.get(`patient/${patient.id}/covidClearanceLabTests`).then(response => {
       setLabs(response.data);
     });
   }, [api, patient.id]);

@@ -601,7 +601,7 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
-        "enableCovidClearanceCertificate": false,
+        "enableCovidClearanceCertificate": true,
         "editDisplayId": false,
         "patientPlannedMove": false,
         "idleTimeout": {

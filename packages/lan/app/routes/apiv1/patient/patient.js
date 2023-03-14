@@ -424,6 +424,21 @@ patientRoute.get(
   }),
 );
 
+patientRoute.get(
+  '/:id/covidClearanceLabTests',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, params } = req;
+    const { Patient } = models;
+
+    const patient = await Patient.findByPk(params.id);
+    const labTests = await patient.getCovidClearanceLabTests();
+
+    res.json({ data: labTests, count: labTests.length });
+  }),
+);
+
 patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientRelations);
