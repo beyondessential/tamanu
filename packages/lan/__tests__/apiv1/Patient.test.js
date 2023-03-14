@@ -337,7 +337,7 @@ describe('Patient', () => {
     });
   });
 
-  describe('Get patient covid lab tests', () => {
+  describe('Get patient covid clearance lab tests', () => {
     let user;
     let lab;
     let category;
@@ -419,7 +419,7 @@ describe('Patient', () => {
         completedDate: getCurrentDateString(),
       });
 
-      const result = await app.get(`/v1/patient/${patient1.id}/covidLabTests`);
+      const result = await app.get(`/v1/patient/${patient1.id}/covidClearanceLabTests`);
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toEqual(2);
@@ -462,7 +462,7 @@ describe('Patient', () => {
         completedDate: getCurrentDateString(),
       });
 
-      const result = await app.get(`/v1/patient/${patient2.id}/covidLabTests`);
+      const result = await app.get(`/v1/patient/${patient2.id}/covidClearanceLabTests`);
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toEqual(0);
@@ -506,7 +506,7 @@ describe('Patient', () => {
         completedDate: getCurrentDateString(),
       });
 
-      const result = await app.get(`/v1/patient/${patient1.id}/covidLabTests`);
+      const result = await app.get(`/v1/patient/${patient1.id}/covidClearanceLabTests`);
 
       expect(result).toHaveSucceeded();
       expect(result.body.data.length).toEqual(1);

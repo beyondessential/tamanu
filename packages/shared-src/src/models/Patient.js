@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { getCovidClearanceCertificateFilter } from 'shared/utils';
+import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from 'shared/utils';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
@@ -182,14 +182,7 @@ export class Patient extends Model {
       ],
     });
 
-    // Place the tests data at the top level of the object as this is a getter for lab tests
-    // After the merge, id is the lab test id and labRequestId is the lab request id
-    const labTests = labRequests.map(labRequest => {
-      const { tests, ...labRequestData } = labRequest;
-      return { ...labRequestData, ...tests };
-    });
-
-    return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+    return getLabTestsFromLabRequests(labRequests);
   }
 
   async getCovidLabTests(queryOptions) {
@@ -223,14 +216,7 @@ export class Patient extends Model {
       ],
     });
 
-    // Place the tests data at the top level of the object as this is a getter for lab tests
-    // After the merge, id is the lab test id and labRequestId is the lab request id
-    const labTests = labRequests.map(labRequest => {
-      const { tests, ...labRequestData } = labRequest;
-      return { ...labRequestData, ...tests };
-    });
-
-    return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+    return getLabTestsFromLabRequests(labRequests);
   }
 
   /** Patient this one was merged into (end of the chain) */
