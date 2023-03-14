@@ -42,10 +42,9 @@ encounter.put(
     await db.transaction(async () => {
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
-        await models.Discharge.create({
-          ...req.body.discharge,
-          encounterId: id,
-        });
+        if (!req.body.discharge.dischargerId) {
+          throw new Error('A discharge must have a discharger.');
+        }
 
         // Update medications that were marked for discharge and ensure
         // only isDischarge, quantity and repeats fields are edited
