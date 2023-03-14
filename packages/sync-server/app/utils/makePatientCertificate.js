@@ -5,7 +5,6 @@ import QRCode from 'qrcode';
 import { get } from 'lodash';
 import config from 'config';
 
-import { log } from 'shared/services/logging';
 import {
   tmpdir,
   VaccineCertificate,
@@ -40,6 +39,23 @@ async function getCertificateAssets(models) {
   return { logo, signingImage, watermark };
 }
 
+async function getFilePath(fileName) {
+  const folder = await tmpdir();
+  const filePath = path.join(folder, fileName);
+  return { filePath };
+}
+
+async function getPatientVaccines(models, patient) {
+  const vaccines = await patient.getAdministeredVaccines();
+  const certifiableVaccines = vaccines.filter(vaccine => vaccine.certifiable);
+  const additionalData = await models.PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+    include: models.PatientAdditionalData.getFullReferenceAssociations(),
+  });
+  const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+  return { certifiableVaccines, vaccines, patientData };
+}
+
 export const makeCovidVaccineCertificate = async (
   patient,
   printedBy,
@@ -50,41 +66,29 @@ export const makeCovidVaccineCertificate = async (
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
-  const folder = await tmpdir();
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
-  const filePath = path.join(folder, fileName);
+  const { filePath } = await getFilePath(fileName);
 
   const { logo, signingImage, watermark } = await getCertificateAssets(models);
 
   const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
-  try {
-    const vaccinations = await patient.getAdministeredVaccines();
-    const certifiableVaccines = vaccinations.filter(vaccine => vaccine.certifiable);
-    const additionalData = await models.PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-      include: models.PatientAdditionalData.getFullReferenceAssociations(),
-    });
-    const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+  const { certifiableVaccines, patientData } = getPatientVaccines(models, patient);
 
-    await ReactPDF.render(
-      <CovidVaccineCertificate
-        patient={patientData}
-        printedBy={printedBy}
-        uvci={uvci}
-        vaccinations={certifiableVaccines}
-        signingSrc={signingImage?.data}
-        watermarkSrc={watermark?.data}
-        logoSrc={logo?.data}
-        vdsSrc={vds}
-        getLocalisation={getLocalisationData}
-      />,
-      filePath,
-    );
-  } catch (error) {
-    log.info(`Error creating Patient Certificate ${patient.id}`);
-    throw error;
-  }
+  await ReactPDF.render(
+    <CovidVaccineCertificate
+      patient={patientData}
+      printedBy={printedBy}
+      uvci={uvci}
+      vaccinations={certifiableVaccines}
+      signingSrc={signingImage?.data}
+      watermarkSrc={watermark?.data}
+      logoSrc={logo?.data}
+      vdsSrc={vds}
+      getLocalisation={getLocalisationData}
+    />,
+    filePath,
+  );
 
   return {
     status: 'success',
@@ -96,24 +100,18 @@ export const makeVaccineCertificate = async (patient, printedBy, models) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
-  const folder = await tmpdir();
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
-  const filePath = path.join(folder, fileName);
+  const { filePath } = await getFilePath(fileName);
 
   const { logo, signingImage, watermark } = await getCertificateAssets(models);
 
-  const vaccinations = await patient.getAdministeredVaccines({ order: [['date', 'ASC']] });
-  const additionalData = await models.PatientAdditionalData.findOne({
-    where: { patientId: patient.id },
-    include: models.PatientAdditionalData.getFullReferenceAssociations(),
-  });
-  const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+  const { vaccines, patientData } = getPatientVaccines(models, patient);
 
   await ReactPDF.render(
     <VaccineCertificate
       patient={patientData}
       printedBy={printedBy}
-      vaccinations={vaccinations}
+      vaccinations={vaccines}
       signingSrc={signingImage?.data}
       watermarkSrc={watermark?.data}
       logoSrc={logo?.data}
@@ -138,9 +136,8 @@ export const makeCovidCertificate = async (
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
-  const folder = await tmpdir();
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
-  const filePath = path.join(folder, fileName);
+  const { filePath } = await getFilePath(fileName);
 
   const { logo, signingImage, watermark } = await getCertificateAssets(models);
 
@@ -175,26 +172,21 @@ export const makeCovidCertificate = async (
     },
   };
 
-  try {
-    const labs = await patient.getCovidLabTests();
-    await ReactPDF.render(
-      <CovidLabCertificate
-        patient={patientData}
-        labs={labs}
-        signingSrc={signingImage?.data}
-        watermarkSrc={watermark?.data}
-        logoSrc={logo?.data}
-        printedBy={printedBy}
-        vdsSrc={vds}
-        getLocalisation={getLocalisationData}
-        certType={certType}
-      />,
-      filePath,
-    );
-  } catch (error) {
-    log.info(`Error creating Patient Certificate ${patient.id}`);
-    throw error;
-  }
+  const labs = await patient.getCovidLabTests();
+  await ReactPDF.render(
+    <CovidLabCertificate
+      patient={patientData}
+      labs={labs}
+      signingSrc={signingImage?.data}
+      watermarkSrc={watermark?.data}
+      logoSrc={logo?.data}
+      printedBy={printedBy}
+      vdsSrc={vds}
+      getLocalisation={getLocalisationData}
+      certType={certType}
+    />,
+    filePath,
+  );
 
   return {
     status: 'success',
