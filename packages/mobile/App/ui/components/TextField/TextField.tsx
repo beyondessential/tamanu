@@ -103,7 +103,7 @@ export const TextField = React.memo(
         width="100%"
       >
         <InputContainer>
-          {label ? (
+          {!!label && (
             <TextFieldLabel
               error={error}
               focus={focused}
@@ -112,7 +112,7 @@ export const TextField = React.memo(
             >
               {label}
             </TextFieldLabel>
-          ) : undefined}
+          )}
           <StyledTextInput
             disabled={disabled}
             focused={focused}
@@ -143,11 +143,11 @@ export const TextField = React.memo(
             onSubmitEditing={onSubmitEditing}
           />
         </InputContainer>
-        {error ? (
+        {!!error && (
           <TextFieldErrorMessage>
             {error}
           </TextFieldErrorMessage>
-        ) : undefined}
+        )}
       </StyledView>
     );
   },
