@@ -329,8 +329,14 @@ export class Encounter extends Model {
     });
   }
 
-  async onDischarge(endDate, submittedTime, note, user) {
-    await this.addSystemNote(note || `Discharged patient.`, submittedTime, user);
+  async onDischarge({ endDate, submittedTime, systemNote, discharge }, user) {
+    const { Discharge } = this.sequelize.models;
+    await Discharge.create({
+      ...discharge,
+      encounterId: this.id,
+    });
+
+    await this.addSystemNote(systemNote || `Discharged patient.`, submittedTime, user);
     await this.closeTriage(endDate);
   }
 
@@ -385,7 +391,7 @@ export class Encounter extends Model {
     const updateEncounter = async () => {
       const additionalChanges = {};
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote, user);
+        await this.onDischarge(data, user);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
