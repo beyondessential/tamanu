@@ -11,6 +11,7 @@ import { updateLabRequestDateColumns1666171050000 } from './1666171050000-update
 import { addFieldUpdateTicksToPAD1668987530000 } from './1668987530000-addFieldUpdateTicksToPAD';
 import { addDefaultLastSuccessfulSyncPull1669160460000 } from './1669160460000-addDefaultLastSuccessfulSyncPull';
 import { resyncPatientAdditionalData1669855692000 } from './1669855692000-resyncPatientAdditionalData';
+import { resyncSince123Deployed1678779906000 } from './1678779906000-resyncSince123Deployed';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -25,4 +26,5 @@ export const migrationList = [
   addFieldUpdateTicksToPAD1668987530000,
   addDefaultLastSuccessfulSyncPull1669160460000,
   resyncPatientAdditionalData1669855692000,
+  resyncSince123Deployed1678779906000,
 ];
