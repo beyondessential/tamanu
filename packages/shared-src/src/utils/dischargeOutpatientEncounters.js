@@ -42,7 +42,7 @@ export const dischargeOutpatientEncounters = async (
       const justBeforeMidnight = sub(endOfDay(parseISO(oldEncounter.startDate)), { minutes: 1 });
       await oldEncounter.update({
         endDate: justBeforeMidnight,
-        dischargeNote: 'Automatically discharged',
+        systemNote: 'Automatically discharged',
       });
       log.info(`Auto-closed encounter with id ${oldEncounter.id}`);
     }
