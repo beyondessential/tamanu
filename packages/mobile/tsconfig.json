@@ -1,4 +1,5 @@
 {
+  "extends": ["../../common.tsconfig.json"],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -31,8 +32,6 @@
     "resolveJsonModule": true,
     "jsx": "react",
     "lib": ["es2019"],
-    "moduleResolution": "node",    
-    "noEmit": true,
     "skipLibCheck": true,
     "strict": false,
     "noImplicitThis": false,

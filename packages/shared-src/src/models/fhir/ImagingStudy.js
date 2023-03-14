@@ -2,7 +2,6 @@ import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
 import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, IMAGING_REQUEST_STATUS_TYPES } from '../../constants';
@@ -13,14 +12,14 @@ export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
-        basedOn: arrayOf('basedOn', DataTypes.FHIR_REFERENCE),
-        started: DataTypes.DATE,
+        identifier: DataTypes.JSONB,
+        basedOn: DataTypes.JSONB,
+        started: DataTypes.TEXT,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        note: arrayOf('note', DataTypes.FHIR_ANNOTATION),
+        note: DataTypes.JSONB,
       },
       options,
     );
@@ -35,7 +34,7 @@ export class FhirImagingStudy extends FhirResource {
     return yup.object({
       identifier: yup.array().of(FhirIdentifier.asYup()),
       basedOn: yup.array().of(FhirReference.asYup()),
-      started: yup.date().optional(),
+      started: yup.string().optional(),
       status: yup.string().required(),
       note: yup.array().of(FhirAnnotation.asYup()),
     });
@@ -46,12 +45,11 @@ export class FhirImagingStudy extends FhirResource {
   async pushUpstream() {
     const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
 
-    const results = this.note.map(n => n.params.text).join('\n\n');
+    const results = this.note.map(n => n.text).join('\n\n');
 
     const imagingAccessCode = this.identifier.find(
-      ({ params: i }) =>
-        i?.system === 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
-    )?.params.value;
+      ({ system }) => system === 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+    )?.value;
     if (!imagingAccessCode) {
       throw new Invalid('Need to have RIS Accession Number identifier', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
@@ -59,11 +57,11 @@ export class FhirImagingStudy extends FhirResource {
     }
 
     const serviceRequestFhirId = this.basedOn.find(
-      ({ params: b }) =>
-        b?.type === 'ServiceRequest' &&
-        b?.identifier?.params.system ===
+      ({ type, identifier }) =>
+        type === 'ServiceRequest' &&
+        identifier?.system ===
           'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-    )?.params.identifier.params.value;
+    )?.identifier.value;
     if (!serviceRequestFhirId) {
       throw new Invalid('Need to have basedOn field that includes a Tamanu identifier', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,

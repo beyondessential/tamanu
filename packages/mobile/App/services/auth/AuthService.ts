@@ -1,7 +1,7 @@
 import mitt from 'mitt';
 
 import { MODELS_MAP } from '~/models/modelsMap';
-import { CentralConnectionStatus, IUser, SyncConnectionParameters } from '~/types';
+import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
 import { CentralServerConnection } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
@@ -20,15 +20,9 @@ export class AuthService {
     this.models = models;
     this.centralServer = centralServer;
 
-    this.centralServer.emitter.on('centralConnectionStatusChange', (status) => {
-      this.emitter.emit('centralConnectionStatusChange', status)
-    });
-
     this.centralServer.emitter.on('error', (err) => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
-      } else {
-        this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Error);
       }
     });
   }

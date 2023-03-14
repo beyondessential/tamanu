@@ -38,7 +38,7 @@ export class FhirCodeableConcept extends Composite {
 
     return new this({
       coding,
-      text: coding.map(c => c.params.display).join(' '),
+      text: coding.map(c => c.display).join(' '),
     });
   }
 }
