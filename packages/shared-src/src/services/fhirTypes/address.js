@@ -9,19 +9,6 @@ const USES = ['home', 'work', 'temp', 'old', 'billing'];
 const TYPES = ['postal', 'physical', 'both'];
 
 export class FhirAddress extends FhirBaseType {
-  static FIELD_ORDER = [
-    'use',
-    'type',
-    'text',
-    'line',
-    'city',
-    'district',
-    'state',
-    'postalCode',
-    'country',
-    'period',
-  ];
-
   static SCHEMA() {
     return yup
       .object({

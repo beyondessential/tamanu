@@ -5,8 +5,6 @@ import { FhirBaseType } from './baseType';
 import { FhirIdentifier } from './identifier';
 
 export class FhirReference extends FhirBaseType {
-  static FIELD_ORDER = ['reference', 'type', 'identifier', 'display'];
-
   static SCHEMA() {
     return yup
       .object({

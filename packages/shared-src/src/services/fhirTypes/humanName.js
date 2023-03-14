@@ -8,8 +8,6 @@ import { FhirPeriod } from './period';
 const USES = ['usual', 'official', 'temp', 'nickname', 'anonymous', 'old', 'maiden'];
 
 export class FhirHumanName extends FhirBaseType {
-  static FIELD_ORDER = ['use', 'text', 'family', 'given', 'prefix', 'suffix', 'period'];
-
   static SCHEMA() {
     return yup
       .object({

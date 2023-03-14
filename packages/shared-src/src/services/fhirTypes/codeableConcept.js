@@ -5,8 +5,6 @@ import { FhirBaseType } from './baseType';
 import { FhirCoding } from './coding';
 
 export class FhirCodeableConcept extends FhirBaseType {
-  static FIELD_ORDER = ['coding', 'text'];
-
   static SCHEMA() {
     return yup
       .object({

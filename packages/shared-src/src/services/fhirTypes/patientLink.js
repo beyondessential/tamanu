@@ -7,8 +7,6 @@ import { FhirReference } from './reference';
 const TYPES = ['replaced-by', 'replaces', 'refer', 'seealso'];
 
 export class FhirPatientLink extends FhirBaseType {
-  static FIELD_ORDER = ['other', 'type'];
-
   static SCHEMA() {
     return yup
       .object({

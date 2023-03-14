@@ -5,8 +5,6 @@ import * as yup from 'yup';
 import { FhirBaseType } from './baseType';
 
 export class FhirCoding extends FhirBaseType {
-  static FIELD_ORDER = ['system', 'version', 'code', 'display', 'userSelected'];
-
   static SCHEMA() {
     return yup
       .object({

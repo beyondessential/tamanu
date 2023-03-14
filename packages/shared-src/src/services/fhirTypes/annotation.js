@@ -5,8 +5,6 @@ import { FhirBaseType } from './baseType';
 import { FhirReference } from './reference';
 
 export class FhirAnnotation extends FhirBaseType {
-  static FIELD_ORDER = ['authorReference', 'authorString', 'time', 'text'];
-
   static SCHEMA() {
     return yup
       .object({

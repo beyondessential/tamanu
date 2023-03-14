@@ -5,8 +5,6 @@ export class FhirBaseType {
     return object();
   }
 
-  static FIELD_ORDER = [];
-
   constructor(params) {
     const withoutNulls = Object.fromEntries(
       Object.entries(params).filter(([, value]) => value !== null && value !== undefined),

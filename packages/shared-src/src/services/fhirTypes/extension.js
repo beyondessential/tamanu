@@ -5,8 +5,6 @@ import { FhirCodeableConcept } from './codeableConcept';
 import { FhirBaseType } from './baseType';
 
 export class FhirExtension extends FhirBaseType {
-  static FIELD_ORDER = ['url', 'valueCodeableConcept'];
-
   static SCHEMA() {
     return yup
       .object({

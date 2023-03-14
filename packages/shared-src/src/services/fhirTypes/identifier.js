@@ -11,8 +11,6 @@ import { FhirReference } from './reference';
 const USES = ['usual', 'official', 'temp', 'secondary', 'old'];
 
 export class FhirIdentifier extends FhirBaseType {
-  static FIELD_ORDER = ['use', 'type', 'system', 'value', 'period', 'assigner'];
-
   static SCHEMA() {
     return yup
       .object({

@@ -5,8 +5,6 @@ import { formatFhirDate } from '../../utils/fhir';
 import { FhirBaseType } from './baseType';
 
 export class FhirPeriod extends FhirBaseType {
-  static FIELD_ORDER = ['start', 'end'];
-
   static SCHEMA() {
     return yup
       .object({

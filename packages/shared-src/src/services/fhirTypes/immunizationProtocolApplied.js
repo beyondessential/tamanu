@@ -7,16 +7,6 @@ import { FhirReference } from './reference';
 import { FhirBaseType } from './baseType';
 
 export class FhirImmunizationProtocolApplied extends FhirBaseType {
-  static FIELD_ORDER = [
-    'series',
-    'authority',
-    'targetDisease',
-    'doseNumberPositiveInt',
-    'doseNumberString',
-    'seriesDosesPositiveInt',
-    'seriesDosesString',
-  ];
-
   static SCHEMA() {
     return yup
       .object({

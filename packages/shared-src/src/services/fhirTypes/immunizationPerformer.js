@@ -5,8 +5,6 @@ import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';
 
 export class FhirImmunizationPerformer extends FhirBaseType {
-  static FIELD_ORDER = ['function', 'actor'];
-
   static SCHEMA() {
     return yup
       .object({

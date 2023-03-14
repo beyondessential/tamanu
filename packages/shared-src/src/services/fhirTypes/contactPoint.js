@@ -8,8 +8,6 @@ const SYSTEMS = ['phone', 'fax', 'email', 'pager', 'url', 'sms', 'other'];
 const USES = ['home', 'work', 'temp', 'old', 'mobile'];
 
 export class FhirContactPoint extends FhirBaseType {
-  static FIELD_ORDER = ['system', 'value', 'use', 'rank', 'period'];
-
   static SCHEMA() {
     return yup
       .object({
