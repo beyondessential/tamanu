@@ -41,6 +41,14 @@ export class NoteItem extends BaseModel implements INoteItem {
   @RelationId(({ onBehalfOf }) => onBehalfOf)
   onBehalfOfId?: ID;
 
+  @BeforeInsert()
+  @BeforeUpdate()
+  validate(): void {
+    if (!this.content) {
+      throw new Error('NoteItem: Content must not be empty');
+    }
+  }
+
   static getTableNameForSync(): string {
     return 'note_items'; // unusual camel case table here on mobile
   }
