@@ -3,14 +3,14 @@ import { useDispatch } from 'react-redux';
 import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
-
 import {
   TopBar,
   PageContainer,
-  DataFetchingTable,
   AllPatientsSearchBar,
   PatientSearchBar,
   ContentPane,
+  SearchTable,
+  SearchTableTitle,
 } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '../../components/Button';
@@ -29,7 +29,6 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
-import { TableWithTitleContainer } from '../../components/Table/TableWithTitleContainer';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -67,7 +66,7 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   // location and department should be sortable
   .concat([locationGroup, location, department]);
 
-const PatientTable = ({ columns, fetchOptions, searchParameters, borderless }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
@@ -78,7 +77,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters, borderless }) =
   };
 
   return (
-    <DataFetchingTable
+    <SearchTable
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={handleViewPatient}
@@ -88,7 +87,6 @@ const PatientTable = ({ columns, fetchOptions, searchParameters, borderless }) =
       }}
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
-      borderless={borderless}
     />
   );
 };
@@ -144,16 +142,14 @@ export const PatientListingView = ({ onViewPatient }) => {
       </TopBar>
       <RecentlyViewedPatientsList />
       <ContentPane>
-        <TableWithTitleContainer title="Patient search">
-          <AllPatientsSearchBar onSearch={setSearchParameters} />
-          <PatientTable
-            borderless
-            onViewPatient={onViewPatient}
-            fetchOptions={{ matchSecondaryIds: true }}
-            searchParameters={searchParameters}
-            columns={LISTING_COLUMNS}
-          />
-        </TableWithTitleContainer>
+        <SearchTableTitle>Patient search</SearchTableTitle>
+        <AllPatientsSearchBar onSearch={setSearchParameters} />
+        <PatientTable
+          onViewPatient={onViewPatient}
+          fetchOptions={{ matchSecondaryIds: true }}
+          searchParameters={searchParameters}
+          columns={LISTING_COLUMNS}
+        />
       </ContentPane>
     </PageContainer>
   );
@@ -169,8 +165,9 @@ export const AdmittedPatientsView = () => {
     <PageContainer>
       <TopBar title="Admitted patient listing" />
       <RecentlyViewedPatientsList encounterType="admission" />
-      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
+        <SearchTableTitle>Patient search</SearchTableTitle>
+        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId: facility.id, ...searchParameters }}
@@ -191,8 +188,9 @@ export const OutpatientsView = () => {
     <PageContainer>
       <TopBar title="Outpatient listing" />
       <RecentlyViewedPatientsList encounterType="clinic" />
-      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
+        <SearchTableTitle>Patient search</SearchTableTitle>
+        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId: facility.id, ...searchParameters }}
