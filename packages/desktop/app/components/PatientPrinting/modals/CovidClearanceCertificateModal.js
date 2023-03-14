@@ -17,7 +17,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
-  const { watermark, logo, footerImg, printedBy } = useCertificate();
+  const { watermark, logo, footerImg, printedBy, title, subTitle } = useCertificate();
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {
@@ -61,6 +61,8 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
           getLocalisation={getLocalisation}
           printedBy={printedBy}
           certType={CertificateTypes.clearance}
+          title={title}
+          subTitle={subTitle}
         />
       </PDFViewer>
     </Modal>

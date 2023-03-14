@@ -16,7 +16,7 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
   const api = useApi();
   const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate();
+  const { watermark, logo, footerImg, printedBy, title, subTitle } = useCertificate();
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {
@@ -60,6 +60,8 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
           signingSrc={footerImg}
           printedBy={printedBy}
           getLocalisation={getLocalisation}
+          title={title}
+          subTitle={subTitle}
         />
       </PDFViewer>
     </Modal>

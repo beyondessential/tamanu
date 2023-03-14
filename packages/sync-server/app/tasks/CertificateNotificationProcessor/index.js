@@ -61,6 +61,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     let processed = 0;
     for (const notification of queuedNotifications) {
       try {
+        const facilityId = notification.get('facilityId');
         const patientId = notification.get('patientId');
         const patient = await Patient.findByPk(patientId);
 
@@ -130,7 +131,14 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
+            pdf = await makeVaccineCertificate(
+              patient,
+              facilityId,
+              printedBy,
+              models,
+              uvci,
+              qrData,
+            );
             break;
           }
 
@@ -152,6 +160,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             pdf = await makeCovidCertificate(
               CertificateTypes.test,
               patient,
+              facilityId,
               printedBy,
               models,
               qrData,
@@ -166,6 +175,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             pdf = await makeCovidCertificate(
               CertificateTypes.clearance,
               patient,
+              facilityId,
               printedBy,
               models,
               qrData,

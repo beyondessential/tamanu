@@ -88,11 +88,18 @@ export const CovidLabCertificate = ({
   getLocalisation,
   printedBy,
   certType,
+  title,
+  subTitle,
 }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
-      <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+      <LetterheadSection
+        getLocalisation={getLocalisation}
+        logoSrc={logoSrc}
+        title={title}
+        subTitle={subTitle}
+      />
       <Box mb={0}>
         <H3>{CertificateTitle[certType] || ''}</H3>
         <PatientDetailsSection

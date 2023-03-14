@@ -41,5 +41,10 @@ export class CertificateNotification extends Model {
       foreignKey: 'labRequestId',
       as: 'labRequest',
     });
+
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
   }
 }

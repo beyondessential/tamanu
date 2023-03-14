@@ -10,7 +10,14 @@ import { tmpdir, VaccineCertificate, getPatientSurveyResponseAnswer } from 'shar
 import { CovidLabCertificate } from 'shared/utils/patientCertificates';
 import { getLocalisation } from '../localisation';
 
-export const makeVaccineCertificate = async (patient, printedBy, models, uvci, qrData = null) => {
+export const makeVaccineCertificate = async (
+  patient,
+  facilityId,
+  printedBy,
+  models,
+  uvci,
+  qrData = null,
+) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
@@ -39,6 +46,8 @@ export const makeVaccineCertificate = async (patient, printedBy, models, uvci, q
     },
   });
 
+  const { title, subTitle } = (await models.Setting.get('templates.letterhead', facilityId)) || {};
+
   const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
   try {
@@ -60,6 +69,8 @@ export const makeVaccineCertificate = async (patient, printedBy, models, uvci, q
         logoSrc={logo?.data}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
+        title={title}
+        subTitle={subTitle}
       />,
       filePath,
     );
@@ -77,6 +88,7 @@ export const makeVaccineCertificate = async (patient, printedBy, models, uvci, q
 export const makeCovidCertificate = async (
   certType,
   patient,
+  facilityId,
   printedBy,
   models,
   vdsData = null,
@@ -109,6 +121,7 @@ export const makeCovidCertificate = async (
     },
   });
 
+  const { title, subTitle } = (await models.Setting.get('templates.letterhead', facilityId)) || {};
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
@@ -153,6 +166,8 @@ export const makeCovidCertificate = async (
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
         certType={certType}
+        title={title}
+        subTitle={subTitle}
       />,
       filePath,
     );

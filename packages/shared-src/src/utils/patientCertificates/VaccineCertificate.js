@@ -64,6 +64,8 @@ export const VaccineCertificate = ({
   uvci,
   getLocalisation,
   extraPatientFields,
+  title,
+  subTitle,
 }) => {
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
@@ -90,7 +92,12 @@ export const VaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+        <LetterheadSection
+          getLocalisation={getLocalisation}
+          logoSrc={logoSrc}
+          title={title}
+          subTitle={subTitle}
+        />
         <H3>Vaccination Certification</H3>
         <PatientDetailsSection
           patient={patient}
