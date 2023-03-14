@@ -333,10 +333,12 @@ export class Encounter extends Model {
     if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
 
     const { Discharge } = this.sequelize.models;
-    await Discharge.create({
-      ...discharge,
-      encounterId: this.id,
-    });
+    if (discharge.dischargerId) {
+      await Discharge.create({
+        ...discharge,
+        encounterId: this.id,
+      });
+    }
 
     await this.addSystemNote(systemNote || `Discharged patient.`, submittedTime, user);
     await this.closeTriage(endDate);
