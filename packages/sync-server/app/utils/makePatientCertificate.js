@@ -115,30 +115,25 @@ export const makeVaccineCertificate = async (patient, printedBy, models) => {
     },
   });
 
-  try {
-    const vaccinations = await patient.getAdministeredVaccines({ order: [['date', 'ASC']] });
-    const additionalData = await models.PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-      include: models.PatientAdditionalData.getFullReferenceAssociations(),
-    });
-    const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+  const vaccinations = await patient.getAdministeredVaccines({ order: [['date', 'ASC']] });
+  const additionalData = await models.PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+    include: models.PatientAdditionalData.getFullReferenceAssociations(),
+  });
+  const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
 
-    await ReactPDF.render(
-      <VaccineCertificate
-        patient={patientData}
-        printedBy={printedBy}
-        vaccinations={vaccinations}
-        signingSrc={signingImage?.data}
-        watermarkSrc={watermark?.data}
-        logoSrc={logo?.data}
-        getLocalisation={getLocalisationData}
-      />,
-      filePath,
-    );
-  } catch (error) {
-    log.info(`Error creating Patient Certificate ${patient.id}`);
-    throw error;
-  }
+  await ReactPDF.render(
+    <VaccineCertificate
+      patient={patientData}
+      printedBy={printedBy}
+      vaccinations={vaccinations}
+      signingSrc={signingImage?.data}
+      watermarkSrc={watermark?.data}
+      logoSrc={logo?.data}
+      getLocalisation={getLocalisationData}
+    />,
+    filePath,
+  );
 
   return {
     status: 'success',
