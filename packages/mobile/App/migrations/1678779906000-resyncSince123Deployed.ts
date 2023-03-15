@@ -8,13 +8,31 @@ import { TABLE_DEFINITIONS } from './firstTimeSetup/databaseDefinition';
 // a higher sync tick than that
 const UNTOUCHED_SYNC_TICK = -999;
 
+const TABLES_TO_RESYNC = [...TABLE_DEFINITIONS.map(t => t.name), 'patient_facility'];
+
+const CURRENT_SYNC_TIME = 'currentSyncTick';
+
 export class resyncSince123Deployed1678779906000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    for (const tableName of TABLE_DEFINITIONS.map(t => t.name)) {
+    const localSystemFacts = await queryRunner.query(`
+      SELECT value FROM local_system_fact WHERE key = '${CURRENT_SYNC_TIME}'
+    `);
+
+    if (!localSystemFacts?.length) {
+      throw new Error(
+        `Cannot find local_system_fact current sync time '${CURRENT_SYNC_TIME}'. Must have when doing upgrade`,
+      );
+    }
+
+    const [{ value: currentSyncTimeValue }] = localSystemFacts;
+
+    const currentSyncTime = parseInt(currentSyncTimeValue, 10);
+
+    for (const tableName of TABLES_TO_RESYNC) {
       await queryRunner.query(`
         UPDATE ${tableName}
-        SET updated_at_sync_tick = 1
-        WHERE updated_at_sync_tick > ${UNTOUCHED_SYNC_TICK};
+        SET updatedAtSyncTick = ${currentSyncTime}
+        WHERE updatedAtSyncTick > ${UNTOUCHED_SYNC_TICK};
       `);
     }
   }
