@@ -43,6 +43,7 @@ encounter.put(
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
         if (!req.body.discharge.dischargerId) {
+          // Only automatic discharges can have a null discharger ID
           throw new Error('A discharge must have a discharger.');
         }
 
