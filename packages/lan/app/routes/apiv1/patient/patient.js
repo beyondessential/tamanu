@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
+import { snakeCase } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
 import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
@@ -231,16 +232,11 @@ patientRoute.get(
 
     req.checkPermission('list', 'Patient');
 
-    const {
-      orderBy = 'lastName',
-      order = 'asc',
-      rowsPerPage = 10,
-      page = 0,
-      ...filterParams
-    } = query;
+    const { orderBy, order = 'asc', rowsPerPage = 10, page = 0, ...filterParams } = query;
 
-    const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.displayId;
+    const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.lastName;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
     // add secondary search terms so no matter what the primary order, the results are secondarily
     // sorted sensibly
     const secondarySearchTerm = [
@@ -258,6 +254,33 @@ patientRoute.get(
       .forEach(k => {
         filterParams[k] = parseFloat(filterParams[k]);
       });
+
+    let filterSort = '';
+    // If there is a sort selected by the user, it shouldn't use exact match sort.
+    if (!orderBy) {
+      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter(v => filterParams[v]);
+      if (selectedFilters?.length) {
+        // Exact match sort
+        const exactMatchSort = selectedFilters
+          .map(
+            filter => `upper(${snakeCase(filter)}) = '${filterParams[filter].toUpperCase()}' DESC`,
+          )
+          .join(', ');
+
+        // Begins with sort
+        const beginsWithSort = selectedFilters
+          .map(
+            filter =>
+              `upper(${snakeCase(filter)}) LIKE '${filterParams[filter].toUpperCase()}%' DESC`,
+          )
+          .join(', ');
+
+        // the last one is
+        const alphabeticSort = selectedFilters.map(filter => `${snakeCase(filter)} ASC`).join(', ');
+
+        filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
+      }
+    }
 
     // Check if this is the main patient listing and change FROM and SELECT
     // clauses to improve query speed by removing unused joins
@@ -385,7 +408,8 @@ patientRoute.get(
         ${select}
         ${from}
 
-        ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${filterSort &&
+          `${filterSort},`} ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,

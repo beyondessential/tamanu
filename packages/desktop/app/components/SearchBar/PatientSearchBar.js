@@ -43,6 +43,7 @@ export const PatientSearchBar = React.memo(
       >
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
+        <LocalisedField label="NHN" component={SearchField} name="displayId" />
         <LocalisedField
           name="locationGroupId"
           defaultLabel="Location"
