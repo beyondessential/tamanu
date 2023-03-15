@@ -14,9 +14,28 @@ import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 
-export const LabRequestsSearchBar = () => {
+const useAdvancedFields = advancedFields => {
   const { searchParameters, setSearchParameters } = useLabRequest();
-  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+
+  // If one of the advanced fields is filled in when landing on the screen,
+  // show the advanced fields section
+  const defaultIsOpen = Object.keys(searchParameters).some(searchKey =>
+    advancedFields.includes(searchKey),
+  );
+  const [showAdvancedFields, setShowAdvancedFields] = useState(defaultIsOpen);
+
+  return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
+};
+
+const ADVANCED_FIELDS = ['requestedDateFrom', 'requestedDateTo', 'requestedById', 'priority'];
+
+export const LabRequestsSearchBar = () => {
+  const {
+    showAdvancedFields,
+    setShowAdvancedFields,
+    searchParameters,
+    setSearchParameters,
+  } = useAdvancedFields(ADVANCED_FIELDS);
   const clinicianSuggester = useSuggester('practitioner');
   const locationGroupSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department', {
