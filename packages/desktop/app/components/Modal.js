@@ -1,8 +1,5 @@
 import React, { memo } from 'react';
 
-import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
-
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -10,7 +7,6 @@ import DialogActions from '@material-ui/core/DialogActions';
 import PrintIcon from '@material-ui/icons/Print';
 import CloseIcon from '@material-ui/icons/Close';
 import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
-import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
@@ -41,11 +37,13 @@ const Dialog = styled(MuiDialog)`
 
 const ModalContent = styled.div`
   flex: 1 1 auto;
-  padding: 18px ${MODAL_PADDING}px;
+  padding: 18px ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING)}px;
 `;
 
 const ModalContainer = styled.div`
   background: ${props => props.$color};
+  // Overflow in the modal content ensures that the modal header stays fixed
+  overflow: auto;
 
   @media print {
     background: none;
@@ -59,6 +57,7 @@ export const FullWidthRow = styled.div`
 
 const ModalTitle = styled(DialogTitle)`
   padding: 14px 14px 14px 32px;
+  border-bottom: 1px solid ${Colors.softOutline};
 
   h2 {
     display: flex;
@@ -93,6 +92,7 @@ export const Modal = memo(
     onPrint = null,
     additionalActions,
     color = Colors.background,
+    overrideContentPadding = false,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -150,7 +150,7 @@ export const Modal = memo(
           </div>
         </ModalTitle>
         <ModalContainer $color={color}>
-          <ModalContent>{children}</ModalContent>
+          <ModalContent $overrideContentPadding={overrideContentPadding}>{children}</ModalContent>
           <DialogActions>{actions}</DialogActions>
         </ModalContainer>
       </Dialog>
@@ -174,16 +174,6 @@ const Loader = styled(Box)`
 export const ModalLoader = ({ loadingText }) => (
   <Loader>
     <CircularProgress size="5rem" />
-    <Typography>{loadingText}</Typography>
+    {loadingText && <Typography>{loadingText}</Typography>}
   </Loader>
 );
-
-export const connectRoutedModal = (baseRoute, suffix) =>
-  connect(
-    state => ({
-      open: getCurrentRoute(state).startsWith(`${baseRoute}/${suffix}`),
-    }),
-    dispatch => ({
-      onClose: () => dispatch(push(baseRoute)),
-    }),
-  );

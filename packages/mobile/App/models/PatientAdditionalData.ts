@@ -200,6 +200,11 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     }
   }
 
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
+  }
+
   static getTableNameForSync(): string {
     return 'patient_additional_data';
   }

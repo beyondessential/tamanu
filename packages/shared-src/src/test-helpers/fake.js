@@ -12,6 +12,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
+  LAB_REQUEST_STATUSES,
 } from '../constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
@@ -19,12 +20,10 @@ import {
   FhirAddress,
   FhirAnnotation,
   FhirCodeableConcept,
-  FhirCoding,
   FhirContactPoint,
   FhirHumanName,
   FhirIdentifier,
   FhirPatientLink,
-  FhirPeriod,
   FhirReference,
   FhirExtension,
   FhirImmunizationPerformer,
@@ -233,20 +232,6 @@ const FIELD_HANDLERS = {
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),
   UUID: () => fakeUUID(),
-
-  FHIR_ADDRESS: (...args) => FhirAddress.fake(...args),
-  FHIR_ANNOTATION: (...args) => FhirAnnotation.fake(...args),
-  FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
-  FHIR_CODING: (...args) => FhirCoding.fake(...args),
-  FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
-  FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
-  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
-  FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
-  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
-  FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
-  FHIR_EXTENSION: (...args) => FhirExtension.fake(...args),
-  FHIR_IMMUNIZATION_PERFORMER: (...args) => FhirImmunizationPerformer.fake(...args),
-  FHIR_IMMUNIZATION_PROTOCOL_APPLIED: (...args) => FhirImmunizationProtocolApplied.fake(...args),
 };
 
 const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
@@ -260,9 +245,22 @@ const MODEL_SPECIFIC_OVERRIDES = {
     division: chance.province({ full: true }),
     type: chance.pickone(['hospital', 'clinic']),
   }),
-  ImagingRequest: () => ({
-    status: chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES)),
-  }),
+  ImagingRequest: () => {
+    const status = chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES));
+    const isCancelled = status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    return {
+      status,
+      reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
+    };
+  },
+  LabRequest: () => {
+    const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
+    const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
+    return {
+      status,
+      reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
+    };
+  },
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     let nameGender;
@@ -360,6 +358,107 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
 };
 
+const FHIR_MODELS_HANDLERS = {
+  FhirPatient: {
+    identifier: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirIdentifier.fake(...args)),
+    name: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirHumanName.fake(...args)),
+    telecom: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirContactPoint.fake(...args)),
+    address: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirAddress.fake(...args)),
+    link: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirPatientLink.fake(...args)),
+    extension: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirExtension.fake(...args)),
+  },
+  FhirServiceRequest: {
+    identifier: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirIdentifier.fake(...args)),
+    category: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirCodeableConcept.fake(...args)),
+    order_detail: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirCodeableConcept.fake(...args)),
+    location_code: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirCodeableConcept.fake(...args)),
+    code: (...args) => FhirCodeableConcept.fake(...args),
+    subject: (...args) => FhirReference.fake(...args),
+    requester: (...args) => FhirReference.fake(...args),
+  },
+  FhirDiagnosticReport: {
+    extension: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirExtension.fake(...args)),
+    identifier: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirIdentifier.fake(...args)),
+    code: (...args) => FhirCodeableConcept.fake(...args),
+    subject: (...args) => FhirReference.fake(...args),
+    performer: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirReference.fake(...args)),
+    result: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirReference.fake(...args)),
+  },
+  FhirImmunization: {
+    vaccine_code: (...args) => FhirCodeableConcept.fake(...args),
+    patient: (...args) => FhirReference.fake(...args),
+    encounter: (...args) => FhirReference.fake(...args),
+    site: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirCodeableConcept.fake(...args)),
+    performer: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirImmunizationPerformer.fake(...args)),
+    protocol_applied: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirImmunizationProtocolApplied.fake(...args)),
+  },
+  FhirImagingStudy: {
+    identifier: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirIdentifier.fake(...args)),
+    basedOn: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirReference.fake(...args)),
+    note: (...args) =>
+      Array(random(0, 3))
+        .fill(0)
+        .map(() => FhirAnnotation.fake(...args)),
+  },
+};
+
 export const fake = (model, passedOverrides = {}) => {
   const id = fakeUUID();
   const record = {};
@@ -409,6 +508,10 @@ export const fake = (model, passedOverrides = {}) => {
 
     if (type instanceof DataTypes.STRING && type.options.length) {
       return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
+    }
+
+    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name][fieldName]) {
+      return FHIR_MODELS_HANDLERS[model.name][fieldName](model, attribute, id);
     }
 
     // if you hit this error, you probably need to add a new field handler or a model-specific override

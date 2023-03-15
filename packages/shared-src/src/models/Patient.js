@@ -1,7 +1,9 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { getCovidClearanceCertificateFilter } from 'shared/utils';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -38,6 +40,7 @@ export class Patient extends Model {
         ],
       },
     );
+    onSaveMarkPatientForSync(this, 'id', 'afterSave');
   }
 
   static initRelations(models) {
@@ -154,12 +157,11 @@ export class Patient extends Model {
       raw: true,
       nest: true,
       ...queryOptions,
-      where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
+      where: await getCovidClearanceCertificateFilter(this.sequelize.models),
       include: [
         { association: 'requestedBy' },
         {
           association: 'category',
-          where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
         },
         {
           association: 'tests',

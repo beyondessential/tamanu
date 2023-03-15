@@ -1,17 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
-import {
-  REFERENCE_TYPES,
-  LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
-  NOTE_RECORD_TYPES,
-  VISIBILITY_STATUSES,
-} from 'shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
@@ -77,14 +71,20 @@ labRequest.get(
     const { rowsPerPage = 10, page = 0, ...filterParams } = query;
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
-      makeFilter(true, 'lab_requests.status != :deleted', () => ({
-        deleted: LAB_REQUEST_STATUSES.DELETED,
+      makeFilter(true, `lab_requests.status != :deleted`, () => ({
+        [LAB_REQUEST_STATUSES.DELETED]: LAB_REQUEST_STATUSES.DELETED,
+      })),
+      makeFilter(true, `lab_requests.status != :cancelled`, () => ({
+        [LAB_REQUEST_STATUSES.CANCELLED]: LAB_REQUEST_STATUSES.CANCELLED,
+      })),
+      makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
+        enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
       makeSimpleTextFilter('status', 'lab_requests.status'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
-      makeSimpleTextFilter('category', 'category.name'),
-      makeSimpleTextFilter('priority', 'priority.name'),
-      makeSimpleTextFilter('laboratory', 'laboratory.name'),
+      makeSimpleTextFilter('category', 'category.id'),
+      makeSimpleTextFilter('priority', 'priority.id'),
+      makeSimpleTextFilter('laboratory', 'laboratory.id'),
       makeSimpleTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
@@ -218,57 +218,7 @@ labRequest.use(labRelations);
 
 export const labTest = express.Router();
 
-labTest.get(
-  '/options$',
-  asyncHandler(async (req, res) => {
-    // always allow reading lab test options
-    req.flagPermissionChecked();
-
-    const records = await req.models.LabTestType.findAll({
-      order: Sequelize.literal('name ASC'),
-      where: {
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-    });
-    res.send({
-      data: records,
-      count: records.length,
-    });
-  }),
-);
-
-labTest.get(
-  '/categories$',
-  asyncHandler(async (req, res) => {
-    // always allow reading lab test options
-    req.flagPermissionChecked();
-
-    const records = await req.models.ReferenceData.findAll({
-      where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
-    });
-
-    res.send({
-      data: records,
-      count: records.length,
-    });
-  }),
-);
-
-labTest.get(
-  '/priorities$',
-  asyncHandler(async (req, res) => {
-    // always allow reading lab urgency options
-    req.flagPermissionChecked();
-
-    const records = await req.models.ReferenceData.findAll({
-      where: { type: REFERENCE_TYPES.LAB_TEST_PRIORITY },
-    });
-
-    res.send({
-      data: records,
-      count: records.length,
-    });
-  }),
-);
-
 labTest.put('/:id', simplePut('LabTest'));
+
+export const labTestType = express.Router();
+labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));

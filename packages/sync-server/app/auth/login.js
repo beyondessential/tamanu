@@ -1,19 +1,25 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
-import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import jwt from 'jsonwebtoken';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { BadAuthenticationError } from 'shared/errors';
+import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
-import { getToken, stripUser, findUser } from './utils';
+import { getToken, stripUser, findUser, getRandomBase64String, getRandomU32 } from './utils';
 
-export const login = ({ secret }) =>
+export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body } = req;
-    const { email, password, facilityId } = body;
+    const { email, password, facilityId, deviceId } = body;
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
+    }
+
+    if (!deviceId) {
+      throw new BadAuthenticationError('Missing deviceId');
     }
 
     const user = await findUser(store.models, email);
@@ -31,7 +37,63 @@ export const login = ({ secret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const token = await getToken(user, secret, config.auth.tokenDuration);
+    const { auth, canonicalHostName } = config;
+
+    const {
+      tokenDuration,
+      saltRounds,
+      refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
+    } = auth;
+
+    const accessTokenJwtId = getRandomU32();
+    const token = getToken(
+      {
+        userId: user.id,
+      },
+      secret,
+      {
+        expiresIn: tokenDuration,
+        audience: JWT_TOKEN_TYPES.ACCESS,
+        issuer: canonicalHostName,
+        jwtid: `${accessTokenJwtId}`,
+      },
+    );
+
+    const refreshId = await getRandomBase64String(refreshIdLength);
+    const refreshTokenJwtId = getRandomU32();
+    const hashedRefreshId = await bcrypt.hash(refreshId, saltRounds);
+
+    const refreshToken = getToken(
+      {
+        userId: user.id,
+        refreshId,
+      },
+      refreshSecret,
+      {
+        expiresIn: refreshTokenDuration,
+        audience: JWT_TOKEN_TYPES.REFRESH,
+        issuer: canonicalHostName,
+        jwtid: `${refreshTokenJwtId}`,
+      },
+    );
+
+    // Extract expiry as set by jwt.sign
+    const { exp } = jwt.decode(refreshToken);
+
+    await store.models.RefreshToken.upsert(
+      {
+        refreshId: hashedRefreshId,
+        expiresAt: new Date(exp * 1000),
+        userId: user.id,
+        deviceId,
+      },
+      {
+        where: {
+          userId: user.id,
+          deviceId,
+        },
+      },
+    );
 
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
@@ -43,6 +105,7 @@ export const login = ({ secret }) =>
 
     res.send({
       token,
+      refreshToken,
       user: convertFromDbRecord(stripUser(user)).data,
       permissions,
       facility,

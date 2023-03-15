@@ -3,9 +3,10 @@ import config from 'config';
 import asyncPool from 'tiny-async-pool';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
 import { log } from 'shared/services/logging/log';
-import { findSyncSessionRecords } from './findSyncSessionRecords';
-import { countSyncSessionRecords } from './countSyncSessionRecords';
+import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
+import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';
+import { SYNC_SESSION_DIRECTION } from './constants';
 
 const { persistedCacheBatchSize } = config.sync;
 const UPDATE_WORKER_POOL_SIZE = 100;
@@ -40,8 +41,10 @@ const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentral
   );
 };
 
-const saveDeletes = async (model, recordIds) =>
-  model.destroy({ where: { id: { [Op.in]: recordIds } } });
+const saveDeletes = async (model, recordIds) => {
+  if (recordIds.length === 0) return;
+  await model.destroy({ where: { id: { [Op.in]: recordIds } } });
+};
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
   const sanitizeData = d =>
@@ -78,30 +81,35 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
 
 const saveChangesForModelInBatches = async (
   model,
-  models,
+  sequelize,
   sessionId,
   recordType,
   isCentralServer,
 ) => {
-  const syncRecordsCount = await countSyncSessionRecords(models, model.tableName, sessionId);
+  const syncRecordsCount = await countSyncSnapshotRecords(
+    sequelize,
+    sessionId,
+    SYNC_SESSION_DIRECTION.INCOMING,
+    model.tableName,
+  );
   log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
-  let fromId = '00000000-0000-0000-0000-000000000000';
+  let fromId;
 
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-    const batchRecords = await findSyncSessionRecords(
-      models,
-      recordType,
-      persistedCacheBatchSize,
-      fromId,
+    const batchRecords = await findSyncSnapshotRecords(
+      sequelize,
       sessionId,
+      SYNC_SESSION_DIRECTION.INCOMING,
+      fromId,
+      persistedCacheBatchSize,
+      recordType,
     );
     fromId = batchRecords[batchRecords.length - 1].id;
 
-    const batchRecordsToSave = batchRecords.map(r => r.dataValues);
     try {
-      await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
+      await saveChangesForModel(model, batchRecords, isCentralServer);
     } catch (error) {
       log.error(`Failed to save changes for ${model.name}`);
       throw error;
@@ -110,7 +118,7 @@ const saveChangesForModelInBatches = async (
 };
 
 export const saveIncomingChanges = async (
-  models,
+  sequelize,
   pulledModels,
   sessionId,
   isCentralServer = false,
@@ -118,6 +126,12 @@ export const saveIncomingChanges = async (
   const sortedModels = sortInDependencyOrder(pulledModels);
 
   for (const model of sortedModels) {
-    await saveChangesForModelInBatches(model, models, sessionId, model.tableName, isCentralServer);
+    await saveChangesForModelInBatches(
+      model,
+      sequelize,
+      sessionId,
+      model.tableName,
+      isCentralServer,
+    );
   }
 };

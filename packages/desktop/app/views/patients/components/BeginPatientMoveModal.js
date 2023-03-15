@@ -10,21 +10,27 @@ import {
   Modal,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
+  RadioField,
 } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
+const patientMoveActionOptions = [
+  { label: 'Plan', value: 'plan' },
+  { label: 'Finalise', value: 'finalise' },
+];
+
 const Container = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
-  grid-row-gap: 20px;
-  padding-bottom: 75px;
-  max-width: 360px;
-  margin: 30px auto 40px;
+  grid-template-columns: 1fr 1fr;
+  grid-row-gap: 35px;
+  margin: 20px auto 20px;
+  grid-column-gap: 30px;
 `;
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
+  padding-bottom: 20px;
 `;
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
@@ -32,19 +38,19 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
 
   const { getLocalisation } = useLocalisation();
   const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
+  const onSubmit = data => {
+    if (data.action === 'plan') {
+      return submit(data);
+    }
+    // If we're finalising the move, we just directly update the locationId
+    const { plannedLocationId: locationId, ...rest } = data;
+    return submit({ locationId, ...rest });
+  };
   return (
-    <Modal title="Plan patient move" open={open} onClose={onClose}>
-      <Text>
-        Select a location to plan the patient move and reserve a bed. The new location will not be
-        reflected in the patient encounter until you finalise the move.
-        <br />
-        <br />
-        If the move is not finalised within {plannedMoveTimeoutHours} hours, the location will be
-        deemed ‘Available’ again.
-      </Text>
+    <Modal title="Move patient" open={open} onClose={onClose}>
       <Form
-        initialValues={{ plannedLocationId: encounter.plannedLocationId }}
-        onSubmit={submit}
+        initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'plan' }}
+        onSubmit={onSubmit}
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
@@ -53,8 +59,23 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
             <>
               <Container>
                 <Field name="plannedLocationId" component={LocalisedLocationField} required />
-                <LocationAvailabilityWarningMessage locationId={values?.plannedLocationId} />
+                <LocationAvailabilityWarningMessage
+                  locationId={values?.plannedLocationId}
+                  style={{ gridColumn: '2', marginTop: '-35px', fontSize: '12px' }}
+                />
+                <Field
+                  name="action"
+                  label="Would you like to plan or finalise the patient move?"
+                  component={RadioField}
+                  options={patientMoveActionOptions}
+                  style={{ gridColumn: '1/-1' }}
+                />
               </Container>
+              <Text>
+                By selecting ‘Plan’ the new location will not be reflected in the patient encounter
+                until you finalise the move. If the move is not finalised within{' '}
+                {plannedMoveTimeoutHours} hours, the location will be deemed ‘Available’ again.
+              </Text>
               <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </>
           );

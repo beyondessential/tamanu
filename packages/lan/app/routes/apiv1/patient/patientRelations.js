@@ -16,24 +16,53 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Encounter');
     const {
+      db,
       models: { Encounter },
       params,
       query,
     } = req;
+
     const { order = 'ASC', orderBy, open = false } = query;
 
-    const objects = await Encounter.findAll({
-      where: {
-        patientId: params.id,
-        ...(open && { endDate: null }),
-      },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-    });
+    const ENCOUNTER_SORT_KEYS = {
+      startDate: 'start_date',
+      endDate: 'end_date',
+      facilityName: 'facility_name',
+    };
 
-    const data = objects.map(x => x.forResponse());
+    const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const { count, data } = await runPaginatedQuery(
+      db,
+      Encounter,
+      `
+        SELECT COUNT(1) as count
+        FROM
+          encounters
+        WHERE
+          patient_id = :patientId
+          ${open ? 'AND end_date IS NULL' : ''}
+      `,
+      `
+        SELECT encounters.*, locations.facility_id AS facility_id, facilities.name AS facility_name
+        FROM
+          encounters
+          INNER JOIN locations
+            ON encounters.location_id = locations.id
+          INNER JOIN facilities
+            ON locations.facility_id = facilities.id
+        WHERE
+          patient_id = :patientId
+          ${open ? 'AND end_date IS NULL' : ''}
+        ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
+      `,
+      { patientId: params.id },
+      query,
+    );
 
     res.send({
-      count: objects.length,
+      count: parseInt(count, 10),
       data,
     });
   }),
@@ -81,15 +110,10 @@ patientRelations.get(
           d.id AS "definitionId",
           v.value
         FROM patient_field_definitions d
-        LEFT JOIN LATERAL (
-          SELECT value
-          FROM patient_field_values v
-          WHERE v.definition_id = d.id
-            AND v.patient_id = :patientId
-          -- TODO: order by logical clock
-          ORDER BY updated_at DESC LIMIT 1
-        ) v ON true
-        WHERE d.visibility_status NOT IN (:hiddenStatuses);
+        JOIN patient_field_values v
+        ON v.definition_id = d.id
+        WHERE v.patient_id = :patientId
+        AND d.visibility_status NOT IN (:hiddenStatuses);
       `,
       {
         replacements: {
@@ -136,7 +160,7 @@ patientRelations.get(
             include: [
               [
                 Sequelize.literal(
-                  `COALESCE((SELECT 
+                  `COALESCE((SELECT
                     sra.body
                   FROM survey_response_answers sra
                    LEFT JOIN program_data_elements pde ON sra.data_element_id = pde.id

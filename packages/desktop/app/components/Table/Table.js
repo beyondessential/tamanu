@@ -55,7 +55,7 @@ const StyledTableRow = styled(TableRow)`
       ? `
       cursor: pointer;
       &:hover {
-        background: #f4f9ff;
+        background: ${Colors.veryLightBlue};
       }
     `
       : ''}
@@ -321,6 +321,7 @@ class TableComponent extends React.Component {
 
   render() {
     const { className, elevated, headerColor } = this.props;
+
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         <StyledTable>

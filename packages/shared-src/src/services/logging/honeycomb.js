@@ -1,31 +1,34 @@
 import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
-import shortid from 'shortid';
-import os from 'os';
+import { SemanticAttributes, serviceContext, serviceName } from './context';
 
-const serverInfo = {
-  deployment: config?.canonicalHostName || config?.sync?.host,
-  facilityId: config?.serverFacilityId,
-  nodeEnv: process.env.NODE_ENV,
-  processId: shortid.generate(),
-  hostname: os.hostname(),
-  ...global.serverInfo,
+const context = serviceContext();
+const legacyNames = {
+  deployment: context[SemanticAttributes.DEPLOYMENT_NAME],
+  facilityId: context[SemanticAttributes.DEPLOYMENT_FACILITY],
+  nodeEnv: context[SemanticAttributes.DEPLOYMENT_ENVIRONMENT],
+  processId: context[SemanticAttributes.PROCESS_ID],
+  hostname: context[SemanticAttributes.NET_HOST_NAME],
+  version: context[SemanticAttributes.SERVICE_VERSION],
+  serverType: context[SemanticAttributes.SERVICE_TYPE],
 };
 
-const { apiKey, dataset, enabled } = config?.honeycomb || {};
+const { apiKey, enabled } = config?.honeycomb || {};
 
+const dataset = serviceName(context);
 const honeyApi = new Libhoney({
   writeKey: apiKey,
   dataset,
-  disabled: !(apiKey && enabled),
+  disabled: !(apiKey && enabled && dataset),
 });
 
 class HoneycombTransport extends Transport {
   log(info, callback) {
     const event = honeyApi.newEvent();
     event.add(info);
-    event.add(serverInfo);
+    event.add(context);
+    event.add(legacyNames);
     event.send();
     callback();
   }

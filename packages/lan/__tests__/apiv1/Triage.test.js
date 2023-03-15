@@ -25,8 +25,8 @@ describe('Triage', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
 
-    facility = await models.Facility.create({
-      ...fake(models.Facility, { id: config.serverFacilityId }),
+    facility = await models.Facility.findOne({
+      where: { id: config.serverFacilityId },
     });
 
     [emergencyDepartment] = await models.Department.upsert({
@@ -226,10 +226,11 @@ describe('Triage', () => {
   });
 
   describe('Listing & filtering', () => {
-
     let createTestTriage;
 
     beforeAll(async () => {
+      await models.Triage.truncate({ cascade: true });
+
       // create a few test triages
       const { id: locationId } = await models.Location.create({
         ...fake(models.Location),

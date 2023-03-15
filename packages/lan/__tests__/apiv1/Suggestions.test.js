@@ -190,6 +190,29 @@ describe('Suggestions', () => {
       expect(filteredResult).toHaveSucceeded();
       expect(filteredResult?.body?.length).toEqual(2);
     });
+
+    it('should return facilityId with suggestion list', async () => {
+      await models.Location.truncate({ cascade: true });
+      const facility = await models.Facility.create({
+        id: 'test-facility',
+        code: 'test-facility',
+        name: 'Test Facility',
+      });
+      const locationGroup = await findOneOrCreate(models, models.LocationGroup, {
+        id: 'test-area',
+        name: 'Test Area',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 1',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+        facilityId: facility.id,
+      });
+      const result = await userApp.get('/v1/suggestions/location');
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(1);
+      expect(result.body[0].facilityId).toEqual(facility.id);
+    });
   });
 
   describe('General functionality (via diagnoses)', () => {

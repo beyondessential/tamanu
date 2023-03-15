@@ -25,7 +25,7 @@ function createSuggesterRoute(
   searchColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}`,
+    `/${endpoint}$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -78,7 +78,7 @@ function createAllRecordsSuggesterRoute(
   orderColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}/all`,
+    `/${endpoint}/all$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -112,19 +112,24 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-REFERENCE_TYPE_VALUES.map(typeName =>
+REFERENCE_TYPE_VALUES.forEach(typeName => {
   createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  }),
-);
+  });
 
-REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(typeName, 'ReferenceData', search => ({
     name: { [Op.iLike]: search },
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  })),
+  }));
+});
+
+createAllRecordsSuggesterRoute(
+  'labTestType',
+  'LabTestType',
+  VISIBILITY_CRITERIA,
+  ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 );
 
 const DEFAULT_WHERE_BUILDER = search => ({
@@ -178,7 +183,7 @@ createSuggester(
   },
   async location => {
     const availability = await location.getAvailability();
-    const { name, code, id, maxOccupancy } = location;
+    const { name, code, id, maxOccupancy, facilityId } = location;
 
     const lg = await location.getLocationGroup();
     const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
@@ -188,6 +193,7 @@ createSuggester(
       maxOccupancy,
       id,
       availability,
+      facilityId,
       ...(locationGroup && { locationGroup }),
     };
   },
@@ -197,6 +203,11 @@ createSuggester(
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
+
+// Location groups filtered by facility. Used in the survey form autocomplete
+createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
+  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+);
 
 createSuggester(
   'survey',

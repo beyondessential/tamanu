@@ -222,6 +222,10 @@ export class SurveyResponse extends Model {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
       const body = getStringValue(dataElement.type, value);
+      // Don't create null answers
+      if (body === null) {
+        continue;
+      }
       await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,

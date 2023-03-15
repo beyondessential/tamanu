@@ -4,6 +4,7 @@ import { ILocation } from '../types';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
 import { Facility } from './Facility';
+import { LocationGroup } from './LocationGroup';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
@@ -27,9 +28,21 @@ export class Location extends BaseModel implements ILocation {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  @OneToMany(() => Encounter, ({ location }) => location)
+  @OneToMany(
+    () => Encounter,
+    ({ location }) => location,
+  )
   encounters: Location[];
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.location)
+  @OneToMany(
+    () => AdministeredVaccine,
+    administeredVaccine => administeredVaccine.location,
+  )
   administeredVaccines: AdministeredVaccine[];
+
+  @ManyToOne(() => LocationGroup)
+  locationGroup: LocationGroup;
+
+  @RelationId(({ locationGroup }) => locationGroup)
+  locationGroupId: string;
 }

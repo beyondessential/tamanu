@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
@@ -37,6 +38,8 @@ export class DocumentMetadata extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
@@ -54,6 +57,10 @@ export class DocumentMetadata extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+  }
+
+  static getListReferenceAssociations() {
+    return ['department'];
   }
 
   static buildSyncFilter(patientIds) {

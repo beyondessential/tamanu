@@ -1,13 +1,11 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
 import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
-
-import { useApi, useLocationGroupSuggester, usePatientSuggester, useSuggester } from '../../api';
+import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
 
 export const AppointmentForm = props => {
@@ -16,7 +14,7 @@ export const AppointmentForm = props => {
   const isUpdating = !!appointment;
   const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
-  const locationGroupSuggester = useLocationGroupSuggester();
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   let initialValues = {};
   if (isUpdating) {
@@ -105,6 +103,7 @@ export const AppointmentForm = props => {
                 component={AutocompleteField}
                 suggester={locationGroupSuggester}
                 required
+                autofill
               />
               <FormSeparatorLine />
               <ConfirmCancelRow

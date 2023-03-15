@@ -4,8 +4,6 @@ import { createReferralNotification } from 'shared/tasks/CreateReferralNotificat
 import { FHIR_UPSTREAMS } from 'shared/constants';
 import { log } from 'shared/services/logging';
 
-import { fhirQueue } from '../tasks/FhirMaterialiser';
-
 export async function addHooks(store) {
   if (config.notifications?.referralCreated) {
     store.models.Referral.addHook('afterCreate', 'create referral notification hook', referral => {
@@ -24,18 +22,23 @@ export async function addHooks(store) {
         log.info(`Installing ${upstream} hooks for FHIR materialisation of ${resource}`);
 
         for (const hook of singleHooks) {
-          Upstream.addHook(hook, 'fhirMaterialisation', row => {
-            fhirQueue(resource, row.id);
+          Upstream.addHook(hook, 'fhirMaterialisation', async row => {
+            await store.models.FhirMaterialiseJob.enqueue({ resource, upstreamId: row.id });
           });
         }
 
-        Upstream.addHook('afterBulkCreate', 'fhirMaterialisation', rows => {
-          rows.forEach(row => fhirQueue(resource, row.id));
+        Upstream.addHook('afterBulkCreate', 'fhirMaterialisation', async rows => {
+          await store.models.FhirMaterialiseJob.enqueueMultiple(
+            rows.map(row => ({ resource, upstreamId: row.id })),
+          );
         });
 
         Upstream.addHook('afterBulkUpdate', 'fhirMaterialisation', async ({ where }) => {
-          (await Upstream.findAll({ where, paranoid: false })).forEach(row =>
-            fhirQueue(resource, row.id),
+          await store.models.FhirMaterialiseJob.enqueueMultiple(
+            (await Upstream.findAll({ where, paranoid: false })).map(row => ({
+              resource,
+              upstreamId: row.id,
+            })),
           );
         });
       }

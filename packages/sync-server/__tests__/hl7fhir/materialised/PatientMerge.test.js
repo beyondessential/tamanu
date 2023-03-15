@@ -71,7 +71,8 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       // });
     });
 
-    it('links patients that were merged into the top level patient A (as fetch)', async () => {
+    // Flaky test (EPI-275)
+    it.skip('links patients that were merged into the top level patient A (as fetch)', async () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${ids.a}`;
 
       // act

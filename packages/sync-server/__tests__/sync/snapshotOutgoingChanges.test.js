@@ -2,7 +2,13 @@ import { expect, beforeAll, describe, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
 import { fake, fakeReferenceData, withErrorShown } from 'shared/test-helpers';
-import { getModelsForDirection, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
+import {
+  getModelsForDirection,
+  createSnapshotTable,
+  findSyncSnapshotRecords,
+  COLUMNS_EXCLUDED_FROM_SYNC,
+  SYNC_SESSION_DIRECTION,
+} from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fakeUUID } from 'shared/utils/generateId';
@@ -10,7 +16,7 @@ import { fakeUUID } from 'shared/utils/generateId';
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
 
-const readOnlyConfig = readOnly => ({ sync: { readOnly } });
+const syncConfig = readOnly => ({ sync: { readOnly, maxRecordsPerPullSnapshotChunk: 1000 } });
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -39,6 +45,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
       await ReferenceData.create(fakeReferenceData());
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
 
@@ -49,7 +56,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         '',
         simplestSessionConfig,
-        readOnlyConfig(true),
+        syncConfig(true),
       );
 
       expect(result).toEqual(0);
@@ -62,11 +69,13 @@ describe('snapshotOutgoingChanges', () => {
       const { LocalSystemFact } = models;
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
 
+      const sessionId = fakeUUID();
+      await createSnapshotTable(ctx.store.sequelize, sessionId);
       const result = await snapshotOutgoingChanges(
         outgoingModels,
         tock - 1,
         [],
-        fakeUUID(),
+        sessionId,
         '',
         simplestSessionConfig,
       );
@@ -77,7 +86,7 @@ describe('snapshotOutgoingChanges', () => {
   it(
     'returns serialised records (excluding metadata columns)',
     withErrorShown(async () => {
-      const { SyncSession, SyncSessionRecord, LocalSystemFact, ReferenceData } = models;
+      const { SyncSession, LocalSystemFact, ReferenceData } = models;
       const startTime = new Date();
       const syncSession = await SyncSession.create({
         startTime,
@@ -86,6 +95,7 @@ describe('snapshotOutgoingChanges', () => {
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
       const result = await snapshotOutgoingChanges(
         outgoingModels,
         tock - 1,
@@ -96,9 +106,11 @@ describe('snapshotOutgoingChanges', () => {
       );
       expect(result).toEqual(1);
 
-      const [syncRecord] = await SyncSessionRecord.findAll({
-        where: { sessionId: syncSession.id },
-      });
+      const [syncRecord] = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
       expect(
         Object.keys(syncRecord.data).every(key => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
       ).toBe(true);
@@ -117,6 +129,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
@@ -144,6 +157,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
       await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
@@ -164,7 +178,7 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
 
-      const queryReturnValue = [undefined, 0];
+      const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
       const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
@@ -189,6 +203,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
@@ -245,7 +260,7 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
 
-      const queryReturnValue = [undefined, 0];
+      const queryReturnValue = [[{ maxId: null, count: 0 }]];
       let resolveFakeModelQuery;
       const promise = new Promise(resolve => {
         resolveFakeModelQuery = () => resolve(queryReturnValue);
@@ -270,6 +285,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
@@ -374,12 +390,13 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
 
       return { encounter, labTest, labRequest, firstTock, secondTock, syncSession };
     };
 
     it('includes a lab request for a patient not marked for sync, with its associated test and encounter, if turned on', async () => {
-      const { Encounter, LabRequest, LabTest, SyncSessionRecord } = models;
+      const { Encounter, LabRequest, LabTest } = models;
       const { encounter, labTest, labRequest, firstTock, syncSession } = await setupTestData();
 
       await snapshotOutgoingChanges(
@@ -391,16 +408,18 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
-      const syncSessionRecords = await SyncSessionRecord.findAll({
-        where: { sessionId: syncSession.id },
-      });
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [labTest.id, labRequest.id, encounter.id].sort(),
       );
     });
 
     it('includes encounters for new lab requests even if the encounter is older than the sync "since" time', async () => {
-      const { Encounter, LabRequest, LabTest, SyncSessionRecord } = models;
+      const { Encounter, LabRequest, LabTest } = models;
       const { encounter, labTest, labRequest, secondTock, syncSession } = await setupTestData();
 
       await snapshotOutgoingChanges(
@@ -412,16 +431,18 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
-      const syncSessionRecords = await SyncSessionRecord.findAll({
-        where: { sessionId: syncSession.id },
-      });
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [labTest.id, labRequest.id, encounter.id].sort(),
       );
     });
 
     it('does not include lab requests for patients not marked for sync if turned off', async () => {
-      const { Encounter, LabRequest, LabTest, SyncSessionRecord } = models;
+      const { Encounter, LabRequest, LabTest } = models;
       const { firstTock, syncSession } = await setupTestData();
 
       await snapshotOutgoingChanges(
@@ -433,10 +454,12 @@ describe('snapshotOutgoingChanges', () => {
         { ...simplestSessionConfig, syncAllLabRequests: false },
       );
 
-      const syncSessionRecords = await SyncSessionRecord.findAll({
-        where: { sessionId: syncSession.id },
-      });
-      expect(syncSessionRecords.length).toEqual(0);
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      expect(outgoingSnapshotRecords.length).toEqual(0);
     });
   });
 
@@ -505,6 +528,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
 
       return {
         encounter1,
@@ -520,7 +544,7 @@ describe('snapshotOutgoingChanges', () => {
     };
 
     it('includes required administered vaccines and encounters, if turned on', async () => {
-      const { Encounter, AdministeredVaccine, SyncSessionRecord } = models;
+      const { Encounter, AdministeredVaccine } = models;
 
       const {
         // use the first vaccine type in the list to sync everywhere, the second should be ignored
@@ -543,16 +567,18 @@ describe('snapshotOutgoingChanges', () => {
         },
       );
 
-      const syncSessionRecords = await SyncSessionRecord.findAll({
-        where: { sessionId: syncSession.id },
-      });
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [administeredVaccine1.id, encounter1.id].sort(),
       );
     });
 
     it('includes encounters for new administered vaccines even if the encounter is older than the sync "since" time', async () => {
-      const { Encounter, AdministeredVaccine, SyncSessionRecord } = models;
+      const { Encounter, AdministeredVaccine } = models;
       const {
         // use the second vaccine this time, to mix things up
         encounter2,
@@ -574,16 +600,18 @@ describe('snapshotOutgoingChanges', () => {
         },
       );
 
-      const syncSessionRecords = await SyncSessionRecord.findAll({
-        where: { sessionId: syncSession.id },
-      });
-      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
         [administeredVaccine2.id, encounter2.id].sort(),
       );
     });
 
     it('does not include administered vaccines for patients not marked for sync if turned off', async () => {
-      const { Encounter, AdministeredVaccine, SyncSessionRecord } = models;
+      const { Encounter, AdministeredVaccine } = models;
 
       const { firstTock, syncSession } = await setupTestData();
 
@@ -599,10 +627,12 @@ describe('snapshotOutgoingChanges', () => {
         },
       );
 
-      const syncSessionRecords = await SyncSessionRecord.findAll({
-        where: { sessionId: syncSession.id },
-      });
-      expect(syncSessionRecords.length).toEqual(0);
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      expect(outgoingSnapshotRecords.length).toEqual(0);
     });
   });
 });

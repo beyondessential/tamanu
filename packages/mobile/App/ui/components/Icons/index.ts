@@ -19,7 +19,7 @@ export * from './ArrowDown';
 export * from './ArrowForward';
 export * from './ArrowLeft';
 export * from './ArrowUp';
-export * from './CheckUp';
+export * from './Vitals';
 export * from './Pencil';
 
 // Logos

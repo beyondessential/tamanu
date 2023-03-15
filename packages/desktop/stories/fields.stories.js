@@ -20,7 +20,6 @@ import {
   AutocompleteInput,
   NullableBooleanInput,
   TimeWithUnitInput,
-  TemperatureInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 
@@ -104,21 +103,6 @@ addStories('TimeWithUnitInput', props => (
     {...props}
   />
 ));
-
-addStories('TemperatureInput', props => {
-  const [formValue, setFormValue] = React.useState(0);
-  const onChange = newValue => {
-    setFormValue(newValue);
-  };
-  return (
-    <Container>
-      <Box>
-        <TemperatureInput name="temperature" min={0} onChange={onChange} {...props} />
-        <Box m={3}>Form value: {formValue}</Box>
-      </Box>
-    </Container>
-  );
-});
 
 const TAGS = {
   primary: {
@@ -253,6 +237,8 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
+)).add('Small', () => (
+  <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} size="small" />
 ));
 
 addStories('MultiselectInput', props => (
@@ -273,6 +259,15 @@ const dummySuggester = {
 addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
 ))
+  .add('Small', () => (
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      value="pomegranates"
+      label="Fruit"
+      size="small"
+      suggester={dummySuggester}
+    />
+  ))
   .add('Asynchronous options', () => (
     <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
   ))

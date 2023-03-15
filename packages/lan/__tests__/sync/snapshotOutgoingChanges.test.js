@@ -4,7 +4,6 @@ import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
 import { SYNC_SESSION_DIRECTION, getModelsForDirection } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
@@ -33,7 +32,6 @@ describe('snapshotOutgoingChanges', () => {
       const result = await snapshotOutgoingChanges.overrideConfig(
         ctx.sequelize,
         models,
-        fakeUUID(),
         tick - 1,
         readOnlyConfig(true),
       );
@@ -48,12 +46,7 @@ describe('snapshotOutgoingChanges', () => {
       const { LocalSystemFact } = models;
       const tick = await LocalSystemFact.increment('currentSyncTick');
 
-      const result = await snapshotOutgoingChanges(
-        ctx.sequelize,
-        outgoingModels,
-        fakeUUID(),
-        tick - 1,
-      );
+      const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tick - 1);
       expect(result).toEqual([]);
     }),
   );
@@ -64,9 +57,7 @@ describe('snapshotOutgoingChanges', () => {
       const { LocalSystemFact } = models;
       const tick = await LocalSystemFact.increment('currentSyncTick');
 
-      await expect(
-        snapshotOutgoingChanges(ctx.sequelize, models, fakeUUID(), tick - 1),
-      ).rejects.toThrowError();
+      await expect(snapshotOutgoingChanges(ctx.sequelize, models, tick - 1)).rejects.toThrowError();
     }),
   );
 
@@ -77,18 +68,11 @@ describe('snapshotOutgoingChanges', () => {
       const tick = await LocalSystemFact.increment('currentSyncTick');
 
       const row = await ReferenceData.create(fakeReferenceData());
-      const sessionId = fakeUUID();
 
-      const result = await snapshotOutgoingChanges(
-        ctx.sequelize,
-        outgoingModels,
-        sessionId,
-        tick - 1,
-      );
+      const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tick - 1);
 
       expect(result).toEqual([
         {
-          sessionId,
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'reference_data',
@@ -116,17 +100,10 @@ describe('snapshotOutgoingChanges', () => {
       await LocalSystemFact.increment('currentSyncTick');
       const row = await ReferenceData.create(fakeReferenceData());
 
-      const sessionId = fakeUUID();
-      const result = await snapshotOutgoingChanges(
-        ctx.sequelize,
-        outgoingModels,
-        sessionId,
-        tickBefore,
-      );
+      const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tickBefore);
 
       expect(result).toEqual([
         {
-          sessionId,
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'reference_data',
@@ -154,17 +131,10 @@ describe('snapshotOutgoingChanges', () => {
       await LocalSystemFact.increment('currentSyncTick');
       const rowAfter = await ReferenceData.create(fakeReferenceData());
 
-      const sessionId = fakeUUID();
-      const result = await snapshotOutgoingChanges(
-        ctx.sequelize,
-        outgoingModels,
-        sessionId,
-        tickBefore - 1,
-      );
+      const result = await snapshotOutgoingChanges(ctx.sequelize, outgoingModels, tickBefore - 1);
 
       expect(result).toEqual([
         {
-          sessionId,
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'reference_data',
@@ -178,7 +148,6 @@ describe('snapshotOutgoingChanges', () => {
           },
         },
         {
-          sessionId,
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'reference_data',
@@ -220,7 +189,6 @@ describe('snapshotOutgoingChanges', () => {
         name: 'refData before',
       });
 
-      const sessionId = fakeUUID();
       const snapshot = snapshotOutgoingChanges(
         ctx.sequelize,
         {
@@ -231,7 +199,6 @@ describe('snapshotOutgoingChanges', () => {
           FakeModel: fakeModelThatWaitsUntilWeSaySo,
           ReferenceData: models.ReferenceData,
         },
-        sessionId,
         tick - 1,
       );
 
@@ -257,7 +224,6 @@ describe('snapshotOutgoingChanges', () => {
 
       expect(result).toEqual([
         {
-          sessionId,
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'reference_data',
@@ -301,7 +267,6 @@ describe('snapshotOutgoingChanges', () => {
         name: 'refData before',
       });
 
-      const sessionId = fakeUUID();
       const snapshot = snapshotOutgoingChanges(
         ctx.sequelize,
         {
@@ -309,15 +274,13 @@ describe('snapshotOutgoingChanges', () => {
           FakeModel: fakeModelThatWaitsUntilWeSaySo,
           ReferenceData: models.ReferenceData,
         },
-        sessionId,
         tick - 1,
       );
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      let rowAfter;
       const after = ctx.sequelize.transaction(async transaction => {
-        rowAfter = await ReferenceData.create(
+        await ReferenceData.create(
           {
             ...fakeReferenceData(),
             name: 'refData after',
@@ -340,7 +303,6 @@ describe('snapshotOutgoingChanges', () => {
       expect(result.sort(byId)).toEqual(
         [
           {
-            sessionId,
             direction: SYNC_SESSION_DIRECTION.OUTGOING,
             isDeleted: false,
             recordType: 'reference_data',
@@ -395,14 +357,9 @@ describe('snapshotOutgoingChanges', () => {
     }
 
     // now we can use this limit to test the snapshotting
-    const { SyncSession, LocalSystemFact } = models;
+    const { LocalSystemFact } = models;
 
     // start a sync session
-    const startTime = new Date();
-    const syncSession = await SyncSession.create({
-      startTime,
-      lastConnectionTime: startTime,
-    });
     const tock = await LocalSystemFact.increment('currentSyncTick', 2);
 
     // create a bunch of records, more than the call stack limit
@@ -425,7 +382,6 @@ describe('snapshotOutgoingChanges', () => {
       {
         ReferenceData: models.ReferenceData,
       },
-      syncSession.id,
       tock - 1,
     );
     // console.log(`Snapshotting ${limit + 100} records took ${new Date - start}ms`);

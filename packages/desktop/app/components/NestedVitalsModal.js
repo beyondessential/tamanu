@@ -1,26 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal } from './Modal';
 import { OutlinedButton } from './Button';
-import { VitalsForm } from '../forms/VitalsForm';
+import { VitalsForm } from '../forms';
 
-export const NestedVitalsModal = ({ field }) => {
-  const [isOpen, setModalOpen] = React.useState(false);
-  const openModal = React.useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
-  const onSubmit = React.useCallback(
-    data => {
-      field.onChange({ target: { name: field.name, value: data } });
-      setModalOpen(false);
-    },
-    [field],
-  );
+export const NestedVitalsModal = React.memo(({ field, patient }) => {
+  const [isOpen, setModalOpen] = useState(false);
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+  const onSubmit = data => {
+    field.onChange({ target: { name: field.name, value: data } });
+    setModalOpen(false);
+  };
 
   return (
     <>
       <OutlinedButton onClick={openModal}>Record vitals</OutlinedButton>
-      <Modal open={isOpen} onClose={closeModal}>
-        <VitalsForm editedObject={field.value || {}} onSubmit={onSubmit} onCancel={closeModal} />
+      <Modal open={isOpen} onClose={closeModal} title="Record vitals">
+        <VitalsForm patient={patient} onSubmit={onSubmit} onClose={closeModal} />
       </Modal>
     </>
   );
-};
+});

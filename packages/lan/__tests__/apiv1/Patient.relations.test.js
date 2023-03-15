@@ -6,7 +6,7 @@ import {
 import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { Chance } from 'chance';
 import { fake } from 'shared/test-helpers/fake';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -513,17 +513,12 @@ describe('Patient relations', () => {
         name: 'Test Field 1',
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         categoryId: category1.id,
-        options: ['Oldest', 'Newest', 'Other'],
+        options: ['Expected', 'Unexpected', 'Other'],
       });
 
       const patient = await Patient.create(await createDummyPatient(models));
       await PatientFieldValue.create({
-        value: 'Oldest',
-        definitionId: definition1.id,
-        patientId: patient.id,
-      });
-      await PatientFieldValue.create({
-        value: 'Newest',
+        value: 'Expected',
         definitionId: definition1.id,
         patientId: patient.id,
       });
@@ -541,7 +536,7 @@ describe('Patient relations', () => {
       // Assert
       expect(result).toHaveSucceeded();
       expect(result.body.data).toMatchObject({
-        [definition1.id]: 'Newest',
+        [definition1.id]: 'Expected',
       });
     });
 

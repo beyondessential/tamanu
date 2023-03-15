@@ -3,8 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
-import { arrayOf, activeFromVisibility } from './utils';
-import { dateType } from '../dateTimeTypes';
+import { activeFromVisibility } from './utils';
 import { latestDateTime } from '../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
@@ -20,27 +19,30 @@ import {
   FhirPatientLink,
   FhirReference,
 } from '../../services/fhirTypes';
+import { nzEthnicity } from './extensions';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirPatient extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        extension: DataTypes.JSONB,
+        identifier: DataTypes.JSONB,
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
           defaultValue: true,
         },
-        name: arrayOf('name', DataTypes.FHIR_HUMAN_NAME),
-        telecom: arrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
+        name: DataTypes.JSONB,
+        telecom: DataTypes.JSONB,
         gender: {
-          type: Sequelize.STRING(10),
+          type: Sequelize.TEXT,
           allowNull: false,
         },
-        birthDate: dateType('birthDate', { allowNull: true }),
-        deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
-        address: arrayOf('address', DataTypes.FHIR_ADDRESS),
-        link: arrayOf('link', DataTypes.FHIR_PATIENT_LINK),
+        birthDate: DataTypes.TEXT,
+        deceasedDateTime: DataTypes.TEXT,
+        address: DataTypes.JSONB,
+        link: DataTypes.JSONB,
       },
       options,
     );
@@ -71,13 +73,14 @@ export class FhirPatient extends FhirResource {
     upstream.additionalData = first;
 
     this.set({
+      extension: extension(upstream),
       identifier: identifiers(upstream),
       active: activeFromVisibility(upstream),
       name: names(upstream),
       telecom: telecoms(upstream),
       gender: upstream.sex,
-      birthDate: upstream.dateOfBirth,
-      deceasedDateTime: upstream.dateOfDeath,
+      birthDate: formatFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
+      deceasedDateTime: formatFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
       address: addresses(upstream),
       link: await mergeLinks(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
@@ -167,6 +170,10 @@ export class FhirPatient extends FhirResource {
 
 function compactBy(array, access = identity) {
   return array.filter(access);
+}
+
+function extension(patient) {
+  return [...nzEthnicity(patient)];
 }
 
 function identifiers(patient) {

@@ -1,16 +1,31 @@
+import _config from 'config';
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
-import { getModelsForDirection, saveIncomingChanges } from 'shared/sync';
-import { injectConfig } from 'shared/utils/withConfig';
+import {
+  createSnapshotTable,
+  dropSnapshotTable,
+  dropAllSnapshotTables,
+  getModelsForDirection,
+  saveIncomingChanges,
+  waitForPendingEditsUsingSyncTick,
+} from 'shared/sync';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
-export
-@injectConfig
-class FacilitySyncManager {
+export class FacilitySyncManager {
+  static config = _config;
+
+  static overrideConfig(override) {
+    this.config = override;
+  }
+
+  static restoreConfig() {
+    this.config = _config;
+  }
+
   models = null;
 
   sequelize = null;
@@ -19,13 +34,19 @@ class FacilitySyncManager {
 
   syncPromise = null;
 
+  reason = '';
+
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
     this.sequelize = sequelize;
     this.centralServer = centralServer;
   }
 
-  async triggerSync() {
+  isSyncRunning() {
+    return !!this.syncPromise;
+  }
+
+  async triggerSync(reason) {
     if (!this.constructor.config.sync.enabled) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return;
@@ -38,6 +59,7 @@ class FacilitySyncManager {
     }
 
     // set up a common sync promise to avoid double sync
+    this.reason = reason;
     this.syncPromise = this.runSync();
 
     // make sure sync promise gets cleared when finished, even if there's an error
@@ -45,6 +67,7 @@ class FacilitySyncManager {
       await this.syncPromise;
     } finally {
       this.syncPromise = null;
+      this.reason = '';
     }
   }
 
@@ -55,15 +78,24 @@ class FacilitySyncManager {
       );
     }
 
+    log.info(`Sync: Initiating session`, { reason: this.reason });
+
     // clear previous temp data, in case last session errored out or server was restarted
-    await this.models.SyncSessionRecord.truncate({ cascade: true, force: true });
-    await this.models.SyncSession.truncate({ cascade: true, force: true });
+    await dropAllSnapshotTables(this.sequelize);
 
     const startTime = new Date();
-    log.info(`FacilitySyncManager.runSync: began sync run`);
+    const getElapsedTime = () => Date.now() - startTime.getTime();
 
     // the first step of sync is to start a session and retrieve the session id
-    const { sessionId, tick: newSyncClockTime } = await this.centralServer.startSyncSession();
+    const {
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    } = await this.centralServer.startSyncSession();
+
+    log.info('Sync: Session started', {
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    });
 
     // ~~~ Push phase ~~~ //
 
@@ -74,29 +106,27 @@ class FacilitySyncManager {
     // or updated even mid way through this sync, are marked using the new tick and will be captured
     // in the next push
     await this.models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newSyncClockTime);
-    log.debug(`FacilitySyncManager.runSync: Local sync clock time set to ${newSyncClockTime}`);
+    log.debug('Sync: Updated local sync clock time', { newSyncClockTime });
+
+    await waitForPendingEditsUsingSyncTick(this.sequelize, currentSyncClockTime);
 
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
+    log.info('Sync: Snapshotting outgoing changes', { pushSince });
     const outgoingChanges = await snapshotOutgoingChanges(
       this.sequelize,
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-      sessionId,
       pushSince,
     );
     if (outgoingChanges.length > 0) {
-      log.debug(
-        `FacilitySyncManager.runSync: Pushing a total of ${outgoingChanges.length} changes`,
-      );
+      log.info('Sync: Pushing outgoing changes', { totalPushing: outgoingChanges.length });
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
-    log.debug(
-      `FacilitySyncManager.runSync: Setting the last successful sync push time to ${currentSyncClockTime}`,
-    );
     await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);
+    log.debug('Sync: Updated last successful push', { currentSyncClockTime });
 
     // ~~~ Pull phase ~~~ //
 
@@ -104,25 +134,22 @@ class FacilitySyncManager {
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
     const pullSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPull')) || -1;
-    await this.models.SyncSession.create({
-      id: sessionId,
-      startTime,
-      lastConnectionTime: startTime,
-    });
+
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
-    const { count: incomingChangesCount, tick: pullTick } = await pullIncomingChanges(
+    await createSnapshotTable(this.sequelize, sessionId);
+    const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
-      this.models,
+      this.sequelize,
       sessionId,
       pullSince,
     );
 
     await this.sequelize.transaction(async () => {
-      if (incomingChangesCount > 0) {
-        log.debug(`FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount} changes`);
+      if (totalPulled > 0) {
+        log.info('Sync: Saving changes', { totalPulled });
         await saveIncomingChanges(
-          this.models,
+          this.sequelize,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
           sessionId,
         );
@@ -131,18 +158,14 @@ class FacilitySyncManager {
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
-      log.debug(
-        `FacilitySyncManager.runSync: Setting the last successful sync pull time to ${pullTick}`,
-      );
-      await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullTick);
+      log.debug('Sync: Updating last successful sync pull', { pullUntil });
+      await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullUntil);
     });
     await this.centralServer.endSyncSession(sessionId);
 
-    const elapsedTimeMs = Date.now() - startTime.getTime();
-    log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
+    log.info('Sync: Succeeded', { durationMs: getElapsedTime() });
 
     // clear temp data stored for persist
-    await this.models.SyncSessionRecord.truncate({ cascade: true, force: true });
-    await this.models.SyncSession.truncate({ cascade: true, force: true });
+    await dropSnapshotTable(this.sequelize, sessionId);
   }
 }

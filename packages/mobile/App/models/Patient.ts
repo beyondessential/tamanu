@@ -1,6 +1,7 @@
 import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
-import { addHours, startOfDay, subYears } from 'date-fns';
+import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
+import { groupBy } from 'lodash';
 import { readConfig } from '~/services/config';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
@@ -8,6 +9,7 @@ import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
@@ -117,12 +119,11 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery =>
-          subQuery
-            .select('surveyResponse.id', 'id')
-            .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
-            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -145,12 +146,11 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery =>
-          subQuery
-            .select('surveyResponse.id', 'id')
-            .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
-            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -167,12 +167,11 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery =>
-          subQuery
-            .select('surveyResponse.id', 'id')
-            .addSelect('surveyResponse.encounterId', 'encounterId')
-            .from('survey_response', 'surveyResponse')
-            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -202,5 +201,52 @@ export class Patient extends BaseModel implements IPatient {
       .andWhere('encounter.deviceId = :deviceId', { deviceId });
 
     return query.getRawMany();
+  }
+
+  static async getVitals(patientId: string): Promise<any> {
+    const repo = this.getRepository();
+    const results = await repo.query(
+      `SELECT
+           answer.id, pde.name, answer.dataElementId, answer.responseId, ssc.config, ssc.validationCriteria, answer.body
+        FROM
+        survey_response_answer answer
+        INNER JOIN
+        survey_response response
+        ON
+        response.id = responseId
+        INNER JOIN
+        survey_screen_component ssc
+        ON
+        ssc.dataElementId = answer.dataElementId
+        INNER JOIN
+        program_data_element pde
+        ON
+        pde.id = answer.dataElementId
+        INNER JOIN
+        encounter
+        ON
+        encounter.id = response.encounterId
+        AND
+        encounter.patientId = $1
+        AND
+        body IS NOT NULL
+        ORDER BY answer.createdAt desc LIMIT $2`,
+      [patientId, 500],
+    );
+
+    const library = groupBy(results, 'responseId');
+
+    const data = Object.keys(library).reduce((state, key) => {
+      const records = library[key];
+      const newKey = records.find(x => x.dataElementId === VitalsDataElements.dateRecorded);
+      if (newKey) {
+        return { ...state, [newKey.body]: records };
+      }
+      return state;
+    }, {});
+
+    const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());
+
+    return { data, columns };
   }
 }

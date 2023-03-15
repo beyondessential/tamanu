@@ -15,7 +15,6 @@ import {
 } from 'shared/demoData';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
-import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { ImmunisationForm } from '../app/forms/ImmunisationForm';
@@ -163,10 +162,6 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     practitionerSuggester={practitionerSuggester}
     dispositionSuggester={dispositionSuggester}
   />
-));
-
-storiesOf('Forms', module).add('VitalsForm', () => (
-  <VitalsForm onSubmit={action('submit')} onCancel={action('cancel')} />
 ));
 
 storiesOf('Forms', module).add('NewPatientForm', () => (

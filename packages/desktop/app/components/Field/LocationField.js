@@ -4,21 +4,21 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
-import { useApi, useLocationGroupSuggester } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
-import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
+import { useAuth } from '../../contexts/Auth';
 
-const locationSuggester = (api, groupValue) => {
+const locationSuggester = (api, groupValue, enableLocationStatus) => {
   return new Suggester(api, 'location', {
     formatter: ({ name, id, locationGroup, availability }) => {
       return {
         value: id,
         label: name,
         locationGroup,
-        availability,
-        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
+        availability: enableLocationStatus ? availability : null,
+        tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
       };
     },
     baseQueryParameters: { filterByFacility: true, locationGroupId: groupValue },
@@ -48,23 +48,32 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    enableLocationStatus = true,
   }) => {
     const api = useApi();
+    const { facility } = useAuth();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
-    const suggester = locationSuggester(api, groupId);
-    const locationGroupSuggester = useLocationGroupSuggester();
-    const { data } = useLocationSuggestion(locationId);
+    const suggester = locationSuggester(api, groupId, enableLocationStatus);
+    const locationGroupSuggester = useSuggester('facilityLocationGroup');
+    const { data: location } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
-      const isNotSameGroup = data?.locationGroup?.id && data.locationGroup.id !== groupId;
+      const isNotSameGroup =
+        location?.locationGroup?.id && groupId && location.locationGroup.id !== groupId;
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
         onChange({ target: { value: '', name } });
       }
-    }, [onChange, name, groupId, data?.locationGroup]);
+
+      // Initialise the location group state
+      // if the form is being opened in edit mode (i.e. there are existing values)
+      if (value && !groupId && location?.locationGroup?.id) {
+        setGroupId(location.locationGroup.id);
+      }
+    }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
@@ -75,8 +84,14 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
-    // Disable the location field if the location group is not selected yet
-    const locationSelectIsDisabled = !groupId;
+    // Disable the location and location group fields if:
+    // 1. In edit mode (form already is initialised with pre-filled values); and
+    // 2. The existing location has a different facility than the current facility
+    // Disable just the location field if location group has not been chosen or pre-filled
+    const existingLocationHasSameFacility =
+      value && location?.facilityId ? facility.id === location.facilityId : true;
+    const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
+    const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
     return (
       <>
@@ -87,11 +102,12 @@ export const LocationInput = React.memo(
           onChange={handleChangeCategory}
           suggester={locationGroupSuggester}
           value={groupId}
-          disabled={disabled}
+          disabled={locationGroupSelectIsDisabled || disabled}
+          autofill={!value} // do not autofill if there is a pre-filled value
         />
         <AutocompleteInput
           label={label}
-          disabled={locationSelectIsDisabled}
+          disabled={locationSelectIsDisabled || disabled}
           name={name}
           suggester={suggester}
           helperText={helperText}
@@ -100,6 +116,7 @@ export const LocationInput = React.memo(
           value={locationId}
           onChange={handleChange}
           className={className}
+          autofill={!value} // do not autofill if there is a pre-filled value
         />
       </>
     );
@@ -153,7 +170,7 @@ const Text = styled(BodyText)`
   margin-top: -5px;
 `;
 
-export const LocationAvailabilityWarningMessage = ({ locationId }) => {
+export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => {
   const { data, isSuccess } = useLocationSuggestion(locationId);
 
   if (!isSuccess) {
@@ -164,18 +181,18 @@ export const LocationAvailabilityWarningMessage = ({ locationId }) => {
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <Text>
-        <span style={{ color: Colors.alert }}>*</span> This location is reserved by another patient.
-        Please ensure the bed is available before confirming.
+      <Text {...props}>
+        This location is reserved by another patient. Please ensure the bed is available before
+        confirming.
       </Text>
     );
   }
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <Text>
-        <span style={{ color: Colors.alert }}>*</span> This location is occupied by another patient.
-        Please ensure the bed is available before confirming.
+      <Text {...props}>
+        This location is occupied by another patient. Please ensure the bed is available before
+        confirming.
       </Text>
     );
   }

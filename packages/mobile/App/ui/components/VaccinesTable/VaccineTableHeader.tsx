@@ -1,11 +1,11 @@
 import React from 'react';
+import { TableHeader } from '../Table';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 
-export const vaccineTableHeader = {
+export const vaccineTableHeader : TableHeader = {
   key: 'date',
-  tableHeader: true,
-  accessor: (title: string): JSX.Element => (
+  accessor: (title) => (
     <StyledView
       paddingTop={15}
       paddingBottom={15}

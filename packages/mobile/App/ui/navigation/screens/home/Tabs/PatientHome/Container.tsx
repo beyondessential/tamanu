@@ -73,9 +73,9 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
       },
       {
-        title: 'Check up',
-        Icon: Icons.CheckUpIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.CheckUpStack.Index),
+        title: 'Vitals',
+        Icon: Icons.VitalsIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
       },
       {
         title: 'Programs',
@@ -163,7 +163,7 @@ const PatientHomeContainer = ({
 
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);
-  }, [patientIssues?.length ?? 0, selectedPatient.id]);
+  }, [patientIssues]);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
 

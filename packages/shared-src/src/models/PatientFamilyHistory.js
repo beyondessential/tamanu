@@ -4,6 +4,7 @@ import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientFamilyHistory extends Model {
   static init({ primaryKey, ...options }) {
@@ -22,6 +23,7 @@ export class PatientFamilyHistory extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {

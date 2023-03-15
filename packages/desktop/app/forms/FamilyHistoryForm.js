@@ -6,7 +6,7 @@ import { Form, Field, DateField, AutocompleteField, TextField } from '../compone
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-import { foreignKey } from '../utils/validation';
+import { foreignKey, optionalForeignKey } from '../utils/validation';
 
 export const FamilyHistoryForm = ({
   onCancel,
@@ -37,7 +37,6 @@ export const FamilyHistoryForm = ({
         <Field
           name="practitionerId"
           label="Doctor/nurse"
-          required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
@@ -55,7 +54,7 @@ export const FamilyHistoryForm = ({
     }}
     validationSchema={yup.object().shape({
       diagnosisId: foreignKey('Diagnosis is required'),
-      practitionerId: foreignKey('Doctor/nurse is required'),
+      practitionerId: optionalForeignKey(),
       recordedDate: yup.date().required(),
     })}
   />

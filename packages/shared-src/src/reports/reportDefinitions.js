@@ -1,10 +1,12 @@
 import {
   APPOINTMENT_STATUSES,
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  LAB_REQUEST_STATUS_CONFIG,
+  MANNER_OF_DEATH_OPTIONS,
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
-  IMAGING_REQUEST_STATUS_OPTIONS,
-  MANNER_OF_DEATH_OPTIONS,
-  LAB_REQUEST_STATUS_OPTIONS,
   REPORT_DATE_RANGE_LABELS,
   REPORT_DEFAULT_DATE_RANGES,
 } from 'shared/constants';
@@ -58,10 +60,11 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'patientBillingType',
       },
       {
-        parameterField: 'ParameterSuggesterSelectField',
+        parameterField: 'ParameterAutocompleteField',
         label: 'Area',
         name: 'locationGroup',
         suggesterEndpoint: 'locationGroup',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
         parameterField: 'ParameterAutocompleteField',
@@ -395,10 +398,11 @@ export const REPORT_DEFINITIONS = [
         suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
-        parameterField: 'ParameterSuggesterSelectField',
+        parameterField: 'ParameterAutocompleteField',
         label: 'Area',
         name: 'locationGroup',
         suggesterEndpoint: 'locationGroup',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
     ],
   },
@@ -427,10 +431,11 @@ export const REPORT_DEFINITIONS = [
     filterDateRangeAsStrings: true,
     parameters: [
       {
-        parameterField: 'ParameterSuggesterSelectField',
+        parameterField: 'ParameterAutocompleteField',
         label: 'Area',
         name: 'locationGroup',
         suggesterEndpoint: 'locationGroup',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
         parameterField: 'ParameterAutocompleteField',
@@ -464,10 +469,13 @@ export const REPORT_DEFINITIONS = [
       },
       { parameterField: 'ImagingTypeField' },
       {
-        parameterField: 'ParameterSelectField',
+        parameterField: 'ParameterMultiselectField',
         label: 'Status',
-        name: 'status',
-        options: IMAGING_REQUEST_STATUS_OPTIONS,
+        name: 'statuses',
+        options: Object.values(IMAGING_REQUEST_STATUS_TYPES).map(status => ({
+          label: IMAGING_REQUEST_STATUS_CONFIG[status].label,
+          value: status,
+        })),
       },
     ],
   },
@@ -518,11 +526,15 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'practitioner',
       },
       { parameterField: 'LabTestCategoryField' },
+      { parameterField: 'LabTestTypeField' },
       {
-        parameterField: 'ParameterSelectField',
+        parameterField: 'ParameterMultiselectField',
         label: 'Status',
-        name: 'status',
-        options: LAB_REQUEST_STATUS_OPTIONS,
+        name: 'statuses',
+        options: Object.values(LAB_REQUEST_STATUSES).map(status => ({
+          label: LAB_REQUEST_STATUS_CONFIG[status].label,
+          value: status,
+        })),
       },
     ],
   },

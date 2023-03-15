@@ -39,11 +39,11 @@ attachmentRoutes.post(
     }
 
     const { Attachment } = req.store.models;
-    const { type, size, data } = req.body;
+    const { type, size, data } = Attachment.sanitizeForCentralServer(req.body);
     const attachment = await Attachment.create({
       type,
       size,
-      data: Buffer.from(data, 'base64'),
+      data,
     });
 
     // Send only the ID to be able to link it to metadata

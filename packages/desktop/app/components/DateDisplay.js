@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
-import { parseDate } from 'shared-src/src/utils/dateTime';
+import { parseDate } from 'shared/utils/dateTime';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
@@ -10,6 +10,9 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
   return new Date(date).toLocaleString(getLocale(), formatOptions);
 };
+
+export const formatShortest = date =>
+  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
 
 export const formatShort = date =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
@@ -24,13 +27,30 @@ export const formatTime = date =>
     '__:__',
   ); // 12:30 am
 
+export const formatTimeWithSeconds = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'medium',
+      hour12: true,
+    },
+    '__:__:__',
+  ); // 12:30:00 am
+
 const formatShortExplicit = date =>
   intlFormatDate(date, {
     dateStyle: 'medium',
   }); // "4 Mar 2019"
 
+const formatShortestExplicit = date =>
+  intlFormatDate(date, {
+    year: '2-digit',
+    month: 'short',
+    day: 'numeric',
+  }); // "4 Mar 19"
+
 // long format date is displayed on hover
-const formatLong = date =>
+export const formatLong = date =>
   intlFormatDate(
     date,
     {
@@ -87,14 +107,28 @@ const DateTooltip = ({ date, children }) => {
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
+  ({
+    date: dateValue,
+    showDate = true,
+    showTime = false,
+    showExplicitDate = false,
+    shortYear = false,
+  }) => {
     const dateObj = parseDate(dateValue);
 
     const parts = [];
     if (showDate) {
-      parts.push(formatShort(dateObj));
+      if (shortYear) {
+        parts.push(formatShortest(dateObj));
+      } else {
+        parts.push(formatShort(dateObj));
+      }
     } else if (showExplicitDate) {
-      parts.push(formatShortExplicit(dateObj));
+      if (shortYear) {
+        parts.push(formatShortestExplicit(dateObj));
+      } else {
+        parts.push(formatShortExplicit(dateObj));
+      }
     }
     if (showTime) {
       parts.push(formatTime(dateObj));

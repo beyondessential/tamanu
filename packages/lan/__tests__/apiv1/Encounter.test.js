@@ -3,9 +3,14 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
+import { randomLabRequest } from 'shared/demoData';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { subWeeks } from 'date-fns';
+import { isEqual } from 'lodash';
+
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 
@@ -126,9 +131,227 @@ describe('Encounter', () => {
   });
 
   test.todo('should get a list of procedures');
-  test.todo('should get a list of lab requests');
   test.todo('should get a list of imaging requests');
   test.todo('should get a list of prescriptions');
+
+  describe('GET encounter lab requests', () => {
+    it('should get a list of lab requests', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest1 = await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      const labRequest2 = await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        count: 2,
+        data: expect.any(Array),
+      });
+      expect(
+        isEqual([labRequest1.id, labRequest2.id], [result.body.data[0].id, result.body.data[1].id]),
+      ).toBe(true);
+    });
+
+    it('Should not include lab requests with a status of deleted or entered in error', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.CANCELLED,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.DELETED,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        })),
+      });
+
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(3);
+      expect(result.body.data.length).toEqual(3);
+    });
+
+    it('should get the correct count for a list of lab requests', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest1 = await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+
+      // Ensure that the count of results is correct even if Lab Lab Requests have many LabTests
+      // to ensure that count is not flattening the count results
+      await models.LabTest.create({
+        labRequestId: labRequest1.id,
+      });
+      await models.LabTest.create({
+        labRequestId: labRequest1.id,
+      });
+      await models.LabTest.create({
+        labRequestId: labRequest1.id,
+      });
+
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(2);
+      expect(result.body.data.length).toEqual(2);
+    });
+
+    it('should get a list of lab requests filtered by status query parameter', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest1 = await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        })),
+      });
+
+      const result = await app.get(
+        `/v1/encounter/${encounter.id}/labRequests?status=reception_pending`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        count: 1,
+        data: expect.any(Array),
+      });
+      expect(labRequest1.id).toEqual(result.body.data[0].id);
+    });
+
+    it('should get a list of lab requests NOT including associated note pages if NOT specified in query parameter', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest1 = await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+
+      const notePage = await labRequest1.createNotePage({
+        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+      });
+      await notePage.createNoteItem({
+        content: 'Testing lab request note',
+        authorId: app.user.id,
+      });
+
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        count: 1,
+        data: expect.any(Array),
+      });
+      expect(labRequest1.id).toEqual(result.body.data[0].id);
+      expect(result.body.data[0].notePages).not.toBeDefined();
+    });
+
+    it('should get a list of lab requests including associated note pages if specified in query parameter', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const labRequest1 = await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        })),
+      });
+
+      const notePage = await labRequest1.createNotePage({
+        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+      });
+      const noteItem = await notePage.createNoteItem({
+        content: 'Testing lab request note',
+        authorId: app.user.id,
+      });
+
+      const result = await app.get(
+        `/v1/encounter/${encounter.id}/labRequests?includeNotePages=true`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        count: 1,
+        data: expect.any(Array),
+      });
+      expect(labRequest1.id).toEqual(result.body.data[0].id);
+      expect(result.body.data[0].notePages[0].noteItems[0].content).toEqual(noteItem.content);
+    });
+  });
 
   it('should get a list of all documents from an encounter', async () => {
     const encounter = await models.Encounter.create({
@@ -340,6 +563,7 @@ describe('Encounter', () => {
         const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('triage') && x.content.includes('admission');
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should fail to change encounter type to an invalid type', async () => {
@@ -377,6 +601,7 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should change encounter location and add a note', async () => {
@@ -398,6 +623,7 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should include comma separated location_group and location name in created note on updating encounter location', async () => {
@@ -463,6 +689,7 @@ describe('Encounter', () => {
         expect(noteItems[0].content).toEqual(
           `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
         );
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should discharge a patient', async () => {
@@ -501,6 +728,7 @@ describe('Encounter', () => {
         const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('Discharged');
         expect(noteItems.some(check)).toEqual(true);
+        expect(noteItems[0].authorId).toEqual(app.user.id);
       });
 
       it('should only update medications marked for discharge', async () => {
@@ -694,37 +922,99 @@ describe('Encounter', () => {
 
     describe('vitals', () => {
       let vitalsEncounter = null;
+      let vitalsPatient = null;
 
       beforeAll(async () => {
+        // The original patient may or may not have a current encounter
+        // So let's create a specific one for vitals testing
+        vitalsPatient = await models.Patient.create(await createDummyPatient(models));
         vitalsEncounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          patientId: patient.id,
+          ...(await createDummyEncounter(models, { endDate: null })),
+          patientId: vitalsPatient.id,
           reasonForEncounter: 'vitals test',
+        });
+
+        await setupSurveyFromObject(models, {
+          program: {
+            id: 'vitals-program',
+          },
+          survey: {
+            id: 'vitals-survey',
+            survey_type: 'vitals',
+          },
+          questions: [
+            {
+              name: 'PatientVitalsDate',
+              type: 'Date',
+            },
+            {
+              name: 'PatientVitalsWeight',
+              type: 'Number',
+            },
+            {
+              name: 'PatientVitalsHeight',
+              type: 'Number',
+            },
+            {
+              name: 'PatientVitalsHeartRate',
+              type: 'Number',
+            },
+          ],
         });
       });
 
       it('should record a new vitals reading', async () => {
-        const result = await app.post('/v1/vitals').send({
-          encounterId: vitalsEncounter.id,
-          heartRate: 1234,
+        const submissionDate = getCurrentDateTimeString();
+        const result = await app.post('/v1/surveyResponse').send({
+          surveyId: 'vitals-survey',
+          patientId: vitalsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers: {
+            'pde-PatientVitalsDate': submissionDate,
+            'pde-PatientVitalsHeartRate': 1234,
+          },
         });
         expect(result).toHaveSucceeded();
-        const saved = await models.Vitals.findOne({ where: { heartRate: 1234 } });
-        expect(saved).toHaveProperty('heartRate', 1234);
-      });
-
-      it('should not record a vitals reading with an invalid encounter', async () => {
-        const result = await app.post('/v1/vitals').send({
-          heartRate: 100,
+        const saved = await models.SurveyResponseAnswer.findOne({
+          where: { dataElementId: 'pde-PatientVitalsHeartRate', body: '1234' },
         });
-        expect(result).toHaveRequestError();
+        expect(saved).toHaveProperty('body', '1234');
       });
 
       it('should get vitals readings for an encounter', async () => {
+        const submissionDate = getCurrentDateTimeString();
+        const answers = {
+          'pde-PatientVitalsDate': submissionDate,
+          'pde-PatientVitalsHeartRate': 123,
+          'pde-PatientVitalsHeight': 456,
+          'pde-PatientVitalsWeight': 789,
+        };
+        await app.post('/v1/surveyResponse').send({
+          surveyId: 'vitals-survey',
+          patientId: vitalsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers,
+        });
         const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
         expect(result).toHaveSucceeded();
         const { body } = result;
+        expect(body).toHaveProperty('count');
         expect(body.count).toBeGreaterThan(0);
+        expect(body).toHaveProperty('data');
+        expect(body.data).toEqual(
+          expect.arrayContaining(
+            Object.entries(answers).map(([key, value]) =>
+              expect.objectContaining({
+                dataElementId: key,
+                records: {
+                  [submissionDate]: value.toString(),
+                },
+              }),
+            ),
+          ),
+        );
       });
     });
 

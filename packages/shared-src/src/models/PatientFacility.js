@@ -7,25 +7,26 @@ export class PatientFacility extends Model {
     super.init(
       {
         id: {
+          // patient facility records use a generated primary key that enforces one per patient,
+          // even across a distributed sync system
           type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
           set() {
-            // patient facility records use a composite primary key
             // any sets of the convenience generated "id" field can be ignored
           },
         },
-        facility_id: {
+        patientId: {
           type: DataTypes.STRING,
-          primaryKey: true, // composite primary key
+          primaryKey: true,
           references: {
-            model: 'facilities',
+            model: 'patients',
             key: 'id',
           },
         },
-        patient_id: {
+        facilityId: {
           type: DataTypes.STRING,
-          primaryKey: true, // composite primary key
+          primaryKey: true,
           references: {
-            model: 'patients',
+            model: 'facilities',
             key: 'id',
           },
         },

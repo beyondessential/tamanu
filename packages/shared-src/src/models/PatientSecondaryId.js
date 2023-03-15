@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientSecondaryId extends Model {
   static init({ primaryKey, ...options }) {
@@ -22,6 +23,7 @@ export class PatientSecondaryId extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
+    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {

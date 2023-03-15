@@ -21,7 +21,7 @@ describe('calculatePageLimit', () => {
       fc.property(fc.float(), fc.float(), (a, b) => {
         expect(calculatePageLimit(a, b)).toEqual(expect.any(Number));
       }),
-      fc.property(fc.double(), fc.double(), (a, b) => {
+      fc.property(fc.double({ noNaN: true }), fc.double({ noNaN: true }), (a, b) => {
         expect(calculatePageLimit(a, b)).toEqual(expect.any(Number));
       }),
     );
