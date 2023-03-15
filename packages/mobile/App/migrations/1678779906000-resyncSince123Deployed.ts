@@ -19,9 +19,7 @@ export class resyncSince123Deployed1678779906000 implements MigrationInterface {
     `);
 
     if (!localSystemFacts?.length) {
-      throw new Error(
-        `Cannot find local_system_fact current sync time '${CURRENT_SYNC_TIME}'. Must have when doing upgrade`,
-      );
+      return; // must be fresh install -> no need to resync
     }
 
     const [{ value: currentSyncTimeValue }] = localSystemFacts;
