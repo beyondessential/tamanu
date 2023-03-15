@@ -18,12 +18,24 @@ export async function listSettings(filter = '', { facility } = {}) {
   } = await initDatabase({ testMode: false });
 
   const globalTree = await Setting.get(filter);
+  const globalSettings = buildSettingsRecords(filter, globalTree, null);
+
+  if (!facility) {
+    if (!globalTree || Object.keys(globalTree).length === 0) {
+      return 'No settings found';
+    }
+
+    return globalSettings
+      .map(({ key }) => key)
+      .sort()
+      .join('\n');
+  }
+
   const facilityTree = await Setting.get(filter, facility);
   if (!facilityTree || Object.keys(facilityTree).length === 0) {
     return 'No settings found';
   }
 
-  const globalSettings = buildSettingsRecords(filter, globalTree, null);
   const facilitySettings = buildSettingsRecords(filter, facilityTree, facility);
 
   const globalKeys = new Set(globalSettings.map(({ key }) => key));
