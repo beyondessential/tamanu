@@ -12,26 +12,41 @@ export class FhirMissingResources extends ScheduledTask {
     super(conf.schedule, log.child({ task: 'FhirMissingResources' }));
     this.config = conf;
     this.context = context;
+    this.runImmediately();
   }
 
   getName() {
     return 'FhirMissingResources';
   }
 
-  async run() {
-    const QUERY = `
-      FROM $upstreamTable up
-      LEFT JOIN $resourceTable r ON r.upstream_id = up.id
-      WHERE r.id IS NULL
-    `;
+  async countQueue() {
+    let all = 0;
 
     for (const Resource of materialisableResources) {
-      const [{ total }] = await this.sequelize.query(`SELECT COUNT(up.id) as total ${QUERY}`, {
-        bind: {
-          upstreamTable: Resource.UpstreamModel.tableName,
-          resourceTable: Resource.tableName,
-        },
-      });
+      const resourceTable = Resource.tableName;
+      const upstreamTable = Resource.UpstreamModel.tableName;
+
+      const [{ total }] = await Resource.sequelize.query(
+        `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
+        LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
+        WHERE r.id IS NULL`,
+      );
+      all += total;
+    }
+
+    return all;
+  }
+
+  async run() {
+    for (const Resource of materialisableResources) {
+      const resourceTable = Resource.tableName;
+      const upstreamTable = Resource.UpstreamModel.tableName;
+
+      const [{ total }] = await Resource.sequelize.query(
+        `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
+        LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
+        WHERE r.id IS NULL`,
+      );
       if (total === 0) {
         this.log.debug('No missing resources to refresh', { resource: Resource.fhirName });
         continue;
@@ -43,23 +58,21 @@ export class FhirMissingResources extends ScheduledTask {
         upstream: Resource.UpstreamModel.tableName,
       });
 
-      await this.sequelize.query(
-        `
-        INSERT INTO jobs (topic, payload)
+      await Resource.sequelize.query(
+        `INSERT INTO fhir.jobs (topic, payload)
         SELECT
-          $topic as topic,
+          $topic::text as topic,
           json_build_object(
-            'resource', $resource,
+            'resource', $resource::text,
             'upstreamId', up.id
           ) as payload
-        ${QUERY}
-        `,
+        FROM "${upstreamTable}" up
+        LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
+        WHERE r.id IS NULL`,
         {
           bind: {
             topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
             resource: Resource.fhirName,
-            resourceTable: Resource.tableName,
-            upstreamTable: Resource.UpstreamModel.tableName,
           },
         },
       );
