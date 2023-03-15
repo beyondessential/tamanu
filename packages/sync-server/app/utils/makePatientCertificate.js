@@ -39,10 +39,15 @@ async function getCertificateAssets(models) {
   return { logo, signingImage, watermark };
 }
 
-async function getFilePath(fileName) {
+async function renderPdf(element, fileName) {
   const folder = await tmpdir();
   const filePath = path.join(folder, fileName);
-  return { filePath };
+
+  await ReactPDF.render(element, filePath);
+  return {
+    status: 'success',
+    filePath,
+  };
 }
 
 async function getPatientVaccines(models, patient) {
@@ -67,15 +72,11 @@ export const makeCovidVaccineCertificate = async (
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
-  const { filePath } = await getFilePath(fileName);
-
   const { logo, signingImage, watermark } = await getCertificateAssets(models);
-
+  const { certifiableVaccines, patientData } = await getPatientVaccines(models, patient);
   const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
-  const { certifiableVaccines, patientData } = getPatientVaccines(models, patient);
-
-  await ReactPDF.render(
+  return renderPdf(
     <CovidVaccineCertificate
       patient={patientData}
       printedBy={printedBy}
@@ -87,13 +88,8 @@ export const makeCovidVaccineCertificate = async (
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
     />,
-    filePath,
+    fileName,
   );
-
-  return {
-    status: 'success',
-    filePath,
-  };
 };
 
 export const makeVaccineCertificate = async (patient, printedBy, models) => {
@@ -101,13 +97,10 @@ export const makeVaccineCertificate = async (patient, printedBy, models) => {
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
-  const { filePath } = await getFilePath(fileName);
-
   const { logo, signingImage, watermark } = await getCertificateAssets(models);
+  const { vaccines, patientData } = await getPatientVaccines(models, patient);
 
-  const { vaccines, patientData } = getPatientVaccines(models, patient);
-
-  await ReactPDF.render(
+  return renderPdf(
     <VaccineCertificate
       patient={patientData}
       printedBy={printedBy}
@@ -117,13 +110,8 @@ export const makeVaccineCertificate = async (patient, printedBy, models) => {
       logoSrc={logo?.data}
       getLocalisation={getLocalisationData}
     />,
-    filePath,
+    fileName,
   );
-
-  return {
-    status: 'success',
-    filePath,
-  };
 };
 
 export const makeCovidCertificate = async (
