@@ -15,26 +15,15 @@ import { CovidLabCertificate } from 'shared/utils/patientCertificates';
 import { getLocalisation } from '../localisation';
 
 async function getCertificateAssets(models) {
-  const logo = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'letterhead-logo',
-    },
-  });
-
-  const signingImage = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'certificate-bottom-half-img',
-    },
-  });
-
-  const watermark = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'vaccine-certificate-watermark',
-    },
-  });
+  const [logo, signingImage, watermark] = (
+    await Promise.all(
+      [
+        'letterhead-logo',
+        'certificate-bottom-half-img',
+        'vaccine-certificate-watermark',
+      ].map(name => models.Asset.findOne({ raw: true, where: { name } })),
+    )
+  ).map(record => record?.data); // avoids having to do ?.data in the prop later
 
   return { logo, signingImage, watermark };
 }
@@ -82,9 +71,9 @@ export const makeCovidVaccineCertificate = async (
       printedBy={printedBy}
       uvci={uvci}
       vaccinations={certifiableVaccines}
-      signingSrc={signingImage?.data}
-      watermarkSrc={watermark?.data}
-      logoSrc={logo?.data}
+      signingSrc={signingImage}
+      watermarkSrc={watermark}
+      logoSrc={logo}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
     />,
@@ -105,9 +94,9 @@ export const makeVaccineCertificate = async (patient, printedBy, models) => {
       patient={patientData}
       printedBy={printedBy}
       vaccinations={vaccines}
-      signingSrc={signingImage?.data}
-      watermarkSrc={watermark?.data}
-      logoSrc={logo?.data}
+      signingSrc={signingImage}
+      watermarkSrc={watermark}
+      logoSrc={logo}
       getLocalisation={getLocalisationData}
     />,
     fileName,
