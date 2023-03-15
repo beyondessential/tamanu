@@ -78,8 +78,7 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineR
           <VaccineGivenForm {...baseProps} submitForm={submitForm} />
         ) : (
           <VaccineNotGivenForm {...baseProps} submitForm={submitForm} />
-        )
-      }
+        )}
     />
   );
 };
