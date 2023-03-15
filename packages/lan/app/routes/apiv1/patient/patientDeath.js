@@ -274,7 +274,10 @@ patientDeath.post(
         for (const encounter of activeEncounters) {
           await encounter.update({
             endDate: body.timeOfDeath,
-            discharge: { dischargerId: doc.id },
+            discharge: {
+              dischargerId: doc.id,
+              note: 'Automatically discharged by registering patient death',
+            },
           });
         }
       }

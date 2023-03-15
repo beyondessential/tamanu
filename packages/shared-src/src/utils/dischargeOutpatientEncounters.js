@@ -43,6 +43,9 @@ export const dischargeOutpatientEncounters = async (
       await oldEncounter.update({
         endDate: justBeforeMidnight,
         systemNote: 'Automatically discharged',
+        discharge: {
+          note: 'Automatically discharged by outpatient discharger',
+        },
       });
       log.info(`Auto-closed encounter with id ${oldEncounter.id}`);
     }
