@@ -133,6 +133,7 @@ export class FhirWorker {
   currentlyProcessing = false;
 
   processQueue() {
+    // start a new root span here to avoid tying this to any callers
     return getTracer().startActiveSpan(`FhirWorker.processQueue`, { root: true }, async span => {
       span.setAttributes({
         'code.function': 'processQueue',

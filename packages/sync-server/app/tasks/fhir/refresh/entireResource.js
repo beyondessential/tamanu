@@ -23,17 +23,16 @@ export async function entireResource({ payload: { resource } }, { log, sequelize
   await sequelize.query(
     `INSERT INTO fhir.jobs (topic, payload)
       SELECT
-        $topic as topic,
+        $topic::text as topic,
         json_build_object(
-          'resource', $resource,
+          'resource', $resource::text,
           'upstreamId', id
         ) as payload
-      FROM $table`,
+      FROM ${Resource.UpstreamModel.tableName}`,
     {
       bind: {
         topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
         resource,
-        table: Resource.UpstreamModel.tableName,
       },
     },
   );
