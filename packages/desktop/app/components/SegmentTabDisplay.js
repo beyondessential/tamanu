@@ -23,6 +23,7 @@ const TabContainer = styled(Tabs)`
   border: 1px solid ${Colors.primary};
   border-radius: 25px;
   width: auto;
+  height: 10px;
 
   .MuiTab-root {
     min-height: 32px;
@@ -39,6 +40,8 @@ const TabContainer = styled(Tabs)`
 `;
 
 const StyledTab = styled(Tab)`
+  min-width: 263px;
+
   span {
     flex-direction: row;
     text-transform: capitalize;
@@ -56,7 +59,6 @@ export const SegmentTabDisplay = React.memo(
     const buttons = tabs.map(({ key, label, render }) => (
       <StyledTab
         key={key}
-        style={singleTabStyle}
         label={label}
         disabled={!render}
         value={key}
@@ -65,11 +67,7 @@ export const SegmentTabDisplay = React.memo(
     ));
     return (
       <TabBar className={className}>
-        <TabContainer
-          scrollButtons={scrollable ? 'on' : 'off'}
-          value={currentTabKey}
-          style={{ height: '10px' }}
-        >
+        <TabContainer scrollButtons={scrollable ? 'on' : 'off'} value={currentTabKey}>
           {buttons}
         </TabContainer>
         <div>{currentTabData.render({ ...tabProps })}</div>
