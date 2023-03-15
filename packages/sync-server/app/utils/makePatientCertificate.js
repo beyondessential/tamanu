@@ -114,10 +114,7 @@ export const makeCovidCertificate = async (
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
-  const { filePath } = await getFilePath(fileName);
-
   const { logo, signingImage, watermark } = await getCertificateAssets(models);
-
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
@@ -150,23 +147,19 @@ export const makeCovidCertificate = async (
   };
 
   const labs = await patient.getCovidLabTests();
-  await ReactPDF.render(
+
+  return renderPdf(
     <CovidLabCertificate
       patient={patientData}
       labs={labs}
-      signingSrc={signingImage?.data}
-      watermarkSrc={watermark?.data}
-      logoSrc={logo?.data}
+      signingSrc={signingImage}
+      watermarkSrc={watermark}
+      logoSrc={logo}
       printedBy={printedBy}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
       certType={certType}
     />,
-    filePath,
+    fileName,
   );
-
-  return {
-    status: 'success',
-    filePath,
-  };
 };
