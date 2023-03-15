@@ -11,10 +11,7 @@ import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
-import {
-  screenPercentageToDP,
-  Orientation,
-} from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -25,7 +22,6 @@ import { ReferenceData } from '~/models/ReferenceData';
 import { NumberField } from '~/ui/components/NumberField';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -45,39 +41,30 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
 
   const user = useSelector(authUserSelector);
 
-  const onPrescribeMedication = useCallback(
-    async (values): Promise<any> => {
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-      );
+  const onPrescribeMedication = useCallback(async (values): Promise<any> => {
+    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      selectedPatient.id,
+      user.id,
+    );
 
-      await models.Medication.createAndSaveOne({
-        encounter: encounter.id,
-        date: getCurrentDateTimeString(),
-        ...values,
-      });
+    await models.Medication.createAndSaveOne({
+      encounter: encounter.id,
+      date: getCurrentDateTimeString(),
+      ...values,
+    });
 
-      navigateToHistory();
-    }, [],
-  );
+    navigateToHistory();
+  }, []);
 
-  const medicationSuggester = new Suggester(
-    ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.Drug,
-        visibilityStatus: VisibilityStatus.Current,
-      },
+  const medicationSuggester = new Suggester(ReferenceData, {
+    where: {
+      type: ReferenceDataType.Drug,
     },
-  );
+  });
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik
-        onSubmit={onPrescribeMedication}
-        initialValues={{}}
-      >
+      <Formik onSubmit={onPrescribeMedication} initialValues={{}}>
         {({ handleSubmit }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
@@ -106,35 +93,16 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   name="medication"
                 />
                 <StyledView
-                  marginTop={screenPercentageToDP(
-                    2.105,
-                    Orientation.Height,
-                  )}
+                  marginTop={screenPercentageToDP(2.105, Orientation.Height)}
                   height={screenPercentageToDP(21.87, Orientation.Height)}
                   justifyContent="space-between"
                 >
-                  <SectionHeader
-                    h3
-                    marginBottom={screenPercentageToDP(
-                      2.105,
-                      Orientation.Height,
-                    )}>INFO
+                  <SectionHeader h3 marginBottom={screenPercentageToDP(2.105, Orientation.Height)}>
+                    INFO
                   </SectionHeader>
-                  <Field
-                    component={TextField}
-                    name="prescription"
-                    label="Prescription"
-                  />
-                  <Field
-                    component={TextField}
-                    name="indication"
-                    label="Indication"
-                  />
-                  <Field
-                    component={TextField}
-                    name="route"
-                    label="Route"
-                  />
+                  <Field component={TextField} name="prescription" label="Prescription" />
+                  <Field component={TextField} name="indication" label="Indication" />
+                  <Field component={TextField} name="route" label="Route" />
                   <Field
                     component={NumberField}
                     name="quantity"
@@ -143,18 +111,11 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 </StyledView>
                 <StyledView
                   marginTop={screenPercentageToDP(16.42, Orientation.Height)}
-                  marginBottom={screenPercentageToDP(
-                    0.605,
-                    Orientation.Height,
-                  )}
+                  marginBottom={screenPercentageToDP(0.605, Orientation.Height)}
                 >
                   <SectionHeader h3>Prescription notes</SectionHeader>
                 </StyledView>
-                <Field
-                  component={TextField}
-                  name="note"
-                  multiline
-                />
+                <Field component={TextField} name="note" multiline />
                 <Button
                   marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                   backgroundColor={theme.colors.PRIMARY_MAIN}

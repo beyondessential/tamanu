@@ -13,22 +13,17 @@ import { Routes } from '~/ui/helpers/routes';
 import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const VillageSection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
   const { getString } = useLocalisation();
 
-  const villageSuggester = new Suggester(
-    models.ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.Village,
-        visibilityStatus: VisibilityStatus.Current,
-      },
+  const villageSuggester = new Suggester(models.ReferenceData, {
+    where: {
+      type: ReferenceDataType.Village,
     },
-  );
+  });
 
   // uses new IdRelation decorator on model, so the field is `villageId` and not `village`
   return (
