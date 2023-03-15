@@ -12,7 +12,6 @@ export class FhirMissingResources extends ScheduledTask {
     super(conf.schedule, log.child({ task: 'FhirMissingResources' }));
     this.config = conf;
     this.context = context;
-    this.runImmediately();
   }
 
   getName() {
