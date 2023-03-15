@@ -1,6 +1,7 @@
 import 'jest-expect-message';
 import supertest from 'supertest';
 import Chance from 'chance';
+import config from 'config';
 import http from 'http';
 
 import {
@@ -124,6 +125,17 @@ export async function createTestContext() {
   await seedDepartments(models);
   await seedLocations(models);
   await seedLocationGroups(models);
+
+  // Create the facility for the current config if it doesn't exist
+  await models.Facility.findOrCreate({
+    where: {
+      id: config.serverFacilityId,
+    },
+    defaults: {
+      code: 'TEST',
+      name: 'Test Facility',
+    },
+  });
 
   const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);
