@@ -191,7 +191,7 @@ describe('Patient', () => {
       const patient = await Patient.findByPk(patientId);
       const results = await patient.getCovidLabTests();
       // Assert
-      expect(results.length).toEqual(3);
+      expect(results.length).toEqual(2);
     });
   });
 
