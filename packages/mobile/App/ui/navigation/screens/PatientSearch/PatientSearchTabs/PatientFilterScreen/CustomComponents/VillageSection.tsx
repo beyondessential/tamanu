@@ -13,6 +13,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const VillageSection = (): ReactElement => {
   const navigation = useNavigation();
@@ -24,6 +25,7 @@ export const VillageSection = (): ReactElement => {
     {
       where: {
         type: ReferenceDataType.Village,
+        visibilityStatus: VisibilityStatus.Current,
       },
     },
   );

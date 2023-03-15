@@ -24,6 +24,7 @@ import { Dropdown } from '~/ui/components/Dropdown';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 const IllnessFormSchema = Yup.object().shape({
   certainty: Yup.mixed()
@@ -72,6 +73,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   const icd10Suggester = new Suggester(models.ReferenceData, {
     where: {
       type: ReferenceDataType.ICD10,
+      visibilityStatus: VisibilityStatus.Current,
     },
   });
 

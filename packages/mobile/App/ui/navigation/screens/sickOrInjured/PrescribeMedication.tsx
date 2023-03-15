@@ -25,6 +25,7 @@ import { ReferenceData } from '~/models/ReferenceData';
 import { NumberField } from '~/ui/components/NumberField';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -66,6 +67,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     {
       where: {
         type: ReferenceDataType.Drug,
+        visibilityStatus: VisibilityStatus.Current,
       },
     },
   );
