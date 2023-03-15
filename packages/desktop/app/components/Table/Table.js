@@ -321,6 +321,7 @@ class TableComponent extends React.Component {
 
   render() {
     const { className, elevated, headerColor } = this.props;
+
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         <StyledTable>

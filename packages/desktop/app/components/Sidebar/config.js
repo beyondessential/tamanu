@@ -151,15 +151,19 @@ export const FACILITY_MENU_ITEMS = [
     ],
   },
   {
-    key: 'reports',
-    label: 'Reports',
-    path: '/reports',
-    icon: scheduleIcon,
-    ability: { action: 'read', subject: 'report' },
+    key: 'facilityAdmin',
+    label: 'Facility admin',
+    path: '/facility-admin',
+    ability: { action: 'read', subject: 'patient' },
+    divider: true,
     children: [
       {
-        label: 'Report generator',
-        path: `/reports/new`,
+        label: 'Reports',
+        path: `/facility-admin/reports`,
+      },
+      {
+        label: 'Bed management',
+        path: `/facility-admin/bed-management`,
       },
     ],
   },
@@ -168,7 +172,7 @@ export const FACILITY_MENU_ITEMS = [
 export const SYNC_MENU_ITEMS = [
   {
     key: 'refdata',
-    label: 'Data import',
+    label: 'Reference data',
     path: '/admin/refdata',
   },
   {
