@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
 import { VACCINATION_CERTIFICATE } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils/patientCertificates';
