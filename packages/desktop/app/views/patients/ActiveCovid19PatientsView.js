@@ -10,9 +10,10 @@ import {
   TopBar,
   CovidPatientsSearchBar,
   PageContainer,
-  DataFetchingTable,
   DateDisplay,
   ContentPane,
+  SearchTable,
+  SearchTableTitle,
 } from '../../components';
 import { Colors } from '../../constants';
 import { StatisticsCard, StatisticsCardContainer } from '../../components/StatisticsCard';
@@ -82,7 +83,7 @@ const Covid19PatientsTable = React.memo(({ data, ...props }) => {
   };
 
   return (
-    <DataFetchingTable
+    <SearchTable
       endpoint={ENDPOINT}
       onRowClick={row => handleViewPatient(row.id)}
       columns={COLUMNS}
@@ -127,9 +128,10 @@ export const ActiveCovid19PatientsView = React.memo(() => {
   return (
     <PageContainer>
       <TopBar title="Active COVID-19 patients" />
-      <CovidPatientsSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <Covid19PatientsDashboard />
+        <SearchTableTitle>Patient search</SearchTableTitle>
+        <CovidPatientsSearchBar onSearch={setSearchParameters} />
         <Covid19PatientsTable fetchOptions={searchParameters} />
       </ContentPane>
     </PageContainer>

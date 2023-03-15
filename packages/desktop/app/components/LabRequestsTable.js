@@ -2,13 +2,10 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-
-import { DataFetchingTable } from './Table';
-
+import { SearchTable } from './Table';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
-
 import {
   getRequestedBy,
   getPatientName,
@@ -67,7 +64,7 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
   );
 
   return (
-    <DataFetchingTable
+    <SearchTable
       endpoint={encounterId ? `encounter/${encounterId}/labRequests` : 'labRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No lab requests found"

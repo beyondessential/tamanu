@@ -29,7 +29,7 @@ const Error = ({ errorMessage }) => (
   </div>
 );
 
-export const HiddenSyncAvatar = ({ children }) => {
+export const HiddenSyncAvatar = ({ children, ...props }) => {
   const [loading, setLoading] = useState(false);
   const api = useApi();
 
@@ -49,7 +49,7 @@ export const HiddenSyncAvatar = ({ children }) => {
   };
 
   return (
-    <StyledAvatar onClick={handleClick}>
+    <StyledAvatar onClick={handleClick} {...props}>
       {loading ? <CustomCircularProgress size={20} /> : children}
     </StyledAvatar>
   );
