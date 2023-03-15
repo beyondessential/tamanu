@@ -58,7 +58,7 @@ export class FhirWorker {
       } catch (err) {
         this.log.error('FhirWorker: heartbeat failed', { err });
       }
-    }, heartbeat);
+    }, heartbeat).unref();
 
     this.log.debug('FhirWorker: listen for postgres notifications');
     this.pg = await this.sequelize.connectionManager.getConnection();
