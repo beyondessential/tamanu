@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, LocalisedField, DisplayIdField, SearchField } from '../Field';
+import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { SearchBarCheckField } from './SearchBarCheckField';
 
@@ -29,7 +29,7 @@ export const PatientSearchBar = React.memo(
         initialValues={{ displayIdExact: true, ...searchParameters }}
         hiddenFields={
           <>
-            <DisplayIdField />
+            <LocalisedField label="NHN" component={SearchField} name="displayId" />
             <LocalisedField
               name="clinicianId"
               defaultLabel="Clinician"
@@ -43,7 +43,6 @@ export const PatientSearchBar = React.memo(
       >
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
-        <LocalisedField label="NHN" component={SearchField} name="displayId" />
         <LocalisedField
           name="locationGroupId"
           defaultLabel="Location"

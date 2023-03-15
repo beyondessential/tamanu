@@ -7,7 +7,6 @@ import {
   AutocompleteField,
   Field,
   LocalisedField,
-  DisplayIdField,
   DOBFields,
   SearchField,
   SelectField,
