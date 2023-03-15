@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Utils, QueryTypes } from 'sequelize';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
@@ -6,9 +6,20 @@ const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MA
 
 export async function allFromUpstream({ payload }, { log, sequelize }) {
   const { table, op, id, deletedRow = null } = payload;
+  const [schema, tableName] = table.toLowerCase().split('.', 2);
 
   const resources = materialisableResources.filter(resource =>
-    resource.upstreams.some(upstream => upstream.tableName.toLowerCase() === table.toLowerCase()),
+    resource.upstreams.some(upstream => {
+      const upstreamTable = upstream.getTableName();
+      if (typeof upstreamTable === 'string') {
+        return schema === 'public' && upstreamTable.toLowerCase() === tableName;
+      }
+
+      return (
+        upstreamTable.schema?.toLowerCase() === schema &&
+        upstreamTable.tableName?.toLowerCase() === tableName
+      );
+    }),
   );
   if (resources.length === 0) {
     log.warn('No materialisable FHIR resource found for table', {
@@ -25,7 +36,7 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
       op,
     });
 
-    const query = await Resource.queryToFindUpstreamIdsFromTable(table, id, deletedRow);
+    const query = await Resource.queryToFindUpstreamIdsFromTable(tableName, id, deletedRow);
     if (!query) {
       log.debug('no upstream found for row', {
         resource: Resource.fhirName,
@@ -36,43 +47,96 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
       continue;
     }
 
-    const sql = Resource.UpstreamModel.QueryGenerator.selectQuery(
-      Resource.UpstreamModel.getTableName(),
-      {
-        ...query,
-        attributes: [
-          Sequelize.cast(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, 'text'),
-          Sequelize.fn(
-            'json_build_object',
-            'resource',
-            Resource.fhirName,
-            'upstreamId',
-            Sequelize.col('id'),
-            'table',
-            table,
-            'op',
-            op,
-          ),
-          Sequelize.fn('concat', Resource.fhirName, ':', Sequelize.col('id')),
-        ],
-      },
-    );
+    const sql = await prepareQuery(Resource.UpstreamModel, query);
+    const insertSql = `
+      WITH upstreams AS (${sql.replace(/;$/, '')})
+      INSERT INTO fhir.jobs (topic, discriminant, payload)
+      SELECT
+        $topic::text,
+        concat($resource::text, ':', upstreams.id),
+        json_build_object(
+          'resource', $resource::text,
+          'upstreamId', upstreams.id,
+          'table', $table::text,
+          'op', $op::text
+        )
+      FROM upstreams
+      ON CONFLICT (discriminant) DO NOTHING
+    `;
 
-    const results = await sequelize.query(
-      `INSERT INTO fhir.jobs (name, payload, discriminant)
-        ${sql}
-        ON CONFLICT (discriminant) DO NOTHING`,
-      {
-        type: Sequelize.QueryTypes.INSERT,
+    const results = await sequelize.query(insertSql, {
+      type: Sequelize.QueryTypes.INSERT,
+      bind: {
+        topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
+        resource: Resource.fhirName,
+        table,
+        op,
       },
-    );
+    });
     if (!results) {
       throw new Error(`Failed to insert jobs: ${JSON.stringify(results)}`);
     }
 
-    log.debug('submitted refresh jobs', {
+    log.debug('FhirWorker: submitted refresh jobs', {
       resource: Resource.fhirName,
       count: results[1],
     });
   }
+}
+
+/* eslint-disable no-param-reassign */
+// This is mostly copied from Model.findAll internals in sequelize
+// and as such is highly coupled to the internals of sequelize 6.
+// However, there's no other reliable way to get the SQL :(
+async function prepareQuery(Model, options) {
+  Model.warnOnInvalidOptions(options, Object.keys(Model.rawAttributes));
+  const tableNames = {};
+  tableNames[Model.getTableName(options)] = true;
+  options.hooks = false;
+  options.rejectOnEmpty = Object.prototype.hasOwnProperty.call(options, 'rejectOnEmpty')
+    ? options.rejectOnEmpty
+    : Model.options.rejectOnEmpty;
+  Model._injectScope(options);
+  if (options.hooks) {
+    await Model.runHooks('beforeFind', options);
+  }
+  Model._conformIncludes(options, Model);
+  Model._expandAttributes(options);
+  Model._expandIncludeAll(options);
+  if (options.hooks) {
+    await Model.runHooks('beforeFindAfterExpandIncludeAll', options);
+  }
+  options.originalAttributes = Model._injectDependentVirtualAttributes(options.attributes);
+  if (options.include) {
+    options.hasJoin = true;
+    Model._validateIncludedElements(options, tableNames);
+    if (
+      options.attributes &&
+      !options.raw &&
+      Model.primaryKeyAttribute &&
+      !options.attributes.includes(Model.primaryKeyAttribute) &&
+      (!options.group || !options.hasSingleAssociation || options.hasMultiAssociation)
+    ) {
+      options.attributes = [Model.primaryKeyAttribute].concat(options.attributes);
+    }
+  }
+  if (!options.attributes) {
+    options.attributes = Object.keys(Model.rawAttributes);
+    options.originalAttributes = Model._injectDependentVirtualAttributes(options.attributes);
+  }
+  Model.options.whereCollection = options.where || null;
+  Utils.mapFinderOptions(options, Model);
+  options = Model._paranoidClause(Model, options);
+  if (options.hooks) {
+    await Model.runHooks('beforeFindAfterOptions', options);
+  }
+
+  const selectOptions = {
+    ...options,
+    tableNames: Object.keys(tableNames),
+    type: QueryTypes.SELECT,
+    model: Model,
+  };
+
+  return Model.queryGenerator.selectQuery(Model.getTableName(selectOptions), selectOptions, Model);
 }
