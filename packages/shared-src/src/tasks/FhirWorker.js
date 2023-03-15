@@ -127,7 +127,7 @@ export class FhirWorker {
 
     // using allSettled to avoid 'uncaught promise rejection' errors
     // and setImmediate to avoid growing the stack
-    setImmediate(() => Promise.allSettled([this.processQueue()]));
+    setImmediate(() => Promise.allSettled([this.processQueue()])).unref();
   }
 
   currentlyProcessing = false;
