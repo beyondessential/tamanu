@@ -330,8 +330,6 @@ export class Encounter extends Model {
   }
 
   async onDischarge({ endDate, submittedTime, systemNote, discharge }, user) {
-    if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
-
     const { Discharge } = this.sequelize.models;
     if (discharge.dischargerId) {
       await Discharge.create({
