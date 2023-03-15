@@ -57,7 +57,6 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
         ],
       },
     );
-    await worker.setHandler('test', WorkerTest);
 
     const results = await sequelize.query(
       `INSERT INTO fhir.jobs (name, payload, discriminant)
