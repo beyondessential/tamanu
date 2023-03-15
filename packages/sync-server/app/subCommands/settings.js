@@ -32,7 +32,7 @@ export async function listSettings(filter = '', { facility } = {}) {
     .map(({ facilityId, key }) => {
       if (facilityId) {
         if (globalKeys.has(key)) return null;
-        return `${key} (facility: ${facilityId})`;
+        return `${key} (facility only)`;
       }
 
       return key;
