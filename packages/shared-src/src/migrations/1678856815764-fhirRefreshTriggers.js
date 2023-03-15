@@ -19,7 +19,7 @@ const UPSTREAMS = [
 
 export async function up(query) {
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION fhir_refresh_trigger()
+    CREATE OR REPLACE FUNCTION fhir.refresh_trigger()
       RETURNS TRIGGER
       LANGUAGE PLPGSQL
     AS $$
@@ -37,7 +37,7 @@ export async function up(query) {
         payload := payload || jsonb_build_object('deletedRow', OLD);
       END IF;
 
-      PERFORM job_submit('fhir.refresh.allFromUpstream', payload);
+      PERFORM fhir.job_submit('fhir.refresh.allFromUpstream', payload);
       RETURN NEW;
     END;
     $$
@@ -47,7 +47,7 @@ export async function up(query) {
     await query.sequelize.query(`
       CREATE TRIGGER fhir_refresh
       AFTER INSERT OR UPDATE OR DELETE ON ${table} FOR EACH ROW
-      EXECUTE FUNCTION fhir_refresh_trigger()
+      EXECUTE FUNCTION fhir.refresh_trigger()
     `);
   }
 }
@@ -57,5 +57,5 @@ export async function down(query) {
     await query.sequelize.query(`DROP TRIGGER IF EXISTS fhir_refresh ON ${table}`);
   }
 
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir_refresh_trigger()`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS fhir.refresh_trigger()`);
 }
