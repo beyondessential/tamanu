@@ -331,12 +331,10 @@ export class Encounter extends Model {
 
   async onDischarge({ endDate, submittedTime, systemNote, discharge }, user) {
     const { Discharge } = this.sequelize.models;
-    if (discharge.dischargerId) {
-      await Discharge.create({
-        ...discharge,
-        encounterId: this.id,
-      });
-    }
+    await Discharge.create({
+      ...discharge,
+      encounterId: this.id,
+    });
 
     await this.addSystemNote(systemNote || `Discharged patient.`, submittedTime, user);
     await this.closeTriage(endDate);
