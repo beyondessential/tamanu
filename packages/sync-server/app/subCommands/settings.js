@@ -17,18 +17,41 @@ export async function listSettings(filter = '', { facility } = {}) {
     models: { Setting },
   } = await initDatabase({ testMode: false });
 
-  const settingsTree = await Setting.get(filter, facility);
-  if (!settingsTree || Object.keys(settingsTree).length === 0) {
+  const globalTree = await Setting.get(filter);
+  const globalSettings = buildSettingsRecords(filter, globalTree, null);
+
+  if (!facility) {
+    if (!globalTree || Object.keys(globalTree).length === 0) {
+      return 'No settings found';
+    }
+
+    return globalSettings
+      .map(({ key }) => key)
+      .sort()
+      .join('\n');
+  }
+
+  const facilityTree = await Setting.get(filter, facility);
+  if (!facilityTree || Object.keys(facilityTree).length === 0) {
     return 'No settings found';
   }
 
-  const settings = buildSettingsRecords(filter, settingsTree, facility);
+  const facilitySettings = buildSettingsRecords(filter, facilityTree, facility);
 
-  const lines = settings.map(({ facilityId, key }) =>
-    facilityId ? `${key} (facility: ${facilityId})` : key,
-  );
-  lines.sort();
-  return lines.join('\n');
+  const globalKeys = new Set(globalSettings.map(({ key }) => key));
+
+  return [...globalSettings, ...facilitySettings]
+    .map(({ facilityId, key }) => {
+      if (facilityId) {
+        if (globalKeys.has(key)) return null;
+        return `${key} (facility only)`;
+      }
+
+      return key;
+    })
+    .filter(Boolean)
+    .sort()
+    .join('\n');
 }
 
 export async function getSetting(key, { facility } = {}) {
