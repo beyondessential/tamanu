@@ -1,4 +1,4 @@
-import { FHIR_INTERACTIONS, JOB_SUBMITS } from 'shared/constants';
+import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
@@ -23,7 +23,7 @@ export async function fromUpstream(
   });
 
   await FhirJob.submit(
-    JOB_SUBMITS.FHIR.RESOLVER,
+    JOB_TOPICS.FHIR.RESOLVER,
     {},
     {
       discriminant: 'one at a time',
