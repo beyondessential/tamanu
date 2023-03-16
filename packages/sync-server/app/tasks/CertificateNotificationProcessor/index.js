@@ -8,6 +8,7 @@ import {
   ICAO_DOCUMENT_TYPES,
   CERTIFICATE_NOTIFICATION_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
+  VACCINATION_CERTIFICATE,
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
@@ -90,7 +91,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
         switch (type) {
           case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON: {
-            template = 'vaccineCertificateEmail';
+            template = 'covidVaccineCertificateEmail';
             const latestCertifiableVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
               certifiableVaccineIds,
@@ -174,6 +175,11 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               models,
               qrData,
             );
+            break;
+
+          case VACCINATION_CERTIFICATE:
+            template = 'vaccineCertificateEmail';
+            pdf = await makeVaccineCertificate(patient, printedBy, models);
             break;
 
           default:

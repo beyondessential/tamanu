@@ -5,10 +5,50 @@ import QRCode from 'qrcode';
 import { get } from 'lodash';
 import config from 'config';
 
-import { log } from 'shared/services/logging';
-import { tmpdir, CovidVaccineCertificate, getPatientSurveyResponseAnswer } from 'shared/utils';
+import {
+  tmpdir,
+  VaccineCertificate,
+  getPatientSurveyResponseAnswer,
+  CovidVaccineCertificate,
+} from 'shared/utils';
 import { CovidLabCertificate } from 'shared/utils/patientCertificates';
 import { getLocalisation } from '../localisation';
+
+async function getCertificateAssets(models) {
+  const [logo, signingImage, watermark] = (
+    await Promise.all(
+      [
+        'letterhead-logo',
+        'certificate-bottom-half-img',
+        'vaccine-certificate-watermark',
+      ].map(name => models.Asset.findOne({ raw: true, where: { name } })),
+    )
+  ).map(record => record?.data); // avoids having to do ?.data in the prop later
+
+  return { logo, signingImage, watermark };
+}
+
+async function renderPdf(element, fileName) {
+  const folder = await tmpdir();
+  const filePath = path.join(folder, fileName);
+
+  await ReactPDF.render(element, filePath);
+  return {
+    status: 'success',
+    filePath,
+  };
+}
+
+async function getPatientVaccines(models, patient) {
+  const vaccines = await patient.getAdministeredVaccines();
+  const certifiableVaccines = vaccines.filter(vaccine => vaccine.certifiable);
+  const additionalData = await models.PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+    include: models.PatientAdditionalData.getFullReferenceAssociations(),
+  });
+  const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+  return { certifiableVaccines, vaccines, patientData };
+}
 
 export const makeCovidVaccineCertificate = async (
   patient,
@@ -20,65 +60,47 @@ export const makeCovidVaccineCertificate = async (
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
-  const folder = await tmpdir();
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
-  const filePath = path.join(folder, fileName);
-
-  const logo = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'letterhead-logo',
-    },
-  });
-
-  const signingImage = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'certificate-bottom-half-img',
-    },
-  });
-
-  const watermark = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'vaccine-certificate-watermark',
-    },
-  });
-
+  const { logo, signingImage, watermark } = await getCertificateAssets(models);
+  const { certifiableVaccines, patientData } = await getPatientVaccines(models, patient);
   const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
-  try {
-    const vaccinations = await patient.getAdministeredVaccines();
-    const certifiableVaccines = vaccinations.filter(vaccine => vaccine.certifiable);
-    const additionalData = await models.PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-      include: models.PatientAdditionalData.getFullReferenceAssociations(),
-    });
-    const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
+  return renderPdf(
+    <CovidVaccineCertificate
+      patient={patientData}
+      printedBy={printedBy}
+      uvci={uvci}
+      vaccinations={certifiableVaccines}
+      signingSrc={signingImage}
+      watermarkSrc={watermark}
+      logoSrc={logo}
+      vdsSrc={vds}
+      getLocalisation={getLocalisationData}
+    />,
+    fileName,
+  );
+};
 
-    await ReactPDF.render(
-      <CovidVaccineCertificate
-        patient={patientData}
-        printedBy={printedBy}
-        uvci={uvci}
-        vaccinations={certifiableVaccines}
-        signingSrc={signingImage?.data}
-        watermarkSrc={watermark?.data}
-        logoSrc={logo?.data}
-        vdsSrc={vds}
-        getLocalisation={getLocalisationData}
-      />,
-      filePath,
-    );
-  } catch (error) {
-    log.info(`Error creating Patient Certificate ${patient.id}`);
-    throw error;
-  }
+export const makeVaccineCertificate = async (patient, printedBy, models) => {
+  const localisation = await getLocalisation();
+  const getLocalisationData = key => get(localisation, key);
 
-  return {
-    status: 'success',
-    filePath,
-  };
+  const fileName = `vaccine-certificate-${patient.id}.pdf`;
+  const { logo, signingImage, watermark } = await getCertificateAssets(models);
+  const { vaccines, patientData } = await getPatientVaccines(models, patient);
+
+  return renderPdf(
+    <VaccineCertificate
+      patient={patientData}
+      printedBy={printedBy}
+      vaccinations={vaccines}
+      signingSrc={signingImage}
+      watermarkSrc={watermark}
+      logoSrc={logo}
+      getLocalisation={getLocalisationData}
+    />,
+    fileName,
+  );
 };
 
 export const makeCovidCertificate = async (
@@ -91,31 +113,8 @@ export const makeCovidCertificate = async (
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
-  const folder = await tmpdir();
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
-  const filePath = path.join(folder, fileName);
-
-  const logo = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'letterhead-logo',
-    },
-  });
-
-  const signingImage = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'certificate-bottom-half-img',
-    },
-  });
-
-  const watermark = await models.Asset.findOne({
-    raw: true,
-    where: {
-      name: 'vaccine-certificate-watermark',
-    },
-  });
-
+  const { logo, signingImage, watermark } = await getCertificateAssets(models);
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
@@ -147,29 +146,20 @@ export const makeCovidCertificate = async (
     },
   };
 
-  try {
-    const labs = await patient.getCovidLabTests();
-    await ReactPDF.render(
-      <CovidLabCertificate
-        patient={patientData}
-        labs={labs}
-        signingSrc={signingImage?.data}
-        watermarkSrc={watermark?.data}
-        logoSrc={logo?.data}
-        printedBy={printedBy}
-        vdsSrc={vds}
-        getLocalisation={getLocalisationData}
-        certType={certType}
-      />,
-      filePath,
-    );
-  } catch (error) {
-    log.info(`Error creating Patient Certificate ${patient.id}`);
-    throw error;
-  }
+  const labs = await patient.getCovidLabTests();
 
-  return {
-    status: 'success',
-    filePath,
-  };
+  return renderPdf(
+    <CovidLabCertificate
+      patient={patientData}
+      labs={labs}
+      signingSrc={signingImage}
+      watermarkSrc={watermark}
+      logoSrc={logo}
+      printedBy={printedBy}
+      vdsSrc={vds}
+      getLocalisation={getLocalisationData}
+      certType={certType}
+    />,
+    fileName,
+  );
 };
