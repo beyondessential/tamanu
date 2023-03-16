@@ -92,3 +92,30 @@ export async function listVersions(definition, versions) {
   });
   log.info(`Listing versions for report definition ${definition.name}\n${table.toString()}`);
 }
+
+export async function exportVersion(exportPath, versionNumber, exportSql, definition, versions) {
+  const version = versionNumber
+    ? versions.find(v => v.versionNumber === versionNumber)
+    : reportUtils.getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
+  if (!version) {
+    log.error(
+      versionNumber
+        ? `Version ${versionNumber} not found for report definition ${definition.name}`
+        : `No active version found for report definition ${definition.name}`,
+    );
+    return;
+  }
+  try {
+    const data = exportSql ? version.query : JSON.stringify(version, null, 4);
+    log.info(
+      `Exporting ${exportSql ? 'JSON' : 'SQL'} for version ${
+        version.versionNumber
+      } for definition ${definition.name}`,
+    );
+    await fs.writeFile(exportPath, data);
+    log.info(`Exported version ${version.versionNumber} for definition ${definition.name}`);
+  } catch (err) {
+    log.error(`Error exporting version ${version.versionNumber} for definition ${definition.name}`);
+    log.error(err);
+  }
+}
