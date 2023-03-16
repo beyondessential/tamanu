@@ -268,6 +268,76 @@ patientRelations.get(
   }),
 );
 
+patientRelations.get(
+  '/:id/labTests',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'LabTest');
+    const {
+      db,
+      models: { LabTest },
+      params,
+      query,
+    } = req;
+
+    const { order = 'ASC', orderBy, categoryId, panelId, status = 'published' } = query;
+
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const { count, data } = await runPaginatedQuery(
+      db,
+      LabTest,
+      `
+        SELECT COUNT(1) AS count
+        FROM
+          lab_tests
+        WHERE
+          encounter_id IN (
+            SELECT id
+            FROM
+              encounters
+            WHERE
+              patient_id = :patientId
+            )
+      `,
+      `
+        SELECT lab_tests.*
+        FROM
+          lab_tests
+        WHERE
+          encounter_id IN (
+            SELECT id
+            FROM
+              encounters
+            WHERE
+              patient_id = :patientId
+          )
+          AND status = '${status}'
+          ${categoryId ? `AND category_id = ${categoryId}` : ''}
+          ${
+            // TODO: Enable this section when panels epic is merged
+            // panelId
+            //   ? `AND lab_test_type_id IN (
+            //     SELECT lab_test_type_id
+            //     FROM
+            //       lab_test_panel_lab_test_types
+            //     WHERE
+            //       lab_test_panel_id = ${panelId}
+            //   )`:
+            ''
+          }
+        ${orderBy ? `ORDER BY ${orderBy} ${sortDirection}` : ''}
+      `,
+      { patientId: params.id },
+      query,
+    );
+
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
+  }),
+);
+
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);
 patientRelations.use(patientSecondaryIdRoutes);
