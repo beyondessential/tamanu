@@ -45,8 +45,15 @@ export const NewVaccineTabComponent = ({
     async (values: VaccineFormValues): Promise<void> => {
       if (isSubmitting) return;
       setSubmitting(true);
-      const { scheduledVaccineId, recorderId, date, ...otherValues } = values;
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      const {
+        scheduledVaccineId,
+        recorderId,
+        date,
+        scheduledVaccine,
+        encounter,
+        ...otherValues
+      } = values;
+      const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
       );
@@ -57,16 +64,23 @@ export const NewVaccineTabComponent = ({
         id: administeredVaccine?.id,
         scheduledVaccine: scheduledVaccineId,
         recorder: recorderId,
-        encounter: encounter.id,
+        encounter: vaccineEncounter.id,
       });
 
-      // TODO: MISSING LOCATION AND ADMINISTERED BY WHEN GOING BACK TO THIS FORM
-      navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
-        vaccine: {
-          ...vaccine,
-          administeredVaccine,
-        },
-      });
+      if (values.administeredVaccine) {
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
+          vaccine: {
+            ...vaccine,
+            administeredVaccine: {
+              ...administeredVaccine,
+              encounter,
+              scheduledVaccine,
+            },
+          },
+        });
+      } else {
+        navigation.goBack();
+      }
     },
     [isSubmitting],
   );
