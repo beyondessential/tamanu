@@ -70,11 +70,11 @@ const extractEncounterTypeHistory = (notes, encounterData) => {
 const extractLocationHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, locationNoteMatcher);
   const locationHistory = history?.map(location => {
-    const locationArr = location.to?.split(',');
+    const locationArr = location.to?.split(/,\s+/);
     const hasLocationGroup = locationArr.length > 1;
     return {
       newLocationGroup: hasLocationGroup && locationArr[0],
-      newLocation: hasLocationGroup ? locationArr[1].trim() : locationArr[0],
+      newLocation: hasLocationGroup ? locationArr[1] : locationArr[0],
       date: location.date,
     };
   });
