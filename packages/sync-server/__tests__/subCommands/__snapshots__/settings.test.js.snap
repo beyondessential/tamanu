@@ -35,22 +35,26 @@ exports[`settings get (global) retrieves an object 1`] = `
 `;
 
 exports[`settings list (facility) shows all settings 1`] = `
-"test.tree.branch.leaf (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
-test.tree.branch.root (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
-test.tree.flower (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
-test.value (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)"
+"fhir.worker.assumeDroppedAfter
+fhir.worker.heartbeat
+test.tree.branch.leaf
+test.tree.branch.root (facility only)
+test.tree.flower
+test.value"
 `;
 
 exports[`settings list (facility) shows no settings with a non-matching filter 1`] = `"No settings found"`;
 
 exports[`settings list (facility) shows some settings with a filter 1`] = `
-"test.tree.branch.leaf (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
-test.tree.branch.root (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)
-test.tree.flower (facility: 38ee9650-9b0c-440f-8b0c-c9526fba35ea)"
+"test.tree.branch.leaf
+test.tree.branch.root (facility only)
+test.tree.flower"
 `;
 
 exports[`settings list (global) shows all settings 1`] = `
-"test.tree.branch.leaf
+"fhir.worker.assumeDroppedAfter
+fhir.worker.heartbeat
+test.tree.branch.leaf
 test.tree.flower
 test.value"
 `;
