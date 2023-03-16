@@ -34,11 +34,11 @@ interface TableProps {
 }
 
 export const Table = ({
-  Title,
+  Title = null,
   rows,
   columns,
   cells,
-  tableHeader,
+  tableHeader = null,
   onPressItem,
   scrollHandler,
 }: TableProps): JSX.Element => (
