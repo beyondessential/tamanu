@@ -8,13 +8,13 @@ import { DateDisplay } from './DateDisplay';
 
 const Container = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   background-color: ${Colors.white};
   margin: 0;
   position: relative;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
-  padding-top: 19px;
 `;
 
 const DisplayField = styled.div`
@@ -22,16 +22,22 @@ const DisplayField = styled.div`
   padding-bottom: 20px;
   color: ${Colors.darkestText};
   font-weight: 500;
-  padding-left: 30px;
-  &:nth-of-type(even) {
-    padding-left: 20px;
-    border-left: 1px solid ${Colors.outline};
-  }
 `;
 
 const Label = styled.div`
   font-weight: 400;
   color: ${Colors.midText};
+`;
+
+const FieldGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  border-bottom: 1px solid ${Colors.outline};
+  &:last-of-type {
+    border-bottom: none;
+  }
+  padding-top: 20px;
 `;
 
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
@@ -52,137 +58,163 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     disease,
   } = vaccineRecord;
 
-  console.log(vaccineRecord)
-
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
   const routine = true;
-  const other = false;
-
   const overseas = false;
-
   const notGiven = true;
 
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
       <Container>
-        {(routine || notGiven) && (
-          <DisplayField>
-            <Label>Vaccine </Label>
-            {label || '-'}
-          </DisplayField>
-        )}
-
-        {other && (
-          <DisplayField>
-            <Label>Vaccine name </Label>
-            {vaccineName || '-'}
-          </DisplayField>
-        )}
-
-        {other && (
-          <DisplayField>
-            <Label>Vaccine brand </Label>
-            {vaccineBrand || '-'}
-          </DisplayField>
-        )}
-
-        {other && (
-          <DisplayField>
-            <Label>Disease </Label>
-            {disease || '-'}
-          </DisplayField>
-        )}
-
-        {!notGiven && (
-          <DisplayField>
-            <Label>Batch </Label>
-            {batch || '-'}
-          </DisplayField>
-        )}
-
-        {!overseas && (routine || notGiven) && (
-          <DisplayField>
-            <Label>Schedule </Label>
-            {schedule || '-'}
-          </DisplayField>
-        )}
-
-        <DisplayField>
-          <Label>Date </Label>
-          <DateDisplay date={date} />
-        </DisplayField>
-
-        {!notGiven && (
-          <DisplayField>
-            <Label>Injection site </Label>
-            {injectionSite || '-'}
-          </DisplayField>
-        )}
-
         {overseas && (
-          <DisplayField>
-            <Label>Country </Label>
-            {'TODO' || '-'}
-          </DisplayField>
-        )}
-
-        {notGiven && (
-          <>
+          <FieldGroup>
             <DisplayField>
-              <Label>Supervising Clinician </Label>
+              <Label>Circumstance </Label>
               {'TODO' || '-'}
             </DisplayField>
 
+            <DisplayField>
+              <Label>Status </Label>
+              {'TODO' || '-'}
+            </DisplayField>
+          </FieldGroup>
+        )}
+
+        <FieldGroup>
+          {(routine || notGiven) && (
+            <DisplayField>
+              <Label>Vaccine </Label>
+              {label || '-'}
+            </DisplayField>
+          )}
+
+          {!routine && (
+            <DisplayField>
+              <Label>Vaccine name </Label>
+              {vaccineName || '-'}
+            </DisplayField>
+          )}
+
+          {!notGiven && (
+            <DisplayField>
+              <Label>Batch </Label>
+              {batch || '-'}
+            </DisplayField>
+          )}
+
+          {!routine && (
+            <DisplayField>
+              <Label>Vaccine brand </Label>
+              {vaccineBrand || '-'}
+            </DisplayField>
+          )}
+
+          {!overseas && (routine || notGiven) && (
+            <DisplayField>
+              <Label>Schedule </Label>
+              {schedule || '-'}
+            </DisplayField>
+          )}
+
+          {notGiven && (
             <DisplayField>
               <Label>Reason </Label>
               {'TODO' || '-'}
             </DisplayField>
-          </>
-        )}
+          )}
 
-        <DisplayField>
-          <Label>Facility </Label>
-          {location.facility.name || '-'}
-        </DisplayField>
+          {!overseas && (
+            <DisplayField>
+              <Label>Status </Label>
+              {status || '-'}
+            </DisplayField>
+          )}
 
-        {!overseas && (
           <DisplayField>
-            <Label>Area </Label>
-            {location.locationGroup?.name || '-'}
+            <Label>Date </Label>
+            <DateDisplay date={date} />
           </DisplayField>
-        )}
 
-        {!overseas && (
+          {!notGiven && (
+            <DisplayField>
+              <Label>Injection site </Label>
+              {injectionSite || '-'}
+            </DisplayField>
+          )}
+
+          {!routine && (
+            <DisplayField>
+              <Label>Disease </Label>
+              {disease || '-'}
+            </DisplayField>
+          )}
+        </FieldGroup>
+
+        <FieldGroup>
+          {!overseas && (
+            <DisplayField>
+              <Label>Area </Label>
+              {location.locationGroup?.name || '-'}
+            </DisplayField>
+          )}
+
+          {!overseas && (
+            <DisplayField>
+              <Label>Location </Label>
+              {location.name || '-'}
+            </DisplayField>
+          )}
+
+          {!overseas && (
+            <DisplayField>
+              <Label>Department </Label>
+              {department.name || '-'}
+            </DisplayField>
+          )}
+
+          {!overseas && (
+            <DisplayField>
+              <Label>Facility </Label>
+              {location.facility.name || '-'}
+            </DisplayField>
+          )}
+
+          {overseas && (
+            <DisplayField>
+              <Label>Country </Label>
+              {'TODO' || '-'}
+            </DisplayField>
+          )}
+        </FieldGroup>
+
+        <FieldGroup>
+          {!overseas && !notGiven && (
+            <DisplayField>
+              <Label>Given by </Label>
+              {givenBy || '-'}
+            </DisplayField>
+          )}
+
+          {notGiven && (
+            <DisplayField>
+              <Label>Supervising Clinician </Label>
+              {'TODO' || '-'}
+            </DisplayField>
+          )}
+
+          {overseas && (
+            <DisplayField>
+              <Label>Country </Label>
+              {'TODO' || '-'}
+            </DisplayField>
+          )}
+
           <DisplayField>
-            <Label>Location </Label>
-            {location.name || '-'}
+            <Label>Recorded by </Label>
+            {recorder?.displayName || '-'}
           </DisplayField>
-        )}
-
-        {!overseas && !notGiven && (
-          <DisplayField>
-            <Label>Department </Label>
-            {department.name || '-'}
-          </DisplayField>
-        )}
-
-        {!overseas && !notGiven && (
-          <DisplayField>
-            <Label>Given by </Label>
-            {givenBy || '-'}
-          </DisplayField>
-        )}
-
-        <DisplayField>
-          <Label>Recorded by </Label>
-          {recorder?.displayName || '-'}
-        </DisplayField>
-
-        <DisplayField>
-          <Label>Status </Label>
-          {status || '-'}
-        </DisplayField>
+        </FieldGroup>
       </Container>
       <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>
