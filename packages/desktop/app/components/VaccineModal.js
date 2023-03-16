@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { VACCINE_RECORDING_TYPES } from 'shared/constants';
 
 import { Modal } from './Modal';
 import { VaccineForm } from '../forms/VaccineForm';
@@ -22,9 +22,8 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
       await api.post(`patient/${patientId}/administeredVaccine`, {
         ...data,
         patientId,
-        status: VACCINE_STATUS.GIVEN,
+        status: currentTabKey,
         recorderId: currentUser.id,
-        vaccineRecordingType: currentTabKey,
       });
       dispatch(reloadPatient(patientId));
     },
@@ -65,12 +64,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   return (
     <Modal title="Record vaccine" open={open} onClose={onClose}>
-      <SegmentTabDisplay
-        tabs={TABS}
-        currentTabKey={currentTabKey}
-        onTabSelect={setCurrentTabKey}
-        singleTabStyle={{ minWidth: '263px' }}
-      />
+      <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
     </Modal>
   );
 };

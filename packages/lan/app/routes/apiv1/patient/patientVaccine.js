@@ -1,9 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
-import config from 'config';
 
-import { ENCOUNTER_TYPES, VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { REFERENCE_TYPES } from 'shared/constants/importable';
 
@@ -107,50 +106,11 @@ patientVaccineRoutes.post(
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
-    if (!req.body.vaccineRecordingType) {
-      res.status(400).send({ error: { message: 'vaccineRecordingType is required' } });
+    if (!req.body.status) {
+      res.status(400).send({ error: { message: 'status is required' } });
     }
 
     const { models } = req;
-    const { vaccineRecordingType, givenOverseas, givenByCountryId } = req.body;
-    let { locationId, departmentId } = req.body;
-    const vaccineData = { ...req.body };
-
-    // Find default department and location when vaccine is not given
-    if (vaccineRecordingType === VACCINE_RECORDING_TYPES.NOT_GIVEN) {
-      const defaultDepartment = await models.Department.findOne({
-        where: { facilityId: config.serverFacilityId },
-      });
-      if (!defaultDepartment) {
-        throw new Error(
-          `No default Department is configured for facility: ${config.serverFacilityId}.`,
-        );
-      }
-
-      const defaultLocation = await models.Location.findOne({
-        where: { facilityId: config.serverFacilityId },
-      });
-      if (!defaultLocation) {
-        throw new Error(
-          `No default Location is configured for facility: ${config.serverFacilityId}.`,
-        );
-      }
-
-      locationId = defaultLocation.id;
-      departmentId = defaultDepartment.id;
-    }
-
-    if (vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN && givenOverseas) {
-      const country = await models.ReferenceData.getOneById(
-        givenByCountryId,
-        REFERENCE_TYPES.COUNTRY,
-      );
-
-      if (!country) {
-        throw new Error(`Cannot find country with id '${givenByCountryId}' when recording vaccine`);
-      }
-      vaccineData.givenBy = country.name;
-    }
 
     let encounterId;
     const existingEncounter = await models.Encounter.findOne({
@@ -170,16 +130,15 @@ patientVaccineRoutes.post(
         startDate: req.body.date,
         endDate: req.body.date,
         patientId: req.params.id,
-        locationId,
+        locationId: req.body.locationId,
         examinerId: req.body.recorderId,
-        departmentId,
+        departmentId: req.body.departmentId,
       });
       encounterId = newEncounter.get('id');
     }
 
     const newRecord = await req.models.AdministeredVaccine.create({
-      status: vaccineRecordingType,
-      ...vaccineData,
+      ...req.body,
       encounterId,
     });
     res.send(newRecord);
