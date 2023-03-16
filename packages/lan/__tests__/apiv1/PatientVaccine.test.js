@@ -158,7 +158,7 @@ describe('PatientVaccine', () => {
       });
 
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
-        vaccineRecordingType: VACCINE_RECORDING_TYPES.GIVEN,
+        status: VACCINE_RECORDING_TYPES.GIVEN,
         locationId: location.id,
         departmentId: department.id,
         scheduledVaccineId: scheduled1.id,
@@ -166,7 +166,7 @@ describe('PatientVaccine', () => {
         patientId: patient.id,
         date: new Date(),
         givenOverseas: true,
-        givenByCountryId: country.id,
+        givenBy: country.name,
       });
 
       expect(result).toHaveSucceeded();
