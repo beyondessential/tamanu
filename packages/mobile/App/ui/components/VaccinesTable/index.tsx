@@ -26,6 +26,9 @@ export const VaccinesTable = ({
 }: VaccinesTableProps): JSX.Element => {
   const scrollViewRef = useRef(null);
 
+  // This manages the horizontal scroll of the header. This handler is passed down
+  // to the scrollview in the generic table. That gets the horizontal scroll coordinate
+  // of the table and feeds this back up to position the header appropriately.
   const handleScroll = (event: any) => {
     scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
   };
