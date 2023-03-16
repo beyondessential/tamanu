@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { CovidVaccineCertificate } from 'shared/utils/patientCertificates';
