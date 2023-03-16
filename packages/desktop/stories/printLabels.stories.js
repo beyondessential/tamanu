@@ -13,7 +13,7 @@ const mockData = () => {
   return {
     patientId: chance.hash({ length: 10 }),
     testId: chance.hash({ length: 8 }),
-    patientAge: chance.age(),
+    patientDateOfBirth: chance.birthday({ type: 'child' }),
     date: chance.date({ string: true }),
     labCategory: chance.pickone(['Microbiology', 'Malaria', 'Serology', 'Covid']),
   };
@@ -22,4 +22,6 @@ const mockData = () => {
 const Template = args => <LabRequestPrintLabel {...args} />;
 
 export const LabRequest = Template.bind({});
-LabRequest.args = mockData();
+LabRequest.args = {
+  data: mockData(),
+};
