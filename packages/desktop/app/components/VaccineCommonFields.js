@@ -2,7 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 
-import { INJECTION_SITE_OPTIONS, VACCINE_CATEGORY_OPTIONS } from 'shared/constants';
+import {
+  INJECTION_SITE_OPTIONS,
+  VACCINE_CATEGORY_OPTIONS,
+  VACCINE_CATEGORIES,
+} from 'shared/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import { AdministeredVaccineSchedule } from './AdministeredVaccineSchedule';
@@ -16,6 +20,7 @@ import {
   CheckField,
   LocalisedLocationField,
 } from './Field';
+import { ConfirmCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 
@@ -179,4 +184,24 @@ export const AdministeredVaccineScheduleField = ({ administeredOptions, schedule
       />
     )}
   </FullWidthCol>
+);
+
+export const VaccineNameField = () => (
+  <Field name="vaccineName" label="Vaccine name" component={TextField} required />
+);
+
+export const VaccineBrandField = () => (
+  <Field name="vaccineName" label="Vaccine name" component={TextField} required />
+);
+
+export const DiseaseField = () => (
+  <Field name="disease" label="Disease" component={TextField} required />
+);
+
+export const ConfirmCancelRowField = ({ submitForm, category, scheduleOptions, onCancel }) => (
+  <ConfirmCancelRow
+    onConfirm={submitForm}
+    confirmDisabled={category !== VACCINE_CATEGORIES.OTHER && scheduleOptions.length === 0}
+    onCancel={onCancel}
+  />
 );

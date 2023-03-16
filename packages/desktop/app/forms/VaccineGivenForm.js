@@ -5,7 +5,6 @@ import * as yup from 'yup';
 import { VACCINE_CATEGORIES } from 'shared/constants';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
 import {
   CategoryField,
   VaccineLabelField,
@@ -20,6 +19,10 @@ import {
   ConsentField,
   StyledDivider,
   FullWidthCol,
+  ConfirmCancelRowField,
+  VaccineNameField,
+  VaccineBrandField,
+  DiseaseField,
 } from '../components/VaccineCommonFields';
 import { Field, AutocompleteField, CheckField, TextField } from '../components/Field';
 import { useSuggester } from '../api';
@@ -59,10 +62,9 @@ export const VaccineGivenForm = ({
       </FullWidthCol>
       {category === VACCINE_CATEGORIES.OTHER ? (
         <>
-          <Field name="vaccineName" label="Vaccine name" component={TextField} required />
-
-          <Field name="vaccineBrand" label="Vaccine brand" component={TextField} required />
-          <Field name="disease" label="Disease" component={TextField} required />
+          <VaccineNameField />
+          <VaccineBrandField />
+          <DiseaseField />
         </>
       ) : (
         <VaccineLabelField
@@ -109,9 +111,10 @@ export const VaccineGivenForm = ({
             : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
         }
       />
-      <ConfirmCancelRow
+      <ConfirmCancelRowField
         onConfirm={submitForm}
-        confirmDisabled={category !== VACCINE_CATEGORIES.OTHER && scheduleOptions.length === 0}
+        category={category}
+        scheduleOptions={scheduleOptions}
         onCancel={onCancel}
       />
     </TwoTwoGrid>

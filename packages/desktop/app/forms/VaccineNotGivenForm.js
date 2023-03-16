@@ -5,7 +5,6 @@ import * as yup from 'yup';
 import { VACCINE_CATEGORIES } from 'shared/constants';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
 import {
   CategoryField,
   VaccineLabelField,
@@ -16,6 +15,10 @@ import {
   GivenByField,
   RecordedByField,
   StyledDivider,
+  ConfirmCancelRowField,
+  VaccineNameField,
+  VaccineBrandField,
+  DiseaseField
 } from '../components/VaccineCommonFields';
 import { Field, SuggesterSelectField, TextField } from '../components/Field';
 
@@ -43,9 +46,9 @@ export const VaccineNotGivenForm = ({
     />
     {category === VACCINE_CATEGORIES.OTHER ? (
       <>
-        <Field name="vaccineName" label="Vaccine name" component={TextField} required />
+        <VaccineNameField />
 
-        <Field name="disease" label="Disease" component={TextField} required />
+        <DiseaseField />
       </>
     ) : (
       <VaccineLabelField
@@ -79,9 +82,10 @@ export const VaccineNotGivenForm = ({
     <GivenByField label="Supervising clinician" />
     <RecordedByField />
 
-    <ConfirmCancelRow
+    <ConfirmCancelRowField
       onConfirm={submitForm}
-      confirmDisabled={category !== VACCINE_CATEGORIES.OTHER && scheduleOptions.length === 0}
+      category={category}
+      scheduleOptions={scheduleOptions}
       onCancel={onCancel}
     />
   </TwoTwoGrid>
