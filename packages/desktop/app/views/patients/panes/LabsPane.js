@@ -5,7 +5,7 @@ import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
 
-export const LabsPane = React.memo(({ encounter, readonly }) => {
+export const LabsPane = React.memo(({ patient, encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
@@ -14,6 +14,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
       <LabRequestModal
         open={newRequestModalOpen}
         encounter={encounter}
+        patient={patient}
         onClose={() => setNewRequestModalOpen(false)}
       />
       <PrintMultipleLabRequestsSelectionModal

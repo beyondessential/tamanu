@@ -12,6 +12,7 @@ import {
   useSelectableColumn,
   OutlinedButton,
 } from '../../../components';
+import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -102,15 +103,16 @@ const COLUMNS = [
   },
 ];
 
-export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClose }) => {
+const MODALS = {
+  PRINT: 'print',
+  LABEL_PRINT: 'labelPrint',
+};
+
+export const LabRequestSummaryPane = React.memo(({ patient, encounter, labRequests, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
     columnKey: 'selected',
   });
-
-  const handlePrintConfirm = () => {
-    setIsOpen(true);
-  };
 
   // All the lab requests were made in a batch and have the same details
   const { sampleTime, requestedDate, requestedBy, department, priority, site } = labRequests[0];
@@ -143,13 +145,22 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
         allowExport={false}
       />
       <Actions>
-        <OutlinedButton size="small" onClick={handlePrintConfirm}>
+        <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.LABEL_PRINT)}>
+          Print label
+        </OutlinedButton>
+        <LabRequestPrintLabelModal
+          patient={patient}
+          labRequests={labRequests}
+          open={isOpen === MODALS.LABEL_PRINT}
+          onClose={() => setIsOpen(false)}
+        />
+        <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.PRINT)}>
           Print request
         </OutlinedButton>
         <MultipleLabRequestsPrintoutModal
           encounter={encounter}
           labRequests={selectedRows}
-          open={isOpen}
+          open={isOpen === MODALS.PRINT}
           onClose={() => setIsOpen(false)}
         />
       </Actions>

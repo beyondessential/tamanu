@@ -21,7 +21,7 @@ const useLabRequests = labRequestIds => {
   return combineQueries(queries);
 };
 
-export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
+export const LabRequestModal = React.memo(({ open, onClose, patient, encounter }) => {
   const api = useApi();
   const { loadEncounter } = useEncounter();
   const [labRequestIds, setLabRequestIds] = useState([]);
@@ -51,6 +51,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   if (isSuccess) {
     ModalBody = (
       <LabRequestSummaryPane
+        patient={patient}
         encounter={encounter}
         labRequests={labRequests}
         onClose={async () => {
