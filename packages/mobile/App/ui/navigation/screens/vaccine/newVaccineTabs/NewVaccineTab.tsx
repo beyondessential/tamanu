@@ -14,6 +14,7 @@ import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { Routes } from '~/ui/helpers/routes';
 
 type NewVaccineTabProps = {
   route: Route & {
@@ -29,7 +30,7 @@ export const NewVaccineTabComponent = ({
   selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
-  const { administeredVaccine } = vaccine;
+  let { administeredVaccine } = vaccine;
   const navigation = useNavigation();
   const [isSubmitting, setSubmitting] = useState(false);
 
@@ -50,7 +51,7 @@ export const NewVaccineTabComponent = ({
         user.id,
       );
 
-      await models.AdministeredVaccine.createAndSaveOne({
+      administeredVaccine = await models.AdministeredVaccine.createAndSaveOne({
         ...otherValues,
         date: date ? formatISO9075(date) : null,
         id: administeredVaccine?.id,
@@ -59,7 +60,13 @@ export const NewVaccineTabComponent = ({
         encounter: encounter.id,
       });
 
-      navigation.goBack();
+      // TODO: MISSING LOCATION AND ADMINISTERED BY WHEN GOING BACK TO THIS FORM
+      navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
+        vaccine: {
+          ...vaccine,
+          administeredVaccine,
+        },
+      });
     },
     [isSubmitting],
   );
