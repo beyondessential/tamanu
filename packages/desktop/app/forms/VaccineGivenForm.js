@@ -41,7 +41,7 @@ export const VaccineGivenForm = ({
   onCancel,
   setCategory,
   setVaccineLabel,
-  values,
+  givenOverseas,
 }) => {
   const countrySuggester = useSuggester('country');
 
@@ -80,10 +80,10 @@ export const VaccineGivenForm = ({
 
       <GivenByField
         name="givenBy"
-        label={values.givenOverseas ? 'Country' : 'Given by'}
-        component={values.givenOverseas ? AutocompleteField : undefined}
-        suggester={values.givenOverseas ? countrySuggester : undefined}
-        required={values.givenOverseas}
+        label={givenOverseas ? 'Country' : 'Given by'}
+        component={givenOverseas ? AutocompleteField : undefined}
+        suggester={givenOverseas ? countrySuggester : undefined}
+        required={givenOverseas}
       />
 
       <RecordedByField />
@@ -92,7 +92,7 @@ export const VaccineGivenForm = ({
 
       <ConsentField
         label={
-          values.givenOverseas
+          givenOverseas
             ? 'Do you have consent to record in Tamanu?'
             : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
         }
@@ -116,5 +116,5 @@ VaccineGivenForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   setCategory: PropTypes.func.isRequired,
   setVaccineLabel: PropTypes.func.isRequired,
-  values: PropTypes.object.isRequired,
+  givenOverseas: PropTypes.bool.isRequired,
 };

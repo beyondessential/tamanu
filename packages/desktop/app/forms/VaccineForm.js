@@ -73,9 +73,9 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineR
           ? VACCINE_GIVEN_VALIDATION_SCHEMA
           : VACCINE_NOT_GIVEN_VALIDATION_SCHEMA
       }
-      render={({ submitForm, values }) => {
+      render={({ submitForm, values: { givenOverseas = false } = {} }) => {
         return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
-          <VaccineGivenForm {...baseProps} submitForm={submitForm} values={values} />
+          <VaccineGivenForm {...baseProps} submitForm={submitForm} givenOverseas={givenOverseas} />
         ) : (
           <VaccineNotGivenForm {...baseProps} submitForm={submitForm} />
         );
