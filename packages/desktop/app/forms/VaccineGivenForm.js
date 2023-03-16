@@ -10,7 +10,7 @@ import {
   BatchField,
   AdministeredVaccineScheduleField,
   VaccineDateField,
-  InjectionSiteFIeld,
+  InjectionSiteField,
   LocationField,
   DepartmentField,
   GivenByField,
@@ -69,7 +69,7 @@ export const VaccineGivenForm = ({
       ) : null}
 
       <VaccineDateField label="Date given" />
-      <InjectionSiteFIeld />
+      <InjectionSiteField />
 
       <StyledDivider />
 
