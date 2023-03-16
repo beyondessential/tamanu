@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
-import { DataFetchingTable } from './Table';
+import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { reloadPatient } from '../store/patient';
@@ -73,7 +73,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
   );
 
   return (
-    <DataFetchingTable
+    <SearchTable
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"
