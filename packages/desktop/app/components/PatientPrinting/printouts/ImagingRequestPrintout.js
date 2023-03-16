@@ -4,7 +4,6 @@ import { SimplePrintout } from './reusable/SimplePrintout';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { DateDisplay } from '../../DateDisplay';
 import { getFullLocationName } from '../../../utils/location';
-import { getAreaNote } from '../../../utils/areaNote';
 
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {
@@ -14,6 +13,8 @@ export const ImagingRequestPrintout = React.memo(
       requestedBy,
       priority,
       imagingType,
+      areas,
+      areaNote,
       note,
     } = imagingRequestData;
     const { getLocalisation } = useLocalisation();
@@ -34,7 +35,7 @@ export const ImagingRequestPrintout = React.memo(
           'Requested by': requestedBy?.displayName,
           Priority: imagingPriorities.find(p => p.value === priority)?.label || '',
           'Imaging type': imagingTypes[imagingType]?.label || 'Unknown',
-          'Areas to be imaged': getAreaNote(imagingRequestData),
+          'Areas to be imaged': areas?.length ? areas.map(area => area.name).join(', ') : areaNote,
         }}
       />
     );
