@@ -29,11 +29,12 @@ export const serve = async ({ skipMigrationCheck }) => {
     config,
   });
 
+  const minConnectionPoolSnapshotHeadroom = 4;
   const connectionPoolSnapshotHeadroom =
     config.db?.pool?.max - config?.sync?.numberConcurrentPullSnapshots;
-  if (connectionPoolSnapshotHeadroom < 4) {
+  if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
-      'WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within 4 connections)',
+      `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
       {
         'config.db.pool.max': config.db?.pool?.max,
         'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
