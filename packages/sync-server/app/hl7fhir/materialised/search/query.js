@@ -137,6 +137,11 @@ function singleMatch(path, paramQuery, paramDef, Model) {
           ? val.toString()
           : Model.sequelize.escape(val);
 
+      // the JSONB queries below are quite complex, and postgres' query planner
+      // can't figure out how to optimise them. so we help it out by adding a
+      // boolean condition that will let it use a GIN index as a pre-scan filter
+      const optimisingCondition = `"${entirePath[0]}" @? '${getJsonbPath(entirePath)}'`;
+
       // need to inverse the ops because we're writing the sql in the opposite
       // direction (match operator any(...)) instead of (value operator match)
       const inverseOp = INVERSE_OPS.get(op) ?? op;
@@ -153,13 +158,17 @@ function singleMatch(path, paramQuery, paramDef, Model) {
           entirePath,
         )}') #>> '{}')`;
 
-        return Sequelize.literal(`${escaped} ${inverseOp} ${selector}`);
+        return Sequelize.literal(`${escaped} ${inverseOp} ${selector} AND ${optimisingCondition}`);
       }
 
       // while #>> works regardless of the jsonb path, using
       // explicit function names needs different treatment.
       const selector = Sequelize.fn('any', Sequelize.fn('select', getJsonbQueryFn(entirePath)));
-      return Sequelize.where(Sequelize.literal(escaped), inverseOp, selector);
+      return Sequelize.and([
+        // actual comparison
+        Sequelize.where(Sequelize.literal(escaped), inverseOp, selector),
+        Sequelize.literal(optimisingCondition),
+      ]);
     });
 
     return matches.length === 1 ? matches[0] : Sequelize.and(matches);
