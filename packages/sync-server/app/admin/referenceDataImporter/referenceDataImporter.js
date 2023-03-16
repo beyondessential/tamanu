@@ -12,7 +12,13 @@ import DEPENDENCIES from './dependencies';
 
 export const PERMISSIONS = ['Permission', 'Role', 'User', 'ReferenceData'];
 
-export async function importer({ errors, models, stats, file, whitelist = [] }) {
+export async function referenceDataImporter({
+  errors,
+  models,
+  stats,
+  file,
+  includedDataTypes = [],
+}) {
   log.info('Importing data definitions from file', { file });
 
   log.debug('Parse XLSX workbook');
@@ -23,7 +29,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   for (const [sheetName, sheet] of Object.entries(workbook.Sheets)) {
     const name = normaliseSheetName(sheetName);
 
-    if (whitelist.length && !whitelist.includes(name)) {
+    if (!includedDataTypes.includes(name)) {
       log.debug('Sheet has been manually excluded', { name });
       continue;
     }
@@ -77,22 +83,22 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
 
   // sort by length of needs, so that stuff that doesn't depend on anything else gets done first
   // (as an optimisation, the algorithm doesn't need this, but it saves a few cycles)
-  const dataTypes = Object.entries(DEPENDENCIES).map(([k, v]) => [normaliseSheetName(k), v]);
+  const nonRefDataTypes = Object.entries(DEPENDENCIES).map(([k, v]) => [normaliseSheetName(k), v]);
   // eslint-disable-next-line no-unused-vars
-  dataTypes.sort(([_ka, a], [_kb, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
+  nonRefDataTypes.sort(([_ka, a], [_kb, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
 
-  log.debug('Importing other data types', { dataTypes });
+  log.debug('Importing other data types', { nonRefDataTypes });
   const importedData = [];
   const droppedData = [];
 
   let loopProtection = 100;
-  while (dataTypes.length > 0 && loopProtection > 0) {
+  while (nonRefDataTypes.length > 0 && loopProtection > 0) {
     loopProtection -= 1;
 
     const [
       dataType,
       { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] },
-    ] = dataTypes.shift();
+    ] = nonRefDataTypes.shift();
 
     log.debug('Look for data type in sheets', { dataType });
     const sheet = sheets.get(dataType);
@@ -108,7 +114,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       log.debug('Resolve data type needs', { dataType, needs });
       if (!needs.every(need => importedData.includes(need) || droppedData.includes(need))) {
         log.debug('Some needs are missing, deferring');
-        dataTypes.push([dataType, { loader, model, needs }]);
+        nonRefDataTypes.push([dataType, { loader, model, needs }]);
         continue;
       }
     }

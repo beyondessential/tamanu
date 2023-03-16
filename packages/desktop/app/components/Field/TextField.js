@@ -15,10 +15,11 @@ export const StyledTextField = styled(MuiTextField)`
     ${props =>
       props.style?.color ? `color: ${props.style.color}` : `color: ${Colors.darkestText}`};
     padding: 13px 12px 13px 15px;
-    ${props => (props.style?.fontSize ? `font-size: ${props.style.fontSize}` : `font-size: 15px`)};
     line-height: 18px;
     ${props => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};
     ${props => (props.style?.padding ? `padding: ${props.style.padding}` : '')};
+
+    font-size: ${props => (props.size === 'small' ? '11px' : '15px')};
 
     &::placeholder {
       color: ${Colors.softText};

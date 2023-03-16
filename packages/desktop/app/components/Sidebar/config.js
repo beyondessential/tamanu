@@ -108,16 +108,6 @@ export const FACILITY_MENU_ITEMS = [
         path: '/imaging-requests/all',
         ability: { action: 'read' },
       },
-      {
-        label: 'Completed',
-        path: '/imaging-requests/completed',
-        ability: { action: 'read' },
-      },
-      {
-        label: 'New request',
-        path: '/imaging-requests/new',
-        ability: { action: 'create' },
-      },
     ],
   },
   {
@@ -132,16 +122,6 @@ export const FACILITY_MENU_ITEMS = [
         path: '/lab-requests/all',
         ability: { action: 'read' },
       },
-      {
-        label: 'Completed',
-        path: '/lab-requests/completed',
-        ability: { action: 'read' },
-      },
-      {
-        label: 'New request',
-        path: '/lab-requests/new',
-        ability: { action: 'create' },
-      },
     ],
   },
   {
@@ -154,10 +134,6 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Immunisation register',
         path: `/immunisations/all`,
-      },
-      {
-        label: 'COVID campaign',
-        path: `/immunisations/covid-campaign`,
       },
     ],
   },
@@ -175,15 +151,19 @@ export const FACILITY_MENU_ITEMS = [
     ],
   },
   {
-    key: 'reports',
-    label: 'Reports',
-    path: '/reports',
-    icon: scheduleIcon,
-    ability: { action: 'read', subject: 'report' },
+    key: 'facilityAdmin',
+    label: 'Facility admin',
+    path: '/facility-admin',
+    ability: { action: 'read', subject: 'patient' },
+    divider: true,
     children: [
       {
-        label: 'Report generator',
-        path: `/reports/new`,
+        label: 'Reports',
+        path: `/facility-admin/reports`,
+      },
+      {
+        label: 'Bed management',
+        path: `/facility-admin/bed-management`,
       },
     ],
   },
@@ -192,7 +172,7 @@ export const FACILITY_MENU_ITEMS = [
 export const SYNC_MENU_ITEMS = [
   {
     key: 'refdata',
-    label: 'Data import',
+    label: 'Reference data',
     path: '/admin/refdata',
   },
   {
