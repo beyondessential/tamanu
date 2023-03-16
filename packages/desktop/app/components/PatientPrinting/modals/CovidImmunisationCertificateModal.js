@@ -8,23 +8,20 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalData } from '../../../api/queries';
+import { usePatientAdditionalData, useAdministeredVaccines } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
 export const CovidImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
-  useEffect(() => {
-    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      const certifiableVaccines = response.data.filter(vaccine => vaccine.certifiable);
-      setVaccinations(certifiableVaccines);
-    });
-  }, [api, patient.id]);
+  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+    order: [['date', 'ASC']],
+  });
+  const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
 
   const createCovidImmunisationCertificateNotification = useCallback(
     data => {
