@@ -6,14 +6,18 @@ import { getAgeFromDate } from 'shared/utils/date';
 import Barcode from 'react-barcode';
 import { DateDisplay } from '../../DateDisplay';
 
+const SCREEN_WIDTH = 332;
+
 const Container = styled.div`
   background: white;
   padding: 12px;
-  width: 332px;
+  width: ${`${SCREEN_WIDTH}px`};
   border: 1px solid black;
 
-  transform: ${({ $scale }) => `scale(${$scale})`};
-  transform-origin: top left;
+  @media print {
+    transform: ${({ $scale }) => `scale(${$scale})`};
+    transform-origin: top left;
+  }
 `;
 
 const Grid = styled.div`
@@ -72,9 +76,29 @@ function getDisplayAge(dateOfBirth) {
   return formatDuration(ageDuration, { format: ['years'] });
 }
 
-export const LabRequestPrintLabel = ({ data, scale = 1 }) => {
+// My Dell monitor U2518D Pixel Per Inch (PPI): 117.5
+
+// Requirements  50.80mm x 25.40mm
+// 1 inch = 25.4mm
+// pixelValue = DPI x width (inches)
+// Scale = calculatedPixelValue / fixedWidth
+
+// Example: 50.80mm
+// Inches: 2
+// pixelValue: 600
+
+const getPrintScale = width => {
+  const printDPI = 72;
+  const inches = width / 25.4;
+  const pixelValue = printDPI * inches;
+  return pixelValue / SCREEN_WIDTH;
+};
+
+export const LabRequestPrintLabel = ({ data, width = '50.8' }) => {
   const { patientId, patientDateOfBirth, testId, date, labCategory } = data;
   const age = getDisplayAge(patientDateOfBirth);
+  const scale = getPrintScale(width);
+  console.log('scale', scale);
 
   return (
     <Container $scale={scale}>
