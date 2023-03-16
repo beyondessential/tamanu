@@ -17,7 +17,10 @@ import {
   RecordedByField,
   ConsentField,
   StyledDivider,
+  FullWidthCol,
 } from '../components/VaccineCommonFields';
+import { Field, AutocompleteField, CheckField } from '../components/Field';
+import { useSuggester } from '../api';
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
   scheduledVaccineId: yup.string().required(),
@@ -38,7 +41,10 @@ export const VaccineGivenForm = ({
   onCancel,
   setCategory,
   setVaccineLabel,
+  values,
 }) => {
+  const countrySuggester = useSuggester('country');
+
   return (
     <TwoTwoGrid>
       <CategoryField
@@ -46,6 +52,9 @@ export const VaccineGivenForm = ({
         setCategory={setCategory}
         setVaccineLabel={setVaccineLabel}
       />
+      <FullWidthCol>
+        <Field name="givenOverseas" label="Given overseas" component={CheckField} />
+      </FullWidthCol>
       <VaccineLabelField
         vaccineLabel={vaccineLabel}
         vaccineOptions={vaccineOptions}
@@ -69,12 +78,25 @@ export const VaccineGivenForm = ({
 
       <StyledDivider />
 
-      <GivenByField />
+      <GivenByField
+        name="givenBy"
+        label={values.givenOverseas ? 'Country' : 'Given by'}
+        component={values.givenOverseas ? AutocompleteField : undefined}
+        suggester={values.givenOverseas ? countrySuggester : undefined}
+        required={values.givenOverseas}
+      />
+
       <RecordedByField />
 
       <StyledDivider />
 
-      <ConsentField />
+      <ConsentField
+        label={
+          values.givenOverseas
+            ? 'Do you have consent to record in Tamanu?'
+            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
+        }
+      />
       <ConfirmCancelRow
         onConfirm={submitForm}
         confirmDisabled={scheduleOptions.length === 0}
@@ -94,4 +116,5 @@ VaccineGivenForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   setCategory: PropTypes.func.isRequired,
   setVaccineLabel: PropTypes.func.isRequired,
+  values: PropTypes.object.isRequired,
 };

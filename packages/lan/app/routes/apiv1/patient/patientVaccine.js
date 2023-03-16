@@ -4,7 +4,6 @@ import { QueryTypes, Op } from 'sequelize';
 
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { REFERENCE_TYPES } from 'shared/constants/importable';
 
 export const patientVaccineRoutes = express.Router();
 

@@ -112,8 +112,19 @@ export const DepartmentField = () => {
   );
 };
 
-export const GivenByField = ({ label = 'Given by' }) => (
-  <Field name="givenBy" label={label} component={TextField} />
+export const GivenByField = ({
+  label = 'Given by',
+  component = TextField,
+  suggester,
+  required,
+}) => (
+  <Field
+    name="givenBy"
+    label={label}
+    component={component}
+    suggester={suggester}
+    required={required}
+  />
 );
 
 export const RecordedByField = () => {
