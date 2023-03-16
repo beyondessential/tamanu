@@ -81,7 +81,7 @@ export const VaccineDateField = ({ label }) => (
   <Field name="date" label={label} component={DateField} required saveDateAsString />
 );
 
-export const InjectionSiteFIeld = () => (
+export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
     label="Injection site"
