@@ -311,7 +311,9 @@ export class MultiSelect extends Component {
   };
 
   _toggleSelector = () => {
-    const { onToggleList } = this.props;
+    const { onToggleList, disabled } = this.props;
+    if (disabled) return;
+
     this.setState({
       selector: !this.state.selector
     });

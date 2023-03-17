@@ -17,6 +17,7 @@ const DEFAULT_FIELD_VAL = 'N/A';
 
 const displayNotes = (notePages): string => notePages
   .filter(notePage => notePage.noteType === NOTE_TYPES.CLINICAL_MOBILE)
+  // Note: There should only be one noteItem per notePage in production
   .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
   .join('\n\n')
   || DEFAULT_FIELD_VAL;

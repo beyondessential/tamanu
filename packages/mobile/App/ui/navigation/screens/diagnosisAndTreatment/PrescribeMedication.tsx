@@ -94,10 +94,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 scrollToOverflowEnabled
                 overScrollMode="always"
               >
-                <SectionHeader h3>ITEM</SectionHeader>
+                <SectionHeader h3>MEDICATION</SectionHeader>
                 <Field
                   component={AutocompleteModalField}
-                  placeholder="Search drug"
+                  placeholder="Search"
                   navigation={navigation}
                   suggester={medicationSuggester}
                   modalRoute={Routes.Autocomplete.Modal}
@@ -121,7 +121,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   <Field
                     component={TextField}
                     name="prescription"
-                    label="Prescription"
+                    label="Instruction"
                   />
                   <Field
                     component={TextField}

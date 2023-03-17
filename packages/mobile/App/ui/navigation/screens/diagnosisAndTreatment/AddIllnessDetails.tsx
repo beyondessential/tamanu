@@ -120,19 +120,16 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 scrollToOverflowEnabled
                 overScrollMode="always"
               >
-                <StyledView>
-                  <SectionHeader h3>INFORMATION</SectionHeader>
-                </StyledView>
                 <StyledView justifyContent="space-between">
                   <Field
                     component={AutocompleteModalField}
-                    placeholder="Search diagnoses"
+                    placeholder="Diagnoses"
                     navigation={navigation}
                     suggester={icd10Suggester}
                     modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
-                  <Spacer height='24px'/>
+                  <Spacer height="24px" />
                   <Field
                     component={Dropdown}
                     options={CERTAINTY_OPTIONS}
@@ -140,21 +137,9 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     label="Certainty"
                     disabled={!values?.diagnosis}
                   />
-                  <StyledView
-                    marginTop={screenPercentageToDP(1.42, Orientation.Height)}
-                    marginBottom={screenPercentageToDP(
-                      0.605,
-                      Orientation.Height,
-                    )}
-                  >
-                    <SectionHeader h3>Prescription notes</SectionHeader>
-                  </StyledView>
-                  <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" fontSize="14px"/>
-                  {/* //   <InputLabel shrink>
-                  //     Clinical Note 
-                  //   </InputLabel>
-                  // } /> */}
-                  <Spacer height='24px'/>
+                  <Spacer height="24px" />
+                  <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" />
+                  <Spacer height="24px" />
                   <CurrentUserField name="examiner" label="Recorded By" />
                   <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}

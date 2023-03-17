@@ -49,6 +49,9 @@ const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
   DISABLED: {
     textColor: theme.colors.DISABLED_GREY,
     styleDropdownMenuSubsection: {
+      backgroundColor: theme.colors.BACKGROUND_GREY,
+      borderWidth: 0.5,
+      borderColor: theme.colors.DISABLED_GREY,
       paddingLeft: 12,
     },
   },
