@@ -67,7 +67,6 @@ if (UIManager.setLayoutAnimationEnabledExperimental) {
 }
 
 const defaultSearchIcon = () => null;
-
 export class MultiSelect extends Component {
   static propTypes = {
     single: PropTypes.bool,

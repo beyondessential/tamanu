@@ -48,43 +48,43 @@ const STYLE_PROPS: Record<string, MultiSelectProps> = {
     // styleSelectorContainer: {
     //   pointerEvents: 'none',
     // },
-    styleDropdownMenu: {
-      pointerEvents: 'none',
-    },
-    styleDropdownMenuSubsection: {
-      pointerEvents: 'none',
-    },
-    styleInputGroup: {
-      pointerEvents: 'none',
-    },
-    styleItemsContainer: {
-      pointerEvents: 'none',
-    },
-    styleListContainer: {
-      pointerEvents: 'none',
-    },
-    styleMainWrapper: {
-      pointerEvents: 'none',
-    },
-    styleRowList: {
-      pointerEvents: 'none',
-    },
-    styleSelectorContainer: {
-      pointerEvents: 'none',
-    },
-    styleTextDropdown: {
-      pointerEvents: 'none',
-    },
-    styleTextDropdownSelected: {
-      pointerEvents: 'none',
-    },
-    styleTextTag: {
-      pointerEvents: 'none',
-    },
-    styleIndicator: {
-      pointerEvents: 'none',
-      paddingTop: 200,
-    },
+    // styleDropdownMenu: {
+    //   pointerEvents: 'none',
+    // },
+    // styleDropdownMenuSubsection: {
+    //   pointerEvents: 'none',
+    // },
+    // styleInputGroup: {
+    //   pointerEvents: 'none',
+    // },
+    // styleItemsContainer: {
+    //   pointerEvents: 'none',
+    // },
+    // styleListContainer: {
+    //   pointerEvents: 'none',
+    // },
+    // styleMainWrapper: {
+    //   pointerEvents: 'none',
+    // },
+    // styleRowList: {
+    //   pointerEvents: 'none',
+    // },
+    // styleSelectorContainer: {
+    //   pointerEvents: 'none',
+    // },
+    // styleTextDropdown: {
+    //   pointerEvents: 'none',
+    // },
+    // styleTextDropdownSelected: {
+    //   pointerEvents: 'none',
+    // },
+    // styleTextTag: {
+    //   pointerEvents: 'none',
+    // },
+    // styleIndicator: {
+    //   pointerEvents: 'none',
+    //   paddingTop: 200,
+    // },
     textColor: theme.colors.DISABLED_GREY,
     // styleDropdownMenuSubsection: {
     //   paddingLeft: 12,
