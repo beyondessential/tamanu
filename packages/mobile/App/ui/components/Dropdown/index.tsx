@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
 import { StyledView } from '/styled/common';
-import { MultiSelect } from './MultipleSelect/index';
+import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
@@ -57,7 +57,6 @@ const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
   },
 };
 
-// TODO: Types
 const getStyleProps = (error, disabled): Partial<MultiSelectProps> => {
   if (error) return STYLE_PROPS.ERROR;
   if (disabled) return STYLE_PROPS.DISABLED;
@@ -85,7 +84,6 @@ export const Dropdown = React.memo(
       [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
-    // if (disabled) return null;
     return (
       <StyledView
         width="100%"
@@ -119,7 +117,6 @@ export const Dropdown = React.memo(
           }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
-          canAddItems={!disabled}
           disabled={disabled}
           {...getStyleProps(error, disabled)}
         />

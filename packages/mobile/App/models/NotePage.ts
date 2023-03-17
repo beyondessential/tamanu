@@ -21,18 +21,16 @@ export class NotePage extends BaseModel implements INotePage {
   @DateStringColumn({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT })
   date: DateString;
 
-  // Can't link to record
   @Column({ type: 'varchar', nullable: false })
   recordType: NoteRecordType;
+
+  // Note: we can't create an OOM relation here as the recordId
+  // could refer to several different models
   @Column({ type: 'varchar', nullable: false })
   recordId: ID;
 
   @OneToMany(() => NoteItem, noteItem => noteItem.notePage)
   noteItems: INoteItem[];
-
-  static getTableNameForSync(): string {
-    return 'note_pages'; // unusual camel case table here on mobile
-  }
 
   static async createForRecord(
     { recordId, recordType, noteType, content, author },
@@ -52,5 +50,9 @@ export class NotePage extends BaseModel implements INotePage {
     });
 
     return notePage;
+  }
+
+  static getTableNameForSync(): string {
+    return 'note_pages';
   }
 }

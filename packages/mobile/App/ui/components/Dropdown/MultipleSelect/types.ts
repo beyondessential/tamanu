@@ -49,4 +49,5 @@ export interface MultiSelectProps {
   filterMethod?: string;
   noItemsText?: string;
   selectedText?: string;
+  disabled?: boolean;
 }

@@ -22,7 +22,6 @@ export class NoteItem extends BaseModel implements INoteItem {
   @Column({ type: 'varchar', nullable: false })
   content: string;
 
-  // Not sure what this does exactly
   @Column({ type: 'varchar', nullable: true })
   revisedById?: string;
 

@@ -3,7 +3,6 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
-// import { InputLabel } from '@material-ui/core';
 
 import { Field } from '/components/Forms/FormField';
 import { Spacer } from '/components/Spacer';
@@ -12,7 +11,7 @@ import { FullView, StyledView } from '/styled/common';
 import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import { KeyboardAvoidingView, StyleSheet, Picker, Text } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -20,12 +19,13 @@ import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType, NoteRecordType, NoteType } from '~/types';
+import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
 
 const IllnessFormSchema = Yup.object().shape({
   diagnosis: Yup.string(),
@@ -46,10 +46,6 @@ const styles = StyleSheet.create({
   },
   ScrollView: { flex: 1 },
 });
-
-// const ClinicalNoteField = () => (
-//   <Field component={TextField} name="clinicalNote" multiline />
-// )
 
 export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
@@ -81,8 +77,8 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
       if (clinicalNote) {
         await models.NotePage.createForRecord({
           recordId: encounter.id,
-          recordType: NoteRecordType.ENCOUNTER,
-          noteType: NoteType.CLINICAL_MOBILE,
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+          noteType: NOTE_TYPES.CLINICAL_MOBILE,
           content: clinicalNote,
           author: user.id,
         });
@@ -123,7 +119,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 <StyledView justifyContent="space-between">
                   <Field
                     component={AutocompleteModalField}
-                    placeholder="Diagnoses"
+                    placeholder="Diagnosis"
                     navigation={navigation}
                     suggester={icd10Suggester}
                     modalRoute={Routes.Autocomplete.Modal}

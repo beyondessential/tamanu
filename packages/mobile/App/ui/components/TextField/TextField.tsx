@@ -4,34 +4,18 @@ import {
   StyleSheet,
   ReturnKeyTypeOptions,
   TextInput,
-  Text
 } from 'react-native';
-import styled from 'styled-components';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
+import { theme } from '~/ui/styled/theme';
+
 export interface RefObject<T> {
   readonly current: T | null;
 }
-
-// const Label = styled(Text)`
-//   color: #888;
-//   font-size: 14px;
-//   font-weight: normal;
-//   position: absolute;
-//   pointer-events: none;
-//   left: 5px;
-//   top: 10px;
-//   transition: 0.2s ease all;
-//   ${TextInput}:focus ~ & {
-//     top: -18px;
-//     font-size: 14px;
-//     color: #5264ae;
-//   }
-// `;
 
 export interface TextFieldProps extends BaseInputProps {
   value: string;
@@ -158,7 +142,7 @@ export const TextField = React.memo(
             blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
             onSubmitEditing={onSubmitEditing}
-            placeholderTextColor="#888888"
+            placeholderTextColor={theme.colors.TEXT_SOFT}
           />
         </InputContainer>
         {error && (
