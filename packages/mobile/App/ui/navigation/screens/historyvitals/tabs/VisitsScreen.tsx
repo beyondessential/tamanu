@@ -5,6 +5,7 @@ import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons';
+import { NOTE_TYPES } from '~/ui/helpers/constants';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -15,6 +16,7 @@ import { IDiagnosis } from '~/types';
 const DEFAULT_FIELD_VAL = 'N/A';
 
 const displayNotes = (notePages): string => notePages
+  .filter(notePage => notePage.noteType === NOTE_TYPES.CLINICAL_MOBILE)
   .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
   .join('\n\n')
   || DEFAULT_FIELD_VAL;
