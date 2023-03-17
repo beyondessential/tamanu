@@ -11,10 +11,10 @@ import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 
 const colorFromEncounterType = {
-  admission: '#19934E',
+  admission: Colors.green,
   clinic: '#E9AC50',
-  triage: '#CB6100',
-  default: '#1172D1',
+  triage: Colors.orange,
+  default: Colors.blue,
 };
 
 function getColorForEncounter({ encounterType }) {

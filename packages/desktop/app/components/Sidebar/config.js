@@ -19,13 +19,13 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'All patients',
-        color: '#7EB3E7',
+        color: Colors.blue,
         path: '/patients/all',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
-        color: Colors.safe,
+        color: Colors.green,
         path: '/patients/inpatient',
         ability: { action: 'read' },
       },

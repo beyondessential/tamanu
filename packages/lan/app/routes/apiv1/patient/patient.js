@@ -9,11 +9,13 @@ import { isGeneratedDisplayId } from 'shared/utils/generateId';
 
 import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
+import { makeFilter } from '../../../utils/query';
 import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
+import { patientLocations } from './patientLocations';
 import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
@@ -262,6 +264,13 @@ patientRoute.get(
     // clauses to improve query speed by removing unused joins
     const isAllPatientsListing = !filterParams.facilityId;
     const filters = createPatientFilters(filterParams);
+    const isCurrentPatientFilter = makeFilter(
+      filterParams.currentPatient,
+      `recent_encounter_by_patient IS NOT NULL`,
+    );
+    if (isCurrentPatientFilter) {
+      filters.push(isCurrentPatientFilter);
+    }
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
     const from = isAllPatientsListing
@@ -344,8 +353,8 @@ patientRoute.get(
 
     const count = parseInt(countResult[0].count, 10);
 
-    if (count === 0) {
-      // save ourselves a query
+    if (count === 0 || filterParams.countOnly) {
+      // save ourselves a query if 0 || user requested count only
       res.send({ data: [], count });
       return;
     }
@@ -431,5 +440,6 @@ patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
+patientRoute.use(patientLocations);
 
 export { patientRoute as patient };
