@@ -86,9 +86,9 @@ const STYLE_PROPS: Record<string, MultiSelectProps> = {
     //   paddingTop: 200,
     // },
     textColor: theme.colors.DISABLED_GREY,
-    // styleDropdownMenuSubsection: {
-    //   paddingLeft: 12,
-    // },
+    styleDropdownMenuSubsection: {
+      paddingLeft: 12,
+    },
   },
 };
 
@@ -155,6 +155,7 @@ export const Dropdown = React.memo(
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
           canAddItems={!disabled}
+          disabled={disabled}
           {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}

@@ -122,6 +122,7 @@ export class MultiSelect extends Component {
     removeSelected: PropTypes.bool,
     noItemsText: PropTypes.string,
     selectedText: PropTypes.string,
+    disabled: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -160,6 +161,7 @@ export class MultiSelect extends Component {
     removeSelected: false,
     noItemsText: 'No items to display.',
     selectedText: 'selected',
+    disabled: false,
   };
 
   constructor(props) {
@@ -612,6 +614,7 @@ export class MultiSelect extends Component {
       styleTextDropdownSelected,
       searchIcon,
       styleIndicator,
+      disabled,
     } = this.props;
     const { searchTerm, selector } = this.state;
     return (
@@ -624,7 +627,7 @@ export class MultiSelect extends Component {
             styleMainWrapper
         ]}
       >
-        {false ? (
+        {selector && !disabled ? (
           <View
             style={[
               styles.selectorView(fixedHeight),
