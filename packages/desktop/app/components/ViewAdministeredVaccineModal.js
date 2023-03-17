@@ -60,9 +60,9 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-  const routine = true;
-  const overseas = false;
-  const notGiven = true;
+  const routine = false;
+  const overseas = true;
+  const notGiven = false;
 
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
@@ -110,6 +110,13 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
             </DisplayField>
           )}
 
+          {!routine && (
+            <DisplayField>
+              <Label>Disease </Label>
+              {disease || '-'}
+            </DisplayField>
+          )}
+
           {!overseas && (routine || notGiven) && (
             <DisplayField>
               <Label>Schedule </Label>
@@ -117,17 +124,17 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
             </DisplayField>
           )}
 
+          {routine && !notGiven && !overseas && (
+            <DisplayField>
+              <Label>Status </Label>
+              {status || '-'}
+            </DisplayField>
+          )}
+
           {notGiven && (
             <DisplayField>
               <Label>Reason </Label>
               {'TODO' || '-'}
-            </DisplayField>
-          )}
-
-          {!overseas && (
-            <DisplayField>
-              <Label>Status </Label>
-              {status || '-'}
             </DisplayField>
           )}
 
@@ -143,10 +150,10 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
             </DisplayField>
           )}
 
-          {!routine && (
+          {((!overseas && !routine) || notGiven) && (
             <DisplayField>
-              <Label>Disease </Label>
-              {disease || '-'}
+              <Label>Status </Label>
+              {status || '-'}
             </DisplayField>
           )}
         </FieldGroup>
