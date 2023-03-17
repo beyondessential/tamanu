@@ -14,17 +14,10 @@ import { IDiagnosis } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
 
-const displayNotes = (notePages): string => {
-  // Use the content from each noteItem in the note page.noteItems
-  const notes = notePages
-    .map(
-      notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; ')
-    )
-    .join('\n\n');
-
-
-  return notes || DEFAULT_FIELD_VAL;
-};
+const displayNotes = (notePages): string => notePages
+  .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
+  .join('\n\n')
+  || DEFAULT_FIELD_VAL;
 
 const visitsHistoryRows = {
   labRequest: {

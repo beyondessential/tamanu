@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
 import { StyledView } from '/styled/common';
-import MultiSelect, { MultiSelectProps } from 'react-native-multiple-select';
+import { MultiSelect, MultiSelectProps } from './reactNativeMultipleSelect/MultipleSelect';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -42,10 +42,53 @@ const STYLE_PROPS: Record<string, MultiSelectProps> = {
     },
   },
   DISABLED: {
-    textColor: theme.colors.DISABLED_GREY,
-    styleDropdownMenuSubsection: {
-      paddingLeft: 12,
+    // styleMainWrapper: {
+    //   pointerEvents: 'none',
+    // },
+    // styleSelectorContainer: {
+    //   pointerEvents: 'none',
+    // },
+    styleDropdownMenu: {
+      pointerEvents: 'none',
     },
+    styleDropdownMenuSubsection: {
+      pointerEvents: 'none',
+    },
+    styleInputGroup: {
+      pointerEvents: 'none',
+    },
+    styleItemsContainer: {
+      pointerEvents: 'none',
+    },
+    styleListContainer: {
+      pointerEvents: 'none',
+    },
+    styleMainWrapper: {
+      pointerEvents: 'none',
+    },
+    styleRowList: {
+      pointerEvents: 'none',
+    },
+    styleSelectorContainer: {
+      pointerEvents: 'none',
+    },
+    styleTextDropdown: {
+      pointerEvents: 'none',
+    },
+    styleTextDropdownSelected: {
+      pointerEvents: 'none',
+    },
+    styleTextTag: {
+      pointerEvents: 'none',
+    },
+    styleIndicator: {
+      pointerEvents: 'none',
+      paddingTop: 200,
+    },
+    textColor: theme.colors.DISABLED_GREY,
+    // styleDropdownMenuSubsection: {
+    //   paddingLeft: 12,
+    // },
   },
 };
 

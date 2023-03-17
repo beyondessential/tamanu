@@ -12,15 +12,13 @@ import { FullView, StyledView } from '/styled/common';
 import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
-import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Picker, Text } from 'react-native';
 import * as Yup from 'yup';
 
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
-import { CustomAutocomplete } from '~/ui/components/Dropdown/Autocomplete';
-import { CustomSelect } from '~/ui/components/Dropdown/MUIDropdown';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType, NoteRecordType, NoteType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
@@ -29,14 +27,12 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
-const XYX = () => <TextInput placeholder="Clinical Note"/>;
-
 const IllnessFormSchema = Yup.object().shape({
   diagnosis: Yup.string(),
   certainty: Yup.mixed()
     .oneOf(Object.values(Certainty))
-    .when("diagnosis", {
-      is: (diagnosis: string) => diagnosis,
+    .when('diagnosis', {
+      is: (diagnosis: string) => !!diagnosis,
       then: Yup.mixed().required(),
     }),
   clinicalNote: Yup.string(),
@@ -51,9 +47,9 @@ const styles = StyleSheet.create({
   ScrollView: { flex: 1 },
 });
 
-const ClinicalNoteField = () => (
-  <Field component={TextField} name="clinicalNote" multiline />
-)
+// const ClinicalNoteField = () => (
+//   <Field component={TextField} name="clinicalNote" multiline />
+// )
 
 export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
@@ -66,7 +62,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const onRecordIllness = useCallback(
     async ({ diagnosis, certainty, clinicalNote }: any): Promise<any> => {
-      console.log('onRecordIllness', diagnosis, certainty, clinicalNote)
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -89,7 +84,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
           recordType: NoteRecordType.ENCOUNTER,
           noteType: NoteType.CLINICAL_MOBILE,
           content: clinicalNote,
-          authorId: user.id,
+          author: user.id,
         });
       }
 
@@ -106,8 +101,8 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik onSubmit={onRecordIllness} initialValues={{ clinicalNote: null }} validationSchema={IllnessFormSchema}>
-        {({ handleSubmit, values }): ReactElement => console.log(values) || (
+      <Formik onSubmit={onRecordIllness} initialValues={{}} validationSchema={IllnessFormSchema}>
+        {({ handleSubmit, values }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
             paddingRight={20}
@@ -138,20 +133,19 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     name="diagnosis"
                   />
                   <Spacer height='24px'/>
-                  Hi!
                   <Field
-                    component={CustomSelect}
+                    component={Dropdown}
                     options={CERTAINTY_OPTIONS}
                     name="certainty"
                     label="Certainty"
                     disabled={!values?.diagnosis}
                   />
                   <StyledView
-                  marginTop={screenPercentageToDP(1.42, Orientation.Height)}
-                  marginBottom={screenPercentageToDP(
-                    0.605,
-                    Orientation.Height,
-                  )}
+                    marginTop={screenPercentageToDP(1.42, Orientation.Height)}
+                    marginBottom={screenPercentageToDP(
+                      0.605,
+                      Orientation.Height,
+                    )}
                   >
                     <SectionHeader h3>Prescription notes</SectionHeader>
                   </StyledView>

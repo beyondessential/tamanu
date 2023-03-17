@@ -151,6 +151,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${minWidth}
   ${maxHeight}
   ${maxWidth}
+  pointer-events: none;
 `;
 
 export const StyledSafeAreaView = styled(SafeAreaView)<StyledViewProps>`

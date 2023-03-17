@@ -35,7 +35,7 @@ export class NotePage extends BaseModel implements INotePage {
   }
 
   static async createForRecord(
-    { recordId, recordType, noteType, content, authorId },
+    { recordId, recordType, noteType, content, author },
   ): Promise<NotePage> {
     const notePage = await NotePage.createAndSaveOne<NotePage>({
       recordId,
@@ -48,7 +48,7 @@ export class NotePage extends BaseModel implements INotePage {
       notePage: notePage.id,
       content,
       date: getCurrentDateTimeString(),
-      author: authorId,
+      author,
     });
 
     return notePage;
