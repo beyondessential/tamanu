@@ -81,7 +81,7 @@ export class Setting extends Model {
 
   /**
    * Duplicated from mobile/models/Setting.ts
-   * Please update both places when modifying code
+   * Please update both places when modify
    */
   static async get(key = '', facilityId = null) {
     const settings = await Setting.findAll({

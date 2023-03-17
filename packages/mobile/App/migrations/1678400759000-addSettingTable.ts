@@ -75,6 +75,6 @@ export class addSettingTable1678400759000 implements MigrationInterface {
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable(SettingTable;
+    await queryRunner.dropTable(SettingTable);
   }
 }

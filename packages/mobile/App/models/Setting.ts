@@ -25,7 +25,7 @@ export class Setting extends BaseModel {
 
   /**
    * Duplicated from shared-src/models/Setting.js
-   * Please update both places when modifying code
+   * Please update both places when modify
    */
   static async get(key = '', facilityId = null) {
     const settings = await this.find({
