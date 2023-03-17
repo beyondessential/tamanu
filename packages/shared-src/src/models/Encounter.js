@@ -336,7 +336,7 @@ export class Encounter extends Model {
       encounterId: this.id,
     });
 
-    await this.addSystemNote(systemNote || `Discharged patient.`, submittedTime, user);
+    await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
     await this.closeTriage(endDate);
   }
 
