@@ -3,8 +3,6 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 
 const { Op, Utils, Sequelize } = sequelize;
 
-const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
-
 export class Model extends sequelize.Model {
   static init(modelAttributes, { syncDirection, timestamps = true, schema, ...options }) {
     const attributes = {
@@ -54,7 +52,6 @@ export class Model extends sequelize.Model {
         }),
         {},
       );
-
     const references = this.constructor.getListReferenceAssociations(models);
 
     if (!references) return values;
@@ -68,7 +65,7 @@ export class Model extends sequelize.Model {
       if (!referenceVal) return allValues;
       return {
         ...otherValues,
-        [firstLetterLowercase(referenceName)]: referenceVal.dataValues,
+        [firstLetterLowercase(referenceName)]: stripReferenceValue(referenceVal),
       };
     }, values);
   }
@@ -119,3 +116,12 @@ export class Model extends sequelize.Model {
     return values;
   }
 }
+
+const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
+
+const stripReferenceValue = refVal => {
+  if (Array.isArray(refVal)) {
+    return refVal.map(v => v.dataValues);
+  }
+  return refVal.dataValues;
+};
