@@ -105,7 +105,9 @@ describe(`Materialised FHIR - Patient`, () => {
           },
         ],
       });
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(patient.updatedAt)));
+      expect(response.headers['last-modified']).toBe(
+        formatRFC7231(new Date(additionalData.updatedAt)),
+      );
       expect(response).toHaveSucceeded();
     });
 
@@ -132,7 +134,7 @@ describe(`Materialised FHIR - Patient`, () => {
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(patient.updatedAt),
+          lastUpdated: formatFhirDate(additionalData.updatedAt),
         },
         type: 'searchset',
         total: 1,
@@ -150,7 +152,7 @@ describe(`Materialised FHIR - Patient`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: formatFhirDate(patient.updatedAt),
+                lastUpdated: formatFhirDate(additionalData.updatedAt),
               },
               active: true,
               address: [
