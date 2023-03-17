@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { VACCINE_RECORDING_TYPES } from 'shared/constants';
 
 import { Modal } from './Modal';
 import { VaccineForm } from '../forms/VaccineForm';
 import { SegmentTabDisplay } from './SegmentTabDisplay';
-import { useApi } from '../api';
+import { useApi, useSuggester } from '../api';
 import { reloadPatient } from '../store/patient';
 import { getCurrentUser } from '../store/auth';
 
@@ -14,21 +14,26 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   const [currentTabKey, setCurrentTabKey] = useState(VACCINE_RECORDING_TYPES.GIVEN);
 
   const api = useApi();
+  const countrySuggester = useSuggester('country');
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
 
   const handleCreateVaccine = useCallback(
     async data => {
+      const dataToSubmit = { ...data };
+      if (currentTabKey === VACCINE_RECORDING_TYPES.GIVEN && data.givenOverseas && data.givenBy) {
+        const givenByCountry = (await countrySuggester.fetchCurrentOption(data.givenBy))?.label;
+        dataToSubmit.givenBy = givenByCountry;
+      }
       await api.post(`patient/${patientId}/administeredVaccine`, {
-        ...data,
+        ...dataToSubmit,
         patientId,
-        status: VACCINE_STATUS.GIVEN,
+        status: currentTabKey,
         recorderId: currentUser.id,
-        vaccineRecordingType: currentTabKey,
       });
       dispatch(reloadPatient(patientId));
     },
-    [api, dispatch, patientId, currentUser.id, currentTabKey],
+    [api, dispatch, patientId, currentUser.id, currentTabKey, countrySuggester],
   );
 
   const getScheduledVaccines = useCallback(
@@ -66,12 +71,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   return (
     <Modal title="Record vaccine" open={open} onClose={onClose}>
-      <SegmentTabDisplay
-        tabs={TABS}
-        currentTabKey={currentTabKey}
-        onTabSelect={setCurrentTabKey}
-        singleTabStyle={{ minWidth: '263px' }}
-      />
+      <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
     </Modal>
   );
 };

@@ -3,9 +3,11 @@ import { useSelector } from 'react-redux';
 import { PropTypes } from 'prop-types';
 
 import { VACCINE_RECORDING_TYPES, VACCINE_CATEGORIES } from 'shared/constants';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
-import { VaccineGivenForm } from './VaccineGivenForm';
-import { VaccineNotGivenForm } from './VaccineNotGivenForm';
+import { Form } from '../components/Field';
+import { VaccineGivenForm, VACCINE_GIVEN_VALIDATION_SCHEMA } from './VaccineGivenForm';
+import { VaccineNotGivenForm, VACCINE_NOT_GIVEN_VALIDATION_SCHEMA } from './VaccineNotGivenForm';
 import { getCurrentUser } from '../store/auth';
 import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
 
@@ -68,10 +70,30 @@ export const VaccineForm = ({
     currentUser,
   };
 
-  return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
-    <VaccineGivenForm {...baseProps} patientId={patientId} />
-  ) : (
-    <VaccineNotGivenForm {...baseProps} />
+  return (
+    <Form
+      onSubmit={onSubmit}
+      initialValues={{
+        date: getCurrentDateTimeString(),
+      }}
+      validationSchema={
+        VACCINE_RECORDING_TYPES.GIVEN
+          ? VACCINE_GIVEN_VALIDATION_SCHEMA
+          : VACCINE_NOT_GIVEN_VALIDATION_SCHEMA
+      }
+      render={({ submitForm, values = {} }) => {
+        return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
+          <VaccineGivenForm
+            {...baseProps}
+            submitForm={submitForm}
+            values={values}
+            patientId={patientId}
+          />
+        ) : (
+          <VaccineNotGivenForm {...baseProps} submitForm={submitForm} />
+        );
+      }}
+    />
   );
 };
 
