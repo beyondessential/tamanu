@@ -35,9 +35,9 @@ encounter.put(
     const { db, models, user, params } = req;
     const { referralId, id } = params;
     req.checkPermission('read', 'Encounter');
-    const object = await models.Encounter.findByPk(id);
-    if (!object) throw new NotFoundError();
-    req.checkPermission('write', object);
+    const encounterObject = await models.Encounter.findByPk(id);
+    if (!encounterObject) throw new NotFoundError();
+    req.checkPermission('write', encounterObject);
 
     await db.transaction(async () => {
       if (req.body.discharge) {
@@ -63,10 +63,10 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await object.update(req.body, user);
+      await encounterObject.update(req.body, user);
     });
 
-    res.send(object);
+    res.send(encounterObject);
   }),
 );
 
