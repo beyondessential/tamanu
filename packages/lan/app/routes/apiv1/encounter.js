@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError, InvalidParameterError } from 'shared/errors';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -44,7 +44,7 @@ encounter.put(
         req.checkPermission('write', 'Discharge');
         if (!req.body.discharge.dischargerId) {
           // Only automatic discharges can have a null discharger ID
-          throw new Error('A discharge must have a discharger.');
+          throw new InvalidParameterError('A discharge must have a discharger.');
         }
 
         // Update medications that were marked for discharge and ensure
