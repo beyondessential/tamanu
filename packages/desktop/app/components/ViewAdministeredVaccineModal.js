@@ -46,7 +46,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
   const {
     status,
     injectionSite,
-    scheduledVaccine: { label, schedule },
+    scheduledVaccine: { label: vaccineLabel, schedule },
     recorder,
     givenBy,
     location,
@@ -60,168 +60,124 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-  const routine = false;
-  const overseas = true;
+  const routine = true;
+  const overseas = false;
   const notGiven = false;
+
+  const fieldObjects = {
+    vaccine: { label: 'Vaccine', value: vaccineLabel || '-' },
+    batch: { label: 'Batch', value: batch || '-' },
+    schedule: { label: 'Schedule', value: schedule || '-' },
+    date: { label: 'Date recorder', value: <DateDisplay date={date} /> },
+    injectionSite: { label: 'Injection site', value: injectionSite || '-' },
+    area: { label: 'Area', value: location.locationGroup?.name || '-' },
+    location: { label: 'Location', value: location.name || '-' },
+    department: { label: 'Department', value: department.name || '-' },
+    facility: { label: 'Facility', value: location.facility.name || '-' },
+    givenBy: { label: 'Given by', value: givenBy || '-' },
+    recordedBy: { label: 'Recorded by', value: recorder?.displayName || '-' },
+    vaccineName: { label: 'Vaccine name', value: vaccineName || '-' },
+    vaccineBrand: { label: 'Vaccine brand', value: vaccineBrand || '-' },
+    disease: { label: 'Disease', value: disease || '-' },
+    status: { label: 'Status', value: status || '-' },
+    circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
+    country: { label: 'Country', value: 'TODOTODOTODO' },
+    reason: { label: 'Reason', value: 'TODOTODOTODO' },
+  };
+
+  const modalVersions = [
+    {
+      name: 'routine',
+      condition: routine && !notGiven && !overseas,
+      fields: [
+        [
+          fieldObjects.vaccine,
+          fieldObjects.batch,
+          fieldObjects.schedule,
+          fieldObjects.status,
+          fieldObjects.date,
+          fieldObjects.injectionSite,
+        ],
+        [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
+        [fieldObjects.givenBy, fieldObjects.recordedBy],
+      ],
+    },
+    {
+      name: 'routineOverseas',
+      condition: routine && !notGiven && overseas,
+      fields: [
+        [fieldObjects.circumstance, fieldObjects.status],
+        [fieldObjects.vaccine, fieldObjects.batch, fieldObjects.date, fieldObjects.injectionSite],
+        [fieldObjects.country],
+        [fieldObjects.facility, fieldObjects.recordedBy],
+      ],
+    },
+    {
+      name: 'other',
+      condition: !routine && !notGiven && !overseas,
+      fields: [
+        [
+          fieldObjects.vaccineName,
+          fieldObjects.batch,
+          fieldObjects.vaccineBrand,
+          fieldObjects.disease,
+          fieldObjects.date,
+          fieldObjects.injectionSite,
+          fieldObjects.status,
+        ],
+        [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
+        [fieldObjects.givenBy, fieldObjects.recordedBy],
+      ],
+    },
+    {
+      name: 'otherOverseas',
+      condition: !routine && !notGiven && overseas,
+      fields: [
+        [fieldObjects.circumstance, fieldObjects.status],
+        [
+          fieldObjects.vaccineName,
+          fieldObjects.batch,
+          fieldObjects.vaccineBrand,
+          fieldObjects.disease,
+          fieldObjects.date,
+          fieldObjects.injectionSite,
+        ],
+        [fieldObjects.country],
+        [fieldObjects.facility, fieldObjects.recordedBy],
+      ],
+    },
+    {
+      name: 'notGiven',
+      condition: notGiven,
+      fields: [
+        [
+          fieldObjects.vaccine,
+          fieldObjects.schedule,
+          fieldObjects.reason,
+          fieldObjects.date,
+          fieldObjects.status,
+        ],
+        [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
+        [fieldObjects.givenBy, fieldObjects.recordedBy],
+      ],
+    },
+  ];
+
+  const modalVersion = modalVersions.find(modalType => modalType.condition === true);
 
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
       <Container>
-        {overseas && (
+        {modalVersion.fields.map(fieldGroup => (
           <FieldGroup>
-            <DisplayField>
-              <Label>Circumstance </Label>
-              {'TODO' || '-'}
-            </DisplayField>
-
-            <DisplayField>
-              <Label>Status </Label>
-              {'TODO' || '-'}
-            </DisplayField>
+            {fieldGroup.map(({ label, value }) => (
+              <DisplayField>
+                <Label>{label}</Label>
+                {value}
+              </DisplayField>
+            ))}
           </FieldGroup>
-        )}
-
-        <FieldGroup>
-          {(routine || notGiven) && (
-            <DisplayField>
-              <Label>Vaccine </Label>
-              {label || '-'}
-            </DisplayField>
-          )}
-
-          {!routine && (
-            <DisplayField>
-              <Label>Vaccine name </Label>
-              {vaccineName || '-'}
-            </DisplayField>
-          )}
-
-          {!notGiven && (
-            <DisplayField>
-              <Label>Batch </Label>
-              {batch || '-'}
-            </DisplayField>
-          )}
-
-          {!routine && (
-            <DisplayField>
-              <Label>Vaccine brand </Label>
-              {vaccineBrand || '-'}
-            </DisplayField>
-          )}
-
-          {!routine && (
-            <DisplayField>
-              <Label>Disease </Label>
-              {disease || '-'}
-            </DisplayField>
-          )}
-
-          {!overseas && (routine || notGiven) && (
-            <DisplayField>
-              <Label>Schedule </Label>
-              {schedule || '-'}
-            </DisplayField>
-          )}
-
-          {routine && !notGiven && !overseas && (
-            <DisplayField>
-              <Label>Status </Label>
-              {status || '-'}
-            </DisplayField>
-          )}
-
-          {notGiven && (
-            <DisplayField>
-              <Label>Reason </Label>
-              {'TODO' || '-'}
-            </DisplayField>
-          )}
-
-          <DisplayField>
-            <Label>Date </Label>
-            <DateDisplay date={date} />
-          </DisplayField>
-
-          {!notGiven && (
-            <DisplayField>
-              <Label>Injection site </Label>
-              {injectionSite || '-'}
-            </DisplayField>
-          )}
-
-          {((!overseas && !routine) || notGiven) && (
-            <DisplayField>
-              <Label>Status </Label>
-              {status || '-'}
-            </DisplayField>
-          )}
-        </FieldGroup>
-
-        <FieldGroup>
-          {!overseas && (
-            <DisplayField>
-              <Label>Area </Label>
-              {location.locationGroup?.name || '-'}
-            </DisplayField>
-          )}
-
-          {!overseas && (
-            <DisplayField>
-              <Label>Location </Label>
-              {location.name || '-'}
-            </DisplayField>
-          )}
-
-          {!overseas && (
-            <DisplayField>
-              <Label>Department </Label>
-              {department.name || '-'}
-            </DisplayField>
-          )}
-
-          {!overseas && (
-            <DisplayField>
-              <Label>Facility </Label>
-              {location.facility.name || '-'}
-            </DisplayField>
-          )}
-
-          {overseas && (
-            <DisplayField>
-              <Label>Country </Label>
-              {'TODO' || '-'}
-            </DisplayField>
-          )}
-        </FieldGroup>
-
-        <FieldGroup>
-          {!overseas && !notGiven && (
-            <DisplayField>
-              <Label>Given by </Label>
-              {givenBy || '-'}
-            </DisplayField>
-          )}
-
-          {notGiven && (
-            <DisplayField>
-              <Label>Supervising Clinician </Label>
-              {'TODO' || '-'}
-            </DisplayField>
-          )}
-
-          {overseas && (
-            <DisplayField>
-              <Label>Country </Label>
-              {'TODO' || '-'}
-            </DisplayField>
-          )}
-
-          <DisplayField>
-            <Label>Recorded by </Label>
-            {recorder?.displayName || '-'}
-          </DisplayField>
-        </FieldGroup>
+        ))}
       </Container>
       <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>
