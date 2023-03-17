@@ -1,3 +1,6 @@
+// Originally from:
+// https://github.com/toystars/react-native-multiple-select
+
 import React, { Component } from 'react';
 import {
   Text,

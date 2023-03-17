@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
 import { StyledView } from '/styled/common';
-import { MultiSelect, MultiSelectProps } from './reactNativeMultipleSelect/MultipleSelect';
+import { MultiSelect } from './MultipleSelect/index';
+import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -21,9 +22,13 @@ export interface DropdownProps extends BaseInputProps {
   label?: string;
   placeholderText?: string;
   value?: string | string[];
+  // Note the disabled prop is only known to work with
+  // - single
+  // - non-filterable
+  disabled?: boolean;
 }
 
-const STYLE_PROPS: Record<string, MultiSelectProps> = {
+const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
   DEFAULT: {
     styleDropdownMenuSubsection: {
       paddingLeft: 12,
@@ -42,49 +47,6 @@ const STYLE_PROPS: Record<string, MultiSelectProps> = {
     },
   },
   DISABLED: {
-    // styleMainWrapper: {
-    //   pointerEvents: 'none',
-    // },
-    // styleSelectorContainer: {
-    //   pointerEvents: 'none',
-    // },
-    // styleDropdownMenu: {
-    //   pointerEvents: 'none',
-    // },
-    // styleDropdownMenuSubsection: {
-    //   pointerEvents: 'none',
-    // },
-    // styleInputGroup: {
-    //   pointerEvents: 'none',
-    // },
-    // styleItemsContainer: {
-    //   pointerEvents: 'none',
-    // },
-    // styleListContainer: {
-    //   pointerEvents: 'none',
-    // },
-    // styleMainWrapper: {
-    //   pointerEvents: 'none',
-    // },
-    // styleRowList: {
-    //   pointerEvents: 'none',
-    // },
-    // styleSelectorContainer: {
-    //   pointerEvents: 'none',
-    // },
-    // styleTextDropdown: {
-    //   pointerEvents: 'none',
-    // },
-    // styleTextDropdownSelected: {
-    //   pointerEvents: 'none',
-    // },
-    // styleTextTag: {
-    //   pointerEvents: 'none',
-    // },
-    // styleIndicator: {
-    //   pointerEvents: 'none',
-    //   paddingTop: 200,
-    // },
     textColor: theme.colors.DISABLED_GREY,
     styleDropdownMenuSubsection: {
       paddingLeft: 12,
@@ -93,7 +55,7 @@ const STYLE_PROPS: Record<string, MultiSelectProps> = {
 };
 
 // TODO: Types
-const getStyleProps = (error, disabled): MultiSelectProps => {
+const getStyleProps = (error, disabled): Partial<MultiSelectProps> => {
   if (error) return STYLE_PROPS.ERROR;
   if (disabled) return STYLE_PROPS.DISABLED;
   return STYLE_PROPS.DEFAULT;
