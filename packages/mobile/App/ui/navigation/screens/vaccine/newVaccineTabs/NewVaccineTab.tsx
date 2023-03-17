@@ -30,7 +30,7 @@ export const NewVaccineTabComponent = ({
   selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
-  let { administeredVaccine } = vaccine;
+  const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
   const [isSubmitting, setSubmitting] = useState(false);
 
@@ -58,7 +58,7 @@ export const NewVaccineTabComponent = ({
         user.id,
       );
 
-      administeredVaccine = await models.AdministeredVaccine.createAndSaveOne({
+      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne({
         ...otherValues,
         date: date ? formatISO9075(date) : null,
         id: administeredVaccine?.id,
@@ -72,7 +72,7 @@ export const NewVaccineTabComponent = ({
           vaccine: {
             ...vaccine,
             administeredVaccine: {
-              ...administeredVaccine,
+              ...updatedVaccine,
               encounter,
               scheduledVaccine,
             },
