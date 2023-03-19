@@ -17,10 +17,9 @@ import {
   StyledDivider,
   ConfirmCancelRowField,
   VaccineNameField,
-  VaccineBrandField,
-  DiseaseField
+  DiseaseField,
 } from '../components/VaccineCommonFields';
-import { Field, SuggesterSelectField, TextField } from '../components/Field';
+import { Field, SuggesterSelectField } from '../components/Field';
 
 export const VACCINE_NOT_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
   date: yup.string().required(),

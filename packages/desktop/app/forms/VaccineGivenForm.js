@@ -24,7 +24,7 @@ import {
   VaccineBrandField,
   DiseaseField,
 } from '../components/VaccineCommonFields';
-import { Field, AutocompleteField, CheckField, TextField } from '../components/Field';
+import { Field, AutocompleteField, CheckField } from '../components/Field';
 import { useSuggester } from '../api';
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
