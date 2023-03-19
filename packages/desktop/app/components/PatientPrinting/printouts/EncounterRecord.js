@@ -231,7 +231,7 @@ const COLUMNS = {
       style: { width: '20%' },
     },
     {
-      key: 'requestedByName',
+      key: 'requestedBy',
       title: 'Requested by',
       accessor: ({ requestedBy }) => requestedBy?.displayName,
       style: { width: '20%' },
