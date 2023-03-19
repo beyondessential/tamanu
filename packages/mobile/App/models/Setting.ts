@@ -1,4 +1,4 @@
-import { Column, Like, RelationId } from 'typeorm';
+import { Column, Like, RelationId, Brackets } from 'typeorm';
 import { Entity, ManyToOne } from 'typeorm/browser';
 import { get as getAtPath, set as setAtPath } from 'lodash';
 
@@ -24,15 +24,32 @@ export class Setting extends BaseModel {
   facilityId: string;
 
   /**
-   * Duplicated from shared-src/models/Setting.js
+   * IMPORTANT: Duplicated from shared-src/models/Setting.js
    * Please update both places when modify
    */
   static async get(key = '', facilityId = null) {
-    const settings = await this.find({
-      where: {
-        key: Like(key),
-      },
-    });
+    const settingsQueryBuilder = this.getRepository()
+      .createQueryBuilder('setting')
+      .where(
+        new Brackets(qb => {
+          qb.where('facilityId = :facilityId', { facilityId }).orWhere('facilityId IS NULL');
+        }),
+      );
+
+    if (key) {
+      settingsQueryBuilder.andWhere(
+        new Brackets(qb => {
+          qb.where('key = :key', { key }).orWhere('key LIKE :keyLike', { keyLike: `${key}.%` });
+        }),
+      );
+    }
+
+    settingsQueryBuilder
+      .orderBy('key', 'ASC')
+      // we want facility keys to come last so they override global keys
+      .addOrderBy("COALESCE(facilityId, '###')", 'ASC');
+
+    const settings = await settingsQueryBuilder.getMany();
 
     const settingsObject = {};
     for (const currentSetting of settings) {
@@ -49,5 +66,22 @@ export class Setting extends BaseModel {
     // rather than
     // { schedules: { outPatientDischarger: { schedule: '0 11 * * *', batchSize: 1000 } } }
     return getAtPath(settingsObject, key);
+  }
+
+  static sanitizePulledRecordData(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+
+      // Convert updatedAtByField to JSON STRING
+      // because updatedAtByField's type is string in mobile
+      // (Sqlite does not support JSON type)
+      if (row.data.value) {
+        sanitizedRow.data.value = JSON.stringify(sanitizedRow.data.value);
+      }
+
+      return sanitizedRow;
+    });
   }
 }

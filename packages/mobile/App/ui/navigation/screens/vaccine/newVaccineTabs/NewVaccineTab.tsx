@@ -6,6 +6,7 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { formatISO9075, parseISO } from 'date-fns';
 
+import { readConfig } from '../../../../../services/config';
 import { withPatient } from '~/ui/containers/Patient';
 import { StyledSafeAreaView } from '/styled/common';
 import { VaccineForm, VaccineFormValues } from '/components/Forms/VaccineForms';
@@ -45,7 +46,10 @@ export const NewVaccineTabComponent = ({
       if (isSubmitting) return;
       setSubmitting(true);
       const { scheduledVaccineId, recorderId, date, ...otherValues } = values;
-      const { departmentId, locationId } = (await models.Setting.get('vaccinations.defaults')) || {};
+      const facilityId = await readConfig('facilityId', '');
+      const { departmentId, locationId } =
+        (await models.Setting.get('vaccinations.defaults', facilityId)) || {};
+
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,

@@ -93,15 +93,11 @@ export const VaccineGivenForm = ({
       <StyledDivider />
 
       <LocationField
-        defaultGroupValue={
-          !currentEncounter ? vaccinationDefaults.data?.defaultLocationGroupId : null
-        }
-        defaultValue={!currentEncounter ? vaccinationDefaults.data?.defaultLocationId : null}
+        defaultGroupValue={!currentEncounter ? vaccinationDefaults.data?.locationGroupId : null}
+        defaultValue={!currentEncounter ? vaccinationDefaults.data?.locationId : null}
       />
       <DepartmentField
-        value={
-          !currentEncounter ? vaccinationDefaults.data?.defaultDepartmentId : values.departmentId
-        }
+        value={!currentEncounter ? vaccinationDefaults.data?.departmentId : values.departmentId}
       />
 
       <StyledDivider />
