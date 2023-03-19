@@ -30,14 +30,14 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REQUESTED_DATE,
-    title: 'Request date',
+    title: 'Requested date and time',
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
     printout: { widthProportion: 4 },
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
-    title: 'Requesting clinician',
+    title: 'Requested by',
     sortable: false,
     maxWidth: 300,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
