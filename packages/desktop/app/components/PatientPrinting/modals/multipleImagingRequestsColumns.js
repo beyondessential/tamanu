@@ -1,4 +1,5 @@
 import React from 'react';
+import { startCase } from 'lodash';
 
 import { DateDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
@@ -48,6 +49,7 @@ const COMMON_COLUMNS = [
     title: 'Priority',
     sortable: false,
     form: { hidden: true },
+    accessor: ({ priority }) => startCase(priority),
     printout: { widthProportion: 3 },
   },
   {
