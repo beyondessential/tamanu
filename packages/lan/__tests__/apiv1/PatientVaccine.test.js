@@ -187,7 +187,7 @@ describe('PatientVaccine', () => {
       );
 
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
-        vaccineRecordingType: VACCINE_RECORDING_TYPES.GIVEN,
+        status: VACCINE_RECORDING_TYPES.GIVEN,
         category: VACCINE_CATEGORIES.OTHER,
         locationId: location.id,
         departmentId: department.id,

@@ -3,6 +3,15 @@ import array from 'postgres-array';
 
 import { VISIBILITY_STATUSES } from '../../constants';
 
+export function objectAsFhir(input) {
+  const obj = {};
+  for (const [name, value] of Object.entries(input)) {
+    if (value === null || value === undefined) continue;
+    obj[name] = value;
+  }
+  return obj;
+}
+
 export function arrayOf(fieldName, Type, overrides = {}) {
   const entryType = typeof Type === 'function' ? new Type() : Type;
   return {

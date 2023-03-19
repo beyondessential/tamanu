@@ -1,8 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
 import { latestDateTime } from 'shared/utils/dateTime';
-import { formatDateTime } from 'shared/utils/fhir/datetime';
+import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
 import { getBaseUrl, getHL7Link } from '../utils';
 
@@ -23,13 +22,13 @@ export class Bundle {
       resourceType: 'Bundle',
       id: uuidv4(),
       type: this.type,
-      timestamp: formatDateTime(new Date(), FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      timestamp: formatFhirDate(new Date()),
     };
 
     const latestUpdated = latestDateTime(...this.resources.map(r => new Date(r.lastUpdated)));
     if (latestUpdated) {
       fields.meta = {
-        lastUpdated: formatDateTime(latestUpdated, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+        lastUpdated: formatFhirDate(latestUpdated),
       };
     }
 

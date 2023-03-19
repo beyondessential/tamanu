@@ -24,7 +24,7 @@ import {
   VaccineBrandField,
   DiseaseField,
 } from '../components/VaccineCommonFields';
-import { Field, AutocompleteField, CheckField, TextField } from '../components/Field';
+import { Field, AutocompleteField, CheckField } from '../components/Field';
 import { useSuggester } from '../api';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationDefaults } from '../api/queries/useVaccinationDefaults';
