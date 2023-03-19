@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
-import { LabRequestsTable } from '../../../components/LabRequestsTable';
+import { EncounterLabRequestsTable } from '../EncounterLabReqeustsTable';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
@@ -41,7 +41,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           New lab request
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <LabRequestsTable encounterId={encounter.id} />
+      <EncounterLabRequestsTable encounterId={encounter.id} />
     </TabPane>
   );
 });

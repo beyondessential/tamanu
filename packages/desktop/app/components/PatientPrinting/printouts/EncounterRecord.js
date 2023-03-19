@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 
 import { startCase } from 'lodash';
-import { parseDate } from 'shared/utils/dateTime';
 
 import { LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { DateDisplay, formatTime, formatShort } from '../../DateDisplay';
+import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
@@ -106,18 +105,14 @@ const ChildNote = styled.div`
   }
 `;
 
+// Needed to do this to get the printing styles to work correctly. Was getting strange behaviour like
+// cutting off the top of the page and overlapping headers without it
 export const ShiftedCertificateWrapper = styled(CertificateWrapper)`
   @media print {
     top: -32px;
+    padding-top: 32px;
   }
 `;
-
-const customDateFormat = ({ date }) => {
-  const dateObj = parseDate(date);
-  return `${formatShort(dateObj)} ${formatTime(dateObj)
-    .split(' ')
-    .join('')}`;
-};
 
 const COLUMNS = {
   encounterTypes: [
@@ -130,7 +125,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: customDateFormat,
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
       style: { width: '30%' },
     },
   ],
@@ -151,7 +146,7 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: customDateFormat,
+      accessor: ({ date }) => <DateDisplay date={date} showDate showTime /> || {},
       style: { width: '30%' },
     },
   ],
@@ -186,7 +181,7 @@ const COLUMNS = {
     },
     {
       key: 'procedureDate',
-      title: 'Procedure Date',
+      title: 'Procedure date',
       accessor: ({ date }) => <DateDisplay date={date} showDate /> || {},
       style: { width: '20%' },
     },
@@ -195,28 +190,28 @@ const COLUMNS = {
   labRequests: [
     {
       key: 'testType',
-      title: 'Test Type',
+      title: 'Test type',
       style: { width: '20%' },
     },
     {
       key: 'testCategory',
-      title: 'Test Category',
+      title: 'Test category',
       style: { width: '20%' },
     },
     {
       key: 'requestingClinician',
-      title: 'Requesting Clinician',
+      title: 'Requesting clinician',
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
-      title: 'Request Date',
+      title: 'Request date',
       accessor: ({ requestDate }) => <DateDisplay date={requestDate} showDate /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
-      title: 'Completed Date',
+      title: 'Completed date',
       accessor: ({ completedDate }) => <DateDisplay date={completedDate} showDate /> || {},
       style: { width: '20%' },
     },
@@ -237,19 +232,19 @@ const COLUMNS = {
     },
     {
       key: 'requestingClinician',
-      title: 'Requesting Clinician',
+      title: 'Requesting clinician',
       accessor: ({ requestedBy }) => requestedBy?.displayName,
       style: { width: '20%' },
     },
     {
       key: 'requestDate',
-      title: 'Request Date',
+      title: 'Request date',
       accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} showDate />,
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
-      title: 'Completed Date',
+      title: 'Completed date',
       accessor: ({ id }) => <ImagingRequestData imagingRequestId={id} dataType="completedDate" />,
       style: { width: '20%' },
     },
@@ -282,7 +277,7 @@ const COLUMNS = {
     },
     {
       key: 'prescriptionDate',
-      title: 'Prescription Date',
+      title: 'Prescription date',
       accessor: ({ date }) => <DateDisplay date={date} showDate />,
       style: { width: '20%' },
     },
@@ -296,6 +291,8 @@ export const EncounterRecord = React.memo(
     certificateData,
     encounterTypeHistory,
     locationHistory,
+    diagnoses,
+    procedures,
     labRequests,
     imagingRequests,
     notes,
@@ -309,154 +306,146 @@ export const EncounterRecord = React.memo(
     const { title, subTitle, logo } = certificateData;
 
     return (
-      <>
-        <ShiftedCertificateWrapper>
-          <PrintLetterhead
-            title={title}
-            subTitle={subTitle}
-            logoSrc={logo}
-            pageTitle="Patient Encounter Record"
-          />
+      <ShiftedCertificateWrapper>
+        <PrintLetterhead
+          title={title}
+          subTitle={subTitle}
+          logoSrc={logo}
+          pageTitle="Patient Encounter Record"
+        />
 
-          <SummaryHeading>Patient Details</SummaryHeading>
-          <Divider />
-          <RowContainer>
-            <div>
-              <DisplayValue name="Full Name">
-                {firstName} {lastName}
-              </DisplayValue>
-              <LocalisedDisplayValue name="dateOfBirth">
-                <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
-              </LocalisedDisplayValue>
-              <LocalisedDisplayValue name="sex">{capitaliseFirstLetter(sex)}</LocalisedDisplayValue>
-            </div>
-            <div>
-              <LocalisedDisplayValue name="displayId">{displayId}</LocalisedDisplayValue>
-              <LocalisedDisplayValue name="streetVillage">
-                {pad.streetVillage}
-              </LocalisedDisplayValue>
-              <LocalisedDisplayValue name="villageName">{village}</LocalisedDisplayValue>
-            </div>
-          </RowContainer>
+        <SummaryHeading>Patient details</SummaryHeading>
+        <Divider />
+        <RowContainer>
+          <div>
+            <DisplayValue name="Patient name">
+              {firstName} {lastName}
+            </DisplayValue>
+            <LocalisedDisplayValue name="dateOfBirth">
+              <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+            </LocalisedDisplayValue>
+            <LocalisedDisplayValue name="sex">{capitaliseFirstLetter(sex)}</LocalisedDisplayValue>
+          </div>
+          <div>
+            <LocalisedDisplayValue name="displayId">{displayId}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="streetVillage">{pad.streetVillage}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="villageName">{village}</LocalisedDisplayValue>
+          </div>
+        </RowContainer>
 
-          <SummaryHeading>Encounter Details</SummaryHeading>
-          <Divider />
-          <RowContainer>
-            <div>
-              <LocalisedDisplayValue name="facility">
-                {location.facility.name}
-              </LocalisedDisplayValue>
-              <DisplayValue name="Supervising clinician" size="10px">
-                {examiner.displayName}
-              </DisplayValue>
-              <DisplayValue name="Discharging clinician" size="10px">
-                {discharge?.discharger.displayName}
-              </DisplayValue>
-              <DisplayValue name="Reason for encounter" size="10px">
-                {reasonForEncounter}
-              </DisplayValue>
-            </div>
-            <div>
-              <DisplayValue name="Discharging department" size="10px">
-                {department.name}
-              </DisplayValue>
-              <DisplayValue name="Date of admission" size="10px">
-                <DateDisplay date={startDate} showDate={false} showExplicitDate />
-              </DisplayValue>
-              <DisplayValue name="Date of discharge" size="10px">
-                <DateDisplay date={endDate} showDate={false} showExplicitDate />
-              </DisplayValue>
-            </div>
-          </RowContainer>
+        <SummaryHeading>Encounter Details</SummaryHeading>
+        <Divider />
+        <RowContainer>
+          <div>
+            <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
+            <DisplayValue name="Supervising clinician" size="10px">
+              {examiner.displayName}
+            </DisplayValue>
+            <DisplayValue name="Discharging clinician" size="10px">
+              {discharge?.discharger.displayName}
+            </DisplayValue>
+            <DisplayValue name="Reason for encounter" size="10px">
+              {reasonForEncounter}
+            </DisplayValue>
+          </div>
+          <div>
+            <DisplayValue name="Discharging department" size="10px">
+              {department.name}
+            </DisplayValue>
+            <DisplayValue name="Date of admission" size="10px">
+              <DateDisplay date={startDate} showDate={false} showExplicitDate />
+            </DisplayValue>
+            <DisplayValue name="Date of discharge" size="10px">
+              <DateDisplay date={endDate} showDate={false} showExplicitDate />
+            </DisplayValue>
+          </div>
+        </RowContainer>
 
-          {encounterTypeHistory.length > 0 ? (
-            <>
-              <TableHeading>Encounter Types</TableHeading>
-              <CompactListTable data={encounterTypeHistory} columns={COLUMNS.encounterTypes} />
-            </>
-          ) : null}
+        {encounterTypeHistory.length > 0 ? (
+          <>
+            <TableHeading>Encounter Types</TableHeading>
+            <CompactListTable data={encounterTypeHistory} columns={COLUMNS.encounterTypes} />
+          </>
+        ) : null}
 
-          {locationHistory.length > 0 ? (
-            <>
-              <TableHeading>Locations</TableHeading>
-              <CompactListTable data={locationHistory} columns={COLUMNS.locations} />
-            </>
-          ) : null}
+        {locationHistory.length > 0 ? (
+          <>
+            <TableHeading>Locations</TableHeading>
+            <CompactListTable data={locationHistory} columns={COLUMNS.locations} />
+          </>
+        ) : null}
 
-          {encounter.diagnoses.length > 0 ? (
-            <>
-              <TableHeading>Diagnoses</TableHeading>
-              <CompactListTable data={encounter.diagnoses} columns={COLUMNS.diagnoses} />
-            </>
-          ) : null}
+        {diagnoses.length > 0 ? (
+          <>
+            <TableHeading>Diagnoses</TableHeading>
+            <CompactListTable data={diagnoses} columns={COLUMNS.diagnoses} />
+          </>
+        ) : null}
 
-          {encounter.procedures.length > 0 ? (
-            <>
-              <TableHeading>Procedures</TableHeading>
-              <CompactListTable data={encounter.procedures} columns={COLUMNS.procedures} />
-            </>
-          ) : null}
+        {procedures.length > 0 ? (
+          <>
+            <TableHeading>Procedures</TableHeading>
+            <CompactListTable data={procedures} columns={COLUMNS.procedures} />
+          </>
+        ) : null}
 
-          {labRequests.length > 0 ? (
-            <>
-              <TableHeading>Lab Requests</TableHeading>
-              <CompactListTable data={labRequests} columns={COLUMNS.labRequests} />
-            </>
-          ) : null}
+        {labRequests.length > 0 ? (
+          <>
+            <TableHeading>Lab Requests</TableHeading>
+            <CompactListTable data={labRequests} columns={COLUMNS.labRequests} />
+          </>
+        ) : null}
 
-          {imagingRequests.length > 0 ? (
-            <>
-              <TableHeading>Imaging Requests</TableHeading>
-              <CompactListTable data={imagingRequests} columns={COLUMNS.imagingRequests} />
-            </>
-          ) : null}
+        {imagingRequests.length > 0 ? (
+          <>
+            <TableHeading>Imaging Requests</TableHeading>
+            <CompactListTable data={imagingRequests} columns={COLUMNS.imagingRequests} />
+          </>
+        ) : null}
 
-          {medications.length > 0 ? (
-            <>
-              <TableHeading>Medications</TableHeading>
-              <CompactListTable data={medications} columns={COLUMNS.medications} />
-            </>
-          ) : null}
+        {medications.length > 0 ? (
+          <>
+            <TableHeading>Medications</TableHeading>
+            <CompactListTable data={medications} columns={COLUMNS.medications} />
+          </>
+        ) : null}
 
-          {notes.length > 0 ? (
-            <>
-              <TableHeading>Notes</TableHeading>
-              {notes.map(note => (
-                <>
-                  <Table>
+        {notes.length > 0 ? (
+          <>
+            <TableHeading>Notes</TableHeading>
+            {notes.map(note => (
+              <>
+                <Table>
+                  <Row>
+                    <Cell width="10%">
+                      <BoldText>Note type</BoldText>
+                    </Cell>
+                    <Cell width="35%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
+                    <Cell>
+                      <DateDisplay date={note.date} showDate showTime />
+                    </Cell>
+                  </Row>
+                  <tbody>
                     <Row>
-                      <Cell width="10%">
-                        <BoldText>Note Type</BoldText>
-                      </Cell>
-                      <Cell width="35%">
-                        {noteTypes.find(x => x.value === note.noteType).label}
-                      </Cell>
-                      <Cell>
-                        <DateDisplay date={note.date} showDate showTime />
+                      <Cell colSpan={3}>
+                        {note.noteItems.map(noteItem => (
+                          <ChildNote>
+                            <BoldText>
+                              <DateDisplay date={noteItem.date} showDate showTime />
+                              {noteItem.revisedById ? ' (edited)' : ''}
+                            </BoldText>
+                            {noteItem.content}
+                          </ChildNote>
+                        ))}
                       </Cell>
                     </Row>
-                    <tbody>
-                      <Row>
-                        <Cell colSpan={3}>
-                          {note.noteItems.map(noteItem => (
-                            <ChildNote>
-                              <BoldText>
-                                <DateDisplay date={noteItem.date} showDate showTime />
-                                {noteItem.revisedById ? ' (edited)' : ''}
-                              </BoldText>
-                              {noteItem.content}
-                            </ChildNote>
-                          ))}
-                        </Cell>
-                      </Row>
-                    </tbody>
-                  </Table>
-                </>
-              ))}
-            </>
-          ) : null}
-        </ShiftedCertificateWrapper>
-      </>
+                  </tbody>
+                </Table>
+              </>
+            ))}
+          </>
+        ) : null}
+      </ShiftedCertificateWrapper>
     );
   },
 );

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
@@ -22,13 +22,15 @@ const SuggestionsContainer = styled(Popper)`
   .react-autosuggest__suggestions-container {
     max-height: 210px;
     overflow-y: auto;
+    border-color: ${Colors.primary};
   }
 `;
 
 const SuggestionsList = styled(Paper)`
+  margin-top: 1px;
   box-shadow: none;
   border: 1px solid ${Colors.outline};
-  border-radius: 0 0 3px 3px;
+  border-radius: 3px;
 
   .react-autosuggest__suggestions-list {
     margin: 0;
@@ -37,11 +39,12 @@ const SuggestionsList = styled(Paper)`
 
     .MuiButtonBase-root {
       padding: 12px 12px 12px 20px;
+      padding: ${props => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
       white-space: normal;
 
       .MuiTypography-root {
-        font-size: 14px;
-        line-height: 18px;
+        font-size: ${props => (props.size === 'small' ? '11px' : '14px')};
+        line-height: 1.3em;
       }
 
       &:hover {
@@ -70,6 +73,19 @@ const Item = styled(MenuItem)`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+`;
+
+const iconStyle = css`
+  color: ${Colors.midText};
+  font-size: 24;
+`;
+
+const StyledExpandLess = styled(ExpandLess)`
+  ${iconStyle}
+`;
+
+const StyledExpandMore = styled(ExpandMore)`
+  ${iconStyle}
 `;
 
 class BaseAutocomplete extends Component {
@@ -213,22 +229,27 @@ class BaseAutocomplete extends Component {
     );
   };
 
-  renderContainer = option => (
-    <SuggestionsContainer
-      anchorEl={this.anchorEl}
-      open={!!option.children}
-      placement="bottom-start"
-    >
-      <SuggestionsList {...option.containerProps}>{option.children}</SuggestionsList>
-    </SuggestionsContainer>
-  );
+  renderContainer = option => {
+    const { size = 'medium' } = this.props;
+    return (
+      <SuggestionsContainer
+        anchorEl={this.anchorEl}
+        open={!!option.children}
+        placement="bottom-start"
+      >
+        <SuggestionsList {...option.containerProps} size={size}>
+          {option.children}
+        </SuggestionsList>
+      </SuggestionsContainer>
+    );
+  };
 
   setAnchorRefForPopper = ref => {
     this.anchorEl = ref;
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, ...other } = inputProps;
+    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -236,9 +257,11 @@ class BaseAutocomplete extends Component {
         required={required}
         className={className}
         infoTooltip={infoTooltip}
+        size={size}
       >
         <StyledTextField
           variant="outlined"
+          size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
             endAdornment: (
@@ -248,8 +271,14 @@ class BaseAutocomplete extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                <Icon position="end">
-                  {suggestions.length > 0 ? <ExpandLess /> : <ExpandMore />}
+                <Icon
+                  position="end"
+                  onClick={event => {
+                    event.preventDefault();
+                    this.anchorEl.click();
+                  }}
+                >
+                  {suggestions.length > 0 ? <StyledExpandLess /> : <StyledExpandMore />}
                 </Icon>
               </>
             ),
@@ -270,6 +299,7 @@ class BaseAutocomplete extends Component {
       name,
       infoTooltip,
       disabled,
+      size,
       error,
       helperText,
       placeholder = 'Search...',
@@ -296,6 +326,7 @@ class BaseAutocomplete extends Component {
             name,
             placeholder,
             infoTooltip,
+            size,
             value: selectedOption?.value,
             tag: selectedOption?.tag,
             onKeyDown: this.onKeyDown,
