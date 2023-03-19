@@ -2,7 +2,7 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import { VACCINE_CATEGORIES } from 'shared/constants';
+import { VACCINE_CATEGORIES, SETTING_KEYS } from 'shared/constants';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
@@ -27,7 +27,7 @@ import {
 import { Field, AutocompleteField, CheckField } from '../components/Field';
 import { useSuggester } from '../api';
 import { usePatientCurrentEncounter } from '../api/queries';
-import { useVaccinationDefaults } from '../api/queries/useVaccinationDefaults';
+import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
   scheduledVaccineId: yup.string().required(),
@@ -53,7 +53,9 @@ export const VaccineGivenForm = ({
 }) => {
   const countrySuggester = useSuggester('country');
   const { data: currentEncounter } = usePatientCurrentEncounter(patientId);
-  const { data: vaccinationDefaults = {} } = useVaccinationDefaults();
+  const { data: vaccinationDefaults = {} } = useVaccinationSettings(
+    SETTING_KEYS.VACCINATION_DEFAULTS,
+  );
 
   return (
     <TwoTwoGrid>

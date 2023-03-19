@@ -1,9 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-export const vaccinationDefaults = express.Router();
+export const vaccinationSettings = express.Router();
 
-vaccinationDefaults.get(
+vaccinationSettings.get(
   '/:key',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();

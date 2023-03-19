@@ -15,6 +15,7 @@ import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { SETTING_KEYS } from '~/constants/settings';
 
 type NewVaccineTabProps = {
   route: Route & {
@@ -48,7 +49,7 @@ export const NewVaccineTabComponent = ({
       const { scheduledVaccineId, recorderId, date, ...otherValues } = values;
       const facilityId = await readConfig('facilityId', '');
       const { departmentId, locationId } =
-        (await models.Setting.get('vaccinations.defaults', facilityId)) || {};
+        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
 
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
