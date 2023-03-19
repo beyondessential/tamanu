@@ -7,19 +7,15 @@ const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
 const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getGiver = record => record.givenBy || '';
-const getArea = record =>
-  record.location?.locationGroup?.name || record.encounter?.location?.locationGroup?.name || '';
-const getInjectionSite = ({ injectionSite }) => injectionSite || 'Unknown';
-const getBatch = ({ batch }) => batch || 'Unknown';
+// TODO: get the country in the case of overseas vaccines
+const getFacility = record => record.location?.facility?.name || record.country || '';
 
 const columns = [
-  { key: 'schedule', title: 'Schedule', accessor: getSchedule },
   { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
+  { key: 'schedule', title: 'Schedule', accessor: getSchedule },
   { key: 'date', title: 'Date', accessor: getDate },
   { key: 'givenBy', title: 'Given by', accessor: getGiver },
-  { key: 'locationGroup', title: 'Area', accessor: getArea },
-  { key: 'injectionSite', title: 'Injection site', accessor: getInjectionSite },
-  { key: 'batch', title: 'Batch', accessor: getBatch },
+  { key: 'facility', title: 'Facility/Country', accessor: getFacility },
 ];
 
 export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
