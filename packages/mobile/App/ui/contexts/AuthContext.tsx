@@ -16,7 +16,7 @@ import { withAuth } from '~/ui/containers/Auth';
 import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { CentralConnectionStatus, IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
+import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 import { buildAbility } from '~/ui/helpers/ability';
@@ -29,13 +29,13 @@ type AuthProviderProps = WithAuthStoreProps & {
 interface AuthContextData {
   user: IUser;
   ability: PureAbility;
+  signedIn: boolean;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
   signOutClient: (signedOutFromInactivity: boolean) => void;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
-  setCentralConnectionStatus: (status: CentralConnectionStatus) => void;
   checkFirstSession: () => boolean;
   requestResetPassword: (params: ResetPasswordFormModel) => void;
   resetPasswordLastEmailUsed: string;
@@ -49,7 +49,7 @@ const Provider = ({
   setRefreshToken,
   setUser,
   setSignedInStatus,
-  setCentralConnectionStatus,
+  signedIn,
   children,
   signOutUser,
   navRef,
@@ -164,9 +164,7 @@ const Provider = ({
 
     if (props.token && props.user) {
       backend.auth.startSession(props.token, props.refreshToken);
-      setCentralConnectionStatus(CentralConnectionStatus.Connected);
     } else {
-      setCentralConnectionStatus(CentralConnectionStatus.Disconnected);
       backend.auth.endSession();
     }
   }, [backend, props.token, props.user]);
@@ -190,14 +188,9 @@ const Provider = ({
         signOut();
       }
     };
-    const centralStatusChangeHandler = (status: CentralConnectionStatus) => {
-      setCentralConnectionStatus(status)
-    }
     backend.auth.emitter.on('authError', errHandler);
-    backend.auth.emitter.on('centralConnectionStatusChange', centralStatusChangeHandler)
     return () => {
       backend.auth.emitter.off('authError', errHandler);
-      backend.auth.emitter.off('centralConnectionStatusChange', centralStatusChangeHandler)
     };
   }, [backend, props.token, preventSignOutOnFailure]);
 
@@ -205,7 +198,6 @@ const Provider = ({
     <AuthContext.Provider
       value={{
         setUserFirstSignIn,
-        setCentralConnectionStatus,
         signIn,
         signOut,
         reconnectWithPassword,
@@ -213,6 +205,7 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        signedIn,
         ability,
         requestResetPassword,
         resetPasswordLastEmailUsed,

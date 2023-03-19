@@ -60,6 +60,7 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
+    makeFilter(filterParams.sex, `patients.sex = :sex`),
   ].filter(f => f);
 
   return filters;

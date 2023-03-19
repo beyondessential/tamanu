@@ -96,7 +96,7 @@ export class CentralServerConnection {
       } catch(err) {
           // Handle sync disconnection and attempt refresh if possible
           if (err instanceof AuthenticationError && !isLogin) {
-            this.emitter.emit('centralConnectionStatusChange', CentralConnectionStatus.Disconnected);
+            this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
             if (this.refreshToken && !skipAttemptRefresh) {
               await this.refresh();
               // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
@@ -251,6 +251,7 @@ export class CentralServerConnection {
     }
     this.setRefreshToken(data.refreshToken);
     this.setToken(data.token);
+    this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
@@ -267,7 +268,7 @@ export class CentralServerConnection {
         console.warn('Auth failed with an inexplicable error', data);
         throw new AuthenticationError(generalErrorMessage);
       }
-
+      this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
       return data;
     } catch (err) {
       this.throwError(err);

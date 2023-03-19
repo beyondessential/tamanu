@@ -48,7 +48,6 @@ export class MobileSyncManager {
   emitter = mitt();
 
   models: typeof MODELS_MAP;
-
   centralServer: CentralServerConnection;
 
   constructor(centralServer: CentralServerConnection) {

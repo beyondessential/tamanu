@@ -4,7 +4,6 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { FHIR_INTERACTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -12,36 +11,37 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../services/fhirTypes';
-import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
+import { latestDateTime } from '../../utils/dateTime';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION), // This field is part of DomainResource
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        extension: DataTypes.JSONB, // This field is part of DomainResource
+        identifier: DataTypes.JSONB,
         status: {
           type: Sequelize.TEXT,
           allowNull: false,
         },
         code: {
-          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         subject: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: true,
         },
         effectiveDateTime: {
-          type: DataTypes.DATE,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
         issued: {
-          type: DataTypes.DATE,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
-        performer: arrayOf('performer', DataTypes.FHIR_REFERENCE),
-        result: arrayOf('result', DataTypes.FHIR_REFERENCE),
+        performer: DataTypes.JSONB,
+        result: DataTypes.JSONB,
       },
       options,
     );
@@ -122,8 +122,8 @@ export class FhirDiagnosticReport extends FhirResource {
       status: status(labRequest),
       code: code(labTestType),
       subject: patientReference(patient),
-      effectiveDateTime: dateTimeStringIntoCountryTimezone(labRequest.sampleTime),
-      issued: dateTimeStringIntoCountryTimezone(labRequest.requestedDate),
+      effectiveDateTime: formatFhirDate(labRequest.sampleTime),
+      issued: formatFhirDate(labRequest.requestedDate),
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
     });
