@@ -15,10 +15,10 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [vaccineData, setVaccineData] = useState();
   const [hasVaccines, setHasVaccines] = useState();
 
-  const onOpenEditModal = useCallback(async row => {
-    setIsEditAdministeredModalOpen(true);
-    setVaccineData(row);
-  }, []);
+  // const onOpenEditModal = useCallback(async row => {
+  //   setIsEditAdministeredModalOpen(true);
+  //   setVaccineData(row);
+  // }, []);
 
   const onOpenViewModal = useCallback(async row => {
     setIsViewAdministeredModalOpen(true);
