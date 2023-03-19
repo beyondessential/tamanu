@@ -191,7 +191,6 @@ describe('PatientVaccine', () => {
         category: VACCINE_CATEGORIES.OTHER,
         locationId: location.id,
         departmentId: department.id,
-        scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
         patientId: patient.id,
         date: new Date(),
