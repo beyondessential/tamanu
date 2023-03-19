@@ -73,7 +73,13 @@ export class DeceasedPatientDischarger extends ScheduledTask {
         }
 
         const discharger = await patientDeathData.getClinician();
-        await encounter.dischargeWithDischarger(discharger, patient.dateOfDeath);
+        await encounter.update({
+          endDate: patient.dateOfDeath,
+          discharge: {
+            dischargerId: discharger.id,
+            note: 'Automatically discharged by deceased patient discharger',
+          },
+        });
         log.info(
           `Auto-closed encounter with id ${encounter.id} (discharger=${discharger.id}, dod=${patient.dateOfDeath})`,
         );
