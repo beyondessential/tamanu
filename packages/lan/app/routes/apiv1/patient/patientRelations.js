@@ -303,7 +303,7 @@ patientRelations.get(
               patient_id = :patientId
             )
           AND lab_tests.status = '${status}'
-          ${categoryId ? `AND category_id = ${categoryId}` : ''}
+          ${categoryId ? `AND category_id = '${categoryId}'` : ''}
           ${
             // TODO: Enable this section when panels epic is merged
             // panelId
@@ -334,7 +334,7 @@ patientRelations.get(
               patient_id = :patientId
           )
         AND lab_tests.status = '${status}'
-        ${categoryId ? `AND category_id = ${categoryId}` : ''}
+        ${categoryId ? `AND category_id = '${categoryId}'` : ''}
         ${
           // TODO: Enable this section when panels epic is merged
           // panelId
