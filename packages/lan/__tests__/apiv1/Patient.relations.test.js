@@ -575,4 +575,20 @@ describe('Patient relations', () => {
       });
     });
   });
+
+  describe('labTests', () => {
+    it('Fetches lab tests from patient', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const response = await app.get(`/v1/patient/${patient.id}/labTests`);
+      console.log(response);
+    });
+    it('Fetches lab tests across multiple encounters', () => {});
+    it('Fetches lab tests across multiple categories', () => {});
+    it('Defaults to only fetching published lab tests', () => {});
+    it('Allows overriding the status filter', () => {});
+    it('Allows filtering lab tests by category', () => {});
+    test.todo('Allows filtering lab tests by panel');
+    it('Paginates large quantities of lab tests', () => {});
+    it('Paginates with filter', () => {});
+  });
 });

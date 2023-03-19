@@ -290,6 +290,10 @@ patientRelations.get(
         SELECT COUNT(1) AS count
         FROM
           lab_tests
+        INNER JOIN
+          lab_requests
+        ON
+          lab_tests.lab_request_id = lab_requests.id
         WHERE
           encounter_id IN (
             SELECT id
@@ -303,15 +307,19 @@ patientRelations.get(
         SELECT lab_tests.*
         FROM
           lab_tests
+        INNER JOIN
+          lab_requests
+        ON
+          lab_tests.lab_request_id = lab_requests.id
         WHERE
-          encounter_id IN (
+        encounter_id IN (
             SELECT id
             FROM
               encounters
             WHERE
               patient_id = :patientId
           )
-          AND status = '${status}'
+          AND lab_tests.status = '${status}'
           ${categoryId ? `AND category_id = ${categoryId}` : ''}
           ${
             // TODO: Enable this section when panels epic is merged
