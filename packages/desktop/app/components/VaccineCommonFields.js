@@ -198,9 +198,9 @@ export const DiseaseField = () => (
   <Field name="disease" label="Disease" component={TextField} required />
 );
 
-export const ConfirmCancelRowField = ({ submitForm, category, scheduleOptions, onCancel }) => (
+export const ConfirmCancelRowField = ({ onConfirm, category, scheduleOptions, onCancel }) => (
   <ConfirmCancelRow
-    onConfirm={submitForm}
+    onConfirm={onConfirm}
     confirmDisabled={category !== VACCINE_CATEGORIES.OTHER && scheduleOptions.length === 0}
     onCancel={onCancel}
   />
