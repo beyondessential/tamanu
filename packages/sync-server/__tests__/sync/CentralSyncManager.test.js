@@ -7,13 +7,12 @@ import { sleepAsync } from 'shared/utils/sleepAsync';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { importer } from '../../app/admin/refdataImporter';
-import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
+import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
   return importerTransaction({
-    importer,
+    referenceDataImporter,
     file: `./__tests__/sync/testData/${file}.xlsx`,
     models,
     ...opts,
@@ -23,13 +22,14 @@ const doImport = (options, models) => {
 describe('CentralSyncManager', () => {
   let ctx;
   let models;
-  let centralSyncManager;
-  let CentralSyncManager;
+  const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
 
   const initializeCentralSyncManager = () => {
     // Have to load test function within test scope so that we can mock dependencies per test case
-    ({ CentralSyncManager } = require('../../app/sync/CentralSyncManager'));
-    centralSyncManager = new CentralSyncManager(ctx);
+    const {
+      CentralSyncManager: TestCentralSyncManager,
+    } = require('../../app/sync/CentralSyncManager');
+    return new TestCentralSyncManager(ctx);
   };
 
   beforeAll(async () => {
@@ -37,36 +37,46 @@ describe('CentralSyncManager', () => {
     ({ models } = ctx.store);
   });
 
+  beforeEach(async () => {
+    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+  });
+
   afterAll(() => {
-    centralSyncManager.close();
     ctx.close();
   });
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    initializeCentralSyncManager();
-  });
-
-  afterEach(() => {
-    CentralSyncManager.restoreConfig();
   });
 
   describe('startSession', () => {
     it('creates a new session', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       const syncSession = await models.SyncSession.findOne({ where: { id: sessionId } });
       expect(syncSession).not.toBeUndefined();
     });
 
     it('tick-tocks the global clock', async () => {
-      const { tick } = await centralSyncManager.startSession();
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+
+      const maxAttempts = 20; // safe to wait 20 attempts
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const ready = await centralSyncManager.checkSessionReady(sessionId);
+        if (ready) {
+          break;
+        }
+      }
+
       const localSystemFact = await models.LocalSystemFact.findOne({
         where: { key: CURRENT_SYNC_TIME_KEY },
       });
-      expect(parseInt(localSystemFact.value, 10)).toBe(tick + 1);
+      expect(parseInt(localSystemFact.value, 10)).toBe(DEFAULT_CURRENT_SYNC_TIME_VALUE + 2);
     });
 
     it('allows concurrent sync sessions', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
       const { sessionId: sessionId1 } = await centralSyncManager.startSession();
       const { sessionId: sessionId2 } = await centralSyncManager.startSession();
 
@@ -80,6 +90,7 @@ describe('CentralSyncManager', () => {
 
   describe('connectToSession', () => {
     it('allows connecting to an existing session', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       const syncSession = await centralSyncManager.connectToSession(sessionId);
       expect(syncSession).not.toBeUndefined();
@@ -88,6 +99,7 @@ describe('CentralSyncManager', () => {
 
   describe('endSession', () => {
     it('set completedAt when ending an existing session', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await centralSyncManager.endSession(sessionId);
       const syncSession2 = await models.SyncSession.findOne({ where: { id: sessionId } });
@@ -95,6 +107,7 @@ describe('CentralSyncManager', () => {
     });
 
     it('throws an error when connecting to a session that already ended', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await centralSyncManager.endSession(sessionId);
       await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow();
@@ -108,11 +121,12 @@ describe('CentralSyncManager', () => {
 
     it('returns all the outgoing changes', async () => {
       const facility = await models.Facility.create(fake(models.Facility));
+      const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
-      await centralSyncManager.setupSnapshot(
+      await centralSyncManager.setupSnapshotForPull(
         sessionId,
         {
-          since: -1,
+          since: 1,
           facilityId: facility.id,
         },
         () => true,
@@ -125,14 +139,14 @@ describe('CentralSyncManager', () => {
     });
   });
 
-  describe('setupSnapshot', () => {
+  describe('setupSnapshotForPull', () => {
     describe('handles snapshot process', () => {
       it('returns all encounters for marked-for-sync patients', async () => {
         const OLD_SYNC_TICK = 10;
         const NEW_SYNC_TICK = 20;
 
         // ~ ~ ~ Set up old data
-        await models.LocalSystemFact.set('currentSyncTick', OLD_SYNC_TICK);
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
         const patient1 = await models.Patient.create({
           ...fake(models.Patient),
         });
@@ -167,7 +181,7 @@ describe('CentralSyncManager', () => {
           patientId: patient3.id,
         });
 
-        await models.LocalSystemFact.set('currentSyncTick', NEW_SYNC_TICK);
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
 
         // ~ ~ ~ Set up data for marked for sync patients
         await models.PatientFacility.create({
@@ -181,9 +195,10 @@ describe('CentralSyncManager', () => {
           facilityId: facility.id,
         });
 
+        const centralSyncManager = initializeCentralSyncManager();
         const { sessionId } = await centralSyncManager.startSession();
 
-        await centralSyncManager.setupSnapshot(
+        await centralSyncManager.setupSnapshotForPull(
           sessionId,
           {
             since: 15,
@@ -224,7 +239,8 @@ describe('CentralSyncManager', () => {
         // then we can insert some new records while snapshotting is happening
         let resolveMockedModelQueryPromise;
         const mockedModelQueryPromise = new Promise(resolve => {
-          resolveMockedModelQueryPromise = async () => resolve([undefined, 0]);
+          // count: 100 is not correct but shouldn't matter in this test case
+          resolveMockedModelQueryPromise = async () => resolve([[{ maxId: null, count: 100 }]]);
         });
         const MockedModel = {
           syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
@@ -242,16 +258,7 @@ describe('CentralSyncManager', () => {
           },
         };
 
-        // Initialize CentralSyncManager with MockedModel
-        ctx.store.models = {
-          MockedModel,
-          ...models,
-        };
-
-        ({ CentralSyncManager } = require('../../app/sync/CentralSyncManager'));
-        centralSyncManager = new CentralSyncManager(ctx);
-
-        return resolveMockedModelQueryPromise;
+        return { MockedModel, resolveMockedModelQueryPromise };
       };
 
       beforeEach(async () => {
@@ -270,15 +277,26 @@ describe('CentralSyncManager', () => {
       });
 
       it('excludes manually inserted records when main snapshot transaction already started', async () => {
-        const { sessionId } = await centralSyncManager.startSession();
         const [facility, program, survey] = await prepareRecordsForSync();
 
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
-        const resolveMockedModelQueryPromise = await prepareMockedModelQueryPromise();
+        const {
+          resolveMockedModelQueryPromise,
+          MockedModel,
+        } = await prepareMockedModelQueryPromise();
+
+        // Initialize CentralSyncManager with MockedModel
+        ctx.store.models = {
+          MockedModel,
+          ...models,
+        };
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
 
         // Start the snapshot process
-        const snapshot = centralSyncManager.setupSnapshot(
+        const snapshot = centralSyncManager.setupSnapshotForPull(
           sessionId,
           {
             since: 1,
@@ -288,7 +306,7 @@ describe('CentralSyncManager', () => {
           () => true,
         );
 
-        // wait until setupSnapshot() reach and block the snapshotting process inside the wrapper transaction,
+        // wait until setupSnapshotForPull() reach and block the snapshotting process inside the wrapper transaction,
         await sleepAsync(1000);
 
         // Insert the records just before we release the lock,
@@ -330,14 +348,25 @@ describe('CentralSyncManager', () => {
       });
 
       it('excludes imported records when main snapshot transaction already started', async () => {
-        const { sessionId } = await centralSyncManager.startSession();
         const [facility, program, survey] = await prepareRecordsForSync();
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
-        const resolveMockedModelQueryPromise = await prepareMockedModelQueryPromise();
+        const {
+          resolveMockedModelQueryPromise,
+          MockedModel,
+        } = await prepareMockedModelQueryPromise();
+
+        // Initialize CentralSyncManager with MockedModel
+        ctx.store.models = {
+          MockedModel,
+          ...models,
+        };
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
 
         // Start the snapshot process
-        const snapshot = centralSyncManager.setupSnapshot(
+        const snapshot = centralSyncManager.setupSnapshotForPull(
           sessionId,
           {
             since: 1,
@@ -347,7 +376,7 @@ describe('CentralSyncManager', () => {
           () => true,
         );
 
-        // wait until setupSnapshot() reach and block the snapshotting process inside the wrapper transaction,
+        // wait until setupSnapshotForPull() reach and block the snapshotting process inside the wrapper transaction,
         await sleepAsync(1000);
 
         // Insert the records just before we release the lock,
@@ -370,14 +399,25 @@ describe('CentralSyncManager', () => {
       });
 
       it('excludes inserted records from another sync session when snapshot transaction already started', async () => {
-        const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
         const [facility, program, survey] = await prepareRecordsForSync();
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
-        const resolveMockedModelQueryPromise = await prepareMockedModelQueryPromise();
+        const {
+          resolveMockedModelQueryPromise,
+          MockedModel,
+        } = await prepareMockedModelQueryPromise();
+
+        // Initialize CentralSyncManager with MockedModel
+        ctx.store.models = {
+          MockedModel,
+          ...models,
+        };
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId: sessionIdOne } = await centralSyncManager.startSession();
 
         // Start the snapshot process
-        const snapshot = centralSyncManager.setupSnapshot(
+        const snapshot = centralSyncManager.setupSnapshotForPull(
           sessionIdOne,
           {
             since: 1,
@@ -387,7 +427,7 @@ describe('CentralSyncManager', () => {
           () => true,
         );
 
-        // wait until setupSnapshot() reach and block the snapshotting process inside the wrapper transaction,
+        // wait until setupSnapshotForPull() reach and block the snapshotting process inside the wrapper transaction,
         await sleepAsync(1000);
 
         const survey1 = fakeSurvey();
@@ -513,11 +553,11 @@ describe('CentralSyncManager', () => {
             value: true,
           });
 
-          initializeCentralSyncManager();
+          const centralSyncManager = initializeCentralSyncManager();
 
           const { sessionId } = await centralSyncManager.startSession();
 
-          await centralSyncManager.setupSnapshot(
+          await centralSyncManager.setupSnapshotForPull(
             sessionId,
             {
               since: 1,
@@ -563,11 +603,11 @@ describe('CentralSyncManager', () => {
             facilityId: facility.id,
           });
 
-          initializeCentralSyncManager();
+          const centralSyncManager = initializeCentralSyncManager();
 
           const { sessionId } = await centralSyncManager.startSession();
 
-          await centralSyncManager.setupSnapshot(
+          await centralSyncManager.setupSnapshotForPull(
             sessionId,
             {
               since: 1,
@@ -711,16 +751,20 @@ describe('CentralSyncManager', () => {
 
         it('syncs the configured vaccine encounters when it is enabled and client is mobile', async () => {
           // Create the vaccines to be tested
-          initializeCentralSyncManager();
+          const {
+            CentralSyncManager: TestCentralSyncManager,
+          } = require('../../app/sync/CentralSyncManager');
 
           // Turn on syncAllEncountersForTheseVaccines config
-          CentralSyncManager.overrideConfig({
+          TestCentralSyncManager.overrideConfig({
             sync: { syncAllEncountersForTheseVaccines: ['drug-COVAX', 'drug-COVID-19-Pfizer'] },
           });
 
+          const centralSyncManager = new TestCentralSyncManager(ctx);
+
           const { sessionId } = await centralSyncManager.startSession();
 
-          await centralSyncManager.setupSnapshot(
+          await centralSyncManager.setupSnapshotForPull(
             sessionId,
             {
               since: 1,
@@ -739,12 +783,16 @@ describe('CentralSyncManager', () => {
         });
 
         it('does not sync any vaccine encounters when it is disabled and client is mobile', async () => {
-          initializeCentralSyncManager();
+          const {
+            CentralSyncManager: TestCentralSyncManager,
+          } = require('../../app/sync/CentralSyncManager');
 
           // Turn off syncAllEncountersForTheseVaccines config
-          CentralSyncManager.overrideConfig({
+          TestCentralSyncManager.overrideConfig({
             sync: { syncAllEncountersForTheseVaccines: [] },
           });
+
+          const centralSyncManager = new TestCentralSyncManager(ctx);
 
           await models.PatientFacility.create({
             id: models.PatientFacility.generateId(),
@@ -754,7 +802,7 @@ describe('CentralSyncManager', () => {
 
           const { sessionId } = await centralSyncManager.startSession();
 
-          await centralSyncManager.setupSnapshot(
+          await centralSyncManager.setupSnapshotForPull(
             sessionId,
             {
               since: 1,
@@ -778,10 +826,6 @@ describe('CentralSyncManager', () => {
       });
     });
   });
-    
-  describe('setupSnapshotForPull', () => {
-    it.todo('all');
-  });
 
   describe('addIncomingChanges', () => {
     beforeEach(async () => {
@@ -804,7 +848,7 @@ describe('CentralSyncManager', () => {
         insertSnapshotRecords: jest.fn(),
       }));
 
-      initializeCentralSyncManager();
+      const centralSyncManager = initializeCentralSyncManager();
 
       const { insertSnapshotRecords } = require('shared/sync');
       const { sessionId } = await centralSyncManager.startSession();

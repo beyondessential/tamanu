@@ -1,25 +1,23 @@
 import { inspect } from 'util';
-import { sleepAsync } from 'shared/utils/sleepAsync';
-import { createTestContext } from '../utilities';
-import { fake } from 'shared/test-helpers/fake';
 import config from 'config';
 
+import { sleepAsync } from 'shared/utils/sleepAsync';
+import { fake } from 'shared/test-helpers/fake';
 import { createDummyPatient } from 'shared/demoData/patients';
-import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
 
-import * as push from '../../app/sync/pushOutgoingChanges';
-import * as pull from '../../app/sync/pullIncomingChanges';
-
+import { FacilitySyncManager } from '../../app/sync';
 import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager', () => {
   let ctx;
-  let FacilitySyncManager;
+  let models;
+  let sequelize;
   const TEST_SESSION_ID = 'sync123';
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
+    models = ctx.models;
+    sequelize = ctx.sequelize;
   });
 
   afterAll(() => {
@@ -72,7 +70,7 @@ describe('FacilitySyncManager', () => {
       const createSchema = jest.fn();
 
       const syncManager = new FacilitySyncManager({
-        models: ctx.models,
+        models,
         sequelize: {
           getQueryInterface: () => ({
             dropSchema,
@@ -111,11 +109,13 @@ describe('FacilitySyncManager', () => {
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
-      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../app/sync/FacilitySyncManager');
       const { snapshotOutgoingChanges } = require('../../app/sync/snapshotOutgoingChanges');
 
-      const syncManager = new FacilitySyncManager({
-        models: ctx.models,
+      const syncManager = new TestFacilitySyncManager({
+        models,
         sequelize: ctx.sequelize,
         centralServer: {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
@@ -144,11 +144,13 @@ describe('FacilitySyncManager', () => {
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
-      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../app/sync/FacilitySyncManager');
       const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
 
-      const syncManager = new FacilitySyncManager({
-        models: ctx.models,
+      const syncManager = new TestFacilitySyncManager({
+        models,
         sequelize: ctx.sequelize,
         centralServer: {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
@@ -186,11 +188,13 @@ describe('FacilitySyncManager', () => {
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
-      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../app/sync/FacilitySyncManager');
       const { createSnapshotTable } = require('shared/sync');
 
-      const syncManager = new FacilitySyncManager({
-        models: ctx.models,
+      const syncManager = new TestFacilitySyncManager({
+        models,
         sequelize: ctx.sequelize,
         centralServer: {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
@@ -215,15 +219,17 @@ describe('FacilitySyncManager', () => {
       }));
       jest.doMock('../../app/sync/pullIncomingChanges', () => ({
         ...jest.requireActual('../../app/sync/pullIncomingChanges'),
-        pullIncomingChanges: jest.fn().mockImplementation(() => ({ count: 3, tick: 1 })),
+        pullIncomingChanges: jest.fn().mockImplementation(() => ({ totalPulled: 3, tick: 1 })),
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
-      ({ FacilitySyncManager } = require('../../app/sync/FacilitySyncManager'));
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../app/sync/FacilitySyncManager');
       const { saveIncomingChanges } = require('shared/sync');
 
-      const syncManager = new FacilitySyncManager({
-        models: ctx.models,
+      const syncManager = new TestFacilitySyncManager({
+        models,
         sequelize: ctx.sequelize,
         centralServer: {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
@@ -240,18 +246,13 @@ describe('FacilitySyncManager', () => {
         expect.any(Object),
         TEST_SESSION_ID,
       );
-      
-  describe('edge cases', () => {
-    let ctx;
-    let models;
-    let sequelize;
-
-    beforeAll(async () => {
-      ctx = await createTestContext();
-      models = ctx.models;
-      sequelize = ctx.sequelize;
     });
-    afterAll(() => ctx.close());
+  });
+
+  describe('edge cases', () => {
+    beforeEach(() => {
+      jest.resetModules();
+    });
 
     it('will not start snapshotting until all transactions started under the old sync tick have committed', async () => {
       // It is possible for a transaction to be in flight when a sync starts, having created or
@@ -260,30 +261,47 @@ describe('FacilitySyncManager', () => {
       // transaction completes, that create or update will have been recorded with the old sync
       // tick, but will not be included in the snapshot.
 
-      // mock out external push/pull functions
-      push.pushOutgoingChanges = jest.fn();
-      pull.pullIncomingChanges = jest.fn().mockImplementation(async () => ({
-        totalPulled: 0,
-        pullUntil: 0,
-      }));
-
       const currentSyncTick = '6';
       const newSyncTick = '8';
-      const syncManager = new FacilitySyncManager({
+
+      // mock out external push/pull functions
+      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/snapshotOutgoingChanges'),
+      }));
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn(),
+      }));
+      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
+        pullIncomingChanges: () => ({
+          totalToPull: 0,
+          pullUntil: 0,
+        }),
+      }));
+
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../app/sync/FacilitySyncManager');
+      const syncManager = new TestFacilitySyncManager({
         models,
         sequelize,
         centralServer: {
-          startSyncSession: jest
-            .fn()
-            .mockImplementation(async () => ({ sessionId: 'x', startedAtTick: newSyncTick })),
+          startSyncSession: jest.fn().mockImplementation(async () => ({
+            sessionId: TEST_SESSION_ID,
+            startedAtTick: newSyncTick,
+          })),
           push: jest.fn(),
           completePush: jest.fn(),
           endSyncSession: jest.fn(),
         },
       });
 
+      const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+
       // set current sync tick
       await models.LocalSystemFact.set('currentSyncTick', currentSyncTick);
+      await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPush', '2');
 
       // create a record that will be committed before the sync starts, so safely gets the current
       // sync tick and available in the db for snapshotting
@@ -323,15 +341,15 @@ describe('FacilitySyncManager', () => {
       const riskyPatient = await models.Patient.findByPk(riskyPatientId);
       expect(riskyPatient.updatedAtSyncTick).toBe(currentSyncTick);
 
+      // console.log('push.pushOutgoingChanges.mock.calls', push.pushOutgoingChanges.mock.calls);
       // check that the snapshot included _both_ patient records (the changes get passed as an
       // argument to pushOutgoingChanges, which we spy on)
       expect(
-        push.pushOutgoingChanges.mock.calls[0][2]
+        pushOutgoingChanges.mock.calls[0][2]
           .filter(c => c.recordType === 'patients')
           .map(c => c.recordId)
           .sort(),
       ).toStrictEqual([safePatientId, riskyPatientId].sort());
-      
     });
   });
 });

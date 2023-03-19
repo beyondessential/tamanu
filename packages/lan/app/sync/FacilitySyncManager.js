@@ -84,7 +84,6 @@ export class FacilitySyncManager {
     await dropAllSnapshotTables(this.sequelize);
 
     const startTime = new Date();
-    const getElapsedTime = () => Date.now() - startTime.getTime();
 
     // the first step of sync is to start a session and retrieve the session id
     const {
@@ -174,8 +173,6 @@ export class FacilitySyncManager {
     });
 
     await this.centralServer.endSyncSession(sessionId);
-
-    log.info('Sync: Succeeded', { durationMs: getElapsedTime() });
 
     // clear temp data stored for persist
     await dropSnapshotTable(this.sequelize, sessionId);
