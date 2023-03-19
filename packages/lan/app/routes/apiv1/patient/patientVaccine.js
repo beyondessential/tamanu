@@ -113,6 +113,13 @@ patientVaccineRoutes.post(
 
     const { models } = req;
 
+    const vaccineData = { ...req.body };
+    if (vaccineData.category === VACCINE_CATEGORIES.OTHER) {
+      vaccineData.scheduledVaccineId = (
+        await models.ScheduledVaccine.getOtherCategoryScheduledVaccine()
+      )?.id;
+    }
+
     let encounterId;
     const existingEncounter = await models.Encounter.findOne({
       where: {
@@ -139,7 +146,7 @@ patientVaccineRoutes.post(
     }
 
     const newRecord = await req.models.AdministeredVaccine.create({
-      ...req.body,
+      ...vaccineData,
       encounterId,
     });
     res.send(newRecord);
