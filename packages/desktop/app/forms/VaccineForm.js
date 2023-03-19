@@ -77,7 +77,7 @@ export const VaccineForm = ({
         date: getCurrentDateTimeString(),
       }}
       validationSchema={
-        VACCINE_RECORDING_TYPES.GIVEN
+        vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
           ? VACCINE_GIVEN_VALIDATION_SCHEMA
           : VACCINE_NOT_GIVEN_VALIDATION_SCHEMA
       }
