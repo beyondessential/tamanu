@@ -201,7 +201,6 @@ const COLUMNS = {
     {
       key: 'requestedBy',
       title: 'Requested by',
-      accessor: ({ requestingClinician }) => requestingClinician || '',
       style: { width: '20%' },
     },
     {
