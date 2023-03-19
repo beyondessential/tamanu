@@ -3,15 +3,16 @@ import { useDispatch } from 'react-redux';
 import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
-
 import {
   TopBar,
   PageContainer,
-  DataFetchingTable,
   AllPatientsSearchBar,
   PatientSearchBar,
   ContentPane,
+  SearchTable,
+  SearchTableTitle,
 } from '../../components';
+import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '../../components/Button';
 import { NewPatientModal } from './components';
 import {
@@ -76,7 +77,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   };
 
   return (
-    <DataFetchingTable
+    <SearchTable
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={handleViewPatient}
@@ -133,13 +134,16 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
+
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
-      <AllPatientsSearchBar onSearch={setSearchParameters} />
+      <RecentlyViewedPatientsList />
       <ContentPane>
+        <SearchTableTitle>Patient search</SearchTableTitle>
+        <AllPatientsSearchBar onSearch={setSearchParameters} />
         <PatientTable
           onViewPatient={onViewPatient}
           fetchOptions={{ matchSecondaryIds: true }}
@@ -160,8 +164,10 @@ export const AdmittedPatientsView = () => {
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
+      <RecentlyViewedPatientsList encounterType="admission" />
       <ContentPane>
+        <SearchTableTitle>Patient search</SearchTableTitle>
+        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId: facility.id, ...searchParameters }}
@@ -181,8 +187,10 @@ export const OutpatientsView = () => {
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
+      <RecentlyViewedPatientsList encounterType="clinic" />
       <ContentPane>
+        <SearchTableTitle>Patient search</SearchTableTitle>
+        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId: facility.id, ...searchParameters }}

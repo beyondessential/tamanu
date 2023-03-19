@@ -8,8 +8,8 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from '../../constants';
-import { objectAsFhir } from '../../utils/pgComposite';
-import { formatDateTime } from '../../utils/fhir';
+import { objectAsFhir } from './utils';
+import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';
 
 const missingRecordsPrivateMethod = Symbol('missingRecords');
@@ -201,7 +201,7 @@ export class FhirResource extends Model {
       meta: {
         // TODO: uncomment when we support versioning
         // versionId: this.versionId,
-        lastUpdated: formatDateTime(
+        lastUpdated: formatFhirDate(
           this.lastUpdated,
           FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
         ),

@@ -125,9 +125,7 @@ from lab_requests lr
   left join reference_data rd_laboratory on rd_laboratory.id = lr.lab_test_laboratory_id
   left join departments d on d.id = e.department_id
   left join reference_data rd_village on rd_village.id = p.village_id
-where
-  lr.status != 'deleted'
-  and p.id not in (
+where p.id not in (
     '4d719b6f-af55-42ac-99b3-5a27cadaab2b',
     '2d574680-e0fc-4956-a37e-121ccb434995',
     'c11229a7-b95c-4416-a3ad-560cd75d8f21',

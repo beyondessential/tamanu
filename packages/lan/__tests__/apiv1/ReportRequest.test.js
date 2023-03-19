@@ -1,4 +1,3 @@
-import * as reportsUtils from 'shared/reports';
 import { createTestContext } from '../utilities';
 
 describe('ReportRequest', () => {
@@ -24,7 +23,6 @@ describe('ReportRequest', () => {
     });
 
     it('should fail with 400 and message if report module is not found', async () => {
-      jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValueOnce(null);
       const res = await app.post('/v1/reportRequest').send({
         reportId: 'invalid-report',
         emailList: [],

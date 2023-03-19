@@ -8,8 +8,6 @@ import {
 } from 'shared/constants/fhir';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
-import { dateTimeType } from '../dateTimeTypes';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -18,6 +16,7 @@ import {
   FhirImmunizationProtocolApplied,
 } from '../../services/fhirTypes';
 import { latestDateTime } from '../../utils/dateTime';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirImmunization extends FhirResource {
   static init(options, models) {
@@ -28,22 +27,22 @@ export class FhirImmunization extends FhirResource {
           allowNull: false,
         },
         vaccineCode: {
-          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         patient: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         encounter: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: true,
         },
-        occurrenceDateTime: dateTimeType('occurrenceDateTime', { allowNull: true }),
+        occurrenceDateTime: Sequelize.TEXT,
         lotNumber: Sequelize.TEXT,
-        site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
-        performer: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PERFORMER),
-        protocolApplied: arrayOf('protocolApplied', DataTypes.FHIR_IMMUNIZATION_PROTOCOL_APPLIED),
+        site: DataTypes.JSONB,
+        performer: DataTypes.JSONB,
+        protocolApplied: DataTypes.JSONB,
       },
       options,
     );
@@ -105,7 +104,7 @@ export class FhirImmunization extends FhirResource {
       vaccineCode: vaccineCode(scheduledVaccine),
       patient: patientReference(patient),
       encounter: encounterReference(encounter),
-      occurrenceDateTime: administeredVaccine.date,
+      occurrenceDateTime: formatFhirDate(administeredVaccine.date),
       lotNumber: administeredVaccine.batch,
       site: site(administeredVaccine.injectionSite),
       performer: performer(recorder),
