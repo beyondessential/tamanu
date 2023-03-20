@@ -11,7 +11,9 @@ import { CertificateLabel } from './CertificateLabels';
 
 const RowContainer = styled.div`
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 0 20px;
 `;
 
 export const DateFacilitySection = ({ encounter }) => {
