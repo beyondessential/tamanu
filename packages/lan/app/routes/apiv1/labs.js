@@ -111,7 +111,13 @@ labRequest.get(
     } = req;
     req.checkPermission('list', 'LabRequest');
 
-    const { rowsPerPage = 10, page = 0, ...filterParams } = query;
+    const {
+      order = 'ASC',
+      orderBy = 'displayId',
+      rowsPerPage = 10,
+      page = 0,
+      ...filterParams
+    } = query;
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
@@ -125,13 +131,16 @@ labRequest.get(
       })),
       makeSimpleTextFilter('status', 'lab_requests.status'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
-      makeSimpleTextFilter('category', 'category.name'),
-      makeSimpleTextFilter('priority', 'priority.name'),
-      makeSimpleTextFilter('laboratory', 'laboratory.name'),
+      makeSimpleTextFilter('category', 'category.id'),
+      makeSimpleTextFilter('priority', 'priority.id'),
+      makeSimpleTextFilter('laboratory', 'laboratory.id'),
       makeSimpleTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeSimpleTextFilter('patientId', 'patient.id'),
+      makeSimpleTextFilter('requestedById', 'lab_requests.requested_by_id'),
+      makeSimpleTextFilter('departmentId', 'encounter.department_id'),
+      makeSimpleTextFilter('locationGroupId', 'location.location_group_id'),
       makeFilter(
         filterParams.requestedDateFrom,
         `lab_requests.requested_date >= :requestedDateFrom`,
@@ -154,6 +163,8 @@ labRequest.get(
       FROM lab_requests
         LEFT JOIN encounters AS encounter
           ON (encounter.id = lab_requests.encounter_id)
+        LEFT JOIN locations AS location
+          ON encounter.location_id = location.id
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
         LEFT JOIN reference_data AS priority
@@ -194,6 +205,20 @@ labRequest.get(
       return;
     }
 
+    const sortKeys = {
+      displayId: 'patient.display_id',
+      patientName: 'UPPER(patient.last_name)',
+      requestId: 'display_id',
+      testCategory: 'category.name',
+      requestedDate: 'requested_date',
+      requestedBy: 'examiner.display_name',
+      priority: 'priority.name',
+      status: 'status',
+    };
+
+    const sortKey = sortKeys[orderBy];
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
     const result = await req.db.query(
       `
         SELECT
@@ -212,7 +237,8 @@ labRequest.get(
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name
         ${from}
-
+        
+        ORDER BY ${sortKey} ${sortDirection}
         LIMIT :limit
         OFFSET :offset
       `,
@@ -221,6 +247,8 @@ labRequest.get(
           ...filterReplacements,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
+          sortKey,
+          sortDirection,
         },
         model: LabRequest,
         type: QueryTypes.SELECT,
