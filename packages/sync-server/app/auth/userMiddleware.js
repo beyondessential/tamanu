@@ -42,7 +42,7 @@ export const userMiddleware = ({ secret }) =>
       throw new BadAuthenticationError('Invalid token');
     }
 
-    const { userId } = contents;
+    const { userId, deviceId } = contents;
 
     const user = await findUserById(store.models, userId);
 
@@ -51,7 +51,7 @@ export const userMiddleware = ({ secret }) =>
     }
 
     req.user = stripUser(user);
-    // TODO get deviceId from somewhere and attach to req (here or in another middleware)
+    req.deviceId = deviceId;
 
     next();
   });

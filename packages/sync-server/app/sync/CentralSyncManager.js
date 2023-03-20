@@ -82,7 +82,7 @@ export class CentralSyncManager {
     // Client should poll for the result later.
     this.prepareSession(syncSession);
 
-    log.debug('CentralSyncManager.startSession', { sessionId: syncSession.id });
+    log.debug('CentralSyncManager.startSession', { sessionId: syncSession.id, deviceId });
 
     return { sessionId: syncSession.id };
   }
