@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -27,25 +26,19 @@ import {
   TextField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
+import { useEncounterData } from '../../api/queries';
 import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
 const PrintButton = ({ imagingRequest }) => {
-  const api = useApi();
   const { modal } = useParams();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
 
-  const { data: encounter, isLoading } = useQuery(
-    ['encounter', imagingRequest.encounterId],
-    () => api.get(`encounter/${imagingRequest.encounterId}`),
-    {
-      enabled: !!imagingRequest?.encounterId,
-    },
-  );
+  const { data: encounter, isLoading } = useEncounterData(imagingRequest.encounterId);
 
   return (
     <>

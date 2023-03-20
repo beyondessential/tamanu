@@ -1,6 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
+import {
+  useEncounterData,
+  usePatientAdditionalData,
+  useLabRequestNotes,
+} from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal } from '../../../components';
@@ -11,26 +16,18 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const api = useApi();
   const certificateData = useCertificate();
 
-  const { data: encounter, isLoading: encounterLoading } = useQuery(
-    ['encounter', labRequest.encounterId],
-    () => api.get(`encounter/${labRequest.encounterId}`),
+  const { data: encounter, isLoading: encounterLoading } = useEncounterData(labRequest.encounterId);
+  const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalData(
+    patient.id,
   );
-
-  const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
-    ['additionalData', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
-  );
+  const { data: notePages, isLoading: notesLoading } = useLabRequestNotes(labRequest.id);
 
   const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
-    ['village', patient.villageId],
+    ['referenceData', patient.villageId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
       enabled: !!patient?.villageId,
     },
-  );
-
-  const { data: notePages, isLoading: notesLoading } = useQuery(['notes', labRequest.id], () =>
-    api.get(`labRequest/${labRequest.id}/notePages`),
   );
 
   const villageLoading = villageQueryLoading && !!patient?.villageId;
