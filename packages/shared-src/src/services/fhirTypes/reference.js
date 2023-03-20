@@ -48,6 +48,20 @@ export class FhirReference extends Composite {
       display: `${fieldName}.${id}`,
     });
   }
+
+  fhirTypeAndId() {
+    const TYPE_ID_URL_REGEX = /\/(\w+)\/([0-9a-f-]+)$/i;
+
+    const { reference } = this.params;
+    if (!reference) return null;
+
+    if (TYPE_ID_URL_REGEX.test()) {
+      const [, type, id] = reference.match(TYPE_ID_URL_REGEX);
+      return { type, id };
+    }
+
+    return null;
+  }
 }
 
 export class FHIR_REFERENCE extends COMPOSITE {

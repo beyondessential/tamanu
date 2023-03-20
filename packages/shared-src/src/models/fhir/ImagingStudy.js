@@ -45,7 +45,12 @@ export class FhirImagingStudy extends FhirResource {
   // This is currently very hardcoded for Aspen's use case.
   // We'll need to make it more generic at some point, but not today!
   async pushUpstream() {
-    const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
+    const {
+      FhirServiceRequest,
+      ServiceRequest,
+      ImagingRequest,
+      ImagingResult,
+    } = this.sequelize.models;
 
     const results = this.note.map(n => n.params.text).join('\n\n');
 
@@ -58,21 +63,65 @@ export class FhirImagingStudy extends FhirResource {
       });
     }
 
-    const serviceRequestFhirId = this.basedOn.find(
+    const serviceRequestFhirId = this.basedOn
+      .map(ref => ref.fhirTypeAndId())
+      .find(({ type }) => type === 'ServiceRequest')?.id;
+    const serviceRequestId = this.basedOn.find(
       ({ params: b }) =>
         b?.type === 'ServiceRequest' &&
         b?.identifier?.params.system === config.hl7.dataDictionaries.serviceRequestId,
     )?.params.identifier.params.value;
-    if (!serviceRequestFhirId) {
-      throw new Invalid('Need to have basedOn field that includes a Tamanu identifier', {
-        code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
+    const serviceRequestDisplayId = this.basedOn.find(
+      ({ params: b }) =>
+        b?.type === 'ServiceRequest' &&
+        b?.identifier?.params.system === config.hl7.dataDictionaries.serviceRequestDisplayId,
+    )?.params.identifier.params.value;
+
+    let serviceRequest;
+    if (serviceRequestFhirId) {
+      serviceRequest = await ServiceRequest.findByPk(serviceRequestFhirId);
+      if (!serviceRequest) {
+        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        });
+      }
+    } else if (serviceRequestId) {
+      const upstreamRequest = await ServiceRequest.findByPk(serviceRequestId);
+      if (!upstreamRequest) {
+        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        });
+      }
+      serviceRequest = await FhirServiceRequest.findOne({
+        where: { upstreamId: upstreamRequest.id },
       });
+      if (!serviceRequest) {
+        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        });
+      }
+    } else if (serviceRequestDisplayId) {
+      const upstreamRequest = await ServiceRequest.findOne({
+        where: { displayId: serviceRequestDisplayId },
+      });
+      if (!upstreamRequest) {
+        throw new Invalid(`ServiceRequest ${serviceRequestDisplayId} does not exist in Tamanu`, {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        });
+      }
+      serviceRequest = await FhirServiceRequest.findOne({
+        where: { upstreamId: upstreamRequest.id },
+      });
+      if (!serviceRequest) {
+        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        });
+      }
     }
 
-    const serviceRequest = await FhirServiceRequest.findByPk(serviceRequestFhirId);
     if (!serviceRequest) {
-      throw new Invalid(`ServiceRequest ${serviceRequestFhirId} does not exist in Tamanu`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+      throw new Invalid('Need to have basedOn field that includes a Tamanu identifier', {
+        code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
       });
     }
 
@@ -84,6 +133,7 @@ export class FhirImagingStudy extends FhirResource {
 
     const imagingRequest = await ImagingRequest.findByPk(serviceRequest.upstreamId);
     if (!imagingRequest) {
+      // this is only a possibility when using a FHIR basedOn reference
       throw new Deleted('ImagingRequest has been deleted in Tamanu');
     }
 
