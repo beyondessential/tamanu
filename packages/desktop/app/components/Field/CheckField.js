@@ -5,12 +5,13 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { Colors } from '../../constants';
+
 
 const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     icon={<i className="far fa-square" />}
     checkedIcon={<i className="far fa-check-square" />}
-    color="primary"
     checked={value}
     value="checked"
     {...props}
@@ -24,7 +25,7 @@ const ControlLabel = styled(FormControlLabel)`
   .MuiTypography-root {
     font-size: 16px;
     line-height: 18px;
-    color: ${props => props.theme.palette.text.secondary};
+    color: ${Colors.brightBlue};
   }
 `;
 
