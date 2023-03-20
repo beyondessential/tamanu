@@ -6,7 +6,7 @@ const Line = styled.p`
 `;
 
 export const getAreaNote = ({ areas, areaNote }) => {
-  if (areas && areas.length > 0) {
+  if (areas) {
     return areas.map(({ name, id }) => <div key={id}>{name}</div>);
   }
   if (areaNote) {
