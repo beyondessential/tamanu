@@ -23,7 +23,7 @@ export const PatientDetailPrintout = React.memo(({ patient, village, additionalD
       <div>
         <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
         <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-        <LocalisedLabel name="dateOfBirth">
+        <LocalisedLabel name="dateOfBirth" length="short">
           <DateDisplay date={dateOfBirth} />
         </LocalisedLabel>
         <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
@@ -31,7 +31,9 @@ export const PatientDetailPrintout = React.memo(({ patient, village, additionalD
       </div>
       <div>
         <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
-        <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
+        <LocalisedLabel name="displayId" length="short">
+          {displayId}
+        </LocalisedLabel>
         <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
       </div>
     </RowContainer>
