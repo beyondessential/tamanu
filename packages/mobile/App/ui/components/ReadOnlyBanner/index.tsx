@@ -10,29 +10,27 @@ interface ReadOnlyBannerProps extends BaseInputProps {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffed',
-    height: 70,
+    height: 55,
     width: '100%',
     justifyContent: 'center',
     borderWidth: 1,
-    borderRadius: 3,
-    borderColor: theme.colors.SECONDARY_MAIN,
+    borderRadius: 5,
+    borderColor: theme.colors.PRIMARY_MAIN,
   },
-  labelText: { textAlignVertical: 'center', textAlign: 'center' },
+  labelText: { color: theme.colors.PRIMARY_MAIN, fontSize: 14, marginBottom: 2 },
   valueText: {
     textAlignVertical: 'center',
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 24,
     color: theme.colors.PRIMARY_MAIN,
   },
 });
 
-export const ReadOnlyBanner = ({
-  label,
-  value,
-}: ReadOnlyBannerProps): JSX.Element => (
-  <View style={styles.container}>
+export const ReadOnlyBanner = ({ label, value }: ReadOnlyBannerProps): JSX.Element => (
+  <View>
     <Text style={styles.labelText}>{label}</Text>
-    <Text style={styles.valueText}>{value}</Text>
+    <View style={styles.container}>
+      <Text style={styles.valueText}>{value}</Text>
+    </View>
   </View>
 );

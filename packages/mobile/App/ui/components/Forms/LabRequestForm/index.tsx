@@ -22,14 +22,6 @@ import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
-const LabRequestNumberField = (): ReactElement => (
-  <Field
-    component={ReadOnlyBanner}
-    label="Lab Request Number"
-    name="displayId"
-    disabled
-  />
-);
 interface LabRequestFormProps {
   handleSubmit: any;
   errors: any;
@@ -61,7 +53,12 @@ const DumbLabRequestForm = ({
   return (
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
       <StyledView justifyContent="space-between">
-        <LabRequestNumberField />
+        <Field
+          component={ReadOnlyBanner}
+          label="Test ID"
+          name="displayId"
+          disabled
+        />
         <StyledView
           marginTop={screenPercentageToDP(2.105, Orientation.Height)}
           justifyContent="space-between"
