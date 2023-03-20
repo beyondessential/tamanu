@@ -23,9 +23,9 @@ describe(`Materialised FHIR - Patient`, () => {
   describe('full resource checks', () => {
     beforeEach(async () => {
       const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
-      await FhirPatient.destroy({ where: {} });
-      await Patient.destroy({ where: {} });
-      await PatientAdditionalData.destroy({ where: {} });
+      await FhirPatient.truncate();
+      await PatientAdditionalData.truncate();
+      await Patient.truncate();
     });
 
     it('fetches a patient by materialised ID', async () => {
