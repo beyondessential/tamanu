@@ -63,8 +63,7 @@ const DumbLabRequestForm = ({
           marginTop={screenPercentageToDP(2.105, Orientation.Height)}
           justifyContent="space-between"
         >
-          <SectionHeader h3>DETAILS</SectionHeader>
-          <Field component={DateField} label="Date" name="requestedDate" />
+          <Field component={DateField} label="Request date & time" name="requestedDate" />
           <Field
             component={CurrentUserField}
             label="Requested by"
