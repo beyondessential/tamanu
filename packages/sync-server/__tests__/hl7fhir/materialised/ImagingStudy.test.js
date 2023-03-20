@@ -276,7 +276,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           basedOn: [
             {
               type: 'ServiceRequest',
-              reference: `/ServiceRequest/${mat.id}`,
+              reference: `ServiceRequest/${mat.id}`,
             },
           ],
           note: [{ text: 'This is a note' }, { text: 'This is another note' }],
