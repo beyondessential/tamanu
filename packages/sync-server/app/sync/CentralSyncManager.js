@@ -270,7 +270,10 @@ class CentralSyncManager {
       // time throughout the snapshot process
       await session.update({ snapshotCompletedAt: new Date() });
     } catch (error) {
-      log.error('CentralSyncManager.setupSnapshotForPull encountered an error', { sessionId, ...error });
+      log.error('CentralSyncManager.setupSnapshotForPull encountered an error', {
+        sessionId,
+        ...error,
+      });
       await this.store.models.SyncSession.update(
         { error: error.message },
         { where: { id: sessionId } },
