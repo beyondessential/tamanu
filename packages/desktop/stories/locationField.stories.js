@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import Chance from 'chance';
 import { storiesOf } from '@storybook/react';
 import { Typography, Box } from '@material-ui/core';
-import { Form, Field, LocationField } from '../app/components';
-import { MockedApi } from './utils/mockedApi';
+import { Form, Field, LocationField } from '../../app/components';
+import { fakeLocations } from '../../.storybook/__mocks__/defaultEndpoints';
 
 /**
  * TODO: Semi-broken from changes to suggester logic
