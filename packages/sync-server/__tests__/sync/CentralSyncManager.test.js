@@ -47,10 +47,6 @@ describe('CentralSyncManager', () => {
     ctx.close();
   });
 
-  beforeEach(async () => {
-    jest.clearAllMocks();
-  });
-
   describe('startSession', () => {
     it('creates a new session', async () => {
       const centralSyncManager = initializeCentralSyncManager();
