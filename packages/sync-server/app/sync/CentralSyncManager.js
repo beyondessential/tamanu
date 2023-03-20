@@ -151,17 +151,25 @@ export class CentralSyncManager {
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
   async initiatePull(sessionId, params) {
-    await this.connectToSession(sessionId);
+    try {
+      await this.connectToSession(sessionId);
 
-    // first check if the snapshot is already being processed, to throw a sane error if (for some
-    // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
-    const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
-    if (isAlreadyProcessing) {
-      throw new Error(`Snapshot for session ${sessionId} is already being processed`);
+      // first check if the snapshot is already being processed, to throw a sane error if (for some
+      // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
+      const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
+      if (isAlreadyProcessing) {
+        throw new Error(`Snapshot for session ${sessionId} is already being processed`);
+      }
+
+      const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
+      this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
+    } catch (error) {
+      log.error('CentralSyncManager.initiatePull encountered an error', error);
+      await this.store.models.SyncSession.update(
+        { error: error.message },
+        { where: { id: sessionId } },
+      );
     }
-
-    const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
-    this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
   }
 
   async setupSnapshotForPull(
