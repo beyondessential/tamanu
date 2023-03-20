@@ -788,6 +788,7 @@
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
       "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
+      "serviceRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
       "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html"
