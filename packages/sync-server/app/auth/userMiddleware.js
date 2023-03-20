@@ -51,6 +51,7 @@ export const userMiddleware = ({ secret }) =>
     }
 
     req.user = stripUser(user);
+    // TODO get deviceId from somewhere and attach to req (here or in another middleware)
 
     next();
   });
