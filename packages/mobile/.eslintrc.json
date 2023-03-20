@@ -1,11 +1,8 @@
 {
-  "parser": "@typescript-eslint/parser",
   "root": true,
+  "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
-  "extends": [
-    "plugin:@typescript-eslint/recommended",
-    "@beyondessential/eslint-config-beyondessential"
-  ],
+  "extends": ["../../.eslintrc-typescript.json"],
   "env": {
     "jest": true,
     "jasmine": true
@@ -35,34 +32,13 @@
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]
       },
       "node": {
-        "extensions": [".js",".json", ".ts", ".tsx", ".stories"]
+        "extensions": [".js", ".json", ".ts", ".tsx", ".stories"]
       }
     }
   },
   "rules": {
-    "indent": "off",
-    "@typescript-eslint/indent": [
-      "error", 2,
-      {
-        "SwitchCase": 1
-      }
-    ],
-    "react/jsx-indent": [2, 2],
-    "react/jsx-indent-props": "off",
-    "max-classes-per-file": "off",
-    "@typescript-eslint/no-non-null-assertion": "warn",
-    "class-methods-use-this": "off",
-    "curly": "off",
-    "react/jsx-props-no-spreading": "off",
-    "react/jsx-closing-bracket-location": "off",
-    "react/jsx-one-expression-per-line": "off",
-    "react/jsx-curly-newline": "off",
-    "react/prop-types": ["off"],
-    "react/require-default-props": [2, { "forbidDefaultForRequired": false, "ignoreFunctionalComponents": true}],
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
-    "object-curly-newline": "off",
     "import/no-extraneous-dependencies": [
       "off",
       {
@@ -77,35 +53,6 @@
         "caseSensitive": false
       }
     ],
-    "import/no-absolute-path": "off",
-    "import/extensions": [
-      "off",
-      "ignorePackages",
-      {
-        "js": "never",
-        "jsx": "never",
-        "ts": "never",
-        "tsx": "never",
-        "mjs": "never"
-      }
-    ],
-    "no-restricted-syntax": [
-      "error",
-      {
-        "selector": "ForInStatement",
-        "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
-      },
-      {
-        "selector": "LabeledStatement",
-        "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
-      },
-      {
-        "selector": "WithStatement",
-        "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
-      }
-    ],
-    "lines-between-class-members": ["off"],
-    "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "no-underscore-dangle": ["off"]
   },
@@ -116,7 +63,7 @@
         "@typescript-eslint/explicit-function-return-type": ["error"],
         "@typescript-eslint/no-shadow": ["error"],
         "no-undef": "off",
-        "no-shadow": "off",
+        "no-shadow": "off"
       }
     }
   ],

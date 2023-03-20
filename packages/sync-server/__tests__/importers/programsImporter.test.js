@@ -1,7 +1,7 @@
 import { fake } from 'shared/test-helpers/fake';
 import { SURVEY_TYPES } from 'shared/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { importer } from '../../app/admin/programImporter';
+import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 
@@ -27,7 +27,7 @@ describe('Programs import', () => {
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
-      importer,
+      importer: programImporter,
       file: `./__tests__/importers/programs-${file}.xlsx`,
       models: ctx.store.models,
       ...opts,

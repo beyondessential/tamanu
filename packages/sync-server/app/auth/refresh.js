@@ -1,9 +1,9 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { BadAuthenticationError } from 'shared/errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { getToken, verifyToken, findUserById, getRandomU32, getRandomBase64String } from './utils';
 
 export const refresh = ({ secret, refreshSecret }) =>
@@ -15,7 +15,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const {
       tokenDuration,
       saltRounds,
-      refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
+      refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration, absoluteExpiration },
     } = auth;
 
     let contents = null;
@@ -77,13 +77,15 @@ export const refresh = ({ secret, refreshSecret }) =>
       {
         userId: user.id,
         refreshId: newRefreshId,
+        // If absolute expiration pass through the exp from the old token
+        ...(absoluteExpiration && { exp: contents.exp }),
       },
       refreshSecret,
       {
-        expiresIn: refreshTokenDuration,
         audience: JWT_TOKEN_TYPES.REFRESH,
         issuer: canonicalHostName,
         jwtid: `${refreshTokenJwtId}`,
+        ...(!absoluteExpiration && { expiresIn: refreshTokenDuration }),
       },
     );
     // Extract expiry as set by jwt.sign
@@ -92,9 +94,9 @@ export const refresh = ({ secret, refreshSecret }) =>
     await store.models.RefreshToken.upsert(
       {
         refreshId: hashedRefreshId,
-        expiresAt: new Date(exp * 1000),
         userId: user.id,
         deviceId,
+        expiresAt: absoluteExpiration ? dbEntry.expiresAt : new Date(exp * 1000),
       },
       {
         where: {

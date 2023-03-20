@@ -59,7 +59,7 @@ export class Form extends React.PureComponent {
     getValues,
     setStatus,
     ...rest
-  }) => async event => {
+  }) => async (event, submissionParameters) => {
     event.preventDefault();
     event.persist();
 
@@ -73,7 +73,7 @@ export class Form extends React.PureComponent {
     }
 
     setSubmitting(true);
-    const values = getValues();
+    const values = { ...getValues(), ...submissionParameters };
 
     // validation phase
 

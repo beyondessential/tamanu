@@ -1,74 +1,12 @@
 import React from 'react';
+import { GENERAL_IMPORTABLE_DATA_TYPES } from 'shared/constants/importable';
 import { ImporterView } from './components/ImporterView';
-
-const ALLOWLIST = [
-  'additionalInvoiceLine',
-  'administeredVaccine',
-  'allergy',
-  'angiogramImagingArea',
-  'arrivalMode',
-  'careplan',
-  'certifiableVaccine',
-  'colonoscopyImagingArea',
-  'country',
-  'ctScanImagingArea',
-  'department',
-  'diagnosis',
-  'dischargeDisposition',
-  'division',
-  'drug',
-  'ecgImagingArea',
-  'echocardiogramImagingArea',
-  'endoscopyImagingArea',
-  'ethnicity',
-  'facility',
-  'fluroscopyImagingArea',
-  'holterMonitorImagingArea',
-  'imagingAreaExternalCode',
-  'imagingType',
-  'invoiceLineType',
-  'invoicePriceChangeType',
-  'labTestCategory',
-  'labTestLaboratory',
-  'labTestMethod',
-  'labTestPriority',
-  'labSampleSite',
-  'labTestType',
-  'labTestPanel',
-  'location',
-  'locationGroup',
-  'mammogramImagingArea',
-  'manufacturer',
-  'medicalarea',
-  'mriImagingArea',
-  'nationality',
-  'nursingzone',
-  'occupation',
-  'patient',
-  'patientBillingType',
-  'patientFieldDefinition',
-  'patientFieldDefinitionCategory',
-  'procedureType',
-  'referralSource',
-  'religion',
-  'scheduledVaccine',
-  'secondaryIdType',
-  'settlement',
-  'stressTestImagingArea',
-  'subdivision',
-  'triageReason',
-  'ultrasoundImagingArea',
-  'user',
-  'vascularStudyImagingArea',
-  'village',
-  'xRayImagingArea',
-  'vaccineNotGivenReason',
-].sort();
 
 export const ReferenceDataAdminView = () => (
   <ImporterView
-    title="Import reference data"
-    endpoint="admin/importRefData"
-    whitelist={ALLOWLIST}
+    title="Reference data"
+    endpoint="refData"
+    dataTypes={GENERAL_IMPORTABLE_DATA_TYPES}
+    dataTypesSelectable
   />
 );

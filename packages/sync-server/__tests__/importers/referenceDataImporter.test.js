@@ -1,8 +1,11 @@
 import { Op } from 'sequelize';
 import { fake } from 'shared/test-helpers/fake';
-
+import {
+  GENERAL_IMPORTABLE_DATA_TYPES,
+  PERMISSION_IMPORTABLE_DATA_TYPES,
+} from 'shared/constants/importable';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
-import { importer } from '../../app/admin/refdataImporter';
+import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 
@@ -25,9 +28,10 @@ describe('Data definition import', () => {
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
-      importer,
+      importer: referenceDataImporter,
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
+      includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
       ...opts,
     });
   }
@@ -141,7 +145,7 @@ describe('Data definition import', () => {
     const beforeUserUpdate = await User.create({
       ...fake(User),
       id: 'existing-user-with-new-password',
-    })
+    });
     const updateOldPassword = beforeUserUpdate.password;
     expect(updateOldPassword).toBeTruthy();
 
@@ -149,27 +153,27 @@ describe('Data definition import', () => {
     const beforeUserBlank = await User.create({
       ...fake(User),
       id: 'existing-user-with-blank-password',
-    })
+    });
     const blankOldPassword = beforeUserBlank.password;
     expect(blankOldPassword).toBeTruthy();
-    
+
     // now actually do the import
     const { stats, errors } = await doImport({
       file: 'user-password',
     });
     expect(errors).toBeEmpty();
     expect(stats).toMatchObject({
-      'User': { created: 2, updated: 2 },
+      User: { created: 2, updated: 2 },
     });
 
     // "Update" user's password should have been updated
     const afterUserUpdate = await User.findByPk(beforeUserUpdate.id);
-    expect(afterUserUpdate.password).toBeTruthy()
+    expect(afterUserUpdate.password).toBeTruthy();
     expect(updateOldPassword).not.toEqual(afterUserUpdate.password);
-    
+
     // "Blank" user's password should not have been changed (or blanked!)
     const afterUserBlank = await User.findByPk(beforeUserBlank.id);
-    expect(afterUserBlank.password).toBeTruthy()
+    expect(afterUserBlank.password).toBeTruthy();
     expect(blankOldPassword).toEqual(afterUserBlank.password);
   });
 
@@ -294,9 +298,10 @@ describe('Permissions import', () => {
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
-      importer,
+      importer: referenceDataImporter,
       file: `./__tests__/importers/permissions-${file}.xlsx`,
       models: ctx.store.models,
+      includedDataTypes: PERMISSION_IMPORTABLE_DATA_TYPES,
       ...opts,
     });
   }
