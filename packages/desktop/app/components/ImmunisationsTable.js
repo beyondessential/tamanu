@@ -12,9 +12,9 @@ const getFacility = record => record.location?.facility?.name || record.country 
 
 const columns = [
   { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
-  { key: 'schedule', title: 'Schedule', accessor: getSchedule },
+  { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
   { key: 'date', title: 'Date', accessor: getDate },
-  { key: 'givenBy', title: 'Given by', accessor: getGiver },
+  { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
   { key: 'facility', title: 'Facility/Country', accessor: getFacility },
 ];
 
@@ -22,7 +22,8 @@ export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
   <DataFetchingTable
     endpoint={`patient/${patient.id}/administeredVaccines`}
     columns={columns}
-    onRowClick={row => onItemClick(row)}
+    onRowClick={onItemClick}
     noDataMessage="No vaccinations found"
+    initialSort={[['date', 'DESC']]}
   />
 ));
