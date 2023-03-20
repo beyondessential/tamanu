@@ -98,7 +98,7 @@ export const DateField = React.memo(
       return null;
     }, [mode, value]);
 
-    const IconComponent = ({...props}) => mode === 'date' ? <Icons.CalendarIcon {...props}/> : <Icons.ClockIcon {...props}/>;
+    const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
     return (
       <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
@@ -126,13 +126,12 @@ export const DateField = React.memo(
               <StyledView
                 marginRight={10}
                 height="100%"
-                width={screenPercentageToDP(3.03, Orientation.Height)}
-                justifyContent="center"
-              >
+                width={screenPercentageToDP(2.4, Orientation.Height)}
+               >
                 <IconComponent
                   height={screenPercentageToDP(2.4, Orientation.Height)}
                   width={screenPercentageToDP(2.4, Orientation.Height)}
-                  fill={error ? theme.colors.ERROR : theme.colors.BRIGHT_BLUE}
+                  fill={error ? theme.colors.ERROR : theme.colors.PRIMARY_MAIN}
                 />
               </StyledView>
             </InputContainer>

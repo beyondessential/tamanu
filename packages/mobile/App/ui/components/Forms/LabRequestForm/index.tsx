@@ -1,8 +1,6 @@
 import React, { ReactElement, useState, useCallback } from 'react';
 import { StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
-import { Button } from '/components/Button';
 import { Field } from '/components/Forms/FormField';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { SectionHeader } from '/components/SectionHeader';
@@ -21,12 +19,14 @@ import { ReferenceData } from '~/models/ReferenceData';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { User } from '~/models/User';
 
 interface LabRequestFormProps {
   handleSubmit: any;
   errors: any;
   labRequestCategorySuggester: Suggester<typeof ReferenceData>;
   labRequestPrioritySuggester: Suggester<typeof ReferenceData>;
+  practitionerSuggester: Suggester<typeof User>;
   navigation: any;
 }
 
@@ -35,6 +35,7 @@ const DumbLabRequestForm = ({
   errors,
   labRequestCategorySuggester,
   labRequestPrioritySuggester,
+  practitionerSuggester,
   navigation,
 }: LabRequestFormProps): ReactElement => {
   const { models } = useBackend();
@@ -64,10 +65,14 @@ const DumbLabRequestForm = ({
           justifyContent="space-between"
         >
           <Field component={DateField} label="Request date & time" name="requestedDate" />
+          <Field component={AutocompleteModalField} label="Requesting clinician" name="requestedBy" suggester={practitionerSuggester} />
           <Field
             component={CurrentUserField}
             label="Requested by"
             name="requestedBy"
+            navigation={navigation}
+            modalRoute={Routes.Autocomplete.Modal}
+            suggester={practitionerSuggester}
           />
           <Field
             component={AutocompleteModalField}
@@ -163,6 +168,8 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
     },
   });
 
+  const practitionerSuggester = new Suggester(models.User, );
+
   return (
     <DumbLabRequestForm
       handleSubmit={handleSubmit}
@@ -170,6 +177,7 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
       navigation={navigation}
       labRequestCategorySuggester={labRequestCategorySuggester}
       labRequestPrioritySuggester={labRequestPrioritySuggester}
+      practitionerSuggester={practitionerSuggester}
     />
   );
 };

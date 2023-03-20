@@ -29,8 +29,8 @@ export const migrationList = [
   addFieldUpdateTicksToPAD1668987530000,
   addDefaultLastSuccessfulSyncPull1669160460000,
   resyncPatientAdditionalData1669855692000,
-  wipeAllDataAndResync1675907161000,
   addLocationGroupTable1673396917000,
+  wipeAllDataAndResync1675907161000,
   addDepartmentIdToLabRequest1676853984000,
   addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
 ];
