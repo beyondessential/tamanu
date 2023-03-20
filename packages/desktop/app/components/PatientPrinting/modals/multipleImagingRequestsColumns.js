@@ -43,13 +43,18 @@ const COMMON_COLUMNS = [
     key: COLUMN_KEYS.REQUESTED_DATE,
     title: 'Requested date and time',
     sortable: false,
-    accessor: ({ requestedDate }) => (
-      <Box>
-        <DateDisplay date={requestedDate} />
-        <SoftText>{formatTime(requestedDate)}</SoftText>
-      </Box>
-    ),
-    printout: { widthProportion: 4 },
+    form: {
+      accessor: ({ requestedDate }) => (
+        <Box>
+          <DateDisplay date={requestedDate} />
+          <SoftText>{formatTime(requestedDate)}</SoftText>
+        </Box>
+      ),
+    },
+    printout: {
+      widthProportion: 4,
+      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
+    },
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
