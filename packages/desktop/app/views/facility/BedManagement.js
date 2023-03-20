@@ -28,7 +28,7 @@ const DashboardItemContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0px 15px 10px 5px;
+  padding: 0px 15px 10px 10px;
   margin-left: 1%;
   background-color: ${Colors.white};
   border-radius: 5px;
@@ -54,6 +54,7 @@ const DashboardItemDescription = styled(Typography)`
 const DetailedDashboardItemContainer = styled(DashboardItemContainer)`
   flex: 1;
   min-width: 220px;
+  padding-left: 5px;
 `;
 
 const DetailedDashboardItemTextContainer = styled.div`
@@ -91,6 +92,44 @@ const DashboardItem = ({ color, title, loading, description }) => {
   );
 };
 
+const DetailedDashboardItemElement = ({ loading, title }) => {
+  if (loading) return <DetailedLoadingIndicator />;
+  return <DetailedDashboardItemTitle>{title}</DetailedDashboardItemTitle>;
+};
+
+const DetailedDashboardItem = ({ api }) => {
+  const {
+    data: { data: { availableLocations, reservedLocations, occupiedLocations } = {} } = {},
+    isLoading: patientLocationsLoading,
+  } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
+
+  return (
+    <DetailedDashboardItemContainer color={Colors.brightBlue}>
+      <DetailedDashboardItemTextContainer>
+        <div>
+          <DetailedDashboardItemElement
+            loading={patientLocationsLoading}
+            title={availableLocations}
+          />
+          <DetailedDashboardItemElement
+            loading={patientLocationsLoading}
+            title={reservedLocations}
+          />
+          <DetailedDashboardItemElement
+            loading={patientLocationsLoading}
+            title={occupiedLocations}
+          />
+        </div>
+        <div>
+          <DetailedDashboardItemText>No. of locations available</DetailedDashboardItemText>
+          <DetailedDashboardItemText>No. of locations reserved</DetailedDashboardItemText>
+          <DetailedDashboardItemText>No. of locations occupied</DetailedDashboardItemText>
+        </div>
+      </DetailedDashboardItemTextContainer>
+    </DetailedDashboardItemContainer>
+  );
+};
+
 export const BedManagement = () => {
   const api = useApi();
 
@@ -112,11 +151,6 @@ export const BedManagement = () => {
     ['currentOccupancy'],
     () => api.get('patient/locations/occupancy'),
   );
-
-  const {
-    data: { data: { availableLocations, reservedLocations, occupiedLocations } = {} } = {},
-    isLoading: patientLocationsLoading,
-  } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
 
   return (
     <PageContainer>
@@ -152,32 +186,7 @@ export const BedManagement = () => {
               description={`Readmission in\nlast 30 days`}
             />
           </DashboardItemListContainer>
-          <DetailedDashboardItemContainer color={Colors.brightBlue}>
-            <DetailedDashboardItemTextContainer>
-              <div>
-                {patientLocationsLoading ? (
-                  <DetailedLoadingIndicator />
-                ) : (
-                  <DetailedDashboardItemTitle>{availableLocations}</DetailedDashboardItemTitle>
-                )}
-                {patientLocationsLoading ? (
-                  <DetailedLoadingIndicator />
-                ) : (
-                  <DetailedDashboardItemTitle>{reservedLocations}</DetailedDashboardItemTitle>
-                )}
-                {patientLocationsLoading ? (
-                  <DetailedLoadingIndicator />
-                ) : (
-                  <DetailedDashboardItemTitle>{occupiedLocations}</DetailedDashboardItemTitle>
-                )}
-              </div>
-              <div>
-                <DetailedDashboardItemText>No. of locations available</DetailedDashboardItemText>
-                <DetailedDashboardItemText>No. of locations reserved</DetailedDashboardItemText>
-                <DetailedDashboardItemText>No. of locations occupied</DetailedDashboardItemText>
-              </div>
-            </DetailedDashboardItemTextContainer>
-          </DetailedDashboardItemContainer>
+          <DetailedDashboardItem api={api} />
         </DashboardContainer>
       </ContentPane>
     </PageContainer>
