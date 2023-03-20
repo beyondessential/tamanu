@@ -279,7 +279,8 @@ patientRelations.get(
       query,
     } = req;
 
-    const { order = 'ASC', orderBy, categoryId, panelId, status = 'published' } = query;
+    // TODO: Enable panelId when panels epic is merged
+    const { order = 'ASC', orderBy, categoryId, /* panelId, */ status = 'published' } = query;
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
