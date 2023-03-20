@@ -64,9 +64,6 @@ export const Dropdown = React.memo(
     return (
       <StyledView
         width="100%"
-        // when items are selected, let the height be auto calculated so that
-        // the selected items view doesn't cause overlapping with any component below
-        height={selectedItems?.length ? undefined : screenPercentageToDP(6.68, Orientation.Height)}
         marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
       >
         <MultiSelect
