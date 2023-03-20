@@ -329,8 +329,14 @@ export class Encounter extends Model {
     });
   }
 
-  async onDischarge(endDate, submittedTime, note, user) {
-    await this.addSystemNote(note || `Discharged patient.`, submittedTime, user);
+  async onDischarge({ endDate, submittedTime, systemNote, discharge }, user) {
+    const { Discharge } = this.sequelize.models;
+    await Discharge.create({
+      ...discharge,
+      encounterId: this.id,
+    });
+
+    await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
     await this.closeTriage(endDate);
   }
 
@@ -350,17 +356,6 @@ export class Encounter extends Model {
         closedTime: endDate,
       });
     }
-  }
-
-  async dischargeWithDischarger(discharger, endDate) {
-    if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
-
-    const { Discharge } = this.sequelize.models;
-    await Discharge.create({
-      encounterId: this.id,
-      dischargerId: discharger.id,
-    });
-    await this.update({ endDate });
   }
 
   async updateClinician(data, user) {
@@ -385,7 +380,7 @@ export class Encounter extends Model {
     const updateEncounter = async () => {
       const additionalChanges = {};
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote, user);
+        await this.onDischarge(data, user);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
