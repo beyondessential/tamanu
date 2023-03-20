@@ -81,7 +81,7 @@ export class CentralSyncManager {
     // Client should poll for the result later.
     this.prepareSession(syncSession);
 
-    log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
+    log.debug('CentralSyncManager.startSession', { sessionId: syncSession.id });
 
     return { sessionId: syncSession.id };
   }
@@ -115,10 +115,10 @@ export class CentralSyncManager {
 
   async endSession(sessionId) {
     const session = await this.connectToSession(sessionId);
-    log.info(
-      `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
-    );
+    const durationMs = Date.now() - session.startTime;
+    log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
     await completeSyncSession(this.store, sessionId);
+    log.info('CentralSyncManager.completedSession', { sessionId, durationMs });
   }
 
   async markSnapshotAsProcessing(sessionId) {
@@ -204,9 +204,10 @@ export class CentralSyncManager {
       const newPatientFacilities = await models.PatientFacility.findAll({
         where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
       });
-      log.debug(
-        `CentralSyncManager.initiatePull: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
-      );
+      log.debug('CentralSyncManager.initiatePull', {
+        facilityId,
+        newlyMarkedPatientCount: newPatientFacilities.length,
+      });
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
@@ -409,9 +410,10 @@ export class CentralSyncManager {
         : null,
     }));
 
-    log.debug(
-      `CentralSyncManager.addIncomingChanges: Adding ${incomingSnapshotRecords.length} changes for ${sessionId}`,
-    );
+    log.debug('CentralSyncManager.addIncomingChanges', {
+      incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
+      sessionId,
+    });
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
