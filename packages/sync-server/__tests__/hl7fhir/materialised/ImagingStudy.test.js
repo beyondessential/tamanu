@@ -276,10 +276,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           basedOn: [
             {
               type: 'ServiceRequest',
-              identifier: {
-                system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-                value: mat.id,
-              },
+              reference: `/ServiceRequest/${mat.id}`,
             },
           ],
           note: [{ text: 'This is a note' }, { text: 'This is another note' }],
@@ -348,10 +345,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           basedOn: [
             {
               type: 'ServiceRequest',
-              identifier: {
-                system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-                value: mat.id,
-              },
+              reference: `/ServiceRequest/${mat.id}`,
             },
           ],
           note: [{ text: 'A note' }],

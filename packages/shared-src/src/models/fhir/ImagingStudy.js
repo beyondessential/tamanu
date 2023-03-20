@@ -45,12 +45,7 @@ export class FhirImagingStudy extends FhirResource {
   // This is currently very hardcoded for Aspen's use case.
   // We'll need to make it more generic at some point, but not today!
   async pushUpstream() {
-    const {
-      FhirServiceRequest,
-      ServiceRequest,
-      ImagingRequest,
-      ImagingResult,
-    } = this.sequelize.models;
+    const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
 
     const results = this.note.map(n => n.params.text).join('\n\n');
 
@@ -65,6 +60,7 @@ export class FhirImagingStudy extends FhirResource {
 
     const serviceRequestFhirId = this.basedOn
       .map(ref => ref.fhirTypeAndId())
+      .filter(Boolean)
       .find(({ type }) => type === 'ServiceRequest')?.id;
     const serviceRequestId = this.basedOn.find(
       ({ params: b }) =>
@@ -79,14 +75,14 @@ export class FhirImagingStudy extends FhirResource {
 
     let serviceRequest;
     if (serviceRequestFhirId) {
-      serviceRequest = await ServiceRequest.findByPk(serviceRequestFhirId);
+      serviceRequest = await FhirServiceRequest.findByPk(serviceRequestFhirId);
       if (!serviceRequest) {
-        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
+        throw new Invalid(`ServiceRequest ${serviceRequestFhirId} does not exist in Tamanu`, {
           code: FHIR_ISSUE_TYPE.INVALID.VALUE,
         });
       }
     } else if (serviceRequestId) {
-      const upstreamRequest = await ServiceRequest.findByPk(serviceRequestId);
+      const upstreamRequest = await ImagingRequest.findByPk(serviceRequestId);
       if (!upstreamRequest) {
         throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
           code: FHIR_ISSUE_TYPE.INVALID.VALUE,
@@ -101,7 +97,7 @@ export class FhirImagingStudy extends FhirResource {
         });
       }
     } else if (serviceRequestDisplayId) {
-      const upstreamRequest = await ServiceRequest.findOne({
+      const upstreamRequest = await ImagingRequest.findOne({
         where: { displayId: serviceRequestDisplayId },
       });
       if (!upstreamRequest) {
