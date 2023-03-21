@@ -144,7 +144,6 @@ patientVaccineRoutes.get(
     req.checkPermission('list', 'PatientVaccine');
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    console.log(req.query);
     const { orderBy, order, ...rest } = req.query;
     const results = await patient.getAdministeredVaccines({
       ...rest,
