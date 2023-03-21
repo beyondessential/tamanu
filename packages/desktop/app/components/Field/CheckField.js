@@ -7,7 +7,6 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Colors } from '../../constants';
 
-
 const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     icon={<i className="far fa-square" />}
