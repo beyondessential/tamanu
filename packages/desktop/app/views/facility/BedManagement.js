@@ -72,7 +72,7 @@ const DetailedDashboardItemTextContainer = styled.div`
 `;
 
 const DetailedDashboardItemTitle = styled(Typography)`
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: ${props => props.color || Colors.brightBlue};
   line-height: 26px;
