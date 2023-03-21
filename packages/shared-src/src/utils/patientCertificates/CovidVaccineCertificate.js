@@ -74,7 +74,9 @@ export const CovidVaccineCertificate = ({
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
   const vaxes = vaccinations.filter(v => v.certifiable).sort((a, b) => +a.date - +b.date);
-  const actualUvci = vaccinations.length ? (uvci || generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode })) : null;
+  const actualUvci = vaccinations.length
+    ? uvci || generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode })
+    : null;
 
   return (
     <Document>
