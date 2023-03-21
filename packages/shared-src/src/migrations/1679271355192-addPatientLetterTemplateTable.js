@@ -26,11 +26,11 @@ export async function up(query) {
     },
     created_at: {
       type: Sequelize.DATE,
-      defaultValue: Sequelize.NOW,
+      defaultValue: Sequelize.fn('current_timestamp', 3),
     },
     updated_at: {
       type: Sequelize.DATE,
-      defaultValue: Sequelize.NOW,
+      defaultValue: Sequelize.fn('current_timestamp', 3),
     },
   });
 }
