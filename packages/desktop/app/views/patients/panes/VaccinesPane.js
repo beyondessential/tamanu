@@ -23,6 +23,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
 
   const { data: vaccine } = useAdministeredVaccines(patient.id);
   const vaccinations = vaccine?.data || [];
+  const certifiable = vaccinations.some(v => v.certifiable);
 
   return (
     <>
@@ -43,7 +44,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             onClick={() => setIsCovidCertificateModalOpen(true)}
             variant="text"
             style={{ marginLeft: 0, marginRight: 'auto' }}
-            disabled={readonly}
+            disabled={!certifiable}
           >
             <i style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
             COVID-19 certificate
