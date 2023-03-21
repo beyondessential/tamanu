@@ -18,10 +18,9 @@ const PATIENT_FIELDS = [
 ];
 
 export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {
-  const detailsToDisplay = [
-    ...PATIENT_FIELDS.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true),
-    ...extraFields,
-  ];
+  const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
+    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+  );
   return (
     <Row>
       <Col style={{ marginBottom: 5 }}>

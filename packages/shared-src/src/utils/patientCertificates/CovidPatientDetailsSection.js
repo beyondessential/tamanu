@@ -24,10 +24,9 @@ export const CovidPatientDetailsSection = ({
   extraFields = [],
   uvci,
 }) => {
-  const detailsToDisplay = [
-    ...PATIENT_FIELDS.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true),
-    ...extraFields,
-  ];
+  const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
+    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+  );
 
   const leftWidth = vdsSrc ? 68 : 80;
   const rightWidth = 100 - leftWidth;
