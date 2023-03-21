@@ -32,7 +32,7 @@ const IllnessFormSchema = Yup.object().shape({
   certainty: Yup.mixed()
     .oneOf(Object.values(Certainty))
     .when('diagnosis', {
-      is: (diagnosis: string) => !!diagnosis,
+      is: (diagnosis: string) => Boolean(diagnosis),
       then: Yup.mixed().required(),
     }),
   clinicalNote: Yup.string(),
