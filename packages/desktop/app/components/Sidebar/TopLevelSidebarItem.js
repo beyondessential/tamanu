@@ -53,7 +53,7 @@ const ListDivider = styled(Divider)`
 
 const StyledTooltip = styled(props => <Tooltip classes={{ popper: props.className }} {...props} />)`
   .MuiTooltip-tooltip {
-    margin-bottom: -20px;
+    margin-bottom: -10px;
     margin-left: 25px;
     background-color: ${Colors.primaryDark};
     padding: 10px;
