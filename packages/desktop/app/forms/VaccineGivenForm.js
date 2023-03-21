@@ -2,7 +2,7 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import { VACCINE_CATEGORIES, SETTING_KEYS } from 'shared/constants';
+import { VACCINE_CATEGORIES } from 'shared/constants';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
@@ -37,7 +37,6 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
 });
 
 export const VaccineGivenForm = ({
-  patientId,
   vaccineLabel,
   vaccineOptions,
   administeredOptions,

@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { Setting } from 'shared/models/Setting';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
@@ -23,29 +25,33 @@ describe('Vaccination Settings', () => {
   afterAll(() => ctx.close());
 
   describe('GET vaccinationSettings/:key', () => {
-    const TEST_KEY = 'vaccinations.test.key';
-    const TEST_VALUE = 'test-value';
+    it('fetches a vaccination setting record from the current facility', async () => {
+      await models.Facility.upsert({
+        id: config.serverFacilityId,
+        name: config.serverFacilityId,
+        code: config.serverFacilityId,
+      });
 
-    it('fetches a vaccination setting record within a facility', async () => {
-      const facility = await models.Facility.create(fake(models.Facility));
-      await Setting.set(TEST_KEY, TEST_VALUE, facility.id);
+      const TEST_KEY = 'vaccinations.test.key';
+      const TEST_VALUE = 'test-value';
 
-      const result = await app
-        .get(`/v1/vaccinationSettings/${TEST_KEY}?facilityId=${facility.id}`)
-        .send({});
+      await Setting.set(TEST_KEY, TEST_VALUE, config.serverFacilityId);
+
+      const result = await app.get(`/v1/vaccinationSettings/${TEST_KEY}`).send({});
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toEqual(TEST_VALUE);
     });
 
-    it('does not fetch a vaccination setting record within a different facility', async () => {
-      const facility1 = await models.Facility.create(fake(models.Facility));
-      const facility2 = await models.Facility.create(fake(models.Facility));
-      await Setting.set(TEST_KEY, TEST_VALUE, facility1.id);
+    it('does not fetch a vaccination setting record from a different facility', async () => {
+      const anotherFacility = await models.Facility.create(fake(models.Facility));
 
-      const result = await app
-        .get(`/v1/vaccinationSettings/${TEST_KEY}?facilityId=${facility2.id}`)
-        .send({});
+      const TEST_KEY = 'vaccinations.test.key2';
+      const TEST_VALUE = 'test-value';
+
+      await Setting.set(TEST_KEY, TEST_VALUE, anotherFacility.id);
+
+      const result = await app.get(`/v1/vaccinationSettings/${TEST_KEY}`).send({});
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toEqual(null);
