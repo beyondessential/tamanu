@@ -65,7 +65,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         </>
       }
     >
-      <LocalisedField label="NHN" component={SearchField} name="displayId" />
+      <LocalisedField useShortLabel component={SearchField} name="displayId" />
       <LocalisedField component={SearchField} name="firstName" />
       <LocalisedField component={SearchField} name="lastName" />
       <Field

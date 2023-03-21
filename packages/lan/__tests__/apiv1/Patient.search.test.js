@@ -652,6 +652,9 @@ describe('Patient search', () => {
       ]);
     });
 
+    // The sort is done by prioritizing Exact match, Starts with and alphabetically sorted.
+    // If we have a condition attended by two or more results, for instance, a exact match for display id and first time.
+    // It should prioritize 1)displayId 2)lastName 3)firstName.
     it('Should prioritize 1-displayId, 2-lastName, 3-firstName', async () => {
       const response = await app.get('/v1/patient').query({
         displayId: 'id-test-1',
