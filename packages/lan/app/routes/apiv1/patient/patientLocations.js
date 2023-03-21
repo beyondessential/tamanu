@@ -24,10 +24,10 @@ patientLocations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
-    const [{ location_occupancy: result } = {}] = await req.db.query(
+    const [{ occupancy } = {}] = await req.db.query(
       `
         SELECT
-          SUM(max_1_occupancy_locations.count) / COUNT(max_1_occupancy_locations) * 100 AS location_occupancy
+          SUM(max_1_occupancy_locations.count) / COUNT(max_1_occupancy_locations) * 100 AS occupancy
         FROM (
           ${patientsLocationSelect()}
         ) max_1_occupancy_locations
@@ -38,7 +38,7 @@ patientLocations.get(
     );
 
     res.send({
-      data: result,
+      data: occupancy,
     });
   }),
 );
