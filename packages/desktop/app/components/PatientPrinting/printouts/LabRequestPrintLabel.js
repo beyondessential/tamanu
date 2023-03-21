@@ -1,53 +1,63 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import Barcode from 'react-barcode';
 import { formatDuration } from 'date-fns';
 import { getAgeFromDate } from 'shared/utils/date';
-import Barcode from 'react-barcode';
-import { DateDisplay } from '../../DateDisplay';
-
-const SCREEN_WIDTH = 332;
+import { formatShort } from '../../DateDisplay';
 
 const Container = styled.div`
+  position: relative;
   background: white;
-  padding: 12px;
-  width: ${`${SCREEN_WIDTH}px`};
-  border: 1px solid black;
+  font-size: 0;
 
   @media print {
-    transform: ${({ $scale }) => `scale(${$scale})`};
-    transform-origin: top left;
+    width: ${props => props.$width}mm;
+    height: ${props => props.$width / 2}mm;
   }
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+const Padding = styled.div`
+  padding: 2.5%;
 `;
 
-const Text = styled.div`
-  margin: 2px 0;
-  font-weight: 600;
-  font-size: 11px;
-  line-height: 13px;
-  color: #000;
+const TextContainer = styled.div`
+  svg {
+    width: 100%;
+  }
 
-  span {
-    margin-left: 2px;
+  text {
+    color: #000;
+    font-size: 11px;
+    line-height: 1.1;
+  }
+
+  .label {
+    font-weight: 600;
+  }
+
+  .value {
     font-weight: 400;
   }
 `;
 
-const Item = ({ label, value }) => (
-  <Text>
-    {label}: <span>{value}</span>
-  </Text>
+const Item = ({ label, value, x, y }) => (
+  <>
+    <text className="label" x={x} y={y}>
+      {label}: <tspan className="value">{value}</tspan>
+    </text>
+  </>
 );
 
 const BarcodeContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 10px 0 5px;
+  margin: 0 auto 0;
+  padding-top: 1%;
+  max-width: 80%;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 
   svg text {
     // react-barcode api doesn't support font weights
@@ -76,45 +86,29 @@ function getDisplayAge(dateOfBirth) {
   return formatDuration(ageDuration, { format: ['years'] });
 }
 
-// My Dell monitor U2518D Pixel Per Inch (PPI): 117.5
-
-// Requirements  50.80mm x 25.40mm
-// 1 inch = 25.4mm
-// pixelValue = DPI x width (inches)
-// Scale = calculatedPixelValue / fixedWidth
-
-// Example: 50.80mm
-// Inches: 2
-// pixelValue: 600
-
-const getPrintScale = width => {
-  const printDPI = 72;
-  const inches = width / 25.4;
-  const pixelValue = printDPI * inches;
-  return pixelValue / SCREEN_WIDTH;
-};
-
-export const LabRequestPrintLabel = ({ data, width = '50.8' }) => {
+export const LabRequestPrintLabel = React.memo(({ data, width }) => {
   const { patientId, patientDateOfBirth, testId, date, labCategory } = data;
   const age = getDisplayAge(patientDateOfBirth);
-  const scale = getPrintScale(width);
-  console.log('scale', scale);
 
   return (
-    <Container $scale={scale}>
-      <Grid>
-        <Item label="Patient ID" value={patientId} />
-        <Item label="Test ID" value={testId} />
-        <Item label="Age" value={age} />
-        <Item label="Date collected" value={<DateDisplay date={date} />} />
-        <Item label="Lab category" value={labCategory} />
-      </Grid>
-      <BarcodeContainer>
-        <Barcode value={testId} width={1.5} height={55} margin={0} font="Roboto" fontSize={14} />
-      </BarcodeContainer>
+    <Container $width={width}>
+      <Padding>
+        <TextContainer>
+          <svg viewBox="0 0 300 60">
+            <Item x="0" y="11" label="Patient ID" value={patientId} />
+            <Item x="50%" y="11" label="Test ID" value={testId} />
+            <Item x="0" y="30" label="Age" value={age} />
+            <Item x="50%" y="30" label="Date collected" value={formatShort(date)} />
+            <Item x="0%" y="50" label="Lab category" value={labCategory} />
+          </svg>
+        </TextContainer>
+        <BarcodeContainer>
+          <Barcode value={testId} width={2} height={57} margin={0} font="Roboto" fontSize={15} />
+        </BarcodeContainer>
+      </Padding>
     </Container>
   );
-};
+});
 
 LabRequestPrintLabel.propTypes = {
   data: PropTypes.shape({
@@ -124,9 +118,9 @@ LabRequestPrintLabel.propTypes = {
     date: PropTypes.string,
     labCategory: PropTypes.string,
   }).isRequired,
-  scale: PropTypes.number,
+  width: PropTypes.number, // width for printing in mm
 };
 
 LabRequestPrintLabel.defaultProps = {
-  scale: 1,
+  width: '185',
 };
