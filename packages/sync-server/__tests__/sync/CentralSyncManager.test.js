@@ -9,8 +9,6 @@ import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 
-jest.setTimeout(100000);
-
 const doImport = (options, models) => {
   const { file, ...opts } = options;
   return importerTransaction({
