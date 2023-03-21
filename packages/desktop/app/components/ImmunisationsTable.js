@@ -6,9 +6,10 @@ import { DateDisplay } from './DateDisplay';
 const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
 const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getGiver = record => record.givenBy || '';
+const getGiver = record => (!record.givenOverseas ? record.givenBy : 'Given Overseas');
 // TODO: get the country in the case of overseas vaccines
-const getFacility = record => record.location?.facility?.name || record.country || '';
+const getFacility = record =>
+  !record.givenOverseas ? record.location?.facility?.name : record.givenBy;
 
 const columns = [
   { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
