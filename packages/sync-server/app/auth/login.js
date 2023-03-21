@@ -49,6 +49,7 @@ export const login = ({ secret, refreshSecret }) =>
     const token = getToken(
       {
         userId: user.id,
+        deviceId,
       },
       secret,
       {
