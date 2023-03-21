@@ -5,11 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Colors } from '../../constants';
 
 import { useApi } from '../../api';
-import {
-  TopBar,
-  PageContainer,
-  ContentPane,
-} from '../../components';
+import { TopBar, PageContainer, ContentPane } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 const DashboardContainer = styled.div`
@@ -83,44 +79,32 @@ const DetailedDashboardItemText = styled(DashboardItemDescription)`
 `;
 
 const DetailedLoadingIndicator = () => (
-  <LoadingIndicator
-    backgroundColor='transparent'
-    height='24px'
-    width='20px'
-    size='20px'
-  />
+  <LoadingIndicator backgroundColor="transparent" height="24px" width="20px" size="20px" />
 );
 
-const DashboardItem = ({ color, title, loading, description, }) => {
-
+const DashboardItem = ({ color, title, loading, description }) => {
   return (
     <DashboardItemContainer color={color}>
       {loading ? (
-        <LoadingIndicator
-          backgroundColor='transparent'
-          height='3em'
-          width='2em'
-          size='2em'
-        />
-        ) : (
+        <LoadingIndicator backgroundColor="transparent" height="3em" width="2em" size="2em" />
+      ) : (
         <DashboardItemTitle color={color}>{title}</DashboardItemTitle>
       )}
       <DashboardItemDescription>{description}</DashboardItemDescription>
     </DashboardItemContainer>
   );
-
-}
+};
 
 const DetailedDashboardItemElement = ({ loading, title }) => {
-  if ( loading ) return <DetailedLoadingIndicator />;
+  if (loading) return <DetailedLoadingIndicator />;
   return <DetailedDashboardItemTitle>{title}</DetailedDashboardItemTitle>;
 };
 
 const DetailedDashboardItem = ({ api }) => {
-
-  const { data: { data: { availableLocations, reservedLocations, occupiedLocations } = {} } = {}, isLoading: patientLocationsLoading } = useQuery(['patientLocations'], () =>
-    api.get('patient/locations/stats'),
-  );
+  const {
+    data: { data: { availableLocations, reservedLocations, occupiedLocations } = {} } = {},
+    isLoading: patientLocationsLoading,
+  } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
 
   return (
     <DetailedDashboardItemContainer color={Colors.brightBlue}>
@@ -147,23 +131,28 @@ const DetailedDashboardItem = ({ api }) => {
       </DetailedDashboardItemTextContainer>
     </DetailedDashboardItemContainer>
   );
-
-}
+};
 
 export const BedManagement = () => {
-
   const api = useApi();
 
-  const { data: { count: totalCurrentPatients } = {}, isLoading: totalCurrentPatientsLoading } = useQuery(['totalCurrentPatients'], () =>
+  const {
+    data: { count: totalCurrentPatients } = {},
+    isLoading: totalCurrentPatientsLoading,
+  } = useQuery(['totalCurrentPatients'], () =>
     api.get('patient', { countOnly: true, currentPatient: true }),
   );
 
-  const { data: { count: currentInpatients } = {}, isLoading: currentInpatientsLoading } = useQuery(['currentInpatients'], () =>
+  const {
+    data: { count: currentInpatients } = {},
+    isLoading: currentInpatientsLoading,
+  } = useQuery(['currentInpatients'], () =>
     api.get('patient', { countOnly: true, currentPatient: true, inpatient: true }),
   );
 
-  const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(['currentOccupancy'], () =>
-    api.get('patient/locations/occupancy'),
+  const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
+    ['currentOccupancy'],
+    () => api.get('patient/locations/occupancy'),
   );
 
   return (
@@ -185,18 +174,18 @@ export const BedManagement = () => {
             />
             <DashboardItem
               color={Colors.purple}
-              title='- days'
+              title="- days"
               description={`Average length of\nstay (last 30 days)`}
             />
             <DashboardItem
               color={Colors.pink}
-              title={`${Math.round((currentOccupancy || 0) * 10)/10}%`}
+              title={`${Math.round((currentOccupancy || 0) * 10) / 10}%`}
               loading={currentOccupancyLoading}
               description={`Current\noccupancy`}
             />
             <DashboardItem
               color={Colors.metallicYellow}
-              title='-'
+              title="-"
               description={`Readmission in\nlast 30 days`}
             />
           </DashboardItemListContainer>
@@ -205,4 +194,4 @@ export const BedManagement = () => {
       </ContentPane>
     </PageContainer>
   );
-}
+};
