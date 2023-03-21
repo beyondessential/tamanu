@@ -2,14 +2,18 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { PropTypes } from 'prop-types';
 
-import { VACCINE_RECORDING_TYPES, VACCINE_CATEGORIES } from 'shared/constants';
+import { VACCINE_RECORDING_TYPES, VACCINE_CATEGORIES, SETTING_KEYS } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { Form } from '../components/Field';
+import { ErrorMessage } from '../components/ErrorMessage';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { VaccineGivenForm, VACCINE_GIVEN_VALIDATION_SCHEMA } from './VaccineGivenForm';
 import { VaccineNotGivenForm, VACCINE_NOT_GIVEN_VALIDATION_SCHEMA } from './VaccineNotGivenForm';
 import { getCurrentUser } from '../store/auth';
 import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
+import { usePatientCurrentEncounter } from '../api/queries';
+import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 
 export const VaccineForm = ({
   onCancel,
@@ -21,6 +25,17 @@ export const VaccineForm = ({
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [category, setCategory] = useState(null);
   const [vaccineLabel, setVaccineLabel] = useState();
+
+  const {
+    data: currentEncounter,
+    isLoading: isLoadingCurrentEncounter,
+    error: currentEncounterError,
+  } = usePatientCurrentEncounter(patientId);
+  const {
+    data: vaccinationDefaults = {},
+    isLoading: isLoadingVaccinationDefaults,
+    error: vaccinationDefaultsError,
+  } = useVaccinationSettings(SETTING_KEYS.VACCINATION_DEFAULTS);
 
   const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
     vaccineLabel,
@@ -55,6 +70,19 @@ export const VaccineForm = ({
     fetchScheduledVaccines();
   }, [category, getScheduledVaccines]);
 
+  if (isLoadingCurrentEncounter || isLoadingVaccinationDefaults) {
+    return <LoadingIndicator />;
+  }
+
+  if (currentEncounterError || vaccinationDefaultsError) {
+    return (
+      <ErrorMessage
+        title="Cannot load vaccine form"
+        errorMessage={currentEncounterError?.message || vaccinationDefaultsError?.message}
+      />
+    );
+  }
+
   const baseProps = {
     vaccineLabel,
     vaccineOptions,
@@ -75,6 +103,15 @@ export const VaccineForm = ({
       onSubmit={onSubmit}
       initialValues={{
         date: getCurrentDateTimeString(),
+        locationGroupId: !currentEncounter
+          ? vaccinationDefaults.data?.locationGroupId
+          : currentEncounter.location?.locationGroup?.id,
+        locationId: !currentEncounter
+          ? vaccinationDefaults.data?.locationId
+          : currentEncounter.location?.id,
+        departmentId: !currentEncounter
+          ? vaccinationDefaults.data?.departmentId
+          : currentEncounter.department?.id,
       }}
       validationSchema={
         vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN

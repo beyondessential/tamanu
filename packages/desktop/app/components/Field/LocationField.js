@@ -40,8 +40,6 @@ export const LocationInput = React.memo(
   ({
     locationGroupLabel,
     label,
-    defaultGroupValue,
-    defaultValue,
     name,
     disabled,
     error,
@@ -103,7 +101,7 @@ export const LocationInput = React.memo(
           required={required}
           onChange={handleChangeCategory}
           suggester={locationGroupSuggester}
-          value={groupId || defaultGroupValue}
+          value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
           autofill={!value} // do not autofill if there is a pre-filled value
         />
@@ -115,7 +113,7 @@ export const LocationInput = React.memo(
           helperText={helperText}
           required={required}
           error={error}
-          value={locationId || defaultValue}
+          value={locationId}
           onChange={handleChange}
           className={className}
           autofill={!value} // do not autofill if there is a pre-filled value

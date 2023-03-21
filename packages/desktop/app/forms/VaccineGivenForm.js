@@ -26,8 +26,6 @@ import {
 } from '../components/VaccineCommonFields';
 import { Field, AutocompleteField, CheckField } from '../components/Field';
 import { useSuggester } from '../api';
-import { usePatientCurrentEncounter } from '../api/queries';
-import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
   scheduledVaccineId: yup.string().required(),
@@ -52,10 +50,6 @@ export const VaccineGivenForm = ({
   values,
 }) => {
   const countrySuggester = useSuggester('country');
-  const { data: currentEncounter } = usePatientCurrentEncounter(patientId);
-  const { data: vaccinationDefaults = {} } = useVaccinationSettings(
-    SETTING_KEYS.VACCINATION_DEFAULTS,
-  );
 
   return (
     <TwoTwoGrid>
@@ -94,13 +88,8 @@ export const VaccineGivenForm = ({
 
       <StyledDivider />
 
-      <LocationField
-        defaultGroupValue={!currentEncounter ? vaccinationDefaults.data?.locationGroupId : null}
-        defaultValue={!currentEncounter ? vaccinationDefaults.data?.locationId : null}
-      />
-      <DepartmentField
-        value={!currentEncounter ? vaccinationDefaults.data?.departmentId : values.departmentId}
-      />
+      <LocationField />
+      <DepartmentField />
 
       <StyledDivider />
 

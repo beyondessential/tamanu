@@ -98,17 +98,11 @@ export const InjectionSiteField = () => (
   />
 );
 
-export const LocationField = ({ defaultGroupValue, defaultValue }) => (
-  <Field
-    name="locationId"
-    component={LocalisedLocationField}
-    defaultGroupValue={defaultGroupValue}
-    defaultValue={defaultValue}
-    required
-  />
+export const LocationField = () => (
+  <Field name="locationId" component={LocalisedLocationField} required />
 );
 
-export const DepartmentField = ({ value }) => {
+export const DepartmentField = () => {
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -116,7 +110,6 @@ export const DepartmentField = ({ value }) => {
     <Field
       name="departmentId"
       label="Department"
-      value={value}
       required
       component={AutocompleteField}
       suggester={departmentSuggester}
