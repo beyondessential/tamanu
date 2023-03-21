@@ -279,8 +279,7 @@ patientRelations.get(
       query,
     } = req;
 
-    // TODO: Enable panelId when panels epic is merged
-    const { order = 'ASC', orderBy, categoryId, /* panelId, */ status = 'published' } = query;
+    const { order = 'ASC', orderBy, categoryId, panelId, status = 'published' } = query;
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
@@ -306,16 +305,15 @@ patientRelations.get(
           AND lab_tests.status = '${status}'
           ${categoryId ? `AND category_id = '${categoryId}'` : ''}
           ${
-            // TODO: Enable this section when panels epic is merged
-            // panelId
-            //   ? `AND lab_test_type_id IN (
-            //     SELECT lab_test_type_id
-            //     FROM
-            //       lab_test_panel_lab_test_types
-            //     WHERE
-            //       lab_test_panel_id = ${panelId}
-            //   )`:
-            ''
+            panelId
+              ? `AND lab_test_type_id IN (
+                SELECT lab_test_type_id
+                FROM
+                  lab_test_panel_lab_test_types
+                WHERE
+                  lab_test_panel_id = ${panelId}
+              )`
+              : ''
           }
       `,
       `
