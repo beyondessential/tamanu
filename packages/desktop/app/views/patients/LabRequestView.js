@@ -188,7 +188,6 @@ export const LabRequestView = () => {
         onClose={closeModal}
       />
       <LabRequestPrintLabelModal
-        patient={patient}
         labRequests={[labRequest]}
         open={modal === MODALS.LABEL_PRINT}
         onClose={closeModal}

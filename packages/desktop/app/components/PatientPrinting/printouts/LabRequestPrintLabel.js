@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Barcode from 'react-barcode';
 import { formatDuration } from 'date-fns';
-import { getAgeFromDate } from 'shared/utils/date';
+import { getAgeDurationFromDate } from 'shared/utils/date';
 import { formatShort } from '../../DateDisplay';
 
 const Container = styled.div`
@@ -12,12 +12,13 @@ const Container = styled.div`
   font-size: 0;
 
   @media print {
-    width: ${props => props.$width}mm;
-    height: ${props => props.$width / 2}mm;
+    width: ${props => props.$printWidth}mm;
+    height: ${props => props.$printWidth / 2}mm;
   }
 `;
 
 const Padding = styled.div`
+  // Note: percentage padding is based on the dimensions of the parent element
   padding: 2.5%;
 `;
 
@@ -73,25 +74,28 @@ const BarcodeContainer = styled.div`
  * Display age in years if patient is greater than or equal to 2 years old
  */
 function getDisplayAge(dateOfBirth) {
-  const ageDuration = getAgeFromDate(dateOfBirth);
+  const ageDuration = getAgeDurationFromDate(dateOfBirth);
   const { years, months } = ageDuration;
 
-  if (months === 0) {
+  if (years === 0 && months === 0) {
     return formatDuration(ageDuration, { format: ['days'] });
   }
-
   if (years < 2) {
     return formatDuration(ageDuration, { format: ['months'] });
   }
   return formatDuration(ageDuration, { format: ['years'] });
 }
 
-export const LabRequestPrintLabel = React.memo(({ data, width }) => {
+/**
+ * The labels needs to scale based on a configurable width for printing which is
+ * why the whole component is made with svgs
+ */
+export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
   const { patientId, patientDateOfBirth, testId, date, labCategory } = data;
   const age = getDisplayAge(patientDateOfBirth);
 
   return (
-    <Container $width={width}>
+    <Container $printWidth={printWidth}>
       <Padding>
         <TextContainer>
           <svg viewBox="0 0 300 60">
@@ -118,9 +122,9 @@ LabRequestPrintLabel.propTypes = {
     date: PropTypes.string,
     labCategory: PropTypes.string,
   }).isRequired,
-  width: PropTypes.number, // width for printing in mm
+  printWidth: PropTypes.number, // width for printing in mm
 };
 
 LabRequestPrintLabel.defaultProps = {
-  width: '185',
+  printWidth: '185',
 };

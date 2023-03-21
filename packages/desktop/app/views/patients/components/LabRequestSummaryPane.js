@@ -108,7 +108,7 @@ const MODALS = {
   LABEL_PRINT: 'labelPrint',
 };
 
-export const LabRequestSummaryPane = React.memo(({ patient, encounter, labRequests, onClose }) => {
+export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
     columnKey: 'selected',
@@ -149,7 +149,6 @@ export const LabRequestSummaryPane = React.memo(({ patient, encounter, labReques
           Print label
         </OutlinedButton>
         <LabRequestPrintLabelModal
-          patient={patient}
           labRequests={labRequests}
           open={isOpen === MODALS.LABEL_PRINT}
           onClose={() => setIsOpen(false)}
