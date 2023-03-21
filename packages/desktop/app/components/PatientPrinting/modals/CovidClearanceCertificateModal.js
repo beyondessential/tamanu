@@ -21,9 +21,11 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {
-    api.get(`patient/${patient.id}/covidLabTests`).then(response => {
-      setLabs(response.data);
-    });
+    api
+      .get(`patient/${patient.id}/covidLabTests`, { certType: CertificateTypes.clearance })
+      .then(response => {
+        setLabs(response.data);
+      });
   }, [api, patient.id]);
 
   const createCovidTestCertNotification = useCallback(
