@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { Collapse, Divider, IconButton, ListItem, Typography } from '@material-ui/core';
+import { Collapse, Divider, IconButton, ListItem, Tooltip, Typography } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { ExpandMore, ExpandLess, NavigateBefore, NavigateNext } from '@material-ui/icons';
@@ -53,6 +53,10 @@ const CardComponent = styled.div`
   }
 `;
 
+const CardComponentContent = styled.div`
+  min-width: 0;
+`;
+
 const CardList = styled.div`
   width: 100%;
   display: flex;
@@ -70,6 +74,9 @@ const CardTitle = styled(Typography)`
   font-weight: bold;
   font-size: 14px;
   color: ${getColorForEncounter};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const CardText = styled(Typography)`
@@ -84,6 +91,7 @@ const EncounterTypeIndicator = styled.div`
   height: 75%;
   border-radius: 10px;
   width: 4px;
+  min-width: 4px;
   margin-right: 5px;
   background-color: ${getColorForEncounter};
 `;
@@ -118,22 +126,35 @@ const MarginDiv = styled.div`
   width: 30px;
 `;
 
+const StyledTooltip = styled(props => <Tooltip classes={{ popper: props.className }} {...props} />)`
+  .MuiTooltip-tooltip {
+    background-color: ${Colors.primaryDark};
+    padding: 8px;
+    font-size: 11px;
+  }
+  .MuiTooltip-arrow {
+    color: ${Colors.primaryDark};
+  }
+`;
+
 const PATIENTS_PER_PAGE = 6;
 
 const Card = ({ patient, handleClick }) => {
   return (
     <CardComponent onClick={() => handleClick(patient.id)}>
       <EncounterTypeIndicator encounterType={patient.encounter_type} />
-      <div>
-        <CardTitle encounterType={patient.encounter_type}>
-          {patient.firstName} {patient.lastName}
-        </CardTitle>
+      <CardComponentContent>
+        <StyledTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`} placement="top" arrow>
+          <CardTitle encounterType={patient.encounter_type}>
+            {patient.firstName} {patient.lastName}
+          </CardTitle>
+        </StyledTooltip>
         <CardText>{patient.displayId}</CardText>
         <CapitalizedCardText>{patient.sex}</CapitalizedCardText>
         <CardText>
           DOB: <DateDisplay date={patient.dateOfBirth} shortYear />
         </CardText>
-      </div>
+      </CardComponentContent>
     </CardComponent>
   );
 };
