@@ -148,7 +148,7 @@ patientVaccineRoutes.get(
     const { orderBy, order, ...rest } = req.query;
     const results = await patient.getAdministeredVaccines({
       ...rest,
-      order: [[orderBy, order]],
+      order: [[...orderBy.split('.'), order]],
     });
 
     // TODO: enable pagination for this endpoint
