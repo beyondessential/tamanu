@@ -14,6 +14,7 @@ import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
+import { patientLocations } from './patientLocations';
 import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
@@ -344,8 +345,8 @@ patientRoute.get(
 
     const count = parseInt(countResult[0].count, 10);
 
-    if (count === 0) {
-      // save ourselves a query
+    if (count === 0 || filterParams.countOnly) {
+      // save ourselves a query if 0 || user requested count only
       res.send({ data: [], count });
       return;
     }
@@ -435,5 +436,6 @@ patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
+patientRoute.use(patientLocations);
 
 export { patientRoute as patient };
