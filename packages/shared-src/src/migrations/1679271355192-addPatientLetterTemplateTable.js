@@ -15,11 +15,9 @@ export async function up(query) {
     },
     title: {
       type: Sequelize.STRING,
-      // allowNull: false,
     },
     body: {
       type: Sequelize.STRING,
-      // allowNull: false,
     },
     deleted_at: {
       type: Sequelize.DATE,

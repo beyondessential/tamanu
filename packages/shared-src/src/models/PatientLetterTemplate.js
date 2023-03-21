@@ -14,11 +14,9 @@ export class PatientLetterTemplate extends Model {
         },
         title: {
           type: Sequelize.STRING,
-          // allowNull: false,
         },
         body: {
           type: Sequelize.STRING,
-          // allowNull: false,
         },
       },
       {
