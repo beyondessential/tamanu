@@ -73,18 +73,8 @@ export const CovidVaccineCertificate = ({
   const uvciFormat = getLocalisation('previewUvciFormat');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
-  let actualUvci;
-  if (vaccinations.some(v => v.certifiable)) {
-    if (uvci) {
-      actualUvci = uvci;
-    } else {
-      const vaxes = vaccinations.filter(v => v.certifiable);
-      vaxes.sort((a, b) => +a.date - +b.date);
-      actualUvci = generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode });
-    }
-  } else {
-    actualUvci = null;
-  }
+  const vaxes = vaccinations.filter(v => v.certifiable).sort((a, b) => +a.date - +b.date);
+  const actualUvci = uvci || generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode });
 
   return (
     <Document>

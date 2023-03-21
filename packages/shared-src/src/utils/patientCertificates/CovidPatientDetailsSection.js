@@ -4,16 +4,16 @@ import { P } from './Typography';
 import { getDOB, getNationality, getPassportNumber } from './accessors';
 
 const PATIENT_FIELDS = [
-  { key: 'firstName', label: 'First Name' },
-  { key: 'lastName', label: 'Last Name' },
+  { key: 'firstName', label: 'First name' },
+  { key: 'lastName', label: 'Last name' },
   {
     key: 'dateOfBirth',
-    label: 'Date Of Birth',
+    label: 'Date of birth',
     accessor: getDOB,
   },
   { key: 'sex', label: 'Sex' },
   { key: 'displayId', label: 'NHN' },
-  { key: 'passport', label: 'Passport Number', accessor: getPassportNumber },
+  { key: 'passport', label: 'Passport number', accessor: getPassportNumber },
   { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
