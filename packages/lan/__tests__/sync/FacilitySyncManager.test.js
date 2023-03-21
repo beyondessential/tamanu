@@ -20,9 +20,7 @@ describe('FacilitySyncManager', () => {
     sequelize = ctx.sequelize;
   });
 
-  afterAll(() => {
-    ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   describe('triggerSync', () => {
     afterEach(() => {

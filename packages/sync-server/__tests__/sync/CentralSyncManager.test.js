@@ -43,9 +43,7 @@ describe('CentralSyncManager', () => {
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, DEFAULT_CURRENT_SYNC_TIME_VALUE);
   });
 
-  afterAll(() => {
-    ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   describe('startSession', () => {
     it('creates a new session', async () => {
