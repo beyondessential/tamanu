@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { ForbiddenError, NotFoundError } from 'shared/errors';
+import { simpleGetList, simplePost } from 'shared/utils/crudHelpers';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';
@@ -67,3 +68,7 @@ adminRoutes.post(
 );
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
+
+// TODO: Probably should share the api with the lan server?
+adminRoutes.get('/patientLetterTemplate', simpleGetList('PatientLetterTemplate'));
+adminRoutes.post('/patientLetterTemplate', simplePost('PatientLetterTemplate'));
