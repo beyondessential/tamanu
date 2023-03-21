@@ -7,7 +7,10 @@ import { Colors } from '../../constants';
 
 const PrimaryListItem = styled(ListItem)`
   border-radius: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   padding-right: 10px;
+  margin-bottom: 5px;
 
   .MuiSvgIcon-root {
     position: relative;
