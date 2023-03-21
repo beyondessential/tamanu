@@ -61,4 +61,5 @@ export default {
   },
 
   imagingAreaExternalCode: {},
+  labTestPanelExternalCode: {},
 };
