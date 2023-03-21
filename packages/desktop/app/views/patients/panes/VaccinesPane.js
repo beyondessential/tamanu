@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import {
-  CovidImmunisationCertificateModal,
-  ImmunisationCertificateModal,
+  CovidVaccineCertificateModal,
+  VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
@@ -61,12 +61,12 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
         </TableButtonRow>
         <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
       </ContentPane>
-      <CovidImmunisationCertificateModal
+      <CovidVaccineCertificateModal
         open={isCovidCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCovidCertificateModalOpen(false)}
       />
-      <ImmunisationCertificateModal
+      <VaccineCertificateModal
         open={isCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCertificateModalOpen(false)}

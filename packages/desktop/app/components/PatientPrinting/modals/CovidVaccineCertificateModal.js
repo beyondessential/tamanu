@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
-import { VACCINATION_CERTIFICATE } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils/patientCertificates';
+import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { CovidVaccineCertificate } from 'shared/utils/patientCertificates';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -12,20 +12,22 @@ import { usePatientAdditionalData, useAdministeredVaccines } from '../../../api/
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
-export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
+export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
-  const { data: vaccineData } = useAdministeredVaccines(patient.id, { order: [['date', 'ASC']] });
-  const vaccinations = vaccineData?.data || [];
+  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+    order: [['date', 'ASC']],
+  });
+  const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
 
-  const createImmunisationCertificateNotification = useCallback(
+  const createCovidVaccineCertificateNotification = useCallback(
     data => {
       api.post('certificateNotification', {
-        type: VACCINATION_CERTIFICATE,
-        requireSigning: false,
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
+        requireSigning: true,
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
@@ -44,11 +46,11 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
       width="md"
       printable
       keepMounted
-      onPrint={() => printPDF('vaccine-certificate')}
-      additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
+      onPrint={() => printPDF('covid-vaccine-certificate')}
+      additionalActions={<EmailButton onEmail={createCovidVaccineCertificateNotification} />}
     >
-      <PDFViewer id="vaccine-certificate">
-        <VaccineCertificate
+      <PDFViewer id="covid-vaccine-certificate">
+        <CovidVaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
           watermarkSrc={watermark}
