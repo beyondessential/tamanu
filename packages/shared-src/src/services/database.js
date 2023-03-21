@@ -55,6 +55,7 @@ async function connectToDatabase(dbOptions) {
     host = null,
     port = null,
     verbose = false,
+    pool,
   } = dbOptions;
   let { name } = dbOptions;
 
@@ -82,6 +83,7 @@ async function connectToDatabase(dbOptions) {
     host,
     port,
     logging,
+    pool,
   });
   setupQuote(sequelize);
   await sequelize.authenticate();

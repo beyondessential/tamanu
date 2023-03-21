@@ -57,14 +57,12 @@ interface FormFieldsProps {
   note: string;
 }
 
-export const FormFields = ({
-  components,
-  note,
-  patient,
-}: FormFieldsProps): ReactElement => {
+export const FormFields = ({ components, note, patient }: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
-  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<GenericFormValues>();
+  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
+    GenericFormValues
+  >();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
 
   const maxIndex = components
@@ -155,6 +153,7 @@ export const FormFields = ({
                   key={component.id}
                   component={component}
                   patient={patient}
+                  zIndex={components.length - index}
                   setPosition={setQuestionPosition(component.dataElement.code)}
                 />
               </ErrorBoundary>

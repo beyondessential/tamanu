@@ -79,21 +79,6 @@ export const FACILITY_MENU_ITEMS = [
         path: '/medication-requests/all',
         ability: { action: 'read' },
       },
-      {
-        label: 'Completed',
-        path: '/medication-requests/completed',
-        ability: { action: 'read' },
-      },
-      {
-        label: 'New request',
-        path: '/medication-requests/new',
-        ability: { action: 'create' },
-      },
-      {
-        label: 'Dispense',
-        path: '/medication-requests/dispense',
-        ability: { action: 'create' },
-      },
     ],
   },
   {
