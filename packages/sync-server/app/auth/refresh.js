@@ -58,6 +58,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const token = getToken(
       {
         userId: user.id,
+        deviceId,
       },
       secret,
       {
