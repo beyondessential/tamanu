@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   ProgramsAdminView,
   ReferenceDataAdminView,
+  TemplateView,
   PermissionsAdminView,
   PatientMergeView,
   SyncView,
@@ -11,6 +12,7 @@ import {
 
 export const AdministrationRoutes = React.memo(({ match }) => (
   <Switch>
+    <Route path={`${match.path}/templates`} component={TemplateView} />
     <Route path={`${match.path}/refdata`} component={ReferenceDataAdminView} />
     <Route path={`${match.path}/permissions`} component={PermissionsAdminView} />
     <Route path={`${match.path}/programs`} component={ProgramsAdminView} />
