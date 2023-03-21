@@ -9,7 +9,7 @@ import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
 
-export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
+export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
