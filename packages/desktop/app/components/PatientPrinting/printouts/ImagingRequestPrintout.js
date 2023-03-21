@@ -8,7 +8,7 @@ import { getFullLocationName } from '../../../utils/location';
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {
     const {
-      id,
+      displayId,
       requestedDate,
       requestedBy,
       priority,
@@ -27,7 +27,7 @@ export const ImagingRequestPrintout = React.memo(
         notes={[{ content: note }]}
         certificateData={{ ...certificateData, pageTitle: 'Imaging Request' }}
         tableData={{
-          'Request ID': id,
+          'Request ID': displayId,
           'Request date': requestedDate ? <DateDisplay date={requestedDate} /> : null,
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,

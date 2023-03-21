@@ -199,8 +199,8 @@ const COLUMNS = {
       style: { width: '20%' },
     },
     {
-      key: 'requestingClinician',
-      title: 'Requesting clinician',
+      key: 'requestedByName',
+      title: 'Requested by',
       style: { width: '20%' },
     },
     {
@@ -231,8 +231,8 @@ const COLUMNS = {
       style: { width: '20%' },
     },
     {
-      key: 'requestingClinician',
-      title: 'Requesting clinician',
+      key: 'requestedBy',
+      title: 'Requested by',
       accessor: ({ requestedBy }) => requestedBy?.displayName,
       style: { width: '20%' },
     },
