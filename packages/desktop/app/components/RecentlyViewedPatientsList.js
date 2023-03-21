@@ -144,7 +144,11 @@ const Card = ({ patient, handleClick }) => {
     <CardComponent onClick={() => handleClick(patient.id)}>
       <EncounterTypeIndicator encounterType={patient.encounter_type} />
       <CardComponentContent>
-        <StyledTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`} placement="top" arrow>
+        <StyledTooltip
+          title={`${patient.firstName || ''} ${patient.lastName || ''}`}
+          placement="top"
+          arrow
+        >
           <CardTitle encounterType={patient.encounter_type}>
             {patient.firstName} {patient.lastName}
           </CardTitle>
