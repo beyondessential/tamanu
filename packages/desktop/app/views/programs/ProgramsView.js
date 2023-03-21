@@ -26,7 +26,7 @@ import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
   const params = useParams();
-  const { encounter, isLoadingEncounter, loadEncounter } = useEncounter();
+  const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
@@ -87,7 +87,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: getAnswersFromData(data, survey),
       actions: getActionsFromData(data, survey),
     });
-    if (params?.encounterId && !isLoadingEncounter && encounter && !encounter.endDate) {
+    if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(encounter.id, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
     } else {
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
