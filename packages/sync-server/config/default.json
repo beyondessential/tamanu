@@ -168,7 +168,7 @@
     },
     "fhirMissingResources": {
       "enabled": true,
-      "schedule": "1 48 * * *" // once a day, time does not matter
+      "schedule": "48 1 * * *" // once a day, time does not matter (better in off hours)
     },
     "plannedMoveTimeout": {
       "enabled": true,
