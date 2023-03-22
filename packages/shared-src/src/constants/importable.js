@@ -33,6 +33,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'labTestPriority',
   'labTestType',
   'labTestPanel',
+  'labSampleSite',
   'location',
   'locationGroup',
   'mammogramImagingArea',
