@@ -273,14 +273,14 @@ patientRoute.get(
         filterSortReplacements = selectedFilters.reduce((acc, filter) => {
           return {
             ...acc,
-            [`exactMathSort${filter}`]: filterParams[filter].toUpperCase(),
+            [`exactMatchSort${filter}`]: filterParams[filter].toUpperCase(),
             [`beginsWithSort${filter}`]: `${filterParams[filter].toUpperCase()}%`,
           };
         }, {});
 
         // Exact match sort
         const exactMatchSort = selectedFilters
-          .map(filter => `upper(${snakeCase(filter)}) = ${`:exactMathSort${filter}`} DESC`)
+          .map(filter => `upper(${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`)
           .join(', ');
 
         // Begins with sort
