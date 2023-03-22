@@ -9,7 +9,16 @@ import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
 
-export const VaccinesPane = React.memo(({ patient, readonly }) => {
+const CovidCertificateButton = styled(Button)`
+  margin-left: 0;
+  margin-right: auto;
+`;
+
+const CovidCertificateIcon = styled.i`
+  margin-right: 4px;
+`;
+
+export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
@@ -40,15 +49,14 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
       />
       <ContentPane>
         <TableButtonRow variant="small">
-          <Button
+          <CovidCertificateButton
             onClick={() => setIsCovidCertificateModalOpen(true)}
             variant="text"
-            style={{ marginLeft: 0, marginRight: 'auto' }}
             disabled={!certifiable}
           >
-            <i style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
+            <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
             COVID-19 certificate
-          </Button>
+          </CovidCertificateButton>
           <Button
             onClick={() => setIsCertificateModalOpen(true)}
             variant="outlined"
