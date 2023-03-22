@@ -28,6 +28,7 @@ const Container = styled.div`
   overflow: auto;
   height: 100vh;
   transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
+  overflow: hidden;
 
   i {
     color: ${Colors.white};
