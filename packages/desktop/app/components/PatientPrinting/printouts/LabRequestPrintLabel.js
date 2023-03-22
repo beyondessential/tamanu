@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Barcode from 'react-barcode';
-import { formatDuration } from 'date-fns';
-import { getAgeDurationFromDate } from 'shared/utils/date';
 import { formatShort } from '../../DateDisplay';
+import { getDisplayAge } from '../../../utils/dateTime';
 
 const Container = styled.div`
   position: relative;
@@ -67,24 +66,6 @@ const BarcodeContainer = styled.div`
     transform: translateY(-1px);
   }
 `;
-
-/**
- * Display age in days if patient is less than 1 month old
- * Display age in months if age is between 1 month and 23 months old
- * Display age in years if patient is greater than or equal to 2 years old
- */
-function getDisplayAge(dateOfBirth) {
-  const ageDuration = getAgeDurationFromDate(dateOfBirth);
-  const { years, months } = ageDuration;
-
-  if (years === 0 && months === 0) {
-    return formatDuration(ageDuration, { format: ['days'] });
-  }
-  if (years < 2) {
-    return formatDuration(ageDuration, { format: ['months'] });
-  }
-  return formatDuration(ageDuration, { format: ['years'] });
-}
 
 /**
  * The labels needs to scale based on a configurable width for printing which is
