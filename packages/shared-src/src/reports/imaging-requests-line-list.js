@@ -71,7 +71,7 @@ select
   f.name as "Facility",
   d.name as "Department",
   locationGroup.name as "Area",
-  ir.id as "Request ID",
+  ir.display_id as "Request ID",
   to_char(ir.requested_date::timestamp, 'DD/MM/YYYY HH12:MI AM') as "Request date and time",
   u_supervising.display_name as "Supervising clinician",
   u_requesting.display_name as "Requesting clinician",

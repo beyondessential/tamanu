@@ -96,8 +96,8 @@ const Provider = ({
       password: params.password,
     };
     setPreventSignOutOnFailure(true);
-
     await remoteSignIn(payload);
+    backend.syncManager.triggerSync();
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
