@@ -97,6 +97,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
         tableRows.push({ model, sheetRow, values });
       }
     } catch (err) {
+      console.log('error', err);
       errors.push(new DataLoaderError(sheetName, sheetRow, err));
     }
   }
