@@ -14,19 +14,19 @@ export const createPatientFilters = filterParams => {
           : ''
       })`,
       ({ displayId }) => ({
-        displayId: filterParams.displayIdExact === 'true' ? displayId : `%${displayId}%`,
+        displayId: `%${displayId}%`,
         secondaryDisplayId: displayId,
       }),
     ),
     makeFilter(
       filterParams.firstName,
       `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-      ({ firstName }) => ({ firstName: `${firstName}%` }),
+      ({ firstName }) => ({ firstName: `%${firstName}%` }),
     ),
     makeFilter(
       filterParams.lastName,
       `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-      ({ lastName }) => ({ lastName: `${lastName}%` }),
+      ({ lastName }) => ({ lastName: `%${lastName}%` }),
     ),
     makeFilter(
       filterParams.culturalName,
