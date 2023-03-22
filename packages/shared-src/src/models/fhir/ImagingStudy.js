@@ -94,8 +94,14 @@ export class FhirImagingStudy extends FhirResource {
 
     if (!serviceRequest) {
       const failedId = serviceRequestFhirId || serviceRequestId || serviceRequestDisplayId;
-      throw new Invalid(`ServiceRequest ${failedId} does not exist in Tamanu`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+      if (failedId) {
+        throw new Invalid(`ServiceRequest ${failedId} does not exist in Tamanu`, {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        });
+      }
+
+      throw new Invalid('Need to have basedOn field that includes a Tamanu identifier', {
+        code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
       });
     }
 
