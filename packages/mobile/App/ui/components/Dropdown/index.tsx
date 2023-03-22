@@ -65,7 +65,6 @@ export const Dropdown = React.memo(
     return (
       <StyledView
         width="100%"
-        height={screenPercentageToDP(6.68, Orientation.Height)}
         marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
       >
         <MultiSelect

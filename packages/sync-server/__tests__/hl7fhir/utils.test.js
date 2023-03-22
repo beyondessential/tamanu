@@ -1,4 +1,7 @@
-import { InvalidParameterError } from 'shared/errors';
+import { format } from 'date-fns';
+import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { InvalidParameterError, Exception } from 'shared/errors';
+import { formatFhirDate } from 'shared/utils/fhir/datetime';
 import { createTestContext } from '../utilities';
 
 import { hl7SortToTamanu } from '../../app/hl7fhir/utils';
@@ -64,6 +67,68 @@ describe('HL7FHIR module utils', () => {
 
       // If sequelize doesn't throw an error, assume sort is valid
       expect(result).toBeTruthy();
+    });
+  });
+
+  describe('formatFhirDate', () => {
+    it('Returns undefined when date is undefined', () => {
+      const formattedFhirDate = formatFhirDate();
+      expect(formattedFhirDate).toBe(undefined);
+    });
+
+    it('Returns null when date is null', () => {
+      const formattedFhirDate = formatFhirDate(null);
+      expect(formattedFhirDate).toBe(null);
+    });
+
+    it('Returns a string when a date is passed', () => {
+      const dateValue = new Date();
+      const formattedFhirDate = formatFhirDate(dateValue);
+      expect(typeof formattedFhirDate).toBe('string');
+    });
+
+    it('Parses date string', () => {
+      const dateValue = '2020-05-10';
+      const formattedFhirDate = formatFhirDate(dateValue);
+      expect(formattedFhirDate).toBeTruthy();
+    });
+
+    it('Parses date time string', () => {
+      const dateValue = '2020-05-10 14:30:01';
+      const formattedFhirDate = formatFhirDate(dateValue);
+      expect(formattedFhirDate).toBeTruthy();
+    });
+
+    it('Parses date objects', () => {
+      const dateValue = new Date('2020-05-10 14:30:01');
+      const formattedFhirDate = formatFhirDate(dateValue);
+      expect(formattedFhirDate).toBeTruthy();
+    });
+
+    it('Should default precision to seconds with timezone', () => {
+      const dateValue = new Date('2020-05-10 14:30:01');
+      const expectedValue = format(dateValue, "yyyy-MM-dd'T'HH:mm:ssXXX");
+      const formattedFhirDate = formatFhirDate(dateValue);
+      expect(formattedFhirDate).toBe(expectedValue);
+    });
+
+    it('Should work with different levels of precision', () => {
+      const dateValue = new Date('2020-05-10 14:30:01');
+      const expectedValue = format(dateValue, 'yyyy-MM-dd');
+      const formattedFhirDate = formatFhirDate(dateValue, FHIR_DATETIME_PRECISION.DAYS);
+      expect(formattedFhirDate).toBe(expectedValue);
+    });
+
+    it('Throws an exception when the format is not valid for FHIR', () => {
+      const dateValue = new Date('2020-05-10 14:30:01');
+      const faultyFormatted = () => formatFhirDate(dateValue, FHIR_DATETIME_PRECISION.MINUTES);
+      expect(faultyFormatted).toThrow(Exception);
+    });
+
+    it('Throws an exception when the specified format is not known', () => {
+      const dateValue = new Date('2020-05-10 14:30:01');
+      const faultyFormatted = () => formatFhirDate(dateValue, 'gibberish-format');
+      expect(faultyFormatted).toThrow(Exception);
     });
   });
 });

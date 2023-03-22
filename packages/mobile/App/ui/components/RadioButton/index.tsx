@@ -8,7 +8,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 export interface FormField {
   value: string;
   selected?: boolean;
-  error?: boolean;
+  error?: string;
   index?: number;
 }
 
@@ -24,26 +24,25 @@ export interface RadioOptionProps extends RadioOption {
 export const RadioButton = (props: RadioOptionProps): JSX.Element => {
   const onPressCallback = React.useCallback(() => props.onPress(props.value), [props]);
 
-  const getLabelColor = useCallback(() => {
-    if (props.selected) return theme.colors.TEXT_DARK;
-    return theme.colors.TEXT_MID;
+  const getBorderColor = useCallback(() => {
+    if (props.selected) return theme.colors.PRIMARY_MAIN;
+    if (props.error) return theme.colors.ALERT;
+    return theme.colors.DEFAULT_OFF;
   }, [props.error, props.selected]);
 
   return (
     <TouchableWithoutFeedback onPress={onPressCallback}>
       <RowView
-        marginLeft={screenPercentageToDP(1.21, Orientation.Width)}
+        marginRight={screenPercentageToDP(1.21, Orientation.Width)}
         background={theme.colors.WHITE}
         alignItems="center"
         justifyContent="center"
-        height={screenPercentageToDP('6.68', Orientation.Height)}
-        borderColor={
-          props.error ? ColorHelper.halfTransparency(theme.colors.ALERT) : theme.colors.DEFAULT_OFF
-        }
-        paddingLeft={15}
-        paddingRight={15}
+        height={screenPercentageToDP(6, Orientation.Height)}
+        borderColor={getBorderColor(props)}
+        paddingLeft={12}
+        paddingRight={25}
         borderWidth={1}
-        borderRadius={3}
+        borderRadius={5}
         borderLeftWidth={1}
       >
         <StyledView
@@ -55,7 +54,7 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
           borderColor={theme.colors.TEXT_MID}
           justifyContent="center"
           alignItems="center"
-          marginRight={10}
+          marginRight={5}
         >
           <StyledView
             height={6}
@@ -65,8 +64,8 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
           />
         </StyledView>
         <StyledText
-          fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-          color={getLabelColor()}
+          fontSize={screenPercentageToDP(2, Orientation.Height)}
+          color={theme.colors.TEXT_DARK}
         >
           {props.label}
         </StyledText>

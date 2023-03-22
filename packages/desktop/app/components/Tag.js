@@ -35,3 +35,8 @@ export const TableCellTag = styled(BaseTag)`
   font-size: 11px;
   line-height: 15px;
 `;
+
+// Keep Tag and StatusTag export temporarily for backwards compatibility until the
+// labs epic is merged
+export const Tag = FormFieldTag;
+export const StatusTag = TableCellTag;

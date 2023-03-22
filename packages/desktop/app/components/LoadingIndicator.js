@@ -4,8 +4,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 const LoadingIconContainer = styled.div`
   display: grid;
-  width: 100%;
-  height: 100vh;
+  width: ${props => props.width || '100%'};
+  height: ${props => props.height || '100vh'};
   background: ${props => props.backgroundColor || '#cecece'};
   opacity: 0.5;
   overflow: hidden;
@@ -21,8 +21,8 @@ const LoadingIconContainer = styled.div`
   }
 `;
 
-export const LoadingIndicator = React.memo(({ backgroundColor }) => (
-  <LoadingIconContainer backgroundColor={backgroundColor}>
-    <CircularProgress size="5rem" />
+export const LoadingIndicator = React.memo(({ backgroundColor, height, width, size }) => (
+  <LoadingIconContainer backgroundColor={backgroundColor} height={height} width={width}>
+    <CircularProgress size={size || '5rem'} />
   </LoadingIconContainer>
 ));

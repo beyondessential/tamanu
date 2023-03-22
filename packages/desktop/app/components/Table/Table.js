@@ -69,7 +69,6 @@ const StyledTableContainer = styled.div`
   background: white;
   border: 1px solid ${Colors.outline};
   ${props => (props.$elevated ? PaperStyles : null)};
-  border: ${props => (props.$borderless ? 'none' : `1px solid ${Colors.outline}`)};
 `;
 
 const StyledTableCellContent = styled.div`
@@ -321,10 +320,10 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated, headerColor, borderless } = this.props;
+    const { className, elevated, headerColor } = this.props;
 
     return (
-      <StyledTableContainer className={className} $borderless={borderless} $elevated={elevated}>
+      <StyledTableContainer className={className} $elevated={elevated}>
         <StyledTable>
           <StyledTableHead $headerColor={headerColor}>
             <TableRow>{this.renderHeaders()}</TableRow>

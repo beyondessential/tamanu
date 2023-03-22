@@ -23,7 +23,6 @@ export const DataFetchingTable = memo(
     allowExport = true,
     onDataFetched,
     elevated,
-    borderless,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -129,7 +128,6 @@ export const DataFetchingTable = memo(
         rowStyle={rowStyle}
         allowExport={allowExport}
         elevated={elevated}
-        borderless={borderless}
       />
     );
   },

@@ -90,6 +90,8 @@ export const LabRequestView = () => {
   if (isLoading) return <LoadingIndicator />;
 
   const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
+  // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
+  const displayStatus = isReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   return (
     <Container>
@@ -118,7 +120,7 @@ export const LabRequestView = () => {
           text="Status"
           main={
             <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
-              {LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+              {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
             </TileTag>
           }
           isReadOnly={isReadOnly}
