@@ -25,7 +25,7 @@ const Container = styled.div`
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
-  overflow: auto;
+  overflow: ${props => (props.$retracted ? 'hidden' : 'auto')};
   height: 100vh;
   transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
 
