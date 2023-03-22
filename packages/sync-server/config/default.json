@@ -613,7 +613,7 @@
         "editDisplayId": false,
         "patientPlannedMove": false,
         "idleTimeout": {
-          "enabled": false,
+          "enabled": true,
           // All values in seconds
           "timeoutDuration": 600,
           "warningPromptDuration": 30,
