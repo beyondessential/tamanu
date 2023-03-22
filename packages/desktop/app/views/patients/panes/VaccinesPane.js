@@ -1,12 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { useApi } from '../../../api';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
-import { CovidImmunisationCertificateModal } from '../../../components/PatientPrinting';
-// import { GeneralImmunisationCertificateModal } from '../../../components/PatientPrinting';
+import {
+  CovidVaccineCertificateModal,
+  VaccineCertificateModal,
+} from '../../../components/PatientPrinting';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
+import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -17,25 +19,21 @@ const CovidCertificateIcon = styled.i`
   margin-right: 4px;
 `;
 
-export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
+export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
-  // const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
-  const [hasVaccines, setHasVaccines] = useState();
 
   const onOpenEditModal = useCallback(async row => {
     setIsEditAdministeredModalOpen(true);
     setVaccineData(row);
   }, []);
 
-  const api = useApi();
-  useEffect(() => {
-    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      setHasVaccines(response.data.length > 0);
-    });
-  }, [api, patient.id]);
+  const { data: vaccine } = useAdministeredVaccines(patient.id);
+  const vaccinations = vaccine?.data || [];
+  const certifiable = vaccinations.some(v => v.certifiable);
 
   return (
     <>
@@ -55,15 +53,15 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
           <CovidCertificateButton
             onClick={() => setIsCovidCertificateModalOpen(true)}
             variant="text"
-            disabled={readonly}
+            disabled={!certifiable}
           >
             <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
             COVID-19 certificate
           </CovidCertificateButton>
           <Button
-            // onClick={() => setIsCertificateModalOpen(true)}
+            onClick={() => setIsCertificateModalOpen(true)}
             variant="outlined"
-            disabled={!hasVaccines}
+            disabled={!vaccinations.length}
           >
             View certificate
           </Button>
@@ -73,16 +71,16 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
         </TableButtonRow>
         <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
       </ContentPane>
-      <CovidImmunisationCertificateModal
+      <CovidVaccineCertificateModal
         open={isCovidCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCovidCertificateModalOpen(false)}
       />
-      {/* <GeneralImmunisationCertificateModal
+      <VaccineCertificateModal
         open={isCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCertificateModalOpen(false)}
-      /> */}
+      />
     </>
   );
 });
