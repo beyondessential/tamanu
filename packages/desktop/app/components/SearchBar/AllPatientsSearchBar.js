@@ -7,7 +7,6 @@ import {
   AutocompleteField,
   Field,
   LocalisedField,
-  DisplayIdField,
   DOBFields,
   SearchField,
   SelectField,
@@ -66,7 +65,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         </>
       }
     >
-      <DisplayIdField />
+      <LocalisedField useShortLabel component={SearchField} name="displayId" />
       <LocalisedField component={SearchField} name="firstName" />
       <LocalisedField component={SearchField} name="lastName" />
       <Field
