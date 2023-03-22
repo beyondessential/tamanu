@@ -30,10 +30,13 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
           <LogoV1Icon />
         </CenterView>
         <CenterView>
-          <StyledView height={19} marginTop={screenPercentageToDP(12.32, Orientation.Height)}>
+          <StyledView
+            height={screenPercentageToDP(2.9, Orientation.Height)}
+            marginTop={screenPercentageToDP(12.32, Orientation.Height)}
+          >
             {signedOutFromInactivity && (
               <StyledText
-                fontSize={`${screenPercentageToDP('1.94', Orientation.Height)}px`}
+                fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
                 color={theme.colors.MAIN_SUPER_DARK}
               >
                 You have been logged out due to inactivity.
@@ -44,7 +47,7 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
         <CenterView marginTop={screenPercentageToDP(11.5, Orientation.Height)}>
           <StyledText
             color={theme.colors.PRIMARY_MAIN}
-            fontSize={`${screenPercentageToDP('3.4', Orientation.Height)}px`}
+            fontSize={`${screenPercentageToDP(3.4, Orientation.Height)}px`}
             fontWeight="bold"
           >
             eHealth patient record
@@ -53,16 +56,16 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
         <StyledText
           marginTop={10}
           color={theme.colors.PRIMARY_MAIN}
-          fontSize={`${screenPercentageToDP('1.94', Orientation.Height)}px`}
+          fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
           textAlign="center"
-          marginLeft={screenPercentageToDP('14', Orientation.Width)}
-          marginRight={screenPercentageToDP('14', Orientation.Width)}
+          marginLeft={screenPercentageToDP(14, Orientation.Width)}
+          marginRight={screenPercentageToDP(14, Orientation.Width)}
         >
           For Hospitals, Health Centres and clinics around the world
         </StyledText>
         <RowView
           justifyContent="center"
-          marginTop={screenPercentageToDP('13.00', Orientation.Height)}
+          marginTop={screenPercentageToDP(13, Orientation.Height)}
         >
           <Button
             id="intro-sign-in-button"
