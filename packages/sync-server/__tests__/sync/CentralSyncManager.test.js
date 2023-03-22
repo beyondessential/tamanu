@@ -9,8 +9,6 @@ import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 
-jest.setTimeout(100000);
-
 const doImport = (options, models) => {
   const { file, ...opts } = options;
   return importerTransaction({
@@ -53,23 +51,23 @@ describe('CentralSyncManager', () => {
       expect(syncSession).not.toBeUndefined();
     });
 
-    // it('tick-tocks the global clock', async () => {
-    //   const centralSyncManager = initializeCentralSyncManager();
-    //   const { sessionId } = await centralSyncManager.startSession();
+    it('tick-tocks the global clock', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
 
-    //   const maxAttempts = 20; // safe to wait 20 attempts
-    //   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    //     const ready = await centralSyncManager.checkSessionReady(sessionId);
-    //     if (ready) {
-    //       break;
-    //     }
-    //   }
+      const maxAttempts = 20; // safe to wait 20 attempts
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const ready = await centralSyncManager.checkSessionReady(sessionId);
+        if (ready) {
+          break;
+        }
+      }
 
-    //   const localSystemFact = await models.LocalSystemFact.findOne({
-    //     where: { key: CURRENT_SYNC_TIME_KEY },
-    //   });
-    //   expect(parseInt(localSystemFact.value, 10)).toBe(DEFAULT_CURRENT_SYNC_TIME_VALUE + 2);
-    // });
+      const localSystemFact = await models.LocalSystemFact.findOne({
+        where: { key: CURRENT_SYNC_TIME_KEY },
+      });
+      expect(parseInt(localSystemFact.value, 10)).toBe(DEFAULT_CURRENT_SYNC_TIME_VALUE + 2);
+    });
 
     it('allows concurrent sync sessions', async () => {
       const centralSyncManager = initializeCentralSyncManager();
