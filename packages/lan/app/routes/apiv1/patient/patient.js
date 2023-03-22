@@ -260,12 +260,12 @@ patientRoute.get(
     // If there is a sort selected by the user, it shouldn't use exact match sort.
     // The search is complex and it has more details over this https://linear.app/bes/issue/TAN-2038/desktop-improve-patient-listing-search-fields
     // Basically, we are sorting results based on the following rules:
-    // 1) if the user select a column to sort, this is our first priority.
+    // 1) if the user selects a column to sort, this is our first priority.
     // 2) In case the user used one of the filters = "Display Id", "Last Name", "First Name", we have some special rules.
-    // 2.a) If there is a exact match for 'display Id', 'last name', 'first name, it should display those results on top
-    // 2.b) In the case we have a exact match for two or more collumns listed above, we will display it sorted by displayId, last name, and first name
+    // 2.a) If there is an exact match for 'display Id', 'last name', 'first name, it should display those results on top
+    // 2.b) In the case we have a exact match for two or more columns listed above, we will display it sorted by display id, last name, and first name
     // 2.c) After the exact match is applied, we should prioritize the results that starts with the text the user inserted.
-    // 2.d) the same rule of 2.b is applyed in case we have two or more columns starting with what the user selected.
+    // 2.d) the same rule of 2.b is applied in case we have two or more columns starting with what the user selected.
     // 2.e) The last rule for selected filters, is, if the user has selected any of those filters, we should also sort them alphabetically.
     if (!orderBy) {
       const selectedFilters = ['displayId', 'lastName', 'firstName'].filter(v => filterParams[v]);
