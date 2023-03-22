@@ -58,7 +58,12 @@ export const Colors = {
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
+  blue: '#1172D1',
   veryLightBlue: '#F4F9FF',
+  metallicYellow: '#BD9503',
+  pink: '#D10580',
+  purple: '#4101C9',
+  green: '#19934E',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };

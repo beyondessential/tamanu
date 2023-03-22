@@ -185,15 +185,15 @@ export class CentralSyncManager {
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
     unmarkSnapshotAsProcessing,
   ) {
-    const { models, sequelize } = this.store;
-
-    const session = await this.connectToSession(sessionId);
-
-    // will wait for concurrent snapshots to complete if we are currently at capacity, then
-    // set the snapshot_started_at timestamp before we proceed with the heavy work below
-    await startSnapshotWhenCapacityAvailable(sequelize, sessionId);
-
     try {
+      const { models, sequelize } = this.store;
+
+      const session = await this.connectToSession(sessionId);
+
+      // will wait for concurrent snapshots to complete if we are currently at capacity, then
+      // set the snapshot_started_at timestamp before we proceed with the heavy work below
+      await startSnapshotWhenCapacityAvailable(sequelize, sessionId);
+
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
       // process is ongoing, will have a later updated_at_sync_tick)
@@ -297,8 +297,14 @@ export class CentralSyncManager {
       // time throughout the snapshot process
       await session.update({ snapshotCompletedAt: new Date() });
     } catch (error) {
-      log.error('CentralSyncManager.initiatePull encountered an error', error);
-      await session.update({ error: error.message });
+      log.error('CentralSyncManager.setupSnapshotForPull encountered an error', {
+        sessionId,
+        ...error,
+      });
+      await this.store.models.SyncSession.update(
+        { error: error.message },
+        { where: { id: sessionId } },
+      );
     } finally {
       await unmarkSnapshotAsProcessing();
     }
