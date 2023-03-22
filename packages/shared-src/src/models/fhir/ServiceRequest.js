@@ -142,6 +142,10 @@ export class FhirServiceRequest extends FhirResource {
           system: config.hl7.dataDictionaries.serviceRequestId,
           value: upstream.id,
         }),
+        new FhirIdentifier({
+          system: config.hl7.dataDictionaries.serviceRequestDisplayId,
+          value: upstream.displayId,
+        }),
       ],
       status: {
         [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
