@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import { Timelapse, Business, AssignmentLate, Category } from '@material-ui/icons';
+import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import BeakerIcon from '../../assets/images/beaker.svg';
+import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
@@ -114,7 +116,11 @@ export const LabRequestView = () => {
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
-        <Tile Icon={Category} text="Test Category" main={labRequest.category?.name} />
+        <Tile
+          Icon={() => <img src={TestCategoryIcon} alt="test category" />}
+          text="Test Category"
+          main={labRequest.category?.name}
+        />
         <Tile
           Icon={Timelapse}
           text="Status"
@@ -134,6 +140,7 @@ export const LabRequestView = () => {
           }}
         />
         <Tile
+          Icon={() => <img src={BeakerIcon} alt="beaker" />}
           text="Sample collected"
           main={
             <>
