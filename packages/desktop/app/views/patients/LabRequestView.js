@@ -120,7 +120,7 @@ export const LabRequestView = () => {
           text="Status"
           main={
             <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
-              {LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+              {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
             </TileTag>
           }
           isReadOnly={isReadOnly}
@@ -219,64 +219,5 @@ export const LabRequestView = () => {
         onClose={closeModal}
       />
     </Container>
-    <div>
-      <SimpleTopBar title="Lab request">
-        <LabRequestActionDropdown
-          labRequest={labRequest}
-          patient={patient}
-          updateLabReq={updateLabReq}
-          isReadOnly={isReadOnly}
-        />
-      </SimpleTopBar>
-      <ContentPane>
-        <FormGrid columns={3}>
-          <TextInput value={labRequest.displayId} label="Request ID" disabled={isReadOnly} />
-          <TextInput
-            value={(labRequest.category || {}).name}
-            label="Request type"
-            disabled={isReadOnly}
-          />
-          <TextInput
-            value={labRequest.urgent ? 'Urgent' : 'Standard'}
-            label="Urgency"
-            disabled={isReadOnly}
-          />
-          <TextInput
-            value={(labRequest.priority || {}).name}
-            label="Priority"
-            disabled={isReadOnly}
-          />
-          <TextInput
-            value={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
-            label="Status"
-            disabled={isReadOnly}
-          />
-          <TextInput
-            value={(labRequest.laboratory || {}).name}
-            label="Laboratory"
-            disabled={isReadOnly}
-          />
-          <DateInput
-            value={labRequest.requestedDate}
-            saveDateAsString
-            label="Requested date"
-            disabled={isReadOnly}
-          />
-          <DateTimeInput
-            value={labRequest.sampleTime}
-            saveDateAsString
-            label="Sample date"
-            disabled={isReadOnly}
-          />
-          <LabRequestNoteForm labRequest={labRequest} isReadOnly={isReadOnly} />
-        </FormGrid>
-      </ContentPane>
-      <ContentPane>
-        <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
-      </ContentPane>
-      <ContentPane>
-        <LabRequestAuditPane labRequest={labRequest} />
-      </ContentPane>
-    </div>
   );
 };
