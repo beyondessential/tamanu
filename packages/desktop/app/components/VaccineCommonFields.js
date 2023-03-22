@@ -112,20 +112,23 @@ export const DepartmentField = () => {
   );
 };
 
-export const GivenByField = ({
-  label = 'Given by',
-  component = TextField,
-  suggester,
-  required,
-}) => (
-  <Field
-    name="givenBy"
-    label={label}
-    component={component}
-    suggester={suggester}
-    required={required}
-  />
+export const GivenByField = ({ label = 'Given by' }) => (
+  <Field name="givenBy" label={label} component={TextField} />
 );
+
+export const GivenByCountryField = () => {
+  const countrySuggester = useSuggester('country');
+
+  return (
+    <Field
+      name="givenBy"
+      label="Country"
+      component={AutocompleteField}
+      suggester={countrySuggester}
+      required
+    />
+  );
+};
 
 export const RecordedByField = () => {
   const { currentUser } = useAuth();
