@@ -73,51 +73,29 @@ export class FhirImagingStudy extends FhirResource {
         b?.identifier?.params.system === config.hl7.dataDictionaries.serviceRequestDisplayId,
     )?.params.identifier.params.value;
 
-    let serviceRequest;
-    if (serviceRequestFhirId) {
-      serviceRequest = await FhirServiceRequest.findByPk(serviceRequestFhirId);
-      if (!serviceRequest) {
-        throw new Invalid(`ServiceRequest ${serviceRequestFhirId} does not exist in Tamanu`, {
-          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-        });
-      }
-    } else if (serviceRequestId) {
-      const upstreamRequest = await ImagingRequest.findByPk(serviceRequestId);
-      if (!upstreamRequest) {
-        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
-          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-        });
-      }
-      serviceRequest = await FhirServiceRequest.findOne({
-        where: { upstreamId: upstreamRequest.id },
-      });
-      if (!serviceRequest) {
-        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
-          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-        });
-      }
+    let upstreamRequest;
+    if (serviceRequestId) {
+      upstreamRequest = await ImagingRequest.findByPk(serviceRequestId);
     } else if (serviceRequestDisplayId) {
-      const upstreamRequest = await ImagingRequest.findOne({
+      upstreamRequest = await ImagingRequest.findOne({
         where: { displayId: serviceRequestDisplayId },
       });
-      if (!upstreamRequest) {
-        throw new Invalid(`ServiceRequest ${serviceRequestDisplayId} does not exist in Tamanu`, {
-          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-        });
-      }
+    }
+
+    let serviceRequest;
+    if (upstreamRequest) {
+      // serviceRequest will always be searched if the upstream record is found
       serviceRequest = await FhirServiceRequest.findOne({
         where: { upstreamId: upstreamRequest.id },
       });
-      if (!serviceRequest) {
-        throw new Invalid(`ServiceRequest ${serviceRequestId} does not exist in Tamanu`, {
-          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-        });
-      }
+    } else if (serviceRequestFhirId) {
+      serviceRequest = await FhirServiceRequest.findByPk(serviceRequestFhirId);
     }
 
     if (!serviceRequest) {
-      throw new Invalid('Need to have basedOn field that includes a Tamanu identifier', {
-        code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
+      const failedId = serviceRequestFhirId || serviceRequestId || serviceRequestDisplayId;
+      throw new Invalid(`ServiceRequest ${failedId} does not exist in Tamanu`, {
+        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
 
