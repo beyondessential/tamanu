@@ -91,7 +91,7 @@ export async function referenceDataImporter({
   const importedData = [];
   const droppedData = [];
 
-  let loopProtection = 200;
+  let loopProtection = 100;
   while (nonRefDataTypes.length > 0 && loopProtection > 0) {
     loopProtection -= 1;
 

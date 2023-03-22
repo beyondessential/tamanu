@@ -43,7 +43,6 @@ export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats = {}, foreignKeySchemata = {} },
 ) {
-  console.log('sheet name', sheetName);
   log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
     log.debug('Nothing to do, skipping');
@@ -120,7 +119,6 @@ export async function importRows(
 
       resolvedRows.push({ model, sheetRow, values });
     } catch (err) {
-      console.log('error', err);
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new ForeignkeyResolutionError(sheetName, sheetRow, err));
     }
