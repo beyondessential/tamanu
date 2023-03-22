@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
@@ -6,6 +7,15 @@ import { CovidImmunisationCertificateModal } from '../../../components/PatientPr
 // import { GeneralImmunisationCertificateModal } from '../../../components/PatientPrinting';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
+
+const CovidCertificateButton = styled(Button)`
+  margin-left: 0;
+  margin-right: auto;
+`;
+
+const CovidCertificateIcon = styled.i`
+  margin-right: 4px;
+`;
 
 export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
@@ -42,15 +52,14 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
       />
       <ContentPane>
         <TableButtonRow variant="small">
-          <Button
+          <CovidCertificateButton
             onClick={() => setIsCovidCertificateModalOpen(true)}
             variant="text"
-            style={{ marginLeft: 0, marginRight: 'auto' }}
             disabled={readonly}
           >
-            <i style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
+            <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
             COVID-19 certificate
-          </Button>
+          </CovidCertificateButton>
           <Button
             // onClick={() => setIsCertificateModalOpen(true)}
             variant="outlined"
