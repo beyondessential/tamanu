@@ -3,16 +3,13 @@ import React, { ReactElement, ReactNode, useCallback, useRef, useEffect, useStat
 import {
   Keyboard,
   PanResponder,
-  NativeModules,
-  DeviceEventEmitter,
-  NativeEventEmitter,
-  EmiterSubscription,
+  EmitterSubscription,
+  AppState,
+  NativeEventSubscription,
+  AppStateStatus,
 } from 'react-native';
 import { StyledView } from '~/ui/styled/common';
 import { useAuth } from '../../contexts/AuthContext';
-
-const { PowerModule } = NativeModules;
-const powerEventEmitter = new NativeEventEmitter(PowerModule);
 
 interface DetectIdleLayerProps {
   children: ReactNode;
@@ -23,7 +20,8 @@ const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
-  const [screenOffTime, setScreenOffTime] = useState<number>();
+  const [screenOffTime, setScreenOffTime] = useState<number|null>(null);
+  const appState = useRef(AppState.currentState);
   const { signOutClient, signedIn } = useAuth();
 
   const resetIdle = (): void => {
@@ -43,37 +41,32 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     signOutClient(true);
   };
 
-  const handleScreenOff = () => {
-    setScreenOffTime(Date.now());
-  };
-
-  const handleScreenOn = () => {
-    if (screenOffTime) {
-      const timeDiff = Date.now() - screenOffTime;
-      const newIdle = idle + timeDiff;
-      setIdle(newIdle);
-      setScreenOffTime(undefined);
-      if (newIdle >= UI_EXPIRY_TIME) {
-        handleIdleLogout();
+  const handleStateChange = (nextAppState: AppStateStatus): void => {
+   if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
+      // App has moved to the background
+      setScreenOffTime(Date.now());
+   } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+      // App has moved to the foreground
+      if (screenOffTime) {
+        const timeDiff = Date.now() - screenOffTime;
+        const newIdle = idle + timeDiff;
+        setIdle(newIdle);
+        setScreenOffTime(null);
+        if (newIdle >= UI_EXPIRY_TIME) {
+          handleIdleLogout();
+        }
       }
-    }
-  };
+   }
+    appState.current = nextAppState;
+  }
 
-  useEffect(() => {
-    PowerModule.addScreenOffListener();
-    PowerModule.addScreenOnListener();
-    return () => {
-      PowerModule.removeListeners();
-    }
-  },[])
 
   useEffect(() => {
     let intervalId: number;
-    let subscriptions: EmiterSubscription[] = [];
+    let subscriptions: (EmitterSubscription|NativeEventSubscription)[] = [];
     if (signedIn) {
       subscriptions = [
-        powerEventEmitter.addListener('screenOff', handleScreenOff),
-        powerEventEmitter.addListener('screenOn', handleScreenOn),
+        AppState.addEventListener('change', handleStateChange),
         Keyboard.addListener('keyboardDidHide', handleResetIdle),
         Keyboard.addListener('keyboardDidShow', handleResetIdle),
       ];
