@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import { Timelapse, Business, AssignmentLate, Category } from '@material-ui/icons';
+import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import BeakerIcon from '../../assets/images/beaker.svg';
+import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
@@ -28,6 +30,7 @@ import { LabRequestCard } from './components/LabRequestCard';
 import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -48,19 +51,18 @@ const MODALS = {
   VIEW_STATUS_LOG: 'viewStatusLog',
   RECORD_SAMPLE: 'recordSample',
   PRINT: 'print',
+  LABEL_PRINT: 'labelPrint',
   CHANGE_LABORATORY: 'changeLaboratory',
   CHANGE_PRIORITY: 'changePriority',
   CANCEL: 'cancel',
 };
 
 const Menu = ({ setModal, status }) => {
-  // Todo: add print label action in WAITM-659
-  // const menuActions = {
-  //   'Print label': () => {
-  //     setModal(MODALS.PRINT);
-  //   },
-  // };
-  const menuActions = {};
+  const menuActions = {
+    'Print label': () => {
+      setModal(MODALS.LABEL_PRINT);
+    },
+  };
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions['Cancel request'] = () => {
@@ -90,6 +92,8 @@ export const LabRequestView = () => {
   if (isLoading) return <LoadingIndicator />;
 
   const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
+  // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
+  const displayStatus = isReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   return (
     <Container>
@@ -112,13 +116,17 @@ export const LabRequestView = () => {
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
       <TileContainer>
-        <Tile Icon={Category} text="Test Category" main={labRequest.category?.name} />
+        <Tile
+          Icon={() => <img src={TestCategoryIcon} alt="test category" />}
+          text="Test Category"
+          main={labRequest.category?.name}
+        />
         <Tile
           Icon={Timelapse}
           text="Status"
           main={
             <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
-              {LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+              {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
             </TileTag>
           }
           isReadOnly={isReadOnly}
@@ -132,6 +140,7 @@ export const LabRequestView = () => {
           }}
         />
         <Tile
+          Icon={() => <img src={BeakerIcon} alt="beaker" />}
           text="Sample collected"
           main={
             <>
@@ -185,6 +194,11 @@ export const LabRequestView = () => {
         labRequest={labRequest}
         patient={patient}
         open={modal === MODALS.PRINT}
+        onClose={closeModal}
+      />
+      <LabRequestPrintLabelModal
+        labRequests={[labRequest]}
+        open={modal === MODALS.LABEL_PRINT}
         onClose={closeModal}
       />
       <LabRequestChangeLabModal

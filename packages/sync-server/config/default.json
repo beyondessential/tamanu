@@ -8,7 +8,14 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "pool": {
+      "max": 10
+      // "min": 5,
+      // "idle": 10000,
+      // "acquire": 60000,
+      // "evict": 1000
+    }
   },
   "updateUrls": {
     "mobile": ""
@@ -716,6 +723,9 @@
         "label": "Other"
       }],
       "printMeasures": {
+        "labRequestPrintLabel": {
+          "width": 50.8
+        },
         "stickerLabelPage": {
           "pageWidth": "210mm",
           "pageHeight": "297mm",
