@@ -11,7 +11,8 @@ import {
   getPatientSurveyResponseAnswer,
   CovidVaccineCertificate,
 } from 'shared/utils';
-import { CovidLabCertificate } from 'shared/utils/patientCertificates';
+import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
+
 import { getLocalisation } from '../localisation';
 
 async function getCertificateAssets(models) {
@@ -146,7 +147,10 @@ export const makeCovidCertificate = async (
     },
   };
 
-  const labs = await patient.getCovidLabTests();
+  const labs =
+    certType === CertificateTypes.test
+      ? await patient.getCovidLabTests()
+      : await patient.getCovidClearanceLabTests();
 
   return renderPdf(
     <CovidLabCertificate
