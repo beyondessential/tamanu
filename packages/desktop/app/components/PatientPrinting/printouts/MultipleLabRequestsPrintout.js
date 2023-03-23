@@ -50,7 +50,7 @@ const columns = [
   },
   {
     key: 'testType',
-    title: 'Test type',
+    title: 'Test',
     accessor: ({ tests }) => tests?.map(test => test.labTestType?.name).join(', ') || '',
     widthProportion: 3,
   },
