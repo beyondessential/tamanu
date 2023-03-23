@@ -15,6 +15,7 @@ import {
   LocationField,
   DepartmentField,
   GivenByField,
+  GivenByCountryField,
   RecordedByField,
   ConsentField,
   StyledDivider,
@@ -24,8 +25,11 @@ import {
   VaccineBrandField,
   DiseaseField,
 } from '../components/VaccineCommonFields';
-import { Field, AutocompleteField, CheckField } from '../components/Field';
-import { useSuggester } from '../api';
+import { Field, CheckField } from '../components/Field';
+
+export const VACCINE_GIVEN_INITIAL_VALUES = {
+  givenOverseas: false,
+};
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
   scheduledVaccineId: yup.string().required(),
@@ -48,8 +52,6 @@ export const VaccineGivenForm = ({
   setVaccineLabel,
   values,
 }) => {
-  const countrySuggester = useSuggester('country');
-
   return (
     <TwoTwoGrid>
       <CategoryField
@@ -92,13 +94,7 @@ export const VaccineGivenForm = ({
 
       <StyledDivider />
 
-      <GivenByField
-        name="givenBy"
-        label={values.givenOverseas ? 'Country' : 'Given by'}
-        component={values.givenOverseas ? AutocompleteField : undefined}
-        suggester={values.givenOverseas ? countrySuggester : undefined}
-        required={values.givenOverseas}
-      />
+      {values.givenOverseas ? <GivenByCountryField /> : <GivenByField />}
 
       <RecordedByField />
 
