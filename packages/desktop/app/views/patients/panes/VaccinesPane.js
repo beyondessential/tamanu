@@ -2,11 +2,11 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
+import { VaccineModal } from '../../../components/VaccineModal';
 import {
   CovidVaccineCertificateModal,
   VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
-import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
 
@@ -37,7 +37,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
 
   return (
     <>
-      <ImmunisationModal
+      <VaccineModal
         open={isAdministerModalOpen}
         patientId={patient.id}
         onClose={() => setIsAdministerModalOpen(false)}
@@ -66,7 +66,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             View certificate
           </Button>
           <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
-            Give vaccine
+            Record vaccine
           </Button>
         </TableButtonRow>
         <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
