@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { createDummyEncounter, createDummyPatient, randomVitals } from 'shared/demoData/patients';
-import { VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, VACCINE_STATUS } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
@@ -19,6 +19,8 @@ describe('PatientVaccine', () => {
   let location = null;
   let department = null;
   let facility = null;
+  let givenVaccine1 = null;
+  let notGivenVaccine1 = null;
   let ctx;
 
   beforeAll(async () => {
@@ -78,10 +80,27 @@ describe('PatientVaccine', () => {
     await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
     await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
 
+    givenVaccine1 = await models.AdministeredVaccine.create(
+      await createAdministeredVaccine(models, {
+        scheduledVaccineId: scheduled2.id,
+        encounterId: encounter.id,
+        status: VACCINE_STATUS.GIVEN,
+      }),
+    );
+
+    notGivenVaccine1 = await models.AdministeredVaccine.create(
+      await createAdministeredVaccine(models, {
+        scheduledVaccineId: scheduled2.id,
+        encounterId: encounter.id,
+        status: VACCINE_STATUS.NOT_GIVEN,
+      }),
+    );
+
     await models.AdministeredVaccine.create(
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduled2.id,
         encounterId: encounter.id,
+        status: VACCINE_STATUS.UNKNOWN,
       }),
     );
   });
@@ -136,8 +155,13 @@ describe('PatientVaccine', () => {
     it('Should get administered vaccines', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(1);
-      expect(result.body.data[0].status).toEqual('GIVEN');
+      expect(result.body.count).toEqual(2);
+      expect(result.body.data.find(v => v.status === VACCINE_STATUS.GIVEN)?.id).toEqual(
+        givenVaccine1.id,
+      );
+      expect(result.body.data.find(v => v.status === VACCINE_STATUS.NOT_GIVEN)?.id).toEqual(
+        notGivenVaccine1.id,
+      );
     });
 
     it('Should mark an administered vaccine as recorded in error', async () => {
