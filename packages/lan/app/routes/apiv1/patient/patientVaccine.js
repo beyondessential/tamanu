@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, VACCINE_CATEGORIES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -101,7 +101,9 @@ patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientVaccine');
-    if (!req.body.scheduledVaccineId) {
+
+    // Require scheduledVaccineId if vaccine category is not OTHER
+    if (req.body.category !== VACCINE_CATEGORIES.OTHER && !req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
@@ -110,6 +112,13 @@ patientVaccineRoutes.post(
     }
 
     const { models } = req;
+
+    const vaccineData = { ...req.body };
+    if (vaccineData.category === VACCINE_CATEGORIES.OTHER) {
+      vaccineData.scheduledVaccineId = (
+        await models.ScheduledVaccine.getOtherCategoryScheduledVaccine()
+      )?.id;
+    }
 
     let encounterId;
     const existingEncounter = await models.Encounter.findOne({
@@ -137,7 +146,7 @@ patientVaccineRoutes.post(
     }
 
     const newRecord = await req.models.AdministeredVaccine.create({
-      ...req.body,
+      ...vaccineData,
       encounterId,
     });
     res.send(newRecord);

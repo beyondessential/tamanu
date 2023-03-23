@@ -2,8 +2,9 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
+import { VACCINE_CATEGORIES } from 'shared/constants';
+
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
 import {
   CategoryField,
   VaccineLabelField,
@@ -14,10 +15,21 @@ import {
   LocationField,
   DepartmentField,
   GivenByField,
+  GivenByCountryField,
   RecordedByField,
   ConsentField,
   StyledDivider,
+  FullWidthCol,
+  ConfirmCancelRowField,
+  VaccineNameField,
+  VaccineBrandField,
+  DiseaseField,
 } from '../components/VaccineCommonFields';
+import { Field, CheckField } from '../components/Field';
+
+export const VACCINE_GIVEN_INITIAL_VALUES = {
+  givenOverseas: false,
+};
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
   scheduledVaccineId: yup.string().required(),
@@ -38,6 +50,7 @@ export const VaccineGivenForm = ({
   onCancel,
   setCategory,
   setVaccineLabel,
+  values,
 }) => {
   return (
     <TwoTwoGrid>
@@ -46,11 +59,23 @@ export const VaccineGivenForm = ({
         setCategory={setCategory}
         setVaccineLabel={setVaccineLabel}
       />
-      <VaccineLabelField
-        vaccineLabel={vaccineLabel}
-        vaccineOptions={vaccineOptions}
-        setVaccineLabel={setVaccineLabel}
-      />
+      <FullWidthCol>
+        <Field name="givenOverseas" label="Given overseas" component={CheckField} />
+      </FullWidthCol>
+      {category === VACCINE_CATEGORIES.OTHER ? (
+        <>
+          <VaccineNameField />
+          <VaccineBrandField />
+          <DiseaseField />
+        </>
+      ) : (
+        <VaccineLabelField
+          vaccineLabel={vaccineLabel}
+          vaccineOptions={vaccineOptions}
+          setVaccineLabel={setVaccineLabel}
+        />
+      )}
+
       <BatchField />
       {administeredOptions.length || scheduleOptions.length ? (
         <AdministeredVaccineScheduleField
@@ -69,15 +94,23 @@ export const VaccineGivenForm = ({
 
       <StyledDivider />
 
-      <GivenByField />
+      {values.givenOverseas ? <GivenByCountryField /> : <GivenByField />}
+
       <RecordedByField />
 
       <StyledDivider />
 
-      <ConsentField />
-      <ConfirmCancelRow
+      <ConsentField
+        label={
+          values.givenOverseas
+            ? 'Do you have consent to record in Tamanu?'
+            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
+        }
+      />
+      <ConfirmCancelRowField
         onConfirm={submitForm}
-        confirmDisabled={scheduleOptions.length === 0}
+        category={category}
+        scheduleOptions={scheduleOptions}
         onCancel={onCancel}
       />
     </TwoTwoGrid>
@@ -94,4 +127,5 @@ VaccineGivenForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   setCategory: PropTypes.func.isRequired,
   setVaccineLabel: PropTypes.func.isRequired,
+  values: PropTypes.object.isRequired,
 };
