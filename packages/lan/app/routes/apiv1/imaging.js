@@ -1,4 +1,5 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
@@ -359,9 +360,13 @@ globalImagingRequests.get(
 
     const location = {
       association: 'location',
-      where: filterParams.facility
-        ? { facilityId: filterParams.facility }
-        : { facilityId: { [Op.like]: '%' } },
+
+      where: {
+        facilityId:
+          filterParams.allFacilities === 'true'
+            ? { [Op.like]: '%' }
+            : { [Op.eq]: config.serverFacilityId },
+      },
     };
 
     const encounter = {

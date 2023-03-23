@@ -56,15 +56,7 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
         saveDateAsString
         component={DateField}
       />
-      <Field
-        name="facility"
-        label="Include all facilities"
-        options={[
-          { label: 'This facility', value: facility.id },
-          { label: 'All facilities', value: null },
-        ]}
-        component={SelectField}
-      />
+      <Field name="allFacilities" label="Include all facilities" component={CheckField} />
     </CustomisableSearchBar>
   );
 };
