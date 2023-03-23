@@ -2,12 +2,14 @@ export const VACCINE_CATEGORIES = {
   ROUTINE: 'Routine',
   CATCHUP: 'Catchup',
   CAMPAIGN: 'Campaign',
+  OTHER: 'Other',
 };
 
 export const VACCINE_CATEGORY_OPTIONS = [
   { value: VACCINE_CATEGORIES.ROUTINE, label: 'Routine' },
   { value: VACCINE_CATEGORIES.CATCHUP, label: 'Catch-up' },
   { value: VACCINE_CATEGORIES.CAMPAIGN, label: 'Campaign' },
+  { value: VACCINE_CATEGORIES.OTHER, label: 'Other' },
 ];
 
 export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);

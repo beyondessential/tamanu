@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, VACCINE_CATEGORIES } from 'shared/constants';
 import { Model } from './Model';
 
 export class ScheduledVaccine extends Model {
@@ -27,6 +27,11 @@ export class ScheduledVaccine extends Model {
 
   static getListReferenceAssociations() {
     return ['vaccine'];
+  }
+
+  static async getOtherCategoryScheduledVaccine() {
+    // Should only contain 1 scheduled vaccine with Other category per environment
+    return this.findOne({ where: { category: VACCINE_CATEGORIES.OTHER } });
   }
 
   static initRelations(models) {

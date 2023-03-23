@@ -2,8 +2,9 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
+import { VACCINE_CATEGORIES } from 'shared/constants';
+
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
 import {
   CategoryField,
   VaccineLabelField,
@@ -14,6 +15,9 @@ import {
   GivenByField,
   RecordedByField,
   StyledDivider,
+  ConfirmCancelRowField,
+  VaccineNameField,
+  DiseaseField,
 } from '../components/VaccineCommonFields';
 import { Field, SuggesterSelectField } from '../components/Field';
 
@@ -39,11 +43,20 @@ export const VaccineNotGivenForm = ({
       setCategory={setCategory}
       setVaccineLabel={setVaccineLabel}
     />
-    <VaccineLabelField
-      vaccineLabel={vaccineLabel}
-      vaccineOptions={vaccineOptions}
-      setVaccineLabel={setVaccineLabel}
-    />
+    {category === VACCINE_CATEGORIES.OTHER ? (
+      <>
+        <VaccineNameField />
+
+        <DiseaseField />
+      </>
+    ) : (
+      <VaccineLabelField
+        vaccineLabel={vaccineLabel}
+        vaccineOptions={vaccineOptions}
+        setVaccineLabel={setVaccineLabel}
+      />
+    )}
+
     {administeredOptions.length || scheduleOptions.length ? (
       <AdministeredVaccineScheduleField
         administeredOptions={administeredOptions}
@@ -68,9 +81,10 @@ export const VaccineNotGivenForm = ({
     <GivenByField label="Supervising clinician" />
     <RecordedByField />
 
-    <ConfirmCancelRow
+    <ConfirmCancelRowField
       onConfirm={submitForm}
-      confirmDisabled={scheduleOptions.length === 0}
+      category={category}
+      scheduleOptions={scheduleOptions}
       onCancel={onCancel}
     />
   </TwoTwoGrid>

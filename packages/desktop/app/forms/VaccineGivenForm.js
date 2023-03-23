@@ -2,8 +2,9 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
+import { VACCINE_CATEGORIES } from 'shared/constants';
+
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
 import {
   CategoryField,
   VaccineLabelField,
@@ -19,6 +20,10 @@ import {
   ConsentField,
   StyledDivider,
   FullWidthCol,
+  ConfirmCancelRowField,
+  VaccineNameField,
+  VaccineBrandField,
+  DiseaseField,
 } from '../components/VaccineCommonFields';
 import { Field, CheckField } from '../components/Field';
 
@@ -45,7 +50,7 @@ export const VaccineGivenForm = ({
   onCancel,
   setCategory,
   setVaccineLabel,
-  givenOverseas,
+  values,
 }) => {
   return (
     <TwoTwoGrid>
@@ -57,11 +62,20 @@ export const VaccineGivenForm = ({
       <FullWidthCol>
         <Field name="givenOverseas" label="Given overseas" component={CheckField} />
       </FullWidthCol>
-      <VaccineLabelField
-        vaccineLabel={vaccineLabel}
-        vaccineOptions={vaccineOptions}
-        setVaccineLabel={setVaccineLabel}
-      />
+      {category === VACCINE_CATEGORIES.OTHER ? (
+        <>
+          <VaccineNameField />
+          <VaccineBrandField />
+          <DiseaseField />
+        </>
+      ) : (
+        <VaccineLabelField
+          vaccineLabel={vaccineLabel}
+          vaccineOptions={vaccineOptions}
+          setVaccineLabel={setVaccineLabel}
+        />
+      )}
+
       <BatchField />
       {administeredOptions.length || scheduleOptions.length ? (
         <AdministeredVaccineScheduleField
@@ -80,7 +94,7 @@ export const VaccineGivenForm = ({
 
       <StyledDivider />
 
-      {givenOverseas ? <GivenByCountryField /> : <GivenByField />}
+      {values.givenOverseas ? <GivenByCountryField /> : <GivenByField />}
 
       <RecordedByField />
 
@@ -88,14 +102,15 @@ export const VaccineGivenForm = ({
 
       <ConsentField
         label={
-          givenOverseas
+          values.givenOverseas
             ? 'Do you have consent to record in Tamanu?'
             : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
         }
       />
-      <ConfirmCancelRow
+      <ConfirmCancelRowField
         onConfirm={submitForm}
-        confirmDisabled={scheduleOptions.length === 0}
+        category={category}
+        scheduleOptions={scheduleOptions}
         onCancel={onCancel}
       />
     </TwoTwoGrid>
@@ -112,5 +127,5 @@ VaccineGivenForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   setCategory: PropTypes.func.isRequired,
   setVaccineLabel: PropTypes.func.isRequired,
-  givenOverseas: PropTypes.bool.isRequired,
+  values: PropTypes.object.isRequired,
 };
