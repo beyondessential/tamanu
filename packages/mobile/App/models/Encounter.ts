@@ -170,27 +170,36 @@ export class Encounter extends BaseModel implements IEncounter {
 
     // Read the selected facility for this client
     const facilityId = await readConfig('facilityId', '');
+    let { departmentId, locationId } = createdEncounterOptions;
 
-    // Find the first department and location that matches the
-    // selected facility to provide the default value for mobile.
-    const defaultDepartment = await Department.findOne({
-      where: { facility: { id: facilityId } },
-    });
+    if (!departmentId) {
+      // Find the first department and location that matches the
+      // selected facility to provide the default value for mobile.
+      const defaultDepartment = await Department.findOne({
+        where: { facility: { id: facilityId } },
+      });
 
-    if (!defaultDepartment) {
-      throw new Error(
-        `No default Department is configured for facility: ${facilityId}. You need to update the Department reference data.`,
-      );
+      if (!defaultDepartment) {
+        throw new Error(
+          `No default Department is configured for facility: ${facilityId}. You need to update the Department reference data.`,
+        );
+      }
+
+      departmentId = defaultDepartment.id;
     }
 
-    const defaultLocation = await Location.findOne({
-      where: { facility: { id: facilityId } },
-    });
+    if (!locationId) {
+      const defaultLocation = await Location.findOne({
+        where: { facility: { id: facilityId } },
+      });
 
-    if (!defaultLocation) {
-      throw new Error(
-        `No default Location is configured for facility: ${facilityId}. You need to update the Location reference data.`,
-      );
+      if (!defaultLocation) {
+        throw new Error(
+          `No default Location is configured for facility: ${facilityId}. You need to update the Location reference data.`,
+        );
+      }
+
+      locationId = defaultLocation.id;
     }
 
     return Encounter.createAndSaveOne({
@@ -200,8 +209,8 @@ export class Encounter extends BaseModel implements IEncounter {
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
-      department: defaultDepartment.id,
-      location: defaultLocation.id,
+      department: departmentId,
+      location: locationId,
       deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });
