@@ -44,7 +44,7 @@ const DumbLabRequestForm = ({
     const selectedLabTestTypes = await models.LabTestType.find({
       where: { labTestCategory: selectedValue, visibilityStatus: VisibilityStatus.Current },
     });
-    const labTestTypeOptions = selectedLabTestTypes.map((labTestType) => ({
+    const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
       id: labTestType.id,
       text: labTestType.name,
       value: false,
@@ -54,26 +54,13 @@ const DumbLabRequestForm = ({
   return (
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
       <StyledView justifyContent="space-between">
-        <Field
-          component={ReadOnlyBanner}
-          label="Test ID"
-          name="displayId"
-          disabled
-        />
+        <Field component={ReadOnlyBanner} label="Test ID" name="displayId" disabled />
         <StyledView
           marginTop={screenPercentageToDP(2.105, Orientation.Height)}
           justifyContent="space-between"
         >
-          <Field component={DateField} label="Request date & time" name="requestedDate" />
-          <Field component={AutocompleteModalField} label="Requesting clinician" name="requestedBy" suggester={practitionerSuggester} />
-          <Field
-            component={CurrentUserField}
-            label="Requested by"
-            name="requestedBy"
-            navigation={navigation}
-            modalRoute={Routes.Autocomplete.Modal}
-            suggester={practitionerSuggester}
-          />
+          <Field component={DateField} label="Request date" mode="date" name="requestedDate" />
+          <Field component={DateField} label="Request time" mode="time" name="requestedTime" />
           <Field
             component={AutocompleteModalField}
             label="Priority"
@@ -85,17 +72,26 @@ const DumbLabRequestForm = ({
             marginTop={0}
           />
           <Field
-            component={Checkbox}
-            text="Urgent?"
-            name="urgent"
-            style={{ marginRight: '10' }}
+            component={AutocompleteModalField}
+            label="Requesting clinician"
+            name="requestedBy"
+            suggester={practitionerSuggester}
           />
+          <Field
+            component={CurrentUserField}
+            label="Requested by"
+            name="requestedBy"
+            navigation={navigation}
+            modalRoute={Routes.Autocomplete.Modal}
+            suggester={practitionerSuggester}
+          />
+
+          <Field component={Checkbox} text="Urgent?" name="urgent" style={{ marginRight: '10' }} />
         </StyledView>
         <StyledView
           marginTop={screenPercentageToDP(2.105, Orientation.Height)}
           justifyContent="space-between"
         >
-          <SectionHeader h3>SPECIMEN</SectionHeader>
           <Field
             component={RadioButtonGroup}
             label="Specimen Attached?"
@@ -105,25 +101,14 @@ const DumbLabRequestForm = ({
               { label: 'No', value: false },
             ]}
           />
-          <Field
-            component={DateField}
-            label="Date"
-            mode="date"
-            name="sampleDate"
-          />
-          <Field
-            component={DateField}
-            label="Time"
-            mode="time"
-            name="sampleTime"
-          />
+          <Field component={DateField} label="Sample date" mode="date" name="sampleDate" />
+          <Field component={DateField} label="Sample time" mode="time" name="sampleTime" />
         </StyledView>
         <StyledView
           marginTop={screenPercentageToDP(2.105, Orientation.Height)}
           marginBottom={20}
           justifyContent="space-between"
         >
-          <SectionHeader h3>LAB REQUEST TYPE</SectionHeader>
           <Field
             component={AutocompleteModalField}
             label="Type"
@@ -135,17 +120,10 @@ const DumbLabRequestForm = ({
             onChange={handleLabRequestTypeSelected}
             marginTop={0}
           />
-          <Field
-            name="labTestTypes"
-            component={MultiCheckbox}
-            options={labTestTypes}
-          />
+          <Field name="labTestTypes" component={MultiCheckbox} options={labTestTypes} />
         </StyledView>
         <FormValidationMessage message={errors.form} />
-        <SubmitButton
-          marginTop={20}
-          onSubmit={handleSubmit}
-        />
+        <SubmitButton marginTop={20} onSubmit={handleSubmit} />
       </StyledView>
     </FormScreenView>
   );
@@ -168,7 +146,7 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
     },
   });
 
-  const practitionerSuggester = new Suggester(models.User, );
+  const practitionerSuggester = new Suggester(models.User);
 
   return (
     <DumbLabRequestForm
