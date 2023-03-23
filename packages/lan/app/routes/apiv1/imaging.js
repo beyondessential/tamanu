@@ -361,10 +361,9 @@ globalImagingRequests.get(
     const location = {
       association: 'location',
       where: {
-        facilityId:
-          filterParams.allFacilities === 'true'
-            ? { [Op.like]: '%' }
-            : { [Op.eq]: config.serverFacilityId },
+        facilityId: JSON.parse(filterParams.allFacilities)
+          ? { [Op.like]: '%' }
+          : { [Op.eq]: config.serverFacilityId },
       },
     };
 
