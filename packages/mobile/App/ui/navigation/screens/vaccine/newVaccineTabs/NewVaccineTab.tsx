@@ -15,6 +15,7 @@ import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { Routes } from '~/ui/helpers/routes';
 import { SETTING_KEYS } from '~/constants/settings';
 
 type NewVaccineTabProps = {
@@ -46,12 +47,19 @@ export const NewVaccineTabComponent = ({
     async (values: VaccineFormValues): Promise<void> => {
       if (isSubmitting) return;
       setSubmitting(true);
-      const { scheduledVaccineId, recorderId, date, ...otherValues } = values;
+      const {
+        scheduledVaccineId,
+        recorderId,
+        date,
+        scheduledVaccine,
+        encounter,
+        ...otherValues
+      } = values;
       const facilityId = await readConfig('facilityId', '');
       const { departmentId, locationId } =
         (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
 
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
         {
@@ -60,16 +68,29 @@ export const NewVaccineTabComponent = ({
         },
       );
 
-      await models.AdministeredVaccine.createAndSaveOne({
+      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne({
         ...otherValues,
         date: date ? formatISO9075(date) : null,
         id: administeredVaccine?.id,
         scheduledVaccine: scheduledVaccineId,
         recorder: recorderId,
-        encounter: encounter.id,
+        encounter: vaccineEncounter.id,
       });
 
-      navigation.goBack();
+      if (values.administeredVaccine) {
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
+          vaccine: {
+            ...vaccine,
+            administeredVaccine: {
+              ...updatedVaccine,
+              encounter,
+              scheduledVaccine,
+            },
+          },
+        });
+      } else {
+        navigation.goBack();
+      }
     },
     [isSubmitting],
   );
