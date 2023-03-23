@@ -1,20 +1,10 @@
 import React from 'react';
 import { startCase } from 'lodash';
-import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
 
-import { DateDisplay, formatTime } from '../../DateDisplay';
+import { DateDisplay, MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';
 import { useLocalisation } from '../../../contexts/Localisation';
-
-import { Colors } from '../../../constants';
-
-const SoftText = styled(Typography)`
-  font-size: inherit;
-  line-height: inherit;
-  color: ${Colors.softText};
-`;
 
 export const COLUMN_KEYS = {
   ID: 'displayId',
@@ -44,12 +34,7 @@ const COMMON_COLUMNS = [
     title: 'Requested date and time',
     sortable: false,
     form: {
-      accessor: ({ requestedDate }) => (
-        <Box>
-          <DateDisplay date={requestedDate} />
-          <SoftText>{formatTime(requestedDate)}</SoftText>
-        </Box>
-      ),
+      accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} />,
     },
     printout: {
       widthProportion: 4,
