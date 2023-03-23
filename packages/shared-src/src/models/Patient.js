@@ -4,6 +4,7 @@ import { getCovidClearanceCertificateFilter } from 'shared/utils';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { VACCINE_STATUS } from '../constants';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -137,7 +138,7 @@ export class Patient extends Model {
       where: {
         ...optWhere,
         '$encounter.patient_id$': this.id,
-        status: 'GIVEN',
+        status: { [Op.in]: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN] },
       },
     });
 

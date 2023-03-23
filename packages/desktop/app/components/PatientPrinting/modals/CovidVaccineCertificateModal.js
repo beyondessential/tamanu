@@ -1,31 +1,29 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils/patientCertificates';
+import { CovidVaccineCertificate } from 'shared/utils/patientCertificates';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalData } from '../../../api/queries';
+import { usePatientAdditionalData, useAdministeredVaccines } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
-export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
+export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
-  useEffect(() => {
-    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      setVaccinations(response.data);
-    });
-  }, [api, patient.id]);
+  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+    order: [['date', 'ASC']],
+  });
+  const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
 
-  const createImmunisationCertificateNotification = useCallback(
+  const createCovidVaccineCertificateNotification = useCallback(
     data => {
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
@@ -48,11 +46,11 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
       width="md"
       printable
       keepMounted
-      onPrint={() => printPDF('vaccine-certificate')}
-      additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
+      onPrint={() => printPDF('covid-vaccine-certificate')}
+      additionalActions={<EmailButton onEmail={createCovidVaccineCertificateNotification} />}
     >
-      <PDFViewer id="vaccine-certificate">
-        <VaccineCertificate
+      <PDFViewer id="covid-vaccine-certificate">
+        <CovidVaccineCertificate
           patient={patientData}
           vaccinations={vaccinations}
           watermarkSrc={watermark}

@@ -37,7 +37,7 @@ const TD = ({ customStyles, ...props }) => (
   <Text {...props} style={[tableStyles.td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getLocalisation }) => {
+export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
   const visibleColumns = columns.filter(
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
@@ -45,7 +45,7 @@ export const Table = ({ data, columns, getLocalisation }) => {
     <View style={tableStyles.table}>
       <TR>
         {visibleColumns.map(({ title, key, customStyles }) => (
-          <TH key={key} customStyles={customStyles}>
+          <TH key={key} customStyles={[customStyles, columnStyle]}>
             {title}
           </TH>
         ))}
@@ -54,7 +54,7 @@ export const Table = ({ data, columns, getLocalisation }) => {
         // eslint-disable-next-line react/no-array-index-key
         <TR key={i}>
           {visibleColumns.map(({ accessor, key, customStyles }) => (
-            <TD key={key} customStyles={customStyles}>
+            <TD key={key} customStyles={[customStyles, columnStyle]}>
               {accessor ? accessor(row, getLocalisation) : row[key]}
             </TD>
           ))}
