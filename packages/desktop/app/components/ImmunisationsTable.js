@@ -54,6 +54,7 @@ export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => {
   return (
     <DataFetchingTable
       endpoint={`patient/${patient.id}/administeredVaccines`}
+      initialSort={[['date', 'desc']]}
       fetchOptions={{ includeNotGiven }}
       columns={columns}
       optionRow={notGivenCheckBox}
