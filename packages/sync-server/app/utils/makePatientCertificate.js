@@ -12,6 +12,7 @@ import {
   CovidVaccineCertificate,
 } from 'shared/utils';
 import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
+
 import { getLocalisation } from '../localisation';
 
 async function getCertificateAssets(models) {
