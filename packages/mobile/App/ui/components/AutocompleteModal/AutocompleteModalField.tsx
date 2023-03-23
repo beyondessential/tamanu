@@ -1,5 +1,6 @@
 import React, { useEffect, useState, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
@@ -48,12 +49,15 @@ export const AutocompleteModalField = ({
   }, [value]);
 
   return (
-    <>
+    <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
+      <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
+        {label}
+      </StyledText>
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor="#888888"
-        buttonText={label}
+        buttonText="Select"
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
@@ -66,6 +70,6 @@ export const AutocompleteModalField = ({
         onPress={openModal}
       />
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
-    </>
+    </StyledView>
   );
 };

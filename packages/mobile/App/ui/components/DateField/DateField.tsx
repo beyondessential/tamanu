@@ -8,7 +8,6 @@ import { theme } from '/styled/theme';
 import { DateFormats } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as Icons from '../Icons';
-import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import { InputContainer } from '../TextField/styles';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
@@ -41,17 +40,18 @@ const DatePicker = ({
   value,
   min,
   max,
-}: DatePickerProps): ReactElement => (isVisible ? (
-  <DateTimePicker
-    value={value}
-    mode={mode}
-    display="spinner"
-    onChange={onDateChange}
-    style={styles.androidPickerStyles}
-    maximumDate={max}
-    minimumDate={min}
-  />
-) : null);
+}: DatePickerProps): ReactElement =>
+  isVisible ? (
+    <DateTimePicker
+      value={value}
+      mode={mode}
+      display="spinner"
+      onChange={onDateChange}
+      style={styles.androidPickerStyles}
+      maximumDate={max}
+      minimumDate={min}
+    />
+  ) : null;
 
 export interface DateFieldProps extends BaseInputProps {
   value: Date | string;
@@ -127,7 +127,7 @@ export const DateField = React.memo(
                 marginRight={10}
                 height="100%"
                 width={screenPercentageToDP(2.4, Orientation.Height)}
-               >
+              >
                 <IconComponent
                   height={screenPercentageToDP(2.4, Orientation.Height)}
                   width={screenPercentageToDP(2.4, Orientation.Height)}
@@ -138,19 +138,19 @@ export const DateField = React.memo(
           </TouchableWithoutFeedback>
         </StyledView>
         {// see: https://github.com/react-native-datetimepicker/datetimepicker/issues/182#issuecomment-643156239
-          React.useMemo(
-            () => (
-              <DatePicker
-                onDateChange={onAndroidDateChange}
-                mode={mode}
-                isVisible={isDatePickerVisible}
-                value={dateValue || new Date()}
-                min={min}
-                max={max}
-              />
-            ),
-            [isDatePickerVisible],
-          )}
+        React.useMemo(
+          () => (
+            <DatePicker
+              onDateChange={onAndroidDateChange}
+              mode={mode}
+              isVisible={isDatePickerVisible}
+              value={dateValue || new Date()}
+              min={min}
+              max={max}
+            />
+          ),
+          [isDatePickerVisible],
+        )}
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
       </StyledView>
     );

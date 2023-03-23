@@ -29,7 +29,7 @@ const DumbLabRequestTabs = ({
   return (
     <>
       <StackHeader
-        title="Lab Request"
+        title="New Test - Lab request"
         subtitle={getPatientName(selectedPatient)}
         onGoBack={goBack}
       />
