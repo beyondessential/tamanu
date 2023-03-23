@@ -42,13 +42,14 @@ public class PowerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void removeScreenOnListener() {
+    public void removeListeners() {
+        try {
         this.reactContext.unregisterReceiver(new ScreenOnReceiver());
-    }
-
-    @ReactMethod
-    public void removeScreenOffListener() {
-        this.reactContext.unregisterReceiver(new ScreenOffReceiver());
+        } catch (IllegalArgumentException e) {
+           // The receiver was not registered.
+           // There is nothing to do in that case.
+           // Everything is fine.
+        }
     }
 
     private class ScreenOnReceiver extends android.content.BroadcastReceiver {

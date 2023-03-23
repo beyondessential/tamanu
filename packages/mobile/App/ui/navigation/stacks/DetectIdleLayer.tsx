@@ -60,11 +60,17 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
   };
 
   useEffect(() => {
+    PowerModule.addScreenOffListener();
+    PowerModule.addScreenOnListener();
+    return () => {
+      PowerModule.removeListeners();
+    }
+  },[])
+
+  useEffect(() => {
     let intervalId: number;
     let subscriptions: EmiterSubscription[] = [];
     if (signedIn) {
-      PowerModule.addScreenOffListener();
-      PowerModule.addScreenOnListener();
       subscriptions = [
         powerEventEmitter.addListener('screenOff', handleScreenOff),
         powerEventEmitter.addListener('screenOn', handleScreenOn),
@@ -84,10 +90,9 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
         clearInterval(intervalId);
       }
       subscriptions.forEach(subscription => subscription?.remove());
-      PowerModule.removeScreenOffListener();
-      PowerModule.removeScreenOnListener();
     };
-  }, [idle, signedIn]);
+  }, [idle, signedIn, screenOffTime]);
+
 
   const panResponder = useRef(
     PanResponder.create({
