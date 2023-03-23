@@ -64,7 +64,13 @@ export async function up(query) {
   }
 }
 
-export async function down() {
-  // No down as is a data correction
-  return null;
+export async function down(query) {
+  for (const migration of MIGRATIONS) {
+    await query.sequelize.query(`
+      ALTER TABLE ${migration.TABLE}
+      ALTER COLUMN ${migration.FIELD} TYPE ${migration.LEGACY_TYPE?.postgres ||
+      'timestamp with time zone'} USING ${migration.FIELD}_legacy;
+    `);
+    await query.removeColumn(migration.TABLE, `${migration.FIELD}_legacy`);
+  }
 }
