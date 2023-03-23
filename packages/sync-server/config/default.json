@@ -635,6 +635,10 @@
           "subject": "Medical Certificate now available",
           "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
         },
+        "covidVaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
         "covidTestCertificateEmail": {
           "subject": "Medical Certificate now available",
           "body": "A medical certificate has been generated for you.\nYour certificate is attached to this email."

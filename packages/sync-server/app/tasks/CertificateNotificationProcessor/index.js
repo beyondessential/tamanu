@@ -8,12 +8,17 @@ import {
   ICAO_DOCUMENT_TYPES,
   CERTIFICATE_NOTIFICATION_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
+  VACCINATION_CERTIFICATE,
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { generateUVCI } from 'shared/utils/uvci';
 import { CertificateTypes } from 'shared/utils/patientCertificates';
-import { makeVaccineCertificate, makeCovidCertificate } from '../../utils/makePatientCertificate';
+import {
+  makeVaccineCertificate,
+  makeCovidVaccineCertificate,
+  makeCovidCertificate,
+} from '../../utils/makePatientCertificate';
 import { getLocalisation } from '../../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
 import { createEuDccVaccinationData, HCERTPack } from '../../integrations/EuDcc';
@@ -86,7 +91,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
         switch (type) {
           case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON: {
-            template = 'vaccineCertificateEmail';
+            template = 'covidVaccineCertificateEmail';
             const latestCertifiableVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
               certifiableVaccineIds,
@@ -130,7 +135,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
+            pdf = await makeCovidVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;
           }
 
@@ -170,6 +175,11 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               models,
               qrData,
             );
+            break;
+
+          case VACCINATION_CERTIFICATE:
+            template = 'vaccineCertificateEmail';
+            pdf = await makeVaccineCertificate(patient, printedBy, models);
             break;
 
           default:

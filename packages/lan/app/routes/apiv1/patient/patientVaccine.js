@@ -159,7 +159,7 @@ patientVaccineRoutes.get(
     req.checkPermission('list', 'PatientVaccine');
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const results = await patient.getAdministeredVaccines();
+    const results = await patient.getAdministeredVaccines(req.query);
 
     // TODO: enable pagination for this endpoint
     res.send({ count: results.length, data: results });
