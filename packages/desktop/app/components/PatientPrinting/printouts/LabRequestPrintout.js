@@ -32,7 +32,7 @@ export const LabRequestPrintout = React.memo(
           'Sample time': sampleTime ? <DateDisplay date={sampleTime} showTime /> : null,
           Priority: priority?.name,
           'Test category': category?.name,
-          Test: tests.map(test => test.labTestType?.name).join(', '),
+          'Test type': tests.map(test => test.labTestType?.name).join(', '),
         }}
       />
     );
