@@ -1,6 +1,7 @@
 import React from 'react';
+import { startCase } from 'lodash';
 
-import { DateDisplay } from '../../DateDisplay';
+import { DateDisplay, MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -30,14 +31,19 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REQUESTED_DATE,
-    title: 'Request date',
+    title: 'Requested date and time',
     sortable: false,
-    accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
-    printout: { widthProportion: 4 },
+    form: {
+      accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} />,
+    },
+    printout: {
+      widthProportion: 4,
+      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
+    },
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
-    title: 'Requesting clinician',
+    title: 'Requested by',
     sortable: false,
     maxWidth: 300,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
@@ -48,6 +54,7 @@ const COMMON_COLUMNS = [
     title: 'Priority',
     sortable: false,
     form: { hidden: true },
+    accessor: ({ priority }) => startCase(priority),
     printout: { widthProportion: 3 },
   },
   {

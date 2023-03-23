@@ -21,10 +21,11 @@ export const LocalisedCertificateLabel = ({
   margin = '20px',
   size = '12px',
   className,
+  path = `fields.${name}.longLabel`,
 }) => (
   <Text $margin={margin} $size={size} className={className}>
     <strong>
-      <LocalisedText path={`fields.${name}.longLabel`} />:{' '}
+      <LocalisedText path={path} />:{' '}
     </strong>
     {children}
   </Text>
