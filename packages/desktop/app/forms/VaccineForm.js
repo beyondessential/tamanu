@@ -6,7 +6,11 @@ import { VACCINE_RECORDING_TYPES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { Form } from '../components/Field';
-import { VaccineGivenForm, VACCINE_GIVEN_VALIDATION_SCHEMA } from './VaccineGivenForm';
+import {
+  VaccineGivenForm,
+  VACCINE_GIVEN_INITIAL_VALUES,
+  VACCINE_GIVEN_VALIDATION_SCHEMA,
+} from './VaccineGivenForm';
 import { VaccineNotGivenForm, VACCINE_NOT_GIVEN_VALIDATION_SCHEMA } from './VaccineNotGivenForm';
 import { getCurrentUser } from '../store/auth';
 import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
@@ -67,6 +71,9 @@ export const VaccineForm = ({ onCancel, onSubmit, getScheduledVaccines, vaccineR
       onSubmit={onSubmit}
       initialValues={{
         date: getCurrentDateTimeString(),
+        ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
+          ? VACCINE_GIVEN_INITIAL_VALUES
+          : {}),
       }}
       validationSchema={
         vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN

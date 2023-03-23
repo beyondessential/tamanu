@@ -22,6 +22,10 @@ import {
 } from '../components/VaccineCommonFields';
 import { Field, CheckField } from '../components/Field';
 
+export const VACCINE_GIVEN_INITIAL_VALUES = {
+  givenOverseas: false,
+};
+
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
   scheduledVaccineId: yup.string().required(),
   date: yup.string().required(),
