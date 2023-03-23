@@ -1,8 +1,11 @@
 import { debounce } from 'lodash';
 import React, { ReactElement, ReactNode, useCallback, useRef, useEffect, useState } from 'react';
-import { Keyboard, PanResponder } from 'react-native';
+import { Keyboard, PanResponder, NativeModules, DeviceEventEmitter, NativeEventEmitter } from 'react-native';
 import { StyledView } from '~/ui/styled/common';
 import { useAuth } from '../../contexts/AuthContext';
+
+const { PowerModule } = NativeModules;
+const powerEventEmitter = new NativeEventEmitter(PowerModule)
 
 interface DetectIdleLayerProps {
   children: ReactNode;
@@ -13,6 +16,7 @@ const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
+  const [screenOffTime, setScreenOffTime] = useState<number>();
   const { signOutClient, signedIn } = useAuth();
 
   const resetIdle = (): void => {
@@ -32,14 +36,46 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     signOutClient(true);
   };
 
+  const handleScreenOff = () => {
+    setScreenOffTime(Date.now())
+  }
+
+  const handleScreenOn = () => {
+    if (screenOffTime) {
+      const timeDiff = Date.now() - screenOffTime;
+      const newIdle = idle + timeDiff;
+      setIdle(newIdle);
+      setScreenOffTime(undefined)
+      if (newIdle >= UI_EXPIRY_TIME) {
+        handleIdleLogout();
+      }
+    }
+  }
+
   useEffect(() => {
-    const hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
-    const showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
+    let subscriptions = []
+    if (signedIn) {
+      subscriptions = [
+        powerEventEmitter.addListener('screenOff', handleScreenOff),
+        powerEventEmitter.addListener('screenOn', handleScreenOn),
+        Keyboard.addListener('keyboardDidHide', handleResetIdle),
+        Keyboard.addListener('keyboardDidShow', handleResetIdle),
+      ]
+    }
     return () => {
-      hideEvent?.remove();
-      showEvent?.remove();
+      subscriptions.forEach(subscription => subscription?.remove())
     };
-  }, []);
+  }, [screenOffTime, idle, signedIn]);
+
+  useEffect(() => {
+    PowerModule.addScreenOffListener();
+    PowerModule.addScreenOnListener();
+    
+    return () => {
+      PowerModule.removeScreenOffListener();
+      PowerModule.removeScreenOnListener();
+    } 
+  },[])
 
   useEffect(() => {
     let intervalId: number;
