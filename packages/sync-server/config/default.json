@@ -723,6 +723,9 @@
         "label": "Other"
       }],
       "printMeasures": {
+        "labRequestPrintLabel": {
+          "width": 50.8
+        },
         "stickerLabelPage": {
           "pageWidth": "210mm",
           "pageHeight": "297mm",

@@ -30,6 +30,7 @@ import { LabRequestCard } from './components/LabRequestCard';
 import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -50,19 +51,18 @@ const MODALS = {
   VIEW_STATUS_LOG: 'viewStatusLog',
   RECORD_SAMPLE: 'recordSample',
   PRINT: 'print',
+  LABEL_PRINT: 'labelPrint',
   CHANGE_LABORATORY: 'changeLaboratory',
   CHANGE_PRIORITY: 'changePriority',
   CANCEL: 'cancel',
 };
 
 const Menu = ({ setModal, status }) => {
-  // Todo: add print label action in WAITM-659
-  // const menuActions = {
-  //   'Print label': () => {
-  //     setModal(MODALS.PRINT);
-  //   },
-  // };
-  const menuActions = {};
+  const menuActions = {
+    'Print label': () => {
+      setModal(MODALS.LABEL_PRINT);
+    },
+  };
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions['Cancel request'] = () => {
@@ -194,6 +194,11 @@ export const LabRequestView = () => {
         labRequest={labRequest}
         patient={patient}
         open={modal === MODALS.PRINT}
+        onClose={closeModal}
+      />
+      <LabRequestPrintLabelModal
+        labRequests={[labRequest]}
+        open={modal === MODALS.LABEL_PRINT}
         onClose={closeModal}
       />
       <LabRequestChangeLabModal
