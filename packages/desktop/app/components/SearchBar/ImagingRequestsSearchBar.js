@@ -1,6 +1,6 @@
 import React from 'react';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { DateField, LocalisedField, SelectField } from '../Field';
+import { DateField, LocalisedField, SelectField, Field, CheckField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 
@@ -54,6 +54,7 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
         saveDateAsString
         component={DateField}
       />
+      <Field name="allFacilities" label="Include all facilities" component={CheckField} />
     </CustomisableSearchBar>
   );
 };
