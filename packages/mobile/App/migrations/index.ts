@@ -15,6 +15,7 @@ import { wipeAllDataAndResync1675907161000 } from './1675907161000-wipeAllDataAn
 import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationGroupTable';
 import { addNoteTables1677554085000 } from './1677554085000-addNoteTables';
 import { addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000 } from './1678061990000-addNotGivenReasonIdColumnToAdministeredVaccineTable';
+import { addSettingTable1678400759000 } from './1678400759000-addSettingTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -33,4 +34,5 @@ export const migrationList = [
   addLocationGroupTable1673396917000,
   addNoteTables1677554085000,
   addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
+  addSettingTable1678400759000,
 ];

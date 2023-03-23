@@ -1,5 +1,8 @@
+import config from 'config';
+
 import { createDummyEncounter, createDummyPatient, randomVitals } from 'shared/demoData/patients';
-import { VACCINE_CATEGORIES } from 'shared/constants';
+import { VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, VACCINE_STATUS } from 'shared/constants';
+import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
 import { VACCINE_STATUS } from 'shared/constants/vaccines';
@@ -15,6 +18,12 @@ describe('PatientVaccine', () => {
   let scheduled3 = null;
   
   let patient = null;
+  let clinician = null;
+  let location = null;
+  let department = null;
+  let facility = null;
+  let givenVaccine1 = null;
+  let notGivenVaccine1 = null;
 
   const administerVaccine = async (patient, vaccine, overrides) => {
     const encounter = await models.Encounter.create(
@@ -35,6 +44,14 @@ describe('PatientVaccine', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
 
+    clinician = await models.User.create(fake(models.User));
+    [facility] = await models.Facility.upsert({
+      id: config.serverFacilityId,
+      name: config.serverFacilityId,
+      code: config.serverFacilityId,
+    });
+    patient = await models.Patient.create(await createDummyPatient(models));
+    patient2 = await models.Patient.create(await createDummyPatient(models));
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
 
@@ -57,11 +74,57 @@ describe('PatientVaccine', () => {
     scheduled3 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.CAMPAIGN }),
     );
-    
-    // set up clinical data
-    patient = await models.Patient.create(await createDummyPatient(models));
-    await administerVaccine(patient, scheduled2);
 
+    const locationGroup = await models.LocationGroup.create({
+      ...fake(models.LocationGroup),
+      facilityId: facility.id,
+    });
+    location = await models.Location.create({
+      ...fake(models.Location),
+      locationGroupId: locationGroup.id,
+      facilityId: facility.id,
+    });
+    department = await models.Department.create({
+      ...fake(models.Department),
+      facilityId: facility.id,
+    });
+
+    // add an administered vaccine for patient1, of schedule 2
+    const encounter = await models.Encounter.create(
+      await createDummyEncounter(models, { patientId: patient.id }),
+    );
+
+    // create the encounter with multiple vitals records
+    await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
+    await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
+
+    givenVaccine1 = await models.AdministeredVaccine.create(
+      await createAdministeredVaccine(models, {
+        scheduledVaccineId: scheduled2.id,
+        encounterId: encounter.id,
+        status: VACCINE_STATUS.GIVEN,
+      }),
+    );
+
+    notGivenVaccine1 = await models.AdministeredVaccine.create(
+      await createAdministeredVaccine(models, {
+        scheduledVaccineId: scheduled2.id,
+        encounterId: encounter.id,
+        status: VACCINE_STATUS.NOT_GIVEN,
+      }),
+    );
+
+    await models.AdministeredVaccine.create(
+      await createAdministeredVaccine(models, {
+        scheduledVaccineId: scheduled2.id,
+        encounterId: encounter.id,
+        status: VACCINE_STATUS.UNKNOWN,
+      }),
+    );
+
+      // set up clinical data
+      patient = await models.Patient.create(await createDummyPatient(models));
+      await administerVaccine(patient, scheduled2);
   });
 
   afterAll(() => ctx.close());
@@ -146,6 +209,65 @@ describe('PatientVaccine', () => {
         .send({ status: 'RECORDED_IN_ERROR' });
       expect(markedAsRecordedInError).toHaveSucceeded();
       expect(markedAsRecordedInError.body.status).toEqual('RECORDED_IN_ERROR');
+    });
+
+    it('Should record vaccine with country when it is given overseas', async () => {
+      const [country] = await models.ReferenceData.upsert({
+        type: 'country',
+        name: 'Australia',
+        code: 'Australia',
+      });
+
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_RECORDING_TYPES.GIVEN,
+        locationId: location.id,
+        departmentId: department.id,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        patientId: patient.id,
+        date: new Date(),
+        givenOverseas: true,
+        givenBy: country.name,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+
+      expect(vaccine.givenOverseas).toEqual(true);
+      expect(vaccine.givenBy).toEqual(country.name);
+    });
+
+    it('Should record vaccine with correct values when category is Other', async () => {
+      const VACCINE_BRAND = 'Test Vaccine Brand';
+      const VACCINE_NAME = 'Test Vaccine Name';
+      const VACCINE_DISEASE = 'Test Vaccine Disease';
+
+      const otherScheduledVaccine = await models.ScheduledVaccine.create(
+        await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.OTHER }),
+      );
+
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_RECORDING_TYPES.GIVEN,
+        category: VACCINE_CATEGORIES.OTHER,
+        locationId: location.id,
+        departmentId: department.id,
+        recorderId: clinician.id,
+        patientId: patient.id,
+        date: new Date(),
+        vaccineBrand: VACCINE_BRAND,
+        vaccineName: VACCINE_NAME,
+        disease: VACCINE_DISEASE,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+
+      expect(vaccine.scheduledVaccineId).toEqual(otherScheduledVaccine.id);
+      expect(vaccine.vaccineBrand).toEqual(VACCINE_BRAND);
+      expect(vaccine.vaccineName).toEqual(VACCINE_NAME);
+      expect(vaccine.disease).toEqual(VACCINE_DISEASE);
     });
   });
 });
