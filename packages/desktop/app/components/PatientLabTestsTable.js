@@ -2,10 +2,12 @@ import React from 'react';
 
 import { DataFetchingTable } from './Table';
 
+const getNormalRange = () => {};
+
 const columns = [
-  // Test category
-  // Test type
-  // Normal Range
+  { key: 'testCategory', title: 'Test category' },
+  { key: 'testType', title: 'Test type' },
+  { key: 'normalRange', title: 'Normal range', accessor: getNormalRange },
   // [Date]
 ];
 

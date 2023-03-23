@@ -302,7 +302,7 @@ patientRelations.get(
             WHERE
               patient_id = :patientId
             )
-          AND lab_tests.status = '${status}'
+          AND lab_requests.status = '${status}'
           ${categoryId ? `AND category_id = '${categoryId}'` : ''}
           ${
             panelId
@@ -317,13 +317,35 @@ patientRelations.get(
           }
       `,
       `
-        SELECT lab_tests.*
+        SELECT
+          lab_tests.*,
+          reference_data.name AS test_category,
+          lab_test_types.name AS test_type,
+          lab_test_types.unit AS unit,
+          json_build_object(
+            'male', json_build_object(
+              'min', lab_test_types.male_min,
+              'max', lab_test_types.male_max
+            ),
+            'female', json_build_object(
+              'min', lab_test_types.female_min,
+              'max', lab_test_types.female_max
+            )
+          ) AS normal_ranges
         FROM
           lab_tests
         INNER JOIN
           lab_requests
         ON
           lab_tests.lab_request_id = lab_requests.id
+        INNER JOIN
+          lab_test_types
+        ON
+          lab_tests.lab_test_type_id = lab_test_types.id
+        INNER JOIN
+          reference_data
+        ON
+          lab_test_types.lab_test_category_id = reference_data.id
         WHERE
         encounter_id IN (
             SELECT id
@@ -332,7 +354,7 @@ patientRelations.get(
             WHERE
               patient_id = :patientId
           )
-        AND lab_tests.status = '${status}'
+        AND lab_requests.status = '${status}'
         ${categoryId ? `AND category_id = '${categoryId}'` : ''}
         ${
           panelId
