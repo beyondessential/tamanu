@@ -15,19 +15,17 @@ export const CertificateLabel = ({ name, children, margin = '20px', size = '12px
   </Text>
 );
 
-const sanitiseLength = length => (length === 'short' ? 'shortLabel' : 'longLabel');
-
 export const LocalisedCertificateLabel = ({
   name,
   children,
   margin = '20px',
   size = '12px',
   className,
-  length = 'long',
+  path = `fields.${name}.longLabel`,
 }) => (
   <Text $margin={margin} $size={size} className={className}>
     <strong>
-      <LocalisedText path={`fields.${name}.${sanitiseLength(length)}`} />:{' '}
+      <LocalisedText path={path} />:{' '}
     </strong>
     {children}
   </Text>
