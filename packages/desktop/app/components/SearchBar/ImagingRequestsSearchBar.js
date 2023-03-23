@@ -3,11 +3,9 @@ import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { DateField, LocalisedField, SelectField, Field, CheckField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useAuth } from '../../contexts/Auth';
 
 export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
-  const { facility } = useAuth();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
 

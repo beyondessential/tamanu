@@ -360,7 +360,6 @@ globalImagingRequests.get(
 
     const location = {
       association: 'location',
-
       where: {
         facilityId:
           filterParams.allFacilities === 'true'
