@@ -18,7 +18,6 @@ import {
   getPriority,
   getDateTime,
   getRequestId,
-  getLaboratory,
 } from '../utils/lab';
 
 const encounterColumns = [
@@ -37,7 +36,6 @@ const globalColumns = [
     accessor: getPatientDisplayId,
     sortable: false,
   },
-  { key: 'laboratory', title: 'Laboratory', accessor: getLaboratory },
   ...encounterColumns,
 ];
 
