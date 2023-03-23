@@ -7,7 +7,7 @@ export const PatientResultsPane = React.memo(({ patient }) => {
   return (
     <ContentPane>
       {/* TODO Add filter dropdowns */}
-      <PatientLabTestsTable patientId={patient.id} />
+      <PatientLabTestsTable patient={patient} />
     </ContentPane>
   );
 });

@@ -269,7 +269,7 @@ patientRelations.get(
 );
 
 patientRelations.get(
-  '/:id/labTests',
+  '/:id/labTestResults',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'LabTest');
     const {
@@ -279,9 +279,7 @@ patientRelations.get(
       query,
     } = req;
 
-    const { order = 'ASC', orderBy, categoryId, panelId, status = 'published' } = query;
-
-    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    const { categoryId, panelId, status = 'published' } = query;
 
     const { count, data } = await runPaginatedQuery(
       db,
@@ -318,20 +316,22 @@ patientRelations.get(
       `,
       `
         SELECT
-          lab_tests.*,
           reference_data.name AS test_category,
           lab_test_types.name AS test_type,
-          lab_test_types.unit AS unit,
-          json_build_object(
-            'male', json_build_object(
-              'min', lab_test_types.male_min,
-              'max', lab_test_types.male_max
+          FIRST(lab_test_types.unit) AS unit,
+          JSONB_BUILD_OBJECT(
+            'male', JSONB_BUILD_OBJECT(
+              'min', MIN(lab_test_types.male_min),
+              'max', MAX(lab_test_types.male_max)
             ),
-            'female', json_build_object(
-              'min', lab_test_types.female_min,
-              'max', lab_test_types.female_max
+            'female', JSONB_BUILD_OBJECT(
+              'min', MIN(lab_test_types.female_min),
+              'max', MAX(lab_test_types.female_max)
             )
-          ) AS normal_ranges
+          ) AS normal_ranges,
+          JSONB_OBJECT_AGG(
+            lab_requests.sample_time, lab_tests.result
+          ) AS results
         FROM
           lab_tests
         INNER JOIN
@@ -367,7 +367,10 @@ patientRelations.get(
              )`
             : ''
         }
-        ${orderBy ? `ORDER BY ${orderBy} ${sortDirection}` : ''}
+        GROUP BY
+          test_category, test_type
+        ORDER BY
+          test_category
       `,
       { patientId: params.id },
       query,
