@@ -356,9 +356,17 @@ globalImagingRequests.get(
       association: 'patient',
       where: patientFilters,
     };
+
+    const location = {
+      association: 'location',
+      where: filterParams.facility
+        ? { facilityId: filterParams.facility }
+        : { facilityId: { [Op.like]: '%' } },
+    };
+
     const encounter = {
       association: 'encounter',
-      include: [patient],
+      include: [patient, location],
       required: true,
     };
 
