@@ -15,8 +15,8 @@ export const LabRequestsSearchBar = () => {
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
       <LocalisedField name="displayId" />
-      <LocalisedField name="requestId" defaultLabel="Request ID" />
-      <LocalisedField name="category" defaultLabel="Type" />
+      <LocalisedField name="requestId" defaultLabel="Test ID" />
+      <LocalisedField name="category" defaultLabel="Test category" />
       <LocalisedField
         name="status"
         defaultLabel="Status"
