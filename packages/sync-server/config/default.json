@@ -86,6 +86,7 @@
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",
+      "absoluteExpiration": false,
       "refreshIdLength": 54
     },
     "resetPassword": {
@@ -232,7 +233,15 @@
       "requireClientHeaders": true
     },
     "fhir": {
-      "enabled": false
+      // Enabling the HTTP routes and enabling the worker are completely separate:
+      // one may be enabled without the other and vice versa. The worker is on by
+      // default so that FHIR resources can be used as a target for reports without
+      // the FHIR API being exposed to the public in a deployment that doesn't need it.
+      "enabled": false, // the HTTP routes
+      "worker": {
+        "enabled": true, // the materialisation worker
+        "concurrency": 100
+      }
     },
     "omniLab": {
       "enabled": false,
@@ -623,6 +632,10 @@
           "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
         },
         "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidVaccineCertificateEmail": {
           "subject": "Medical Certificate now available",
           "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
         },

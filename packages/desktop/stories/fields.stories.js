@@ -237,6 +237,8 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
+)).add('Small', () => (
+  <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} size="small" />
 ));
 
 addStories('MultiselectInput', props => (
@@ -257,6 +259,15 @@ const dummySuggester = {
 addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
 ))
+  .add('Small', () => (
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      value="pomegranates"
+      label="Fruit"
+      size="small"
+      suggester={dummySuggester}
+    />
+  ))
   .add('Asynchronous options', () => (
     <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
   ))
