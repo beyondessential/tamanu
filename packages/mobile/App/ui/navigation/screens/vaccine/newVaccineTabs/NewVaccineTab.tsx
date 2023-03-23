@@ -14,6 +14,7 @@ import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { Routes } from '~/ui/helpers/routes';
 
 type NewVaccineTabProps = {
   route: Route & {
@@ -44,22 +45,42 @@ export const NewVaccineTabComponent = ({
     async (values: VaccineFormValues): Promise<void> => {
       if (isSubmitting) return;
       setSubmitting(true);
-      const { scheduledVaccineId, recorderId, date, ...otherValues } = values;
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      const {
+        scheduledVaccineId,
+        recorderId,
+        date,
+        scheduledVaccine,
+        encounter,
+        ...otherValues
+      } = values;
+      const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
       );
 
-      await models.AdministeredVaccine.createAndSaveOne({
+      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne({
         ...otherValues,
         date: date ? formatISO9075(date) : null,
         id: administeredVaccine?.id,
         scheduledVaccine: scheduledVaccineId,
         recorder: recorderId,
-        encounter: encounter.id,
+        encounter: vaccineEncounter.id,
       });
 
-      navigation.goBack();
+      if (values.administeredVaccine) {
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
+          vaccine: {
+            ...vaccine,
+            administeredVaccine: {
+              ...updatedVaccine,
+              encounter,
+              scheduledVaccine,
+            },
+          },
+        });
+      } else {
+        navigation.goBack();
+      }
     },
     [isSubmitting],
   );
