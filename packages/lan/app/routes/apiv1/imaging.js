@@ -358,13 +358,15 @@ globalImagingRequests.get(
       where: patientFilters,
     };
 
+    const locationWhere = {
+      where: JSON.parse(filterParams.allFacilities)
+        ? {}
+        : { facilityId: { [Op.eq]: config.serverFacilityId } },
+    };
+
     const location = {
       association: 'location',
-      where: {
-        facilityId: JSON.parse(filterParams.allFacilities)
-          ? { [Op.like]: '%' }
-          : { [Op.eq]: config.serverFacilityId },
-      },
+      ...locationWhere,
     };
 
     const encounter = {
