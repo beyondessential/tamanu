@@ -8,6 +8,17 @@ export async function up(query) {
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
+    deleted_at: {
+      type: Sequelize.DATE,
+    },
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.fn('current_timestamp', 3),
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.fn('current_timestamp', 3),
+    },
     template_type: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -27,16 +38,13 @@ export async function up(query) {
     body: {
       type: Sequelize.STRING,
     },
-    deleted_at: {
-      type: Sequelize.DATE,
-    },
-    created_at: {
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
-    },
-    updated_at: {
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 3),
+    created_by_id: {
+      type: Sequelize.STRING,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      allowNull: true,
     },
   });
 }

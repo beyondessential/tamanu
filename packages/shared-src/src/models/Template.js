@@ -42,4 +42,11 @@ export class Template extends Model {
       },
     );
   }
+
+  static initRelations(models) {
+    this.belongsTo(models.User, {
+      foreignKey: 'createdById',
+      as: 'createdBy',
+    });
+  }
 }
