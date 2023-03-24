@@ -34,7 +34,8 @@ const searchTestPatients = [
   {
     displayId: 'multiple-secondary-id',
     secondaryIds: ['multi-secondary-1', 'multi-secondary-2', 'multi-secondary-3'],
-    firstName: 'ignored-name', lastName: 'ignored-name'
+    firstName: 'ignored-name',
+    lastName: 'ignored-name',
   },
   { displayId: 'matching-2ndary-id', secondaryIds: ['matching-2ndary-id'], firstName: 'ignored-name', lastName: 'ignored-name' },
   { firstName: 'search-by-name', lastName: 'ignored-name' },
