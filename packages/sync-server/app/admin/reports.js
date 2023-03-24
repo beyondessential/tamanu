@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import sequelize, { QueryTypes } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 
 export const getReports = asyncHandler(async (req, res) => {
   const { store } = req;
