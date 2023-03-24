@@ -1,31 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { KeyboardArrowDownRounded } from '@material-ui/icons';
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
+import { JsonEditor } from 'jsoneditor-react';
 import { useApi } from '../../../api';
-import {
-  TopBar,
-  PageContainer,
-  SelectInput,
-  FormGrid,
-  Form,
-  Table,
-  useSelectableColumn,
-  Heading2,
-  Heading4,
-  Button,
-} from '../../../components';
-import { Colors } from '../../../constants';
+import { TopBar, PageContainer, Table, Heading4, Button } from '../../../components';
 
 const StyledTable = styled(Table)``;
 
 export const ReportsAdminView = React.memo(() => {
   const [report, setReport] = useState(null);
   const [version, setVersion] = useState(null);
-  const [json, setJSON] = useState(null);
-
   const api = useApi();
   const { data: reportData = [], isLoading: reportLoading, error: reportError } = useQuery(
     ['reportList'],
@@ -42,36 +26,29 @@ export const ReportsAdminView = React.memo(() => {
 
   const handleBack = () => setVersion(null);
 
-  console.log(json)
-
   return (
     <PageContainer>
       <TopBar title="Reports" />
-      <div style={{ width: 'auto', padding: 20 }}>
+      <div style={{ width: 'auto', padding: 20, display: 'flex', alignItems: 'flex-start' }}>
         {version ? (
           <div>
             <Button variant="outlined" onClick={handleBack} style={{ marginBottom: 20 }}>
               Back
             </Button>
-            <Heading2>
+            <Heading4 marginBottom={2}>
               <b>Report name:</b> {report.name}
-            </Heading2>
-            <Heading2>
+            </Heading4>
+            <Heading4 marginBottom={2}>
               <b>Report version:</b> {version.versionNumber}
-            </Heading2>
-<Editor value={version} onChange={(w) => {
-  console.log(w)
-}}/>
-
+            </Heading4>
+            <JsonEditor value={version} />
           </div>
         ) : (
           <>
             <StyledTable
               allowExport={false}
-              onRowClick={row => setReport(row)}
-              rowStyle={({ id }) => {
-                return id === report?.id ? { backgroundColor: '#f5f5f5' } : {};
-              }}
+              onRowClick={setReport}
+              rowStyle={({ id }) => (id === report?.id ? { backgroundColor: '#f5f5f5' } : {})}
               columns={[
                 {
                   title: 'Name',
@@ -98,37 +75,25 @@ export const ReportsAdminView = React.memo(() => {
             />
             {versionData && (
               <>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    width: '100%',
-                    marginTop: 35,
-                  }}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Heading4>Select version</Heading4>
-                    <KeyboardArrowDownRounded style={{ fontSize: '44px' }} />
-                  </div>
-                </div>
-                <div style={{ marginTop: 20 }}>
+                <div style={{ marginLeft: 20 }}>
                   <StyledTable
                     allowExport={false}
-                    onRowClick={row => {
-                      setVersion(row);
-                      console.log(row);
-                    }}
+                    onRowClick={setVersion}
                     columns={[
                       {
                         title: 'Version number',
                         key: 'versionNumber',
-                        minWidth: 400,
+                        minWidth: 200,
                       },
                       {
                         title: 'Last updated',
                         key: 'updatedAt',
                         minWidth: 300,
                         accessor: ({ updatedAt }) => new Date(updatedAt).toLocaleString(),
+                      },
+                      {
+                        title: 'Status',
+                        key: 'status',
                       },
                     ]}
                     data={versionData}
