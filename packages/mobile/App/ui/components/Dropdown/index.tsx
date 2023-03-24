@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
 import { StyledView } from '/styled/common';
-import MultiSelect from 'react-native-multiple-select';
+import { MultiSelect } from './MultipleSelect';
+import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -21,25 +22,45 @@ export interface DropdownProps extends BaseInputProps {
   label?: string;
   placeholderText?: string;
   value?: string | string[];
+  // Note the disabled prop is only known to work with
+  // - single
+  // - non-filterable
+  disabled?: boolean;
 }
 
-const DEFAULT_STYLE_PROPS = {
-  styleDropdownMenuSubsection: {
-    paddingLeft: 12,
+const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
+  DEFAULT: {
+    styleDropdownMenuSubsection: {
+      paddingLeft: 12,
+    },
+  },
+  ERROR: {
+    styleInputGroup: {
+      borderColor: theme.colors.ERROR,
+      borderWidth: 1,
+    },
+    styleDropdownMenuSubsection: {
+      paddingLeft: 12,
+      borderRadius: 3,
+      borderColor: theme.colors.ERROR,
+      borderWidth: 1,
+    },
+  },
+  DISABLED: {
+    textColor: theme.colors.DISABLED_GREY,
+    styleDropdownMenuSubsection: {
+      backgroundColor: theme.colors.BACKGROUND_GREY,
+      borderWidth: 0.5,
+      borderColor: theme.colors.DISABLED_GREY,
+      paddingLeft: 12,
+    },
   },
 };
 
-const ERROR_STYLE_PROPS = {
-  styleInputGroup: {
-    borderColor: theme.colors.ERROR,
-    borderWidth: 1,
-  },
-  styleDropdownMenuSubsection: {
-    paddingLeft: 12,
-    borderRadius: 3,
-    borderColor: theme.colors.ERROR,
-    borderWidth: 1,
-  },
+const getStyleProps = (error, disabled): Partial<MultiSelectProps> => {
+  if (error) return STYLE_PROPS.ERROR;
+  if (disabled) return STYLE_PROPS.DISABLED;
+  return STYLE_PROPS.DEFAULT;
 };
 
 export const Dropdown = React.memo(
@@ -51,6 +72,7 @@ export const Dropdown = React.memo(
     placeholderText = 'Search Items...',
     value = [],
     error,
+    disabled,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
     const componentRef = useRef(null);
@@ -94,7 +116,8 @@ export const Dropdown = React.memo(
           }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
-          {...(error ? ERROR_STYLE_PROPS : DEFAULT_STYLE_PROPS)}
+          disabled={disabled}
+          {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
       </StyledView>

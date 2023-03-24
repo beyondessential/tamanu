@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "isolatedModules": false,
     "baseUrl": ".",
-    "paths": {      
+    "paths": {
       "~/*": ["App/*"],
       "/root/*": ["./*"],
       "/components/*": ["App/ui/components/*"],

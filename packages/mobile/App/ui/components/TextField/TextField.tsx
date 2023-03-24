@@ -11,6 +11,8 @@ import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
+import { theme } from '~/ui/styled/theme';
+
 export interface RefObject<T> {
   readonly current: T | null;
 }
@@ -140,6 +142,7 @@ export const TextField = React.memo(
             blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
             onSubmitEditing={onSubmitEditing}
+            placeholderTextColor={theme.colors.TEXT_SOFT}
           />
         </InputContainer>
         {error && (
