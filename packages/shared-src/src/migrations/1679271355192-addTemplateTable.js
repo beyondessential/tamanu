@@ -17,6 +17,10 @@ export async function up(query) {
       allowNull: false,
       unique: true,
     },
+    date_created: {
+      type: 'date_string',
+      allowNull: false,
+    },
     title: {
       type: Sequelize.STRING,
     },
