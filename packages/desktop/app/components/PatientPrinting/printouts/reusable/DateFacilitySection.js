@@ -17,29 +17,33 @@ const RowContainer = styled.div`
 
 const Item = styled.div`
   margin-right: 36px;
-  p {
-    margin-bottom: 0px;
-    font-size: 14px;
-  }
+`;
+
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  font-size: 14px;
+  margin-bottom: 0px;
+`;
+
+const Label = styled(CertificateLabel)`
+  font-size: 14px;
+  margin-bottom: 0px;
 `;
 
 export const DateFacilitySection = ({ encounter }) => {
   return (
     <RowContainer>
       <Item>
-        <CertificateLabel name="Print date">
+        <Label name="Print date">
           <DateDisplay date={getCurrentDateString()} />
-        </CertificateLabel>
+        </Label>
       </Item>
       <Item>
-        <LocalisedCertificateLabel name="facility">
-          {encounter?.location?.facility?.name}
-        </LocalisedCertificateLabel>
+        <LocalisedLabel name="facility">{encounter?.location?.facility?.name}</LocalisedLabel>
       </Item>
       <Item>
-        <LocalisedCertificateLabel name="locationId">
+        <LocalisedLabel name="locationId">
           {getFullLocationName(encounter?.location)}
-        </LocalisedCertificateLabel>
+        </LocalisedLabel>
       </Item>
     </RowContainer>
   );

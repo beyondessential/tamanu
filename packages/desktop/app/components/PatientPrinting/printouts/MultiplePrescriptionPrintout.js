@@ -52,8 +52,15 @@ const StyledDiv = styled.div`
   ${props => (props.$marginLeft ? `margin-left: ${props.$marginLeft}px;` : '')}
 `;
 
-const LocalisedLabel = props => <LocalisedCertificateLabel size="14px" margin="9px" {...props} />;
-const Label = props => <CertificateLabel size="14px" margin="9px" {...props} />;
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  font-size: 14px;
+  margin-bottom: 9px;
+`;
+
+const Label = styled(CertificateLabel)`
+  font-size: 14px;
+  margin-bottom: 9px;
+`;
 
 const columns = [
   {

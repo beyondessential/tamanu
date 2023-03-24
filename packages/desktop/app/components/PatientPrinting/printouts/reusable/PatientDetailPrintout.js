@@ -13,7 +13,10 @@ const RowContainer = styled.div`
   justify-content: space-between;
 `;
 
-const LocalisedLabel = props => <LocalisedCertificateLabel margin="0" {...props} />;
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  font-size: 12px;
+  margin-bottom: 0px;
+`;
 
 export const PatientDetailPrintout = React.memo(({ patient, village, additionalData }) => {
   const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
