@@ -16,7 +16,6 @@ export class Template extends Model {
         name: {
           type: Sequelize.STRING,
           allowNull: false,
-          unique: true,
         },
         date_created: dateType('date_created', {
           allowNull: false,
