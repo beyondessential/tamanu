@@ -29,8 +29,8 @@ export const PatientMenuButton = ({ title, Icon, onPress }: MenuOptionButtonProp
       boxShadow="0px 0px 5px rgba(0,0,0,0.1)"
     >
       <Icon
-        height={screenPercentageToDP('5.83', Orientation.Height)}
-        width={screenPercentageToDP('5.83', Orientation.Height)}
+        height={screenPercentageToDP('5.9', Orientation.Height)}
+        width={screenPercentageToDP('5.9', Orientation.Height)}
       />
       <StyledView style={styles.textContainer}>
         <StyledText
