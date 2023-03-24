@@ -26,15 +26,16 @@ export enum NoteType {
   SYSTEM = 'system',
   OTHER = 'other',
   CLINICAL_MOBILE = 'clinicalMobile',
+  HANDOVER = 'handover',
 }
 
 export interface INotePage {
   id: ID;
-  noteType: NoteType,
-  date: DateString,
+  noteType: NoteType;
+  date: DateString;
 
-  recordType: NoteRecordType,
-  recordId: ID,
+  recordType: NoteRecordType;
+  recordId: ID;
 
-  noteItems: INoteItem[],
+  noteItems: INoteItem[];
 }
