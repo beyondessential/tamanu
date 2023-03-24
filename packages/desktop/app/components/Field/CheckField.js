@@ -25,8 +25,11 @@ const ControlLabel = styled(FormControlLabel)`
     font-size: 16px;
     line-height: 18px;
   }
-  i {
+  i.fa-check-square {
     color: ${Colors.primary};
+  }
+  i.fa-square {
+    color: ${Colors.softText};
   }
 `;
 
