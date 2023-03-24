@@ -19,6 +19,7 @@ const Item = styled.div`
   margin-right: 36px;
   p {
     margin-bottom: 0px;
+    font-size: 14px;
   }
 `;
 
@@ -26,17 +27,17 @@ export const DateFacilitySection = ({ encounter }) => {
   return (
     <RowContainer>
       <Item>
-        <CertificateLabel name="Print date" size="14px">
+        <CertificateLabel name="Print date">
           <DateDisplay date={getCurrentDateString()} />
         </CertificateLabel>
       </Item>
       <Item>
-        <LocalisedCertificateLabel name="facility" size="14px">
+        <LocalisedCertificateLabel name="facility">
           {encounter?.location?.facility?.name}
         </LocalisedCertificateLabel>
       </Item>
       <Item>
-        <LocalisedCertificateLabel name="locationId" size="14px">
+        <LocalisedCertificateLabel name="locationId">
           {getFullLocationName(encounter?.location)}
         </LocalisedCertificateLabel>
       </Item>

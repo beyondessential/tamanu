@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { LocalisedText } from '../../../LocalisedText';
 
+// TODO: can we style these normally instead of passing them around?
 const Text = styled(Typography)`
   font-size: ${props => props.$size};
   margin-bottom: ${props => props.$margin};

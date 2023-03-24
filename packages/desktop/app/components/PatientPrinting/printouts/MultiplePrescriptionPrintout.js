@@ -11,11 +11,11 @@ import { useAuth } from '../../../contexts/Auth';
 import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../../constants';
 
 import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
-import { NotesSection, LocalisedLabel } from './reusable/SimplePrintout';
+import { NotesSection } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
-import { CertificateLabel } from './reusable/CertificateLabels';
+import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
 
 const RowContainer = styled.div`
   display: flex;
@@ -51,6 +51,9 @@ const StyledNotesSectionWrapper = styled.div`
 const StyledDiv = styled.div`
   ${props => (props.$marginLeft ? `margin-left: ${props.$marginLeft}px;` : '')}
 `;
+
+const LocalisedLabel = props => <LocalisedCertificateLabel size="14px" margin="9px" {...props} />;
+const Label = props => <CertificateLabel size="14px" margin="9px" {...props} />;
 
 const columns = [
   {
@@ -106,20 +109,14 @@ export const MultiplePrescriptionPrintout = React.memo(
 
         <RowContainer>
           <StyledDiv>
-            <CertificateLabel margin="9px" name="Date" size="14px">
+            <Label name="Date">
               <DateDisplay date={getCurrentDateString()} />
-            </CertificateLabel>
-            <LocalisedLabel name="prescriber" size="14px">
-              {prescriber?.displayName}
-            </LocalisedLabel>
+            </Label>
+            <LocalisedLabel name="prescriber">{prescriber?.displayName}</LocalisedLabel>
           </StyledDiv>
           <StyledDiv $marginLeft="150">
-            <LocalisedLabel name="prescriberId" size="14px">
-              {prescriber?.displayId}
-            </LocalisedLabel>
-            <LocalisedLabel name="facility" size="14px">
-              {facility.name}
-            </LocalisedLabel>
+            <LocalisedLabel name="prescriberId">{prescriber?.displayId}</LocalisedLabel>
+            <LocalisedLabel name="facility">{facility.name}</LocalisedLabel>
           </StyledDiv>
         </RowContainer>
 

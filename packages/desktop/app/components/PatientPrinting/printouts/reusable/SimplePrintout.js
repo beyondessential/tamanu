@@ -4,7 +4,6 @@ import { Typography, Box } from '@material-ui/core';
 
 import { PrintLetterhead } from './PrintLetterhead';
 import { CertificateWrapper } from './CertificateWrapper';
-import { LocalisedCertificateLabel } from './CertificateLabels';
 import { GridTable } from './GridTable';
 import { PatientDetailPrintout } from './PatientDetailPrintout';
 
@@ -42,20 +41,6 @@ export const NotesSection = ({
     </>
   );
 };
-
-// TODO: kill this off and/or get rid of default margin from LocalisedCertificateLabel
-export const LocalisedLabel = ({ name, children, size, className, length, path }) => (
-  <LocalisedCertificateLabel
-    margin="9px"
-    name={name}
-    size={size}
-    className={className}
-    length={length}
-    path={path}
-  >
-    {children}
-  </LocalisedCertificateLabel>
-);
 
 export const SimplePrintout = React.memo(({ patientData, tableData, notes, certificateData }) => {
   const { pageTitle, title, subTitle, logo } = certificateData;
