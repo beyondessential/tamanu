@@ -41,7 +41,7 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
     return <LoadingIndicator />;
   }
   const idsAndNotePages = imagingRequests.map(ir => [
-    ir.id,
+    ir.displayId,
     ir.notePages.filter(np => np.noteType === NOTE_TYPES.OTHER),
   ]);
   return (

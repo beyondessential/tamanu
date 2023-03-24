@@ -204,12 +204,12 @@ export const LabRequestStatus = {
 
 // also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
 export const AutocompleteSourceToColumnMap = {
-  User: 'displayName',
   Department: 'name',
   Facility: 'name',
   Location: 'name',
   LocationGroup: 'name',
   ReferenceData: 'name',
+  User: 'displayName',
 };
 
 export const VitalsDataElements = {
