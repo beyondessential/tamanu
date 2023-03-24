@@ -215,7 +215,7 @@ createSuggester(
   search => ({
     name: { [Op.iLike]: search },
     surveyType: {
-      [Op.ne]: SURVEY_TYPES.OBSOLETE,
+      [Op.ne]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
     },
   }),
   ({ id, name }) => ({ id, name }),
