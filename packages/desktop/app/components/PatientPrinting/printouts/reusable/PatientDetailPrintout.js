@@ -5,13 +5,15 @@ import styled from 'styled-components';
 import { DateDisplay } from '../../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../../utils/capitalise';
 
-import { LocalisedLabel } from './SimplePrintout';
+import { LocalisedCertificateLabel } from './CertificateLabels';
 import { PatientBarcode } from './PatientBarcode';
 
 const RowContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
+const LocalisedLabel = props => <LocalisedCertificateLabel margin="0" {...props} />;
 
 export const PatientDetailPrintout = React.memo(({ patient, village, additionalData }) => {
   const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
