@@ -1,12 +1,16 @@
 import Sequelize from 'sequelize';
 
 export async function up(query) {
-  await query.createTable('patient_letter_templates', {
+  await query.createTable('templates', {
     id: {
       type: Sequelize.UUID,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
+    },
+    template_type: {
+      type: Sequelize.STRING,
+      allowNull: false,
     },
     name: {
       type: Sequelize.STRING,
@@ -34,5 +38,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropTable('patient_letter_templates');
+  await query.dropTable('templates');
 }
