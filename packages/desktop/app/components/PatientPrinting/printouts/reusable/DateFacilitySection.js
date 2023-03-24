@@ -8,6 +8,11 @@ import { DateDisplay } from '../../../DateDisplay';
 
 import { LocalisedLabel } from './SimplePrintout';
 import { CertificateLabel } from './CertificateLabels';
+import { CertificateLabel, LocalisedCertificateLabel } from './CertificateLabels';
+
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  margin-bottom: 9px;
+`;
 
 const RowContainer = styled.div`
   display: flex;

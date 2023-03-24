@@ -51,14 +51,13 @@ export const NotesSection = ({
   );
 };
 
-export const LocalisedLabel = ({ name, children, size, className, length, path }) => (
+const LocalisedLabel = ({ name, children, size, className, length }) => (
   <LocalisedCertificateLabel
     margin="9px"
     name={name}
     size={size}
     className={className}
     length={length}
-    path={path}
   >
     {children}
   </LocalisedCertificateLabel>

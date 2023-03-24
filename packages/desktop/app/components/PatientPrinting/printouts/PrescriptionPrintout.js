@@ -5,11 +5,16 @@ import { Typography, Box } from '@material-ui/core';
 import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 
-import { NotesSection, LocalisedLabel } from './reusable/SimplePrintout';
+import { NotesSection } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { PatientBarcode } from './reusable/PatientBarcode';
 import { GridTable } from './reusable/GridTable';
+import { LocalisedCertificateLabel } from './reusable/CertificateLabels';
+
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  margin-bottom: 9px;
+`;
 
 const RowContainer = styled.div`
   display: flex;
