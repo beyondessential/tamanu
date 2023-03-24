@@ -12,7 +12,7 @@ export class COMPOSITE extends ABSTRACT {
   }
 
   static get pgName() {
-    return `fhir.${snakeCase(this.ValueClass.fhirName)}`;
+    return snakeCase(this.ValueClass.fhirName);
   }
 
   constructor(options) {
