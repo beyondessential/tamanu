@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import { VISIBILITY_STATUSES } from '../constants';
 
 export async function up(query) {
   await query.createTable('templates', {
@@ -36,6 +37,10 @@ export async function up(query) {
     },
     body: {
       type: Sequelize.STRING,
+    },
+    visibility_status: {
+      type: Sequelize.TEXT,
+      defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
     created_by_id: {
       type: Sequelize.STRING,

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, TEMPLATE_TYPES } from 'shared/constants';
+import { SYNC_DIRECTIONS, TEMPLATE_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
@@ -27,6 +27,10 @@ export class Template extends Model {
         body: {
           type: Sequelize.STRING,
         },
+        visibilityStatus: {
+          type: Sequelize.TEXT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
+        }
       },
       {
         ...options,
