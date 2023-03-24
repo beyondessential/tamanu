@@ -19,6 +19,16 @@ const yearsAgo = (years, days = 0) =>
 // add a bunch of patients at the top rather than per-search, so that the
 // tests have a healthy population of negative examples as well
 const searchTestPatients = [
+  { displayId: 'id-test-1', firstName: 'Mike', lastName: 'Jordan' },
+  { displayId: 'id-test-1A', firstName: 'Mike', lastName: 'Jo' },
+  { displayId: 'id-test-1CD', firstName: 'Mik', lastName: 'JJ' },
+  { displayId: 'id-test-1CA', firstName: 'Mick', lastName: 'Jake' },
+  { displayId: 'id-test-1C', firstName: 'Mi', lastName: 'Jord' },
+  { displayId: 'id-test-1CB', firstName: 'Amike', lastName: 'other-last-name' },
+  { displayId: 'id-test-1G', firstName: 'Michael', lastName: 'Jordan' },
+  { displayId: 'id-test-1H', firstName: 'ignored-name', lastName: 'Jorda' },
+  { displayId: 'id-test-2A', firstName: 'Micael', lastName: 'Jak' },
+  { displayId: 'id-test-1B', firstName: 'BMike', lastName: 'Jajob' },
   { displayId: 'search-by-display-id' },
   { displayId: 'search-by-secondary-id', secondaryIds: ['patient-secondary-id'] },
   {
@@ -575,6 +585,115 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expectSorted(response.body.data, x => x.villageName);
+    });
+  });
+
+  describe('Filtering sort', () => {
+    it('Display Id - Exact match on top and rest are sorted alphabetically', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'id-test-1C',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(4);
+      expect(count).toEqual(4);
+
+      expect(data.map(d => d.displayId)).toEqual([
+        'id-test-1C',
+        'id-test-1CA',
+        'id-test-1CB',
+        'id-test-1CD',
+      ]);
+    });
+
+    it('First Name - Exact match on top and rest are sorted according to best match', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'Mi',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(9);
+      expect(count).toEqual(9);
+
+      expect(data.map(d => d.firstName)).toEqual([
+        'Mi',
+        'Micael',
+        'Michael',
+        'Mick',
+        'Mik',
+        'Mike',
+        'Mike',
+        'Amike',
+        'BMike',
+      ]);
+    });
+
+    it('Last Name - Exact match on top and rest are sorted according to best match', async () => {
+      const response = await app.get('/v1/patient').query({
+        lastName: 'Jo',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data } = response.body;
+      expect(data.length).toEqual(6);
+
+      expect(data.map(d => d.lastName)).toEqual([
+        'Jo',
+        'Jord',
+        'Jorda',
+        'Jordan',
+        'Jordan',
+        'Jajob',
+      ]);
+    });
+
+    // The sort is done by prioritizing Exact match, Starts with and alphabetically sorted.
+    // If we have a condition attended by two or more results, for instance, a exact match for display id and first time.
+    // It should prioritize 1)displayId 2)lastName 3)firstName.
+    it('Should prioritize 1-displayId, 2-lastName, 3-firstName', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'id-test-1',
+        firstName: 'Mi',
+        lastName: 'Jo',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data } = response.body;
+      expect(data.length).toEqual(5);
+
+      expect(data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
+        'id-test-1 - Mike - Jordan',
+        'id-test-1A - Mike - Jo',
+        'id-test-1C - Mi - Jord',
+        'id-test-1G - Michael - Jordan',
+        'id-test-1B - BMike - Jajob',
+      ]);
+    });
+
+    it('Should prioritize Last name in relation to first name', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'Mi',
+        lastName: 'Jo',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data } = response.body;
+      expect(data.length).toEqual(5);
+
+      expect(data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
+        'id-test-1A - Mike - Jo',
+        'id-test-1C - Mi - Jord',
+        'id-test-1G - Michael - Jordan',
+        'id-test-1 - Mike - Jordan',
+        'id-test-1B - BMike - Jajob',
+      ]);
     });
   });
 
