@@ -5,7 +5,7 @@ import { DateDisplay } from '../../DateDisplay';
 import { getFullLocationName } from '../../../utils/location';
 
 export const LabRequestPrintout = React.memo(
-  ({ labRequestData, patientData, encounterData, certificateData }) => {
+  ({ labRequest, patient, village, additionalData, encounter, certificate }) => {
     const {
       displayId,
       requestedDate,
@@ -15,19 +15,21 @@ export const LabRequestPrintout = React.memo(
       category,
       tests,
       notes,
-    } = labRequestData;
+    } = labRequest;
 
     return (
       <SimplePrintout
-        patientData={patientData}
+        patient={patient}
+        village={village}
+        additionalData={additionalData}
         notes={notes}
-        certificateData={{ ...certificateData, pageTitle: 'Lab Request' }}
+        certificate={{ ...certificate, pageTitle: 'Lab Request' }}
         tableData={{
           'Test ID': displayId,
           'Request date': requestedDate ? <DateDisplay date={requestedDate} showTime /> : null,
-          Facility: encounterData?.location?.facility?.name,
-          Department: encounterData?.department?.name,
-          Location: getFullLocationName(encounterData?.location),
+          Facility: encounter?.location?.facility?.name,
+          Department: encounter?.department?.name,
+          Location: getFullLocationName(encounter?.location),
           'Requested by': requestedBy?.displayName,
           'Sample time': sampleTime ? <DateDisplay date={sampleTime} showTime /> : null,
           Priority: priority?.name,

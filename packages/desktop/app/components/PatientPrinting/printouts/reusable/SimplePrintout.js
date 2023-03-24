@@ -42,15 +42,20 @@ export const NotesSection = ({
   );
 };
 
-export const SimplePrintout = React.memo(({ patientData, tableData, notes, certificateData }) => {
-  const { pageTitle, title, subTitle, logo } = certificateData;
-  return (
-    <CertificateWrapper>
-      <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle={pageTitle} />
-      {/* TODO: village and additionalData */}
-      <PatientDetailPrintout patient={patientData} />
-      <GridTable data={tableData} />
-      <NotesSection notes={notes} />
-    </CertificateWrapper>
-  );
-});
+export const SimplePrintout = React.memo(
+  ({ patient, village, additionalData, tableData, notes, certificate }) => {
+    const { pageTitle, title, subTitle, logo } = certificate;
+    return (
+      <CertificateWrapper>
+        <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle={pageTitle} />
+        <PatientDetailPrintout
+          patient={patient}
+          village={village}
+          additionalData={additionalData}
+        />
+        <GridTable data={tableData} />
+        <NotesSection notes={notes} />
+      </CertificateWrapper>
+    );
+  },
+);

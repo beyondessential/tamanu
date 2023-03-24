@@ -6,8 +6,11 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
+
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { CancelModal } from '../../components/CancelModal';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
@@ -35,23 +38,38 @@ import { SimpleTopBar } from '../../components';
 const PrintButton = ({ imagingRequest, patient }) => {
   const api = useApi();
   const { modal } = useParams();
-  const certificateData = useCertificate();
+  const certificate = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
   const [encounter, setEncounter] = useState();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isImgReqLoading, setIsImgReqLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
+    setIsImgReqLoading(true);
     if (!imagingRequest.loading) {
       (async () => {
         const res = await api.get(`encounter/${imagingRequest.encounterId}`);
         setEncounter(res);
       })();
-      setIsLoading(false);
+      setIsImgReqLoading(false);
     }
   }, [api, imagingRequest.encounterId, imagingRequest.loading]);
+
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
+    ['additionalData', encounter.patientId],
+    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
+  );
+  const isVillageEnabled = !!patient?.villageId;
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
+    ['village', encounter.patientId],
+    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    {
+      enabled: isVillageEnabled,
+    },
+  );
+  const isLoading =
+    isImgReqLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
 
   return (
     <>
@@ -60,10 +78,12 @@ const PrintButton = ({ imagingRequest, patient }) => {
           <LoadingIndicator />
         ) : (
           <ImagingRequestPrintout
-            imagingRequestData={imagingRequest}
-            patientData={patient}
-            encounterData={encounter}
-            certificateData={certificateData}
+            imagingRequest={imagingRequest}
+            patient={patient}
+            village={village}
+            additionalData={additionalData}
+            encounter={encounter}
+            certificate={certificate}
           />
         )}
       </Modal>
