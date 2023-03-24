@@ -1,4 +1,4 @@
-import { VisibilityStatus } from "~/visibilityStatuses";
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export enum ReferenceDataType {
   ICD10 = 'icd10',
@@ -10,6 +10,7 @@ export enum ReferenceDataType {
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',
   LabTestType = 'labTestType',
+  labSampleSite = 'labSampleSite',
   LabTestPriority = 'labTestPriority',
   Village = 'village',
   Vaccine = 'vaccine',

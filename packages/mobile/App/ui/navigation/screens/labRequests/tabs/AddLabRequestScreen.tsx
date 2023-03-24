@@ -17,11 +17,8 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
 
-const ALPHABET_FOR_ID = 'ABCDEFGH'
-/*I*/ + 'JK'
-/*L*/ + 'MN'
-/*O*/ + 'PQRSTUVWXYZ'
-/*01*/ + '23456789';
+const ALPHABET_FOR_ID =
+  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 interface LabRequestFormData {
   displayId: ID;
@@ -51,9 +48,7 @@ export const DumbAddLabRequestScreen = ({
   selectedPatient,
   navigation,
 }: DumbAddLabRequestScreenProps): ReactElement => {
-  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [
-    selectedPatient,
-  ]);
+  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [selectedPatient]);
 
   const validationSchema = Yup.object().shape({
     displayId: Yup.string().required(),
@@ -69,9 +64,7 @@ export const DumbAddLabRequestScreen = ({
   const navigateToHistory = useCallback(() => {
     navigation.reset({
       index: 0,
-      routes: [
-        { name: Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory },
-      ],
+      routes: [{ name: Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory }],
     });
   }, []);
 
@@ -84,72 +77,69 @@ export const DumbAddLabRequestScreen = ({
 
     if (!categoryId) {
       return {
-        form: 'Lab request type must be selected.',
+        form: 'Lab request type must be selected',
       };
     }
     if (!labTestTypes || labTestTypes.length === 0) {
       return {
-        form: 'At least one lab test type must be selected.',
+        form: 'At least one lab test type must be selected',
       };
     }
 
     return {};
   }, []);
 
-  const recordLabRequest = useCallback(
-    async (values: LabRequestFormData): Promise<void> => {
-      showMessage({
-        message: 'Submitting lab request',
-        type: 'default',
-        backgroundColor: theme.colors.BRIGHT_BLUE,
-      });
+  const recordLabRequest = useCallback(async (values: LabRequestFormData): Promise<void> => {
+    showMessage({
+      message: 'Submitting lab request',
+      type: 'default',
+      backgroundColor: theme.colors.BRIGHT_BLUE,
+    });
 
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-        { reasonForEncounter: 'Lab request from mobile' },
-      );
+    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      selectedPatient.id,
+      user.id,
+      { reasonForEncounter: 'Lab request from mobile' },
+    );
 
-      const {
-        requestedDate,
-        sampleDate,
-        sampleTime,
-        urgent,
-        specimenAttached,
-        displayId: generatedDisplayId,
-      } = values;
+    const {
+      requestedDate,
+      sampleDate,
+      sampleTime,
+      urgent,
+      specimenAttached,
+      displayId: generatedDisplayId,
+    } = values;
 
-      const combinedSampleTime = new Date(
-        sampleDate.getFullYear(),
-        sampleDate.getMonth(),
-        sampleDate.getDate(),
-        sampleTime.getHours(),
-        sampleTime.getMinutes(),
-        sampleTime.getSeconds(),
-        sampleTime.getMilliseconds(),
-      );
+    const combinedSampleTime = new Date(
+      sampleDate.getFullYear(),
+      sampleDate.getMonth(),
+      sampleDate.getDate(),
+      sampleTime.getHours(),
+      sampleTime.getMinutes(),
+      sampleTime.getSeconds(),
+      sampleTime.getMilliseconds(),
+    );
 
-      // Convert requestedDate and sampleTime to strings
-      const requestedDateString = formatISO9075(requestedDate);
-      const sampleTimeString = formatISO9075(combinedSampleTime);
+    // Convert requestedDate and sampleTime to strings
+    const requestedDateString = formatISO9075(requestedDate);
+    const sampleTimeString = formatISO9075(combinedSampleTime);
 
-      await models.LabRequest.createWithTests({
-        displayId: generatedDisplayId,
-        requestedDate: requestedDateString,
-        urgent,
-        specimenAttached,
-        requestedBy: user.id,
-        encounter: encounter.id,
-        labTestCategory: values.categoryId,
-        labTestPriority: values.priorityId,
-        sampleTime: sampleTimeString,
-        labTestTypeIds: values.labTestTypes,
-      });
+    await models.LabRequest.createWithTests({
+      displayId: generatedDisplayId,
+      requestedDate: requestedDateString,
+      urgent,
+      specimenAttached,
+      requestedBy: user.id,
+      encounter: encounter.id,
+      labTestCategory: values.categoryId,
+      labTestPriority: values.priorityId,
+      sampleTime: sampleTimeString,
+      labTestTypeIds: values.labTestTypes,
+    });
 
-      navigateToHistory();
-    },
-    [],
-  );
+    navigateToHistory();
+  }, []);
 
   const initialValues = {
     ...defaultInitialValues,
@@ -169,6 +159,8 @@ export const DumbAddLabRequestScreen = ({
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
+          validateOnChange={false}
+          validateOnBlur={false}
           onSubmit={recordLabRequest}
           navigation={navigation}
           validate={validate}
@@ -180,6 +172,4 @@ export const DumbAddLabRequestScreen = ({
   );
 };
 
-export const AddLabRequestScreen = compose(withPatient)(
-  DumbAddLabRequestScreen,
-);
+export const AddLabRequestScreen = compose(withPatient)(DumbAddLabRequestScreen);

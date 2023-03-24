@@ -3,13 +3,12 @@ import { View } from 'react-native';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
-import { Checkbox } from '../Checkbox';
+import { CustomCheckbox } from '/components/Checkbox/CustomCheckbox';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
   value: string[];
   background?: string;
-  color?: string;
   options: { id: string; text: string }[];
 }
 
@@ -18,8 +17,6 @@ export const MultiCheckbox = ({
   options,
   onChange,
   error,
-  background,
-  color,
 }: CheckboxProps): JSX.Element => {
   const handleCallback = useCallback(
     (isSelected, optionId) => {
@@ -35,13 +32,11 @@ export const MultiCheckbox = ({
     <View>
       {options.map(({ id, text }) => (
         <StyledView marginTop={10}>
-          <Checkbox
+          <CustomCheckbox
             id={id}
             text={text}
             value={value.includes(id)}
             error={error}
-            background={background}
-            color={color}
             onChange={handleCallback}
           />
         </StyledView>
@@ -52,5 +47,4 @@ export const MultiCheckbox = ({
 
 MultiCheckbox.defaultProps = {
   background: theme.colors.WHITE,
-  color: theme.colors.PRIMARY_MAIN,
 };

@@ -15,9 +15,11 @@ interface AutocompleteModalFieldProps {
   modalRoute: string;
   marginTop?: number;
   error?: string;
+  label?: string;
 }
 
 export const AutocompleteModalField = ({
+  label: fieldLabel,
   value,
   placeholder,
   onChange,
@@ -51,13 +53,13 @@ export const AutocompleteModalField = ({
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
       <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
-        {label}
+        {fieldLabel}
       </StyledText>
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor="#888888"
-        buttonText="Select"
+        buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
