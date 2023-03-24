@@ -17,8 +17,8 @@ const LocalisedLabel = props => <LocalisedCertificateLabel margin="0" {...props}
 
 export const PatientDetailPrintout = React.memo(({ patient, village, additionalData }) => {
   const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
-  const { streetVillage } = additionalData;
-  const { name: villageName } = village;
+  const { streetVillage } = additionalData || {};
+  const { name: villageName } = village || {};
 
   return (
     <RowContainer>
@@ -29,10 +29,10 @@ export const PatientDetailPrintout = React.memo(({ patient, village, additionalD
           <DateDisplay date={dateOfBirth} />
         </LocalisedLabel>
         <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
-        <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
+        {streetVillage ? <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel> : ''}
       </div>
       <div>
-        <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
+        {villageName ? <LocalisedLabel name="villageName">{villageName}</LocalisedLabel> : ''}
         <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
         <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
       </div>
