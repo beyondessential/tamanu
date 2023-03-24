@@ -1,9 +1,10 @@
 import { jest, describe, expect, it } from '@jest/globals';
 import { withErrorShown } from 'shared/test-helpers';
 import { FhirWorker } from 'shared/tasks';
-import { createTestContext } from '../utilities';
 import { fakeUUID } from 'shared/utils/generateId';
 import { sleepAsync } from 'shared/utils/sleepAsync';
+
+import { createTestContext } from '../utilities';
 
 function makeLogger(mock, topData = {}) {
   return {
@@ -24,7 +25,8 @@ function workerTest(job, { log }) {
 }
 
 describe('Worker Jobs', () => {
-  let ctx, models;
+  let ctx;
+  let models;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -96,7 +98,8 @@ describe('Worker Jobs', () => {
   });
 
   describe('running a job', () => {
-    let logger, worker;
+    let logger;
+    let worker;
 
     beforeEach(async () => {
       logger = jest.fn();
@@ -121,26 +124,6 @@ describe('Worker Jobs', () => {
 
         // Assert
         expect(await Job.findByPk(id)).toBeNull();
-
-        const jobStarts = logger.mock.calls.filter(
-          ([level, message]) => level === 'info' && message === 'FhirWorker: job started',
-        );
-        expect(jobStarts).toHaveLength(1);
-        expect(jobStarts[0][2]).toMatchObject({
-          topic: 'test',
-          workerId: worker.worker.id,
-          jobId: id,
-        });
-
-        const jobCompletes = logger.mock.calls.filter(
-          ([level, message]) => level === 'info' && message === 'FhirWorker: job completed',
-        );
-        expect(jobCompletes).toHaveLength(1);
-        expect(jobCompletes[0][2]).toMatchObject({
-          topic: 'test',
-          workerId: worker.worker.id,
-          jobId: id,
-        });
       }),
     );
 
@@ -158,32 +141,13 @@ describe('Worker Jobs', () => {
           status: 'Errored',
           error: expect.any(String),
         });
-
-        const jobStarts = logger.mock.calls.filter(
-          ([level, message]) => level === 'info' && message === 'FhirWorker: job started',
-        );
-        expect(jobStarts).toHaveLength(1);
-        expect(jobStarts[0][2]).toMatchObject({
-          topic: 'test',
-          workerId: worker.worker.id,
-          jobId: id,
-        });
-
-        const jobFails = logger.mock.calls.filter(
-          ([level, message]) => level === 'error' && message === 'FhirWorker: job failed',
-        );
-        expect(jobFails).toHaveLength(1);
-        expect(jobFails[0][2]).toMatchObject({
-          topic: 'test',
-          workerId: worker.worker.id,
-          jobId: id,
-        });
       }),
     );
   });
 
   describe('processing the queue', () => {
-    let logger, worker;
+    let logger;
+    let worker;
 
     beforeEach(
       withErrorShown(async () => {

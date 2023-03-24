@@ -10,6 +10,7 @@ import { referenceDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './ref
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { reportsRouter } from './reports/router';
 
 export const adminRoutes = express.Router();
 
@@ -29,6 +30,8 @@ adminRoutes.use(
     next();
   }),
 );
+
+adminRoutes.use('/reports', reportsRouter);
 
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
