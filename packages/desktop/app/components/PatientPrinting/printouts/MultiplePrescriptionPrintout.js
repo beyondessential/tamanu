@@ -11,15 +11,11 @@ import { useAuth } from '../../../contexts/Auth';
 import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../../constants';
 
 import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
-import { NotesSection } from './reusable/SimplePrintout';
+import { NotesSection, LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
-import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
-
-const LocalisedLabel = styled(LocalisedCertificateLabel)`
-  margin-bottom: 9px;
-`;
+import { CertificateLabel } from './reusable/CertificateLabels';
 
 const RowContainer = styled.div`
   display: flex;

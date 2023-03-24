@@ -5,12 +5,8 @@ import styled from 'styled-components';
 import { DateDisplay } from '../../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../../utils/capitalise';
 
-import { LocalisedCertificateLabel } from './CertificateLabels';
+import { LocalisedLabel } from './SimplePrintout';
 import { PatientBarcode } from './PatientBarcode';
-
-const LocalisedLabel = styled(LocalisedCertificateLabel)`
-  margin-bottom: 9px;
-`;
 
 const RowContainer = styled.div`
   display: flex;
