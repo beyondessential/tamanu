@@ -105,7 +105,7 @@ labRequest.get(
         }),
       ),
       makeFilter(
-        !JSON.parse(filterParams.allFacilities),
+        !JSON.parse(filterParams.allFacilities || false),
         `location.facility_id = :facilityId`,
         () => ({ facilityId: config.serverFacilityId }),
       ),
