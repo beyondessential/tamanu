@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError, InvalidParameterError } from 'shared/errors';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -35,17 +35,17 @@ encounter.put(
     const { db, models, user, params } = req;
     const { referralId, id } = params;
     req.checkPermission('read', 'Encounter');
-    const object = await models.Encounter.findByPk(id);
-    if (!object) throw new NotFoundError();
-    req.checkPermission('write', object);
+    const encounterObject = await models.Encounter.findByPk(id);
+    if (!encounterObject) throw new NotFoundError();
+    req.checkPermission('write', encounterObject);
 
     await db.transaction(async () => {
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
-        await models.Discharge.create({
-          ...req.body.discharge,
-          encounterId: id,
-        });
+        if (!req.body.discharge.dischargerId) {
+          // Only automatic discharges can have a null discharger ID
+          throw new InvalidParameterError('A discharge must have a discharger.');
+        }
 
         // Update medications that were marked for discharge and ensure
         // only isDischarge, quantity and repeats fields are edited
@@ -63,10 +63,10 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await object.update(req.body, user);
+      await encounterObject.update(req.body, user);
     });
 
-    res.send(object);
+    res.send(encounterObject);
   }),
 );
 
