@@ -118,6 +118,8 @@ export class TamanuApi {
 
     // save host in local storage
     window.localStorage.setItem(HOST, host);
+
+    ipcRenderer.invoke('update-available', this.host);
   }
 
   setAuthFailureHandler(handler) {
@@ -245,11 +247,6 @@ export class TamanuApi {
     if (response.status === 400 && error) {
       const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
-        if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-          // If detect that desktop version is lower than facility server version,
-          // communicate with main process to initiate the auto upgrade
-          ipcRenderer.invoke('host-submitted', this.host);
-        }
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
         }

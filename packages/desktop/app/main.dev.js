@@ -79,7 +79,7 @@ app.on('ready', async () => {
   mainWindow.loadURL(htmlLocation);
 
   let checkForUpdateInterval;
-  ipcMain.handle('host-submitted', (_event, host) => {
+  ipcMain.handle('update-available', (_event, host) => {
     const autoUpdater = new NsisUpdater({
       provider: 'generic',
       url: `${host}/upgrade`,
