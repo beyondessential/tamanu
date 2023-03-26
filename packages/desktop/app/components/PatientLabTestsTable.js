@@ -1,7 +1,25 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import { usePatientLabTestResults } from '../api/queries/usePatientLabTestResults';
 import { Table } from './Table';
+import { Colors } from '../constants';
+
+const StyledCellWrapper = styled.div`
+  position: sticky;
+  z-index: 1;
+  border-right: 1px solid ${Colors.outline};
+`;
+
+const CategoryCell = styled(StyledCellWrapper)`
+  left: 0;
+`;
+const TestTypeCell = styled(StyledCellWrapper)`
+  left: 30;
+`;
+const NormalRangeCell = styled(StyledCellWrapper)`
+  left: 60;
+`;
 
 export const PatientLabTestsTable = React.memo(({ patient }) => {
   const { data, isLoading } = usePatientLabTestResults(patient.id);
@@ -9,17 +27,23 @@ export const PatientLabTestsTable = React.memo(({ patient }) => {
     ? []
     : Object.keys(Object.assign({}, ...data?.data.map(x => x.results)));
   const columns = [
-    { key: 'testCategory', title: 'Test category' },
-    { key: 'testType', title: 'Test type' },
+    {
+      key: 'testCategory',
+      title: 'Test category',
+      accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
+    },
+    {
+      key: 'testType',
+      title: 'Test type',
+      accessor: row => <TestTypeCell>{row.testType}</TestTypeCell>,
+    },
     {
       key: 'normalRange',
       title: 'Normal range',
-      accessor: cells => {
-        const range = cells.normalRanges[patient?.sex];
-        if (!range.min) {
-          return '-';
-        }
-        return `${range.min}-${range.max}`;
+      accessor: row => {
+        const range = row.normalRanges[patient?.sex];
+        const value = !range.min ? '-' : `${range.min}-${range.max}`;
+        return <NormalRangeCell>{value}</NormalRangeCell>;
       },
     },
     ...allDates
@@ -28,8 +52,8 @@ export const PatientLabTestsTable = React.memo(({ patient }) => {
         title: date,
         sortable: false,
         key: date,
-        accessor: cells => {
-          return cells.results[date];
+        accessor: row => {
+          return row.results[date] || null;
         },
       })),
   ];
