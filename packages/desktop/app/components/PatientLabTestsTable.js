@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { usePatientLabTestResults } from '../api/queries/usePatientLabTestResults';
 import { Table } from './Table';
 import { Colors } from '../constants';
+
+const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledCellWrapper = styled.div`
   position: sticky;
@@ -22,7 +24,10 @@ const NormalRangeCell = styled(StyledCellWrapper)`
 `;
 
 export const PatientLabTestsTable = React.memo(({ patient }) => {
-  const { data, isLoading } = usePatientLabTestResults(patient.id);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
+  const { data, isLoading } = usePatientLabTestResults(patient.id, { page, rowsPerPage });
+
   const allDates = isLoading
     ? []
     : Object.keys(Object.assign({}, ...data?.data.map(x => x.results)));
@@ -64,6 +69,11 @@ export const PatientLabTestsTable = React.memo(({ patient }) => {
       data={data?.data}
       isLoading={isLoading}
       noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
+      page={page}
+      rowsPerPage={rowsPerPage}
+      onChangeRowsPerPage={setRowsPerPage}
+      onChangePage={setPage}
+      count={data?.count}
       // TODO Open modal on click WAITM-666
       // onRowClick={onSelectLabTest}
       allowExport={false}
