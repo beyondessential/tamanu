@@ -327,4 +327,33 @@ describe('Imaging requests', () => {
       },
     });
   });
+
+  it('should return with only imaging requests from config facility with allFacilities filter turned off', async () => {
+    // arrange
+    await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+    await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+    await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+    // act
+    const {
+      body: { count: allCount },
+    } = await app.get(`/v1/imagingRequest?allFacilities=true`);
+    const {
+      body: { count: filteredCount },
+    } = await app.get(`/v1/imagingRequest?allFacilities=false`);
+    // assert
+    expect(allCount).toBe(13);
+    expect(filteredCount).toBe(3);
+  });
 });
