@@ -109,6 +109,9 @@
             - name: onto sepi A
               tag: ^(sepi-)
               command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
+            - name: onto sepi B
+              tag: ^(sepi-)
+              command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-b
             - name: onto da A
               tag: ^(da-)
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a

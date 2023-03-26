@@ -194,11 +194,17 @@ function transformPatientData(patient, config) {
     end: new Date(),
   });
 
+  const yearPlural = years !== 1 ? 's' : '';
+  const monthPlural = months !== 1 ? 's' : '';
+
   switch (column) {
     case 'age':
       return years.toString();
     case 'ageWithMonths':
-      return `${years} years, ${months} months`;
+      if (!years) {
+        return `${months} month${monthPlural}`;
+      }
+      return `${years} year${yearPlural}, ${months} month${monthPlural}`;
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:

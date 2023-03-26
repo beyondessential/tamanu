@@ -1,6 +1,9 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
+import { FhirWorker } from 'shared/tasks';
+
 import { findUser } from '../auth/utils';
+
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -71,6 +74,17 @@ export async function startScheduledTasks(context) {
   ].filter(x => x);
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
+}
+
+export async function startFhirWorkerTasks({ store }) {
+  const worker = new FhirWorker(store, log);
+  await worker.start();
+
+  // example of how to add a handler for a topic:
+  // worker.setHandler('topic', handlerFunction);
+
+  worker.processQueueNow();
+  return worker;
 }
 
 async function getReportSchedulers(context) {

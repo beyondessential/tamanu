@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CentralConnectionStatus, IUser } from '~/types';
+import { IUser } from '~/types';
 
 export type WithAuthStoreProps = WithAuthActions & AuthStateProps;
 export interface WithAuthActions {
@@ -9,9 +9,6 @@ export interface WithAuthActions {
   setRefreshToken: (payload: string) => PayloadAction<string>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
-  setCentralConnectionStatus: (
-    payload: CentralConnectionStatus,
-  ) => PayloadAction<CentralConnectionStatus>;
   signOutUser(): () => PayloadAction<void>;
 }
 
@@ -21,7 +18,6 @@ export interface AuthStateProps {
   user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
-  centralConnectionStatus: CentralConnectionStatus;
 }
 
 const initialState: AuthStateProps = {
@@ -30,7 +26,6 @@ const initialState: AuthStateProps = {
   user: null,
   signedIn: false,
   isFirstTime: true,
-  centralConnectionStatus: CentralConnectionStatus.Disconnected,
 };
 
 export const PatientSlice = createSlice({
@@ -76,15 +71,6 @@ export const PatientSlice = createSlice({
         ...state,
         token: null,
         refreshToken: null,
-      };
-    },
-    setCentralConnectionStatus(
-      state,
-      { payload: centralConnectionStatus }: PayloadAction<CentralConnectionStatus>,
-    ): AuthStateProps {
-      return {
-        ...state,
-        centralConnectionStatus,
       };
     },
   },

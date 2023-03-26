@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -6,11 +6,10 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { CancelModal } from '../../components/CancelModal';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -27,31 +26,19 @@ import {
   TextField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-import { ImagingRequestPrintout } from '../../components/PatientPrinting';
+import { useEncounterData } from '../../api/queries';
+import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
-const PrintButton = ({ imagingRequest, patient }) => {
-  const api = useApi();
+const PrintButton = ({ imagingRequest }) => {
   const { modal } = useParams();
-  const certificateData = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
-  const [encounter, setEncounter] = useState();
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setIsLoading(true);
-    if (!imagingRequest.loading) {
-      (async () => {
-        const res = await api.get(`encounter/${imagingRequest.encounterId}`);
-        setEncounter(res);
-      })();
-      setIsLoading(false);
-    }
-  }, [api, imagingRequest.encounterId, imagingRequest.loading]);
+  const { data: encounter, isLoading } = useEncounterData(imagingRequest.encounterId);
 
   return (
     <>
@@ -59,12 +46,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
         {isLoading ? (
           <LoadingIndicator />
         ) : (
-          <ImagingRequestPrintout
-            imagingRequestData={imagingRequest}
-            patientData={patient}
-            encounterData={encounter}
-            certificateData={certificateData}
-          />
+          <ImagingRequestPrintout encounter={encounter} imagingRequests={[imagingRequest]} />
         )}
       </Modal>
       <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
@@ -77,6 +59,13 @@ const PrintButton = ({ imagingRequest, patient }) => {
 const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+  // Just needed for read only state
+  const cancelledOption = [
+    {
+      label: LAB_REQUEST_STATUS_CONFIG[IMAGING_REQUEST_STATUS_TYPES.CANCELLED].label,
+      value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+    },
+  ];
 
   return (
     <FormGrid columns={3}>
@@ -95,7 +84,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         name="status"
         label="Status"
         component={SelectField}
-        options={IMAGING_REQUEST_STATUS_OPTIONS}
+        options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />

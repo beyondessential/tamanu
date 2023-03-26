@@ -29,6 +29,20 @@ export const serve = async ({ skipMigrationCheck }) => {
     config,
   });
 
+  const minConnectionPoolSnapshotHeadroom = 4;
+  const connectionPoolSnapshotHeadroom =
+    config.db?.pool?.max - config?.sync?.numberConcurrentPullSnapshots;
+  if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
+    log.warn(
+      `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
+      {
+        'config.db.pool.max': config.db?.pool?.max,
+        'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
+        connectionPoolSnapshotHeadroom,
+      },
+    );
+  }
+
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });

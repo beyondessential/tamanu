@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import Modal from 'react-native-modal';
+import { useSelector } from 'react-redux';
+import * as Yup from 'yup';
+import { useNetInfo } from '@react-native-community/netinfo';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
-import Modal from 'react-native-modal';
 import { theme } from '~/ui/styled/theme';
 import { Alert, AlertSeverity } from './Alert';
 import { CrossIcon } from './Icons';
-import { useSelector } from 'react-redux';
-import {
-  authCentralConnectionStatusSelector,
-  authUserSelector,
-} from '~/ui/helpers/selectors';
-import * as Yup from 'yup';
+import { authUserSelector } from '~/ui/helpers/selectors';
 import { Form } from './Forms/Form';
 import { Field } from './Forms/FormField';
 import { TextField } from './TextField/TextField';
 import { Button } from './Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { useNetInfo } from '@react-native-community/netinfo';
 import { CentralConnectionStatus } from '~/types';
+import { useBackend } from '../hooks';
 
 interface AuthenticationModelProps {
   open: boolean;
@@ -32,7 +30,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
   const authCtx = useAuth();
-  const handleSignIn = async (payload: AuthenticationValues) => {
+  const handleSignIn = async (payload: AuthenticationValues): Promise<void> => {
     try {
       await authCtx.reconnectWithPassword(payload);
       onClose();
@@ -150,28 +148,41 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const [open, setOpen] = useState(false);
 
   const netInfo = useNetInfo();
-  const centralConnectionStatus = useSelector(authCentralConnectionStatusSelector);
+  const { centralServer } = useBackend();
 
   const handleClose = (): void => setOpen(false);
   const handleOpen = (): void => setOpen(true);
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
-  useEffect(() => {
+  const handleStatusChange = (
+    status: CentralConnectionStatus,
+    isInternetReachable: boolean,
+  ): void => {
     if (
-      centralConnectionStatus === CentralConnectionStatus.Disconnected
+      status === CentralConnectionStatus.Disconnected
       // Reconnection with central is not possible if there is no internet connection
     ) {
-      if (netInfo.isInternetReachable) {
+      if (isInternetReachable) {
         handleOpen();
       } else if (open) {
         handleClose();
       }
     }
-    if (centralConnectionStatus === CentralConnectionStatus.Connected && open) {
+    if (status === CentralConnectionStatus.Connected && open) {
       handleClose();
     }
-  }, [centralConnectionStatus, netInfo.isInternetReachable]);
+  };
+
+  useEffect(() => {
+    const handler = (status: CentralConnectionStatus): void => {
+      handleStatusChange(status, netInfo.isInternetReachable);
+    };
+    centralServer.emitter.on('statusChange', handler);
+    return () => {
+      centralServer.emitter.off('statusChange', handler);
+    };
+  }, [netInfo.isInternetReachable, open]);
 
   return (
     <>

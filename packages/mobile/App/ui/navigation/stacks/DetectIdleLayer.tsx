@@ -1,8 +1,6 @@
 import { debounce } from 'lodash';
 import React, { ReactElement, ReactNode, useCallback, useRef, useEffect, useState } from 'react';
 import { Keyboard, PanResponder } from 'react-native';
-import { useSelector } from 'react-redux';
-import { authSignedInSelector } from '~/ui/helpers/selectors';
 import { StyledView } from '~/ui/styled/common';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -15,22 +13,16 @@ const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
-  const signedIn = useSelector(authSignedInSelector);
-  const { signOutClient } = useAuth();
+  const { signOutClient, signedIn } = useAuth();
 
   const resetIdle = (): void => {
     setIdle(0);
   };
 
-  const debouncedResetIdle = useCallback(
-    debounce(resetIdle, 300),
-    [],
-  );
+  const debouncedResetIdle = useCallback(debounce(resetIdle, 300), []);
 
   const handleResetIdle = (): boolean => {
-    if (signedIn) {
-      debouncedResetIdle();
-    }
+    debouncedResetIdle();
     // Returns false to indicate that this component
     // shouldn't block native components from becoming the JS responder
     return false;
@@ -41,22 +33,18 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
   };
 
   useEffect(() => {
-    let hideEvent;
-    let showEvent;
-    if (signedIn) {
-      hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
-      showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
-    }
+    const hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
+    const showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
     return () => {
       hideEvent?.remove();
       showEvent?.remove();
     };
-  }, [signedIn]);
+  }, []);
 
   useEffect(() => {
-    let timer;
+    let intervalId: number;
     if (signedIn) {
-      timer = setInterval(() => {
+      intervalId = setInterval(() => {
         const newIdle = idle + ONE_MINUTE;
         setIdle(newIdle);
         if (newIdle >= UI_EXPIRY_TIME) {
@@ -65,7 +53,9 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
       }, ONE_MINUTE);
     }
     return () => {
-      clearInterval(timer);
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
   }, [idle, signedIn]);
 
