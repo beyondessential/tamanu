@@ -6,7 +6,15 @@ import { DateDisplay } from './DateDisplay';
 const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
 const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getGiver = record => (!record.givenOverseas ? record.givenBy : 'Given Overseas');
+const getGiver = record => {
+  if (record.status === 'NOT_GIVEN') {
+    return 'Not Given';
+  }
+  if (record.givenOverseas) {
+    return 'Given Overseas';
+  }
+  return record.givenBy ? record.givenBy : 'Unknown';
+};
 const getFacility = record =>
   !record.givenOverseas ? record.location?.facility?.name : record.givenBy;
 
