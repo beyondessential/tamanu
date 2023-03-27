@@ -330,7 +330,10 @@ patientRelations.get(
             )
           ) AS normal_ranges,
           JSONB_OBJECT_AGG(
-            lab_requests.sample_time, lab_tests.result
+            lab_requests.sample_time, JSONB_BUILD_OBJECT(
+              'result', lab_tests.result,
+              'id', lab_tests.id
+            )
           ) AS results
         FROM
           lab_tests

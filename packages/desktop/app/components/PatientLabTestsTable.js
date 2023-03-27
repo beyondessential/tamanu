@@ -72,10 +72,10 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
           const normalRange = row.normalRanges[patient?.sex];
           return (
             <RangeValidatedCell
-              value={row.results[date]}
+              value={row.results[date]?.result}
               config={{ unit: row.unit }}
               validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-              onClick={() => {}}
+              onClick={() => {}} // TODO: WAITM-666 Open modal for this test result: row.results[date].id = lab_tests.id
             />
           );
         },
