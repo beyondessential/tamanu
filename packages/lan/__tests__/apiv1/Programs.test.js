@@ -152,7 +152,8 @@ describe('Programs', () => {
       ]);
 
       const result = await app.get('/v1/suggestions/survey');
-      const resultIds = result.body.data.map(x => x.id);
+      expect(result).toHaveSucceeded();
+      const resultIds = result.body.map(x => x.id);
       expect(resultIds.includes(obsolete.id)).toEqual(false);
       expect(resultIds.includes(vitals.id)).toEqual(false);
       expect(resultIds.includes(relevant.id)).toEqual(true);
