@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import Orientation from 'react-native-orientation';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Routes } from '/helpers/routes';
@@ -16,10 +16,15 @@ export const VaccineTableTabs = (): ReactElement => {
   }, []);
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      tabBarOptions={{
+        labelStyle: { textTransform: 'none' },
+      }}
+    >
       <Tab.Screen
         options={{
           title: 'Routine',
+          style: { backgroundColor: 'powderblue' },
         }}
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Routine}
         component={VaccineHistoryTab}

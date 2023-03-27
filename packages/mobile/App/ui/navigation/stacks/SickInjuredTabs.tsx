@@ -19,10 +19,7 @@ type SickOrInjuredTabsProps = {
   selectedPatient: IPatient;
 };
 
-const TabNavigator = ({
-  navigation,
-  selectedPatient,
-}: SickOrInjuredTabsProps): ReactElement => {
+const TabNavigator = ({ navigation, selectedPatient }: SickOrInjuredTabsProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
@@ -37,14 +34,14 @@ const TabNavigator = ({
         <Tabs.Navigator>
           <Tabs.Screen
             options={{
-              title: 'ADD DETAILS',
+              title: 'Add details',
             }}
             name={Routes.HomeStack.SickOrInjuredTabs.AddIllnessScreen}
             component={AddIllnessScreen}
           />
           <Tabs.Screen
             options={{
-              title: 'PRESCRIBE MEDICATION',
+              title: 'Prescribe medication',
             }}
             name={Routes.HomeStack.SickOrInjuredTabs.PrescribeMedication}
             component={PrescribeMedicationScreen}

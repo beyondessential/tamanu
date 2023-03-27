@@ -10,16 +10,14 @@ interface PatientMenuListProps {
   list: MenuOptionButtonProps[];
 }
 
-export const PatientMenuButtons = ({
-  list,
-}: PatientMenuListProps): ReactElement => (
+export const PatientMenuButtons = ({ list }: PatientMenuListProps): ReactElement => (
   <StyledView background={theme.colors.WHITE}>
     <FlatList
       scrollEnabled={false}
       showsVerticalScrollIndicator={false}
       data={list}
       keyExtractor={(item): string => item.title}
-      renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
+      renderItem={({ item }): ReactElement => <MenuOptionButton fontWeight={500} {...item} />}
       ItemSeparatorComponent={Separator}
     />
   </StyledView>
