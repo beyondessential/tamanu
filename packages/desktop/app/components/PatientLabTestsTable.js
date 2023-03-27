@@ -37,7 +37,7 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
     : Object.keys(Object.assign({}, ...data?.data.map(x => x.results)));
   const columns = [
     {
-      key: 'testCategory',
+      key: 'testCategory.id',
       title: 'Test category',
       accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
     },
