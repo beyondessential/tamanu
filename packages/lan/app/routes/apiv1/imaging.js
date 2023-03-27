@@ -317,7 +317,7 @@ globalImagingRequests.get(
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
-        alias: 'id',
+        alias: 'displayId',
         operator: Op.startsWith,
         mapFn: caseInsensitiveFilter,
       },

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -10,7 +10,6 @@ import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { CancelModal } from '../../components/CancelModal';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -27,31 +26,19 @@ import {
   TextField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-import { ImagingRequestPrintout } from '../../components/PatientPrinting';
+import { useEncounterData } from '../../api/queries';
+import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
-const PrintButton = ({ imagingRequest, patient }) => {
-  const api = useApi();
+const PrintButton = ({ imagingRequest }) => {
   const { modal } = useParams();
-  const certificateData = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
-  const [encounter, setEncounter] = useState();
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setIsLoading(true);
-    if (!imagingRequest.loading) {
-      (async () => {
-        const res = await api.get(`encounter/${imagingRequest.encounterId}`);
-        setEncounter(res);
-      })();
-      setIsLoading(false);
-    }
-  }, [api, imagingRequest.encounterId, imagingRequest.loading]);
+  const { data: encounter, isLoading } = useEncounterData(imagingRequest.encounterId);
 
   return (
     <>
@@ -59,12 +46,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
         {isLoading ? (
           <LoadingIndicator />
         ) : (
-          <ImagingRequestPrintout
-            imagingRequestData={imagingRequest}
-            patientData={patient}
-            encounterData={encounter}
-            certificateData={certificateData}
-          />
+          <ImagingRequestPrintout encounter={encounter} imagingRequests={[imagingRequest]} />
         )}
       </Modal>
       <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
