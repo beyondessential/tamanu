@@ -4,7 +4,8 @@ import {
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
-import { createDummyPatient, randomLabRequest } from 'shared/demoData';
+import config from 'config';
+import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
 
 import { createTestContext } from '../utilities';
 
@@ -117,4 +118,30 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
+  it('should return with only lab requests from config facility with allFacilities filter turned off', async () => {
+    // arrange
+    const thisFacilityLocation = await models.Location.create({
+      facilityId: config.serverFacilityId,
+      name: 'This Facility Location',
+      code: 'thisFacilityLocation',
+    });
+    const thisFacilityEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      locationId: thisFacilityLocation.id,
+      patientId,
+    });
+    await models.LabRequest.create({
+      encounterId: thisFacilityEncounter.id,
+      requestedById: app.user.id,
+      displayId: '12345',
+    });
+
+    const result = await app.get(`/v1/labRequest?allFacilities=true`);
+    expect(result).toHaveSucceeded();
+
+    const result2 = await app.get(`/v1/labRequest?allFacilities=false`);
+    result2.body.data.forEach(lr => {
+      expect(lr.facilityId).toBe(config.serverFacilityId);
+    });
+  });
 });

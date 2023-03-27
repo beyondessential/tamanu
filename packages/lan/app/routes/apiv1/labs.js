@@ -173,7 +173,8 @@ labRequest.get(
           priority.id AS priority_id,
           priority.name AS priority_name,
           laboratory.id AS laboratory_id,
-          laboratory.name AS laboratory_name
+          laboratory.name AS laboratory_name,
+          location.facility_id AS facility_id
         ${from}
 
         LIMIT :limit
