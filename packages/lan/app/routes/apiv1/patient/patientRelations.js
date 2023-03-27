@@ -309,7 +309,7 @@ patientRelations.get(
                 FROM
                   lab_test_panel_lab_test_types
                 WHERE
-                  lab_test_panel_id = ${panelId}
+                  lab_test_panel_id = '${panelId}'
               )`
               : ''
           }
@@ -363,7 +363,7 @@ patientRelations.get(
                FROM
                  lab_test_panel_lab_test_types
                WHERE
-                 lab_test_panel_id = ${panelId}
+                 lab_test_panel_id = '${panelId}'
              )`
             : ''
         }
