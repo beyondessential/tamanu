@@ -1,6 +1,5 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import * as yup from 'yup';
 
 import { VACCINE_CATEGORIES } from 'shared/constants';
 

@@ -15,7 +15,7 @@ import {
   VACCINE_GIVEN_VALIDATION_SCHEMA,
   validateGivenVaccine,
 } from './VaccineGivenForm';
-import { VaccineNotGivenForm, VACCINE_NOT_GIVEN_VALIDATION_SCHEMA } from './VaccineNotGivenForm';
+import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { getCurrentUser } from '../store/auth';
 import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
 import { usePatientCurrentEncounter } from '../api/queries';
