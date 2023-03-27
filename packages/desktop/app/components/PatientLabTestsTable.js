@@ -78,9 +78,10 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
       onChangeRowsPerPage={setRowsPerPage}
       onChangePage={setPage}
       count={data?.count}
+      allowExport
+      exportName="PatientResults"
       // TODO Open modal on click WAITM-666
       // onRowClick={onSelectLabTest}
-      allowExport={false}
     />
   );
 });
