@@ -226,7 +226,7 @@ describe('PatientVaccine', () => {
         recorderId: clinician.id,
         patientId: patient.id,
         date: new Date(),
-        givenOverseas: true,
+        givenElsewhere: true,
         givenBy: country.name,
       });
 
@@ -234,7 +234,7 @@ describe('PatientVaccine', () => {
 
       const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
 
-      expect(vaccine.givenOverseas).toEqual(true);
+      expect(vaccine.givenElsewhere).toEqual(true);
       expect(vaccine.givenBy).toEqual(country.name);
     });
 

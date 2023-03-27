@@ -21,7 +21,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   const handleCreateVaccine = useCallback(
     async data => {
       const dataToSubmit = { ...data };
-      if (currentTabKey === VACCINE_RECORDING_TYPES.GIVEN && data.givenOverseas && data.givenBy) {
+      if (currentTabKey === VACCINE_RECORDING_TYPES.GIVEN && data.givenElsewhere && data.givenBy) {
         const givenByCountry = (await countrySuggester.fetchCurrentOption(data.givenBy))?.label;
         dataToSubmit.givenBy = givenByCountry;
       }
