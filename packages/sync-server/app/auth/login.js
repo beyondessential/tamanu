@@ -7,15 +7,21 @@ import { BadAuthenticationError } from 'shared/errors';
 import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
-import { getToken, stripUser, findUser, getRandomBase64String, getRandomU32 } from './utils';
+import {
+  getToken,
+  stripUser,
+  findUser,
+  getRandomBase64String,
+  getRandomU32,
+  isInternalClient,
+} from './utils';
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body, header } = req;
+    const { store, body } = req;
     const { email, password, facilityId, deviceId } = body;
 
-    const client = header('X-Tamanu-Client');
-    const internalClient = ['Tamanu Mobile', 'Tamanu Desktop', 'Tamanu LAN Server'].includes(client);
+    const internalClient = isInternalClient(req.header('X-Tamanu-Client'));
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
