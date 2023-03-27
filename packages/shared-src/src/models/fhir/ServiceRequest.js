@@ -2,9 +2,8 @@ import config from 'config';
 import { DataTypes } from 'sequelize';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 
-import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
+import { latestDateTime } from '../../utils/dateTime';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -20,13 +19,13 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
 } from '../../constants';
-import { Exception } from '../../utils/fhir';
+import { Exception, formatFhirDate } from '../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: DataTypes.JSONB,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -35,17 +34,17 @@ export class FhirServiceRequest extends FhirResource {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
+        category: DataTypes.JSONB,
         priority: DataTypes.TEXT,
-        code: DataTypes.FHIR_CODEABLE_CONCEPT,
-        orderDetail: arrayOf('orderDetail', DataTypes.FHIR_CODEABLE_CONCEPT),
+        code: DataTypes.JSONB,
+        orderDetail: DataTypes.JSONB,
         subject: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
-        occurrenceDateTime: DataTypes.DATE,
-        requester: DataTypes.FHIR_REFERENCE,
-        locationCode: arrayOf('locationCode', DataTypes.FHIR_CODEABLE_CONCEPT),
+        occurrenceDateTime: DataTypes.TEXT,
+        requester: DataTypes.JSONB,
+        locationCode: DataTypes.JSONB,
       },
       options,
     );
@@ -147,11 +146,7 @@ export class FhirServiceRequest extends FhirResource {
           value: upstream.displayId,
         }),
       ],
-      status: {
-        [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
-        [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: FHIR_REQUEST_STATUS.ACTIVE,
-        [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: FHIR_REQUEST_STATUS.COMPLETED,
-      }[upstream.status],
+      status: status(upstream),
       intent: FHIR_REQUEST_INTENT.ORDER._,
       category: [
         new FhirCodeableConcept({
@@ -189,7 +184,7 @@ export class FhirServiceRequest extends FhirResource {
         reference: upstream.encounter.patient.id,
         display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
       }),
-      occurrenceDateTime: dateTimeStringIntoCountryTimezone(upstream.requestedDate),
+      occurrenceDateTime: formatFhirDate(upstream.requestedDate),
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
       }),
@@ -269,4 +264,17 @@ function locationCode(upstream) {
       text: facility.name,
     }),
   ];
+}
+
+function status(upstream) {
+  return (
+    {
+      [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: FHIR_REQUEST_STATUS.REVOKED,
+      [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: FHIR_REQUEST_STATUS.COMPLETED,
+      [IMAGING_REQUEST_STATUS_TYPES.DELETED]: FHIR_REQUEST_STATUS.REVOKED,
+      [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: FHIR_REQUEST_STATUS.ENTERED_IN_ERROR,
+      [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: FHIR_REQUEST_STATUS.ACTIVE,
+      [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
+    }[upstream.status] ?? FHIR_REQUEST_STATUS.UNKNOWN
+  );
 }

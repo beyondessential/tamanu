@@ -1,77 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
+import {
+  useEncounterData,
+  usePatientAdditionalData,
+  useLabRequestNotes,
+} from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
+
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { LabRequestPrintout } from '../../../components/PatientPrinting/printouts/LabRequestPrintout';
+import { MultipleLabRequestsPrintout as LabRequestPrintout } from '../../../components/PatientPrinting';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
-  const certificate = useCertificate();
-  const [notes, setNotes] = useState([]);
-  const [tests, setTests] = useState([]);
-  const [encounter, setEncounter] = useState({});
-  const [notesLoading, setNotesLoading] = useState(false);
-  const [testsLoading, setTestsLoading] = useState(false);
-  const [encounterLoading, setEncounterLoading] = useState(false);
+  const certificateData = useCertificate();
 
-  useEffect(() => {
-    setEncounterLoading(true);
-    (async () => {
-      const res = await api.get(`encounter/${labRequest.encounterId}`);
-      setEncounter(res);
-    })();
-    setEncounterLoading(false);
-  }, [api, labRequest.encounterId]);
-
-  useEffect(() => {
-    setTestsLoading(true);
-    (async () => {
-      const res = await api.get(`labRequest/${labRequest.id}/tests`);
-      setTests(res.data);
-    })();
-    setTestsLoading(false);
-  }, [api, labRequest.id]);
-  useEffect(() => {
-    setNotesLoading(true);
-    (async () => {
-      const res = await api.get(`labRequest/${labRequest.id}/notes`);
-      setNotes(res.data);
-    })();
-    setNotesLoading(false);
-  }, [api, labRequest.id]);
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
+  const { data: encounter, isLoading: encounterLoading } = useEncounterData(labRequest.encounterId);
+  const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalData(
+    patient.id,
   );
-  const isVillageEnabled = !!patient?.villageId;
-  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
-    ['village', encounter.patientId],
+  const { data: notePages, isLoading: notesLoading } = useLabRequestNotes(labRequest.id);
+
+  const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
+    ['referenceData', patient.villageId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
-      enabled: isVillageEnabled,
+      enabled: !!patient?.villageId,
     },
   );
-  const isLoading =
-    encounterLoading ||
-    testsLoading ||
-    notesLoading ||
-    isAdditionalDataLoading ||
-    (isVillageEnabled && isVillageLoading);
+
+  const villageLoading = villageQueryLoading && !!patient?.villageId;
 
   return (
     <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-      {isLoading ? (
+      {encounterLoading || additionalDataLoading || villageLoading || notesLoading ? (
         <LoadingIndicator />
       ) : (
         <LabRequestPrintout
-          labRequest={{ ...labRequest, tests, notes }}
+          certificateData={certificateData}
           patient={patient}
-          village={village}
           additionalData={additionalData}
+          village={village}
           encounter={encounter}
-          certificate={certificate}
+          labRequests={[{ ...labRequest, notePages }]}
         />
       )}
     </Modal>

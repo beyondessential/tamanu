@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { DataFetchingTable } from '../components';
+import { SearchTable } from '../components';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
@@ -52,7 +52,7 @@ export const LabRequestsTable = () => {
   };
 
   return (
-    <DataFetchingTable
+    <SearchTable
       endpoint="labRequest"
       columns={columns}
       noDataMessage="No lab requests found"

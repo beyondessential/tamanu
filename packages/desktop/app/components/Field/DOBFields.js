@@ -18,27 +18,29 @@ const JoinedField = styled(Field)`
   }
 `;
 
-export const DOBFields = () => (
+export const DOBFields = ({ showExactBirth = true }) => (
   <>
-    <Field
-      name="dateOfBirthExact"
-      component={DateField}
-      saveDateAsString
-      label="DOB"
-      max={getCurrentDateString()}
-    />
+    {showExactBirth && (
+      <Field
+        name="dateOfBirthExact"
+        component={DateField}
+        saveDateAsString
+        label="DOB"
+        max={getCurrentDateString()}
+      />
+    )}
     <JoinedField
       name="dateOfBirthFrom"
       component={DateField}
       saveDateAsString
-      label="DOB from"
+      label="DOB From"
       max={getCurrentDateString()}
     />
     <Field
       name="dateOfBirthTo"
       component={DateField}
       saveDateAsString
-      label="DOB to"
+      label="DOB To"
       max={getCurrentDateString()}
     />
   </>
