@@ -15,6 +15,23 @@ interface CheckboxProps extends BaseInputProps {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    alignSelf: 'flex-start',
+    borderRadius: 100,
+    overflow: 'hidden',
+    flexWrap: 'wrap',
+  },
+  row: {
+    backgroundColor: theme.colors.WHITE,
+    paddingLeft: 7,
+    paddingRight: 15,
+    paddingTop: 7,
+    paddingBottom: 7,
+    alignSelf: 'flex-start',
+    borderRadius: 100,
+    alignItems: 'center',
+    elevation: 2,
+  },
   checked: {
     height: 20,
     width: 20,
@@ -37,16 +54,6 @@ const styles = StyleSheet.create({
     height: 10,
     width: 10,
   },
-  row: {
-    backgroundColor: theme.colors.WHITE,
-    paddingLeft: 7,
-    paddingRight: 15,
-    paddingTop: 7,
-    paddingBottom: 7,
-    alignSelf: 'flex-start',
-    borderRadius: 100,
-    alignItems: 'center',
-  },
   text: {
     marginLeft: 5,
     fontSize: screenPercentageToDP('1.70', Orientation.Height),
@@ -55,19 +62,20 @@ const styles = StyleSheet.create({
   },
 });
 
-export const CustomCheckbox = ({
+export const OvalCheckbox = ({
   value,
   onChange,
   id,
   text,
   error,
   required,
+  ...props
 }: CheckboxProps): JSX.Element => (
-  <StyledView>
+  <StyledView {...props}>
     <Pressable
       onPress={() => onChange(!value, id)}
       android_ripple={{ color: theme.colors.LIGHT_GREY, foreground: true }}
-      style={{ alignSelf: 'flex-start', borderRadius: 100, overflow: 'hidden' }}
+      style={styles.container}
     >
       <RowView style={styles.row}>
         {value ? (

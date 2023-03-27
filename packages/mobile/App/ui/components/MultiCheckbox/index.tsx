@@ -1,14 +1,11 @@
 import React, { useCallback } from 'react';
-import { View } from 'react-native';
 import { StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
-import { CustomCheckbox } from '/components/Checkbox/CustomCheckbox';
+import { OvalCheckbox } from '/components/Checkbox/OvalCheckbox';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
   value: string[];
-  background?: string;
   options: { id: string; text: string }[];
 }
 
@@ -29,22 +26,18 @@ export const MultiCheckbox = ({
   );
 
   return (
-    <View>
+    <StyledView style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
       {options.map(({ id, text }) => (
-        <StyledView marginTop={10}>
-          <CustomCheckbox
-            id={id}
-            text={text}
-            value={value.includes(id)}
-            error={error}
-            onChange={handleCallback}
-          />
-        </StyledView>
+        <OvalCheckbox
+          id={id}
+          text={text}
+          value={value.includes(id)}
+          error={error}
+          onChange={handleCallback}
+          marginTop={14}
+          width="45%"
+        />
       ))}
-    </View>
+    </StyledView>
   );
-};
-
-MultiCheckbox.defaultProps = {
-  background: theme.colors.WHITE,
 };
