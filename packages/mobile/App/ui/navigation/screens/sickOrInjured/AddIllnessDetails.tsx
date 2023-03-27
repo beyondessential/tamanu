@@ -30,7 +30,7 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const IllnessFormSchema = Yup.object().shape({
   certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
-  diagnosis: Yup.string(),
+  diagnosis: Yup.string().required(),
 });
 
 const styles = StyleSheet.create({

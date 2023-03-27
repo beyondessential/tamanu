@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { connect } from 'react-redux';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
-import {
-  getLabTestTypes,
-  getLabTestCategories,
-  getLabTestPriorities,
-  loadOptions,
-} from '../store/options';
 import { useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -19,8 +12,8 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 import {
   Form,
   Field,
-  SelectField,
   AutocompleteField,
+  SuggesterSelectField,
   TextField,
   DateTimeField,
   CheckField,
@@ -33,6 +26,7 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
+import { useApi } from '../api';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type)?.label;
@@ -84,22 +78,27 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
   return <DropdownButton actions={actions} />;
 };
 
-export class LabRequestForm extends React.PureComponent {
-  componentDidMount() {
-    const { onMount } = this.props;
-    if (onMount) onMount();
-  }
+export const LabRequestForm = ({
+  practitionerSuggester,
+  encounter,
+  requestId,
+  onSubmit,
+  onCancel,
+  editedObject,
+  generateDisplayId,
+}) => {
+  const api = useApi();
+  const [testTypes, setTestTypes] = useState([]);
 
-  renderForm = ({ values, submitForm }) => {
-    const {
-      practitionerSuggester,
-      onCancel,
-      testTypes,
-      encounter = {},
-      testCategories,
-      testPriorities,
-      requestId,
-    } = this.props;
+  useEffect(() => {
+    (async () => {
+      const labTestTypesData = (await api.get(`labTest/options`)).data;
+
+      setTestTypes(labTestTypesData);
+    })();
+  }, [api]);
+
+  const renderForm = ({ values, submitForm }) => {
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
@@ -110,7 +109,7 @@ export class LabRequestForm extends React.PureComponent {
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
         <Field
           name="requestedDate"
-          label="Order date"
+          label="Request date"
           required
           component={DateTimeField}
           saveDateAsString
@@ -136,8 +135,8 @@ export class LabRequestForm extends React.PureComponent {
           <Field
             name="labTestPriorityId"
             label="Priority"
-            component={SelectField}
-            options={testPriorities}
+            component={SuggesterSelectField}
+            endpoint="labTestPriority"
           />
         </div>
         <FormSeparatorLine />
@@ -146,8 +145,8 @@ export class LabRequestForm extends React.PureComponent {
           name="labTestCategoryId"
           label="Test category"
           required
-          component={SelectField}
-          options={testCategories}
+          component={SuggesterSelectField}
+          endpoint="labTestCategory"
         />
         <Field
           name="labTestTypeIds"
@@ -178,63 +177,50 @@ export class LabRequestForm extends React.PureComponent {
     );
   };
 
-  render() {
-    const { onSubmit, editedObject, generateDisplayId } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          displayId: generateDisplayId(),
-          requestedDate: getCurrentDateTimeString(),
-          sampleTime: getCurrentDateTimeString(),
-          // LabTest date
-          date: getCurrentDateString(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          requestedById: foreignKey('Requesting doctor is required'),
-          labTestCategoryId: foreignKey('Lab request type must be selected'),
-          sampleTime: yup.date().required(),
-          requestedDate: yup.date().required(),
-        })}
-        validate={values => {
-          // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { labTestTypeIds = [] } = values;
-          if (labTestTypeIds.length === 0) {
-            return {
-              labTestTypeIds: 'At least one test must be selected',
-            };
-          }
-          return {};
-        }}
-      />
-    );
-  }
-}
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      initialValues={{
+        displayId: generateDisplayId(),
+        requestedDate: getCurrentDateTimeString(),
+        sampleTime: getCurrentDateTimeString(),
+        // LabTest date
+        date: getCurrentDateString(),
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        requestedById: foreignKey('Requesting doctor is required'),
+        labTestCategoryId: foreignKey('Lab request type must be selected'),
+        sampleTime: yup.date().required(),
+        requestedDate: yup.date().required(),
+      })}
+      validate={values => {
+        // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
+        const { labTestTypeIds = [] } = values;
+        if (labTestTypeIds.length === 0) {
+          return {
+            labTestTypeIds: 'At least one test must be selected',
+          };
+        }
+        return {};
+      }}
+    />
+  );
+};
 
 LabRequestForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  onMount: PropTypes.func,
+  onCancel: PropTypes.func.isRequired,
+  practitionerSuggester: PropTypes.object.isRequired,
+  encounter: PropTypes.object,
+  generateDisplayId: PropTypes.func.isRequired,
+  requestId: PropTypes.string,
+  editedObject: PropTypes.object,
 };
 
 LabRequestForm.defaultProps = {
-  onMount: null,
+  encounter: {},
+  editedObject: {},
+  requestId: '',
 };
-
-export const ConnectedLabRequestForm = connect(
-  state => ({
-    testTypes: getLabTestTypes(state),
-    testCategories: getLabTestCategories(state).map(({ id, name }) => ({
-      value: id,
-      label: name,
-    })),
-    testPriorities: getLabTestPriorities(state).map(({ id, name }) => ({
-      value: id,
-      label: name,
-    })),
-  }),
-  dispatch => ({
-    onMount: () => dispatch(loadOptions()),
-  }),
-)(LabRequestForm);

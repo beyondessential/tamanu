@@ -20,7 +20,12 @@ const yearsAgo = (years, days = 0) =>
 // tests have a healthy population of negative examples as well
 const searchTestPatients = [
   { displayId: 'search-by-display-id' },
-  { displayId: 'search-by-secondary-id' },
+  { displayId: 'search-by-secondary-id', secondaryIds: ['patient-secondary-id'] },
+  {
+    displayId: 'multiple-secondary-id',
+    secondaryIds: ['multi-secondary-1', 'multi-secondary-2', 'multi-secondary-3'],
+  },
+  { displayId: 'matching-2ndary-id', secondaryIds: ['matching-2ndary-id'] },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
@@ -48,6 +53,7 @@ const searchTestPatients = [
   { firstName: 'search-encounter-OUT', encounters: [{ encounterType: 'emergency' }] },
   { firstName: 'search-encounter-OUT', encounters: [{ encounterType: 'admission' }] },
   { firstName: 'search-by-location', encounters: [{ locationIndex: 0 }] },
+  { firstName: 'search-by-location-group', encounters: [{ locationIndex: 0 }] },
   { firstName: 'search-by-department', encounters: [{ departmentIndex: 0 }] },
   { firstName: 'pagination', lastName: 'A' },
   { firstName: 'pagination', lastName: 'B' },
@@ -93,6 +99,7 @@ describe('Patient search', () => {
   let app = null;
   let villages = null;
   let locations = null;
+  let locationGroups = null;
   let departments = null;
   let baseApp = null;
   let models = null;
@@ -107,10 +114,11 @@ describe('Patient search', () => {
 
     villages = await models.ReferenceData.findAll({ where: { type: 'village' } });
     locations = await models.Location.findAll();
+    locationGroups = await models.LocationGroup.findAll();
     departments = await models.Department.findAll();
 
     await Promise.all(
-      searchTestPatients.map(async ({ encounters: encountersData, ...data }, i) => {
+      searchTestPatients.map(async ({ encounters: encountersData, secondaryIds, ...data }, i) => {
         const patientData = await createDummyPatient(models, {
           ...data,
           villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
@@ -129,14 +137,18 @@ describe('Patient search', () => {
             );
           }
         }
-        if (patient.displayId === 'search-by-secondary-id') {
-          const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
-          await models.PatientSecondaryId.create({
-            value: 'patient-secondary-id',
-            visibilityStatus: 'historical',
-            typeId: secondaryIdType,
-            patientId: patient.id,
-          });
+        if (secondaryIds) {
+          await Promise.all(
+            secondaryIds.map(async secondaryId => {
+              const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
+              await models.PatientSecondaryId.create({
+                value: secondaryId,
+                visibilityStatus: 'historical',
+                typeId: secondaryIdType,
+                patientId: patient.id,
+              });
+            }),
+          );
         }
       }),
     );
@@ -170,34 +182,75 @@ describe('Patient search', () => {
     expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
   });
 
-  it('should NOT get a patient by secondary ID by default', async () => {
-    const response = await app.get('/v1/patient').query({
-      displayId: 'patient-secondary-id',
+  describe('Searching by secondary IDs', () => {
+    it('should NOT get a patient by secondary ID by default', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'patient-secondary-id',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
     });
-    expect(response).toHaveSucceeded();
-    expect(response.body.count).toEqual(0);
-  });
 
-  it('should get a patient by secondary ID if query param matchSecondaryIds is true', async () => {
-    const response = await app.get('/v1/patient?matchSecondaryIds=true').query({
-      displayId: 'patient-secondary-id',
+    it('should get a patient by secondary ID if query param matchSecondaryIds is true', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'patient-secondary-id',
+        matchSecondaryIds: true,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+
+      const [responsePatient] = response.body.data;
+      expect(responsePatient).toHaveProperty('displayId', 'search-by-secondary-id');
     });
-    expect(response).toHaveSucceeded();
-    expect(response.body.count).toEqual(1);
 
-    const [responsePatient] = response.body.data;
-    expect(responsePatient).toHaveProperty('displayId', 'search-by-secondary-id');
-  });
+    it('should get a patient by secondary ID case-insensitively', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'Patient-Secondary-Id',
+        matchSecondaryIds: true,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
 
-  it('should get a patient by displayId even if query param matchSecondaryIds is true', async () => {
-    const response = await app.get('/v1/patient?matchSecondaryIds=true').query({
-      displayId: 'search-by-display-id',
+      const [responsePatient] = response.body.data;
+      expect(responsePatient).toHaveProperty('displayId', 'search-by-secondary-id');
     });
-    expect(response).toHaveSucceeded();
-    expect(response.body.count).toEqual(1);
 
-    const [responsePatient] = response.body.data;
-    expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
+    it("should not get a patient by secondaryId if it's only a partial match", async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'patient-seco',
+        matchSecondaryIds: true,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
+    });
+
+    it('should get a patient by displayId even if query param matchSecondaryIds is true', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'search-by-display-id',
+        matchSecondaryIds: true,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+
+      const [responsePatient] = response.body.data;
+      expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
+    });
+
+    it('should not see duplicates when patient primary displayId matches a secondary ID', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'matching-2ndary-id',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+    });
+
+    it('should not see duplicates when patients have multiple secondary IDs', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'multiple-secondary-id',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+    });
   });
 
   it('should get a list of patients by first name', async () => {
@@ -328,9 +381,10 @@ describe('Patient search', () => {
       });
     });
 
-    it('should get a list of patients by location', async () => {
+    it('should get a list of patients by location (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         locationId: locations[0].id,
+        facilityId: locations[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -340,9 +394,23 @@ describe('Patient search', () => {
       });
     });
 
-    it('should get a list of patients by department', async () => {
+    it('should get a list of patients by location group (not on all-patients listing)', async () => {
+      const response = await app.get('/v1/patient').query({
+        locationGroupId: locationGroups[0].id,
+        facilityId: locationGroups[0].facilityId,
+      });
+      expect(response).toHaveSucceeded();
+
+      expect(response.body.data.some(withFirstName('search-by-location-group')));
+      response.body.data.forEach(responsePatient => {
+        expect(responsePatient).toHaveProperty('locationGroupName', locationGroups[0].name);
+      });
+    });
+
+    it('should get a list of patients by department (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         departmentId: departments[0].id,
+        facilityId: departments[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -477,9 +545,10 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.encounterType, true);
     });
 
-    it('should sort by location', async () => {
+    it('should sort by location (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         orderBy: 'locationName',
+        facilityId: locations[0].facilityId,
       });
 
       expect(response).toHaveSucceeded();
@@ -487,9 +556,10 @@ describe('Patient search', () => {
       expectSorted(response.body.data, x => x.locationName);
     });
 
-    it('should sort by department', async () => {
+    it('should sort by department (not on all-patients listing)', async () => {
       const response = await app.get('/v1/patient').query({
         orderBy: 'departmentName',
+        facilityId: departments[0].facilityId,
       });
 
       expect(response).toHaveSucceeded();

@@ -2,10 +2,10 @@ import { format, formatRFC7231 } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateString } from 'shared/utils/dateTime';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
-import { fakeUUID } from 'shared/utils/generateId';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -29,9 +29,7 @@ describe(`Materialised FHIR - Patient`, () => {
     it('fetches a patient by materialised ID', async () => {
       // arrange
       const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
-      const patient = await Patient.create(
-        fake(Patient, { dateOfDeath: getCurrentDateString() }),
-      );
+      const patient = await Patient.create(fake(Patient, { dateOfDeath: getCurrentDateString() }));
       const additionalData = await PatientAdditionalData.create({
         ...fake(PatientAdditionalData),
         patientId: patient.id,
@@ -94,7 +92,6 @@ describe(`Materialised FHIR - Patient`, () => {
             use: 'nickname',
           },
         ],
-        resourceType: 'Patient',
         telecom: [
           {
             rank: 1,
@@ -113,9 +110,7 @@ describe(`Materialised FHIR - Patient`, () => {
     it('searches a single patient by display ID', async () => {
       // arrange
       const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
-      const patient = await Patient.create(
-        fake(Patient, { dateOfDeath: getCurrentDateString() }),
-      );
+      const patient = await Patient.create(fake(Patient, { dateOfDeath: getCurrentDateString() }));
       const additionalData = await PatientAdditionalData.create({
         ...fake(PatientAdditionalData),
         patientId: patient.id,
@@ -592,13 +587,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       it('sorts by multiple fields', async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
-        const [
-          patientOne,
-          patientTwo,
-          patientThree,
-          patientFour,
-          patientFive,
-        ] = await Promise.all([
+        const [patientOne, patientTwo, patientThree, patientFour, patientFive] = await Promise.all([
           Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams' })),
           Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams' })),
           Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Baker' })),

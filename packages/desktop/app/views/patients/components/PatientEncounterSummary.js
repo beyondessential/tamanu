@@ -5,11 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
 import {
   DateDisplay,
-  ViewButton,
+  Button,
   DeathCertificateModal,
   ButtonWithPermissionCheck,
 } from '../../../components';
 import { useApi } from '../../../api';
+import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -209,7 +210,9 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         <BoldTitle variant="h3">Type:</BoldTitle>
         <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
         <div style={{ flexGrow: 1 }} />
-        <ViewButton onClick={() => viewEncounter(id)} size="small" />
+        <Button onClick={() => viewEncounter(id)} size="small">
+          View encounter
+        </Button>
       </Header>
       <Content>
         <ContentItem>
@@ -222,7 +225,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </ContentItem>
         <ContentItem>
           <ContentLabel>Location:</ContentLabel>
-          <ContentText>{location?.name || '-'}</ContentText>
+          <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>
         {!getLocalisation(`${referralSourcePath}.hidden`) && (
           <ContentItem>

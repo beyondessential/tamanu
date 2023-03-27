@@ -46,6 +46,7 @@ reports.get(
         id: version.id,
         name: r.name,
         dataSourceOptions: version.queryOptions.dataSources,
+        filterDateRangeAsStrings: true,
         dateRangeLabel:
           version.queryOptions.dateRangeLabel ||
           REPORT_DATE_RANGE_LABELS[version.queryOptions.defaultDateRange],
@@ -93,7 +94,7 @@ reports.post(
     try {
       facilityReportLog.info('Running report', { parameters });
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
-      facilityReportLog.info('Report run successfully', { excelData });
+      facilityReportLog.info('Report run successfully');
       res.send(excelData);
     } catch (e) {
       facilityReportLog.error('Report module failed to generate data', {

@@ -153,6 +153,11 @@ export const practitioner = [
   { verb: 'create', noun: 'Location' },
   { verb: 'write', noun: 'Location' },
 
+  { verb: 'list', noun: 'LocationGroup' },
+  { verb: 'read', noun: 'LocationGroup' },
+  { verb: 'create', noun: 'LocationGroup' },
+  { verb: 'write', noun: 'LocationGroup' },
+
   { verb: 'list', noun: 'Attachment' },
   { verb: 'read', noun: 'Attachment' },
 

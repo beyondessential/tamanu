@@ -9,6 +9,7 @@ export * from './imaging';
 export * from './importable';
 export * from './invoices';
 export * from './labs';
+export * from './locations';
 export * from './notes';
 export * from './patientFields';
 export * from './reports';
@@ -17,5 +18,3 @@ export * from './statuses';
 export * from './surveys';
 export * from './sync';
 export * from './vaccines';
-
-export const DISPLAY_ID_PLACEHOLDER = '-TMP-';

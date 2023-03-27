@@ -15,6 +15,7 @@ import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { Patient } from '../../../../../../models/Patient';
 
 interface IPopup {
   title: string;
@@ -44,20 +45,21 @@ const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
   return secondPart
     ? {
-      title: firstPart,
-      textBody: secondPart,
-    }
+        title: firstPart,
+        textBody: secondPart,
+      }
     : {
-      title: '',
-      textBody: firstPart,
-    };
+        title: '',
+        textBody: firstPart,
+      };
 };
 
-const showPatientWarningPopups = (issues: IPatientIssue[]): void => showPopupChain(
-  issues
-    .filter(({ type }) => type === PatientIssueType.Warning)
-    .map(({ note }) => formatNoteToPopup(note)),
-);
+const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
+  showPopupChain(
+    issues
+      .filter(({ type }) => type === PatientIssueType.Warning)
+      .map(({ note }) => formatNoteToPopup(note)),
+  );
 
 const PatientHomeContainer = ({
   navigation,
@@ -72,9 +74,9 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
       },
       {
-        title: 'Check up',
-        Icon: Icons.CheckUpIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.CheckUpStack.Index),
+        title: 'Vitals',
+        Icon: Icons.VitalsIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
       },
       {
         title: 'Programs',
@@ -123,8 +125,8 @@ const PatientHomeContainer = ({
   const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(async (): Promise<void> => {
     try {
-      await models.Patient.markForSync(selectedPatient.id);
-      syncManager.runScheduledSync();
+      await Patient.markForSync(selectedPatient.id);
+      syncManager.triggerSync();
       navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
     } catch (error) {
       setErrorMessage(error.message);
@@ -160,11 +162,11 @@ const PatientHomeContainer = ({
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
-  if (errorMessage) return <ErrorScreen error={errorMessage} />;
-
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);
   }, [patientIssues?.length ?? 0, selectedPatient.id]);
+
+  if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
   return (
     <Screen

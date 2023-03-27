@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class Discharge extends Model {
   static init({ primaryKey, ...options }) {
@@ -20,11 +22,11 @@ export class Discharge extends Model {
       {
         id: primaryKey,
         note: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: true,
         },
       },
-      { ...options, validate },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, validate },
     );
   }
 
@@ -45,5 +47,12 @@ export class Discharge extends Model {
       foreignKey: 'dispositionId',
       as: 'disposition',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 }

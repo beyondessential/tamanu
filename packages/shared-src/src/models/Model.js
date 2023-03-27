@@ -1,65 +1,36 @@
 import * as sequelize from 'sequelize';
-import { SyncConfig } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
-const { Sequelize, Op, Utils } = sequelize;
+const { Op, Utils, Sequelize } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
-// write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
-const MARKED_FOR_PUSH_MODELS = [
-  'Encounter',
-  'LabRequestLog',
-  'Patient',
-  'PatientAdditionalData',
-  'PatientAllergy',
-  'PatientCarePlan',
-  'PatientCondition',
-  'PatientFamilyHistory',
-  'PatientIssue',
-  'PatientSecondaryId',
-  'ReportRequest',
-  'ReportDefinition',
-  'ReportDefinitionVersion',
-  'UserFacility',
-  'DocumentMetadata',
-  'CertificateNotification',
-  'PatientDeathData',
-  'PatientBirthData',
-  'ContributingDeathCause',
-  'PatientFieldValue',
-];
-
 export class Model extends sequelize.Model {
-  static init(originalAttributes, { syncClientMode, syncConfig, timestamps = true, ...options }) {
-    const attributes = { ...originalAttributes };
-    if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
-      if (!timestamps) {
-        throw new Error('DEV: sync cannot work without timestamps');
-      }
-
-      attributes.markedForPush = {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      };
-      attributes.isPushing = {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      };
-      attributes.deletedAt = Sequelize.DATE;
-      attributes.pushedAt = Sequelize.DATE;
-      attributes.pulledAt = Sequelize.DATE;
+  static init(modelAttributes, { syncDirection, timestamps = true, schema, ...options }) {
+    const attributes = {
+      ...modelAttributes,
+    };
+    if (syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
+      attributes.updatedAtSyncTick = Sequelize.BIGINT;
     }
-
-    if (timestamps) {
-      attributes.deletedAt = Sequelize.DATE;
-    }
-
-    super.init(attributes, { timestamps, ...options });
-    this.syncClientMode = syncClientMode;
+    super.init(attributes, {
+      timestamps,
+      schema,
+      ...options,
+    });
     this.defaultIdValue = attributes.id.defaultValue;
-    this.syncConfig = new SyncConfig(this, syncConfig);
+    if (!syncDirection) {
+      throw new Error(
+        `Every model must specify a sync direction, even if that is "DO_NOT_SYNC". Check the model definition for ${this.name}`,
+      );
+    }
+    this.syncDirection = syncDirection;
+    if (!timestamps && this.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
+      throw new Error(
+        'DEV: syncing models should all have createdAt, updatedAt, deletedAt, and updatedAtSyncTick timestamps turned on',
+      );
+    }
+    this.usesPublicSchema = schema === undefined || schema === 'public';
   }
 
   static generateId() {
@@ -95,7 +66,10 @@ export class Model extends sequelize.Model {
     return references.reduce((allValues, referenceName) => {
       const { [referenceName]: referenceVal, ...otherValues } = allValues;
       if (!referenceVal) return allValues;
-      return { ...otherValues, [firstLetterLowercase(referenceName)]: referenceVal.dataValues };
+      return {
+        ...otherValues,
+        [firstLetterLowercase(referenceName)]: referenceVal.dataValues,
+      };
     }, values);
   }
 
@@ -135,14 +109,13 @@ export class Model extends sequelize.Model {
     });
   }
 
-  // list of callbacks to call after model is initialised
-  static afterInitCallbacks = [];
-
-  // adds a function to be called once model is initialised
-  // (useful for hooks and anything else that needs an initialised model)
-  static afterInit(fn) {
-    this.afterInitCallbacks.push(fn);
+  static sanitizeForCentralServer(values) {
+    // implement on the specific model if needed
+    return values;
   }
 
-  static syncConfig = {};
+  static sanitizeForFacilityServer(values) {
+    // implement on the specific model if needed
+    return values;
+  }
 }

@@ -1,15 +1,3 @@
-export const MEDICATION_STATUSES = {
-  COMPLETED: 'Completed',
-  FULFILLED: 'Fulfilled',
-  REQUESTED: 'Requested',
-};
-
-export const OPERATION_PLAN_STATUSES = {
-  PLANNED: 'Planned',
-  DROPPED: 'Dropped',
-  COMPLETED: 'Completed',
-};
-
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
   IN_PROGRESS: 'in_progress',
@@ -56,6 +44,13 @@ export const COMMUNICATION_STATUSES = {
   ERROR: 'Error',
   DELIVERED: 'Delivered',
   BAD_FORMAT: 'Bad Format',
+};
+
+export const JOB_QUEUE_STATUSES = {
+  QUEUED: 'Queued',
+  STARTED: 'Started',
+  COMPLETED: 'Completed',
+  ERRORED: 'Errored',
 };
 
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);

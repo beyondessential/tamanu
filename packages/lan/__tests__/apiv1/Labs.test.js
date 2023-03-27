@@ -1,4 +1,9 @@
-import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import {
+  LAB_TEST_STATUSES,
+  LAB_REQUEST_STATUSES,
+  REFERENCE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 import { createDummyPatient, randomLabRequest } from 'shared/demoData';
 
 import { createTestContext } from '../utilities';
@@ -155,6 +160,28 @@ describe('Labs', () => {
       const withOptions = data.filter(x => x.options);
       expect(withOptions.length).toBeGreaterThan(0);
       expect(withOptions.every(x => Array.isArray(x.options))).toEqual(true);
+    });
+
+    it("should fetch only lab test types with visibility status 'current'", async () => {
+      const category = await models.ReferenceData.create({
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        name: 'TestCategory1',
+        code: 'test_category_1',
+      });
+      await models.LabTestType.create({
+        labTestCategoryId: category.id,
+        name: 'Historical Lab Test Type',
+        code: 'historical_lab_test_type',
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
+      const response = await app.get(`/v1/labTest/options`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toBeGreaterThan(0);
+
+      const { data } = response.body;
+      expect(Array.isArray(data)).toBeTruthy();
+      expect(data.every(l => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT)).toBeTruthy();
     });
 
     it('should fetch lab test categories', async () => {

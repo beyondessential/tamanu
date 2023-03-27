@@ -1,17 +1,16 @@
 import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
-import wayfarer from 'wayfarer';
 import util from 'util';
 
 import { log } from './logging';
 
-import { migrate, assertUpToDate } from './migrations';
+import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
-import { initSyncHooks } from '../models/sync';
 import { createDateTypes } from './createDateTypes';
 import { createFhirTypes } from './fhirTypes';
 import { setupQuote } from '../utils/pgComposite';
+import { SYNC_DIRECTIONS } from '../constants';
 
 createDateTypes();
 createFhirTypes();
@@ -109,7 +108,6 @@ export async function initDatabase(dbOptions) {
     saltRounds = null,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
-    syncClientMode = false,
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
@@ -143,7 +141,6 @@ export async function initDatabase(dbOptions) {
         sequelize,
         paranoid: makeEveryModelParanoid,
         hackToSkipEncounterValidation,
-        syncClientMode,
       },
       models,
     );
@@ -155,26 +152,17 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  // init global sync hooks that live in shared-src
-  initSyncHooks(models);
-
-  // router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
-  // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
-  sequelize.channelRouter = wayfarer();
-  for (const model of modelClasses) {
-    /*
-     * add channel route to channelRouter
-     *
-     *   a channel route: `patient/:patientId/foobar`
-     *   a channel:       `patient/1234abcd/foobar`
-     */
-    for (const channelRoute of model.syncConfig.channelRoutes) {
-      sequelize.channelRouter.on(channelRoute.route, (params, f) => f(model, params, channelRoute));
+  modelClasses.forEach(modelClass => {
+    if (
+      modelClass.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC &&
+      modelClass.usesPublicSchema &&
+      !NON_SYNCING_TABLES.includes(modelClass.tableName)
+    ) {
+      throw new Error(
+        `Any table that does not sync should be added to the "NON_SYNCING_TABLES" list. Please check ${modelClass.tableName}`,
+      );
     }
-
-    // run afterInit callbacks for model
-    await Promise.all(model.afterInitCallbacks.map(fn => fn()));
-  }
+  });
 
   // add isInsideTransaction helper to avoid exposing the namespace
   sequelize.isInsideTransaction = () => !!namespace.get('transaction');

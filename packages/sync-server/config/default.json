@@ -24,19 +24,18 @@
     "enabled": true
   },
   "sync": {
-    "concurrentChannelChecks": 8,
-    // embedPatientNotes is a workaround for TAN-1757
-    // TODO: remove after 1.21 release
-    "embedPatientNotes": false,
-    // allowUntil makes sync only export records that were updated before the sync started
-    // this stops sync from sending newly updated records that might cause conflicts
-    // however, it could also prevent sync from syncing frequently changing records
-    // TODO: remove after 1.21 release
-    "allowUntil": true
+    "readOnly": false,
+    "persistedCacheBatchSize": 20000,
+    "adjustDataBatchSize": 20000,
+    "syncAllEncountersForTheseVaccines": [],
+    "numberConcurrentPullSnapshots": 4,
+    // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
+    // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
+    "maxRecordsPerPullSnapshotChunk": 1000000000
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
-    // (e.g. the path `/v1/sync/patient` would match the prefix `/v1/sync/`)
+    // (e.g. the path `/v1/sync/xxx/pull` would match the prefix `/v1/sync/`)
     //
     // if the path of a request matches a prefix it is added to that queue and
     // may be dropped under heavy load
@@ -48,19 +47,24 @@
       // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
         "name": "low_priority",
-        "prefixes": ["/v1/sync", "/v1/attachment"],
+        "prefixes": [
+          "/v1/sync",
+          "/v1/attachment"
+        ],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
-        "queueTimeout": 500
+        "queueTimeout": 7500
       },
       // global queue for non-sync non-attachment requests
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
       {
         "name": "high_priority",
-        "prefixes": ["/"],
+        "prefixes": [
+          "/"
+        ],
         "maxActiveRequests": 8,
         "maxQueuedRequests": 32,
-        "queueTimeout": 2000
+        "queueTimeout": 7500
       }
     ]
   },
@@ -96,7 +100,6 @@
     // batchSize == run through them all in one run, in batches of N
     // limit == run through N per task run
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
-
     "outpatientDischarger": {
       // every day at 11 PM
       "schedule": "0 11 * * *",
@@ -113,6 +116,10 @@
       "schedule": "29 * * * *",
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "patientMergeMaintainer": {
+      // once an hour at minute 12
+      "schedule": "12 * * * *"
     },
     "certificateNotificationProcessor": {
       // every 30 seconds /!\
@@ -157,14 +164,23 @@
       "labTestCategories": [],
       "labTestTypes": []
     },
-    "duplicateAdditionalDataDeleter": {
-      "enabled": true,
-      "schedule": "*/15 * * * *"
-    },
     "fhirMaterialiser": {
       "enabled": true, // only when integrations.fhir is on
       "schedule": "*/1 * * * *",
       "limit": 100
+    },
+    "plannedMoveTimeout": {
+      "enabled": true,
+      // Once an hour
+      "schedule": "0 * * * *",
+      "timeoutHours": 24,
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "staleSyncSessionCleaner": {
+      "enabled": true,
+      "schedule": "* * * * *",
+      "staleSessionSeconds": 3600
     }
   },
   "integrations": {
@@ -194,20 +210,16 @@
     },
     "signer": {
       "enabled": false,
-
       // Encryption key for ICAO Signer key material (stored in DB).
       // This must be unique per country/installation AND NEVER CHANGED.
       // It must be at least 32 bytes of random data in Base64.
       // $ openssl rand -base64 32
       "keySecret": null,
-
       // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
       // For EU DCC: at least 1 character, must be unique in country, should be descriptive
       "commonName": "TA",
-
       // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
       // "provider": "Tamanu",
-
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
     },
@@ -220,6 +232,13 @@
     },
     "fhir": {
       "enabled": false
+    },
+    "omniLab": {
+      "enabled": false,
+      // Must be set to a random value, and the value must be saved somewhere (at BES we use lastpass)
+      // New keys may be issued by running `node dist/app.bundle.js apiKeys issue fhirIntegration <email> -e '100 years'
+      // If this is changed, all API keys using this secret will be revoked and must be reissued
+      "secret": null
     }
   },
   // on the sync-server, don't read these values from config!
@@ -230,8 +249,12 @@
     // the labResultWidget and timeZone keys are here for legacy reasons
     // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
-      "categoryWhitelist": ["labTestCategory-COVID"],
-      "testTypeWhitelist": ["labTestType-COVID"]
+      "categoryWhitelist": [
+        "labTestCategory-COVID"
+      ],
+      "testTypeWhitelist": [
+        "labTestType-COVID"
+      ]
     },
     "data": {
       // To do: review this section when implementing the patient charts feature
@@ -528,33 +551,46 @@
         },
         "registeredBirthPlace": {
           "shortLabel": "Place of birth",
-          "longLabel":  "Place of birth",
+          "longLabel": "Place of birth",
           "hidden": false
         },
         "referralSourceId": {
           "shortLabel": "Referral source",
-          "longLabel":  "Referral source",
+          "longLabel": "Referral source",
           "hidden": false
         },
         "arrivalModeId": {
           "shortLabel": "Arrival mode",
-          "longLabel":  "Arrival mode",
+          "longLabel": "Arrival mode",
           "hidden": false
         },
         "prescriber": {
           "shortLabel": "Prescriber",
-          "longLabel":  "Prescriber",
+          "longLabel": "Prescriber",
           "hidden": false
         },
         "prescriberId": {
           "shortLabel": "Prescriber ID",
-          "longLabel":  "Prescriber ID",
+          "longLabel": "Prescriber ID",
           "hidden": false
         },
         "facility": {
           "shortLabel": "Facility",
           "longLabel": "Facility",
           "hidden": false
+        },
+        "locationId": {
+          "shortLabel": "Location",
+          "longLabel": "Location"
+        },
+        "locationGroupId": {
+          "shortLabel": "Area",
+          "longLabel": "Area"
+        },
+        "dischargeDisposition": {
+          "shortLabel": "Discharge disposition",
+          "longLabel": "Discharge disposition",
+          "hidden": true
         }
       },
       "features": {
@@ -565,7 +601,8 @@
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
-        "editDisplayId": false
+        "editDisplayId": false,
+        "patientPlannedMove": false
       },
       "templates": {
         "letterhead": {
@@ -595,14 +632,27 @@
         },
         "covidTestCertificate": {
           "laboratoryName": "Approved test provider"
-        }
+        },
+        "plannedMoveTimeoutHours": 24
       },
       "imagingTypes": {},
       "imagingPriorities": [
-        { "value": "routine", "label": "Routine" },
-        { "value": "urgent", "label": "Urgent" },
-        { "value": "asap", "label": "ASAP" },
-        { "value": "stat", "label": "STAT" }
+        {
+          "value": "routine",
+          "label": "Routine"
+        },
+        {
+          "value": "urgent",
+          "label": "Urgent"
+        },
+        {
+          "value": "asap",
+          "label": "ASAP"
+        },
+        {
+          "value": "stat",
+          "label": "STAT"
+        }
       ],
       "printMeasures": {
         "stickerLabelPage": {
@@ -622,23 +672,38 @@
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,
       "triageCategories": [
-        { "level": 1, "label": "Emergency", "color": "#F76853" },
-        { "level": 2, "label": "Very Urgent", "color": "#F17F16" },
-        { "level": 3, "label": "Urgent", "color": "#FFCC24" },
-        { "level": 4, "label": "Non-urgent", "color": "#47CA80" },
-        { "level": 5, "label": "Deceased", "color": "#67A6E3" }
+        {
+          "level": 1,
+          "label": "Emergency",
+          "color": "#F76853"
+        },
+        {
+          "level": 2,
+          "label": "Very Urgent",
+          "color": "#F17F16"
+        },
+        {
+          "level": 3,
+          "label": "Urgent",
+          "color": "#FFCC24"
+        },
+        {
+          "level": 4,
+          "label": "Non-urgent",
+          "color": "#47CA80"
+        },
+        {
+          "level": 5,
+          "label": "Deceased",
+          "color": "#67A6E3"
+        }
       ],
-
       // UVCI format for vaccine certificate *previews* on Desktop.
       // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
       // does *not* affect which format is used for the actual PDF certificate when
       // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
-
-      "sync": {
-        "syncAllEncountersForTheseScheduledVaccines": []
-      },
       "disabledReports": []
     }
   },
@@ -661,7 +726,9 @@
     "dataDictionaries": {
       "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
-      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
+      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
+      "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
+      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html"
     }
   },
   "s3": {},
@@ -670,6 +737,13 @@
     "diskPath": "C:/",
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 16
+    }
+  },
+  // Note: this config should be duplicated on the lan server if the same behavior is
+  // desired for "this facility" and "all facilities"
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": []
     }
   },
   "questionCodeIds": {
@@ -691,7 +765,9 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": ["loopback"]
+    "trusted": [
+      "loopback"
+    ]
   },
   "patientMerge": {
     // can be one of "RENAME", "DESTROY", or "NONE"

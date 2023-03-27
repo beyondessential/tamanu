@@ -30,7 +30,7 @@ export const syncPatient = () => async (dispatch, getState, { api }) => {
     type: PATIENT_SYNCING,
     data: true,
   });
-  await api.put(`patient/${patient.id}`, { markedForSync: true });
+  await api.post(`patientFacility`, { patientId: patient.id });
   dispatch(reloadPatient(patient.id));
 
   // typically it takes a while for sync to complete

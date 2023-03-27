@@ -80,17 +80,17 @@ export function getVaccineStatus(
 ): VaccineStatusMessage {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue, index, vaccine: drug } = scheduledVaccine;
   const previouslyAdministeredVaccine = administeredVaccines
-  && administeredVaccines.find(vaccine => {
-    const previousVaccine = vaccine.scheduledVaccine.index === index - 1;
-    const matchingDrug = vaccine.scheduledVaccine.vaccine.id === drug.id;
+    && administeredVaccines.find(vaccine => {
+      const previousVaccine = vaccine.scheduledVaccine.index === index - 1;
+      const matchingDrug = vaccine.scheduledVaccine.vaccine.id === drug.id;
 
-    return previousVaccine && matchingDrug && weeksFromLastVaccinationDue;
-  });
+      return previousVaccine && matchingDrug && weeksFromLastVaccinationDue;
+    });
   const weeksUntilDue = weeksFromBirthDue - getWeeksFromDate(patient.dateOfBirth);
   // returns NaN if previouslyAdministeredVaccine is null, 0 if weeksFromLastVaccinationDue is null,
   // or the amount of weeks until the amount of weeks required between vaccines has passed.
   const weeksUntilGapPeriodPassed = weeksFromLastVaccinationDue
-                                    - getWeeksFromDate(previouslyAdministeredVaccine?.date);
+    - getWeeksFromDate(previouslyAdministeredVaccine?.date);
 
   if (weeksFromBirthDue) return getVaccineStatusForWeeksFromBirthDue(weeksUntilDue);
   if (weeksFromLastVaccinationDue) {

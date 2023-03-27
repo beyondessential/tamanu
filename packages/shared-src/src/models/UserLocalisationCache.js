@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class UserLocalisationCache extends Model {
@@ -11,7 +12,7 @@ export class UserLocalisationCache extends Model {
           allowNull: false,
         },
       },
-      options,
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
 

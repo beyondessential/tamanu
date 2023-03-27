@@ -1,9 +1,13 @@
 import { inRange } from 'lodash';
 import { log } from '../services/logging';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '../constants/surveys';
 
 export function getStringValue(type, value) {
+  if (value === null) {
+    return null;
+  }
   switch (type) {
-    case 'Calculated':
+    case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
     default:
       return `${value}`;
@@ -12,12 +16,12 @@ export function getStringValue(type, value) {
 
 function compareData(dataType, expected, given) {
   switch (dataType) {
-    case 'Binary':
+    case PROGRAM_DATA_ELEMENT_TYPES.BINARY:
       if (expected === 'yes' && given === true) return true;
       if (expected === 'no' && given === false) return true;
       break;
-    case 'Number':
-    case 'Calculated': {
+    case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
+    case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED: {
       // we check within a threshold because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
@@ -26,7 +30,7 @@ function compareData(dataType, expected, given) {
       if (diff < threshold) return true;
       break;
     }
-    case 'MultiSelect':
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
       return given.split(', ').includes(expected);
     default:
       if (expected === given) return true;

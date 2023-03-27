@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 import { dateTimeType } from './dateTimeTypes';
@@ -83,7 +84,10 @@ export class SurveyResponse extends Model {
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
       },
-      options,
+      {
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        ...options,
+      },
     );
   }
 
@@ -111,6 +115,13 @@ export class SurveyResponse extends Model {
       foreignKey: 'surveyResponseId',
       as: 'referral',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 
   static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
@@ -211,6 +222,10 @@ export class SurveyResponse extends Model {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
       const body = getStringValue(dataElement.type, value);
+      // Don't create null answers
+      if (body === null) {
+        continue;
+      }
       await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,

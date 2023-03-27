@@ -57,7 +57,7 @@ describe('Patient profile picture', () => {
   });
   afterAll(() => ctx.close());
 
-  // Disabling this as the endpoint currently expects a real remote to exist
+  // Disabling this as the endpoint currently expects a real central server to exist
   xit('should retrieve a profile picture where one exists', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     await uploadDummyProfilePicture(models, patient.id);
