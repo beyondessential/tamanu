@@ -2,13 +2,20 @@ import React from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { StatusTag } from './Tag';
+import { Colors } from '../constants';
+import { VACCINE_STATUS } from '../../../shared-src/src/constants/vaccines';
 
-const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
-const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
+const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
+const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label;
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getGiver = record => {
-  if (record.status === 'NOT_GIVEN') {
-    return 'Not Given';
+  if (record.status === VACCINE_STATUS.NOT_GIVEN) {
+    return (
+      <StatusTag $background={Colors.hoverGrey} $color={Colors.darkestText}>
+        Not Given
+      </StatusTag>
+    );
   }
   if (record.givenOverseas) {
     return 'Given Overseas';
