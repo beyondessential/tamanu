@@ -1,7 +1,7 @@
 import React from 'react';
 import { startCase } from 'lodash';
 
-import { DateDisplay, MultilineDatetimeDisplay } from '../../DateDisplay';
+import { MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -31,14 +31,16 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REQUESTED_DATE,
-    title: 'Requested date and time',
+    title: 'Requested date & time',
     sortable: false,
     form: {
       accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} />,
     },
     printout: {
       widthProportion: 4,
-      accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
+      accessor: ({ requestedDate }) => (
+        <MultilineDatetimeDisplay date={requestedDate} isTimeSoft={false} />
+      ),
     },
   },
   {

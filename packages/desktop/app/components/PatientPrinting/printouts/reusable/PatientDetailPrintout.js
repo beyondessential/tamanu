@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { DateDisplay } from '../../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../../utils/capitalise';
 
-import { LocalisedLabel } from './SimplePrintout';
+import { LocalisedCertificateLabel } from './CertificateLabels';
 import { PatientBarcode } from './PatientBarcode';
 
 const RowContainer = styled.div`
@@ -13,10 +13,15 @@ const RowContainer = styled.div`
   justify-content: space-between;
 `;
 
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  font-size: 12px;
+  margin-bottom: 0px;
+`;
+
 export const PatientDetailPrintout = React.memo(({ patient, village, additionalData }) => {
   const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
-  const { streetVillage } = additionalData;
-  const { name: villageName } = village;
+  const { streetVillage } = additionalData || {};
+  const { name: villageName } = village || {};
 
   return (
     <RowContainer>
@@ -27,10 +32,10 @@ export const PatientDetailPrintout = React.memo(({ patient, village, additionalD
           <DateDisplay date={dateOfBirth} />
         </LocalisedLabel>
         <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
-        <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
+        {streetVillage ? <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel> : ''}
       </div>
       <div>
-        <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
+        {villageName ? <LocalisedLabel name="villageName">{villageName}</LocalisedLabel> : ''}
         <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
         <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
       </div>

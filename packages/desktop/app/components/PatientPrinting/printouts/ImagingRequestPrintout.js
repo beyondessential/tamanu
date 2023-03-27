@@ -6,7 +6,7 @@ import { DateDisplay } from '../../DateDisplay';
 import { getFullLocationName } from '../../../utils/location';
 
 export const ImagingRequestPrintout = React.memo(
-  ({ imagingRequestData, patientData, encounterData, certificateData }) => {
+  ({ imagingRequest, patient, encounter, certificate, village, additionalData }) => {
     const {
       displayId,
       requestedDate,
@@ -16,22 +16,24 @@ export const ImagingRequestPrintout = React.memo(
       areas,
       areaNote,
       note,
-    } = imagingRequestData;
+    } = imagingRequest;
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
 
     return (
       <SimplePrintout
-        patientData={patientData}
+        patient={patient}
+        village={village}
+        additionalData={additionalData}
         notes={[{ content: note }]}
-        certificateData={{ ...certificateData, pageTitle: 'Imaging Request' }}
+        certificate={{ ...certificate, pageTitle: 'Imaging Request' }}
         tableData={{
           'Request ID': displayId,
           'Request date': requestedDate ? <DateDisplay date={requestedDate} /> : null,
-          Facility: encounterData?.location?.facility?.name,
-          Department: encounterData?.department?.name,
-          Location: getFullLocationName(encounterData?.location),
+          Facility: encounter?.location?.facility?.name,
+          Department: encounter?.department?.name,
+          Location: getFullLocationName(encounter?.location),
           'Requested by': requestedBy?.displayName,
           Priority: imagingPriorities.find(p => p.value === priority)?.label || '',
           'Imaging type': imagingTypes[imagingType]?.label || 'Unknown',

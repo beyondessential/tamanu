@@ -6,34 +6,45 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 import { getFullLocationName } from '../../../../utils/location';
 import { DateDisplay } from '../../../DateDisplay';
 
-import { LocalisedLabel } from './SimplePrintout';
-import { CertificateLabel } from './CertificateLabels';
+import { CertificateLabel, LocalisedCertificateLabel } from './CertificateLabels';
 
 const RowContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: start;
   flex-wrap: wrap;
   padding: 0 20px;
+`;
+
+const Item = styled.div`
+  margin-right: 36px;
+`;
+
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  font-size: 14px;
+  margin-bottom: 0px;
+`;
+
+const Label = styled(CertificateLabel)`
+  font-size: 14px;
+  margin-bottom: 0px;
 `;
 
 export const DateFacilitySection = ({ encounter }) => {
   return (
     <RowContainer>
-      <div>
-        <CertificateLabel name="Print date" size="14px">
+      <Item>
+        <Label name="Print date">
           <DateDisplay date={getCurrentDateString()} />
-        </CertificateLabel>
-      </div>
-      <div>
-        <LocalisedLabel name="facility" size="14px">
-          {encounter?.location?.facility?.name}
-        </LocalisedLabel>
-      </div>
-      <div>
-        <LocalisedLabel name="locationId" size="14px">
+        </Label>
+      </Item>
+      <Item>
+        <LocalisedLabel name="facility">{encounter?.location?.facility?.name}</LocalisedLabel>
+      </Item>
+      <Item>
+        <LocalisedLabel name="locationId">
           {getFullLocationName(encounter?.location)}
         </LocalisedLabel>
-      </div>
+      </Item>
     </RowContainer>
   );
 };

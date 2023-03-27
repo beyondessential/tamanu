@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../../components';
@@ -7,7 +8,7 @@ import { LabRequestPrintout } from '../../../components/PatientPrinting/printout
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
-  const certificateData = useCertificate();
+  const certificate = useCertificate();
   const [notes, setNotes] = useState([]);
   const [tests, setTests] = useState([]);
   const [encounter, setEncounter] = useState({});
@@ -40,17 +41,37 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     })();
     setNotesLoading(false);
   }, [api, labRequest.id]);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
+    ['additionalData', encounter.patientId],
+    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
+  );
+  const isVillageEnabled = !!patient?.villageId;
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
+    ['village', encounter.patientId],
+    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    {
+      enabled: isVillageEnabled,
+    },
+  );
+  const isLoading =
+    encounterLoading ||
+    testsLoading ||
+    notesLoading ||
+    isAdditionalDataLoading ||
+    (isVillageEnabled && isVillageLoading);
 
   return (
     <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-      {encounterLoading || testsLoading || notesLoading ? (
+      {isLoading ? (
         <LoadingIndicator />
       ) : (
         <LabRequestPrintout
-          labRequestData={{ ...labRequest, tests, notes }}
-          patientData={patient}
-          encounterData={encounter}
-          certificateData={certificateData}
+          labRequest={{ ...labRequest, tests, notes }}
+          patient={patient}
+          village={village}
+          additionalData={additionalData}
+          encounter={encounter}
+          certificate={certificate}
         />
       )}
     </Modal>

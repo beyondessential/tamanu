@@ -8,9 +8,13 @@ import styled from 'styled-components';
 
 import { Colors } from '../constants';
 
-const SoftText = styled(Typography)`
+const Text = styled(Typography)`
   font-size: inherit;
   line-height: inherit;
+  margin-top: -2px;
+`;
+
+const SoftText = styled(Text)`
   color: ${Colors.softText};
 `;
 
@@ -131,13 +135,16 @@ export const DateDisplay = React.memo(
   },
 );
 
-export const MultilineDatetimeDisplay = React.memo(({ date, showExplicitDate }) => {
-  return (
-    <Box>
-      <DateDisplay date={date} showExplicitDate={showExplicitDate} />
-      <SoftText>{formatTime(date)}</SoftText>
-    </Box>
-  );
-});
+export const MultilineDatetimeDisplay = React.memo(
+  ({ date, showExplicitDate, isTimeSoft = true }) => {
+    const TimeText = isTimeSoft ? SoftText : Text;
+    return (
+      <Box>
+        <DateDisplay date={date} showExplicitDate={showExplicitDate} />
+        <TimeText>{formatTime(date)}</TimeText>
+      </Box>
+    );
+  },
+);
 
 DateDisplay.rawFormat = formatShort;
