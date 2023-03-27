@@ -11,9 +11,9 @@ interface OvalCheckboxProps extends BaseInputProps {
   onChange: Function;
   id: string;
   text: string;
-  error: string;
+  error?: string;
   value: boolean;
-  required: boolean;
+  required?: boolean;
   style: StyledViewProps;
 }
 
@@ -69,9 +69,9 @@ export const OvalCheckbox = ({
   text,
   error,
   required,
-  ...props
+  style,
 }: OvalCheckboxProps): JSX.Element => (
-  <StyledView {...props}>
+  <StyledView style={style}>
     <Pressable
       onPress={(): void => onChange(!value, id)}
       android_ripple={{ color: theme.colors.LIGHT_GREY, foreground: true }}
@@ -85,7 +85,12 @@ export const OvalCheckbox = ({
         ) : (
           <StyledView style={styles.unchecked} />
         )}
-        {text && <StyledText style={styles.text}>{`${text}${required ? '*' : ''}`}</StyledText>}
+        {text && (
+          <StyledText style={styles.text}>
+            {text}
+            {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+          </StyledText>
+        )}
       </RowView>
     </Pressable>
     {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}

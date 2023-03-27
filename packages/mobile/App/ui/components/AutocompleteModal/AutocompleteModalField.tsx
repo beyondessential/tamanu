@@ -56,7 +56,7 @@ export const AutocompleteModalField = ({
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
       <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
         {fieldLabel}
-        {required ? <StyledText color={theme.colors.ALERT}> *</StyledText> : ''}
+        {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
       </StyledText>
       <Button
         marginTop={marginTop}

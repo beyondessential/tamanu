@@ -40,6 +40,7 @@ export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps):
       {options.map(({ id, text }) => (
         <OvalCheckbox
           id={id}
+          key={id}
           text={text}
           value={value.includes(id)}
           onChange={handleCallback}
