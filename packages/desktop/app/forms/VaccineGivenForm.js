@@ -72,7 +72,7 @@ export const VaccineGivenForm = ({
         setVaccineLabel={setVaccineLabel}
       />
       <FullWidthCol>
-        <Field name="givenElsewhere" label="Given overseas" component={CheckField} />
+        <Field name="givenElsewhere" label="Given elsewhere" component={CheckField} />
       </FullWidthCol>
       {category === VACCINE_CATEGORIES.OTHER ? (
         <>
