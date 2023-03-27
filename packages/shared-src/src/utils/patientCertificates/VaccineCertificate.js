@@ -45,7 +45,7 @@ const columns = [
   },
   {
     key: 'batch',
-    title: 'Batch Number',
+    title: 'Batch number',
     customStyles: { minWidth: 30 },
     accessor: ({ batch }) => batch,
   },
