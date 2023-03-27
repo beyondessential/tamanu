@@ -5,7 +5,12 @@ import { QueryTypes } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
-import { LAB_REQUEST_STATUSES, NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
+  NOTE_RECORD_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
@@ -241,6 +246,28 @@ labRequest.post(
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
 labRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
+labRelations.get(
+  '/:id/notePages',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id } = params;
+    req.checkPermission('read', 'LabRequest');
+    const response = await models.NotePage.findAll({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+        },
+      ],
+      where: {
+        recordId: id,
+        recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+    });
+    res.send(response);
+  }),
+);
 
 labRequest.use(labRelations);
 
