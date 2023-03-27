@@ -30,7 +30,24 @@ export const getReportVersions = asyncHandler(async (req, res) => {
   const { reportId } = params;
   const versions = await ReportDefinitionVersion.findAll({
     where: { reportDefinitionId: reportId },
+    attributes: [
+      'id',
+      'versionNumber',
+      'query',
+      'createdAt',
+      'updatedAt',
+      'status',
+      'notes',
+      'queryOptions',
+    ],
     order: [['versionNumber', 'DESC']],
+    include: [
+      {
+        model: store.models.User,
+        as: 'createdBy',
+        attributes: ['displayName'],
+      },
+    ],
   });
   res.send(versions);
 });
