@@ -194,7 +194,7 @@ export const VaccineNameField = () => (
 );
 
 export const VaccineBrandField = () => (
-  <Field name="vaccineName" label="Vaccine name" component={TextField} required />
+  <Field name="vaccineBrand" label="Vaccine brand" component={TextField} required />
 );
 
 export const DiseaseField = () => (
