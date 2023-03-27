@@ -24,6 +24,57 @@ describe('Imaging requests', () => {
   });
   afterAll(() => ctx.close());
 
+  describe('Filtering by allFacilities', () => {
+    const otherFacilityId = 'kerang';
+    const makeRequestAtFacility = async facilityId => {
+      const testLocation = await models.Location.create({
+        facilityId,
+        name: 'Test Facility Location',
+        code: 'testFacilityLocation',
+      });
+      const testEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: testLocation.id,
+        patientId: patient.id,
+      });
+      await models.ImagingRequest.create({
+        encounterId: testEncounter.id,
+        imagingType: IMAGING_TYPES.CT_SCAN,
+        requestedById: app.user.id,
+      });
+    };
+
+    beforeAll(async () => {
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+    });
+
+    it('should omit external requests when allFacilities is false', async () => {
+      const result = await app.get(`/v1/imagingRequest?allFacilities=false`);
+      expect(result).toHaveSucceeded();
+      result.body.data.forEach(ir => {
+        expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
+      });
+    });
+
+    it('should include all requests when allFacilities is true', async () => {
+      const result = await app.get(`/v1/imagingRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+      const hasConfigFacility = result.body.data.some(
+        ir => ir.encounter.location.facilityId === config.serverFacilityId,
+      );
+      const hasOtherFacility = result.body.data.some(
+        ir => ir.encounter.location.facilityId === otherFacilityId,
+      );
+      expect(hasConfigFacility).toBe(true);
+      expect(hasOtherFacility).toBe(true);
+    });
+  });
+
   it('should record an imaging request', async () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
@@ -326,34 +377,6 @@ describe('Imaging requests', () => {
       completedBy: {
         id: app.user.dataValues.id,
       },
-    });
-  });
-
-  it('should return with only imaging requests from config facility with allFacilities filter turned off', async () => {
-    // arrange
-    const thisFacilityLocation = await models.Location.create({
-      facilityId: config.serverFacilityId,
-      name: 'This Facility Location',
-      code: 'thisFacilityLocation',
-    });
-    const thisFacilityEncounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      locationId: thisFacilityLocation.id,
-      patientId: patient.id,
-    });
-    await models.ImagingRequest.create({
-      encounterId: thisFacilityEncounter.id,
-      imagingType: IMAGING_TYPES.CT_SCAN,
-      requestedById: app.user.id,
-    });
-
-    const result = await app.get(`/v1/imagingRequest?allFacilities=true`);
-    expect(result).toHaveSucceeded();
-
-    const result2 = await app.get(`/v1/imagingRequest?allFacilities=false`);
-    expect(result2).toHaveSucceeded();
-    result2.body.data.forEach(ir => {
-      expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
     });
   });
 });
