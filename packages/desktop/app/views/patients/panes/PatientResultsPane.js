@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { ContentPane } from '../../../components';
 import { PatientLabTestsTable } from '../../../components/PatientLabTestsTable';
+import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 
 export const PatientResultsPane = React.memo(({ patient }) => {
+  const [searchParameters, setSearchParameters] = useState({});
+
   return (
-    <ContentPane>
-      {/* TODO Add filter dropdowns */}
-      <PatientLabTestsTable patient={patient} />
-    </ContentPane>
+    <>
+      <ResultsSearchBar setSearchParameters={setSearchParameters} patientId={patient?.id} />
+      <ContentPane>
+        <PatientLabTestsTable patient={patient} searchParameters={searchParameters} />
+      </ContentPane>
+    </>
   );
 });

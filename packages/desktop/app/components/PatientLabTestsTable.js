@@ -23,10 +23,14 @@ const NormalRangeCell = styled(StyledCellWrapper)`
   left: 60;
 `;
 
-export const PatientLabTestsTable = React.memo(({ patient }) => {
+export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-  const { data, isLoading } = usePatientLabTestResults(patient.id, { page, rowsPerPage });
+  const { data, isLoading } = usePatientLabTestResults(patient.id, {
+    page,
+    rowsPerPage,
+    ...searchParameters,
+  });
 
   const allDates = isLoading
     ? []

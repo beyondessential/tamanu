@@ -601,6 +601,14 @@
           "shortLabel": "Discharge disposition",
           "longLabel": "Discharge disposition",
           "hidden": true
+        },
+        "category": {
+          "shortLabel": "Category",
+          "longLabel": "Category"
+        },
+        "panel": {
+          "shortLabel": "Panel",
+          "longLabel": "Panel"
         }
       },
       "features": {
