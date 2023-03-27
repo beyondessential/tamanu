@@ -4,7 +4,7 @@ import { useApi } from '../useApi';
 export const usePatientLabTestResults = (patientId, fetchOptions) => {
   const api = useApi();
 
-  return useQuery(['patient', patientId], () =>
+  return useQuery(['patient', patientId, fetchOptions], () =>
     api.get(`patient/${patientId}/labTestResults`, fetchOptions),
   );
 };
