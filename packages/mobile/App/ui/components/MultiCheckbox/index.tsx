@@ -7,7 +7,6 @@ import { StyleSheet } from 'react-native';
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
   value: string[];
-  error: string;
   options: { id: string; text: string }[];
 }
 
