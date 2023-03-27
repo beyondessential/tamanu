@@ -301,7 +301,7 @@ patientRelations.get(
               patient_id = :patientId
             )
           AND lab_requests.status = '${status}'
-          ${categoryId ? `AND category_id = '${categoryId}'` : ''}
+          ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
           ${
             panelId
               ? `AND lab_test_type_id IN (
@@ -355,7 +355,7 @@ patientRelations.get(
               patient_id = :patientId
           )
         AND lab_requests.status = '${status}'
-        ${categoryId ? `AND category_id = '${categoryId}'` : ''}
+        ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
         ${
           panelId
             ? `AND lab_test_type_id IN (

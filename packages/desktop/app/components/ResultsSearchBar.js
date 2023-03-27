@@ -34,7 +34,7 @@ export const ResultsSearchBar = React.memo(({ setSearchParameters, patientId }) 
                 component={AutocompleteField}
                 onChange={event => {
                   setFieldValue('panel', null); // Clear other search field
-                  setSearchParameters({ category: event.target.value, panel: null });
+                  setSearchParameters({ categoryId: event.target.value, panelId: null });
                 }}
               />
               <LocalisedField
@@ -43,7 +43,7 @@ export const ResultsSearchBar = React.memo(({ setSearchParameters, patientId }) 
                 component={AutocompleteField}
                 onChange={event => {
                   setFieldValue('category', null); // Clear other search field
-                  setSearchParameters({ category: null, panel: event.target.value });
+                  setSearchParameters({ categoryId: null, panelId: event.target.value });
                 }}
               />
             </FormGrid>
