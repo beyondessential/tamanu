@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { usePatientLabTestResults } from '../api/queries/usePatientLabTestResults';
 import { Table } from './Table';
+import { VitalsTableCell } from './VitalsTableCell';
 import { Colors } from '../constants';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
@@ -52,7 +53,13 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
       accessor: row => {
         const range = row.normalRanges[patient?.sex];
         const value = !range.min ? '-' : `${range.min}-${range.max}`;
-        return <NormalRangeCell>{value}</NormalRangeCell>;
+        return (
+          <NormalRangeCell>
+            {value}
+            <br />
+            {row.unit ? `(${row.unit})` : null}
+          </NormalRangeCell>
+        );
       },
     },
     ...allDates
@@ -62,7 +69,14 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
         sortable: false,
         key: date,
         accessor: row => {
-          return row.results[date] || null;
+          const normalRange = row.normalRanges[patient?.sex];
+          return (
+            <VitalsTableCell
+              value={row.results[date]}
+              config={{ unit: row.unit }}
+              validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+            />
+          );
         },
       })),
   ];
