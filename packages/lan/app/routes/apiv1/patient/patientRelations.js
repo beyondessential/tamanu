@@ -285,7 +285,7 @@ patientRelations.get(
       db,
       LabTest,
       `
-        SELECT COUNT(1) AS count
+        SELECT COUNT(DISTINCT lab_test_type_id) AS count
         FROM
           lab_tests
         INNER JOIN
