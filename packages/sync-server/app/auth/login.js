@@ -11,14 +11,17 @@ import { getToken, stripUser, findUser, getRandomBase64String, getRandomU32 } fr
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, header } = req;
     const { email, password, facilityId, deviceId } = body;
+
+    const client = header('X-Tamanu-Client');
+    const internalClient = ['Tamanu Mobile', 'Tamanu Desktop', 'Tamanu LAN Server'].includes(client);
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
     }
 
-    if (!deviceId) {
+    if (internalClient && !deviceId) {
       throw new BadAuthenticationError('Missing deviceId');
     }
 
@@ -60,41 +63,45 @@ export const login = ({ secret, refreshSecret }) =>
       },
     );
 
-    const refreshId = await getRandomBase64String(refreshIdLength);
-    const refreshTokenJwtId = getRandomU32();
-    const hashedRefreshId = await bcrypt.hash(refreshId, saltRounds);
+    let refreshToken;
 
-    const refreshToken = getToken(
-      {
-        userId: user.id,
-        refreshId,
-      },
-      refreshSecret,
-      {
-        expiresIn: refreshTokenDuration,
-        audience: JWT_TOKEN_TYPES.REFRESH,
-        issuer: canonicalHostName,
-        jwtid: `${refreshTokenJwtId}`,
-      },
-    );
+    if (internalClient) {
+      const refreshId = await getRandomBase64String(refreshIdLength);
+      const refreshTokenJwtId = getRandomU32();
+      const hashedRefreshId = await bcrypt.hash(refreshId, saltRounds);
 
-    // Extract expiry as set by jwt.sign
-    const { exp } = jwt.decode(refreshToken);
+      refreshToken = getToken(
+        {
+          userId: user.id,
+          refreshId,
+        },
+        refreshSecret,
+        {
+          expiresIn: refreshTokenDuration,
+          audience: JWT_TOKEN_TYPES.REFRESH,
+          issuer: canonicalHostName,
+          jwtid: `${refreshTokenJwtId}`,
+        },
+      );
 
-    await store.models.RefreshToken.upsert(
-      {
-        refreshId: hashedRefreshId,
-        expiresAt: new Date(exp * 1000),
-        userId: user.id,
-        deviceId,
-      },
-      {
-        where: {
+      // Extract expiry as set by jwt.sign
+      const { exp } = jwt.decode(refreshToken);
+
+      await store.models.RefreshToken.upsert(
+        {
+          refreshId: hashedRefreshId,
+          expiresAt: new Date(exp * 1000),
           userId: user.id,
           deviceId,
         },
-      },
-    );
+        {
+          where: {
+            userId: user.id,
+            deviceId,
+          },
+        },
+      );
+    }
 
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
