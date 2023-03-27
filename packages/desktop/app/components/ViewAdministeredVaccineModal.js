@@ -83,7 +83,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     disease: { label: 'Disease', value: disease || '-' },
     status: { label: 'Status', value: status || '-' },
     circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
-    country: { label: 'Country', value: 'TODOTODOTODO' },
+    country: { label: 'Country', value: givenBy || '-' },
     reason: { label: 'Reason', value: 'TODOTODOTODO' },
   };
 
