@@ -7,19 +7,19 @@ import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 
-interface CheckboxProps extends BaseInputProps {
+interface OvalCheckboxProps extends BaseInputProps {
   onChange: Function;
   id: string;
   text: string;
+  error: string;
   value: boolean;
+  required: boolean;
 }
 
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'flex-start',
     borderRadius: 100,
-    overflow: 'hidden',
-    flexWrap: 'wrap',
   },
   row: {
     backgroundColor: theme.colors.WHITE,
@@ -30,20 +30,21 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     borderRadius: 100,
     alignItems: 'center',
-    elevation: 2,
+    elevation: 1,
+    shadowColor: '#666',
   },
   checked: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
+    height: 22,
+    width: 22,
+    borderRadius: 11,
     backgroundColor: theme.colors.PRIMARY_MAIN,
     alignItems: 'center',
     justifyContent: 'center',
   },
   unchecked: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
+    height: 22,
+    width: 22,
+    borderRadius: 11,
     borderColor: theme.colors.BOX_OUTLINE,
     backgroundColor: theme.colors.WHITE,
     borderWidth: 1,
@@ -51,8 +52,6 @@ const styles = StyleSheet.create({
   icon: {
     stroke: theme.colors.WHITE,
     borderColor: theme.colors.PRIMARY_MAIN,
-    height: 10,
-    width: 10,
   },
   text: {
     marginLeft: 5,
@@ -70,17 +69,17 @@ export const OvalCheckbox = ({
   error,
   required,
   ...props
-}: CheckboxProps): JSX.Element => (
+}: OvalCheckboxProps): JSX.Element => (
   <StyledView {...props}>
     <Pressable
-      onPress={() => onChange(!value, id)}
+      onPress={(): void => onChange(!value, id)}
       android_ripple={{ color: theme.colors.LIGHT_GREY, foreground: true }}
       style={styles.container}
     >
       <RowView style={styles.row}>
         {value ? (
           <StyledView style={styles.checked}>
-            <CheckboxMarkIcon style={styles.icon} />
+            <CheckboxMarkIcon style={styles.icon} width={14} heigh={14} />
           </StyledView>
         ) : (
           <StyledView style={styles.unchecked} />

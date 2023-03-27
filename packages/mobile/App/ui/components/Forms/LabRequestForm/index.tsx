@@ -1,5 +1,4 @@
 import React, { ReactElement, useState, useCallback } from 'react';
-import { StyledView } from '/styled/common';
 import { Field } from '/components/Forms/FormField';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { FormScreenView } from '/components/Forms/FormScreenView';
@@ -38,6 +37,7 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
   const handleLabRequestTypeSelected = useCallback(async selectedValue => {
     const selectedLabTestTypes = await models.LabTestType.find({
       where: { labTestCategory: selectedValue, visibilityStatus: VisibilityStatus.Current },
+      order: { name: 'ASC' },
     });
     const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
       id: labTestType.id,
