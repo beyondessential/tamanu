@@ -23,7 +23,7 @@ const getGiver = record => {
   return record.givenBy ? record.givenBy : 'Unknown';
 };
 const getFacility = record =>
-  !record.givenElsewhere ? record.location?.facility?.name : record.givenBy;
+  record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
 
 const columns = [
   { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
