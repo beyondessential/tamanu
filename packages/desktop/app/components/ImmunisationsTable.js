@@ -12,7 +12,7 @@ const getDate = ({ date }) => <DateDisplay date={date} />;
 const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
-      <StatusTag $background={Colors.hoverGrey} $color={Colors.darkestText}>
+      <StatusTag $background="rgba(68,68,68,0.1)" $color={Colors.darkestText}>
         Not Given
       </StatusTag>
     );
