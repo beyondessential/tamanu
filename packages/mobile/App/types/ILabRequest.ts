@@ -25,7 +25,6 @@ export interface ILabRequest {
   status?: LabRequestStatus;
   senaiteId?: string;
   sampleId?: string;
-  note?: string;
   displayId: string;
 
   encounter: IEncounter;
@@ -42,6 +41,9 @@ export interface ILabRequest {
 
   labTestPriority?: IReferenceData;
   labTestPriorityId?: string;
+
+  labSampleSite?: IReferenceData;
+  labSampleSiteId?: string;
 
   tests: ILabTest[];
 }
