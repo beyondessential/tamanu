@@ -104,12 +104,25 @@ export const DumbAddLabRequestScreen = ({
 
     const {
       requestedDate,
+      requestedTime,
       sampleDate,
       sampleTime,
       urgent,
       specimenAttached,
       displayId: generatedDisplayId,
     } = values;
+
+    // Convert requestedDate and sampleTime to strings
+    const combinedRequestedDate = new Date(
+      requestedDate.getFullYear(),
+      requestedDate.getMonth(),
+      requestedDate.getDate(),
+      requestedTime.getHours(),
+      requestedTime.getMinutes(),
+      requestedTime.getSeconds(),
+      requestedTime.getMilliseconds(),
+    );
+    const requestedDateString = formatISO9075(combinedRequestedDate);
 
     const combinedSampleTime = new Date(
       sampleDate.getFullYear(),
@@ -120,9 +133,6 @@ export const DumbAddLabRequestScreen = ({
       sampleTime.getSeconds(),
       sampleTime.getMilliseconds(),
     );
-
-    // Convert requestedDate and sampleTime to strings
-    const requestedDateString = formatISO9075(requestedDate);
     const sampleTimeString = formatISO9075(combinedSampleTime);
 
     await models.LabRequest.createWithTests({
@@ -146,6 +156,7 @@ export const DumbAddLabRequestScreen = ({
     sampleTime: new Date(),
     sampleDate: new Date(),
     requestedDate: new Date(),
+    requestedTime: new Date(),
     displayId,
   };
 

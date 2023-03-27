@@ -69,7 +69,6 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ department }) => department)
   departmentId: string;
 
-
   @ReferenceDataRelation()
   labTestCategory: ReferenceData;
   @RelationId(({ labTestCategory }) => labTestCategory)
@@ -93,6 +92,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   static async getForPatient(patientId: string): Promise<LabRequest[]> {
     return this.getRepository()
       .createQueryBuilder('labRequest')
+      .orderBy('labRequest.requestedDate', 'DESC')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })
       .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
