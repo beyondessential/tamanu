@@ -351,7 +351,8 @@ describe('Imaging requests', () => {
     expect(result).toHaveSucceeded();
 
     const result2 = await app.get(`/v1/imagingRequest?allFacilities=false`);
-    result2.body.data.foreach(ir => {
+    expect(result2).toHaveSucceeded();
+    result2.body.data.forEach(ir => {
       expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
     });
   });
