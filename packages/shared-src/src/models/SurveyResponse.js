@@ -125,6 +125,10 @@ export class SurveyResponse extends Model {
   }
 
   static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error('SurveyResponse.getSurveyEncounter must always run inside a transaction!');
+    }
+
     const { Encounter } = this.sequelize.models;
 
     if (encounterId) {
