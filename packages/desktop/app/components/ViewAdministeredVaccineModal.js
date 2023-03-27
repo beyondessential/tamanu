@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { VACCINE_STATUS } from 'shared/constants';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
@@ -56,13 +57,14 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     vaccineName,
     vaccineBrand,
     disease,
+    givenElsewhere,
   } = vaccineRecord;
 
   // this will become some actual logic to determine which version of the modal to show however the fields this depends on
   // are not yet available
-  const routine = true;
-  const overseas = false;
-  const notGiven = false;
+  const routine = !vaccineBrand;
+  const overseas = givenElsewhere;
+  const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
   const fieldObjects = {
     vaccine: { label: 'Vaccine', value: vaccineLabel || '-' },
