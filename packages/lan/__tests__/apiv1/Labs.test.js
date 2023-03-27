@@ -118,30 +118,52 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  it('should return with only lab requests from config facility with allFacilities filter turned off', async () => {
-    // arrange
-    const thisFacilityLocation = await models.Location.create({
-      facilityId: config.serverFacilityId,
-      name: 'This Facility Location',
-      code: 'thisFacilityLocation',
-    });
-    const thisFacilityEncounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      locationId: thisFacilityLocation.id,
-      patientId,
-    });
-    await models.LabRequest.create({
-      encounterId: thisFacilityEncounter.id,
-      requestedById: app.user.id,
-      displayId: '12345',
+  describe('Filtering by allFacilities', () => {
+    const otherFacilityId = 'kerang';
+    const makeRequestAtFacility = async facilityId => {
+      const location = await models.Location.create({
+        facilityId,
+        name: 'Test Facility Location',
+        code: 'testFacilityLocation',
+      });
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: location.id,
+        patientId,
+      });
+      await models.LabRequest.create({
+        encounterId: encounter.id,
+        requestedById: app.user.id,
+        displayId: '12345',
+      });
+    };
+
+    beforeAll(async () => {
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
     });
 
-    const result = await app.get(`/v1/labRequest?allFacilities=true`);
-    expect(result).toHaveSucceeded();
+    it('should omit external requests when allFacilities is false', async () => {
+      const result = await app.get(`/v1/labRequest?allFacilities=false`);
+      expect(result).toHaveSucceeded();
+      result.body.data.forEach(lr => {
+        expect(lr.facilityId).toBe(config.serverFacilityId);
+      });
+    });
 
-    const result2 = await app.get(`/v1/labRequest?allFacilities=false`);
-    result2.body.data.forEach(lr => {
-      expect(lr.facilityId).toBe(config.serverFacilityId);
+    it('should include all requests when allFacilities  is true', async () => {
+      const result = await app.get(`/v1/labRequest?allFacilities=true`);
+      const hasConfigFacility = result.body.data.some(
+        lr => lr.facilityId === config.serverFacilityId,
+      );
+      const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
+      expect(result).toHaveSucceeded();
+      expect(hasConfigFacility).toBe(true);
+      expect(hasOtherFacility).toBe(true);
     });
   });
 });
