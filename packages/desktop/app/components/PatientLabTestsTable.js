@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { usePatientLabTestResults } from '../api/queries/usePatientLabTestResults';
 import { Table } from './Table';
-import { VitalsTableCell } from './VitalsTableCell';
+import { RangeValidatedCell, DateHeadCell } from './FormattedTableCell';
 import { Colors } from '../constants';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
@@ -65,16 +65,17 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
     ...allDates
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
-        title: date,
+        title: <DateHeadCell value={date} />,
         sortable: false,
         key: date,
         accessor: row => {
           const normalRange = row.normalRanges[patient?.sex];
           return (
-            <VitalsTableCell
+            <RangeValidatedCell
               value={row.results[date]}
               config={{ unit: row.unit }}
               validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+              onClick={() => {}}
             />
           );
         },
@@ -94,8 +95,6 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
       count={data?.count}
       allowExport
       exportName="PatientResults"
-      // TODO Open modal on click WAITM-666
-      // onRowClick={onSelectLabTest}
     />
   );
 });
