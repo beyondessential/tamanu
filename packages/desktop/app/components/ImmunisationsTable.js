@@ -17,13 +17,13 @@ const getGiver = record => {
       </StatusTag>
     );
   }
-  if (record.givenOverseas) {
+  if (record.givenElsewhere) {
     return 'Given Overseas';
   }
   return record.givenBy ? record.givenBy : 'Unknown';
 };
 const getFacility = record =>
-  !record.givenOverseas ? record.location?.facility?.name : record.givenBy;
+  !record.givenElsewhere ? record.location?.facility?.name : record.givenBy;
 
 const columns = [
   { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
