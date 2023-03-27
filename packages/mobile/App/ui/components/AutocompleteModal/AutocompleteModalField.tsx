@@ -1,5 +1,6 @@
 import React, { useEffect, useState, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
@@ -14,15 +15,19 @@ interface AutocompleteModalFieldProps {
   modalRoute: string;
   marginTop?: number;
   error?: string;
+  label?: string;
+  required?: boolean;
 }
 
 export const AutocompleteModalField = ({
+  label: fieldLabel,
   value,
   placeholder,
   onChange,
   suggester,
   modalRoute,
   error,
+  required,
   marginTop = 0,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
@@ -48,12 +53,16 @@ export const AutocompleteModalField = ({
   }, [value]);
 
   return (
-    <>
+    <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
+      <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
+        {fieldLabel}
+        {required ? <StyledText color={theme.colors.ALERT}> *</StyledText> : ''}
+      </StyledText>
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
-        textColor="#888888"
-        buttonText={label}
+        textColor={theme.colors.TEXT_SUPER_DARK}
+        buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
@@ -66,6 +75,6 @@ export const AutocompleteModalField = ({
         onPress={openModal}
       />
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
-    </>
+    </StyledView>
   );
 };
