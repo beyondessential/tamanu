@@ -108,6 +108,9 @@
             - name: onto da A
               tag: ^(da-)
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
+            - name: onto da B
+              tag: ^(da-)
+              command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-b
             - name: onto uat
               tag: ^uat-
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat

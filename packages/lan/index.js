@@ -7,6 +7,7 @@ import { log } from 'shared/services/logging';
 
 import {
   serveCommand,
+  syncCommand,
   migrateCommand,
   reportCommand,
   migrateAppointmentsToLocationGroupsCommand,
@@ -20,6 +21,7 @@ async function run() {
 
   program.addCommand(serveCommand, { isDefault: true });
   program.addCommand(reportCommand);
+  program.addCommand(syncCommand);
   program.addCommand(migrateCommand);
   program.addCommand(migrateAppointmentsToLocationGroupsCommand);
 
