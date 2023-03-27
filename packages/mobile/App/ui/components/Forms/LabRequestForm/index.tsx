@@ -1,6 +1,6 @@
 import React, { ReactElement, useState, useCallback } from 'react';
-import { Field } from '/components/Forms/FormField';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
+import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { ReadOnlyBanner } from '~/ui/components/ReadOnlyBanner';
 import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
@@ -8,12 +8,12 @@ import { DateField } from '~/ui/components/DateField/DateField';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { SubmitButton } from '../SubmitButton';
 import { Routes } from '~/ui/helpers/routes';
-import { Suggester } from '~/ui/helpers/suggester';
+import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
-export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactElement => {
+export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactElement => {
   const [labTestTypes, setLabTestTypes] = useState([]);
   const { models } = useBackend();
 
@@ -32,7 +32,11 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
       type: ReferenceDataType.labSampleSite,
     },
   });
-  const practitionerSuggester = new Suggester(models.User);
+  const practitionerSuggester = new Suggester(
+    models.User,
+    { column: 'displayName' },
+    (model): OptionType => ({ label: model.displayName, value: model.id }),
+  );
 
   const handleLabRequestTypeSelected = useCallback(async selectedValue => {
     const selectedLabTestTypes = await models.LabTestType.find({
@@ -56,6 +60,7 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
         component={AutocompleteModalField}
         label="Requesting clinician"
         name="requestedBy"
+        required
         suggester={practitionerSuggester}
         modalRoute={Routes.Autocomplete.Modal}
       />
@@ -75,11 +80,12 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
         navigation={navigation}
         suggester={labSampleSiteSuggester}
         modalRoute={Routes.Autocomplete.Modal}
-        name="labSampleSiteId"
+        name="labSampleSite"
       />
       <Field
         component={AutocompleteModalField}
         label="Test category"
+        required
         placeholder="Test category"
         navigation={navigation}
         suggester={labRequestCategorySuggester}

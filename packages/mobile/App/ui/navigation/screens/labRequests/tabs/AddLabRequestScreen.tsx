@@ -23,43 +23,36 @@ const ALPHABET_FOR_ID =
 interface LabRequestFormData {
   displayId: ID;
   requestedDate: Date;
+  requestedTime: Date;
   requestedBy: string;
   sampleDate: Date;
   sampleTime: Date;
-  urgent: boolean;
-  specimenAttached: boolean;
   categoryId: string;
   priorityId: string;
+  labSampleSite: string;
   labTestTypes: string[];
 }
 
-const defaultInitialValues = {
-  requestedBy: '',
-  urgent: false,
-  specimenAttached: false,
-  categoryId: null,
-};
+const validationSchema = Yup.object().shape({
+  displayId: Yup.string().required(),
+  requestedDate: Yup.date().required(),
+  sampleDate: Yup.date().required(),
+  sampleTime: Yup.date().required(),
+  categoryId: Yup.string().required('Required'),
+  requestedBy: Yup.string().required('Required'),
+  priorityId: Yup.string(),
+});
 
 interface DumbAddLabRequestScreenProps {
   selectedPatient: IPatient;
   navigation: any;
 }
+
 export const DumbAddLabRequestScreen = ({
   selectedPatient,
   navigation,
 }: DumbAddLabRequestScreenProps): ReactElement => {
   const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [selectedPatient]);
-
-  const validationSchema = Yup.object().shape({
-    displayId: Yup.string().required(),
-    requestedDate: Yup.date().required(),
-    sampleDate: Yup.date().required(),
-    sampleTime: Yup.date().required(),
-    categoryId: Yup.string().required(),
-    priorityId: Yup.string(),
-    urgent: Yup.boolean(),
-    specimenAttached: Yup.boolean(),
-  });
 
   const navigateToHistory = useCallback(() => {
     navigation.reset({
@@ -75,15 +68,12 @@ export const DumbAddLabRequestScreen = ({
   const validate = useCallback(values => {
     const { categoryId, labTestTypes = [] } = values;
 
-    if (!categoryId) {
-      return {
-        form: 'Lab request type must be selected',
-      };
-    }
-    if (!labTestTypes || labTestTypes.length === 0) {
-      return {
-        form: 'At least one lab test type must be selected',
-      };
+    if (categoryId) {
+      if (!labTestTypes || labTestTypes.length === 0) {
+        return {
+          form: 'At least one lab test type must be selected',
+        };
+      }
     }
 
     return {};
@@ -107,8 +97,8 @@ export const DumbAddLabRequestScreen = ({
       requestedTime,
       sampleDate,
       sampleTime,
-      urgent,
-      specimenAttached,
+      labSampleSite,
+      requestedBy,
       displayId: generatedDisplayId,
     } = values;
 
@@ -138,21 +128,19 @@ export const DumbAddLabRequestScreen = ({
     await models.LabRequest.createWithTests({
       displayId: generatedDisplayId,
       requestedDate: requestedDateString,
-      urgent,
-      specimenAttached,
-      requestedBy: user.id,
+      requestedBy,
       encounter: encounter.id,
       labTestCategory: values.categoryId,
       labTestPriority: values.priorityId,
       sampleTime: sampleTimeString,
       labTestTypeIds: values.labTestTypes,
+      labSampleSite,
     });
 
     navigateToHistory();
   }, []);
 
   const initialValues = {
-    ...defaultInitialValues,
     sampleTime: new Date(),
     sampleDate: new Date(),
     requestedDate: new Date(),

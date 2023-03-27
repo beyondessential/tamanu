@@ -19,17 +19,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   checkbox: {
-    marginTop: 14,
+    marginTop: 12,
     width: '45%',
   },
 });
 
-export const MultiCheckbox = ({
-  value = [],
-  options,
-  onChange,
-  error,
-}: CheckboxProps): JSX.Element => {
+export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps): JSX.Element => {
   const handleCallback = useCallback(
     (isSelected, optionId) => {
       const selectedValues = isSelected
@@ -47,7 +42,6 @@ export const MultiCheckbox = ({
           id={id}
           text={text}
           value={value.includes(id)}
-          error={error}
           onChange={handleCallback}
           style={styles.checkbox}
         />
