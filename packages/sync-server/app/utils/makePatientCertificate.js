@@ -41,7 +41,7 @@ async function renderPdf(element, fileName) {
 }
 
 async function getPatientVaccines(models, patient) {
-  const vaccines = await patient.getAdministeredVaccines();
+  const vaccines = await patient.getAdministeredVaccines({ order: [['date', 'ASC']] });
   const certifiableVaccines = vaccines.filter(vaccine => vaccine.certifiable);
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },
