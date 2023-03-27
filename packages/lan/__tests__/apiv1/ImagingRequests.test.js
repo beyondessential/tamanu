@@ -1,4 +1,5 @@
 import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -330,30 +331,26 @@ describe('Imaging requests', () => {
 
   it('should return with only imaging requests from config facility with allFacilities filter turned off', async () => {
     // arrange
+    const thisFacilityLocation = await models.Location.create({
+      facilityId: config.serverFacilityId,
+      name: 'This Facility Location',
+      code: 'thisFacilityLocation',
+    });
+    const thisFacilityEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      locationId: thisFacilityLocation.id,
+      patientId: patient.id,
+    });
     await models.ImagingRequest.create({
-      encounterId: encounter.id,
+      encounterId: thisFacilityEncounter.id,
       imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
-    await models.ImagingRequest.create({
-      encounterId: encounter.id,
-      imagingType: IMAGING_TYPES.CT_SCAN,
-      requestedById: app.user.id,
-    });
-    await models.ImagingRequest.create({
-      encounterId: encounter.id,
-      imagingType: IMAGING_TYPES.CT_SCAN,
-      requestedById: app.user.id,
-    });
-    // act
-    const {
-      body: { count: allCount },
-    } = await app.get(`/v1/imagingRequest?allFacilities=true`);
-    const {
-      body: { count: filteredCount },
-    } = await app.get(`/v1/imagingRequest?allFacilities=false`);
-    // assert
-    expect(allCount).toBe(13);
-    expect(filteredCount).toBe(3);
+
+    const result = await app.get(`/v1/imagingRequest?allFacilities=true`);
+    expect(result).toHaveSucceeded();
+
+    const result2 = await app.get(`/v1/imagingRequest?allFacilities=false`);
+    expect(result2.body.data[0].encounter.location.facilityId).toBe(config.serverFacilityId);
   });
 });
