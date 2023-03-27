@@ -156,7 +156,7 @@ export class SurveyResponse extends Model {
     const { departmentId, userId, locationId } = responseData;
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
-    return Encounter.create({
+    const newEncounter = Encounter.create({
       patientId,
       encounterType: 'surveyResponse',
       reasonForEncounter,
@@ -166,6 +166,9 @@ export class SurveyResponse extends Model {
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
       startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
+    });
+
+    return newEncounter.update({
       endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
     });
   }
