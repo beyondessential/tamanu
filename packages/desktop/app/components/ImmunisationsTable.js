@@ -7,7 +7,7 @@ import { Colors } from '../constants';
 import { VACCINE_STATUS } from '../../../shared-src/src/constants/vaccines';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
-const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label;
+const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
