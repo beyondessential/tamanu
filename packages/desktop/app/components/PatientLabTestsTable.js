@@ -45,7 +45,13 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
     {
       key: 'testType',
       title: 'Test type',
-      accessor: row => <TestTypeCell>{row.testType}</TestTypeCell>,
+      accessor: row => (
+        <TestTypeCell>
+          {row.testType}
+          <br />
+          {row.unit ? `(${row.unit})` : null}
+        </TestTypeCell>
+      ),
     },
     {
       key: 'normalRange',
@@ -53,13 +59,7 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
       accessor: row => {
         const range = row.normalRanges[patient?.sex];
         const value = !range.min ? '-' : `${range.min}-${range.max}`;
-        return (
-          <NormalRangeCell>
-            {value}
-            <br />
-            {row.unit ? `(${row.unit})` : null}
-          </NormalRangeCell>
-        );
+        return <NormalRangeCell>{value}</NormalRangeCell>;
       },
     },
     ...allDates
