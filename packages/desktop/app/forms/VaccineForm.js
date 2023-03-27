@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { PropTypes } from 'prop-types';
+import * as yup from 'yup';
 
 import { VACCINE_RECORDING_TYPES, VACCINE_CATEGORIES, SETTING_KEYS } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -12,12 +13,37 @@ import {
   VaccineGivenForm,
   VACCINE_GIVEN_INITIAL_VALUES,
   VACCINE_GIVEN_VALIDATION_SCHEMA,
+  validateGivenVaccine,
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm, VACCINE_NOT_GIVEN_VALIDATION_SCHEMA } from './VaccineNotGivenForm';
 import { getCurrentUser } from '../store/auth';
 import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
+
+export const validateBaseVaccine = (category, values) => {
+  const errors = {};
+
+  if (category !== VACCINE_CATEGORIES.OTHER && !values.scheduledVaccineId) {
+    errors.scheduledVaccineId = 'Scheduled vaccine id is required';
+  }
+
+  if (category === VACCINE_CATEGORIES.OTHER && !values.vaccineName) {
+    errors.vaccineName = 'Vaccine name is required';
+  }
+
+  if (category === VACCINE_CATEGORIES.OTHER && !values.disease) {
+    errors.disease = 'Disease is required';
+  }
+
+  return errors;
+};
+
+export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
+  date: yup.string().required('Date is required'),
+  locationId: yup.string().required('Location is required'),
+  departmentId: yup.string().required('Department is required'),
+});
 
 export const VaccineForm = ({
   onCancel,
@@ -95,16 +121,13 @@ export const VaccineForm = ({
     setVaccineLabel,
     administeredOptions,
     scheduleOptions,
-    onSubmit: data => {
-      onSubmit({ ...data, category });
-    },
     onCancel,
     currentUser,
   };
 
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={data => onSubmit({ ...data, category })}
       initialValues={{
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
@@ -120,11 +143,20 @@ export const VaccineForm = ({
           ? VACCINE_GIVEN_INITIAL_VALUES
           : {}),
       }}
-      validationSchema={
-        vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
+      validationSchema={BASE_VACCINE_SCHEME_VALIDATION.shape({
+        ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
           ? VACCINE_GIVEN_VALIDATION_SCHEMA
-          : VACCINE_NOT_GIVEN_VALIDATION_SCHEMA
-      }
+          : {}),
+      })}
+      validate={values => {
+        let errors = validateBaseVaccine(category, values);
+
+        if (vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN) {
+          errors = { ...errors, ...validateGivenVaccine(category, values) };
+        }
+
+        return errors;
+      }}
       render={({ submitForm, values = {} }) => {
         return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
           <VaccineGivenForm

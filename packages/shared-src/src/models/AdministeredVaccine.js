@@ -20,7 +20,7 @@ export class AdministeredVaccine extends Model {
         reason: Sequelize.STRING,
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
         givenBy: Sequelize.TEXT,
-        givenOverseas: Sequelize.BOOLEAN,
+        givenElsewhere: Sequelize.BOOLEAN,
         vaccineBrand: Sequelize.TEXT,
         vaccineName: Sequelize.TEXT,
         disease: Sequelize.TEXT,

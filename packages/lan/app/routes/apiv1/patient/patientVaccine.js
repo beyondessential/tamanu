@@ -102,6 +102,7 @@ patientVaccineRoutes.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientVaccine');
 
+    console.log('req.body.category', req.body.category);
     // Require scheduledVaccineId if vaccine category is not OTHER
     if (req.body.category !== VACCINE_CATEGORIES.OTHER && !req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
