@@ -28,17 +28,29 @@ import {
 import { Field, CheckField } from '../components/Field';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
-  givenOverseas: false,
+  givenElsewhere: false,
 };
 
-export const VACCINE_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
-  scheduledVaccineId: yup.string().required(),
-  date: yup.string().required(),
+export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
   consent: yup
     .boolean()
     .oneOf([true])
-    .required(),
-});
+    .required('Consent is required'),
+};
+
+export const validateGivenVaccine = (category, values) => {
+  const errors = {};
+
+  if (category === VACCINE_CATEGORIES.OTHER && !values.vaccineBrand) {
+    errors.vaccineBrand = 'Vaccine brand is required';
+  }
+
+  if (values.givenElsewhere && !values.givenBy) {
+    errors.givenBy = 'Country is required';
+  }
+
+  return errors;
+};
 
 export const VaccineGivenForm = ({
   vaccineLabel,
@@ -60,7 +72,7 @@ export const VaccineGivenForm = ({
         setVaccineLabel={setVaccineLabel}
       />
       <FullWidthCol>
-        <Field name="givenOverseas" label="Given overseas" component={CheckField} />
+        <Field name="givenElsewhere" label="Given elsewhere" component={CheckField} />
       </FullWidthCol>
       {category === VACCINE_CATEGORIES.OTHER ? (
         <>
@@ -94,7 +106,7 @@ export const VaccineGivenForm = ({
 
       <StyledDivider />
 
-      {values.givenOverseas ? <GivenByCountryField /> : <GivenByField />}
+      {values.givenElsewhere ? <GivenByCountryField /> : <GivenByField />}
 
       <RecordedByField />
 
@@ -102,7 +114,7 @@ export const VaccineGivenForm = ({
 
       <ConsentField
         label={
-          values.givenOverseas
+          values.givenElsewhere
             ? 'Do you have consent to record in Tamanu?'
             : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
         }

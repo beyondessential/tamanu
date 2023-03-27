@@ -1,6 +1,5 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import * as yup from 'yup';
 
 import { VACCINE_CATEGORIES } from 'shared/constants';
 
@@ -20,11 +19,6 @@ import {
   DiseaseField,
 } from '../components/VaccineCommonFields';
 import { Field, SuggesterSelectField } from '../components/Field';
-
-export const VACCINE_NOT_GIVEN_VALIDATION_SCHEMA = yup.object().shape({
-  date: yup.string().required(),
-  scheduledVaccineId: yup.string().required(),
-});
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
