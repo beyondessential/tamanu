@@ -6,8 +6,15 @@ import { VISIBILITY_STATUSES } from '../../constants';
 export function objectAsFhir(input) {
   const obj = {};
   for (const [name, value] of Object.entries(input)) {
-    if (value === null || value === undefined) continue;
-    obj[name] = value;
+    if (value === null || value === undefined) {
+      continue;
+    } else if (Array.isArray(value)) {
+      obj[name] = value.map(v => objectAsFhir(v));
+    } else if (typeof value === 'object') {
+      obj[name] = objectAsFhir(value);
+    } else {
+      obj[name] = value;
+    }
   }
   return obj;
 }
