@@ -22,11 +22,18 @@ export const Field = ({
   ...rest
 }: FieldProps): JSX.Element => {
   const [field, meta] = useField(name);
-  const { validateOnChange, status } = useFormikContext();
+  const formikContext = useFormikContext();
+  const { validateOnChange, status, submitCount } = formikContext;
 
-  // Show errors if validateOnChange is false or if the user has already tried to submit the form.
+  // Show errors if
+  // 1. validateOnChange is false OR 
+  // 2. if the user has already tried to submit the form (submitCount > 0) OR
+  // 3. if the user has already tried to move to the next page of the form (ie: Survey and status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED)
   // We don't want errors displayed by on change events before user submits.
-  const error = !validateOnChange || status === FORM_STATUSES.SUBMIT_ATTEMPTED ? meta.error : null;
+  const error =
+    !validateOnChange || status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED || submitCount
+      ? meta.error
+      : null;
 
   const combinedOnChange = (newValue: any): any => {
     if (onChange) {
