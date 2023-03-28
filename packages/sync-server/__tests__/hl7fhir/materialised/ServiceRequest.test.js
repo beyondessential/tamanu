@@ -184,6 +184,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(ir.updatedAt)));
       expect(response).toHaveSucceeded();
+
+      // regression EPI-403
+      expect(response.body.subject).not.toHaveProperty('identifier');
     });
 
     it('materialises the default priority if the source data has a null priority', async () => {
