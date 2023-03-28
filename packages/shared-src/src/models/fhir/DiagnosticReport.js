@@ -1,7 +1,11 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
 
-import { FHIR_INTERACTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import {
+  FHIR_DIAGNOSTIC_REPORT_STATUS,
+  FHIR_INTERACTIONS,
+  LAB_REQUEST_STATUSES,
+} from 'shared/constants';
 
 import { FhirResource } from './Resource';
 import {
@@ -167,11 +171,19 @@ function identifiers(labRequest) {
 function status(labRequest) {
   switch (labRequest.status) {
     case LAB_REQUEST_STATUSES.PUBLISHED:
-      return 'final';
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL;
+    case LAB_REQUEST_STATUSES.TO_BE_VERIFIED:
+    case LAB_REQUEST_STATUSES.VERIFIED:
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY;
+    case LAB_REQUEST_STATUSES.RECEPTION_PENDING:
     case LAB_REQUEST_STATUSES.RESULTS_PENDING:
-      return 'registered';
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED;
+    case LAB_REQUEST_STATUSES.CANCELLED:
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED;
+    case LAB_REQUEST_STATUSES.ENTERED_IN_ERROR:
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR;
     default:
-      return 'unknown';
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.UNKNOWN;
   }
 }
 

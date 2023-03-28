@@ -235,3 +235,21 @@ export const FHIR_REQUEST_PRIORITY = {
   ASAP: 'asap',
   STAT: 'stat',
 };
+
+export const FHIR_DIAGNOSTIC_REPORT_STATUS = {
+  REGISTERED: 'registered',
+  PARTIAL: {
+    _: 'partial',
+    PRELIMINARY: 'preliminary',
+    MODIFIED: 'modified',
+  },
+  FINAL: 'final',
+  AMENDED: {
+    _: 'amended',
+    CORRECTED: 'corrected',
+    APPENDED: 'appended',
+  },
+  CANCELLED: 'cancelled',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
