@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.24.2",
+  "version": "1.24.5",
   "description": "Common code across Tamanu packages (generated)",
   "main": "index.js",
   "types": "types/",
