@@ -54,4 +54,17 @@ export class FhirWriteLog extends Model {
       allowNull: true,
     });
   }
+
+  /**
+   * @param {import('express').Request} req
+   */
+  static fromRequest(req) {
+    return this.create({
+      verb: req.method,
+      url: req.originalUrl,
+      body: req.body,
+      headers: req.headers,
+      userId: req.user?.id,
+    });
+  }
 }
