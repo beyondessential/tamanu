@@ -217,5 +217,5 @@ export const VitalsDataElements = {
 };
 
 export const FORM_STATUSES = {
-  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+  SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
 };
