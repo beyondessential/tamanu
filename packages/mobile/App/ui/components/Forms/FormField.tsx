@@ -30,10 +30,8 @@ export const Field = ({
   // 2. if the user has already tried to submit the form (submitCount > 0) OR
   // 3. if the user has already tried to move to the next page of the form (ie: Survey and status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED)
   // We don't want errors displayed by on change events before user submits.
-  const error =
-    !validateOnChange || status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED || submitCount
-      ? meta.error
-      : null;
+  const showError = !validateOnChange || status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED || submitCount;
+  const error = showError ? meta.error : null;
 
   const combinedOnChange = (newValue: any): any => {
     if (onChange) {
