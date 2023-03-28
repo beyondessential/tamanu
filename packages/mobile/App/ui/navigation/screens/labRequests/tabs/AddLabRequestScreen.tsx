@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
-import { formatISO9075 } from 'date-fns';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
@@ -16,6 +15,7 @@ import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
+import { getCombinedDateString } from '/helpers/date';
 
 const ALPHABET_FOR_ID =
   'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
@@ -103,27 +103,8 @@ export const DumbAddLabRequestScreen = ({
     } = values;
 
     // Convert requestedDate and sampleTime to strings
-    const combinedRequestedDate = new Date(
-      requestedDate.getFullYear(),
-      requestedDate.getMonth(),
-      requestedDate.getDate(),
-      requestedTime.getHours(),
-      requestedTime.getMinutes(),
-      requestedTime.getSeconds(),
-      requestedTime.getMilliseconds(),
-    );
-    const requestedDateString = formatISO9075(combinedRequestedDate);
-
-    const combinedSampleTime = new Date(
-      sampleDate.getFullYear(),
-      sampleDate.getMonth(),
-      sampleDate.getDate(),
-      sampleTime.getHours(),
-      sampleTime.getMinutes(),
-      sampleTime.getSeconds(),
-      sampleTime.getMilliseconds(),
-    );
-    const sampleTimeString = formatISO9075(combinedSampleTime);
+    const requestedDateString = getCombinedDateString(requestedDate, requestedTime);
+    const sampleTimeString = getCombinedDateString(sampleDate, sampleTime);
 
     await models.LabRequest.createWithTests({
       displayId: generatedDisplayId,
