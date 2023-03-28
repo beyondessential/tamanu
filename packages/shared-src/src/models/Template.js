@@ -36,11 +36,11 @@ export class Template extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
-          mustHaveValidTemplateType() {
-            if (!Object.values(TEMPLATE_TYPES).includes(this.recordType)) {
-              throw new Error(`Template: Must have a valid template type (got ${this.recordType})`);
-            }
-          },
+          // mustHaveValidTemplateType() {
+          //   if (!Object.values(TEMPLATE_TYPES).includes(this.recordType)) {
+          //     throw new Error(`Template: Must have a valid template type (got ${this.recordType})`);
+          //   }
+          // },
         },
       },
     );
