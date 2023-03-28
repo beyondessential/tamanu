@@ -16,11 +16,6 @@ export async function up(query) {
       allowNull: false,
       defaultValue: Sequelize.fn('current_timestamp'),
     },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: Sequelize.fn('current_timestamp'),
-    },
     verb: {
       type: DataTypes.TEXT,
       allowNull: false,
