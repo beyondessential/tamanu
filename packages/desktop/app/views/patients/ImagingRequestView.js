@@ -12,7 +12,7 @@ import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { CancelModal } from '../../components/CancelModal';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { IMAGING_REQUEST_STATUS_OPTIONS, Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -64,7 +64,14 @@ const PrintButton = ({ imagingRequest, patient }) => {
 
   return (
     <>
-      <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
+      <Modal
+        title="Imaging Request"
+        open={isModalOpen}
+        onClose={closeModal}
+        width="md"
+        color={Colors.white}
+        printable
+      >
         {isLoading ? (
           <LoadingIndicator />
         ) : (
