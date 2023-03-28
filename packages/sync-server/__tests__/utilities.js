@@ -121,9 +121,11 @@ export async function createTestContext() {
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
+  baseApp.set('X-Tamanu-Client', 'Tamanu Desktop');
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
+    agent.set('X-Tamanu-Client', 'Tamanu Desktop');
     const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
       expiresIn: '1d',
       audience: JWT_TOKEN_TYPES.ACCESS,
