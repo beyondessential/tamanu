@@ -4,14 +4,12 @@ import { StyleSheet, Text, View } from '@react-pdf/renderer';
 const basicBorder = '1 solid black';
 
 const tableStyles = StyleSheet.create({
-  table: {
-    borderTop: basicBorder,
-  },
   tr: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     borderBottom: basicBorder,
-    // borderBottom: basicBorder,
+    borderTop: basicBorder,
+    marginBottom: -1,
   },
   th: {
     flex: 1,
