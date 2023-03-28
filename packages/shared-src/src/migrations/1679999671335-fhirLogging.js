@@ -14,7 +14,7 @@ export async function up(query) {
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn('current_timestamp'),
+      defaultValue: Sequelize.fn('current_timestamp', 6),
     },
     verb: {
       type: DataTypes.TEXT,
@@ -27,12 +27,12 @@ export async function up(query) {
     body: {
       type: DataTypes.JSONB,
       allowNull: false,
-      defaultValue: '{}',
+      defaultValue: {},
     },
     headers: {
       type: DataTypes.JSONB,
       allowNull: false,
-      defaultValue: '{}',
+      defaultValue: {},
     },
     user_id: {
       type: DataTypes.STRING,
@@ -44,9 +44,9 @@ export async function up(query) {
     },
   });
 
-  await query.addIndex(TABLE, ['verb']);
-  await query.addIndex(TABLE, ['url']);
-  await query.addIndex(TABLE, ['headers'], { using: 'gin' });
+  await query.addIndex(TABLE, { fields: ['headers'], using: 'gin' });
+  await query.addIndex(TABLE, { fields: ['url'] });
+  await query.addIndex(TABLE, { fields: ['verb'] });
 }
 
 export async function down(query) {
