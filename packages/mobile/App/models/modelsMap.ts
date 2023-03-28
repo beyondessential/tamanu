@@ -29,6 +29,8 @@ import { LabTestType } from './LabTestType';
 import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
 import { Setting } from './Setting';
+import { NotePage } from './NotePage';
+import { NoteItem } from './NoteItem';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -61,5 +63,7 @@ export const MODELS_MAP = {
   LocalSystemFact,
   PatientFacility,
   Setting,
+  NotePage,
+  NoteItem,
 };
 export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);

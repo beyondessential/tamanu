@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors } from '../../constants';
 
+import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TopBar, PageContainer, ContentPane } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -135,6 +136,7 @@ const DetailedDashboardItem = ({ api }) => {
 
 export const BedManagement = () => {
   const api = useApi();
+  const { facility } = useAuth();
 
   const {
     data: { count: totalCurrentPatients } = {},
@@ -157,7 +159,7 @@ export const BedManagement = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Bed management" />
+      <TopBar title="Bed management" subTitle={facility.name} />
       <ContentPane>
         <DashboardContainer>
           <DashboardItemListContainer>
