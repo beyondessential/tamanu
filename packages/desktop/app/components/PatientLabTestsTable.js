@@ -53,20 +53,26 @@ const StyledTable = styled(Table)`
     }
 
     thead tr th {
+      color: ${props => props.theme.palette.text.secondary};
       background: ${Colors.background};
     }
 
-    tbody.MuiTableCell-body tr td {
+    tbody tr td.MuiTableCell-body {
       background: ${Colors.white};
-      padding: 15px 10px;
+      padding: 7px 15px;
+
+      &:first-child {
+        padding-left: 17px;
+      }
     }
   }
 `;
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
-const CategoryCell = styled.div`/
-  //
+const CategoryCell = styled.div`
+  font-weight: 500;
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) => {
