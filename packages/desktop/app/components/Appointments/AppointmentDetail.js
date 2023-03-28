@@ -227,9 +227,6 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
   const onSubmitEncounterModal = useCallback(
     async encounter => {
-      setStatusOption(
-        appointmentStatusOptions.find(options => options.value === APPOINTMENT_STATUSES.ARRIVED),
-      );
       setCreatedEncounter(encounter);
       onCloseEncounterModal();
     },
