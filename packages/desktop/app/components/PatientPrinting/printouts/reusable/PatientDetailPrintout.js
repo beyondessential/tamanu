@@ -11,37 +11,46 @@ import { PatientBarcode } from './PatientBarcode';
 const RowContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  margin: 20px;
+`;
+
+const ColumnContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
 `;
 
 const LocalisedLabel = styled(LocalisedCertificateLabel)`
   font-size: 12px;
-  margin-bottom: 0px;
+  margin-bottom: 5px;
 `;
 
-export const PatientDetailPrintout = React.memo(({ patient, village, additionalData }) => {
-  const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
-  const { streetVillage } = additionalData || {};
-  const { name: villageName } = village || {};
+export const PatientDetailPrintout = React.memo(
+  ({ patient, village = {}, additionalData = {} }) => {
+    const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
+    const { streetVillage } = additionalData;
+    const { name: villageName } = village;
 
-  return (
-    <RowContainer>
-      <div>
-        <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
-        <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-        <LocalisedLabel path="fields.dateOfBirth.shortLabel">
-          <DateDisplay date={dateOfBirth} />
-        </LocalisedLabel>
-        <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
-        {streetVillage ? <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel> : ''}
-      </div>
-      <div>
-        {villageName ? <LocalisedLabel name="villageName">{villageName}</LocalisedLabel> : ''}
-        <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
-        <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
-      </div>
-    </RowContainer>
-  );
-});
+    return (
+      <RowContainer>
+        <ColumnContainer>
+          <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
+          <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
+          <LocalisedLabel path="fields.dateOfBirth.shortLabel">
+            <DateDisplay date={dateOfBirth} />
+          </LocalisedLabel>
+          <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
+          <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
+        </ColumnContainer>
+        <ColumnContainer>
+          <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
+          <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
+          <PatientBarcode patient={patient} barWidth={2} barHeight={50} margin={0} />
+        </ColumnContainer>
+      </RowContainer>
+    );
+  },
+);
 
 PatientDetailPrintout.propTypes = {
   patient: PropTypes.object.isRequired,
