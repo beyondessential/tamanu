@@ -10,7 +10,7 @@ import { referenceDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './ref
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
-import { getReports, getReportVersions } from './reports';
+import { createReportVersion, getReports, getReportVersions, updateReportVersion } from './reports';
 
 export const adminRoutes = express.Router();
 
@@ -20,6 +20,8 @@ export const adminRoutes = express.Router();
 // remove once more general permission checks have been implemented.
 adminRoutes.use(constructPermission);
 
+adminRoutes.put('/reports/:reportId/versions/:versionId', updateReportVersion);
+adminRoutes.post('/reports/:reportId/versions', createReportVersion);
 adminRoutes.get('/reports/:reportId/versions', getReportVersions);
 adminRoutes.get('/reports', getReports);
 

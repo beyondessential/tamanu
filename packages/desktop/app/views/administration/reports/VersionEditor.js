@@ -3,9 +3,11 @@ import { JsonEditor } from 'jsoneditor-react/es';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Ajv from 'ajv';
+import { toast } from 'react-toastify';
 import { BodyText, Button, Heading4, formatShort, formatTime } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { schema, schemaRefs, templates } from './schema';
+import { useAuth } from '../../../contexts/Auth';
 
 const ajv = new Ajv({ allErrors: true });
 
@@ -33,11 +35,22 @@ const DetailList = styled.div`
   }
 `;
 
+const ErrorMessage = styled.div`
+  word-break: break-word;
+`;
+
 const StyledDropdownButton = styled(DropdownButton)`
   margin-bottom: 20px;
   opacity: ${props => props.$disabled && 0.5};
   pointer-events: ${props => props.$disabled && 'none'};
 `;
+
+const Error = ({ errorMessage, isCreate }) => (
+  <div>
+    <b>{isCreate ? 'Create' : 'Update'} version failed</b>
+    <ErrorMessage>{errorMessage}</ErrorMessage>
+  </div>
+);
 
 const SaveButtonLabel = ({ submitting }) => (
   <Box display="flex" alignItems="center">
@@ -46,34 +59,49 @@ const SaveButtonLabel = ({ submitting }) => (
   </Box>
 );
 
-export const VersionEditor = ({ report, version, onBack }) => {
+export const VersionEditor = ({ report, version, onBack, onSave }) => {
   const { id, updatedAt, createdAt, createdBy, versionNumber, ...editableData } = version;
   const { name } = report;
+  const { currentUser } = useAuth();
   const [isValid, setIsValid] = useState(true);
   const [dirty, setDirty] = useState(false);
   const [value, setValue] = useState(editableData);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSave = async () => {
-    setSubmitting(true);
-  };
-
-  const handleSaveAsNewVersion = async () => {
-    setSubmitting(true);
-  };
-
   // Handle change is debounced by jsoneditor-react
   const handleChange = json => {
     setValue(json);
-    setDirty(JSON.stringify(json) !== JSON.stringify(editableData));
+    if (!dirty) {
+      setDirty(true);
+    }
     setIsValid(ajv.validate(schema, json));
   };
 
   const handleReset = () => {
-    setValue(null);
     setDirty(false);
-    // This has has to be deferred to reload content properly
+    setValue(null);
+    // This has has to be deferred to reload jsoneditor window properly
     setTimeout(() => setValue(editableData), 0);
+  };
+
+  const handleSave = async saveAsNewVersion => {
+    try {
+      setSubmitting(true);
+      const versionNum = saveAsNewVersion ? report.versionCount + 1 : versionNumber;
+      const payload = {
+        ...value,
+        ...(saveAsNewVersion && { versionNumber: versionNum, userId: currentUser.id }),
+      };
+      await onSave(payload, saveAsNewVersion);
+      toast.success(
+        `Successfully ${saveAsNewVersion ? 'created new' : 'updated'} version ${versionNum}`,
+      );
+      setDirty(false);
+    } catch (err) {
+      toast.error(<Error isCreate={saveAsNewVersion} errorMessage={err.message} />);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -99,9 +127,9 @@ export const VersionEditor = ({ report, version, onBack }) => {
             actions={[
               {
                 label: <SaveButtonLabel submitting={submitting} />,
-                onClick: handleSave,
+                onClick: () => handleSave(false),
               },
-              { label: 'Save as new version', onClick: handleSaveAsNewVersion },
+              { label: 'Save as new version', onClick: () => handleSave(true) },
             ]}
           />
         </div>
