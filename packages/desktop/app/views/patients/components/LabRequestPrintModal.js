@@ -5,6 +5,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { LabRequestPrintout } from '../../../components/PatientPrinting/printouts/LabRequestPrintout';
+import { Colors } from '../../../constants';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
@@ -48,7 +49,14 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     (isVillageEnabled && isVillageLoading);
 
   return (
-    <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
+    <Modal
+      title="Lab Request"
+      open={open}
+      onClose={onClose}
+      width="md"
+      color={Colors.white}
+      printable
+    >
       {isLoading ? (
         <LoadingIndicator />
       ) : (
