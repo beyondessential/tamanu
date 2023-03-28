@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -9,54 +9,41 @@ import { LabRequestPrintout } from '../../../components/PatientPrinting/printout
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
   const certificate = useCertificate();
-  const [notes, setNotes] = useState([]);
-  const [tests, setTests] = useState([]);
-  const [encounter, setEncounter] = useState({});
-  const [notesLoading, setNotesLoading] = useState(false);
-  const [testsLoading, setTestsLoading] = useState(false);
-  const [encounterLoading, setEncounterLoading] = useState(false);
 
-  useEffect(() => {
-    setEncounterLoading(true);
-    (async () => {
-      const res = await api.get(`encounter/${labRequest.encounterId}`);
-      setEncounter(res);
-    })();
-    setEncounterLoading(false);
-  }, [api, labRequest.encounterId]);
-
-  useEffect(() => {
-    setTestsLoading(true);
-    (async () => {
-      const res = await api.get(`labRequest/${labRequest.id}/tests`);
-      setTests(res.data);
-    })();
-    setTestsLoading(false);
-  }, [api, labRequest.id]);
-  useEffect(() => {
-    setNotesLoading(true);
-    (async () => {
-      const res = await api.get(`labRequest/${labRequest.id}/notes`);
-      setNotes(res.data);
-    })();
-    setNotesLoading(false);
-  }, [api, labRequest.id]);
+  const isEncounterEnabled = !!labRequest.encounterId;
+  const { data: encounter, isLoading: isEncounterLoading } = useQuery(
+    ['encounter', labRequest.encounterId],
+    () => api.get(`encounter/${encodeURIComponent(labRequest.encounterId)}`),
+    { enabled: isEncounterEnabled },
+  );
+  const { data: tests, isLoading: areTestsLoading } = useQuery(
+    ['labRequestTests', labRequest.id],
+    async () => {
+      const notesRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/tests`);
+      return notesRes.data;
+    },
+  );
+  const { data: notes, isLoading: areNotesLoading } = useQuery(
+    ['labRequestNotes', labRequest.id],
+    async () => {
+      const testsRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/notes`);
+      return testsRes.data;
+    },
+  );
   const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
+    ['additionalData', patient.id],
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
   );
   const isVillageEnabled = !!patient?.villageId;
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
-    ['village', encounter.patientId],
+    ['village', patient.villageId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
-    {
-      enabled: isVillageEnabled,
-    },
+    { enabled: isVillageEnabled },
   );
   const isLoading =
-    encounterLoading ||
-    testsLoading ||
-    notesLoading ||
+    (isEncounterEnabled && isEncounterLoading) ||
+    areTestsLoading ||
+    areNotesLoading ||
     isAdditionalDataLoading ||
     (isVillageEnabled && isVillageLoading);
 
