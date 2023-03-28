@@ -63,8 +63,22 @@ export class FhirWriteLog extends Model {
       verb: req.method,
       url: req.originalUrl,
       body: req.body,
-      headers: req.headers,
+      headers: filterHeaders(req.headers),
       userId: req.user?.id,
     });
   }
+}
+
+/**
+ * @param {import('express').Request['headers']} headers
+ */
+function filterHeaders(headers) {
+  return Object.fromEntries(
+    Object.entries(headers).filter(
+      ([key]) =>
+        key.startsWith('if-') ||
+        key.startsWith('x-') ||
+        ['accept', 'client-timezone', 'content-type', 'prefer', 'user-agent'].includes(key),
+    ),
+  );
 }
