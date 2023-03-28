@@ -6,22 +6,67 @@ import { Table } from './Table';
 import { RangeValidatedCell, DateHeadCell } from './FormattedTableCell';
 import { Colors } from '../constants';
 
+const CELLS = {
+  1: 150,
+  2: 120,
+  3: 120,
+};
+
+const StyledTable = styled(Table)`
+  table {
+    position: relative;
+
+    thead tr th:nth-child(1),
+    tbody tr td:nth-child(1),
+    thead tr th:nth-child(2),
+    tbody tr td:nth-child(2),
+    thead tr th:nth-child(3),
+    tbody tr td:nth-child(3) {
+      position: sticky;
+      z-index: 1;
+      border-right: 1px solid ${Colors.outline};
+    }
+
+    thead tr th:nth-child(1),
+    tbody tr td:nth-child(1) {
+      left: 0;
+      width: ${CELLS[1]}px;
+      min-width: ${CELLS[1]}px;
+      max-width: ${CELLS[1]}px;
+    }
+
+    thead tr th:nth-child(2),
+    tbody tr td:nth-child(2) {
+      width: ${CELLS[2]}px;
+      min-width: ${CELLS[2]}px;
+      max-width: ${CELLS[2]}px;
+      left: ${CELLS[1]}px;
+    }
+
+    thead tr th:nth-child(3),
+    tbody tr td:nth-child(3) {
+      width: ${CELLS[3]}px;
+      min-width: ${CELLS[3]}px;
+      max-width: ${CELLS[3]}px;
+      left: ${CELLS[1] + CELLS[2]}px;
+      border-right: 2px solid ${Colors.outline};
+    }
+
+    thead tr th {
+      background: ${Colors.background};
+    }
+
+    tbody.MuiTableCell-body tr td {
+      background: ${Colors.white};
+      padding: 15px 10px;
+    }
+  }
+`;
+
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
-const StyledCellWrapper = styled.div`
-  position: sticky;
-  z-index: 1;
-  border-right: 1px solid ${Colors.outline};
-`;
-
-const CategoryCell = styled(StyledCellWrapper)`
-  left: 0;
-`;
-const TestTypeCell = styled(StyledCellWrapper)`
-  left: 30;
-`;
-const NormalRangeCell = styled(StyledCellWrapper)`
-  left: 60;
+const CategoryCell = styled.div`/
+  //
 `;
 
 export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) => {
@@ -46,11 +91,11 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
       key: 'testType',
       title: 'Test type',
       accessor: row => (
-        <TestTypeCell>
+        <CategoryCell>
           {row.testType}
           <br />
           {row.unit ? `(${row.unit})` : null}
-        </TestTypeCell>
+        </CategoryCell>
       ),
     },
     {
@@ -59,7 +104,7 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
       accessor: row => {
         const range = row.normalRanges[patient?.sex];
         const value = !range.min ? '-' : `${range.min}-${range.max}`;
-        return <NormalRangeCell>{value}</NormalRangeCell>;
+        return <CategoryCell>{value}</CategoryCell>;
       },
     },
     ...allDates
@@ -83,7 +128,8 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
   ];
 
   return (
-    <Table
+    <StyledTable
+      elevated={false}
       columns={columns}
       data={data?.data}
       isLoading={isLoading}

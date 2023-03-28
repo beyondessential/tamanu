@@ -1,16 +1,24 @@
 import React from 'react';
 import styled from 'styled-components';
-
 import { useSuggester } from '../api';
-import { LocalisedField, AutocompleteField, Form } from './Field';
-import { FormGrid } from './FormGrid';
+import { Field, AutocompleteField, Form } from './Field';
 import { Colors } from '../constants';
+import { Heading3 } from './Typography';
 
 const Container = styled.div`
-  padding: 2rem;
+  padding: 24px 30px 30px;
   border-radius: 3px 3px 0 0;
   background-color: #ffffff;
   border-bottom: 1px solid ${Colors.outline};
+`;
+
+const Fields = styled.div`
+  display: flex;
+  align-items: center;
+
+  > div {
+    margin-right: 20px;
+  }
 `;
 
 export const ResultsSearchBar = React.memo(({ setSearchParameters, patientId }) => {
@@ -23,13 +31,15 @@ export const ResultsSearchBar = React.memo(({ setSearchParameters, patientId }) 
 
   return (
     <Container>
+      <Heading3 mb={2}>Lab results</Heading3>
       <Form
         onSubmit={() => {}}
         render={({ setFieldValue }) => (
           <>
-            <FormGrid columns={3}>
-              <LocalisedField
+            <Fields>
+              <Field
                 name="category"
+                label="Test category"
                 suggester={categorySuggester}
                 component={AutocompleteField}
                 onChange={event => {
@@ -37,8 +47,9 @@ export const ResultsSearchBar = React.memo(({ setSearchParameters, patientId }) 
                   setSearchParameters({ categoryId: event.target.value, panelId: null });
                 }}
               />
-              <LocalisedField
+              <Field
                 name="panel"
+                label="Test panel"
                 suggester={panelSuggester}
                 component={AutocompleteField}
                 onChange={event => {
@@ -46,7 +57,7 @@ export const ResultsSearchBar = React.memo(({ setSearchParameters, patientId }) 
                   setSearchParameters({ categoryId: null, panelId: event.target.value });
                 }}
               />
-            </FormGrid>
+            </Fields>
           </>
         )}
       />
