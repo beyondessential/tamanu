@@ -42,34 +42,25 @@ const PrintButton = ({ imagingRequest, patient }) => {
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
-  const [encounter, setEncounter] = useState();
-  const [isImgReqLoading, setIsImgReqLoading] = useState(false);
 
-  useEffect(() => {
-    setIsImgReqLoading(true);
-    if (!imagingRequest.loading) {
-      (async () => {
-        const res = await api.get(`encounter/${imagingRequest.encounterId}`);
-        setEncounter(res);
-      })();
-      setIsImgReqLoading(false);
-    }
-  }, [api, imagingRequest.encounterId, imagingRequest.loading]);
-
+  const { data: encounter, isLoading: isEncounterLoading } = useQuery(
+    ['encounter', imagingRequest.encounterId],
+    () => api.get(`encounter/${encodeURIComponent(imagingRequest.encounterId)}`),
+  );
   const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
+    ['additionalData', patient.id],
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
   );
   const isVillageEnabled = !!patient?.villageId;
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
-    ['village', encounter.patientId],
+    ['village', patient.villageId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
       enabled: isVillageEnabled,
     },
   );
   const isLoading =
-    isImgReqLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
+    isEncounterLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
 
   return (
     <>
