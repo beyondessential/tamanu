@@ -18,7 +18,10 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   const { watermark, logo, footerImg, printedBy } = useCertificate();
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
-  const { data: vaccineData } = useAdministeredVaccines(patient.id, { order: [['date', 'ASC']] });
+  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+    order: [['date', 'ASC']],
+    where: { status: 'GIVEN' },
+  });
   const vaccinations = vaccineData?.data || [];
 
   const createVaccineCertificateNotification = useCallback(

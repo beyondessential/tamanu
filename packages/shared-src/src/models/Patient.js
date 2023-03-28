@@ -136,9 +136,9 @@ export class Patient extends Model {
       ...optRest,
       include,
       where: {
-        ...optWhere,
         '$encounter.patient_id$': this.id,
         status: { [Op.in]: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN] },
+        ...optWhere,
       },
     });
 
