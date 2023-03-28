@@ -3,6 +3,14 @@ import { isPlainObject } from 'lodash';
 import { VISIBILITY_STATUSES } from '../../constants';
 
 export function objectAsFhir(input) {
+  if (Array.isArray(input)) {
+    return input.map(v => objectAsFhir(v));
+  }
+
+  if (!isPlainObject(input)) {
+    return input;
+  }
+
   const obj = {};
   for (const [name, value] of Object.entries(input)) {
     if (value === null || value === undefined) {
