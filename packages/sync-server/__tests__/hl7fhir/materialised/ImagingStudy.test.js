@@ -249,7 +249,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           where: { url: { [Op.like]: '%ImagingStudy%' } },
         });
         expect(flog).toBeTruthy();
-        expect(flog.verb).toEqual('post');
+        expect(flog.verb).toEqual('POST');
         expect(flog.body).toMatchObject(body);
       }));
 
@@ -286,7 +286,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           where: { url: { [Op.like]: '%ImagingStudy%' } },
         });
         expect(flog).toBeTruthy();
-        expect(flog.verb).toEqual('post');
+        expect(flog.verb).toEqual('POST');
         expect(flog.body).toMatchObject(body);
       }));
 

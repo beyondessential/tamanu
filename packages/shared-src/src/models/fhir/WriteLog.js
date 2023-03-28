@@ -10,7 +10,7 @@ export class FhirWriteLog extends Model {
         id: {
           type: Sequelize.UUID,
           allowNull: false,
-          default: Sequelize.fn('uuid_generate_v4'),
+          defaultValue: Sequelize.fn('uuid_generate_v4'),
           primaryKey: true,
         },
         createdAt: {
