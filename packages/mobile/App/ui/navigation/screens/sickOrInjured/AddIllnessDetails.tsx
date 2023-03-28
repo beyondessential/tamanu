@@ -109,14 +109,12 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     suggester={icd10Suggester}
                     modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
-                    required
                   />
                   <Field
                     component={Dropdown}
                     options={CERTAINTY_OPTIONS}
                     name="certainty"
                     label="Certainty"
-                    required
                   />
                   <SectionHeader h3>Treatment notes</SectionHeader>
                   <Field component={TextField} name="reasonForEncounter" multiline />
