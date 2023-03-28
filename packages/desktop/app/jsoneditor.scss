@@ -28,3 +28,7 @@ div.jsoneditor-value.jsoneditor-highlight {
   background: #fffde2;
   border-radius: 6px;
 }
+
+tr.jsoneditor-highlight, tr.jsoneditor-selected {
+  background: #f1f0f0;
+}

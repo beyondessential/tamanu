@@ -113,7 +113,7 @@ export const schemaRefs = {
       },
     },
     required: ['parameterField', 'name', 'label'],
-  }
+  },
 };
 
 export const templates = [

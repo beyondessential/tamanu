@@ -7,6 +7,8 @@ import { BodyText, Button, Heading4, formatShort, formatTime } from '../../../co
 import { DropdownButton } from '../../../components/DropdownButton';
 import { schema, schemaRefs, templates } from './schema';
 
+const ajv = new Ajv({ allErrors: true });
+
 const EditorContainer = styled.div`
   width: 1000px;
   padding-bottom: 30px;
@@ -46,12 +48,11 @@ const SaveButtonLabel = ({ submitting }) => (
 
 export const VersionEditor = ({ report, version, onBack }) => {
   const { id, updatedAt, createdAt, createdBy, versionNumber, ...editableData } = version;
+  const { name } = report;
   const [isValid, setIsValid] = useState(true);
   const [dirty, setDirty] = useState(false);
   const [value, setValue] = useState(editableData);
   const [submitting, setSubmitting] = useState(false);
-
-  const { name } = report;
 
   const handleSave = async () => {
     setSubmitting(true);
@@ -61,15 +62,11 @@ export const VersionEditor = ({ report, version, onBack }) => {
     setSubmitting(true);
   };
 
+  // Handle change is debounced by jsoneditor-react
   const handleChange = json => {
     setValue(json);
-    if (JSON.stringify(json) === JSON.stringify(editableData)) {
-      setDirty(false);
-      return;
-    }
-    if (!dirty) {
-      setDirty(true);
-    }
+    setDirty(JSON.stringify(json) !== JSON.stringify(editableData));
+    setIsValid(ajv.validate(schema, json));
   };
 
   const handleReset = () => {
@@ -91,11 +88,11 @@ export const VersionEditor = ({ report, version, onBack }) => {
       </ButtonContainer>
       <Tooltip
         disableHoverListener={isValid && dirty}
-        title={!dirty ? 'No changes to json' : 'Please fix any errors before saving.'}
+        title={!dirty ? 'No changes to json' : !isValid && 'Please fix any errors before saving.'}
         placement="top"
         arrow
       >
-        <div>
+        <div style={{ width: 'fit-content' }}>
           <StyledDropdownButton
             variant="outlined"
             $disabled={!isValid || !dirty}
@@ -118,12 +115,11 @@ export const VersionEditor = ({ report, version, onBack }) => {
           {createdAt !== updatedAt &&
             `, last updated: ${formatShort(updatedAt)} ${formatTime(updatedAt)}`}
         </BodyText>
-        <BodyText>Id: {id}</BodyText>
         {value && (
           <JsonEditor
             schema={schema}
             schemaRefs={schemaRefs}
-            ajv={new Ajv({ allErrors: true })}
+            ajv={ajv}
             value={value}
             onChange={handleChange}
             allowSchemaSuggestions
