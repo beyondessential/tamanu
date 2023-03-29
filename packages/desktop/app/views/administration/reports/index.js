@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { ReportsEditView } from './edit';
+import { ReportsExportView } from './export';
 import { ReportsImportView } from './import';
 
 const OuterContainer = styled.div`
@@ -53,19 +54,21 @@ export const ReportsAdminView = () => {
       label: 'Export',
       key: REPORT_TABS.EXPORT,
       icon: 'fa fa-file-export',
-      render: () => <TabContainer></TabContainer>,
+      render: () => <TabContainer>
+        <ReportsExportView />
+      </TabContainer>,
     },
   ]);
 
   return (
     <OuterContainer>
       <TopBar title="Reports" />
-        <StyledTabDisplay
-          tabs={tabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
-          scrollable={false}
-        />
+      <StyledTabDisplay
+        tabs={tabs}
+        currentTab={currentTab}
+        onTabSelect={setCurrentTab}
+        scrollable={false}
+      />
     </OuterContainer>
   );
 };
