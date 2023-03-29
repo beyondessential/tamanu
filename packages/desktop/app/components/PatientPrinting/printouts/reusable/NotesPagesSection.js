@@ -1,10 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NotesSection } from './SimplePrintout';
+import { BodyText } from '../../../Typography';
 
 export const StyledNotesSectionWrapper = styled.div`
   margin-top: 30px;
   margin-bottom: 40px;
+  padding-bottom: 10px;
 `;
 
 const StyledId = styled.b`
@@ -23,10 +25,10 @@ export const NotesPagesSection = ({ idsAndNotePages }) => {
       }
       return {
         content: (
-          <p key={id}>
-            <StyledId>{idsAndNotePages.length > 1 ? id : ''}</StyledId>
+          <BodyText key={id} mb={2}>
+            {idsAndNotePages.length > 1 && <StyledId>id</StyledId>}
             {content}
-          </p>
+          </BodyText>
         ),
       };
     })

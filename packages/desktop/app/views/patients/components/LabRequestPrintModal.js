@@ -16,11 +16,9 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const api = useApi();
   const certificateData = useCertificate();
 
-  const { data: encounterData, isLoading: encounterLoading } = useQuery(
-    ['encounter', labRequest.encounterId],
-    () => api.get(`encounter/${labRequest.encounterId}`),
+  const { data: encounterData, isLoading: encounterLoading } = useEncounterData(
+    labRequest.encounterId,
   );
-  const { data: encounter, isLoading: encounterLoading } = useEncounterData(labRequest.encounterId);
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalData(
     patient.id,
   );
@@ -31,10 +29,6 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     () => api.get(`labRequest/${labRequest.id}/tests`),
   );
 
-  const { data: notesData, isLoading: notesLoading } = useQuery(
-    ['labRequest', labRequest.id, 'notes'],
-    () => api.get(`labRequest/${labRequest.id}/notes`),
-  );
   const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
     ['referenceData', patient.villageId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
@@ -47,19 +41,20 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
 
   return (
     <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-      {encounterLoading || additionalDataLoading || villageLoading || notesLoading ? (
+      {encounterLoading ||
+      additionalDataLoading ||
+      villageLoading ||
+      notesLoading ||
+      testsLoading ? (
         <LoadingIndicator />
       ) : (
         <LabRequestPrintout
-          labRequestData={{ ...labRequest, tests: testsData.data, notes: notesData.data }}
-          patientData={patient}
-          encounterData={encounterData}
-          certificateData={certificateData}
           patient={patient}
-          additionalData={additionalData}
+          labRequests={[{ ...labRequest, tests: testsData.data, notePages }]}
+          encounter={encounterData}
           village={village}
-          encounter={encounter}
-          labRequests={[{ ...labRequest, notePages }]}
+          additionalData={additionalData}
+          certificateData={certificateData}
         />
       )}
     </Modal>
