@@ -63,14 +63,15 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
       />
       <ContentPane>
         <TableButtonRow variant="small">
-          <CovidCertificateButton
-            onClick={() => setIsCovidCertificateModalOpen(true)}
-            variant="text"
-            disabled={!certifiable}
-          >
-            <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
-            COVID-19 certificate
-          </CovidCertificateButton>
+          {certifiable && (
+            <CovidCertificateButton
+              onClick={() => setIsCovidCertificateModalOpen(true)}
+              variant="text"
+            >
+              <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
+              COVID-19 certificate
+            </CovidCertificateButton>
+          )}
           <Button
             onClick={() => setIsCertificateModalOpen(true)}
             variant="outlined"
