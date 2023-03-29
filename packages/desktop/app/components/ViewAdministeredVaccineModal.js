@@ -83,9 +83,9 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     vaccineBrand: { label: 'Vaccine brand', value: vaccineBrand || '-' },
     disease: { label: 'Disease', value: disease || '-' },
     status: { label: 'Status', value: VACCINE_STATUS_LABELS[status] || '-' },
-    // circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
     country: { label: 'Country', value: givenBy || '-' },
     reason: { label: 'Reason', value: notGivenReason?.name || '-' },
+    // circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
   };
 
   const modalVersions = [
