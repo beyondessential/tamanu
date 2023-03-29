@@ -48,7 +48,7 @@ export async function up(query) {
     },
   });
 
-  await query.dropColumn('imaging_area_external_codes', 'pulled_at');
+  await query.removeColumn('imaging_area_external_codes', 'pulled_at');
 }
 
 export async function down(query) {
