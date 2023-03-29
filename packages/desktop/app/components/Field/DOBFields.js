@@ -33,14 +33,14 @@ export const DOBFields = ({ showExactBirth = true }) => (
       name="dateOfBirthFrom"
       component={DateField}
       saveDateAsString
-      label="DOB from"
+      label="DOB From"
       max={getCurrentDateString()}
     />
     <Field
       name="dateOfBirthTo"
       component={DateField}
       saveDateAsString
-      label="DOB to"
+      label="DOB To"
       max={getCurrentDateString()}
     />
   </>
