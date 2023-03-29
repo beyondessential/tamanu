@@ -22,37 +22,6 @@ export const FHIR_INTERACTIONS = {
   },
 };
 
-// The resource:upstreams relationship. Used to set up hooks.
-export const FHIR_UPSTREAMS = {
-  Patient: ['Patient', 'PatientAdditionalData'],
-  ServiceRequest: [
-    'Encounter',
-    'Facility',
-    'ImagingAreaExternalCode',
-    'ImagingRequestArea',
-    'Location',
-    'Patient',
-    'ReferenceData',
-    'User',
-  ],
-  DiagnosticReport: [
-    'LabTest',
-    'LabRequest',
-    'LabTestType',
-    'ReferenceData',
-    'Encounter',
-    'Patient',
-  ],
-  Immunization: [
-    'AdministeredVaccine',
-    'ScheduledVaccine',
-    'Encounter',
-    'Patient',
-    'ReferenceData',
-    'User',
-  ],
-};
-
 // All possible search parameter types
 export const FHIR_SEARCH_PARAMETERS = {
   NUMBER: 'number',

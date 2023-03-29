@@ -1,3 +1,4 @@
+import { trace } from '@opentelemetry/api';
 import ms from 'ms';
 import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
 
@@ -109,7 +110,11 @@ export class FhirJob extends Model {
 
         // retry, with a bit of jitter to avoid thundering herd
         const delay = Math.floor(Math.random() * 500);
+
+        // eslint-disable-next-line no-unused-expressions
+        trace.getActiveSpan()?.addEvent('grab retry', { delay, attempt: i + 1 });
         log.warn(`Failed to grab job, retrying in ${ms(delay)} (${i + 1}/${GRAB_RETRY})`);
+
         await sleepAsync(delay);
         continue;
       }
