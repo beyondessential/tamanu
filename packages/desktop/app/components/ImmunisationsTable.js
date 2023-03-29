@@ -13,12 +13,12 @@ const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
       <StatusTag $background="rgba(68,68,68,0.1)" $color={Colors.darkestText}>
-        Not Given
+        Not given
       </StatusTag>
     );
   }
   if (record.givenElsewhere) {
-    return 'Given Overseas';
+    return 'Given elsewhere';
   }
   return record.givenBy ? record.givenBy : 'Unknown';
 };
