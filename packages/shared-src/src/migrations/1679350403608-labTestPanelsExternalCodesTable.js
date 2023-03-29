@@ -23,10 +23,6 @@ export async function up(query) {
       allowNull: true,
     },
 
-    pulled_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     visibility_status: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -51,8 +47,14 @@ export async function up(query) {
       allowNull: true,
     },
   });
+
+  await query.dropColumn('imaging_area_external_codes', 'pulled_at');
 }
 
 export async function down(query) {
   await query.dropTable('lab_test_panel_external_codes');
+  await query.addColumn('imaging_area_external_codes', 'pulled_at', {
+    type: DataTypes.DATE,
+    allowNull: true,
+  });
 }
