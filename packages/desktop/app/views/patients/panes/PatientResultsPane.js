@@ -10,6 +10,13 @@ export const PatientResultsPane = React.memo(({ patient }) => {
   const [modalLabTestId, setModalLabTestId] = useState();
   const [modalOpen, setModalOpen] = useState(false);
 
+  const openModal = id => {
+    if (id) {
+      setModalLabTestId(id);
+      setModalOpen(true);
+    }
+  };
+
   return (
     <>
       <ResultsSearchBar setSearchParameters={setSearchParameters} patientId={patient?.id} />
@@ -17,10 +24,7 @@ export const PatientResultsPane = React.memo(({ patient }) => {
         <PatientLabTestsTable
           patient={patient}
           searchParameters={searchParameters}
-          openResultsModal={id => {
-            setModalLabTestId(id);
-            setModalOpen(true);
-          }}
+          openResultsModal={openModal}
         />
       </ContentPane>
       <LabTestResultModal
