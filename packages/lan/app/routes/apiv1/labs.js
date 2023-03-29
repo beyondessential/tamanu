@@ -45,7 +45,7 @@ labRequest.put(
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body } = req;
+    const { models, body, user } = req;
     const { note } = body;
     req.checkPermission('create', 'LabRequest');
 
@@ -92,7 +92,7 @@ labRequest.post(
           const notePage = await newLabRequest.createNotePage({
             noteType: NOTE_TYPES.OTHER,
           });
-          await notePage.createNoteItem({ content: note });
+          await notePage.createNoteItem({ content: note, authorId: user.id });
         }
         return newLabRequest;
       }),
