@@ -128,6 +128,10 @@ export class Patient extends Model {
           model: models.User,
           as: 'recorder',
         },
+        {
+          model: models.ReferenceData,
+          as: 'notGivenReason',
+        },
       );
     }
 

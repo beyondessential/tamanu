@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { VACCINE_STATUS } from 'shared/constants';
+import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from 'shared/constants';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
@@ -58,12 +58,10 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     vaccineBrand,
     disease,
     givenElsewhere,
+    notGivenReason,
   } = vaccineRecord;
 
-  // this will become some actual logic to determine which version of the modal to show however the fields this depends on
-  // are not yet available
-  const routine = !vaccineBrand;
-  const overseas = givenElsewhere;
+  const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
   const fieldObjects = {
@@ -81,16 +79,16 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     vaccineName: { label: 'Vaccine name', value: vaccineName || '-' },
     vaccineBrand: { label: 'Vaccine brand', value: vaccineBrand || '-' },
     disease: { label: 'Disease', value: disease || '-' },
-    status: { label: 'Status', value: status || '-' },
-    circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
+    status: { label: 'Status', value: VACCINE_STATUS_LABELS[status] || '-' },
+    // circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
     country: { label: 'Country', value: givenBy || '-' },
-    reason: { label: 'Reason', value: 'TODOTODOTODO' },
+    reason: { label: 'Reason', value: notGivenReason?.name || '-' },
   };
 
   const modalVersions = [
     {
       name: 'routine',
-      condition: routine && !notGiven && !overseas,
+      condition: routine && !notGiven && !givenElsewhere,
       fields: [
         [
           fieldObjects.vaccine,
@@ -106,9 +104,9 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     },
     {
       name: 'routineOverseas',
-      condition: routine && !notGiven && overseas,
+      condition: routine && !notGiven && givenElsewhere,
       fields: [
-        [fieldObjects.circumstance, fieldObjects.status],
+        [fieldObjects.status],
         [fieldObjects.vaccine, fieldObjects.batch, fieldObjects.date, fieldObjects.injectionSite],
         [fieldObjects.country],
         [fieldObjects.facility, fieldObjects.recordedBy],
@@ -116,7 +114,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     },
     {
       name: 'other',
-      condition: !routine && !notGiven && !overseas,
+      condition: !routine && !notGiven && !givenElsewhere,
       fields: [
         [
           fieldObjects.vaccineName,
@@ -133,9 +131,9 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     },
     {
       name: 'otherOverseas',
-      condition: !routine && !notGiven && overseas,
+      condition: !routine && !notGiven && givenElsewhere,
       fields: [
-        [fieldObjects.circumstance, fieldObjects.status],
+        [fieldObjects.status],
         [
           fieldObjects.vaccineName,
           fieldObjects.batch,
