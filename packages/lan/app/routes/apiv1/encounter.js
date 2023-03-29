@@ -186,6 +186,7 @@ encounterRelations.get(
         return {
           ...ir.forResponse(),
           ...(includeNotePages ? await ir.extractNotes() : undefined),
+          areas: ir.areas.map(a => a.forResponse()),
         };
       }),
     );

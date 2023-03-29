@@ -8,13 +8,13 @@ import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
-import { AddIllnessScreen } from '../screens/sickOrInjured/AddIllnessDetails';
-import { PrescribeMedicationScreen } from '../screens/sickOrInjured/PrescribeMedication';
+import { AddIllnessScreen } from '../screens/diagnosisAndTreatment/AddIllnessDetails';
+import { PrescribeMedicationScreen } from '../screens/diagnosisAndTreatment/PrescribeMedication';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
-type SickOrInjuredTabsProps = {
+type DiagnosisAndTreatmentTabsProps = {
   navigation: NavigationProp<any>;
   selectedPatient: IPatient;
 };
@@ -22,7 +22,7 @@ type SickOrInjuredTabsProps = {
 const TabNavigator = ({
   navigation,
   selectedPatient,
-}: SickOrInjuredTabsProps): ReactElement => {
+}: DiagnosisAndTreatmentTabsProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
@@ -30,7 +30,7 @@ const TabNavigator = ({
     <ErrorBoundary>
       <FullView>
         <StackHeader
-          title="Sick or Injured"
+          title="Diagnosis & Treatment"
           subtitle={joinNames(selectedPatient)}
           onGoBack={goBack}
         />
@@ -39,14 +39,14 @@ const TabNavigator = ({
             options={{
               title: 'ADD DETAILS',
             }}
-            name={Routes.HomeStack.SickOrInjuredTabs.AddIllnessScreen}
+            name={Routes.HomeStack.DiagnosisAndTreatmentTabs.AddIllnessScreen}
             component={AddIllnessScreen}
           />
           <Tabs.Screen
             options={{
               title: 'PRESCRIBE MEDICATION',
             }}
-            name={Routes.HomeStack.SickOrInjuredTabs.PrescribeMedication}
+            name={Routes.HomeStack.DiagnosisAndTreatmentTabs.PrescribeMedication}
             component={PrescribeMedicationScreen}
           />
         </Tabs.Navigator>
@@ -55,4 +55,4 @@ const TabNavigator = ({
   );
 };
 
-export const SickOrInjuredTabs = compose(withPatient)(TabNavigator);
+export const DiagnosisAndTreatmentTabs = compose(withPatient)(TabNavigator);
