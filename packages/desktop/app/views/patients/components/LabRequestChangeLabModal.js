@@ -4,12 +4,12 @@ import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../c
 
 export const LabRequestChangeLabModal = React.memo(
   ({ laboratory, updateLabReq, open, onClose }) => {
-    const [lab, setLab] = useState(laboratory);
+    const [labId, setLabId] = useState(laboratory?.id);
     const laboratorySuggester = useSuggester('labTestLaboratory');
 
     const updateLab = async () => {
       await updateLabReq({
-        labTestLaboratoryId: lab,
+        labTestLaboratoryId: labId,
       });
       onClose();
     };
@@ -21,9 +21,9 @@ export const LabRequestChangeLabModal = React.memo(
             label="Laboratory"
             name="labTestLaboratoryId"
             suggester={laboratorySuggester}
-            value={lab}
+            value={labId}
             onChange={({ target: { value } }) => {
-              setLab(value);
+              setLabId(value);
             }}
           />
           <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={onClose} />
