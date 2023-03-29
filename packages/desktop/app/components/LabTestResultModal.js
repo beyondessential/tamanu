@@ -2,18 +2,21 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useLabTest } from '../api/queries/useLabTest';
+import { formatShort } from './DateDisplay';
 
 import { Modal } from './Modal';
 import { Colors } from '../constants';
+import { ModalActionRow } from './ModalActionRow';
 
 const ModalBody = styled.div`
   display: grid;
-  grid-template-columns: 1fr 10px 1fr;
+  grid-template-columns: 1fr 1px 1fr;
   grid-column-gap: 30px;
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 20px 30px 0px;
+  margin: 20px 0px 40px;
 `;
 
 const VerticalDivider = styled.div`
@@ -58,10 +61,11 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
         </div>
         <VerticalDivider />
         <div>
-          <ValueDisplay title="Completed" value={labTest?.completedDate} />
+          <ValueDisplay title="Completed" value={formatShort(labTest?.completedDate)} />
           <ValueDisplay title="Test Method" value={labTest?.labTestMethod?.name} />
         </div>
       </ModalBody>
+      <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>
   );
 });
