@@ -293,6 +293,26 @@ export const labTest = express.Router();
 
 labTest.put('/:id', simplePut('LabTest'));
 
+labTest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const labTestId = params.id;
+
+    req.checkPermission('read', 'LabTest');
+
+    const response = await models.LabTest.findByPk(labTestId, {
+      include: [
+        { model: models.LabRequest, as: 'labRequest' },
+        { model: models.LabTestType, as: 'labTestType' },
+        { model: models.ReferenceData, as: 'labTestMethod' },
+      ],
+    });
+
+    res.send(response);
+  }),
+);
+
 export const labTestType = express.Router();
 labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
 labTestType.get(

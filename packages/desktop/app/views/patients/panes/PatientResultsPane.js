@@ -8,6 +8,7 @@ import { LabTestResultModal } from '../../../components/LabTestResultModal';
 export const PatientResultsPane = React.memo(({ patient }) => {
   const [searchParameters, setSearchParameters] = useState({});
   const [modalLabTestId, setModalLabTestId] = useState();
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <>
@@ -16,12 +17,15 @@ export const PatientResultsPane = React.memo(({ patient }) => {
         <PatientLabTestsTable
           patient={patient}
           searchParameters={searchParameters}
-          openResultsModal={id => setModalLabTestId(id)}
+          openResultsModal={id => {
+            setModalLabTestId(id);
+            setModalOpen(true);
+          }}
         />
       </ContentPane>
       <LabTestResultModal
-        open={modalLabTestId}
-        onClose={() => setModalLabTestId(null)}
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
         labTestId={modalLabTestId}
       />
     </>
