@@ -8,7 +8,14 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "pool": {
+      "max": 10
+      // "min": 5,
+      // "idle": 10000,
+      // "acquire": 60000,
+      // "evict": 1000
+    }
   },
   "updateUrls": {
     "mobile": ""
@@ -20,7 +27,8 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
+    "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
+                        // in contrast, logs are always sent
     "enabled": true
   },
   "sync": {

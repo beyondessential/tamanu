@@ -1,6 +1,5 @@
 import { object, mixed } from 'yup';
 import { enumerate, parse } from './parse';
-import { formatFhirDate } from '../fhir';
 
 export class Composite {
   static SCHEMA() {
@@ -8,10 +7,6 @@ export class Composite {
   }
 
   static FIELD_ORDER = [];
-
-  static get fhirName() {
-    return this.name.replace(/^Fhir/, '');
-  }
 
   constructor(params) {
     const withoutNulls = Object.fromEntries(
@@ -29,10 +24,6 @@ export class Composite {
 
   sqlFields() {
     return this.constructor.FIELD_ORDER.map(name => this[name]);
-  }
-
-  asFhir() {
-    return objectAsFhir(this);
   }
 
   /**
@@ -74,37 +65,10 @@ export class Composite {
         if (typeof value === 'object' && !(value instanceof this)) return new this(value);
         return value;
       })
-      .test('is-fhir-type', `must be a ${this.name}`, t => (t ? t instanceof this : true));
+      .test('is-composite-type', `must be a ${this.name}`, t => (t ? t instanceof this : true));
   }
 
   static fake() {
     throw new Error('Must be overridden');
   }
-}
-
-export function objectAsFhir(input) {
-  const obj = {};
-  for (const [name, value] of Object.entries(input)) {
-    const val = valueAsFhir(value);
-    if (val === null || val === undefined) continue;
-    obj[name] = val;
-  }
-  return obj;
-}
-
-export function valueAsFhir(value) {
-  if (Array.isArray(value)) {
-    return value.map(val => valueAsFhir(val));
-  }
-
-  if (value instanceof Composite) {
-    return value.asFhir();
-  }
-
-  if (value instanceof Date) {
-    // to override precision, transform to string before this point!
-    return formatFhirDate(value);
-  }
-
-  return value;
 }

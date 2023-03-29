@@ -19,13 +19,13 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'All patients',
-        color: '#7EB3E7',
+        color: Colors.blue,
         path: '/patients/all',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
-        color: Colors.safe,
+        color: Colors.green,
         path: '/patients/inpatient',
         ability: { action: 'read' },
       },
@@ -79,21 +79,6 @@ export const FACILITY_MENU_ITEMS = [
         path: '/medication-requests/all',
         ability: { action: 'read' },
       },
-      {
-        label: 'Completed',
-        path: '/medication-requests/completed',
-        ability: { action: 'read' },
-      },
-      {
-        label: 'New request',
-        path: '/medication-requests/new',
-        ability: { action: 'create' },
-      },
-      {
-        label: 'Dispense',
-        path: '/medication-requests/dispense',
-        ability: { action: 'create' },
-      },
     ],
   },
   {
@@ -118,7 +103,7 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'lab' },
     children: [
       {
-        label: 'Requests',
+        label: 'Active requests',
         path: '/lab-requests/all',
         ability: { action: 'read' },
       },
