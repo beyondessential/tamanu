@@ -7,5 +7,6 @@ export const PermissionsAdminView = () => (
     title="Permissions"
     endpoint="refData"
     dataTypes={PERMISSION_IMPORTABLE_DATA_TYPES}
+    disableExport
   />
 );
