@@ -25,7 +25,8 @@ const Container = styled.div`
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
-  overflow: ${props => (props.$retracted ? 'hidden' : 'auto')};
+  overflow-y: auto;
+  overflow-x: hidden;
   height: 100vh;
   transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
 
@@ -46,6 +47,10 @@ const HeaderContainer = styled.div`
 const RetractExtendButton = styled(IconButton)`
   padding: 8px;
   background-color: ${Colors.primaryDark};
+
+  &.MuiIconButton-root:hover {
+    background-color: #4e5f71;
+  }
 `;
 
 const RetractButton = styled(RetractExtendButton)``;
@@ -54,11 +59,6 @@ const ExtendButton = styled(RetractExtendButton)`
   position: fixed;
   z-index: 12;
   transform: translate(100%);
-  &.MuiIconButton-root {
-    &:hover {
-      background-color: ${`${Colors.primaryDark}99`};
-    }
-  }
 `;
 
 const ExtendedLogo = styled(TamanuLogoWhite)``;

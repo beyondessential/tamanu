@@ -19,16 +19,6 @@ const yearsAgo = (years, days = 0) =>
 // add a bunch of patients at the top rather than per-search, so that the
 // tests have a healthy population of negative examples as well
 const searchTestPatients = [
-  { displayId: 'id-test-1', firstName: 'Mike', lastName: 'Jordan' },
-  { displayId: 'id-test-1A', firstName: 'Mike', lastName: 'Jo' },
-  { displayId: 'id-test-1CD', firstName: 'Mik', lastName: 'JJ' },
-  { displayId: 'id-test-1CA', firstName: 'Mick', lastName: 'Jake' },
-  { displayId: 'id-test-1C', firstName: 'Mi', lastName: 'Jord' },
-  { displayId: 'id-test-1CB', firstName: 'Amike', lastName: 'other-last-name' },
-  { displayId: 'id-test-1G', firstName: 'Michael', lastName: 'Jordan' },
-  { displayId: 'id-test-1H', firstName: 'ignored-name', lastName: 'Jorda' },
-  { displayId: 'id-test-2A', firstName: 'Micael', lastName: 'Jak' },
-  { displayId: 'id-test-1B', firstName: 'BMike', lastName: 'Jajob' },
   { displayId: 'search-by-display-id' },
   { displayId: 'search-by-secondary-id', secondaryIds: ['patient-secondary-id'] },
   {
@@ -115,6 +105,40 @@ describe('Patient search', () => {
   let models = null;
   let ctx;
 
+  const createTestPatient = async ({ encounters: encountersData, secondaryIds, ...data }, i) => {
+    const patientData = await createDummyPatient(models, {
+      villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
+      ...data,
+    });
+    const patient = await models.Patient.create(patientData);
+    if (encountersData) {
+      for (const encounterData of encountersData) {
+        await models.Encounter.create(
+          await createDummyEncounter(models, {
+            ...encounterData,
+            patientId: patient.id,
+            departmentId:
+              departments[encounterData.departmentIndex || i % departments.length].id,
+            locationId: locations[encounterData.locationIndex || i % locations.length].id,
+          }),
+        );
+      }
+    }
+    if (secondaryIds) {
+      await Promise.all(
+        secondaryIds.map(async secondaryId => {
+          const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
+          await models.PatientSecondaryId.create({
+            value: secondaryId,
+            visibilityStatus: 'historical',
+            typeId: secondaryIdType,
+            patientId: patient.id,
+          });
+        }),
+      );
+    }
+  };
+
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
@@ -127,41 +151,7 @@ describe('Patient search', () => {
     locationGroups = await models.LocationGroup.findAll();
     departments = await models.Department.findAll();
 
-    await Promise.all(
-      searchTestPatients.map(async ({ encounters: encountersData, secondaryIds, ...data }, i) => {
-        const patientData = await createDummyPatient(models, {
-          ...data,
-          villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
-        });
-        const patient = await models.Patient.create(patientData);
-        if (encountersData) {
-          for (const encounterData of encountersData) {
-            await models.Encounter.create(
-              await createDummyEncounter(models, {
-                ...encounterData,
-                patientId: patient.id,
-                departmentId:
-                  departments[encounterData.departmentIndex || i % departments.length].id,
-                locationId: locations[encounterData.locationIndex || i % locations.length].id,
-              }),
-            );
-          }
-        }
-        if (secondaryIds) {
-          await Promise.all(
-            secondaryIds.map(async secondaryId => {
-              const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
-              await models.PatientSecondaryId.create({
-                value: secondaryId,
-                visibilityStatus: 'historical',
-                typeId: secondaryIdType,
-                patientId: patient.id,
-              });
-            }),
-          );
-        }
-      }),
-    );
+    await Promise.all(searchTestPatients.map(createTestPatient));
   });
   afterAll(() => ctx.close());
 
@@ -588,10 +578,65 @@ describe('Patient search', () => {
     });
   });
 
+  describe('Pagination', () => {
+    it('should retrieve first page of patients', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'pagination',
+        orderBy: 'lastName',
+        rowsPerPage: 3,
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(3);
+      expect(count).toEqual(9);
+
+      expect(data[0].lastName).toEqual('A');
+    });
+
+    it('should retrieve second page of patients', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'pagination',
+        orderBy: 'lastName',
+        rowsPerPage: 3,
+        page: 1,
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(3);
+      expect(count).toEqual(9);
+
+      expect(data[0].lastName).toEqual('D');
+    });
+  });
+
   describe('Filtering sort', () => {
+
+    const filterSortPatients = [
+      { displayId: 'sort-test-1', firstName: 'Mike', lastName: 'Jordan' },
+      { displayId: 'sort-test-1A', firstName: 'Mike', lastName: 'Jo' },
+      { displayId: 'sort-test-1CD', firstName: 'Mik', lastName: 'JJ' },
+      { displayId: 'sort-test-1CA', firstName: 'Mick', lastName: 'Jake' },
+      { displayId: 'sort-test-1C', firstName: 'Mi', lastName: 'Jord' },
+      { displayId: 'sort-test-1CB', firstName: 'Amike', lastName: 'other-last-name' },
+      { displayId: 'sort-test-1G', firstName: 'Michael', lastName: 'Jordan' },
+      { displayId: 'sort-test-1H', firstName: 'ignored-name', lastName: 'Jorda' },
+      { displayId: 'sort-test-2A', firstName: 'Micael', lastName: 'Jak' },
+      { displayId: 'sort-test-1B', firstName: 'BMike', lastName: 'Jajob' },
+    ];
+
+    beforeAll(async () => {
+      // use a separate list of patients here
+      await models.Patient.truncate({ cascade: true });
+      await Promise.all(filterSortPatients.map(createTestPatient));
+    });
+
     it('Display Id - Exact match on top and rest are sorted alphabetically', async () => {
       const response = await app.get('/v1/patient').query({
-        displayId: 'id-test-1C',
+        displayId: 'sort-test-1C',
       });
 
       expect(response).toHaveSucceeded();
@@ -601,10 +646,10 @@ describe('Patient search', () => {
       expect(count).toEqual(4);
 
       expect(data.map(d => d.displayId)).toEqual([
-        'id-test-1C',
-        'id-test-1CA',
-        'id-test-1CB',
-        'id-test-1CD',
+        'sort-test-1C',
+        'sort-test-1CA',
+        'sort-test-1CB',
+        'sort-test-1CD',
       ]);
     });
 
@@ -657,7 +702,7 @@ describe('Patient search', () => {
     // It should prioritize 1)displayId 2)lastName 3)firstName.
     it('Should prioritize 1-displayId, 2-lastName, 3-firstName', async () => {
       const response = await app.get('/v1/patient').query({
-        displayId: 'id-test-1',
+        displayId: 'sort-test-1',
         firstName: 'Mi',
         lastName: 'Jo',
       });
@@ -668,11 +713,11 @@ describe('Patient search', () => {
       expect(data.length).toEqual(5);
 
       expect(data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
-        'id-test-1 - Mike - Jordan',
-        'id-test-1A - Mike - Jo',
-        'id-test-1C - Mi - Jord',
-        'id-test-1G - Michael - Jordan',
-        'id-test-1B - BMike - Jajob',
+        'sort-test-1 - Mike - Jordan',
+        'sort-test-1A - Mike - Jo',
+        'sort-test-1C - Mi - Jord',
+        'sort-test-1G - Michael - Jordan',
+        'sort-test-1B - BMike - Jajob',
       ]);
     });
 
@@ -685,50 +730,17 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       const { data } = response.body;
-      expect(data.length).toEqual(5);
+      expect(data.every(d => d.firstName.startsWith('Mi')));
+      expect(data.every(d => d.lastName.startsWith('Jo')));
 
-      expect(data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
-        'id-test-1A - Mike - Jo',
-        'id-test-1C - Mi - Jord',
-        'id-test-1G - Michael - Jordan',
-        'id-test-1 - Mike - Jordan',
-        'id-test-1B - BMike - Jajob',
+      const concatenated = data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`);
+      expect(concatenated).toEqual([
+        'sort-test-1A - Mike - Jo',
+        'sort-test-1C - Mi - Jord',
+        'sort-test-1G - Michael - Jordan',
+        'sort-test-1 - Mike - Jordan',
+        'sort-test-1B - BMike - Jajob',
       ]);
-    });
-  });
-
-  describe('Pagination', () => {
-    it('should retrieve first page of patients', async () => {
-      const response = await app.get('/v1/patient').query({
-        firstName: 'pagination',
-        orderBy: 'lastName',
-        rowsPerPage: 3,
-      });
-
-      expect(response).toHaveSucceeded();
-
-      const { data, count } = response.body;
-      expect(data.length).toEqual(3);
-      expect(count).toEqual(9);
-
-      expect(data[0].lastName).toEqual('A');
-    });
-
-    it('should retrieve second page of patients', async () => {
-      const response = await app.get('/v1/patient').query({
-        firstName: 'pagination',
-        orderBy: 'lastName',
-        rowsPerPage: 3,
-        page: 1,
-      });
-
-      expect(response).toHaveSucceeded();
-
-      const { data, count } = response.body;
-      expect(data.length).toEqual(3);
-      expect(count).toEqual(9);
-
-      expect(data[0].lastName).toEqual('D');
     });
   });
 });

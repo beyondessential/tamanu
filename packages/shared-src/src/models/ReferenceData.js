@@ -49,6 +49,10 @@ export class ReferenceData extends Model {
       as: 'area',
       foreignKey: 'areaId',
     });
+    this.hasOne(models.ImagingAreaExternalCode, {
+      as: 'imagingAreaExternalCode',
+      foreignKey: 'areaId',
+    });
   }
 
   static async create(values) {

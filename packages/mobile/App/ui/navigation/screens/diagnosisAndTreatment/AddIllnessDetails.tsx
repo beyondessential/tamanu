@@ -5,6 +5,7 @@ import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { Field } from '/components/Forms/FormField';
+import { Spacer } from '/components/Spacer';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
 import { TextField } from '/components/TextField/TextField';
@@ -24,12 +25,17 @@ import { Dropdown } from '~/ui/components/Dropdown';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
 
 const IllnessFormSchema = Yup.object().shape({
+  diagnosis: Yup.string(),
   certainty: Yup.mixed()
     .oneOf(Object.values(Certainty))
-    .required(),
-  diagnosis: Yup.string().required(),
+    .when('diagnosis', {
+      is: (diagnosis: string) => Boolean(diagnosis),
+      then: Yup.mixed().required(),
+    }),
+  clinicalNote: Yup.string(),
 });
 
 const styles = StyleSheet.create({
@@ -50,24 +56,38 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const user = useSelector(authUserSelector);
 
-  const onRecordIllness = useCallback(async ({ diagnosis, certainty }: any): Promise<any> => {
-    // TODO: persist fields other than diagnosis and certainty
-    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-      selectedPatient.id,
-      user.id,
-    );
+  const onRecordIllness = useCallback(
+    async ({ diagnosis, certainty, clinicalNote }: any): Promise<any> => {
+      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        user.id,
+      );
 
-    await models.Diagnosis.createAndSaveOne({
-      // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-      isPrimary: true,
-      encounter: encounter.id,
-      date: getCurrentDateTimeString(),
-      diagnosis,
-      certainty,
-    });
+      if (diagnosis) {
+        await models.Diagnosis.createAndSaveOne({
+          // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+          isPrimary: true,
+          encounter: encounter.id,
+          date: getCurrentDateTimeString(),
+          diagnosis,
+          certainty,
+        });
+      }
 
-    navigateToHistory();
-  }, []);
+      if (clinicalNote) {
+        await models.NotePage.createForRecord({
+          recordId: encounter.id,
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+          noteType: NOTE_TYPES.CLINICAL_MOBILE,
+          content: clinicalNote,
+          author: user.id,
+        });
+      }
+
+      navigateToHistory();
+    },
+    [],
+  );
 
   const icd10Suggester = new Suggester(models.ReferenceData, {
     where: {
@@ -78,7 +98,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik onSubmit={onRecordIllness} initialValues={{}} validationSchema={IllnessFormSchema}>
-        {({ handleSubmit }): ReactElement => (
+        {({ handleSubmit, values }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
             paddingRight={20}
@@ -96,28 +116,27 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 scrollToOverflowEnabled
                 overScrollMode="always"
               >
-                <StyledView>
-                  <SectionHeader h3>INFORMATION</SectionHeader>
-                </StyledView>
                 <StyledView justifyContent="space-between">
-                  <CurrentUserField name="examiner" label="Examiner" />
-                  <Field component={TextField} name="labRequest" label="Test Results" />
                   <Field
                     component={AutocompleteModalField}
-                    placeholder="Search diagnoses"
+                    placeholder="Diagnosis"
                     navigation={navigation}
                     suggester={icd10Suggester}
                     modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
+                  <Spacer height="24px" />
                   <Field
                     component={Dropdown}
                     options={CERTAINTY_OPTIONS}
                     name="certainty"
                     label="Certainty"
+                    disabled={!values?.diagnosis}
                   />
-                  <SectionHeader h3>Treatment notes</SectionHeader>
-                  <Field component={TextField} name="reasonForEncounter" multiline />
+                  <Spacer height="24px" />
+                  <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" />
+                  <Spacer height="24px" />
+                  <CurrentUserField name="examiner" label="Recorded By" />
                   <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     backgroundColor={theme.colors.PRIMARY_MAIN}

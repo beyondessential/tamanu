@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -13,7 +14,8 @@ const patientsLocationSelect = planned => `
   	WHERE end_date IS NULL
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
-  WHERE locations.max_occupancy = 1
+  WHERE locations.facility_id = '${config.serverFacilityId}'
+  AND locations.max_occupancy = 1
   GROUP BY locations.id
 `;
 

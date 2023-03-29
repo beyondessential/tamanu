@@ -1,10 +1,16 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
+import {
+  useEncounterData,
+  usePatientAdditionalData,
+  useLabRequestNotes,
+} from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
+
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { LabRequestPrintout } from '../../../components/PatientPrinting/printouts/LabRequestPrintout';
+import { MultipleLabRequestsPrintout as LabRequestPrintout } from '../../../components/PatientPrinting';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
@@ -14,6 +20,11 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     ['encounter', labRequest.encounterId],
     () => api.get(`encounter/${labRequest.encounterId}`),
   );
+  const { data: encounter, isLoading: encounterLoading } = useEncounterData(labRequest.encounterId);
+  const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalData(
+    patient.id,
+  );
+  const { data: notePages, isLoading: notesLoading } = useLabRequestNotes(labRequest.id);
 
   const { data: testsData, isLoading: testsLoading } = useQuery(
     ['labRequest', labRequest.id, 'tests'],
@@ -24,10 +35,19 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     ['labRequest', labRequest.id, 'notes'],
     () => api.get(`labRequest/${labRequest.id}/notes`),
   );
+  const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
+    ['referenceData', patient.villageId],
+    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    {
+      enabled: !!patient?.villageId,
+    },
+  );
+
+  const villageLoading = villageQueryLoading && !!patient?.villageId;
 
   return (
     <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-      {encounterLoading || testsLoading || notesLoading ? (
+      {encounterLoading || additionalDataLoading || villageLoading || notesLoading ? (
         <LoadingIndicator />
       ) : (
         <LabRequestPrintout
@@ -35,6 +55,11 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
           patientData={patient}
           encounterData={encounterData}
           certificateData={certificateData}
+          patient={patient}
+          additionalData={additionalData}
+          village={village}
+          encounter={encounter}
+          labRequests={[{ ...labRequest, notePages }]}
         />
       )}
     </Modal>
