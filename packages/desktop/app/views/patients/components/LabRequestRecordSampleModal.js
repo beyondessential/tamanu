@@ -19,13 +19,13 @@ const validationSchema = yup.object().shape({
 
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
-    const isEdit = labRequest.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
+    const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
 
     const updateSample = async formValues => {
       await updateLabReq({
         ...formValues,
         // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
-        ...(isEdit && {
+        ...(sampleNotCollected && {
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
           specimenCollected: true,
         }),
@@ -38,7 +38,7 @@ export const LabRequestRecordSampleModal = React.memo(
         <Modal
           open={open}
           onClose={onClose}
-          title={isEdit ? 'Edit sample date and time' : 'Record sample'}
+          title={sampleNotCollected ? 'Record sample' : 'Edit sample date and time'}
         >
           <Form
             onSubmit={updateSample}
