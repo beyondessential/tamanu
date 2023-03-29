@@ -27,7 +27,8 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
+    "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
+                        // in contrast, logs are always sent
     "enabled": true
   },
   "sync": {
@@ -173,10 +174,9 @@
       "enabled": false,
       "schedule": "*/30 * * * *"
     },
-    "fhirMaterialiser": {
-      "enabled": true, // only when integrations.fhir is on
-      "schedule": "*/1 * * * *",
-      "limit": 100
+    "fhirMissingResources": {
+      "enabled": true,
+      "schedule": "48 1 * * *" // once a day, time does not matter (better in off hours)
     },
     "plannedMoveTimeout": {
       "enabled": true,

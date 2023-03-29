@@ -26,6 +26,10 @@ const ControlLabel = styled(FormControlLabel)`
     line-height: 18px;
     color: ${props => props.theme.palette.text.secondary};
   }
+
+  .fa-square {
+    color: #dedede;
+  }
 `;
 
 const ControlCheck = styled(CheckControl)`

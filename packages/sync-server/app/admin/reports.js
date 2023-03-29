@@ -1,10 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-const stripMetadata = ({ id, versionNumber, query, createdAt, updatedAt, status, notes }) => ({
+const stripMetadata = ({ id, versionNumber, query, queryOptions, createdAt, updatedAt, status, notes }) => ({
   id,
   versionNumber,
   query,
+  queryOptions,
   createdAt,
   updatedAt,
   status,
@@ -69,7 +70,7 @@ export const updateReportVersion = asyncHandler(async (req, res) => {
   if (!existingVersion) {
     throw new Error(`No version found with id ${versionId}`);
   }
-  const version = await version.update(body);
+  const version = await existingVersion.update(body);
   res.send(stripMetadata(version));
 });
 
