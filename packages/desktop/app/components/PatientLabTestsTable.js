@@ -75,78 +75,80 @@ const CategoryCell = styled.div`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-  const { data, isLoading } = usePatientLabTestResults(patient.id, {
-    page,
-    rowsPerPage,
-    ...searchParameters,
-  });
+export const PatientLabTestsTable = React.memo(
+  ({ patient, searchParameters, openResultsModal }) => {
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
+    const { data, isLoading } = usePatientLabTestResults(patient.id, {
+      page,
+      rowsPerPage,
+      ...searchParameters,
+    });
 
-  const allDates = isLoading
-    ? []
-    : Object.keys(Object.assign({}, ...data?.data.map(x => x.results)));
-  const columns = [
-    {
-      key: 'testCategory.id',
-      title: 'Test category',
-      accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
-    },
-    {
-      key: 'testType',
-      title: 'Test type',
-      accessor: row => (
-        <CategoryCell>
-          {row.testType}
-          <br />
-          {row.unit ? `(${row.unit})` : null}
-        </CategoryCell>
-      ),
-    },
-    {
-      key: 'normalRange',
-      title: 'Normal range',
-      accessor: row => {
-        const range = row.normalRanges[patient?.sex];
-        const value = !range.min ? '-' : `${range.min}-${range.max}`;
-        return <CategoryCell>{value}</CategoryCell>;
+    const allDates = isLoading
+      ? []
+      : Object.keys(Object.assign({}, ...data?.data.map(x => x.results)));
+    const columns = [
+      {
+        key: 'testCategory.id',
+        title: 'Test category',
+        accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
       },
-    },
-    ...allDates
-      .sort((a, b) => b.localeCompare(a))
-      .map(date => ({
-        title: <DateHeadCell value={date} />,
-        sortable: false,
-        key: date,
+      {
+        key: 'testType',
+        title: 'Test type',
+        accessor: row => (
+          <CategoryCell>
+            {row.testType}
+            <br />
+            {row.unit ? `(${row.unit})` : null}
+          </CategoryCell>
+        ),
+      },
+      {
+        key: 'normalRange',
+        title: 'Normal range',
         accessor: row => {
-          const normalRange = row.normalRanges[patient?.sex];
-          return (
-            <RangeValidatedCell
-              value={row.results[date]?.result}
-              config={{ unit: row.unit }}
-              validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-              onClick={() => {}} // TODO: WAITM-666 Open modal for this test result: row.results[date].id = lab_tests.id
-            />
-          );
+          const range = row.normalRanges[patient?.sex];
+          const value = !range.min ? '-' : `${range.min}-${range.max}`;
+          return <CategoryCell>{value}</CategoryCell>;
         },
-      })),
-  ];
+      },
+      ...allDates
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: <DateHeadCell value={date} />,
+          sortable: false,
+          key: date,
+          accessor: row => {
+            const normalRange = row.normalRanges[patient?.sex];
+            return (
+              <RangeValidatedCell
+                value={row.results[date]?.result}
+                config={{ unit: row.unit }}
+                validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                onClick={() => openResultsModal(row.results[date]?.id)}
+              />
+            );
+          },
+        })),
+    ];
 
-  return (
-    <StyledTable
-      elevated={false}
-      columns={columns}
-      data={data?.data}
-      isLoading={isLoading}
-      noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
-      page={page}
-      rowsPerPage={rowsPerPage}
-      onChangeRowsPerPage={setRowsPerPage}
-      onChangePage={setPage}
-      count={data?.count}
-      allowExport
-      exportName="PatientResults"
-    />
-  );
-});
+    return (
+      <StyledTable
+        elevated={false}
+        columns={columns}
+        data={data?.data || []}
+        isLoading={isLoading}
+        noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onChangeRowsPerPage={setRowsPerPage}
+        onChangePage={setPage}
+        count={data?.count}
+        allowExport
+        exportName="PatientResults"
+      />
+    );
+  },
+);
