@@ -7,7 +7,6 @@ import { Button } from '../app/components/Button';
 import { ButtonRow, ConfirmCancelRow } from '../app/components/ButtonRow';
 import { BeginPatientMoveModal } from '../app/views/patients/components/BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from '../app/views/patients/components/FinalisePatientMoveModal';
-import { ViewAdministeredVaccineModal } from '../app/components/ViewAdministeredVaccineModal';
 
 storiesOf('Modal', module)
   .add('ConfirmCancel', () => (
