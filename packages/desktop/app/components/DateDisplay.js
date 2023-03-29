@@ -3,6 +3,20 @@ import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
 import { parseDate } from 'shared/utils/dateTime';
+import { Typography, Box } from '@material-ui/core';
+import styled from 'styled-components';
+
+import { Colors } from '../constants';
+
+const Text = styled(Typography)`
+  font-size: inherit;
+  line-height: inherit;
+  margin-top: -2px;
+`;
+
+const SoftText = styled(Text)`
+  color: ${Colors.softText};
+`;
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
@@ -138,6 +152,18 @@ export const DateDisplay = React.memo(
       <DateTooltip date={dateObj}>
         <span>{parts.join(' ')}</span>
       </DateTooltip>
+    );
+  },
+);
+
+export const MultilineDatetimeDisplay = React.memo(
+  ({ date, showExplicitDate, isTimeSoft = true }) => {
+    const TimeText = isTimeSoft ? SoftText : Text;
+    return (
+      <Box>
+        <DateDisplay date={date} showExplicitDate={showExplicitDate} />
+        <TimeText>{formatTime(date)}</TimeText>
+      </Box>
     );
   },
 );
