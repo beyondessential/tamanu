@@ -170,16 +170,7 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
           // reset the form
           setResetKey(Math.random());
         }
-        if (intermediateResult.sentData) {
-          // reset the form
-          setResetKey(Math.random());
-        }
 
-        setResult(intermediateResult);
-        return true;
-      } finally {
-        setIsLoading(false);
-      }
         setResult(intermediateResult);
         return true;
       } finally {
