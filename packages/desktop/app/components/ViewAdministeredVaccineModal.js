@@ -77,7 +77,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     department: { label: 'Department', value: department.name || '-' },
     facility: { label: 'Facility', value: location.facility.name || '-' },
     givenBy: { label: 'Given by', value: supervisingClinician || '-' },
-    supervisingClinician: { label: 'Given by', value: givenBy || '-' },
+    supervisingClinician: { label: 'Supervising clincian', value: givenBy || '-' },
     recordedBy: { label: 'Recorded by', value: recorder?.displayName || '-' },
     vaccineName: { label: 'Vaccine name', value: vaccineName || '-' },
     vaccineBrand: { label: 'Vaccine brand', value: vaccineBrand || '-' },
