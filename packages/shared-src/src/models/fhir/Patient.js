@@ -48,6 +48,7 @@ export class FhirPatient extends FhirResource {
     );
 
     this.UpstreamModel = models.Patient;
+    this.upstreams = [models.Patient, models.PatientAdditionalData];
   }
 
   static CAN_DO = new Set([
@@ -93,6 +94,31 @@ export class FhirPatient extends FhirResource {
     const mergedDown = await upstream.getMergedDown();
 
     return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
+  }
+
+  static async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
+    const { Patient, PatientAdditionalData } = this.sequelize.models;
+
+    switch (table) {
+      case Patient.tableName:
+        return { where: { id } };
+      case PatientAdditionalData.tableName:
+        if (deletedRow) {
+          return { where: { id: deletedRow.patient_id } };
+        }
+
+        return {
+          include: [
+            {
+              model: PatientAdditionalData,
+              as: 'additionalData',
+              where: { id },
+            },
+          ],
+        };
+      default:
+        return null;
+    }
   }
 
   asFhir() {
