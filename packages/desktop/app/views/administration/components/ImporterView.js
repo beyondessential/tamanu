@@ -151,7 +151,6 @@ const OutcomeDisplay = ({ result }) => {
 export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, setIsLoading }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   const api = useApi();
 
