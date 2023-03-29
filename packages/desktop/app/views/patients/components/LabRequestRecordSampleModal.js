@@ -1,5 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import {
   ConfirmCancelRow,
@@ -18,13 +19,13 @@ const validationSchema = yup.object().shape({
 
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
-    const isEdit = !!labRequest.sampleTime;
+    const isEdit = labRequest.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
 
     const updateSample = async formValues => {
       await updateLabReq({
         ...formValues,
         // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
-        ...(labRequest.status === LAB_REQUEST_STATUSES.NOT_COLLECTED && {
+        ...(isEdit && {
           status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
           specimenCollected: true,
         }),
@@ -44,7 +45,7 @@ export const LabRequestRecordSampleModal = React.memo(
             validationSchema={validationSchema}
             showInlineErrorsOnly
             initialValues={{
-              sampleTime: labRequest.sampleTime,
+              sampleTime: labRequest.sampleTime || getCurrentDateTimeString(),
               labSampleSiteId: labRequest.labSampleSiteId,
             }}
             render={({ submitForm }) => (
