@@ -156,7 +156,7 @@ export class SurveyResponse extends Model {
     const { departmentId, userId, locationId } = responseData;
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
-    const newEncounter = Encounter.create({
+    const newEncounter = await Encounter.create({
       patientId,
       encounterType: 'surveyResponse',
       reasonForEncounter,
