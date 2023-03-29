@@ -1,10 +1,9 @@
 import config from 'config';
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 
-import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
+import { latestDateTime } from '../../utils/dateTime';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -20,13 +19,13 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
 } from '../../constants';
-import { Exception } from '../../utils/fhir';
+import { Exception, formatFhirDate } from '../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: DataTypes.JSONB,
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -35,22 +34,34 @@ export class FhirServiceRequest extends FhirResource {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
+        category: DataTypes.JSONB,
         priority: DataTypes.TEXT,
-        code: DataTypes.FHIR_CODEABLE_CONCEPT,
-        orderDetail: arrayOf('orderDetail', DataTypes.FHIR_CODEABLE_CONCEPT),
+        code: DataTypes.JSONB,
+        orderDetail: DataTypes.JSONB,
         subject: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
-        occurrenceDateTime: DataTypes.DATE,
-        requester: DataTypes.FHIR_REFERENCE,
-        locationCode: arrayOf('locationCode', DataTypes.FHIR_CODEABLE_CONCEPT),
+        occurrenceDateTime: DataTypes.TEXT,
+        requester: DataTypes.JSONB,
+        locationCode: DataTypes.JSONB,
       },
       options,
     );
 
     this.UpstreamModel = models.ImagingRequest;
+    this.upstreams = [
+      models.ImagingRequest,
+      models.ImagingRequestArea,
+      models.ImagingAreaExternalCode,
+      models.Encounter,
+      models.Facility,
+      models.Location,
+      models.LocationGroup,
+      models.Patient,
+      models.ReferenceData,
+      models.User,
+    ];
   }
 
   static CAN_DO = new Set([
@@ -181,12 +192,178 @@ export class FhirServiceRequest extends FhirResource {
         reference: upstream.encounter.patient.id,
         display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
       }),
-      occurrenceDateTime: dateTimeStringIntoCountryTimezone(upstream.requestedDate),
+      occurrenceDateTime: formatFhirDate(upstream.requestedDate),
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
       }),
       locationCode: locationCode(upstream),
     });
+  }
+
+  static async queryToFindUpstreamIdsFromTable(table, id) {
+    const {
+      ImagingRequest,
+      ImagingRequestArea,
+      ImagingAreaExternalCode,
+      Encounter,
+      Facility,
+      Location,
+      LocationGroup,
+      Patient,
+      ReferenceData,
+      User,
+    } = this.sequelize.models;
+
+    switch (table) {
+      case ImagingRequest.tableName:
+        return { where: { id } };
+      case ImagingRequestArea.tableName:
+        return {
+          include: [
+            {
+              model: ImagingRequestArea,
+              as: 'areas',
+              where: { id },
+            },
+          ],
+        };
+      case Encounter.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              where: { id },
+            },
+          ],
+        };
+      case Facility.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              include: [
+                {
+                  model: Location,
+                  as: 'location',
+                  include: [
+                    {
+                      model: Facility,
+                      as: 'facility',
+                      where: { id },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+      case Location.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              include: [
+                {
+                  model: Location,
+                  as: 'location',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case LocationGroup.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              include: [
+                {
+                  model: LocationGroup,
+                  as: 'locationGroup',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case Patient.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              include: [
+                {
+                  model: Patient,
+                  as: 'patient',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case ReferenceData.tableName:
+        return {
+          include: [
+            {
+              model: ImagingRequestArea,
+              as: 'areas',
+              include: [
+                {
+                  model: ReferenceData,
+                  as: 'area',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case ImagingAreaExternalCode.tableName:
+        return {
+          include: [
+            {
+              model: ImagingRequestArea,
+              as: 'areas',
+              include: [
+                {
+                  model: ReferenceData,
+                  as: 'area',
+                  include: [
+                    {
+                      model: ImagingAreaExternalCode,
+                      as: 'imagingAreaExternalCode',
+                      where: { id },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+      case User.tableName:
+        return {
+          include: [
+            {
+              model: User,
+              as: 'requestedBy',
+            },
+            {
+              model: User,
+              as: 'completedBy',
+            },
+          ],
+          where: {
+            [Op.or]: [{ '$requestedBy.id$': id }, { '$completedBy.id$': id }],
+          },
+        };
+      default:
+        return null;
+    }
   }
 
   static searchParameters() {

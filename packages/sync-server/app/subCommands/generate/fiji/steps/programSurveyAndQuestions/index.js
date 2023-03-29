@@ -1,5 +1,5 @@
 // TODO (TAN-1529): import this from the spreadsheet once possible
-import * as data from './data.json';
+import data from './data.json';
 
 export default {
   run: async store => {

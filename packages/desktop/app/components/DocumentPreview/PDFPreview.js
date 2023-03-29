@@ -12,7 +12,7 @@ const PDFDocument = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  min-height: 400px;
+  height: 75vh;
 `;
 
 // Calculate which page we're scrolled to "Page X of Y"

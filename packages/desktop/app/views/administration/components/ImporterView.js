@@ -151,6 +151,7 @@ const OutcomeDisplay = ({ result }) => {
 export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, setIsLoading }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const api = useApi();
 
@@ -169,7 +170,16 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
           // reset the form
           setResetKey(Math.random());
         }
+        if (intermediateResult.sentData) {
+          // reset the form
+          setResetKey(Math.random());
+        }
 
+        setResult(intermediateResult);
+        return true;
+      } finally {
+        setIsLoading(false);
+      }
         setResult(intermediateResult);
         return true;
       } finally {
