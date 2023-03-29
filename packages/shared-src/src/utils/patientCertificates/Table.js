@@ -43,7 +43,7 @@ export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
   );
   return (
     <View style={tableStyles.table}>
-      <TR>
+      <TR fixed>
         {visibleColumns.map(({ title, key, customStyles }, i) => (
           <TH
             key={key}
