@@ -3,7 +3,7 @@ import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_DATA_SOURCE_VALUES,
 } from 'shared/constants';
-import { PARAMETER_FIELD_COMPONENTS } from '../../reports/ParameterField';
+import { PARAMETER_FIELD_COMPONENTS } from '../../../../views/reports/ParameterField';
 
 export const schema = {
   title: 'Report',

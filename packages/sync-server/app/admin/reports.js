@@ -1,5 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import { promises as fs } from 'fs';
+import { getQueryReplacementsFromParams } from 'shared/utils/getQueryReplacementsFromParams';
+
+export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
 
 const stripMetadata = ({ id, versionNumber, query, queryOptions, createdAt, updatedAt, status, notes }) => ({
   id,
@@ -11,6 +15,18 @@ const stripMetadata = ({ id, versionNumber, query, queryOptions, createdAt, upda
   status,
   notes,
 });
+
+export async function verifyQuery(query, paramDefinitions = [], store) {
+  try {
+    // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
+    await store.sequelize.query(`EXPLAIN ${query}`, {
+      type: QueryTypes.SELECT,
+      replacements: getQueryReplacementsFromParams(paramDefinitions),
+    });
+  } catch (err) {
+    throw new Error(`Invalid query: ${err.message}`);
+  }
+}
 
 export const getReports = asyncHandler(async (req, res) => {
   const { store } = req;
@@ -85,4 +101,68 @@ export const createReportVersion = asyncHandler(async (req, res) => {
     reportDefinitionId: reportId,
   });
   res.send(stripMetadata(version));
+});
+
+export const importReport = asyncHandler(async (req, res) => {
+   const {store, body} = req;
+   const {
+      models: {ReportDefinition, ReportDefinitionVersion},
+   } = store;
+   const report = {}
+   const {name, file} = body;
+   const data = await fs.readFile(file);
+   const versionData = JSON.parse(data);
+
+   await verifyQuery(
+    versionData.query,
+    versionData.queryOptions?.parameters,
+    store,
+  );
+  
+  const [definition, created] = await ReportDefinition.findOrCreate({
+    where: {
+      name,
+    }
+  });
+
+  report.definitionAction = created ? 'create' : 'update';
+
+  const versions = created ? [] : await ReportDefinitionVersion.findAll({
+    where: { reportDefinitionId: definition.id },
+  });
+
+  if (Number.isInteger(versionData.versionNumber)) {
+    const existingVersion = versions.find(v => v.versionNumber === versionData.versionNumber);
+    if (!existingVersion) {
+      throw new Error(`No version found with number ${versionData.versionNumber}`);
+    }
+    versionData.id = existingVersion.id;
+  } else {
+    const latestVersion = versions
+    .sort((a, b) => b.versionNumber - a.versionNumber)[0]
+    const versionNumber = (latestVersion?.versionNumber || 0) + 1;
+    versionData.versionNumber = versionNumber;
+  }
+
+  report.versionNumber = versionData.versionNumber;
+
+  let { userId } = versionData;
+
+  if (!versionData.userId) {
+    const user = await store.models.User.findOne({
+      where: { email: DEFAULT_USER_EMAIL },
+    });
+    userId = user.id;
+    report.usedFallbackUser = true;
+  }
+
+  await ReportDefinitionVersion.upsert({
+    ...versionData,
+    reportDefinitionId: definition.id,
+    userId,
+  });
+
+  report.versionAction = !versionData.id ? 'create' : 'update';
+
+  res.send(report);
 });

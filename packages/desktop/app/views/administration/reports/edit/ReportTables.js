@@ -1,6 +1,6 @@
 import React from 'react';
-import { formatShort, formatTime } from '../../../components';
-import { Table } from '../../../components/Table';
+import { formatShort, formatTime } from '../../../../components';
+import { Table } from '../../../../components/Table';
 
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => (
   <Table

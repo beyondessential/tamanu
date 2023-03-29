@@ -10,7 +10,13 @@ import { referenceDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './ref
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
-import { createReportVersion, getReports, getReportVersions, updateReportVersion } from './reports';
+import {
+  createReportVersion,
+  getReports,
+  getReportVersions,
+  importReport,
+  updateReportVersion,
+} from './reports';
 
 export const adminRoutes = express.Router();
 
@@ -24,6 +30,7 @@ adminRoutes.put('/reports/:reportId/versions/:versionId', updateReportVersion);
 adminRoutes.post('/reports/:reportId/versions', createReportVersion);
 adminRoutes.get('/reports/:reportId/versions', getReportVersions);
 adminRoutes.get('/reports', getReports);
+adminRoutes.post('/reports', importReport);
 
 adminRoutes.use(
   asyncHandler((req, res, next) => {

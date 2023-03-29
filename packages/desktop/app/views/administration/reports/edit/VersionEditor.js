@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
-import { BodyText, Button, Heading4, formatShort, formatTime } from '../../../components';
-import { DropdownButton } from '../../../components/DropdownButton';
+import { BodyText, Button, Heading4, formatShort, formatTime } from '../../../../components';
+import { DropdownButton } from '../../../../components/DropdownButton';
 import { schema, schemaRefs, templates } from './schema';
-import { useAuth } from '../../../contexts/Auth';
+import { useAuth } from '../../../../contexts/Auth';
 
 const ajv = new Ajv({ allErrors: true });
 

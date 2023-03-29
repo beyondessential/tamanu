@@ -1,94 +1,71 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
-import { useApi } from '../../../api';
-import { TopBar, PageContainer } from '../../../components';
-import { ReportTable, VersionTable } from './ReportTables';
-import { VersionEditor } from './VersionEditor';
-import { useAuth } from '../../../contexts/Auth';
+import { TopBar } from '../../../components';
+import { TabDisplay } from '../../../components/TabDisplay';
+import { ReportsEditView } from './edit';
+import { ReportsImportView } from './import';
 
-const InnerContainer = styled.div`
-  display: flex;
+const OuterContainer = styled.div`
+  position: relative;
+  background-color: white;
+`;
+
+const StyledTabDisplay = styled(TabDisplay)`
+  .MuiTabs-root {
+    padding: 0px 20px;
+    border-bottom: 1px solid #dededede;
+  }
+`;
+
+const TabContainer = styled.div`
   padding: 20px;
-  align-items: flex-start;
 `;
 
-const VersionsTableContainer = styled.div`
-  margin-left: 20px;
-`;
+const REPORT_TABS = {
+  EDIT: 'edit',
+  IMPORT: 'import',
+  EXPORT: 'export',
+};
 
-export const ReportsAdminView = React.memo(() => {
-  const { currentUser } = useAuth();
-  const queryClient = useQueryClient();
-  const [report, setReport] = useState(null);
-  const [version, setVersion] = useState(null);
-  const api = useApi();
+export const ReportsAdminView = () => {
+  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDIT);
 
-  const { data: reportData = [], isLoading: reportLoading, error: reportError } = useQuery(
-    ['reportList'],
-    () => api.get('admin/reports'),
-  );
-
-  const { data: versionData, isLoading: versionsLoading, error: versionsError } = useQuery(
-    ['reportVersions', report?.id],
-    () => api.get(`admin/reports/${report?.id}/versions`),
+  const tabs = useMemo(() => [
     {
-      enabled: !!report?.id,
+      label: 'Edit',
+      key: REPORT_TABS.EDIT,
+      icon: 'fa fa-edit',
+      render: () => (
+        <TabContainer>
+          <ReportsEditView />
+        </TabContainer>
+      ),
     },
-  );
-
-  const handleBack = () => setVersion(null);
-
-  const handleSave = async (data, newVersion) => {
-    const result = newVersion
-      ? await api.post(`admin/reports/${report.id}/versions`, data)
-      : await api.put(`admin/reports/${report.id}/versions/${version.id}`, data);
-
-    setVersion({
-      ...result,
-      createdBy: newVersion
-        ? {
-            displayName: currentUser.displayName,
-          }
-        : version.createdBy,
-    });
-    queryClient.invalidateQueries(['reportVersions', report?.id]);
-    queryClient.invalidateQueries(['reportList']);
-  };
+    {
+      label: 'Import',
+      key: REPORT_TABS.IMPORT,
+      icon: 'fa fa-file-import',
+      render: () => <TabContainer>
+        <ReportsImportView />
+      </TabContainer>,
+    },
+    {
+      label: 'Export',
+      key: REPORT_TABS.EXPORT,
+      icon: 'fa fa-file-export',
+      render: () => <TabContainer></TabContainer>,
+    },
+  ]);
 
   return (
-    <PageContainer>
+    <OuterContainer>
       <TopBar title="Reports" />
-      <InnerContainer>
-        {version ? (
-          <VersionEditor
-            report={report}
-            version={version}
-            onBack={handleBack}
-            onSave={handleSave}
-          />
-        ) : (
-          <>
-            <ReportTable
-              data={reportData}
-              selected={report?.id}
-              onRowClick={setReport}
-              loading={reportLoading}
-              error={reportError?.message}
-            />
-            {versionData && (
-              <VersionsTableContainer>
-                <VersionTable
-                  data={versionData}
-                  loading={versionsLoading}
-                  error={versionsError?.message}
-                  onRowClick={setVersion}
-                />
-              </VersionsTableContainer>
-            )}
-          </>
-        )}
-      </InnerContainer>
-    </PageContainer>
+        <StyledTabDisplay
+          tabs={tabs}
+          currentTab={currentTab}
+          onTabSelect={setCurrentTab}
+          scrollable={false}
+        />
+    </OuterContainer>
   );
-});
+};
