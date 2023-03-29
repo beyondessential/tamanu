@@ -156,7 +156,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     },
     {
       name: 'notGiven',
-      condition: notGiven,
+      condition: notGiven && routine,
       fields: [
         [
           fieldObjects.vaccine,
