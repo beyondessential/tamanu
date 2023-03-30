@@ -18,6 +18,11 @@ const ModalBody = styled.div`
   padding: 20px 30px 0px;
   margin: 20px 0px 40px;
 `;
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  min-height: 55px;
+`;
 
 const VerticalDivider = styled.div`
   border-left: 1px solid ${Colors.outline};
@@ -49,9 +54,14 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTest(labTestId);
   return (
     <Modal
-      title={`${labTest?.labTestType?.name} | Test ID ${labTest?.labRequest?.displayId}`}
+      title={
+        <ModalHeader>
+          {labTest?.labTestType?.name} | Test ID {labTest?.labRequest?.displayId}
+        </ModalHeader>
+      }
       open={open}
       onClose={onClose}
+      disableHeaderCloseIcon
     >
       <ModalBody>
         <div>
