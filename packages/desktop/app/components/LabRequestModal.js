@@ -27,7 +27,9 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const [createdLabRequestIds, setCreatedLabRequestIds] = useState([]);
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(createdLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
-  const departmentSuggester = useSuggester('department');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
 
   const handleSubmit = async data => {
     const response = await api.post(`labRequest`, {
