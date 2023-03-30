@@ -24,8 +24,8 @@ const useLabRequests = labRequestIds => {
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { loadEncounter } = useEncounter();
-  const [createdLabRequestIds, setCreatedLabRequestIds] = useState([]);
-  const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(createdLabRequestIds);
+  const [newLabRequestIds, setNewLabRequestIds] = useState([]);
+  const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
@@ -36,12 +36,12 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       ...data,
       encounterId: encounter.id,
     });
-    setCreatedLabRequestIds(response.map(request => request.id));
+    setNewLabRequestIds(response.map(request => request.id));
   };
 
   const handleClose = async () => {
     if (newLabRequests.length > 0) {
-      setCreatedLabRequestIds([]);
+      setNewLabRequestIds([]);
       await loadEncounter(encounter.id);
     }
     onClose();
