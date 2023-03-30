@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Op } from 'sequelize';
+import Sequelize, { QueryTypes, Op } from 'sequelize';
 
 import { ENCOUNTER_TYPES, VACCINE_CATEGORIES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -160,9 +160,28 @@ patientVaccineRoutes.get(
 
     const patient = await req.models.Patient.findByPk(req.params.id);
     const { orderBy, order, ...rest } = req.query;
+    const columnOrder = orderBy ? orderBy.split('.') : [];
+
+    // const displayLocation = Sequelize.fn(
+    //   'CASE WHEN given_elsewhere THEN location.facility.name ELSE given_by END',
+    // );
+
     const results = await patient.getAdministeredVaccines({
       ...rest,
-      order: [[...orderBy.split('.'), order]],
+      attributes: {
+        include: [
+          [
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('vaccine_name'),
+              Sequelize.col('scheduledVaccine.label'),
+            ),
+            'vaccine_display_name',
+          ],
+          // [displayLocation, 'display_location'],
+        ],
+      },
+      order: [[...columnOrder, order]],
     });
 
     // TODO: enable pagination for this endpoint

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Sequelize } from 'sequelize';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { StatusTag } from './Tag';
@@ -26,7 +27,7 @@ const getFacility = record =>
   record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
 
 const columns = [
-  { key: 'scheduledVaccine.label', title: 'Vaccine', accessor: getVaccineName },
+  { key: 'vaccine_display_name', title: 'Vaccine', accessor: getVaccineName },
   { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
   { key: 'date', title: 'Date', accessor: getDate },
   { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
