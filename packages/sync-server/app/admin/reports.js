@@ -1,7 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { promises as fs } from 'fs';
+import fs from 'fs';
+import zlib from 'zlib';
 import { getQueryReplacementsFromParams } from 'shared/utils/getQueryReplacementsFromParams';
+import { Readable } from 'stream';
 
 export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
 
@@ -15,6 +17,23 @@ const stripMetadata = ({ id, versionNumber, query, queryOptions, createdAt, upda
   status,
   notes,
 });
+
+const readJSON = async path => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        try {
+          const json = JSON.parse(data);
+          resolve(json);
+        } catch (err) {
+          reject(err);
+        }
+      }
+    });
+  });
+};
 
 export async function verifyQuery(query, paramDefinitions = [], store) {
   try {
@@ -104,21 +123,21 @@ export const createReportVersion = asyncHandler(async (req, res) => {
 });
 
 export const importReport = asyncHandler(async (req, res) => {
-   const {store, body} = req;
-   const {
-      models: {ReportDefinition, ReportDefinitionVersion},
-   } = store;
-   const report = {}
-   const {name, file} = body;
-   const data = await fs.readFile(file);
-   const versionData = JSON.parse(data);
+  const { store, body } = req;
+  const {
+    models: { ReportDefinition, ReportDefinitionVersion },
+  } = store;
+  const report = {}
+  const { name, file } = body;
 
-   await verifyQuery(
+  const versionData = await readJSON(file)
+
+  await verifyQuery(
     versionData.query,
     versionData.queryOptions?.parameters,
     store,
   );
-  
+
   const [definition, created] = await ReportDefinition.findOrCreate({
     where: {
       name,
@@ -139,7 +158,7 @@ export const importReport = asyncHandler(async (req, res) => {
     versionData.id = existingVersion.id;
   } else {
     const latestVersion = versions
-    .sort((a, b) => b.versionNumber - a.versionNumber)[0]
+      .sort((a, b) => b.versionNumber - a.versionNumber)[0]
     const versionNumber = (latestVersion?.versionNumber || 0) + 1;
     versionData.versionNumber = versionNumber;
   }
@@ -166,3 +185,37 @@ export const importReport = asyncHandler(async (req, res) => {
 
   res.send(report);
 });
+
+export const exportVersion = asyncHandler(async (req, res) => {
+  const { store, params } = req;
+  const {
+    models: { ReportDefinition, ReportDefinitionVersion },
+  } = store;
+  const { reportId, versionId, format } = params;
+  const reportDefinition = await ReportDefinition.findOne({
+    where: { id: reportId },
+  });
+  if (!reportDefinition) {
+    throw new Error(`No report found with id ${reportId}`);
+  }
+  const version = await ReportDefinitionVersion.findOne({
+    where: { id: versionId, reportDefinitionId: reportId },
+  });
+  if (!version) {
+    throw new Error(`No version found with id ${versionId}`);
+  }
+  const sanitizedVersion = stripMetadata(version);
+
+  if (format === 'json') {
+    res.send({
+      filename: `${reportDefinition.name} - v${sanitizedVersion.versionNumber}.json`,
+      data: Buffer.from(JSON.stringify(sanitizedVersion, null, 2))
+    }
+    );
+  } else if (format === 'sql') {
+    res.send({
+      filename: `${reportDefinition.name} - v${sanitizedVersion.versionNumber}.sql`,
+      data: Buffer.from(sanitizedVersion.query)
+    })
+  }
+})

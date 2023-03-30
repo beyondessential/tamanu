@@ -12,6 +12,7 @@ import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
 import {
   createReportVersion,
+  exportVersion,
   getReports,
   getReportVersions,
   importReport,
@@ -27,10 +28,13 @@ export const adminRoutes = express.Router();
 adminRoutes.use(constructPermission);
 
 adminRoutes.put('/reports/:reportId/versions/:versionId', updateReportVersion);
+adminRoutes.get('/reports/:reportId/versions/:versionId/export/:format', exportVersion);
 adminRoutes.post('/reports/:reportId/versions', createReportVersion);
 adminRoutes.get('/reports/:reportId/versions', getReportVersions);
+adminRoutes.post('/reports/import', importReport);
 adminRoutes.get('/reports', getReports);
-adminRoutes.post('/reports', importReport);
+
+
 
 adminRoutes.use(
   asyncHandler((req, res, next) => {

@@ -6,6 +6,7 @@ import { FileChooserInput } from '../../../../components/Field/FileChooserField'
 
 const InnerContainer = styled.div`
   padding: 20px;
+  max-width: 500px;
 `;
 
 const StyledButton = styled(OutlinedButton)`
@@ -32,9 +33,8 @@ export const ReportsImportView = () => {
     setError(null);
     try {
       const report = await api.post('admin/reports', {file, name})
-      console.log(report)
+
     } catch(err) {
-      console.log(err)
       setError(err);
     } finally {
       setSubmitting(false);
