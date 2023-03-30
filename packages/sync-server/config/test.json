@@ -73,8 +73,5 @@
   "validateQuestionConfigs": {
     "enabled": true
   },
-  "dbDefinedReports": {
-    "fallbackUser": "db@dreportsuser.com"
-  },
   "countryTimeZone": "Pacific/Auckland"
 }

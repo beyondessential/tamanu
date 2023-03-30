@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
-import { ReportsEditView } from './edit';
-import { ReportsExportView } from './export';
-import { ReportsImportView } from './import';
+import { ReportsEditView } from './edit/ReportsEditView';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -40,26 +38,6 @@ export const ReportsAdminView = () => {
       render: () => (
         <TabContainer>
           <ReportsEditView />
-        </TabContainer>
-      ),
-    },
-    {
-      label: 'Import',
-      key: REPORT_TABS.IMPORT,
-      icon: 'fa fa-file-import',
-      render: () => (
-        <TabContainer>
-          <ReportsImportView />
-        </TabContainer>
-      ),
-    },
-    {
-      label: 'Export',
-      key: REPORT_TABS.EXPORT,
-      icon: 'fa fa-file-export',
-      render: () => (
-        <TabContainer>
-          <ReportsExportView />
         </TabContainer>
       ),
     },
