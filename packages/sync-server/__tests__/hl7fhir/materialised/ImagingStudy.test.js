@@ -332,14 +332,14 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               reference: `ServiceRequest/${mat.id}`,
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a good note' }, { text: 'This is another note' }],
         });
 
         // assert
         expect(response).toHaveSucceeded();
         expect(response.status).toBe(201);
         await ires.reload();
-        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a good note\n\nThis is another note');
       }));
 
     describe('errors', () => {
