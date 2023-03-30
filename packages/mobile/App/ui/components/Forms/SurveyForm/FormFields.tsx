@@ -87,7 +87,7 @@ export const FormFields = ({ components, note, patient }: FormFieldsProps): Reac
       await handleSubmit();
     } else {
       // Only show error messages once the user has attempted to submit the form
-      setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+      setStatus(FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED);
 
       const firstErroredQuestion = components.find(({ dataElement }) =>
         pageErrors.includes(dataElement.code),

@@ -232,9 +232,8 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       );
       setCreatedEncounter(encounter);
       onCloseEncounterModal();
-      await updateAppointmentStatus(APPOINTMENT_STATUSES.ARRIVED);
     },
-    [onCloseEncounterModal, updateAppointmentStatus],
+    [onCloseEncounterModal],
   );
 
   return (
