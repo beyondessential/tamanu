@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useLabTest } from '../api/queries/useLabTest';
-import { formatShort } from './DateDisplay';
+import { useLabTest } from '../../api/queries/useLabTest';
 
-import { Modal } from './Modal';
-import { Colors } from '../constants';
-import { ModalActionRow } from './ModalActionRow';
-import { BodyText } from './Typography';
+import { Colors } from '../../constants';
+import { formatShort } from '../../components/DateDisplay';
+import { Modal } from '../../components/Modal';
+import { ModalActionRow } from '../../components/ModalActionRow';
+import { BodyText } from '../../components/Typography';
 
 const ModalBody = styled.div`
   display: grid;
