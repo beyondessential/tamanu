@@ -2,23 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
 
-import { DateDisplay } from '../../../DateDisplay';
-import { capitaliseFirstLetter } from '../../../../utils/capitalise';
-
 import { PrintLetterhead } from './PrintLetterhead';
 import { CertificateWrapper } from './CertificateWrapper';
-import { LocalisedCertificateLabel } from './CertificateLabels';
-import { PatientBarcode } from './PatientBarcode';
 import { GridTable } from './GridTable';
+import { PatientDetailPrintout } from './PatientDetailPrintout';
 
 const Text = styled(Typography)`
   ${props => (props.$boldTitle ? 'font-weight: 500;' : '')}
   font-size: 14px;
-`;
-
-const RowContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
 `;
 
 const NotesBox = styled(Box)`
@@ -51,35 +42,20 @@ export const NotesSection = ({
   );
 };
 
-export const LocalisedLabel = ({ name, children, size, className }) => (
-  <LocalisedCertificateLabel margin="9px" name={name} size={size} className={className}>
-    {children}
-  </LocalisedCertificateLabel>
+export const SimplePrintout = React.memo(
+  ({ patient, village, additionalData, tableData, notes, certificate }) => {
+    const { pageTitle, title, subTitle, logo } = certificate;
+    return (
+      <CertificateWrapper>
+        <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle={pageTitle} />
+        <PatientDetailPrintout
+          patient={patient}
+          village={village}
+          additionalData={additionalData}
+        />
+        <GridTable data={tableData} />
+        <NotesSection notes={notes} />
+      </CertificateWrapper>
+    );
+  },
 );
-
-export const SimplePrintout = React.memo(({ patientData, tableData, notes, certificateData }) => {
-  const { firstName, lastName, dateOfBirth, sex, displayId } = patientData;
-  const { pageTitle, title, subTitle, logo } = certificateData;
-
-  return (
-    <CertificateWrapper>
-      <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle={pageTitle} />
-      <RowContainer>
-        <div>
-          <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
-          <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-          <LocalisedLabel name="dateOfBirth">
-            <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
-          </LocalisedLabel>
-          <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
-        </div>
-        <div>
-          <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
-          <PatientBarcode patient={patientData} barWidth={2} barHeight={60} margin={0} />
-        </div>
-      </RowContainer>
-      <GridTable data={tableData} />
-      <NotesSection notes={notes} />
-    </CertificateWrapper>
-  );
-});

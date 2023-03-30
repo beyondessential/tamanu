@@ -4,10 +4,7 @@ import { Typography, Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
-import {
-  LocalisedCertificateLabel as LocalisedLabel,
-  CertificateLabel as Label,
-} from './reusable/CertificateLabels';
+import { LocalisedCertificateLabel, CertificateLabel } from './reusable/CertificateLabels';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 
 const Grid = styled(Box)`
@@ -72,6 +69,16 @@ const FormFieldUnderline = styled(Text)`
 
 const UnderlinedFormHelper = styled(Text)`
   font-weight: 500;
+`;
+
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  font-size: 12px;
+  margin-bottom: 20px;
+`;
+
+const Label = styled(CertificateLabel)`
+  font-size: 12px;
+  margin-bottom: 20px;
 `;
 
 const FormLine = ({ children, helperText }) => {

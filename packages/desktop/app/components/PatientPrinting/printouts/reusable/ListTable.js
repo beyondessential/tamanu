@@ -21,6 +21,7 @@ const Header = styled.th`
   padding-left: 0.5rem;
   padding-bottom: 0.5rem;
   font-weight: 600;
+  text-align: left;
 `;
 
 const Cell = styled.td`

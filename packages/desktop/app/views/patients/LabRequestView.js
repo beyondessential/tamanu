@@ -110,10 +110,10 @@ export const LabRequestView = () => {
       </SimpleTopBar>
       <ContentPane>
         <FormGrid columns={3}>
-          <TextInput value={labRequest.displayId} label="Request ID" disabled={isReadOnly} />
+          <TextInput value={labRequest.displayId} label="Test ID" disabled={isReadOnly} />
           <TextInput
             value={(labRequest.category || {}).name}
-            label="Request type"
+            label="Test category"
             disabled={isReadOnly}
           />
           <TextInput
