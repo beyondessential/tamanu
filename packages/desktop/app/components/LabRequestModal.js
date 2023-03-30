@@ -24,8 +24,8 @@ const useLabRequests = labRequestIds => {
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { loadEncounter } = useEncounter();
-  const [labRequestIds, setLabRequestIds] = useState([]);
-  const { isSuccess, isLoading, data: labRequests } = useLabRequests(labRequestIds);
+  const [createdLabRequestIds, setCreatedLabRequestIds] = useState([]);
+  const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(createdLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department');
 
@@ -34,7 +34,15 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       ...data,
       encounterId: encounter.id,
     });
-    setLabRequestIds(response.map(request => request.id));
+    setCreatedLabRequestIds(response.map(request => request.id));
+  };
+
+  const handleClose = async () => {
+    if (newLabRequests.length > 0) {
+      setCreatedLabRequestIds([]);
+      await loadEncounter(encounter.id);
+    }
+    onClose();
   };
 
   let ModalBody = (
@@ -52,18 +60,14 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
     ModalBody = (
       <LabRequestSummaryPane
         encounter={encounter}
-        labRequests={labRequests}
-        onClose={async () => {
-          setLabRequestIds([]);
-          onClose();
-          await loadEncounter(encounter.id);
-        }}
+        labRequests={newLabRequests}
+        onClose={handleClose}
       />
     );
   }
 
   return (
-    <Modal maxWidth="md" title="New lab request" open={open} onClose={onClose} minHeight={500}>
+    <Modal maxWidth="md" title="New lab request" open={open} onClose={handleClose} minHeight={500}>
       {ModalBody}
     </Modal>
   );

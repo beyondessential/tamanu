@@ -52,7 +52,7 @@ const OPTIONS = {
 
 const useLabRequestFormTypeOptions = setFieldValue => {
   const api = useApi();
-  const { data } = useQuery(['suggestions/labTestPanel/all'], () =>
+  const { data, isSuccess } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
   const arePanels = data?.length > 0;
@@ -60,8 +60,10 @@ const useLabRequestFormTypeOptions = setFieldValue => {
   const defaultOption = options.length > 0 ? options[0].value : undefined;
 
   useEffect(() => {
-    setFieldValue('requestFormType', defaultOption);
-  }, [defaultOption, setFieldValue]);
+    if (isSuccess) {
+      setFieldValue('requestFormType', defaultOption);
+    }
+  }, [defaultOption, setFieldValue, isSuccess]);
 
   return { options };
 };
