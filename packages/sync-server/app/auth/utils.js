@@ -47,3 +47,6 @@ export const findUserById = async (models, id) => {
   }
   return user.get({ plain: true });
 };
+
+export const isInternalClient = client =>
+  ['Tamanu Mobile', 'Tamanu Desktop', 'Tamanu LAN Server'].includes(client);
