@@ -14,11 +14,9 @@ async function mapErr(promise, fn) {
 
 export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    const { FhirMaterialiseJob, FhirWriteLog } = req.store.models;
+    const { FhirMaterialiseJob } = req.store.models;
 
     try {
-      await FhirWriteLog.fromRequest(req);
-
       const validated = await mapErr(
         FhirResource.INTAKE_SCHEMA.shape({
           resourceType: yup
