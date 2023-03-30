@@ -6,6 +6,7 @@ import {
 } from 'shared/constants';
 import config from 'config';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
+import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -132,9 +133,9 @@ describe('Labs', () => {
         patientId,
       });
       await models.LabRequest.create({
+        ...fake(models.LabRequest),
         encounterId: encounter.id,
         requestedById: app.user.id,
-        displayId: '12345',
       });
     };
 
@@ -157,12 +158,14 @@ describe('Labs', () => {
 
     it('should include all requests when allFacilities  is true', async () => {
       const result = await app.get(`/v1/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
       const hasConfigFacility = result.body.data.some(
         lr => lr.facilityId === config.serverFacilityId,
       );
-      const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
-      expect(result).toHaveSucceeded();
       expect(hasConfigFacility).toBe(true);
+
+      const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
       expect(hasOtherFacility).toBe(true);
     });
   });
