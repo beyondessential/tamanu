@@ -233,7 +233,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               },
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a nice note' }, { text: 'This is another note' }],
         };
         const response = await app.post(PATH).send(body);
 
@@ -244,7 +244,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           where: { externalCode: 'ACCESSION' },
         });
         expect(ires).toBeTruthy();
-        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a nice note\n\nThis is another note');
         const flog = await FhirWriteLog.findOne({
           where: { url: { [Op.like]: '%ImagingStudy%' } },
         });
@@ -276,7 +276,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               },
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a bad note' }, { text: 'This is another note' }],
         };
         const response = await app.post(PATH).send(body);
 
