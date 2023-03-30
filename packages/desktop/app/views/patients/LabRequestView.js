@@ -154,7 +154,9 @@ export const LabRequestView = () => {
             </>
           }
           actions={{
-            [labRequest.sampleTime ? 'Edit' : 'Record sample']: () => {
+            [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+              ? 'Record sample'
+              : 'Edit']: () => {
               setModal(MODALS.RECORD_SAMPLE);
             },
           }}

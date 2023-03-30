@@ -149,7 +149,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
           Print label
         </OutlinedButton>
         <LabRequestPrintLabelModal
-          labRequests={labRequests}
+          labRequests={selectedRows}
           open={isOpen === MODALS.LABEL_PRINT}
           onClose={() => setIsOpen(false)}
         />
