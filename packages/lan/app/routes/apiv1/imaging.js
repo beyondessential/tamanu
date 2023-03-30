@@ -12,19 +12,9 @@ import {
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { getNoteWithType } from 'shared/utils/notePages';
-import { mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
+import { mapQueryFilters } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
-
-// Object used to map field names to database column names
-const SNAKE_CASE_COLUMN_NAMES = {
-  firstName: 'first_name',
-  lastName: 'last_name',
-  displayId: 'display_id',
-  requestId: 'ImagingRequest.display_id',
-  id: 'ImagingRequest.id',
-  name: 'name',
-};
 
 async function renderResults(models, imagingRequest) {
   const results = imagingRequest.results
@@ -65,7 +55,11 @@ async function renderResults(models, imagingRequest) {
 }
 
 // Filtering functions for sequelize queries
-const caseInsensitiveFilter = getCaseInsensitiveFilter(SNAKE_CASE_COLUMN_NAMES);
+const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `${value}%`,
+  },
+});
 
 export const imagingRequest = express.Router();
 
@@ -310,16 +304,15 @@ globalImagingRequests.get(
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const patientFilters = mapQueryFilters(filterParams, [
-      { key: 'firstName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
-      { key: 'lastName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
-      { key: 'displayId', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+      { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
     ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
-        alias: 'id',
-        operator: Op.startsWith,
-        mapFn: caseInsensitiveFilter,
+        alias: 'displayId',
+        mapFn: caseInsensitiveStartsWithFilter,
       },
       { key: 'imagingType', operator: Op.eq },
 

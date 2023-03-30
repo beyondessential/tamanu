@@ -1,10 +1,17 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { BadAuthenticationError } from 'shared/errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { getToken, verifyToken, findUserById, getRandomU32, getRandomBase64String } from './utils';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import {
+  getToken,
+  verifyToken,
+  findUserById,
+  getRandomU32,
+  getRandomBase64String,
+  isInternalClient,
+} from './utils';
 
 export const refresh = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
@@ -17,6 +24,10 @@ export const refresh = ({ secret, refreshSecret }) =>
       saltRounds,
       refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration, absoluteExpiration },
     } = auth;
+
+    if (!isInternalClient(req.header('X-Tamanu-Client'))) {
+      throw new BadAuthenticationError('Invalid client');
+    }
 
     let contents = null;
     try {
@@ -58,6 +69,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const token = getToken(
       {
         userId: user.id,
+        deviceId,
       },
       secret,
       {

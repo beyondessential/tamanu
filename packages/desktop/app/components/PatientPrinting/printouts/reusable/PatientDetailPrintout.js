@@ -5,38 +5,52 @@ import styled from 'styled-components';
 import { DateDisplay } from '../../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../../utils/capitalise';
 
-import { LocalisedLabel } from './SimplePrintout';
+import { LocalisedCertificateLabel } from './CertificateLabels';
 import { PatientBarcode } from './PatientBarcode';
 
 const RowContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  margin: 20px;
 `;
 
-export const PatientDetailPrintout = React.memo(({ patient, village, additionalData }) => {
-  const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
-  const { streetVillage } = additionalData;
-  const { name: villageName } = village;
+const ColumnContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+`;
 
-  return (
-    <RowContainer>
-      <div>
-        <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
-        <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-        <LocalisedLabel name="dateOfBirth">
-          <DateDisplay date={dateOfBirth} />
-        </LocalisedLabel>
-        <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
-        <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
-      </div>
-      <div>
-        <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
-        <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
-        <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
-      </div>
-    </RowContainer>
-  );
-});
+const LocalisedLabel = styled(LocalisedCertificateLabel)`
+  font-size: 12px;
+  margin-bottom: 5px;
+`;
+
+export const PatientDetailPrintout = React.memo(
+  ({ patient, village = {}, additionalData = {} }) => {
+    const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
+    const { streetVillage } = additionalData;
+    const { name: villageName } = village;
+
+    return (
+      <RowContainer>
+        <ColumnContainer>
+          <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
+          <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
+          <LocalisedLabel path="fields.dateOfBirth.shortLabel">
+            <DateDisplay date={dateOfBirth} />
+          </LocalisedLabel>
+          <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
+          <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
+        </ColumnContainer>
+        <ColumnContainer>
+          <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
+          <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
+          <PatientBarcode patient={patient} barWidth={2} barHeight={50} margin={0} />
+        </ColumnContainer>
+      </RowContainer>
+    );
+  },
+);
 
 PatientDetailPrintout.propTypes = {
   patient: PropTypes.object.isRequired,

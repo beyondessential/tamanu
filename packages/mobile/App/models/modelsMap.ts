@@ -26,8 +26,12 @@ import { BaseModel } from './BaseModel';
 import { LabRequest } from './LabRequest';
 import { LabTest } from './LabTest';
 import { LabTestType } from './LabTestType';
+import { LabTestPanelRequest } from './LabTestPanelRequest';
+import { LabTestPanel } from './LabTestPanel';
 import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
+import { NotePage } from './NotePage';
+import { NoteItem } from './NoteItem';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -57,7 +61,11 @@ export const MODELS_MAP = {
   LabRequest,
   LabTest,
   LabTestType,
+  LabTestPanel,
+  LabTestPanelRequest,
   LocalSystemFact,
   PatientFacility,
+  NotePage,
+  NoteItem,
 };
 export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);
