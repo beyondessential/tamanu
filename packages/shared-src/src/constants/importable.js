@@ -79,7 +79,6 @@ export const REFERENCE_TYPES = {
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
   LAB_TEST_METHOD: 'labTestMethod',
-  LAB_TEST_PANEL: 'labTestPanel',
   VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',

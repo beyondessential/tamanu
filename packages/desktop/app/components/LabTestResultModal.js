@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
 import { useLabTest } from '../api/queries/useLabTest';
 import { formatShort } from './DateDisplay';
 
 import { Modal } from './Modal';
 import { Colors } from '../constants';
 import { ModalActionRow } from './ModalActionRow';
+import { BodyText } from './Typography';
 
 const ModalBody = styled.div`
   display: grid;
@@ -32,14 +32,10 @@ const VerticalDivider = styled.div`
 const ValueContainer = styled.div`
   margin-bottom: 20px;
 `;
-const Label = styled(Typography)`
-  font-size: 14px;
-  line-height: 18px;
-`;
-const TitleLabel = styled(Label)`
+const TitleLabel = styled(BodyText)`
   color: ${Colors.midText};
 `;
-const ValueLabel = styled(Label)`
+const ValueLabel = styled(BodyText)`
   font-weight: 500;
 `;
 

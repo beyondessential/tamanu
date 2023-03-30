@@ -96,7 +96,7 @@ export const PatientView = () => {
   const { getLocalisation } = useLocalisation();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
-  const [currentTab, setCurrentTab] = useState(query.get('tab') || PATIENT_TABS.RESULTS);
+  const [currentTab, setCurrentTab] = useState(query.get('tab') || PATIENT_TABS.HISTORY);
   const disabled = !!patient.death;
   const api = useApi();
   const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
