@@ -3,6 +3,7 @@ import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_DATA_SOURCE_VALUES,
 } from 'shared/constants';
+import { REFERENCE_TYPE_VALUES } from '../../../../../../shared-src/src/constants/importable';
 import { PARAMETER_FIELD_COMPONENTS } from '../../../reports/ParameterField';
 
 export const schema = {
@@ -31,38 +32,44 @@ export const schema = {
       type: 'object',
       title: 'Query Options',
       description: 'Options for the query',
-
-      properties: {
-        defaultDateRange: {
-          type: 'string',
-          title: 'Default Date Range',
-          description: 'The default date range for the query',
-          enum: REPORT_DEFAULT_DATE_RANGES_VALUES,
-        },
-        dataSources: {
-          type: 'array',
-          title: 'Data Sources',
-          description: 'The data context the query is run for',
-          items: {
-            type: 'string',
-            enum: REPORT_DATA_SOURCE_VALUES,
-          },
-        },
-        parameters: {
-          type: 'array',
-          title: 'Parameters',
-          description: 'Parameters for the query',
-          items: {
-            $ref: 'parameters',
-          },
-        },
-      },
+      $ref: 'queryOptions',
     },
   },
   required: ['query', 'queryOptions'],
 };
 
 export const schemaRefs = {
+  queryOptions: {
+    type: 'object',
+    title: 'Query Options',
+    description: 'Options for the query',
+    properties: {
+      defaultDateRange: {
+        type: 'string',
+        title: 'Default Date Range',
+        description: 'The default date range for the query',
+        enum: REPORT_DEFAULT_DATE_RANGES_VALUES,
+      },
+      dataSources: {
+        type: 'array',
+        title: 'Data Sources',
+        description: 'The data context the query is run for',
+        items: {
+          type: 'string',
+          enum: REPORT_DATA_SOURCE_VALUES,
+        },
+      },
+      parameters: {
+        type: 'array',
+        title: 'Parameters',
+        description: 'Parameters used to determine report generation form query options',
+        items: {
+          $ref: 'parameters',
+        },
+      },
+    },
+    required: ['defaultDateRange', 'dataSources'],
+  },
   parameters: {
     type: 'object',
     title: 'Property',
@@ -94,16 +101,16 @@ export const schemaRefs = {
           'This is the form field that is displayed to the user in the Tamanu desktop app that is used to capture the user input',
         enum: [
           'department',
-          'division',
+          'facility',
           'facilityLocationGroup',
-          'icd10',
+          'invoiceLineTypes',
+          'practitioner',
+          'patients',
+          'labTestType',
           'location',
           'locationGroup',
-          'medicalArea',
-          'nursingZone',
-          'patientBillingType',
-          'practitioner',
           'survey',
+          ...REFERENCE_TYPE_VALUES,
         ],
       },
       suggesterOptions: {
