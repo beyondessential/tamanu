@@ -19,8 +19,9 @@ import {
 import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -217,13 +218,13 @@ class TableComponent extends React.Component {
       titleData,
       headerOnChange,
     } = this.props;
-    const getContent = (key, sortable, title, titleAccessor) => {
+    const getContent = (key, sortable, title, titleAccessor, tooltip) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
 
-      return sortable ? (
+      const headerElement = sortable ? (
         <TableSortLabel
           active={orderBy === key}
           direction={order}
@@ -232,15 +233,23 @@ class TableComponent extends React.Component {
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
-        displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key
+        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
+      );
+
+      return tooltip ? (
+        <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip>
+      ) : (
+        headerElement
       );
     };
 
-    return columns.map(({ key, title, numeric, noTitle, titleAccessor, sortable = true }) => (
-      <StyledTableCell key={key} align={numeric ? 'right' : 'left'}>
-        {getContent(key, sortable, title, titleAccessor, noTitle)}
-      </StyledTableCell>
-    ));
+    return columns.map(
+      ({ key, title, numeric, noTitle, titleAccessor, sortable = true, tooltip }) => (
+        <StyledTableCell key={key} align={numeric ? 'right' : 'left'}>
+          {getContent(key, sortable, title, titleAccessor, tooltip, noTitle)}
+        </StyledTableCell>
+      ),
+    );
   }
 
   renderBodyContent() {

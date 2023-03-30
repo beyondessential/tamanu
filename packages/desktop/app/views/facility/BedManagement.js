@@ -2,11 +2,23 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors } from '../../constants';
+import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 
+import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TopBar, PageContainer, ContentPane } from '../../components';
+import { reloadPatient } from '../../store/patient';
+import {
+  TopBar,
+  PageContainer,
+  BedManagementSearchBar,
+  ContentPane,
+  SearchTable,
+} from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { columns } from './columns';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -112,15 +124,15 @@ const DetailedDashboardItem = ({ api }) => {
         <div>
           <DetailedDashboardItemElement
             loading={patientLocationsLoading}
-            title={availableLocations}
+            title={availableLocations || 0}
           />
           <DetailedDashboardItemElement
             loading={patientLocationsLoading}
-            title={reservedLocations}
+            title={reservedLocations || 0}
           />
           <DetailedDashboardItemElement
             loading={patientLocationsLoading}
-            title={occupiedLocations}
+            title={occupiedLocations || 0}
           />
         </div>
         <DetailedDashboardItemSection>
@@ -135,6 +147,12 @@ const DetailedDashboardItem = ({ api }) => {
 
 export const BedManagement = () => {
   const api = useApi();
+  const dispatch = useDispatch();
+  const { facility } = useAuth();
+
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.BedManagementView,
+  );
 
   const {
     data: { count: totalCurrentPatients } = {},
@@ -155,20 +173,34 @@ export const BedManagement = () => {
     () => api.get('patient/locations/occupancy'),
   );
 
+  const rowStyle = row =>
+    (row.location_max_occupancy !== 1 || !row.patient_id) &&
+    '&:hover { background-color: transparent; cursor: default; }';
+
+  const handleViewPatient = async row => {
+    if (row.location_max_occupancy === 1) {
+      const patientId = row.patient_id || row.planned_patient_id || null;
+      if (patientId) {
+        await dispatch(reloadPatient(patientId));
+        dispatch(push(`/patients/all/${patientId}`));
+      }
+    }
+  };
+
   return (
     <PageContainer>
-      <TopBar title="Bed management" />
+      <TopBar title="Bed management" subTitle={facility.name} />
       <ContentPane>
         <DashboardContainer>
           <DashboardItemListContainer>
             <DashboardItem
-              title={totalCurrentPatients}
+              title={totalCurrentPatients || 0}
               loading={totalCurrentPatientsLoading}
               description={`Total current\npatients`}
             />
             <DashboardItem
               color={Colors.green}
-              title={currentInpatients}
+              title={currentInpatients || 0}
               loading={currentInpatientsLoading}
               description={`Current inpatient\nadmissions`}
             />
@@ -191,6 +223,20 @@ export const BedManagement = () => {
           </DashboardItemListContainer>
           <DetailedDashboardItem api={api} />
         </DashboardContainer>
+      </ContentPane>
+      <ContentPane>
+        <BedManagementSearchBar
+          searchParameters={searchParameters}
+          onSearch={setSearchParameters}
+        />
+        <SearchTable
+          columns={columns}
+          noDataMessage="No locations found"
+          onRowClick={handleViewPatient}
+          rowStyle={rowStyle}
+          fetchOptions={searchParameters}
+          endpoint="patient/locations/bedManagement"
+        />
       </ContentPane>
     </PageContainer>
   );
