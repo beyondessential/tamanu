@@ -171,4 +171,34 @@ describe('reports', () => {
       );
     });
   })
+  describe('POST /reports/:id/versions/:versionId/export/:format', () => {
+    it('should export a report as json', async () => {
+      const { ReportDefinitionVersion } = models;
+      const versionData = getMockReportVersion(1)
+      const v1 = await ReportDefinitionVersion.create(versionData);
+      const res = await adminApp.get(`/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/json`);
+      console.log(res)
+      expect(res).toHaveSucceeded();
+    
+      expect(res.body.filename).toBe('test-report-v1.json');
+      expect(JSON.parse(Buffer.from(res.body.data).toString())).toEqual(
+        {
+          ...versionData,
+          id: v1.id,
+          createdAt: v1.createdAt.toISOString(),
+          updatedAt: v1.updatedAt.toISOString()
+        }
+      );
+    })
+    it('should export a report as sql', async () => {
+      const { ReportDefinitionVersion } = models;
+      const versionData = getMockReportVersion(1, 'select \n bark from dog')
+      const v1 = await ReportDefinitionVersion.create(versionData);
+      const res = await adminApp.get(`/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/sql`);
+      expect(res).toHaveSucceeded();
+      expect(res.body.filename).toBe('test-report-v1.sql');
+      expect(Buffer.from(res.body.data).toString()).toEqual(`select 
+ bark from dog`)
+    })
+  });
 });

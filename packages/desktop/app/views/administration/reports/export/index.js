@@ -5,6 +5,7 @@ import { useApi } from '../../../../api';
 import { FormGrid, OutlinedButton, RadioInput, SelectInput } from '../../../../components';
 import {useQuery} from '@tanstack/react-query'
 import {remote } from 'electron'
+import {toast} from 'react-toastify'
 const { dialog } = remote;
 
 const InnerContainer = styled.div`
@@ -22,7 +23,6 @@ export const ReportsExportView = () => {
   const [reportId, setReportId] = useState(null);
   const [versionId, setVersionId] = useState(null);
   const [format, setFormat] = useState('json');
-  const [error, setError] = useState(null);
 
   const { data: reportData = [], isLoading: reportLoading, error: reportError } = useQuery(
     ['reportList'],
@@ -39,7 +39,6 @@ export const ReportsExportView = () => {
 
   const handleSubmit = async (event) => {
     setSubmitting(true);
-    setError(null);
     try {
       const  {filename, data}  = await api.get(`admin/reports/${reportId}/versions/${versionId}/export/${format}`)
       const result = await dialog.showSaveDialog({
@@ -47,13 +46,10 @@ export const ReportsExportView = () => {
       });
       if (!result.canceled) {
         await fs.writeFile(result.filePath, Buffer.from(data) );
-        console.log('File saved successfully');
+        toast.success(`Successfully exported to ${result.filePath}`)
       }
-
-      console.log(data)
     } catch(err) {
-      console.log(err)
-      setError(err);
+      toast.error(`Failed to export: ${err.message}`)
     } finally {
       setSubmitting(false);
     }
