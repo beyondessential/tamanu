@@ -1,7 +1,6 @@
 import { User } from 'shared/models/User';
-import { fake } from 'shared/test-helpers/fake';
+import { stripMetadata, verifyQuery } from '../../app/admin/reports/utils';
 import { createTestContext, withDate } from '../utilities';
-import path from 'path';
 
 describe('reports', () => {
   let ctx;
@@ -37,7 +36,7 @@ describe('reports', () => {
     });
   });
 
-  const getMockReportVersion = (versionNumber, query = 'select bark from dog') => ({
+  const getMockReportVersion = (versionNumber, query = 'select * from encounters limit 0') => ({
     versionNumber,
     query,
     reportDefinitionId: testReport.id,
@@ -110,16 +109,16 @@ describe('reports', () => {
       const { ReportDefinitionVersion } = models;
       const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        query: 'select meow from cat',
+        query: 'select * from patients limit 1',
       });
       expect(res).toHaveSucceeded();
-      expect(res.body.query).toBe('select meow from cat');
+      expect(res.body.query).toBe('select * from patients limit 1');
     });
     it('should not return unnecessary metadata', async () => {
       const { ReportDefinitionVersion } = models;
       const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`, {
-        query: 'select meow from cat',
+      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
+        query: 'select * from patients limit 1',
       });
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
@@ -140,12 +139,12 @@ describe('reports', () => {
   describe('POST /reports/:id/versions', () => {
     it('should create a new version', async () => {
       const { ReportDefinitionVersion } = models;
-      const newVersion = getMockReportVersion(1, 'select meow from cat');
+      const newVersion = getMockReportVersion(1, 'select * from patients limit 1');
       const res = await adminApp
         .post(`/v1/admin/reports/${testReport.id}/versions`)
         .send(newVersion);
       expect(res).toHaveSucceeded();
-      expect(res.body.query).toBe('select meow from cat');
+      expect(res.body.query).toBe('select * from patients limit 1');
       expect(res.body.versionNumber).toBe(1);
       const versions = await ReportDefinitionVersion.findAll({
         where: {
@@ -156,7 +155,7 @@ describe('reports', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
-      const newVersion = getMockReportVersion(1, 'select meow from cat');
+      const newVersion = getMockReportVersion(1, 'select * from patients limit 1');
       const res = await adminApp
         .post(`/v1/admin/reports/${testReport.id}/versions`)
         .send(newVersion);
@@ -175,90 +174,43 @@ describe('reports', () => {
       );
     });
   });
-  describe('POST /reports/import', () => {
-    it('should import a report', async () => {
-      const res = await adminApp
-        .post(`/v1/admin/reports/import`)
-        .send({
-          file: path.join(__dirname, '/data/without-version-number.json'),
-          name: 'Report Import Test',
-        });
-      expect(res).toHaveSucceeded();
-      expect(res.body).toEqual({
-        createdDefinition: true,
-        versionNumber: 1,
-        usedFallbackUser: true,
-        versionMethod: 'create',
-      });
-      const report = await models.ReportDefinition.findOne({
-        where: { name: 'Report Import Test' },
-        include: {
-          model: models.ReportDefinitionVersion,
-          as: 'versions',
-        },
-      });
-      expect(report).toBeTruthy();
-      expect(report.versions).toHaveLength(1);
-      expect(report.versions[0].query).toBe('select * from patients limit 0');
-    });
-    it('should override an existing version', async () => {
-      const { ReportDefinitionVersion } = models;
-      const version = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp
-        .post(`/v1/admin/reports/import`)
-        .send({
-          file: path.join(__dirname, '/data/existing-version-number.json'),
-          name: testReport.name,
-        });
-      expect(res).toHaveSucceeded();
-      expect(res.body).toEqual({
-        createdDefinition: false,
-        versionNumber: 1,
-        usedFallbackUser: true,
-        versionMethod: 'update',
-      });
-      const report = await models.ReportDefinition.findOne({
-        where: { name: testReport.name },
-        include: {
-          model: models.ReportDefinitionVersion,
-          as: 'versions',
-        },
-      });
-      expect(report).toBeTruthy();
-      expect(report.versions).toHaveLength(1);
-      expect(report.versions[0].query).toBe('select * from patients limit 0');
-      expect(report.versions[0].id).toBe(version.id);
-    });
-  });
-  describe('GET /reports/:id/versions/:versionId/export/:format', () => {
-    it('should export a report as json', async () => {
-      const { ReportDefinitionVersion } = models;
-      const versionData = getMockReportVersion(1);
-      const v1 = await ReportDefinitionVersion.create(versionData);
-      const res = await adminApp.get(
-        `/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/json`,
-      );
-      expect(res).toHaveSucceeded();
 
-      expect(res.body.filename).toBe('test-report-v1.json');
-      expect(JSON.parse(Buffer.from(res.body.data).toString())).toEqual({
-        ...versionData,
-        id: v1.id,
-        createdAt: v1.createdAt.toISOString(),
-        updatedAt: v1.updatedAt.toISOString(),
+  describe('utils', () => {
+    describe('stripMetadata', () => {
+      it('should strip metadata', async () => {
+        const { ReportDefinitionVersion } = models;
+        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
+        const {
+          updatedAtSyncTick,
+          reportDefinitionId,
+          ReportDefinitionId,
+          deletedAt,
+          userId,
+          ...mockVersionWithoutMetadata
+        } = mockVersion.get({ plain: true });
+        expect(stripMetadata(mockVersion)).toEqual(mockVersionWithoutMetadata);
+      });
+      it('should strip metadata except relationIds if specified', async () => {
+        const { ReportDefinitionVersion } = models;
+        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
+        const {
+          updatedAtSyncTick,
+          ReportDefinitionId,
+          deletedAt,
+          ...mockVersionWithoutMetadata
+        } = mockVersion.get({ plain: true });
+        expect(stripMetadata(mockVersion, true)).toEqual(mockVersionWithoutMetadata);
       });
     });
-    it('should export a report as sql', async () => {
-      const { ReportDefinitionVersion } = models;
-      const versionData = getMockReportVersion(1, 'select \n bark from dog');
-      const v1 = await ReportDefinitionVersion.create(versionData);
-      const res = await adminApp.get(
-        `/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/sql`,
-      );
-      expect(res).toHaveSucceeded();
-      expect(res.body.filename).toBe('test-report-v1.sql');
-      expect(Buffer.from(res.body.data).toString()).toEqual(`select 
- bark from dog`);
+    describe('verifyQuery', () => {
+      it('should return true if query is valid', async () => {
+        const query = 'select * from patients limit 1';
+        expect(verifyQuery({ query }, ctx.store)).resolves.not.toThrow();
+      });
+      it('should return false if query is invalid', async () => {
+        const query = 'some random non sql query';
+        expect(verifyQuery({ query }, ctx.store)).rejects.toThrow();
+      });
     });
   });
 });

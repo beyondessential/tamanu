@@ -27,7 +27,6 @@ export const ReportsEditView = () => {
     ['reportList'],
     () => api.get('admin/reports'),
   );
-
   const { data: versionData, isLoading: versionsLoading, error: versionsError } = useQuery(
     ['reportVersions', report?.id],
     () => api.get(`admin/reports/${report?.id}/versions`),
@@ -42,7 +41,6 @@ export const ReportsEditView = () => {
     const result = newVersion
       ? await api.post(`admin/reports/${report.id}/versions`, data)
       : await api.put(`admin/reports/${report.id}/versions/${version.id}`, data);
-
     setVersion({
       ...result,
       createdBy: newVersion
