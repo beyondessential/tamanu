@@ -66,5 +66,7 @@ export default {
   },
 
   imagingAreaExternalCode: {},
-  labTestPanelExternalCode: {},
+  labTestPanelExternalCode: {
+    needs: ['labTestPanel'],
+  },
 };
