@@ -1,9 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import config from 'config';
 import fs from 'fs';
 import { getQueryReplacementsFromParams } from 'shared/utils/getQueryReplacementsFromParams';
-
-export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
 
 const stripMetadata = (version, includeRelationIds = false) => {
   const { id, versionNumber, query, queryOptions, createdAt, updatedAt, status, notes } = version;
@@ -23,7 +22,7 @@ const stripMetadata = (version, includeRelationIds = false) => {
   };
 };
 
-const readJSON = async path => {
+export const readJSON = async path => {
   return new Promise((resolve, reject) => {
     fs.readFile(path, 'utf8', (err, data) => {
       if (err) {
@@ -32,8 +31,8 @@ const readJSON = async path => {
         try {
           const json = JSON.parse(data);
           resolve(json);
-        } catch (err) {
-          reject(err);
+        } catch (parseError) {
+          reject(parseError);
         }
       }
     });
@@ -43,7 +42,7 @@ const readJSON = async path => {
 const getFilename = (reportName, versionNumber, format) => {
   const sanitizedName = reportName
     .trim()
-    .replace(/(\s|-)+/gi, '-')
+    .replace(/(\s|-)+/g, '-')
     .toLowerCase();
   return `${sanitizedName}-v${versionNumber}.${format}`;
 };
@@ -140,7 +139,7 @@ export const importReport = asyncHandler(async (req, res) => {
   const {
     models: { ReportDefinition, ReportDefinitionVersion },
   } = store;
-  const report = {};
+  const feedback = {};
   const { name, file } = body;
 
   const versionData = await readJSON(file);
@@ -153,7 +152,7 @@ export const importReport = asyncHandler(async (req, res) => {
     },
   });
 
-  report.definitionAction = created ? 'create' : 'update';
+  feedback.createdDefinition = created;
 
   const versions = created
     ? []
@@ -173,16 +172,19 @@ export const importReport = asyncHandler(async (req, res) => {
     versionData.versionNumber = versionNumber;
   }
 
-  report.versionNumber = versionData.versionNumber;
+  feedback.versionNumber = versionData.versionNumber;
 
   let { userId } = versionData;
 
   if (!versionData.userId) {
+    const {
+      dbDefinedReports: { fallbackUser },
+    } = config;
     const user = await store.models.User.findOne({
-      where: { email: DEFAULT_USER_EMAIL },
+      where: { email: fallbackUser },
     });
     userId = user.id;
-    report.usedFallbackUser = true;
+    feedback.usedFallbackUser = true;
   }
 
   await ReportDefinitionVersion.upsert({
@@ -191,9 +193,9 @@ export const importReport = asyncHandler(async (req, res) => {
     userId,
   });
 
-  report.versionAction = !versionData.id ? 'create' : 'update';
+  feedback.versionMethod = !versionData.id ? 'create' : 'update';
 
-  res.send(report);
+  res.send(feedback);
 });
 
 export const exportVersion = asyncHandler(async (req, res) => {
@@ -217,15 +219,14 @@ export const exportVersion = asyncHandler(async (req, res) => {
   const sanitizedVersion = stripMetadata(version, true);
   const filename = getFilename(reportDefinition.name, sanitizedVersion.versionNumber, format);
 
+  let data;
   if (format === 'json') {
-    res.send({
-      filename,
-      data: Buffer.from(JSON.stringify(sanitizedVersion, null, 2)),
-    });
+    data = JSON.stringify(sanitizedVersion, null, 2);
   } else if (format === 'sql') {
-    res.send({
-      filename,
-      data: Buffer.from(sanitizedVersion.query),
-    });
+    data = sanitizedVersion.query;
   }
+  res.send({
+    filename,
+    data: Buffer.from(data),
+  });
 });

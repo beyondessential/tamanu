@@ -845,6 +845,9 @@
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
   },
+  "dbDefinedReports": {
+    "fallbackUser": "admin@tamanu.io"
+  },
   "validateQuestionConfigs": {
     "enabled": false
   },

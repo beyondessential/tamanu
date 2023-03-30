@@ -56,35 +56,30 @@ export const ReportsEditView = () => {
   };
 
   return (
-      <InnerContainer>
-        {version ? (
-          <VersionEditor
-            report={report}
-            version={version}
-            onBack={handleBack}
-            onSave={handleSave}
+    <InnerContainer>
+      {version ? (
+        <VersionEditor report={report} version={version} onBack={handleBack} onSave={handleSave} />
+      ) : (
+        <>
+          <ReportTable
+            data={reportData}
+            selected={report?.id}
+            onRowClick={setReport}
+            loading={reportLoading}
+            error={reportError?.message}
           />
-        ) : (
-          <>
-            <ReportTable
-              data={reportData}
-              selected={report?.id}
-              onRowClick={setReport}
-              loading={reportLoading}
-              error={reportError?.message}
-            />
-            {versionData && (
-              <VersionsTableContainer>
-                <VersionTable
-                  data={versionData}
-                  loading={versionsLoading}
-                  error={versionsError?.message}
-                  onRowClick={setVersion}
-                />
-              </VersionsTableContainer>
-            )}
-          </>
-        )}
-      </InnerContainer>
+          {versionData && (
+            <VersionsTableContainer>
+              <VersionTable
+                data={versionData}
+                loading={versionsLoading}
+                error={versionsError?.message}
+                onRowClick={setVersion}
+              />
+            </VersionsTableContainer>
+          )}
+        </>
+      )}
+    </InnerContainer>
   );
 };

@@ -7,8 +7,8 @@ import {
   PermissionsAdminView,
   PatientMergeView,
   SyncView,
+  ReportsAdminView,
 } from '../views';
-import { ReportsAdminView } from '../views/administration/reports';
 
 export const AdministrationRoutes = React.memo(({ match }) => (
   <Switch>

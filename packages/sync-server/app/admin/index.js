@@ -34,8 +34,6 @@ adminRoutes.get('/reports/:reportId/versions', getReportVersions);
 adminRoutes.post('/reports/import', importReport);
 adminRoutes.get('/reports', getReports);
 
-
-
 adminRoutes.use(
   asyncHandler((req, res, next) => {
     if (!req.ability.can('write', 'ReferenceData') || !req.ability.can('write', 'User')) {

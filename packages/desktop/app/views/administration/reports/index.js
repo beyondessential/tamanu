@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
@@ -9,6 +9,7 @@ import { ReportsImportView } from './import';
 const OuterContainer = styled.div`
   position: relative;
   background-color: white;
+  min-height: 100%;
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
@@ -31,7 +32,7 @@ const REPORT_TABS = {
 export const ReportsAdminView = () => {
   const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDIT);
 
-  const tabs = useMemo(() => [
+  const tabs = [
     {
       label: 'Edit',
       key: REPORT_TABS.EDIT,
@@ -46,19 +47,23 @@ export const ReportsAdminView = () => {
       label: 'Import',
       key: REPORT_TABS.IMPORT,
       icon: 'fa fa-file-import',
-      render: () => <TabContainer>
-        <ReportsImportView />
-      </TabContainer>,
+      render: () => (
+        <TabContainer>
+          <ReportsImportView />
+        </TabContainer>
+      ),
     },
     {
       label: 'Export',
       key: REPORT_TABS.EXPORT,
       icon: 'fa fa-file-export',
-      render: () => <TabContainer>
-        <ReportsExportView />
-      </TabContainer>,
+      render: () => (
+        <TabContainer>
+          <ReportsExportView />
+        </TabContainer>
+      ),
     },
-  ]);
+  ];
 
   return (
     <OuterContainer>
