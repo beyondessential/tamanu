@@ -5,7 +5,13 @@ import { version } from './app/serverInfo';
 import { program } from 'commander';
 import { log } from 'shared/services/logging';
 
-import { serveCommand, migrateCommand, reportCommand } from './app/subCommands';
+import {
+  serveCommand,
+  syncCommand,
+  migrateCommand,
+  reportCommand,
+  migrateAppointmentsToLocationGroupsCommand,
+} from './app/subCommands';
 
 async function run() {
   program
@@ -15,7 +21,9 @@ async function run() {
 
   program.addCommand(serveCommand, { isDefault: true });
   program.addCommand(reportCommand);
+  program.addCommand(syncCommand);
   program.addCommand(migrateCommand);
+  program.addCommand(migrateAppointmentsToLocationGroupsCommand);
 
   await program.parseAsync(process.argv);
 }

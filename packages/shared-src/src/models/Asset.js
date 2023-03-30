@@ -13,26 +13,36 @@ export class Asset extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
   }
 
   /**
    * This is only used when inserting asset manually through RestClient
-   * Asset is PULL_ONLY and we don't sync asset up from devices to sync servers.
+   * Asset is PULL_FROM_CENTRAL, i.e. we don't sync asset up from devices to sync servers.
    */
-  static sanitizeForSyncServer({ data, ...restOfValues }) {
-    // base64
+  static sanitizeForCentralServer({ data, ...restOfValues }) {
+    // Postgres-format hex string of binary data
+    if (typeof data === 'string' && data.substring(0, 2) === '\\x') {
+      return { ...restOfValues, data: Buffer.from(data.substring(2), 'hex') };
+    }
+
+    // Other strings: assume base64
     if (typeof data === 'string') {
       return { ...restOfValues, data: Buffer.from(data, 'base64') };
     }
+
     return { ...restOfValues, data: Buffer.from(data) };
   }
 
-  static sanitizeForSyncClient({ data, ...restOfValues }) {
-    // Need to do this to import blob data properly when pulling,
-    // otherwise blob data will be truncated
+  static sanitizeForFacilityServer({ data, ...restOfValues }) {
+    // Postgres-format hex string of binary data
+    if (typeof data === 'string' && data.substring(0, 2) === '\\x') {
+      return { ...restOfValues, data: Buffer.from(data.substring(2), 'hex') };
+    }
+
+    // Anything else that Buffer natively supports
     return { ...restOfValues, data: Buffer.from(data) };
   }
 }

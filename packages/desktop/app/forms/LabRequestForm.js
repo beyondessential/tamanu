@@ -109,7 +109,7 @@ export const LabRequestForm = ({
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
         <Field
           name="requestedDate"
-          label="Order date"
+          label="Request date"
           required
           component={DateTimeField}
           saveDateAsString

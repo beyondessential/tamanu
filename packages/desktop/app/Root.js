@@ -17,13 +17,16 @@ import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
 import { ElectronProvider } from './contexts/ElectronProvider';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
+import { PatientSearchProvider } from './contexts/PatientSearch';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
       <ImagingRequestsProvider>
         <LabRequestProvider store={store}>
-          <LocalisationProvider store={store}>{children}</LocalisationProvider>
+          <PatientSearchProvider>
+            <LocalisationProvider store={store}>{children}</LocalisationProvider>
+          </PatientSearchProvider>
         </LabRequestProvider>
       </ImagingRequestsProvider>
     </ReferralProvider>

@@ -12,7 +12,7 @@ const FIELDS = [
   'Village',
   'Facility',
   'Department',
-  'Location',
+  'Area',
   'Request ID',
   'Request date and time',
   'Supervising clinician',
@@ -39,7 +39,7 @@ select
   rdv.name as "Village",
   f.name as "Facility",
   d.name as "Department",
-  l.name as "Location",
+  locationGroup.name as "Area",
   ir.id as "Request ID",
   to_char(ir.requested_date::timestamp, 'DD/MM/YYYY HH12:MI AM') as "Request date and time",
   u_supervising.display_name as "Supervising clinician",
@@ -57,6 +57,7 @@ from
   left join patients p on p.id=e.patient_id
   left join reference_data rdv on rdv.id=p.village_id
   left join locations l on l.id=e.location_id
+  left join location_groups locationGroup on l.location_group_id=locationGroup.id
   left join facilities f on f.id = l.facility_id
   left join departments d on d.id = e.department_id
   left join users u_supervising on u_supervising.id=e.examiner_id

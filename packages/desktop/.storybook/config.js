@@ -1,5 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configure, addDecorator, storiesOf } from '@storybook/react';
 import styled, { ThemeProvider } from 'styled-components';
 import { CssBaseline } from '@material-ui/core';
@@ -64,15 +65,26 @@ addDecorator((story, context, info) => {
 
 const { store } = initStore(API);
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 addDecorator(story => (
   <Provider store={store}>
     <StylesProvider injectFirst>
       <MuiThemeProvider theme={theme}>
         <ThemeProvider theme={theme}>
-          <DummyElectronProvider>
-            <CssBaseline />
-            {story()}
-          </DummyElectronProvider>
+          <QueryClientProvider client={queryClient}>
+            <DummyElectronProvider>
+              <CssBaseline />
+              {story()}
+            </DummyElectronProvider>
+          </QueryClientProvider>
         </ThemeProvider>
       </MuiThemeProvider>
     </StylesProvider>

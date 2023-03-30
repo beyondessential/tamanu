@@ -8,24 +8,24 @@ import { generateReportFromQueryData } from './utilities';
 const reportColumnTemplate = [
   { title: 'Date', accessor: data => data.date },
   { title: 'Diagnosis', accessor: data => data.Diagnosis.name },
-  { title: 'Patient First Name', accessor: data => data.Encounter.patient.firstName },
-  { title: 'Patient Last Name', accessor: data => data.Encounter.patient.lastName },
-  { title: 'National Health Number', accessor: data => data.Encounter.patient.displayId },
+  { title: 'Patient First Name', accessor: data => data.encounter.patient.firstName },
+  { title: 'Patient Last Name', accessor: data => data.encounter.patient.lastName },
+  { title: 'National Health Number', accessor: data => data.encounter.patient.displayId },
   {
     title: 'Age',
-    accessor: data => ageInYears(data.Encounter.patient.dateOfBirth),
+    accessor: data => ageInYears(data.encounter.patient.dateOfBirth),
   },
-  { title: 'Sex', accessor: data => data.Encounter.patient.sex },
+  { title: 'Sex', accessor: data => data.encounter.patient.sex },
   {
     title: 'Contact Number',
     accessor: data => {
-      const additionalDetails = JSON.parse(data.Encounter.patient.additionalDetails || '{}');
+      const additionalDetails = JSON.parse(data.encounter.patient.additionalDetails || '{}');
       return additionalDetails.primaryContactNumber || additionalDetails.secondaryContactNumber;
     },
   },
-  { title: 'Village', accessor: data => data.Encounter.patient.ReferenceDatum.name },
-  { title: 'Doctor/Nurse', accessor: data => data.Encounter.examiner?.displayName || '' },
-  { title: 'Department', accessor: data => data.Encounter.department?.name || '' },
+  { title: 'Village', accessor: data => data.encounter.patient.ReferenceDatum.name },
+  { title: 'Doctor/Nurse', accessor: data => data.encounter.examiner?.displayName || '' },
+  { title: 'Department', accessor: data => data.encounter.department?.name || '' },
   { title: 'Certainty', accessor: data => data.certainty },
   { title: 'Is Primary', accessor: data => (data.isPrimary ? 'yes' : 'no') },
 ];
@@ -78,6 +78,7 @@ async function queryDiagnosesData(models, parameters) {
     include: [
       {
         model: models.Encounter,
+        as: 'encounter',
         include: [
           {
             model: models.Patient,

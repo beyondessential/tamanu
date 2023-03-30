@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 import styled from 'styled-components';
+import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
+import { Tag } from '../Tag';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -21,6 +21,42 @@ const StyledFormControl = styled(FormControl)`
     margin: 4px 2px 2px;
   }
 `;
+
+const SelectTag = styled(Tag)`
+  right: 5px;
+`;
+
+const OptionTag = styled(Tag)`
+  right: 20px;
+`;
+
+const Option = ({ children, ...props }) => {
+  const tag = props.data?.tag;
+  return (
+    <components.Option {...props}>
+      {children}
+      {tag && (
+        <OptionTag $background={tag.background} $color={tag.color}>
+          {tag.label}
+        </OptionTag>
+      )}
+    </components.Option>
+  );
+};
+
+const SingleValue = ({ children, ...props }) => {
+  const tag = props.data?.tag;
+  return (
+    <components.SingleValue {...props}>
+      {children}
+      {tag && (
+        <SelectTag $background={tag.background} $color={tag.color}>
+          {tag.label}
+        </SelectTag>
+      )}
+    </components.SingleValue>
+  );
+};
 
 export const SelectInput = ({
   options,
@@ -69,6 +105,26 @@ export const SelectInput = ({
       boxShadow: 'none',
       border: `1px solid ${Colors.outline}`,
     }),
+    option: (provided, state) => ({
+      ...provided,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
+      ...(state.isDisabled ? {} : { color: Colors.darkestText }),
+      cursor: 'pointer',
+      fontSize: '14px',
+    }),
+    singleValue: base => ({
+      ...base,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+      overflow: 'visible',
+      cursor: 'text',
+      color: Colors.darkestText,
+    }),
   };
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
@@ -83,6 +139,7 @@ export const SelectInput = ({
           classes={classes}
           disabled={disabled}
           readOnly={isReadonly}
+          components={{ Option, SingleValue }}
           {...props}
         />
       </OuterLabelFieldWrapper>
@@ -103,6 +160,7 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
+          components={{ Option, SingleValue }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}

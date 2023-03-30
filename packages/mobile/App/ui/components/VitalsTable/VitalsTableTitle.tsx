@@ -12,11 +12,11 @@ export const VitalsTableTitle = (): JSX.Element => (
     paddingLeft={screenPercentageToDP(3.64, Orientation.Width)}
   >
     <StyledText
-      fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-      fontWeight={700}
+      fontSize={screenPercentageToDP(1.6, Orientation.Height)}
+      fontWeight={600}
       color={theme.colors.WHITE}
     >
-      Measures
+      Measure
     </StyledText>
   </StyledView>
 );

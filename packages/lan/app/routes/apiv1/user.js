@@ -4,13 +4,7 @@ import asyncHandler from 'express-async-handler';
 
 import { BadAuthenticationError } from 'shared/errors';
 import { getPermissions } from 'shared/permissions/middleware';
-import {
-  simpleGet,
-  simplePut,
-  paginatedGetList,
-  simplePost,
-  permissionCheckingRouter,
-} from './crudHelpers';
+import { simpleGet, paginatedGetList, permissionCheckingRouter } from './crudHelpers';
 
 export const user = express.Router();
 
@@ -46,8 +40,6 @@ user.get(
 );
 
 user.get('/:id', simpleGet('User'));
-user.put('/:id', simplePut('User'));
-user.post('/$', simplePost('User'));
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
 globalUserRequests.get('/$', paginatedGetList('User'));

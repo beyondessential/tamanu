@@ -115,7 +115,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   return (
     <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
-      <Table data={answerRows} columns={COLUMNS} />
+      <Table data={answerRows} columns={COLUMNS} allowExport={false} />
     </Modal>
   );
 };

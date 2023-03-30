@@ -18,7 +18,6 @@ module.exports = api => {
       ],
     ],
     plugins: [
-      '@babel/plugin-proposal-function-bind',
       '@babel/plugin-proposal-class-properties',
       '@babel/plugin-proposal-export-default-from',
       '@babel/plugin-proposal-logical-assignment-operators',

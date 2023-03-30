@@ -12,6 +12,7 @@ export type SurveyFormProps = {
   components: any;
   patient: any;
   note: string;
+  validate: any;
 };
 
 export const SurveyForm = ({
@@ -19,6 +20,7 @@ export const SurveyForm = ({
   components,
   note,
   patient,
+  validate,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [
@@ -50,8 +52,9 @@ export const SurveyForm = ({
       validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
+      validate={validate}
     >
-      {({ values, setFieldValue }): ReactElement => {
+      {({ values, setFieldValue, errors }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -61,7 +64,15 @@ export const SurveyForm = ({
             .filter(([k, v]) => values[k] !== v)
             .map(([k, v]) => setFieldValue(k, v));
         }, [values]);
-        return <FormFields components={components} values={values} note={note} patient={patient} />;
+        return (
+          <FormFields
+            components={components}
+            values={values}
+            note={note}
+            patient={patient}
+            errors={errors}
+          />
+        );
       }}
     </Form>
   );

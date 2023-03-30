@@ -1,6 +1,7 @@
 import React, { useState, useCallback, ReactElement } from 'react';
 import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { parseISO } from 'date-fns';
 import { StyledView, StyledText } from '/styled/common';
 import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
@@ -52,7 +53,7 @@ const DatePicker = ({
 ) : null);
 
 export interface DateFieldProps extends BaseInputProps {
-  value: Date;
+  value: Date | string;
   onChange: (date: Date) => void;
   placeholder?: '' | string;
   mode?: 'date' | 'time';
@@ -86,10 +87,12 @@ export const DateField = React.memo(
       [onChange],
     );
 
+    const dateValue = value && (value instanceof Date ? value : parseISO(value));
+
     const formatValue = useCallback(() => {
       if (value) {
-        if (mode === 'date') return formatDate(value, DateFormats.DDMMYY);
-        return formatDate(value, DateFormats.TIME_HHMMSS);
+        if (mode === 'date') return formatDate(dateValue, DateFormats.DDMMYY);
+        return formatDate(dateValue, DateFormats.TIME_HHMMSS);
       }
       return null;
     }, [mode, value]);
@@ -152,12 +155,11 @@ export const DateField = React.memo(
               onDateChange={onAndroidDateChange}
               mode={mode}
               isVisible={isDatePickerVisible}
-              value={value || new Date()}
+              value={dateValue || new Date()}
               min={min}
               max={max}
             />
-          ),
-          [isDatePickerVisible])}
+          ), [isDatePickerVisible])}
       </StyledView>
     );
   },

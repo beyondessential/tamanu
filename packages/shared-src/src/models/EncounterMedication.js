@@ -1,5 +1,7 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -38,6 +40,7 @@ export class EncounterMedication extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveMedication() {
             if (!this.medicationId) {
@@ -76,5 +79,12 @@ export class EncounterMedication extends Model {
 
   static getListReferenceAssociations() {
     return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 }

@@ -9,6 +9,9 @@
   "log": {
     "consoleLevel": "warn"
   },
+  "cors": {
+    "allowedOrigin": "https://fake-place-xxx-yyy.com"
+  },
   "localisation": {
     "data": {
       "timeZone": "UTC",
@@ -23,7 +26,9 @@
     "fijiVrs": {
       "enabled": true,
       "host": "http://localhost:8080",
-      "expectAccessToken": ["test-access-token"]
+      "expectAccessToken": [
+        "test-access-token"
+      ]
     },
     "fijiVps": {
       "enabled": true
@@ -43,6 +48,10 @@
     },
     "fhir": {
       "enabled": true
+    },
+    "omniLab": {
+      "enabled": true,
+      "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
     }
   },
   "disk": {
@@ -52,7 +61,9 @@
   },
   "notifications": {
     "certificates": {
-      "labTestCategoryIds": ["labTestCategory-COVID"]
+      "labTestCategoryIds": [
+        "labTestCategory-COVID"
+      ]
     }
   },
   "countryTimeZone": "Pacific/Auckland"

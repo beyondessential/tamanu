@@ -10,6 +10,7 @@ import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
+  FHIR_INTERACTIONS,
 } from '../../constants';
 import {
   FhirAddress,
@@ -47,6 +48,12 @@ export class FhirPatient extends FhirResource {
     this.UpstreamModel = models.Patient;
   }
 
+  static CAN_DO = new Set([
+    FHIR_INTERACTIONS.INSTANCE.READ,
+    FHIR_INTERACTIONS.TYPE.SEARCH,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  ]);
+
   async updateMaterialisation() {
     const { PatientAdditionalData } = this.sequelize.models;
 
@@ -83,10 +90,6 @@ export class FhirPatient extends FhirResource {
     const mergedDown = await upstream.getMergedDown();
 
     return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
-  }
-
-  static async resolveUpstreamLinks() {
-    await this.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
   }
 
   asFhir() {
@@ -243,7 +246,7 @@ async function mergeLinks(patient) {
   const links = [];
 
   // Populates "upstream" links, which must be resolved to FHIR resource links
-  // after materialisation by calling FhirPatient.resolveUpstreamLinks().
+  // after materialisation by calling FhirResource.resolveUpstreams().
 
   if (patient.mergedIntoId) {
     const mergeTarget = await patient.getUltimateMergedInto();

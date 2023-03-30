@@ -22,6 +22,7 @@ export const FieldByType = {
   [FieldTypes.MULTI_SELECT]: MultiSelectDropdown,
   [FieldTypes.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
   [FieldTypes.DATE]: DateField,
+  [FieldTypes.DATE_TIME]: DateField,
   [FieldTypes.SUBMISSION_DATE]: DateField,
   [FieldTypes.NUMBER]: NumberField,
   [FieldTypes.BINARY]: Checkbox,

@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class OneTimeLogin extends Model {
@@ -10,7 +11,7 @@ export class OneTimeLogin extends Model {
         expiresAt: { type: Sequelize.DATE, allowNull: false },
         usedAt: { type: Sequelize.DATE, allowNull: true },
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
     );
   }
 

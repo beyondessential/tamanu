@@ -13,7 +13,7 @@ jest.mock('../App/ui/components/Icons', () => ({
   Avatar12: View,
   SickOrInjuredIcon: View,
   Camera1: View,
-  CheckUpIcon: View,
+  VitalsIcon: View,
   GivenOnTimeIcon: View,
   CheckboxMarkIcon: View,
   Circle: View,

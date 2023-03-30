@@ -1,5 +1,5 @@
 export const PATIENT_SORT_KEYS = {
-  markedForSync: 'patients.marked_for_sync',
+  markedForSync: 'patient_facilities.patient_id',
   displayId: 'patients.display_id',
   lastName: 'UPPER(patients.last_name)',
   culturalName: 'UPPER(patients.cultural_name)',

@@ -1,12 +1,13 @@
 import { Entity, Column, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { Database } from '~/infra/db';
 import { IProgramDataElement, DataElementType } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('program_data_element')
-export class ProgramDataElement extends BaseModel
-  implements IProgramDataElement {
+export class ProgramDataElement extends BaseModel implements IProgramDataElement {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column({ nullable: true })
   code?: string;
 
@@ -22,6 +23,9 @@ export class ProgramDataElement extends BaseModel
   @Column('text')
   type: DataElementType;
 
-  @OneToMany(() => SurveyResponseAnswer, answer => answer.dataElement)
+  @OneToMany(
+    () => SurveyResponseAnswer,
+    answer => answer.dataElement,
+  )
   answers: SurveyResponseAnswer[];
 }

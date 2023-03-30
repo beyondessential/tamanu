@@ -1,8 +1,8 @@
 import { Sequelize, Op } from 'sequelize';
-import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -27,21 +27,11 @@ export class Patient extends Model {
           allowNull: false,
         },
         email: Sequelize.STRING,
-        markedForSync: {
-          type: Sequelize.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
         visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          includedRelations: config.sync?.embedPatientNotes
-            ? ['notePages', 'notePages.noteItems']
-            : [],
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },
@@ -49,6 +39,7 @@ export class Patient extends Model {
         ],
       },
     );
+    onSaveMarkPatientForSync(this, 'id', 'afterSave');
   }
 
   static initRelations(models) {
@@ -94,19 +85,19 @@ export class Patient extends Model {
       },
     });
 
+    this.belongsToMany(models.Facility, {
+      through: 'PatientFacility',
+      as: 'markedForSyncFacilities',
+    });
+
     this.hasMany(models.PatientFieldValue, {
       foreignKey: 'patientId',
       as: 'fieldValues',
     });
   }
 
-  static async getSyncIds() {
-    const patients = await this.sequelize.models.Patient.findAll({
-      where: { markedForSync: true },
-      raw: true,
-      attributes: ['id'],
-    });
-    return patients.map(({ id }) => id);
+  static getFullReferenceAssociations() {
+    return ['markedForSyncFacilities'];
   }
 
   async getAdministeredVaccines(queryOptions = {}) {
@@ -125,6 +116,7 @@ export class Patient extends Model {
         {
           model: models.Location,
           as: 'location',
+          include: ['locationGroup'],
         },
       );
     }

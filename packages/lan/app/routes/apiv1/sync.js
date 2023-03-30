@@ -6,12 +6,30 @@ export const sync = express.Router();
 sync.post(
   '/run',
   asyncHandler(async (req, res) => {
-    const { syncManager } = req;
+    const { syncManager, user } = req;
 
     req.flagPermissionChecked(); // no particular permission check for triggering a sync
 
-    await syncManager.runSync();
+    if (syncManager.isSyncRunning()) {
+      res.send({ message: 'Sync already underway' });
+      return;
+    }
 
-    res.send({ message: 'Sync completed' });
+    const completeSync = async () => {
+      await syncManager.triggerSync(`requested by ${user.email}`);
+      return 'Completed sync';
+    };
+
+    const timeoutAfter = seconds =>
+      new Promise(resolve => {
+        setTimeout(
+          () => resolve('Sync is taking a while, continuing in the background...'),
+          seconds * 1000,
+        );
+      });
+
+    const message = await Promise.race([completeSync(), timeoutAfter(10)]);
+
+    res.send({ message });
   }),
 );

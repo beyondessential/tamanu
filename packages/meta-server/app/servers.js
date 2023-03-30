@@ -23,6 +23,7 @@ const servers = [
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+  { name: 'Tonga', type: 'live', host: 'https://central-tonga.tamanu.io' },
   { name: 'Tuvalu', type: 'live', host: 'https://sync.tamanu-tuvalu.org' },
 
   // demo servers
@@ -39,8 +40,10 @@ const servers = [
   { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-tonga-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
+  { name: 'Test (Samoa)', type: 'demo', host: 'https://central-samoa-clone.tamanu.io' },
+  { name: 'Test (Fiji)', type: 'demo', host: 'https://central-clone.tamanu-fiji.org' },
+
   // development servers
-  { name: 'Beta', type: 'dev', host: 'https://central-beta.tamanu.io' },
   { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
