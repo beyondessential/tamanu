@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
+import { Button } from '@material-ui/core';
 import { usePatientLabTestResults } from '../../api/queries/usePatientLabTestResults';
 import { Table } from '../../components/Table';
 import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
 
-const CELLS = {
+const COLUMNS = {
   1: 150,
   2: 120,
   3: 120,
@@ -31,31 +31,35 @@ const StyledTable = styled(Table)`
     thead tr th:nth-child(1),
     tbody tr td:nth-child(1) {
       left: 0;
-      width: ${CELLS[1]}px;
-      min-width: ${CELLS[1]}px;
-      max-width: ${CELLS[1]}px;
+      width: ${COLUMNS[1]}px;
+      min-width: ${COLUMNS[1]}px;
+      max-width: ${COLUMNS[1]}px;
     }
 
     thead tr th:nth-child(2),
     tbody tr td:nth-child(2) {
-      width: ${CELLS[2]}px;
-      min-width: ${CELLS[2]}px;
-      max-width: ${CELLS[2]}px;
-      left: ${CELLS[1]}px;
+      width: ${COLUMNS[2]}px;
+      min-width: ${COLUMNS[2]}px;
+      max-width: ${COLUMNS[2]}px;
+      left: ${COLUMNS[1]}px;
     }
 
     thead tr th:nth-child(3),
     tbody tr td:nth-child(3) {
-      width: ${CELLS[3]}px;
-      min-width: ${CELLS[3]}px;
-      max-width: ${CELLS[3]}px;
-      left: ${CELLS[1] + CELLS[2]}px;
+      width: ${COLUMNS[3]}px;
+      min-width: ${COLUMNS[3]}px;
+      max-width: ${COLUMNS[3]}px;
+      left: ${COLUMNS[1] + COLUMNS[2]}px;
       border-right: 2px solid ${Colors.outline};
     }
 
     thead tr th {
       color: ${props => props.theme.palette.text.secondary};
       background: ${Colors.background};
+    }
+
+    td {
+      position: relative;
     }
 
     tbody tr td.MuiTableCell-body {
@@ -74,6 +78,18 @@ const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const CategoryCell = styled.div`
   font-weight: 500;
   color: ${props => props.theme.palette.text.secondary};
+`;
+
+const StyledButton = styled(Button)`
+  position: absolute;
+  padding: 0;
+  text-transform: none;
+  font-weight: 400;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 0;
 `;
 
 export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) => {
@@ -130,14 +146,20 @@ export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) =
         key: date,
         accessor: row => {
           const normalRange = row.normalRanges[patient?.sex];
-          return (
-            <RangeValidatedCell
-              value={row.results[date]?.result}
-              config={{ unit: row.unit }}
-              validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-              onClick={() => openModal(row.results[date]?.id)}
-            />
-          );
+          const cellData = row.results[date];
+          if (cellData) {
+            return (
+              <StyledButton onClick={() => openModal(cellData.id)}>
+                <RangeValidatedCell
+                  value={cellData.result}
+                  config={{ unit: row.unit }}
+                  validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                />
+              </StyledButton>
+            );
+          }
+
+          return '-';
         },
       })),
   ];
