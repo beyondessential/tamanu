@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { fake, fakeReferenceData, showError } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
@@ -68,10 +70,12 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       const {
         Encounter,
         FhirServiceRequest,
+        FhirWriteLog,
         ImagingRequest,
         ImagingRequestArea,
         ImagingResult,
       } = ctx.store.models;
+      await FhirWriteLog.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
@@ -107,7 +111,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         await FhirServiceRequest.resolveUpstreams();
 
         // act
-        const response = await app.post(PATH).send({
+        const body = {
           resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
@@ -123,7 +127,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
             },
           ],
           note: [{ text: 'This is a note' }, { text: 'This is another note' }],
-        });
+        };
+        const response = await app.post(PATH).send(body);
 
         // assert
         expect(response).toHaveSucceeded();
@@ -189,7 +194,12 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
     it('creates a result from an ImagingStudy with upstream UUID', () =>
       showError(async () => {
         // arrange
-        const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
+        const {
+          FhirServiceRequest,
+          FhirWriteLog,
+          ImagingRequest,
+          ImagingResult,
+        } = ctx.store.models;
         const ir = await ImagingRequest.create(
           fake(ImagingRequest, {
             requestedById: resources.practitioner.id,
@@ -206,7 +216,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         await FhirServiceRequest.resolveUpstreams();
 
         // act
-        const response = await app.post(PATH).send({
+        const body = {
           resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
@@ -224,8 +234,9 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               },
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
-        });
+          note: [{ text: 'This is a good note' }, { text: 'This is another note' }],
+        };
+        const response = await app.post(PATH).send(body);
 
         // assert
         expect(response).toHaveSucceeded();
@@ -234,7 +245,50 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           where: { externalCode: 'ACCESSION' },
         });
         expect(ires).toBeTruthy();
-        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a good note\n\nThis is another note');
+        const flog = await FhirWriteLog.findOne({
+          where: { url: { [Op.like]: '%ImagingStudy%' } },
+        });
+        expect(flog).toBeTruthy();
+        expect(flog.verb).toEqual('POST');
+        expect(flog.body).toMatchObject(body);
+      }));
+
+    it('logs the request even if not handled', () =>
+      showError(async () => {
+        const { FhirWriteLog } = ctx.store.models;
+
+        // act
+        const body = {
+          resourceType: 'ImagingStudy',
+          status: 'final',
+          identifier: [
+            {
+              system: 'http://example.com',
+              value: 'ACCESSION',
+            },
+          ],
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              identifier: {
+                system: 'http://example.com',
+                value: '123',
+              },
+            },
+          ],
+          note: [{ text: 'This is a bad note' }, { text: 'This is another note' }],
+        };
+        const response = await app.post(PATH).send(body);
+
+        // assert
+        expect(response.status).not.toBe(201);
+        const flog = await FhirWriteLog.findOne({
+          where: { url: { [Op.like]: '%ImagingStudy%' } },
+        });
+        expect(flog).toBeTruthy();
+        expect(flog.verb).toEqual('POST');
+        expect(flog.body).toMatchObject(body);
       }));
 
     it('updates a result from an ImagingStudy', () =>
@@ -279,14 +333,14 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               reference: `ServiceRequest/${mat.id}`,
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a good note' }, { text: 'This is another note' }],
         });
 
         // assert
         expect(response).toHaveSucceeded();
         expect(response.status).toBe(201);
         await ires.reload();
-        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a good note\n\nThis is another note');
       }));
 
     describe('errors', () => {
