@@ -9,8 +9,11 @@ export async function up(query) {
   );
   await query.removeColumn('lab_test_panel_lab_test_types', 'id');
   await query.addColumn('lab_test_panel_lab_test_types', 'id', {
-    type: `TEXT GENERATED ALWAYS AS (REPLACE("lab_test_panel_id", ';', ':') || ';' || REPLACE("lab_test_type_id", ';', ':')) STORED`,
+    type: Sequelize.TEXT,
   });
+  await query.sequelize.query(
+    `UPDATE lab_test_panel_lab_test_types SET id = CONCAT(lab_test_panel_id, ';', lab_test_type_id)`,
+  );
 }
 
 export async function down(query) {
