@@ -17,7 +17,9 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const api = useApi();
   const certificate = useCertificate();
 
-  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(labRequest.encounterId);
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
+    labRequest.encounterId,
+  );
   const { data: additionalData, isLoading: isAdditionalDataLoading } = usePatientAdditionalData(
     patient.id,
   );
@@ -29,8 +31,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     { enabled: isVillageEnabled },
   );
   const isLoading =
-    (isEncounterEnabled && isEncounterLoading) ||
-    areTestsLoading ||
+    isEncounterLoading ||
     areNotesLoading ||
     isAdditionalDataLoading ||
     (isVillageEnabled && isVillageLoading);
