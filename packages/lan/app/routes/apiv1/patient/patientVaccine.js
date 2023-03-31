@@ -161,13 +161,7 @@ patientVaccineRoutes.get(
     const patient = await req.models.Patient.findByPk(req.params.id);
     const { orderBy, order, ...rest } = req.query;
     const columnOrder = orderBy ? orderBy.split('.') : [];
-
-    // const displayLocation = Sequelize.fn(
-    //   'CASE WHEN given_elsewhere THEN location.facility.name ELSE given_by END',
-    // );
-
-    const results = await patient.getAdministeredVaccines({
-      ...rest,
+    const CUSTOM_SORTING_COLUMNS = {
       attributes: {
         include: [
           [
@@ -178,9 +172,19 @@ patientVaccineRoutes.get(
             ),
             'vaccine_display_name',
           ],
-          // [displayLocation, 'display_location'],
+          [
+            Sequelize.literal(
+              `CASE WHEN given_elsewhere THEN given_by ELSE "location->facility"."name" END`,
+            ),
+            'display_location',
+          ],
         ],
       },
+    };
+
+    const results = await patient.getAdministeredVaccines({
+      ...rest,
+      ...CUSTOM_SORTING_COLUMNS,
       order: [[...columnOrder, order]],
     });
 

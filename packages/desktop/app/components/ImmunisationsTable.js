@@ -31,7 +31,7 @@ const columns = [
   { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
   { key: 'date', title: 'Date', accessor: getDate },
   { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
-  { key: 'location.facility.name', title: 'Facility/Country', accessor: getFacility },
+  { key: 'display_location', title: 'Facility/Country', accessor: getFacility },
 ];
 
 export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
