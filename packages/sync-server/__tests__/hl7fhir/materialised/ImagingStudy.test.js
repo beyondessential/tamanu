@@ -215,7 +215,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         await FhirServiceRequest.resolveUpstreams();
 
         // act
-        const response = await app.post(PATH).send({
+        const body = {
           resourceType: 'ImagingStudy',
           status: 'final',
           identifier: [
@@ -233,7 +233,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               },
             },
           ],
-          note: [{ text: 'This is a nice note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a good note' }, { text: 'This is another note' }],
         };
         const response = await app.post(PATH).send(body);
 
@@ -244,7 +244,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           where: { externalCode: 'ACCESSION' },
         });
         expect(ires).toBeTruthy();
-        expect(ires.description).toEqual('This is a nice note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a good note\n\nThis is another note');
         const flog = await FhirWriteLog.findOne({
           where: { url: { [Op.like]: '%ImagingStudy%' } },
         });
