@@ -94,12 +94,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
     it('creates a result from an ImagingStudy with FHIR ID', () =>
       showError(async () => {
         // arrange
-        const {
-          FhirServiceRequest,
-          FhirWriteLog,
-          ImagingRequest,
-          ImagingResult,
-        } = ctx.store.models;
+        const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
         const ir = await ImagingRequest.create(
           fake(ImagingRequest, {
             requestedById: resources.practitioner.id,
@@ -132,7 +127,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
             },
           ],
           note: [{ text: 'This is a note' }, { text: 'This is another note' }],
-        });
+        };
+        const response = await app.post(PATH).send(body);
 
         // assert
         expect(response).toHaveSucceeded();
@@ -198,7 +194,12 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
     it('creates a result from an ImagingStudy with upstream UUID', () =>
       showError(async () => {
         // arrange
-        const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
+        const {
+          FhirServiceRequest,
+          FhirWriteLog,
+          ImagingRequest,
+          ImagingResult,
+        } = ctx.store.models;
         const ir = await ImagingRequest.create(
           fake(ImagingRequest, {
             requestedById: resources.practitioner.id,
