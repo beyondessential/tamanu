@@ -2,9 +2,9 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
-import { BadAuthenticationError } from 'shared/errors';
 import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { BadAuthenticationError } from 'shared/errors';
+import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import {

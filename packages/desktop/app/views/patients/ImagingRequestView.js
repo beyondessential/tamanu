@@ -30,22 +30,22 @@ import {
   TextField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-import { ImagingRequestPrintout } from '../../components/PatientPrinting';
+import { useEncounterData } from '../../api/queries';
+import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
 const PrintButton = ({ imagingRequest, patient }) => {
-  const api = useApi();
   const { modal } = useParams();
   const certificate = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
+  const api = useApi();
 
-  const { data: encounter, isLoading: isEncounterLoading } = useQuery(
-    ['encounter', imagingRequest.encounterId],
-    () => api.get(`encounter/${encodeURIComponent(imagingRequest.encounterId)}`),
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
+    imagingRequest.encounterId,
   );
   const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
     ['additionalData', patient.id],
@@ -76,7 +76,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
           <LoadingIndicator />
         ) : (
           <ImagingRequestPrintout
-            imagingRequest={imagingRequest}
+            imagingRequests={[imagingRequest]}
             patient={patient}
             village={village}
             additionalData={additionalData}

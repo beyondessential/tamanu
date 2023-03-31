@@ -56,6 +56,13 @@ const formatShortExplicit = date =>
     dateStyle: 'medium',
   }); // "4 Mar 2019"
 
+const formatShortestExplicit = date =>
+  intlFormatDate(date, {
+    year: '2-digit',
+    month: 'short',
+    day: 'numeric',
+  }); // "4 Mar 19"
+
 // long format date is displayed on hover
 export const formatLong = date =>
   intlFormatDate(
@@ -114,14 +121,28 @@ const DateTooltip = ({ date, children }) => {
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
+  ({
+    date: dateValue,
+    showDate = true,
+    showTime = false,
+    showExplicitDate = false,
+    shortYear = false,
+  }) => {
     const dateObj = parseDate(dateValue);
 
     const parts = [];
     if (showDate) {
-      parts.push(formatShort(dateObj));
+      if (shortYear) {
+        parts.push(formatShortest(dateObj));
+      } else {
+        parts.push(formatShort(dateObj));
+      }
     } else if (showExplicitDate) {
-      parts.push(formatShortExplicit(dateObj));
+      if (shortYear) {
+        parts.push(formatShortestExplicit(dateObj));
+      } else {
+        parts.push(formatShortExplicit(dateObj));
+      }
     }
     if (showTime) {
       parts.push(formatTime(dateObj));

@@ -1,6 +1,12 @@
-## External 🏡 
+## Manual Release Steps 🦀
 
-### Manual Release Steps
+### Config to update ⚙️
+
+### Db schema or other changes to check against reports 📊
+
+### Other manual release steps 🤏
+
+## External Changes 🏡
 
 ### Features ⭐
 
@@ -8,8 +14,8 @@
 
 ### Bug fixes 🐛
 
-## Internal 🛋️ 
+## Internal Changes 🛋️
 
 ### Infrastructure and maintenance 🛠️
 
-### Miscellaneous / Config changes 🌊 
+### Miscellaneous / Config changes 🌊

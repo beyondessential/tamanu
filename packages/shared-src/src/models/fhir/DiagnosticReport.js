@@ -1,10 +1,13 @@
 import config from 'config';
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, Op } from 'sequelize';
 
-import { FHIR_INTERACTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import {
+  FHIR_DIAGNOSTIC_REPORT_STATUS,
+  FHIR_INTERACTIONS,
+  LAB_REQUEST_STATUSES,
+} from 'shared/constants';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -12,41 +15,51 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../services/fhirTypes';
-import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
+import { latestDateTime } from '../../utils/dateTime';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION), // This field is part of DomainResource
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        extension: DataTypes.JSONB, // This field is part of DomainResource
+        identifier: DataTypes.JSONB,
         status: {
           type: Sequelize.TEXT,
           allowNull: false,
         },
         code: {
-          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         subject: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: true,
         },
         effectiveDateTime: {
-          type: DataTypes.DATE,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
         issued: {
-          type: DataTypes.DATE,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
-        performer: arrayOf('performer', DataTypes.FHIR_REFERENCE),
-        result: arrayOf('result', DataTypes.FHIR_REFERENCE),
+        performer: DataTypes.JSONB,
+        result: DataTypes.JSONB,
       },
       options,
     );
 
     this.UpstreamModel = models.LabTest;
+    this.upstreams = [
+      models.LabTest,
+      models.LabRequest,
+      models.LabTestType,
+      models.ReferenceData,
+      models.Encounter,
+      models.Patient,
+      models.User,
+    ];
   }
 
   static CAN_DO = new Set([
@@ -122,11 +135,106 @@ export class FhirDiagnosticReport extends FhirResource {
       status: status(labRequest),
       code: code(labTestType),
       subject: patientReference(patient),
-      effectiveDateTime: dateTimeStringIntoCountryTimezone(labRequest.sampleTime),
-      issued: dateTimeStringIntoCountryTimezone(labRequest.requestedDate),
+      effectiveDateTime: formatFhirDate(labRequest.sampleTime),
+      issued: formatFhirDate(labRequest.requestedDate),
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
     });
+  }
+
+  static async queryToFindUpstreamIdsFromTable(table, id) {
+    const {
+      Encounter,
+      LabRequest,
+      LabTest,
+      LabTestType,
+      Patient,
+      ReferenceData,
+      User,
+    } = this.sequelize.models;
+
+    switch (table) {
+      case LabTest.tableName:
+        return { where: { id } };
+      case LabRequest.tableName:
+        return { where: { labRequestId: id } };
+      case LabTestType.tableName:
+        return { where: { labTestTypeId: id } };
+      case Encounter.tableName:
+        return {
+          include: [
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              where: { encounterId: id },
+            },
+          ],
+        };
+      case Patient.tableName:
+        return {
+          include: [
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              include: [
+                {
+                  model: Encounter,
+                  as: 'encounter',
+                  where: { patientId: id },
+                },
+              ],
+            },
+          ],
+        };
+      case User.tableName:
+        return {
+          include: [
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              include: [
+                {
+                  model: Encounter,
+                  as: 'encounter',
+                  where: { examinerId: id },
+                },
+              ],
+            },
+          ],
+        };
+      case ReferenceData.tableName:
+        return {
+          include: [
+            {
+              model: ReferenceData,
+              as: 'category',
+            },
+            {
+              model: ReferenceData,
+              as: 'labTestMethod',
+            },
+            {
+              model: LabRequest,
+              as: 'labRequest',
+              include: [
+                {
+                  model: ReferenceData,
+                  as: 'laboratory',
+                },
+              ],
+            },
+          ],
+          where: {
+            [Op.or]: [
+              { '$category.id$': id },
+              { '$labTestMethod.id$': id },
+              { '$laboratory.id$': id },
+            ],
+          },
+        };
+      default:
+        return null;
+    }
   }
 }
 
@@ -167,11 +275,19 @@ function identifiers(labRequest) {
 function status(labRequest) {
   switch (labRequest.status) {
     case LAB_REQUEST_STATUSES.PUBLISHED:
-      return 'final';
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL;
+    case LAB_REQUEST_STATUSES.TO_BE_VERIFIED:
+    case LAB_REQUEST_STATUSES.VERIFIED:
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY;
+    case LAB_REQUEST_STATUSES.RECEPTION_PENDING:
     case LAB_REQUEST_STATUSES.RESULTS_PENDING:
-      return 'registered';
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED;
+    case LAB_REQUEST_STATUSES.CANCELLED:
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED;
+    case LAB_REQUEST_STATUSES.ENTERED_IN_ERROR:
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR;
     default:
-      return 'unknown';
+      return FHIR_DIAGNOSTIC_REPORT_STATUS.UNKNOWN;
   }
 }
 

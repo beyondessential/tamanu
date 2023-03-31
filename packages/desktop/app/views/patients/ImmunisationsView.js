@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import {
   TopBar,
   PageContainer,
-  DataFetchingTable,
   PatientSearchBar,
   ContentPane,
+  SearchTableTitle,
+  SearchTable,
 } from '../../components';
 import {
   displayId,
@@ -29,16 +30,6 @@ const COLUMNS = [
   vaccinationStatus,
 ];
 
-const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => (
-  <DataFetchingTable
-    endpoint="patient"
-    columns={COLUMNS}
-    noDataMessage="No patients found"
-    onRowClick={onPatientSelect}
-    {...props}
-  />
-));
-
 export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
@@ -58,9 +49,16 @@ export const ImmunisationsView = () => {
         onClose={() => setModalOpen(false)}
       />
       <TopBar title="Immunisation register" />
-      <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
       <ContentPane>
-        <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
+        <SearchTableTitle>Patient immunisation search</SearchTableTitle>
+        <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
+        <SearchTable
+          endpoint="patient"
+          columns={COLUMNS}
+          noDataMessage="No patients found"
+          onRowClick={onRowClick}
+          fetchOptions={searchParameters}
+        />
       </ContentPane>
     </PageContainer>
   );

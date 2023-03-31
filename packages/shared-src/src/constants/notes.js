@@ -22,6 +22,8 @@ export const NOTE_TYPES = {
   RESULT_DESCRIPTION: 'resultDescription',
   SYSTEM: 'system',
   OTHER: 'other',
+  CLINICAL_MOBILE: 'clininicalMobile',
+  HANDOVER: 'handover',
 };
 
 export const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);

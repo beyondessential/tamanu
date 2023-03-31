@@ -8,8 +8,6 @@ import {
 } from 'shared/constants/fhir';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
-import { dateTimeType } from '../dateTimeTypes';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -18,6 +16,7 @@ import {
   FhirImmunizationProtocolApplied,
 } from '../../services/fhirTypes';
 import { latestDateTime } from '../../utils/dateTime';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirImmunization extends FhirResource {
   static init(options, models) {
@@ -28,27 +27,35 @@ export class FhirImmunization extends FhirResource {
           allowNull: false,
         },
         vaccineCode: {
-          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         patient: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         encounter: {
-          type: DataTypes.FHIR_REFERENCE,
+          type: DataTypes.JSONB,
           allowNull: true,
         },
-        occurrenceDateTime: dateTimeType('occurrenceDateTime', { allowNull: true }),
+        occurrenceDateTime: Sequelize.TEXT,
         lotNumber: Sequelize.TEXT,
-        site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
-        performer: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PERFORMER),
-        protocolApplied: arrayOf('protocolApplied', DataTypes.FHIR_IMMUNIZATION_PROTOCOL_APPLIED),
+        site: DataTypes.JSONB,
+        performer: DataTypes.JSONB,
+        protocolApplied: DataTypes.JSONB,
       },
       options,
     );
 
     this.UpstreamModel = models.AdministeredVaccine;
+    this.upstreams = [
+      models.AdministeredVaccine,
+      models.Encounter,
+      models.Patient,
+      models.ReferenceData,
+      models.ScheduledVaccine,
+      models.User,
+    ];
   }
 
   static CAN_DO = new Set([
@@ -105,12 +112,92 @@ export class FhirImmunization extends FhirResource {
       vaccineCode: vaccineCode(scheduledVaccine),
       patient: patientReference(patient),
       encounter: encounterReference(encounter),
-      occurrenceDateTime: administeredVaccine.date,
+      occurrenceDateTime: formatFhirDate(administeredVaccine.date),
       lotNumber: administeredVaccine.batch,
       site: site(administeredVaccine.injectionSite),
       performer: performer(recorder),
       protocolApplied: protocolApplied(scheduledVaccine.schedule),
     });
+  }
+
+  static async queryToFindUpstreamIdsFromTable(table, id) {
+    const {
+      AdministeredVaccine,
+      Encounter,
+      Patient,
+      ReferenceData,
+      ScheduledVaccine,
+      User,
+    } = this.sequelize.models;
+
+    switch (table) {
+      case AdministeredVaccine.tableName:
+        return { where: { id } };
+      case Encounter.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              where: { id },
+            },
+          ],
+        };
+      case Patient.tableName:
+        return {
+          include: [
+            {
+              model: Encounter,
+              as: 'encounter',
+              include: [
+                {
+                  model: Patient,
+                  as: 'patient',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case ReferenceData.tableName:
+        return {
+          include: [
+            {
+              model: ScheduledVaccine,
+              as: 'scheduledVaccine',
+              include: [
+                {
+                  model: ReferenceData,
+                  as: 'vaccine',
+                  where: { id },
+                },
+              ],
+            },
+          ],
+        };
+      case ScheduledVaccine.tableName:
+        return {
+          include: [
+            {
+              model: ScheduledVaccine,
+              as: 'scheduledVaccine',
+              where: { id },
+            },
+          ],
+        };
+      case User.tableName:
+        return {
+          include: [
+            {
+              model: User,
+              as: 'recorder',
+              where: { id },
+            },
+          ],
+        };
+      default:
+        return null;
+    }
   }
 
   // Searching for patient is not supported yet
