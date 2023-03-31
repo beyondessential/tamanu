@@ -48,7 +48,7 @@ export const columns = [
     minWidth: 30,
     accessor: ({ alos }) => `${Math.round((alos || 0) * 10) / 10} days`,
     sortable: false,
-    tooltip: 'Average length of stay',
+    tooltip: 'Average length of stay, last 30 days',
   },
   {
     key: 'occupancy',
@@ -56,7 +56,7 @@ export const columns = [
     minWidth: 30,
     accessor: occupancyAccessor,
     sortable: false,
-    tooltip: '% occupancy, last 30 days',
+    tooltip: 'Bed occupancy, last 30 days',
   },
   {
     key: 'number_of_occupants',
