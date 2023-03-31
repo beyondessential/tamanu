@@ -15,7 +15,7 @@ import { Model } from '../Model';
 const missingRecordsPrivateMethod = Symbol('missingRecords');
 
 export class FhirResource extends Model {
-  static init(attributes, options) {
+  static init(attributes, { primaryKey, ...options }) {
     super.init(
       {
         id: {
