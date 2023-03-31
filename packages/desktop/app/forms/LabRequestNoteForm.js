@@ -86,7 +86,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       onSuccess: (responseData, { formProps }) => {
         setActive(false);
         formProps.resetForm();
-        queryClient.invalidateQueries(['labRequest', labRequestId, 'notes']);
+        queryClient.invalidateQueries(['labRequest', labRequestId]);
       },
     },
   );
