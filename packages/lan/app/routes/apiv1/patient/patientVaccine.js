@@ -161,7 +161,7 @@ patientVaccineRoutes.get(
     const patient = await req.models.Patient.findByPk(req.params.id);
     const { orderBy, order, ...rest } = req.query;
     const columnOrder = orderBy ? orderBy.split('.') : [];
-    const CUSTOM_SORTING_COLUMNS = {
+    const customSortingColumns = {
       attributes: {
         include: [
           [
@@ -184,7 +184,7 @@ patientVaccineRoutes.get(
 
     const results = await patient.getAdministeredVaccines({
       ...rest,
-      ...CUSTOM_SORTING_COLUMNS,
+      ...customSortingColumns,
       order: [[...columnOrder, order]],
     });
 
