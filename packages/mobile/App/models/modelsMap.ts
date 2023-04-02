@@ -30,6 +30,8 @@ import { LabTestPanelRequest } from './LabTestPanelRequest';
 import { LabTestPanel } from './LabTestPanel';
 import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
+import { NotePage } from './NotePage';
+import { NoteItem } from './NoteItem';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -63,5 +65,7 @@ export const MODELS_MAP = {
   LabTestPanelRequest,
   LocalSystemFact,
   PatientFacility,
+  NotePage,
+  NoteItem,
 };
 export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);

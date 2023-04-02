@@ -202,7 +202,7 @@ export const TestSelectorInput = ({
                 onChange: handleChangeTestFilters,
               }}
               initialOptions={[{ label: 'All', value: '' }]}
-              label="Test Category"
+              label="Test category"
               endpoint="labTestCategory"
               name="labTestCategoryId"
             />
@@ -210,7 +210,7 @@ export const TestSelectorInput = ({
           {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
             <Field
               name="labTestPanelId"
-              label="Test Panel"
+              label="Test panel"
               component={StyledSuggesterSelectField}
               endpoint="labTestPanel"
               disabled={!!labTestPanelId}

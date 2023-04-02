@@ -45,7 +45,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       initialValues={{ displayIdExact: true, ...searchParameters }}
       hiddenFields={
         <>
-          <LocalisedField component={SearchField} name="culturalName" />
+          <LocalisedField component={SearchField} name="culturalName" useShortLabel />
           <TwoColumnsField>
             <DOBFields showExactBirth={false} />
             <SexLocalisedField

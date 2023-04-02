@@ -86,7 +86,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       onSuccess: (responseData, { formProps }) => {
         setActive(false);
         formProps.resetForm();
-        queryClient.invalidateQueries(['labRequest', labRequestId, 'notes']);
+        queryClient.invalidateQueries(['labRequest', labRequestId]);
       },
     },
   );
@@ -116,10 +116,10 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />
+                  <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
                   <TextButton type="submit" $underline disabled={formSubmitIsDisabled}>
                     Save
                   </TextButton>
-                  <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
                 </Box>
               ) : (
                 <TextButton $underline onClick={() => setActive(true)}>

@@ -26,7 +26,7 @@ const columns = [
 export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
   const { patientId, category } = useParams();
   const dispatch = useDispatch();
-  const { loadLabRequest, searchParameters } = useLabRequest();
+  const { loadLabRequest } = useLabRequest();
 
   const selectLab = async lab => {
     if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
@@ -42,7 +42,6 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
       columns={columns}
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
-      fetchOptions={searchParameters}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
     />
   );

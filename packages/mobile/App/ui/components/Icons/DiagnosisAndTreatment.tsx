@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
 
-export const SickOrInjuredIcon = memo(props => {
+export const DiagnosisAndTreatmentIcon = memo(props => {
   const xml = `
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_6775_19444)">

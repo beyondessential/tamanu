@@ -13,8 +13,7 @@ export class LabRequest extends Model {
       {
         id: primaryKey,
         sampleTime: dateTimeType('sampleTime', {
-          allowNull: false,
-          defaultValue: getCurrentDateTimeString,
+          allowNull: true,
         }),
         requestedDate: dateTimeType('requestedDate', {
           allowNull: false,

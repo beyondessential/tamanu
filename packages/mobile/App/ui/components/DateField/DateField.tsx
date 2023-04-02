@@ -101,7 +101,7 @@ export const DateField = React.memo(
     const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
     return (
-      <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
+      <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
         <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
           {label}
           {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}

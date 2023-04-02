@@ -70,8 +70,8 @@ const PatientHomeContainer = ({
     () => [
       {
         title: 'Diagnosis &\nTreatment',
-        Icon: Icons.SickOrInjuredIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
+        Icon: Icons.DiagnosisAndTreatmentIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
       {
         title: 'Vitals',

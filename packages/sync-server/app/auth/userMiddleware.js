@@ -43,7 +43,7 @@ export const userMiddleware = ({ secret }) =>
       throw new BadAuthenticationError('Invalid token');
     }
 
-    const { userId } = contents;
+    const { userId, deviceId } = contents;
 
     const user = await findUserById(store.models, userId);
 
@@ -52,6 +52,7 @@ export const userMiddleware = ({ secret }) =>
     }
 
     req.user = stripUser(user);
+    req.deviceId = deviceId;
 
     const spanAttributes = req.user
       ? {
