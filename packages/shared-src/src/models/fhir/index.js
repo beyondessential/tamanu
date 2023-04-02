@@ -6,3 +6,5 @@ export * from './ServiceRequest';
 
 export * from './Job';
 export * from './JobWorker';
+
+export * from './WriteLog';

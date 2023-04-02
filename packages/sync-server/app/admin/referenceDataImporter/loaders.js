@@ -160,6 +160,7 @@ export function labTestPanelLoader(item) {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
+          id: `${id};${testType}`,
           labTestPanelId: id,
           labTestTypeId: testType,
         },

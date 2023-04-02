@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { getCurrentDateString } from 'shared/utils/dateTime';
@@ -12,6 +13,7 @@ import {
 } from '../../components';
 import { binaryOptions } from '../../constants';
 import { foreignKey } from '../../utils/validation';
+import { useApi } from '../../api';
 
 export const screen1ValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
@@ -35,6 +37,37 @@ export const screen1ValidationSchema = yup.object().shape({
     .required(),
 });
 
+const OPTIONS = {
+  INDIVIDUAL: {
+    label: 'Individual',
+    description: 'Select any individual or range of individual test types',
+    value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+  },
+  PANEL: {
+    label: 'Panel',
+    description: 'Select from a list of test panels',
+    value: LAB_REQUEST_FORM_TYPES.PANEL,
+  },
+};
+
+const useLabRequestFormTypeOptions = setFieldValue => {
+  const api = useApi();
+  const { data, isSuccess } = useQuery(['suggestions/labTestPanel/all'], () =>
+    api.get(`suggestions/labTestPanel/all`),
+  );
+  const arePanels = data?.length > 0;
+  const options = arePanels ? [OPTIONS.PANEL, OPTIONS.INDIVIDUAL] : [OPTIONS.INDIVIDUAL];
+  const defaultOption = options.length > 0 ? options[0].value : undefined;
+
+  useEffect(() => {
+    if (isSuccess) {
+      setFieldValue('requestFormType', defaultOption);
+    }
+  }, [defaultOption, setFieldValue, isSuccess]);
+
+  return { options };
+};
+
 export const LabRequestFormScreen1 = ({
   values,
   setFieldValue,
@@ -42,6 +75,8 @@ export const LabRequestFormScreen1 = ({
   practitionerSuggester,
   departmentSuggester,
 }) => {
+  const { options } = useLabRequestFormTypeOptions(setFieldValue);
+
   const handleToggleSampleCollected = event => {
     handleChange(event);
     const isSampleCollected = event.target.value === 'yes';
@@ -117,18 +152,7 @@ export const LabRequestFormScreen1 = ({
           name="requestFormType"
           label="Select your request type"
           component={RadioField}
-          options={[
-            {
-              label: 'Panel',
-              description: 'Select from a list of test panels',
-              value: LAB_REQUEST_FORM_TYPES.PANEL,
-            },
-            {
-              label: 'Individual',
-              description: 'Select any individual or range of individual test types',
-              value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
-            },
-          ]}
+          options={options}
         />
       </div>
     </>
