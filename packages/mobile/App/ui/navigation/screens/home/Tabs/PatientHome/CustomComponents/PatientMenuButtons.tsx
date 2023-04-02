@@ -17,7 +17,7 @@ export const PatientMenuButtons = ({ list }: PatientMenuListProps): ReactElement
       showsVerticalScrollIndicator={false}
       data={list}
       keyExtractor={(item): string => item.title}
-      renderItem={({ item }): ReactElement => <MenuOptionButton fontWeight={500} {...item} />}
+      renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
       ItemSeparatorComponent={Separator}
     />
   </StyledView>
