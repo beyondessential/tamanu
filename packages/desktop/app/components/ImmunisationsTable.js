@@ -20,7 +20,7 @@ const getGiver = record => {
   if (record.givenElsewhere) {
     return 'Given elsewhere';
   }
-  return record.givenBy ? record.givenBy : 'Unknown';
+  return record.givenBy || 'Unknown';
 };
 const getFacility = record =>
   record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
