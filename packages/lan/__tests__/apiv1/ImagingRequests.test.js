@@ -1,4 +1,5 @@
 import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -325,6 +326,60 @@ describe('Imaging requests', () => {
       completedBy: {
         id: app.user.dataValues.id,
       },
+    });
+  });
+
+  describe('Filtering by allFacilities', () => {
+    const otherFacilityId = 'kerang';
+    const makeRequestAtFacility = async facilityId => {
+      const testLocation = await models.Location.create({
+        facilityId,
+        name: 'Test Facility Location',
+        code: 'testFacilityLocation',
+      });
+      const testEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: testLocation.id,
+        patientId: patient.id,
+      });
+      await models.ImagingRequest.create({
+        encounterId: testEncounter.id,
+        imagingType: IMAGING_TYPES.CT_SCAN,
+        requestedById: app.user.id,
+      });
+    };
+
+    beforeAll(async () => {
+      await models.ImagingRequest.truncate({ cascade: true });
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+    });
+
+    it('should omit external requests when allFacilities is false', async () => {
+      const result = await app.get(`/v1/imagingRequest?allFacilities=false`);
+      expect(result).toHaveSucceeded();
+      result.body.data.forEach(ir => {
+        expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
+      });
+    });
+
+    it('should include all requests when allFacilities is true', async () => {
+      const result = await app.get(`/v1/imagingRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const hasConfigFacility = result.body.data.some(
+        ir => ir.encounter.location.facilityId === config.serverFacilityId,
+      );
+      expect(hasConfigFacility).toBe(true);
+
+      const hasOtherFacility = result.body.data.some(
+        ir => ir.encounter.location.facilityId === otherFacilityId,
+      );
+      expect(hasOtherFacility).toBe(true);
     });
   });
 });
