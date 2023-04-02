@@ -4,7 +4,14 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
-import { BodyText, Button, Heading4, formatShort, formatTime } from '../../../../components';
+import {
+  Button,
+  CardDivider,
+  CardHeader,
+  CardItem,
+  formatShort,
+  formatTime,
+} from '../../../../components';
 import { DropdownButton } from '../../../../components/DropdownButton';
 import { schema, schemaRefs, templates } from './schema';
 import { useAuth } from '../../../../contexts/Auth';
@@ -44,6 +51,31 @@ const StyledDropdownButton = styled(DropdownButton)`
   opacity: ${props => props.$disabled && 0.5};
   pointer-events: ${props => props.$disabled && 'none'};
 `;
+
+const VersionInfoCard = styled.div`
+  background: white;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 1px -1px, rgba(0, 0, 0, 0.14) 0px 1px 1px 0px,
+    rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
+  border-radius: 5px;
+  padding: 32px 30px;
+`;
+
+const VersionInfo = ({ name, version }) => (
+  <VersionInfoCard>
+    <CardHeader>
+      <CardItem label="Name" value={name} />
+      <CardItem label="Version" value={version.versionNumber} />
+    </CardHeader>
+    <CardDivider />
+    <CardItem
+      label="Created"
+      value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}
+          ${version.createdAt !== version.updatedAt &&
+            `, last updated: ${formatShort(version.updatedAt)} ${formatTime(version.updatedAt)}`}`}
+    />
+    <CardItem label="Created by" value={version.createdBy?.displayName} />
+  </VersionInfoCard>
+);
 
 const Error = ({ errorMessage, isCreate }) => (
   <div>
@@ -135,14 +167,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
         </div>
       </Tooltip>
       <DetailList>
-        <Heading4>{name}</Heading4>
-        <BodyText>Version: {versionNumber}</BodyText>
-        <BodyText>Created by: {createdBy.displayName}</BodyText>
-        <BodyText>
-          Created at: {formatShort(createdAt)} {formatTime(createdAt)}
-          {createdAt !== updatedAt &&
-            `, last updated: ${formatShort(updatedAt)} ${formatTime(updatedAt)}`}
-        </BodyText>
+        <VersionInfo name={name} version={version} />
         {value && (
           <JsonEditor
             schema={schema}

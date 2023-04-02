@@ -33,7 +33,6 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-
   const encounterColumns = [
     { key: 'displayId', title: 'Request ID' },
     {
@@ -46,12 +45,10 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
     { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
     { key: 'requestedDate', title: 'Date & time', accessor: getDate },
   ];
-
   const globalColumns = [
     { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
     ...encounterColumns,
   ];
-
   const selectImagingRequest = useCallback(
     async imagingRequest => {
       const { encounter } = imagingRequest;
