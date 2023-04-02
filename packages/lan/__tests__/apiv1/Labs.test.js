@@ -4,7 +4,9 @@ import {
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
-import { createDummyPatient, randomLabRequest } from 'shared/demoData';
+import config from 'config';
+import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
+import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -117,4 +119,54 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
+  describe('Filtering by allFacilities', () => {
+    const otherFacilityId = 'kerang';
+    const makeRequestAtFacility = async facilityId => {
+      const location = await models.Location.create({
+        facilityId,
+        name: 'Test Facility Location',
+        code: 'testFacilityLocation',
+      });
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: location.id,
+        patientId,
+      });
+      await models.LabRequest.create({
+        ...fake(models.LabRequest),
+        encounterId: encounter.id,
+        requestedById: app.user.id,
+      });
+    };
+
+    beforeAll(async () => {
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+    });
+
+    it('should omit external requests when allFacilities is false', async () => {
+      const result = await app.get(`/v1/labRequest?allFacilities=false`);
+      expect(result).toHaveSucceeded();
+      result.body.data.forEach(lr => {
+        expect(lr.facilityId).toBe(config.serverFacilityId);
+      });
+    });
+
+    it('should include all requests when allFacilities  is true', async () => {
+      const result = await app.get(`/v1/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const hasConfigFacility = result.body.data.some(
+        lr => lr.facilityId === config.serverFacilityId,
+      );
+      expect(hasConfigFacility).toBe(true);
+
+      const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
+      expect(hasOtherFacility).toBe(true);
+    });
+  });
 });

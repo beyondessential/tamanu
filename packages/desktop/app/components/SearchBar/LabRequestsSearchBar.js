@@ -1,8 +1,15 @@
 import React from 'react';
+import styled from 'styled-components';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { DateField, SelectField, LocalisedField } from '../Field';
+import { DateField, SelectField, LocalisedField, Field, CheckField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
+
+const FacilityCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+`;
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
@@ -37,6 +44,9 @@ export const LabRequestsSearchBar = () => {
         saveDateAsString
         component={DateField}
       />
+      <FacilityCheckbox>
+        <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+      </FacilityCheckbox>
     </CustomisableSearchBar>
   );
 };
