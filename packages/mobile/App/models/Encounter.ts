@@ -1,8 +1,8 @@
 import {
   BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
+  In,
   Index,
   ManyToOne,
   OneToMany,
@@ -30,6 +30,7 @@ import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
+import { NotePage } from './NotePage';
 
 const TIME_OFFSET = 3;
 
@@ -210,11 +211,22 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getForPatient(patientId: string): Promise<Encounter[]> {
     const repo = this.getRepository();
 
-    return repo.find({
+    const encounters = await repo.find({
       where: { patient: { id: patientId } },
       relations: ['location', 'location.facility'],
       order: { startDate: 'DESC' },
     });
+
+    const notes = await NotePage.find({
+      where: { recordId: In(encounters.map(({ id }) => id)) },
+      relations: ['noteItems'],
+    });
+
+    // Usually a patient won't have too many encounters, but if they do, this will be slow.
+    return encounters.map(encounter => ({
+      ...encounter,
+      notePages: notes.filter(note => note.recordId === encounter.id),
+    }));
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
@@ -257,5 +269,8 @@ export class Encounter extends BaseModel implements IEncounter {
     'completedReferrals',
     'labRequests',
     'labRequests.tests',
+    // Can't add these here as there's no ORM relation
+    // 'notePages',
+    // 'notePages.noteItems',
   ];
 }

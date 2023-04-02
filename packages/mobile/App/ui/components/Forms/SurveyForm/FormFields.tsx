@@ -57,14 +57,12 @@ interface FormFieldsProps {
   note: string;
 }
 
-export const FormFields = ({
-  components,
-  note,
-  patient,
-}: FormFieldsProps): ReactElement => {
+export const FormFields = ({ components, note, patient }: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
-  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<GenericFormValues>();
+  const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
+    GenericFormValues
+  >();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
 
   const maxIndex = components
@@ -89,7 +87,7 @@ export const FormFields = ({
       await handleSubmit();
     } else {
       // Only show error messages once the user has attempted to submit the form
-      setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+      setStatus(FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED);
 
       const firstErroredQuestion = components.find(({ dataElement }) =>
         pageErrors.includes(dataElement.code),
@@ -155,6 +153,7 @@ export const FormFields = ({
                   key={component.id}
                   component={component}
                   patient={patient}
+                  zIndex={components.length - index}
                   setPosition={setQuestionPosition(component.dataElement.code)}
                 />
               </ErrorBoundary>

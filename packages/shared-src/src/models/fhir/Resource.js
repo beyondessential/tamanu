@@ -8,14 +8,14 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from '../../constants';
-import { objectAsFhir } from '../../utils/pgComposite';
+import { objectAsFhir } from './utils';
 import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';
 
 const missingRecordsPrivateMethod = Symbol('missingRecords');
 
 export class FhirResource extends Model {
-  static init(attributes, options) {
+  static init(attributes, { primaryKey, ...options }) {
     super.init(
       {
         id: {
@@ -61,6 +61,9 @@ export class FhirResource extends Model {
 
   // main Tamanu model this resource is based on
   static UpstreamModel;
+
+  // list of Tamanu models that are used to materialise this resource
+  static upstreams = [];
 
   // switch to true if the upstream's ID is the UUID pg type
   static UPSTREAM_UUID = false;
@@ -182,6 +185,21 @@ export class FhirResource extends Model {
   // take a FhirResource and save it into Tamanu
   async pushUpstream() {
     throw new Error('must be overridden');
+  }
+
+  /** Reverse-map a table row to a query which returns the right upstream IDs for this resource.
+   *
+   * This is called from the materialisation process to find the upstream ID(s)
+   * for a given row in a related table, based on trigger events.
+   *
+   * @param {string} table - the table name
+   * @param {string} id - the row ID
+   * @param {null|object} deletedRow - the contents of the row if it was deleted, with field names as in SQL
+   * @returns {object|null} the argument to Sequelize#query, a query which will return the upstreams for this row, or null if the row is not relevant
+   */
+  // eslint-disable-next-line no-unused-vars
+  static async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
+    return null;
   }
 
   formatFieldsAsFhir(fields) {

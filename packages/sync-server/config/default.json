@@ -8,7 +8,14 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "pool": {
+      "max": 10
+      // "min": 5,
+      // "idle": 10000,
+      // "acquire": 60000,
+      // "evict": 1000
+    }
   },
   "updateUrls": {
     "mobile": ""
@@ -20,7 +27,8 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
+    "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
+                        // in contrast, logs are always sent
     "enabled": true
   },
   "sync": {
@@ -86,6 +94,7 @@
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",
+      "absoluteExpiration": false,
       "refreshIdLength": 54
     },
     "resetPassword": {
@@ -165,10 +174,9 @@
       "enabled": false,
       "schedule": "*/30 * * * *"
     },
-    "fhirMaterialiser": {
-      "enabled": true, // only when integrations.fhir is on
-      "schedule": "*/1 * * * *",
-      "limit": 100
+    "fhirMissingResources": {
+      "enabled": true,
+      "schedule": "48 1 * * *" // once a day, time does not matter (better in off hours)
     },
     "plannedMoveTimeout": {
       "enabled": true,
@@ -613,7 +621,7 @@
         "editDisplayId": false,
         "patientPlannedMove": false,
         "idleTimeout": {
-          "enabled": false,
+          "enabled": true,
           // All values in seconds
           "timeoutDuration": 600,
           "warningPromptDuration": 30,
@@ -788,7 +796,9 @@
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
       "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
-      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
+      "serviceRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
+      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
+      "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
       "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html"
     }
   },

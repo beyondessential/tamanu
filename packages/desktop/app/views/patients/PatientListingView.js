@@ -38,9 +38,9 @@ const LISTING_COLUMNS = [
   firstName,
   lastName,
   culturalName,
-  village,
-  sex,
   dateOfBirth,
+  sex,
+  village,
   status,
 ];
 

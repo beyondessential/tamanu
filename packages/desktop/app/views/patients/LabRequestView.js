@@ -95,6 +95,8 @@ export const LabRequestView = () => {
   if (isLoading) return <LoadingIndicator />;
 
   const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
+  // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
+  const displayStatus = isReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   return (
     <div>
@@ -108,10 +110,10 @@ export const LabRequestView = () => {
       </SimpleTopBar>
       <ContentPane>
         <FormGrid columns={3}>
-          <TextInput value={labRequest.displayId} label="Request ID" disabled={isReadOnly} />
+          <TextInput value={labRequest.displayId} label="Test ID" disabled={isReadOnly} />
           <TextInput
             value={(labRequest.category || {}).name}
-            label="Request type"
+            label="Test category"
             disabled={isReadOnly}
           />
           <TextInput
@@ -125,7 +127,7 @@ export const LabRequestView = () => {
             disabled={isReadOnly}
           />
           <TextInput
-            value={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.label || 'Unknown'}
+            value={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
             label="Status"
             disabled={isReadOnly}
           />

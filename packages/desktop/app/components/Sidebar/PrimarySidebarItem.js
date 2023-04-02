@@ -7,7 +7,10 @@ import { Colors } from '../../constants';
 
 const PrimaryListItem = styled(ListItem)`
   border-radius: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   padding-right: 10px;
+  margin-bottom: 5px;
 
   .MuiSvgIcon-root {
     position: relative;
@@ -58,12 +61,13 @@ const StyledList = styled(List)`
 
 const ListDivider = styled(Divider)`
   background-color: rgba(255, 255, 255, 0.2);
-  margin: 2px 10px 2px 16px;
+  margin: ${props => (props.$retracted ? '2px 10px' : '2px 10px 2px 16px')};
+  transition: ${props => props.theme.transitions.create('margin')};
 `;
 
 const StyledTooltip = styled(props => <Tooltip classes={{ popper: props.className }} {...props} />)`
   .MuiTooltip-tooltip {
-    margin-bottom: -20px;
+    margin-bottom: -10px;
     margin-left: 25px;
     background-color: ${Colors.primaryDark};
     padding: 10px;
@@ -90,7 +94,7 @@ export const PrimarySidebarItem = ({
   retracted,
 }) => (
   <>
-    {divider && <ListDivider />}
+    {divider && <ListDivider $retracted={retracted} />}
     <StyledTooltip title={retracted ? label : ''} placement="top-end" arrow>
       <PrimaryListItem
         button

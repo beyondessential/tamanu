@@ -16,6 +16,7 @@ import {
   TableFooter,
   TablePagination,
 } from '@material-ui/core';
+import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -237,6 +238,7 @@ class TableComponent extends React.Component {
           active={orderBy === key}
           direction={order}
           onClick={() => onChangeOrderBy(key)}
+          IconComponent={ExpandMore}
         >
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>

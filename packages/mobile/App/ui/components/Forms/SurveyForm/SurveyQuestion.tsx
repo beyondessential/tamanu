@@ -9,6 +9,8 @@ interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
   setPosition: (pos: string) => void;
   patient: IPatient;
+  // Dropdown components will overlap if there are 2 in a row if a z-index is not explicitly set
+  zIndex: number;
 }
 
 function getField(type: string, { writeToPatient: { fieldType = '' } = {} } = {}): Element {
@@ -26,6 +28,7 @@ export const SurveyQuestion = ({
   component,
   patient,
   setPosition,
+  zIndex,
 }: SurveyQuestionProps): ReactElement => {
   const { dataElement } = component;
   const config = component && component.getConfigObject();
@@ -37,7 +40,7 @@ export const SurveyQuestion = ({
   return (
     <StyledView
       marginTop={10}
-      zIndex={1}
+      zIndex={zIndex}
       onLayout={({ nativeEvent }): void => {
         setPosition(nativeEvent.layout.y);
       }}

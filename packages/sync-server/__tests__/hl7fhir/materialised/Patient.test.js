@@ -23,9 +23,9 @@ describe(`Materialised FHIR - Patient`, () => {
   describe('full resource checks', () => {
     beforeEach(async () => {
       const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
-      await FhirPatient.destroy({ where: {} });
-      await Patient.destroy({ where: {} });
-      await PatientAdditionalData.destroy({ where: {} });
+      await FhirPatient.truncate();
+      await PatientAdditionalData.truncate();
+      await Patient.truncate();
     });
 
     it('fetches a patient by materialised ID', async () => {
@@ -105,7 +105,9 @@ describe(`Materialised FHIR - Patient`, () => {
           },
         ],
       });
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(patient.updatedAt)));
+      expect(response.headers['last-modified']).toBe(
+        formatRFC7231(new Date(additionalData.updatedAt)),
+      );
       expect(response).toHaveSucceeded();
     });
 
@@ -132,7 +134,7 @@ describe(`Materialised FHIR - Patient`, () => {
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(patient.updatedAt),
+          lastUpdated: formatFhirDate(additionalData.updatedAt),
         },
         type: 'searchset',
         total: 1,
@@ -150,7 +152,7 @@ describe(`Materialised FHIR - Patient`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: formatFhirDate(patient.updatedAt),
+                lastUpdated: formatFhirDate(additionalData.updatedAt),
               },
               active: true,
               address: [
@@ -284,12 +286,19 @@ describe(`Materialised FHIR - Patient`, () => {
     // the code *does* support nested arrays, but it results in inconsistent
     // ordering from run to run so it's disabled in query.js.
     describe.skip('in fields with nested arrays', () => {
-      it('sorts by firstName ascending (given)', async () => {
+      beforeEach(async () => {
+        const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
+        await FhirPatient.destroy({ where: {} });
+        await Patient.destroy({ where: {} });
+        await PatientAdditionalData.destroy({ where: {} });
+      });
+
+      it('sorts by firstName/middleName ascending (given)', async () => {
         const { FhirPatient, Patient } = ctx.store.models;
         const patients = await Promise.all([
-          Patient.create(fake(Patient, { firstName: 'Alice' })),
-          Patient.create(fake(Patient, { firstName: 'Bob' })),
-          Patient.create(fake(Patient, { firstName: 'Charlie' })),
+          Patient.create(fake(Patient, { firstName: 'Alice', middleName: 'Diana' })),
+          Patient.create(fake(Patient, { firstName: 'Ernst', middleName: 'Bob' })),
+          Patient.create(fake(Patient, { firstName: 'Charlie', middleName: 'Fritz' })),
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
@@ -299,16 +308,16 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry[0].resource.name[0].given[0]).toBe('Alice');
-        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Bob');
+        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Ernst');
         expect(response.body.entry[2].resource.name[0].given[0]).toBe('Charlie');
       });
 
-      it('sorts by firstName descending (-given)', async () => {
+      it('sorts by firstName/middleName descending (-given)', async () => {
         const { FhirPatient, Patient } = ctx.store.models;
         const patients = await Promise.all([
-          Patient.create(fake(Patient, { firstName: 'Alice' })),
-          Patient.create(fake(Patient, { firstName: 'Bob' })),
-          Patient.create(fake(Patient, { firstName: 'Charlie' })),
+          Patient.create(fake(Patient, { firstName: 'Alice', middleName: 'Diana' })),
+          Patient.create(fake(Patient, { firstName: 'Ernst', middleName: 'Bob' })),
+          Patient.create(fake(Patient, { firstName: 'Charlie', middleName: 'Fritz' })),
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
 
@@ -317,8 +326,9 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
+        expect(response.body.entry.length).toBe(3);
         expect(response.body.entry[0].resource.name[0].given[0]).toBe('Charlie');
-        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Bob');
+        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Ernst');
         expect(response.body.entry[2].resource.name[0].given[0]).toBe('Alice');
       });
 
@@ -360,7 +370,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry[2].resource.name[0].family).toBe('Adams');
       });
 
-      it('sorts by additionalData.cityTown ascending (address)', async () => {
+      it('sorts by additionalData.cityTown/streetVillage ascending (address)', async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         const [patientOne, patientTwo, patientThree] = await Promise.all([
           Patient.create(fake(Patient)),
@@ -370,15 +380,15 @@ describe(`Materialised FHIR - Patient`, () => {
 
         await Promise.all([
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { cityTown: 'Amsterdam' }),
+            ...fake(PatientAdditionalData, { cityTown: 'Amsterdam', streetVillage: 'Dent St.' }),
             patientId: patientOne.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { cityTown: 'Berlin' }),
+            ...fake(PatientAdditionalData, { cityTown: 'El Paso', streetVillage: 'Bernie St.' }),
             patientId: patientTwo.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { cityTown: 'Cabo' }),
+            ...fake(PatientAdditionalData, { cityTown: 'Cabo', streetVillage: 'First St.' }),
             patientId: patientThree.id,
           }),
         ]);
@@ -393,12 +403,13 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.address[0].city).toBe('Amsterdam');
-        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
+        // The first order is actually address[].line[] (so streetVillage)
+        expect(response.body.entry[0].resource.address[0].city).toBe('El Paso');
+        expect(response.body.entry[1].resource.address[0].city).toBe('Amsterdam');
         expect(response.body.entry[2].resource.address[0].city).toBe('Cabo');
       });
 
-      it('sorts by additionalData.cityTown descending (-address)', async () => {
+      it('sorts by additionalData.cityTown/streetVillage descending (-address)', async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         const [patientOne, patientTwo, patientThree] = await Promise.all([
           Patient.create(fake(Patient)),
@@ -408,15 +419,15 @@ describe(`Materialised FHIR - Patient`, () => {
 
         await Promise.all([
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { cityTown: 'Amsterdam' }),
+            ...fake(PatientAdditionalData, { cityTown: 'Amsterdam', streetVillage: 'Dent St.' }),
             patientId: patientOne.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { cityTown: 'Berlin' }),
+            ...fake(PatientAdditionalData, { cityTown: 'El Paso', streetVillage: 'Bernie St.' }),
             patientId: patientTwo.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { cityTown: 'Cabo' }),
+            ...fake(PatientAdditionalData, { cityTown: 'Cabo', streetVillage: 'First St.' }),
             patientId: patientThree.id,
           }),
         ]);
@@ -432,8 +443,8 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry[0].resource.address[0].city).toBe('Cabo');
-        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
-        expect(response.body.entry[2].resource.address[0].city).toBe('Amsterdam');
+        expect(response.body.entry[1].resource.address[0].city).toBe('Amsterdam');
+        expect(response.body.entry[2].resource.address[0].city).toBe('El Paso');
       });
 
       it('sorts by additionalData.cityTown ascending (address-city)', async () => {
@@ -512,7 +523,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry[2].resource.address[0].city).toBe('Amsterdam');
       });
 
-      it('sorts by additionalData.primaryContactNumber ascending (telecom)', async () => {
+      it('sorts by additionalData.primaryContactNumber/secondaryContactNumber ascending (telecom)', async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         const [patientOne, patientTwo, patientThree] = await Promise.all([
           Patient.create(fake(Patient)),
@@ -522,15 +533,24 @@ describe(`Materialised FHIR - Patient`, () => {
 
         await Promise.all([
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456781' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456781',
+              secondaryContactNumber: '123456784',
+            }),
             patientId: patientOne.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456782' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456785',
+              secondaryContactNumber: '123456782',
+            }),
             patientId: patientTwo.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456783' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456783',
+              secondaryContactNumber: '123456786',
+            }),
             patientId: patientThree.id,
           }),
         ]);
@@ -546,11 +566,11 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry[0].resource.telecom[0].value).toBe('123456781');
-        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456782');
+        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456785');
         expect(response.body.entry[2].resource.telecom[0].value).toBe('123456783');
       });
 
-      it('sorts by additionalData.primaryContactNumber descending (-telecom)', async () => {
+      it('sorts by additionalData.primaryContactNumber/secondaryContactNumber descending (-telecom)', async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         const [patientOne, patientTwo, patientThree] = await Promise.all([
           Patient.create(fake(Patient)),
@@ -560,15 +580,24 @@ describe(`Materialised FHIR - Patient`, () => {
 
         await Promise.all([
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456781' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456781',
+              secondaryContactNumber: '123456784',
+            }),
             patientId: patientOne.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456782' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456785',
+              secondaryContactNumber: '123456782',
+            }),
             patientId: patientTwo.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456783' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456783',
+              secondaryContactNumber: '123456786',
+            }),
             patientId: patientThree.id,
           }),
         ]);
@@ -584,39 +613,54 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry[0].resource.telecom[0].value).toBe('123456783');
-        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456782');
+        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456785');
         expect(response.body.entry[2].resource.telecom[0].value).toBe('123456781');
       });
 
       it('sorts by multiple fields', async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         const [patientOne, patientTwo, patientThree, patientFour, patientFive] = await Promise.all([
-          Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams' })),
-          Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams' })),
-          Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Baker' })),
-          Patient.create(fake(Patient, { firstName: 'Bob', lastName: 'Adams' })),
-          Patient.create(fake(Patient, { firstName: 'Bob', lastName: 'Baker' })),
+          Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams', middleName: '' })),
+          Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams', middleName: '' })),
+          Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Baker', middleName: '' })),
+          Patient.create(fake(Patient, { firstName: 'Bob', lastName: 'Adams', middleName: '' })),
+          Patient.create(fake(Patient, { firstName: 'Bob', lastName: 'Baker', middleName: '' })),
         ]);
 
         await Promise.all([
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456781' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456781',
+              secondaryContactNumber: '',
+            }),
             patientId: patientOne.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456782' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456782',
+              secondaryContactNumber: '',
+            }),
             patientId: patientTwo.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456783' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456783',
+              secondaryContactNumber: '',
+            }),
             patientId: patientThree.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456784' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456784',
+              secondaryContactNumber: '',
+            }),
             patientId: patientFour.id,
           }),
           PatientAdditionalData.create({
-            ...fake(PatientAdditionalData, { primaryContactNumber: '123456785' }),
+            ...fake(PatientAdditionalData, {
+              primaryContactNumber: '123456785',
+              secondaryContactNumber: '',
+            }),
             patientId: patientFive.id,
           }),
         ]);

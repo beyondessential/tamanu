@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { useApi } from 'desktop/app/api';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { SURVEY_TYPES } from 'shared/constants';
@@ -24,13 +25,20 @@ import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
-  const { encounter } = useEncounter();
+  const params = useParams();
+  const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
+
+  useEffect(() => {
+    if (params.encounterId) {
+      loadEncounter(params.encounterId);
+    }
+  }, [loadEncounter, params.encounterId]);
 
   useEffect(() => {
     (async () => {
@@ -79,8 +87,8 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: getAnswersFromData(data, survey),
       actions: getActionsFromData(data, survey),
     });
-    if (encounter && !encounter.endDate) {
-      navigateToEncounter(encounter.id, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
+    if (params?.encounterId && encounter && !encounter.endDate) {
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
     } else {
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }

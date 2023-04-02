@@ -70,9 +70,11 @@ const extractEncounterTypeHistory = (notes, encounterData) => {
 const extractLocationHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, locationNoteMatcher);
   const locationHistory = history?.map(location => {
+    const locationArr = location.to?.split(/,\s+/);
+    const hasLocationGroup = locationArr.length > 1;
     return {
-      newLocationGroup: location.to?.split(',')[0],
-      newLocation: location.to?.split(',')[1].trim(),
+      newLocationGroup: hasLocationGroup && locationArr[0],
+      newLocation: hasLocationGroup ? locationArr[1] : locationArr[0],
       date: location.date,
     };
   });
@@ -133,7 +135,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           updatedLabRequests.push({
             testType: test.labTestType.name,
             testCategory: labRequest.category.name,
-            requestingClinician: labRequest.requestedBy.displayName,
+            requestedByName: labRequest.requestedBy?.displayName,
             requestDate: labRequest.requestedDate,
             completedDate: test.completedDate,
           });
