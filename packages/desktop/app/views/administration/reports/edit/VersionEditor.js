@@ -69,10 +69,11 @@ const VersionInfo = ({ name, version }) => (
     <CardDivider />
     <CardItem
       label="Created"
-      value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}
-          ${version.createdAt !== version.updatedAt &&
-            `, last updated: ${formatShort(version.updatedAt)} ${formatTime(version.updatedAt)}`}`}
+      value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}`}
     />
+    {version.createdAt !== version.updatedAt && (
+      <CardItem label="Updated" value={formatShort(version.updatedAt)} />
+    )}
     <CardItem label="Created by" value={version.createdBy?.displayName} />
   </VersionInfoCard>
 );
