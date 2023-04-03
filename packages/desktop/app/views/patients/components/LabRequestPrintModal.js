@@ -25,7 +25,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     },
   );
   const { data: notes, isLoading: areNotesLoading } = useQuery(
-    ['labRequestNotes', labRequest.id],
+    ['labRequestNotes', labRequest.id, open],
     async () => {
       const notesRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/notes`);
       return notesRes.data;
