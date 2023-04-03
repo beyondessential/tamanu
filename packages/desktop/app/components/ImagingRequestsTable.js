@@ -11,14 +11,14 @@ import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
-import { StatusTag } from './Tag';
+import { TableCellTag } from './Tag';
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
   return (
-    <StatusTag $background={background} $color={color}>
+    <TableCellTag $background={background} $color={color}>
       {label}
-    </StatusTag>
+    </TableCellTag>
   );
 });
 

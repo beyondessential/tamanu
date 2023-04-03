@@ -259,3 +259,6 @@ createSuggester(
   patient => patient,
   'first_name',
 );
+
+// TODO: Use generic LabTest permissions for this suggester
+createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);

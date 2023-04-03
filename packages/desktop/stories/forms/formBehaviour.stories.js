@@ -1,14 +1,8 @@
 import React from 'react';
-
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
 import styled from 'styled-components';
-import { TextField } from '../app/components';
-
-import { Button } from '../app/components/Button';
-import { FormGrid } from '../app/components/FormGrid';
-import { Field, Form } from '../app/components/Field';
+import { FormGrid, Button, TextField, Field, Form } from '../../app/components';
 
 async function asyncSubmit(data) {
   action('submitStart')(data);
@@ -26,7 +20,7 @@ const StyledButton = styled(Button)`
   padding: 14px 20px;
 `;
 
-storiesOf('FormBehaviour', module).add('Async submission form', () => (
+storiesOf('Forms', module).add('Async submission form', () => (
   <Form
     onSubmit={asyncSubmit}
     render={({ submitForm, isSubmitting }) => (
@@ -57,7 +51,7 @@ async function asyncSubmitWithError(data, { setErrors }) {
   action('submitEnd')(data);
 }
 
-storiesOf('FormBehaviour', module).add('With async error', () => (
+storiesOf('Forms', module).add('With async error', () => (
   <Form
     onSubmit={asyncSubmitWithError}
     render={({ submitForm, isSubmitting }) => (
