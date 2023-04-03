@@ -1,10 +1,10 @@
 import React from 'react';
 
+import { VACCINE_STATUS } from 'shared/constants/vaccines';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { StatusTag } from './Tag';
 import { Colors } from '../constants';
-import { VACCINE_STATUS } from '../../../shared-src/src/constants/vaccines';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
 const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label || 'Unknown';
