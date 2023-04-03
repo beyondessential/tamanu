@@ -103,7 +103,9 @@ const DetailedDashboardItemNumber = ({ loading, value }) => {
 
 const DetailedDashboardItem = ({ api }) => {
   const {
-    data: { data: { availableLocationCount, reservedLocationCount, occupiedLocationCount } = {} } = {},
+    data: {
+      data: { availableLocationCount, reservedLocationCount, occupiedLocationCount } = {},
+    } = {},
     isLoading: patientLocationsLoading,
   } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
 
@@ -157,9 +159,8 @@ export const BedManagement = () => {
     () => api.get('patient/locations/occupancy'),
   );
 
-  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(
-    ['alos'],
-    () => api.get('patient/locations/alos'),
+  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos'], () =>
+    api.get('patient/locations/alos'),
   );
 
   return (

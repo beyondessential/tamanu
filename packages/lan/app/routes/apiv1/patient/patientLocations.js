@@ -74,7 +74,10 @@ patientLocations.get(
     req.checkPermission('list', 'Patient');
 
     const [
-      { occupied_locations: occupiedLocationCount, available_locations: availableLocationCount } = {},
+      {
+        occupied_locations: occupiedLocationCount,
+        available_locations: availableLocationCount,
+      } = {},
     ] = await req.db.query(
       `
         SELECT
