@@ -181,7 +181,7 @@ export const BedManagement = () => {
             />
             <DashboardItem
               color={Colors.purple}
-              title={`${alos || 0} days`}
+              title={`${Math.round((alos || 0) * 10) / 10} days`}
               loading={alosLoading}
               description={`Average length of\nstay (last 30 days)`}
             />
