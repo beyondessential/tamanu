@@ -20,15 +20,15 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const { data: tests, isLoading: areTestsLoading } = useQuery(
     ['labRequestTests', labRequest.id],
     async () => {
-      const notesRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/tests`);
-      return notesRes.data;
+      const testsRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/tests`);
+      return testsRes.data;
     },
   );
   const { data: notes, isLoading: areNotesLoading } = useQuery(
     ['labRequestNotes', labRequest.id],
     async () => {
-      const testsRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/notes`);
-      return testsRes.data;
+      const notesRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/notes`);
+      return notesRes.data;
     },
   );
   const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
