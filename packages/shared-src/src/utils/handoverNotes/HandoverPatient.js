@@ -17,6 +17,17 @@ const PATIENT_FIELDS = [
   { key: 'sex', label: 'Sex', accessor: getSex },
 ];
 
+const ValueDisplay = ({ width, title, value }) => (
+  <Col style={{ width }}>
+    <P mb={5} style={{ fontSize: 10 }}>
+      <P style={{ fontSize: 10 }} bold>
+        {title}:
+      </P>{' '}
+      {value}
+    </P>
+  </Col>
+);
+
 export const HandoverPatient = ({
   patient,
   location,
@@ -26,9 +37,9 @@ export const HandoverPatient = ({
   getLocalisation,
   createdAt,
 }) => {
-  const detailsToDisplay = [
-    ...PATIENT_FIELDS.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true),
-  ];
+  const detailsToDisplay = PATIENT_FIELDS.filter(
+    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+  );
   return (
     <>
       <Row style={{ width: '100%', marginBottom: 40 }}>
@@ -38,56 +49,15 @@ export const HandoverPatient = ({
               const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
               const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
 
-              return (
-                <Col key={key} style={{ width: '33%' }}>
-                  <P mb={5} style={{ fontSize: 10 }}>
-                    <P style={{ fontSize: 10 }} bold>
-                      {label}:
-                    </P>{' '}
-                    {value}
-                  </P>
-                </Col>
-              );
+              return <ValueDisplay key={key} width="33%" title={label} value={value} />;
             })}
-            <Col style={{ width: '33%' }}>
-              <P mb={5} style={{ fontSize: 10 }}>
-                <P style={{ fontSize: 10 }} bold>
-                  Location:
-                </P>{' '}
-                {location}
-              </P>
-            </Col>
-            <Col style={{ width: '33%' }}>
-              <P mb={5} style={{ fontSize: 10 }}>
-                <P style={{ fontSize: 10 }} bold>
-                  Arrival date:
-                </P>{' '}
-                {getDisplayDate(arrivalDate)}
-              </P>
-            </Col>
+            <ValueDisplay width="33%" title="Location" value={location} />
+            <ValueDisplay width="33%" title="Arrival date" value={getDisplayDate(arrivalDate)} />
           </Row>
-          {diagnosis && (
-            <Row>
-              <Col style={{ width: '100%' }}>
-                <P mb={5} style={{ fontSize: 10 }}>
-                  <P style={{ fontSize: 10 }} bold>
-                    Diagnosis:
-                  </P>{' '}
-                  {diagnosis}
-                </P>
-              </Col>
-            </Row>
-          )}
+          {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
           {notes && (
             <Row>
-              <Col style={{ width: '100%' }}>
-                <P mb={5} style={{ fontSize: 10 }}>
-                  <P style={{ fontSize: 10 }} bold>
-                    Notes:
-                  </P>{' '}
-                  {notes}
-                </P>
-              </Col>
+              <ValueDisplay width="100%" title="Notes" value={notes} />
               {createdAt && (
                 <Col style={{ width: '100%' }}>
                   <P style={{ fontSize: 8 }}>{getDisplayDate(createdAt, 'dd/MM/yyyy hh:mm a')}</P>
