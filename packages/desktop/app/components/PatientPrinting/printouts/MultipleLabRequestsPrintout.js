@@ -69,10 +69,8 @@ export const MultipleLabRequestsPrintout = React.memo(
           village={village}
           additionalData={additionalData}
         />
-
         <Divider />
         <DateFacilitySection encounter={encounter} />
-
         <ListTable data={labRequests} columns={columns} />
         <NotesPagesSection idsAndNotePages={idsAndNotePages} />
       </CertificateWrapper>

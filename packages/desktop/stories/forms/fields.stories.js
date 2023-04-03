@@ -9,8 +9,6 @@ import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import {
   TextInput,
-  CheckInput,
-  RadioInput,
   DateInput,
   TimeInput,
   DateTimeInput,
@@ -20,8 +18,8 @@ import {
   AutocompleteInput,
   NullableBooleanInput,
   TimeWithUnitInput,
-} from '../app/components';
-import { IdInput } from '../app/components/Field/IdField';
+} from '../../app/components';
+import { IdInput } from '../../app/components/Field/IdField';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -76,7 +74,7 @@ class StoryControlWrapper extends React.PureComponent {
 // Helper function to add a bunch of standard variants for a given control.
 // Returns the chain so additional variants can be added easily when necessary.
 function addStories(name, Component, note) {
-  return storiesOf(`FormControls/${name}`, module)
+  return storiesOf(`Forms/${name}`, module)
     .addParameters({ note })
     .add('Default', () => <Component />)
     .add('Required', () => <Component required />)
@@ -170,10 +168,6 @@ addStories('Dropdown with tags', props => {
   );
 });
 
-addStories('CheckInput', props => (
-  <StoryControlWrapper Component={CheckInput} label="Enable" {...props} />
-));
-
 addStories('NullableBooleanInput', props => (
   <StoryControlWrapper Component={NullableBooleanInput} label="Enable" {...props} />
 ));
@@ -221,19 +215,6 @@ addStories('NumberInput', props => (
     max={10}
   />
 ));
-
-addStories(
-  'RadioInput',
-  props => (
-    <StoryControlWrapper
-      Component={RadioInput}
-      label="Fruit"
-      options={FRUITS.slice(0, 3)}
-      {...props}
-    />
-  ),
-  "Should only be used for <=5 items. If there're a lot, prefer a SelectInput instead.",
-);
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />

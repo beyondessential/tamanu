@@ -24,13 +24,7 @@ import {
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-
-const binaryOptions = [
-  { value: 'yes', label: 'Yes' },
-  { value: 'no', label: 'No' },
-];
-
-const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
+import { binaryOptions, binaryUnknownOptions } from '../constants';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;

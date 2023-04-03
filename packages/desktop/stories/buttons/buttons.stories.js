@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, OutlinedButton } from '../app/components/Button';
+import { Button, OutlinedButton } from '../../app/components';
 
 export default {
   argTypes: {
