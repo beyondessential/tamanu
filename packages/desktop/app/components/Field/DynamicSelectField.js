@@ -1,27 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { SelectField } from './SelectField';
-import { AutocompleteField } from './AutocompleteField';
+import { SelectInput } from './SelectField';
+import { AutocompleteInput } from './AutocompleteField';
 
-export const DynamicSelectField = ({ field, options, ...props }) => {
-  let resultLength = 0;
-  if (Array.isArray(options)) {
-    resultLength = options.length;
-  } else {
-    const results = options.fetchSuggestions();
-    resultLength = results.length;
-  }
+export const DynamicSelectField = ({ field, options, suggester, ...props }) => {
+  const [resultLength, setResultLength] = React.useState(0);
+  useEffect(() => {
+    async function findDataLength() {
+      if (options) {
+        setResultLength(options.length);
+      }
+      if (suggester) {
+        const results = await suggester.fetchSuggestions();
+        setResultLength(results.length);
+      }
+    }
+    findDataLength();
+  });
 
   return resultLength > 7 ? (
-    <AutocompleteField
+    <AutocompleteInput
       name={field.name}
       onChange={field.onChange}
       value={field.value}
-      options={options}
+      suggester={suggester}
       {...props}
     />
   ) : (
-    <SelectField
+    <SelectInput
       name={field.name}
       onChange={field.onChange}
       value={field.value}

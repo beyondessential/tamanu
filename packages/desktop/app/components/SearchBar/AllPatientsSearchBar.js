@@ -58,7 +58,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
           </TwoColumnsField>
           <VillageLocalisedField
             name="villageId"
-            component={AutocompleteField}
+            component={DynamicSelectField}
             suggester={villageSuggester}
             size="small"
           />
