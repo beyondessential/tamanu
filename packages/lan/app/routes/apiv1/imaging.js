@@ -141,15 +141,7 @@ imagingRequest.put(
       models: { ImagingRequest, ImagingResult },
       params: { id },
       user,
-      body: {
-        areas,
-        note,
-        areaNote,
-        newResultCompletedBy,
-        newResultDate,
-        newResultDescription,
-        ...imagingRequestData
-      },
+      body: { areas, note, areaNote, newResult, ...imagingRequestData },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
 
@@ -215,18 +207,16 @@ imagingRequest.put(
       }
     }
 
-    if (newResultCompletedBy) {
-      const newResult = await ImagingResult.create({
-        description: newResultDescription,
-        completedAt: newResultDate,
-        completedById: newResultCompletedBy,
+    if (newResult?.completedById) {
+      const imagingResult = await ImagingResult.create({
+        ...newResult,
         imagingRequestId: imagingRequestObject.id,
       });
 
       if (imagingRequestObject.results) {
-        imagingRequestObject.results.push(newResult);
+        imagingRequestObject.results.push(imagingResult);
       } else {
-        imagingRequestObject.results = [newResult];
+        imagingRequestObject.results = [imagingResult];
       }
     }
 
