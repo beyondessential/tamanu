@@ -181,4 +181,9 @@ export const SYNC_MENU_ITEMS = [
     label: 'Sync status',
     path: '/admin/sync',
   },
+  {
+    key: 'reports',
+    label: 'Reports',
+    path: '/admin/reports',
+  },
 ];
