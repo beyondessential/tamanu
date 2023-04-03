@@ -105,7 +105,6 @@ patientVaccineRoutes.post(
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
-    let newAdministeredVaccine;
     const existingEncounter = await req.models.Encounter.findOne({
       where: {
         endDate: {
@@ -115,7 +114,7 @@ patientVaccineRoutes.post(
       },
     });
 
-    await db.transaction(async () => {
+    const newAdministeredVaccine = await db.transaction(async () => {
       let encounterId;
       if (existingEncounter) {
         encounterId = existingEncounter.get('id');
@@ -132,7 +131,7 @@ patientVaccineRoutes.post(
         encounterId = newEncounter.get('id');
       }
 
-      newAdministeredVaccine = await req.models.AdministeredVaccine.create({
+      return req.models.AdministeredVaccine.create({
         status: 'GIVEN',
         ...req.body,
         encounterId,
