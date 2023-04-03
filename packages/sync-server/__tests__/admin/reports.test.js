@@ -59,6 +59,7 @@ describe('reports', () => {
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(1);
       expect(res.body[0].id).toBe(testReport.id);
+      expect(res.body[0].name).toBe(testReport.name);
     });
     it('should return version count and last updated', async () => {
       const { ReportDefinitionVersion } = models;
