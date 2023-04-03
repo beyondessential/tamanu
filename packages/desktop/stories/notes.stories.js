@@ -1,16 +1,14 @@
 import React from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { storiesOf } from '@storybook/react';
 import { HandoverNotesPDF } from 'shared/utils/handoverNotes';
 import styled from 'styled-components';
 import { createDummyPatient } from 'shared/demoData';
-import { FormGrid } from '../app/components/FormGrid';
 import { LabRequestNoteForm } from '../app/forms/LabRequestNoteForm';
 import Logo from './assets/tamanu-logo.png';
 import { MockedApi } from './utils/mockedApi';
 
 const Container = styled.div`
-  max-width: 600px;
+  width: 600px;
   padding: 1rem;
 `;
 
@@ -28,10 +26,6 @@ const getLocalisation = key => {
   };
   return config[key];
 };
-
-function refreshLabRequest() {
-  console.log('refresh...');
-}
 
 const handoverNotes = [
   {
@@ -64,25 +58,49 @@ const handoverNotes = [
 
 const endpoints = {
   'labRequest/:id/notes': () => {
-    return { data: [{ id: '1', content: 'LabRequest Cancelled. Reason: Clinical Reason.' }] };
+    return {
+      data: [
+        {
+          id: '1',
+          content: 'LabRequest Cancelled. Reason: Clinical Reason.',
+          author: { displayName: 'Catherine Jennings' },
+          date: new Date(),
+        },
+        {
+          id: '2',
+          content: 'Patient discharged.',
+          author: { displayName: 'Catherine Jennings' },
+          date: new Date(),
+        },
+      ],
+    };
   },
 };
 
-storiesOf('Notes', module).add('LabRequestNotesForm', () => (
-  <MockedApi endpoints={endpoints}>
-    <Container>
-      <FormGrid columns={3}>
-        <LabRequestNoteForm
-          labRequest={{ id: '123', status: 'cancelled' }}
-          refreshLabRequest={refreshLabRequest}
-        />
-      </FormGrid>
-    </Container>
-  </MockedApi>
-));
+export default {
+  title: 'Notes',
+  component: LabRequestNoteForm,
+  decorators: [
+    Story => (
+      <MockedApi endpoints={endpoints}>
+        <Container>
+          <Story />
+        </Container>
+      </MockedApi>
+    ),
+  ],
+};
 
-storiesOf('Notes', module).add('Handover notes PDF', () => (
-  <PDFViewer width={800} height={1000} showToolbar={false}>
+const Template = args => <LabRequestNoteForm {...args} />;
+
+export const LabRequestForm = Template.bind({});
+LabRequestForm.args = {
+  labRequestId: '1234',
+  isReadOnly: false,
+};
+
+const PDFTemplate = args => (
+  <PDFViewer {...args}>
     <HandoverNotesPDF
       handoverNotes={handoverNotes}
       logoSrc={Logo}
@@ -90,4 +108,11 @@ storiesOf('Notes', module).add('Handover notes PDF', () => (
       location="Female ward"
     />
   </PDFViewer>
-));
+);
+
+export const HandoverNotes = PDFTemplate.bind({});
+HandoverNotes.args = {
+  width: 800,
+  height: 1000,
+  showToolbar: false,
+};

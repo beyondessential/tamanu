@@ -153,6 +153,10 @@ export class FhirServiceRequest extends FhirResource {
           system: config.hl7.dataDictionaries.serviceRequestId,
           value: upstream.id,
         }),
+        new FhirIdentifier({
+          system: config.hl7.dataDictionaries.serviceRequestDisplayId,
+          value: upstream.displayId,
+        }),
       ],
       status: status(upstream),
       intent: FHIR_REQUEST_INTENT.ORDER._,
