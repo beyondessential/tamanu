@@ -106,7 +106,7 @@ export class Patient extends Model {
     const { models } = this.sequelize;
     const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
 
-    const { where: optWhere = {}, include = [], ...optRest } = queryOptions;
+    const { where: optWhere = {}, include = [], includeNotGiven = true, ...optRest } = queryOptions;
 
     if (include.length === 0) {
       include.push(
@@ -136,9 +136,11 @@ export class Patient extends Model {
       ...optRest,
       include,
       where: {
-        '$encounter.patient_id$': this.id,
-        status: { [Op.in]: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN] },
         ...optWhere,
+        '$encounter.patient_id$': this.id,
+        status: JSON.parse(includeNotGiven)
+          ? { [Op.in]: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN] }
+          : VACCINE_STATUS.GIVEN,
       },
     });
 
