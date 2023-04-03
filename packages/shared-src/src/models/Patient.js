@@ -118,7 +118,7 @@ export class Patient extends Model {
         {
           model: models.Location,
           as: 'location',
-          include: ['locationGroup'],
+          include: ['locationGroup', 'facility'],
         },
       );
     }
