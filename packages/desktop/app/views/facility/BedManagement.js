@@ -96,14 +96,14 @@ const DashboardItem = ({ color, title, loading, description }) => {
   );
 };
 
-const DetailedDashboardItemElement = ({ loading, title }) => {
+const DetailedDashboardItemNumber = ({ loading, value }) => {
   if (loading) return <DetailedLoadingIndicator />;
-  return <DetailedDashboardItemTitle>{title}</DetailedDashboardItemTitle>;
+  return <DetailedDashboardItemTitle>{value || 0}</DetailedDashboardItemTitle>;
 };
 
 const DetailedDashboardItem = ({ api }) => {
   const {
-    data: { data: { availableLocations, reservedLocations, occupiedLocations } = {} } = {},
+    data: { data: { availableLocationCount, reservedLocationCount, occupiedLocationCount } = {} } = {},
     isLoading: patientLocationsLoading,
   } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
 
@@ -111,17 +111,17 @@ const DetailedDashboardItem = ({ api }) => {
     <DetailedDashboardItemContainer color={Colors.brightBlue}>
       <DetailedDashboardItemTextContainer>
         <div>
-          <DetailedDashboardItemElement
+          <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
-            title={availableLocations}
+            value={availableLocationCount}
           />
-          <DetailedDashboardItemElement
+          <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
-            title={reservedLocations}
+            value={reservedLocationCount}
           />
-          <DetailedDashboardItemElement
+          <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
-            title={occupiedLocations}
+            value={occupiedLocationCount}
           />
         </div>
         <DetailedDashboardItemSection>
@@ -157,6 +157,11 @@ export const BedManagement = () => {
     () => api.get('patient/locations/occupancy'),
   );
 
+  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(
+    ['alos'],
+    () => api.get('patient/locations/alos'),
+  );
+
   return (
     <PageContainer>
       <TopBar title="Bed management" subTitle={facility.name} />
@@ -176,7 +181,8 @@ export const BedManagement = () => {
             />
             <DashboardItem
               color={Colors.purple}
-              title="- days"
+              title={`${alos || 0} days`}
+              loading={alosLoading}
               description={`Average length of\nstay (last 30 days)`}
             />
             <DashboardItem
