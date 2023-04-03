@@ -159,7 +159,7 @@ patientVaccineRoutes.get(
     req.checkPermission('list', 'PatientVaccine');
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const { orderBy, order, ...rest } = req.query;
+    const { orderBy = 'date', order = 'ASC', ...rest } = req.query;
     const columnOrder = orderBy ? orderBy.split('.') : [];
     const customSortingColumns = {
       attributes: {
