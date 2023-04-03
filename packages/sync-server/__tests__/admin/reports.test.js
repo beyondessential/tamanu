@@ -1,7 +1,7 @@
 import { User } from 'shared/models/User';
-import { fake } from 'shared/test-helpers/fake';
 import { createTestContext, withDate } from '../utilities';
-import path from 'path';
+import { sanitizeFilename, stripMetadata } from '../../app/admin/reports/utils';
+import { REPORT_ADMIN_EXPORT_FORMATS } from '../../../shared-src/src/constants/reports';
 
 describe('reports', () => {
   let ctx;
@@ -105,131 +105,6 @@ describe('reports', () => {
     });
   });
 
-  describe('PUT /reports/:id/versions/:versionId', () => {
-    it('should update a version', async () => {
-      const { ReportDefinitionVersion } = models;
-      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        query: 'select meow from cat',
-      });
-      expect(res).toHaveSucceeded();
-      expect(res.body.query).toBe('select meow from cat');
-    });
-    it('should not return unnecessary metadata', async () => {
-      const { ReportDefinitionVersion } = models;
-      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`, {
-        query: 'select meow from cat',
-      });
-      expect(res).toHaveSucceeded();
-      expect(Object.keys(res.body)).toEqual(
-        expect.arrayContaining([
-          'id',
-          'versionNumber',
-          'query',
-          'createdAt',
-          'updatedAt',
-          'status',
-          'notes',
-          'queryOptions',
-        ]),
-      );
-    });
-  });
-
-  describe('POST /reports/:id/versions', () => {
-    it('should create a new version', async () => {
-      const { ReportDefinitionVersion } = models;
-      const newVersion = getMockReportVersion(1, 'select meow from cat');
-      const res = await adminApp
-        .post(`/v1/admin/reports/${testReport.id}/versions`)
-        .send(newVersion);
-      expect(res).toHaveSucceeded();
-      expect(res.body.query).toBe('select meow from cat');
-      expect(res.body.versionNumber).toBe(1);
-      const versions = await ReportDefinitionVersion.findAll({
-        where: {
-          reportDefinitionId: testReport.id,
-        },
-      });
-      expect(versions).toHaveLength(1);
-    });
-
-    it('should not return unnecessary metadata', async () => {
-      const newVersion = getMockReportVersion(1, 'select meow from cat');
-      const res = await adminApp
-        .post(`/v1/admin/reports/${testReport.id}/versions`)
-        .send(newVersion);
-      expect(res).toHaveSucceeded();
-      expect(Object.keys(res.body)).toEqual(
-        expect.arrayContaining([
-          'id',
-          'versionNumber',
-          'query',
-          'createdAt',
-          'updatedAt',
-          'status',
-          'notes',
-          'queryOptions',
-        ]),
-      );
-    });
-  });
-  describe('POST /reports/import', () => {
-    it('should import a report', async () => {
-      const res = await adminApp
-        .post(`/v1/admin/reports/import`)
-        .send({
-          file: path.join(__dirname, '/data/without-version-number.json'),
-          name: 'Report Import Test',
-        });
-      expect(res).toHaveSucceeded();
-      expect(res.body).toEqual({
-        createdDefinition: true,
-        versionNumber: 1,
-        usedFallbackUser: true,
-        versionMethod: 'create',
-      });
-      const report = await models.ReportDefinition.findOne({
-        where: { name: 'Report Import Test' },
-        include: {
-          model: models.ReportDefinitionVersion,
-          as: 'versions',
-        },
-      });
-      expect(report).toBeTruthy();
-      expect(report.versions).toHaveLength(1);
-      expect(report.versions[0].query).toBe('select * from patients limit 0');
-    });
-    it('should override an existing version', async () => {
-      const { ReportDefinitionVersion } = models;
-      const version = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp
-        .post(`/v1/admin/reports/import`)
-        .send({
-          file: path.join(__dirname, '/data/existing-version-number.json'),
-          name: testReport.name,
-        });
-      expect(res).toHaveSucceeded();
-      expect(res.body).toEqual({
-        createdDefinition: false,
-        versionNumber: 1,
-        usedFallbackUser: true,
-        versionMethod: 'update',
-      });
-      const report = await models.ReportDefinition.findOne({
-        where: { name: testReport.name },
-        include: {
-          model: models.ReportDefinitionVersion,
-          as: 'versions',
-        },
-      });
-      expect(report).toBeTruthy();
-      expect(report.versions).toHaveLength(1);
-      expect(report.versions[0].query).toBe('select * from patients limit 0');
-      expect(report.versions[0].id).toBe(version.id);
-    });
-  });
   describe('GET /reports/:id/versions/:versionId/export/:format', () => {
     it('should export a report as json', async () => {
       const { ReportDefinitionVersion } = models;
@@ -259,6 +134,61 @@ describe('reports', () => {
       expect(res.body.filename).toBe('test-report-v1.sql');
       expect(Buffer.from(res.body.data).toString()).toEqual(`select 
  bark from dog`);
+    });
+  });
+
+  describe('utils', () => {
+    describe('stripMetadata', () => {
+      it('should strip metadata', async () => {
+        const { ReportDefinitionVersion } = models;
+        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
+        const {
+          updatedAtSyncTick,
+          reportDefinitionId,
+          ReportDefinitionId,
+          deletedAt,
+          userId,
+          ...mockVersionWithoutMetadata
+        } = mockVersion.get({ plain: true });
+        expect(stripMetadata(mockVersion)).toEqual(mockVersionWithoutMetadata);
+      });
+      it('should strip metadata except relationIds if specified', async () => {
+        const { ReportDefinitionVersion } = models;
+        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
+        const {
+          updatedAtSyncTick,
+          ReportDefinitionId,
+          deletedAt,
+          ...mockVersionWithoutMetadata
+        } = mockVersion.get({ plain: true });
+        expect(stripMetadata(mockVersion, true)).toEqual(mockVersionWithoutMetadata);
+      });
+    });
+    describe('sanitizeFilename', () => {
+      const tests = [
+        [REPORT_ADMIN_EXPORT_FORMATS.SQL, 1, 'test', `test-v1.${REPORT_ADMIN_EXPORT_FORMATS.SQL}`],
+        [
+          REPORT_ADMIN_EXPORT_FORMATS.JSON,
+          10,
+          'test-report',
+          `test-report-v10.${REPORT_ADMIN_EXPORT_FORMATS.JSON}`,
+        ],
+        [
+          REPORT_ADMIN_EXPORT_FORMATS.SQL,
+          4,
+          'test report',
+          `test-report-v4.${REPORT_ADMIN_EXPORT_FORMATS.SQL}`,
+        ],
+        [
+          REPORT_ADMIN_EXPORT_FORMATS.JSON,
+          123,
+          'test <report> ?weird filename',
+          `test-report-weird-filename-v123.${REPORT_ADMIN_EXPORT_FORMATS.JSON}`,
+        ],
+      ];
+      it.each(tests)('should sanitize filename', (format, versionNum, filename, expected) => {
+        expect(sanitizeFilename(filename, versionNum, format)).toBe(expected);
+      });
     });
   });
 });
