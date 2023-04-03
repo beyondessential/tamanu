@@ -3,27 +3,27 @@ import { useSuggester } from '../../../api';
 import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../components';
 
 export const LabRequestChangeLabModal = React.memo(
-  ({ laboratory, updateLabReq, open, onClose }) => {
-    const [labId, setLabId] = useState(laboratory?.id);
+  ({ labTestLaboratoryId: initialLabId, updateLabReq, open, onClose }) => {
+    const [labTestLaboratoryId, setLabTestLaboratoryId] = useState(initialLabId);
     const laboratorySuggester = useSuggester('labTestLaboratory');
 
     const updateLab = async () => {
       await updateLabReq({
-        labTestLaboratoryId: labId,
+        labTestLaboratoryId,
       });
       onClose();
     };
 
     return (
-      <Modal open={open} onClose={onClose} title="Change lab request laboratory">
+      <Modal open={open} onClose={onClose} title="Change laboratory">
         <FormGrid columns={1}>
           <AutocompleteInput
             label="Laboratory"
             name="labTestLaboratoryId"
             suggester={laboratorySuggester}
-            value={labId}
+            value={labTestLaboratoryId}
             onChange={({ target: { value } }) => {
-              setLabId(value);
+              setLabTestLaboratoryId(value);
             }}
           />
           <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={onClose} />
