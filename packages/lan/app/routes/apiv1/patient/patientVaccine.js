@@ -170,13 +170,13 @@ patientVaccineRoutes.get(
               Sequelize.col('vaccine_name'),
               Sequelize.col('scheduledVaccine.label'),
             ),
-            'vaccine_display_name',
+            'vaccineDisplayName',
           ],
           [
             Sequelize.literal(
               `CASE WHEN given_elsewhere THEN given_by ELSE "location->facility"."name" END`,
             ),
-            'display_location',
+            'displayLocation',
           ],
         ],
       },

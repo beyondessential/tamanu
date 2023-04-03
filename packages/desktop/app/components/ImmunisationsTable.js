@@ -26,11 +26,11 @@ const getFacility = record =>
   record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
 
 const columns = [
-  { key: 'vaccine_display_name', title: 'Vaccine', accessor: getVaccineName },
+  { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
   { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
   { key: 'date', title: 'Date', accessor: getDate },
   { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
-  { key: 'display_location', title: 'Facility/Country', accessor: getFacility },
+  { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
 ];
 
 export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
