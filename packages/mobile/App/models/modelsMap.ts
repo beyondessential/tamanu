@@ -26,6 +26,8 @@ import { BaseModel } from './BaseModel';
 import { LabRequest } from './LabRequest';
 import { LabTest } from './LabTest';
 import { LabTestType } from './LabTestType';
+import { LabTestPanelRequest } from './LabTestPanelRequest';
+import { LabTestPanel } from './LabTestPanel';
 import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
 import { NotePage } from './NotePage';
@@ -59,6 +61,8 @@ export const MODELS_MAP = {
   LabRequest,
   LabTest,
   LabTestType,
+  LabTestPanel,
+  LabTestPanelRequest,
   LocalSystemFact,
   PatientFacility,
   NotePage,

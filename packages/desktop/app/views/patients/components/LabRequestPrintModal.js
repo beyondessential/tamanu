@@ -16,11 +16,18 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const api = useApi();
   const certificateData = useCertificate();
 
-  const { data: encounter, isLoading: encounterLoading } = useEncounterData(labRequest.encounterId);
+  const { data: encounterData, isLoading: encounterLoading } = useEncounterData(
+    labRequest.encounterId,
+  );
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalData(
     patient.id,
   );
   const { data: notePages, isLoading: notesLoading } = useLabRequestNotes(labRequest.id);
+
+  const { data: testsData, isLoading: testsLoading } = useQuery(
+    ['labRequest', labRequest.id, 'tests'],
+    () => api.get(`labRequest/${labRequest.id}/tests`),
+  );
 
   const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
     ['referenceData', patient.villageId],
@@ -34,16 +41,20 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
 
   return (
     <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-      {encounterLoading || additionalDataLoading || villageLoading || notesLoading ? (
+      {encounterLoading ||
+      additionalDataLoading ||
+      villageLoading ||
+      notesLoading ||
+      testsLoading ? (
         <LoadingIndicator />
       ) : (
         <LabRequestPrintout
-          certificateData={certificateData}
           patient={patient}
-          additionalData={additionalData}
+          labRequests={[{ ...labRequest, tests: testsData.data, notePages }]}
+          encounter={encounterData}
           village={village}
-          encounter={encounter}
-          labRequests={[{ ...labRequest, notePages }]}
+          additionalData={additionalData}
+          certificateData={certificateData}
         />
       )}
     </Modal>
