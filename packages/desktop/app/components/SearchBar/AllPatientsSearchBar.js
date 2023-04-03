@@ -10,6 +10,7 @@ import {
   DOBFields,
   SearchField,
   SelectField,
+  DynamicSelectField
 } from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
@@ -50,7 +51,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             <DOBFields showExactBirth={false} />
             <SexLocalisedField
               name="sex"
-              component={SelectField}
+              component={DynamicSelectField}
               options={sexOptions}
               size="small"
             />
