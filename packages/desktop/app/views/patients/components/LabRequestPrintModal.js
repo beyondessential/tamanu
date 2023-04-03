@@ -25,7 +25,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     },
   );
   const { data: notes, isLoading: areNotesLoading } = useQuery(
-    ['labRequestNotes', labRequest.id, open],
+    ['labRequestNotes', labRequest.id, open], // Refresh notes each time we open the modal
     async () => {
       const notesRes = await api.get(`labRequest/${encodeURIComponent(labRequest.id)}/notes`);
       return notesRes.data;
