@@ -10,14 +10,7 @@ import { referenceDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './ref
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
-import {
-  createReportVersion,
-  exportVersion,
-  getReports,
-  getReportVersions,
-  importReport,
-  updateReportVersion,
-} from './reports';
+import { reportsRouter } from './reports/router';
 
 export const adminRoutes = express.Router();
 
@@ -26,13 +19,6 @@ export const adminRoutes = express.Router();
 // because it might affect sync performance. This will be fine to
 // remove once more general permission checks have been implemented.
 adminRoutes.use(constructPermission);
-
-adminRoutes.put('/reports/:reportId/versions/:versionId', updateReportVersion);
-adminRoutes.get('/reports/:reportId/versions/:versionId/export/:format', exportVersion);
-adminRoutes.post('/reports/:reportId/versions', createReportVersion);
-adminRoutes.get('/reports/:reportId/versions', getReportVersions);
-adminRoutes.post('/reports/import', importReport);
-adminRoutes.get('/reports', getReports);
 
 adminRoutes.use(
   asyncHandler((req, res, next) => {
@@ -44,6 +30,8 @@ adminRoutes.use(
     next();
   }),
 );
+
+adminRoutes.use('/reports', reportsRouter);
 
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
