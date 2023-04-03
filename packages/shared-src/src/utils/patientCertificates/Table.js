@@ -38,28 +38,32 @@ const TD = ({ customStyles, ...props }) => (
 );
 
 export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
+  const leftColumnStyle = {
+    ...columnStyle,
+    borderLeft: basicBorder,
+  };
   const visibleColumns = columns.filter(
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
     <View style={tableStyles.table}>
       <TR fixed>
-        {visibleColumns.map(({ title, key, customStyles }, i) => (
+        {visibleColumns.map(({ title, key, customStyles }, columnIndex) => (
           <TH
             key={key}
-            customStyles={[customStyles, columnStyle, !i && { borderLeft: basicBorder }]}
+            customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
           >
             {title}
           </TH>
         ))}
       </TR>
-      {data.map((row, i) => (
+      {data.map((row, rowIndex) => (
         // eslint-disable-next-line react/no-array-index-key
-        <TR key={i}>
-          {visibleColumns.map(({ accessor, key, customStyles }, j) => (
+        <TR key={rowIndex}>
+          {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
             <TD
               key={key}
-              customStyles={[customStyles, columnStyle, !j && { borderLeft: basicBorder }]}
+              customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
             >
               {accessor ? accessor(row, getLocalisation) : row[key]}
             </TD>
