@@ -56,9 +56,7 @@ export const getReportVersions = asyncHandler(async (req, res) => {
 
 export const exportVersion = asyncHandler(async (req, res) => {
   const { store, params } = req;
-  const {
-    models: { ReportDefinition, ReportDefinitionVersion },
-  } = store;
+  const { ReportDefinition, ReportDefinitionVersion } = store.models;
   const { reportId, versionId, format } = params;
   const reportDefinition = await ReportDefinition.findOne({
     where: { id: reportId },
