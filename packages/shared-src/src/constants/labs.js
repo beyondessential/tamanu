@@ -6,6 +6,7 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
   CANCELLED: 'cancelled',
   DELETED: 'deleted',
+  SAMPLE_NOT_COLLECTED: 'sample-not-collected',
   ENTERED_IN_ERROR: 'entered-in-error',
 };
 
@@ -29,6 +30,10 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: {
     label: 'Published',
     color: '#19934E',
+  },
+  [LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED]: {
+    label: 'Sample not collected',
+    color: '#4101C9',
   },
   [LAB_REQUEST_STATUSES.CANCELLED]: {
     label: 'Cancelled',
@@ -55,4 +60,9 @@ export const LAB_TEST_RESULT_TYPES = {
   FREE_TEXT: 'FreeText',
   NUMBER: 'Number',
   SELECT: 'Select',
+};
+
+export const LAB_REQUEST_FORM_TYPES = {
+  PANEL: 'panel',
+  INDIVIDUAL: 'individual',
 };
