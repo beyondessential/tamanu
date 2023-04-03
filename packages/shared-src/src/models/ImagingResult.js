@@ -29,7 +29,7 @@ export class ImagingResult extends Model {
         }),
         description: {
           type: DataTypes.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
         externalCode: DataTypes.TEXT,
       },
