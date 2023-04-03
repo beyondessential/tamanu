@@ -285,6 +285,33 @@ describe('Imaging requests', () => {
     expect(results[1].description).toBe('new result description 2');
   });
 
+  it('should create imaging result with description as optional', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+
+    const newResultDate = new Date().toISOString();
+    // act
+    const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+      status: 'completed',
+      newResultDate,
+      newResultCompletedById: app.user.dataValues.id,
+    });
+
+    // assert
+    expect(result1).toHaveSucceeded();
+
+    const results = await models.ImagingResult.findAll({
+      where: { imagingRequestId: ir.id },
+    });
+    expect(results.length).toBe(1);
+    expect(results[0].completedById).toBe(app.user.dataValues.id);
+    expect(results[0].completedAt).toBe(newResultDate);
+  });
+
   it('should query an external provider for imaging results if configured so', async () => {
     // arrange
     const ir = await models.ImagingRequest.create({

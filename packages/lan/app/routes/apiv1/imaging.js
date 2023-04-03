@@ -216,7 +216,7 @@ imagingRequest.put(
       }
     }
 
-    if (newResultDescription?.length > 0) {
+    if (newResultCompletedBy) {
       const newResult = await ImagingResult.create({
         description: newResultDescription,
         completedAt: newResultDate,
