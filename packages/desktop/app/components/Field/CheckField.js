@@ -31,10 +31,6 @@ const ControlLabel = styled(FormControlLabel)`
   i.fa-square {
     color: ${Colors.softText};
   }
-
-  .fa-square {
-    color: #dedede;
-  }
 `;
 
 const ControlCheck = styled(CheckControl)`
