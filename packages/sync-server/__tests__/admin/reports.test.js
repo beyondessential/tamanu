@@ -1,5 +1,7 @@
 import { User } from 'shared/models/User';
 import { createTestContext, withDate } from '../utilities';
+import { sanitizeFilename, stripMetadata } from '../../app/admin/reports/utils';
+import { REPORT_VERSION_EXPORT_FORMATS } from '../../../shared-src/src/constants/reports';
 
 describe('reports', () => {
   let ctx;
@@ -101,6 +103,98 @@ describe('reports', () => {
           'queryOptions',
         ]),
       );
+    });
+  });
+
+  describe('GET /reports/:id/versions/:versionId/export/:format', () => {
+    it('should export a report as json', async () => {
+      const { ReportDefinitionVersion } = models;
+      const versionData = getMockReportVersion(1);
+      const v1 = await ReportDefinitionVersion.create(versionData);
+      const res = await adminApp.get(
+        `/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/json`,
+      );
+      expect(res).toHaveSucceeded();
+
+      expect(res.body.filename).toBe('test-report-v1.json');
+      expect(JSON.parse(Buffer.from(res.body.data).toString())).toEqual({
+        ...versionData,
+        id: v1.id,
+        createdAt: v1.createdAt.toISOString(),
+        updatedAt: v1.updatedAt.toISOString(),
+      });
+    });
+    it('should export a report as sql', async () => {
+      const { ReportDefinitionVersion } = models;
+      const versionData = getMockReportVersion(1, 'select \n bark from dog');
+      const v1 = await ReportDefinitionVersion.create(versionData);
+      const res = await adminApp.get(
+        `/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/sql`,
+      );
+      expect(res).toHaveSucceeded();
+      expect(res.body.filename).toBe('test-report-v1.sql');
+      expect(Buffer.from(res.body.data).toString()).toEqual(`select 
+ bark from dog`);
+    });
+  });
+
+  describe('utils', () => {
+    describe('stripMetadata', () => {
+      it('should strip metadata', async () => {
+        const { ReportDefinitionVersion } = models;
+        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
+        const {
+          updatedAtSyncTick,
+          reportDefinitionId,
+          ReportDefinitionId,
+          deletedAt,
+          userId,
+          ...mockVersionWithoutMetadata
+        } = mockVersion.get({ plain: true });
+        expect(stripMetadata(mockVersion)).toEqual(mockVersionWithoutMetadata);
+      });
+      it('should strip metadata except relationIds if specified', async () => {
+        const { ReportDefinitionVersion } = models;
+        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
+        const {
+          updatedAtSyncTick,
+          ReportDefinitionId,
+          deletedAt,
+          ...mockVersionWithoutMetadata
+        } = mockVersion.get({ plain: true });
+        expect(stripMetadata(mockVersion, true)).toEqual(mockVersionWithoutMetadata);
+      });
+    });
+    describe('sanitizeFilename', () => {
+      const tests = [
+        [
+          REPORT_VERSION_EXPORT_FORMATS.SQL,
+          1,
+          'test',
+          `test-v1.${REPORT_VERSION_EXPORT_FORMATS.SQL}`,
+        ],
+        [
+          REPORT_VERSION_EXPORT_FORMATS.JSON,
+          10,
+          'test-report',
+          `test-report-v10.${REPORT_VERSION_EXPORT_FORMATS.JSON}`,
+        ],
+        [
+          REPORT_VERSION_EXPORT_FORMATS.SQL,
+          4,
+          'test report',
+          `test-report-v4.${REPORT_VERSION_EXPORT_FORMATS.SQL}`,
+        ],
+        [
+          REPORT_VERSION_EXPORT_FORMATS.JSON,
+          123,
+          'test <report> ?weird filename',
+          `test-report-weird-filename-v123.${REPORT_VERSION_EXPORT_FORMATS.JSON}`,
+        ],
+      ];
+      it.each(tests)('should sanitize filename', (format, versionNum, filename, expected) => {
+        expect(sanitizeFilename(filename, versionNum, format)).toBe(expected);
+      });
     });
   });
 });
