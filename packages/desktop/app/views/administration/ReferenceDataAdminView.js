@@ -1,12 +1,13 @@
 import React from 'react';
 import { GENERAL_IMPORTABLE_DATA_TYPES } from 'shared/constants/importable';
-import { ImporterView } from './components/ImporterView';
+import { ImportExportView } from './components/ImportExportView';
 
 export const ReferenceDataAdminView = () => (
-  <ImporterView
+  <ImportExportView
     title="Reference data"
     endpoint="refData"
     dataTypes={GENERAL_IMPORTABLE_DATA_TYPES}
     dataTypesSelectable
+    disableExport
   />
 );

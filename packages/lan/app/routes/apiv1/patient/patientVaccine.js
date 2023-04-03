@@ -100,6 +100,7 @@ patientVaccineRoutes.put(
 patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
+    const { db } = req;
     req.checkPermission('create', 'PatientVaccine');
 
     // Require scheduledVaccineId if vaccine category is not OTHER
@@ -120,7 +121,6 @@ patientVaccineRoutes.post(
       )?.id;
     }
 
-    let encounterId;
     const existingEncounter = await models.Encounter.findOne({
       where: {
         endDate: {
@@ -130,26 +130,30 @@ patientVaccineRoutes.post(
       },
     });
 
-    if (existingEncounter) {
-      encounterId = existingEncounter.get('id');
-    } else {
-      const newEncounter = await req.models.Encounter.create({
-        encounterType: ENCOUNTER_TYPES.CLINIC,
-        startDate: req.body.date,
-        endDate: req.body.date,
-        patientId: req.params.id,
-        locationId: req.body.locationId,
-        examinerId: req.body.recorderId,
-        departmentId: req.body.departmentId,
-      });
-      encounterId = newEncounter.get('id');
-    }
+    const newAdministeredVaccine = await db.transaction(async () => {
+      let encounterId;
+      if (existingEncounter) {
+        encounterId = existingEncounter.get('id');
+      } else {
+        const newEncounter = await req.models.Encounter.create({
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          startDate: req.body.date,
+          patientId: req.params.id,
+          locationId: req.body.locationId,
+          examinerId: req.body.recorderId,
+          departmentId: req.body.departmentId,
+        });
+        await newEncounter.update({ endDate: req.body.date });
+        encounterId = newEncounter.get('id');
+      }
 
-    const newRecord = await req.models.AdministeredVaccine.create({
-      ...vaccineData,
-      encounterId,
+      return req.models.AdministeredVaccine.create({
+        ...vaccineData,
+        encounterId,
+      });
     });
-    res.send(newRecord);
+
+    res.send(newAdministeredVaccine);
   }),
 );
 

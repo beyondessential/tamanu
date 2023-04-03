@@ -58,7 +58,7 @@ export const notePagesWithSingleItemListHandler = recordType =>
         recordType,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
-      order: [['createdAt', 'ASC']],
+      order: [['date', 'DESC']],
     });
 
     const notes = [];

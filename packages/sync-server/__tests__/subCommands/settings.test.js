@@ -7,8 +7,8 @@ import { listSettings, getSetting, setSetting, loadSettings } from '../../app/su
 import { createTestContext } from '../utilities';
 
 describe('settings', () => {
-  let ctx,
-    facility = '38ee9650-9b0c-440f-8b0c-c9526fba35ea';
+  let ctx;
+  const facility = '38ee9650-9b0c-440f-8b0c-c9526fba35ea';
   beforeAll(async () => {
     ctx = await createTestContext();
     const { Facility } = ctx.store.models;

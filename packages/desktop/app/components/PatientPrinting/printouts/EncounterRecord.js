@@ -4,13 +4,12 @@ import { Typography } from '@material-ui/core';
 
 import { startCase } from 'lodash';
 
-import { LocalisedLabel } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
-import { CertificateLabel } from './reusable/CertificateLabels';
+import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
 import {
   noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
@@ -78,7 +77,7 @@ const TableHeading = styled(SummaryHeading)`
   margin-bottom: 5px;
 `;
 
-const LocalisedDisplayValue = styled(LocalisedLabel)`
+const LocalisedDisplayValue = styled(LocalisedCertificateLabel)`
   font-size: 10px;
   line-height: 12px;
   margin-bottom: 5px;
