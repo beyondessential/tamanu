@@ -89,18 +89,18 @@ describe('reports', () => {
       await ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.get(`/v1/admin/reports/${testReport.id}/versions`);
       expect(res).toHaveSucceeded();
-      expect(Object.keys(res.body[0])).toEqual(
-        expect.arrayContaining([
-          'id',
-          'versionNumber',
-          'query',
-          'createdAt',
-          'updatedAt',
-          'status',
-          'notes',
-          'queryOptions',
-        ]),
-      );
+      const allowedKeys = [
+        'id',
+        'versionNumber',
+        'query',
+        'createdAt',
+        'updatedAt',
+        'status',
+        'notes',
+        'queryOptions',
+      ];
+      const additionalKeys = Object.keys(res.body[0]).filter(k => !allowedKeys.includes(k));
+      expect(additionalKeys).toHaveLength(0);
     });
   });
 });
