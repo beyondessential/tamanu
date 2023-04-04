@@ -1,6 +1,8 @@
-import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import config from 'config';
+import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { createTestContext } from '../utilities';
 
 describe('Imaging requests', () => {
@@ -237,9 +239,11 @@ describe('Imaging requests', () => {
     // act
     const result = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description',
-      newResultDate: new Date().toISOString(),
-      newResultCompletedById: app.user.dataValues.id,
+      newResult: {
+        description: 'new result description',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
 
     // assert
@@ -263,14 +267,19 @@ describe('Imaging requests', () => {
     // act
     const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description 1',
-      newResultDate: new Date().toISOString(),
-      newResultCompletedById: app.user.dataValues.id,
+      newResult: {
+        description: 'new result description 1',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
     const result2 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description 2',
-      newResultDate: new Date().toISOString(),
+      newResult: {
+        description: 'new result description 2',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
 
     // assert
@@ -283,6 +292,35 @@ describe('Imaging requests', () => {
     expect(results.length).toBe(2);
     expect(results[0].description).toBe('new result description 1');
     expect(results[1].description).toBe('new result description 2');
+  });
+
+  it('should create imaging result with description as optional', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+
+    const newResultDate = getCurrentDateTimeString();
+    // act
+    const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+      status: 'completed',
+      newResult: {
+        completedAt: newResultDate,
+        completedById: app.user.dataValues.id,
+      },
+    });
+
+    // assert
+    expect(result1).toHaveSucceeded();
+
+    const results = await models.ImagingResult.findAll({
+      where: { imagingRequestId: ir.id },
+    });
+    expect(results.length).toBe(1);
+    expect(results[0].completedById).toBe(app.user.dataValues.id);
+    expect(results[0].completedAt).toBe(newResultDate);
   });
 
   it('should query an external provider for imaging results if configured so', async () => {
