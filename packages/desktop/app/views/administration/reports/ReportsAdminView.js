@@ -28,7 +28,7 @@ const REPORT_TABS = {
 };
 
 export const ReportsAdminView = () => {
-  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EXPORT);
+  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDIT);
 
   const tabs = [
     {
