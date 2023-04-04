@@ -99,7 +99,12 @@ export const InjectionSiteField = () => (
 );
 
 export const LocationField = () => (
-  <Field name="locationId" component={LocalisedLocationField} required />
+  <Field
+    name="locationId"
+    component={LocalisedLocationField}
+    enableLocationStatus={false}
+    required
+  />
 );
 
 export const DepartmentField = () => {
