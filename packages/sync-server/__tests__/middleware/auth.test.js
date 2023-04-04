@@ -98,6 +98,18 @@ describe('Auth', () => {
       expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(true);
     });
 
+    it('Should not issue a refresh token for external client', async () => {
+      const response = await baseApp
+        .post('/v1/login')
+        .set({ 'X-Tamanu-Client': 'FHIR' })
+        .send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+        });
+      expect(response).toHaveSucceeded();
+      expect(response.body.refreshToken).toBeUndefined();
+    });
+
     it('Should respond with user details with correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -232,6 +244,22 @@ describe('Auth', () => {
       expect(
         bcrypt.compare(newRefreshTokenContents.refreshId, refreshTokenRecord.refreshId),
       ).resolves.toBe(true);
+    });
+    it('Should reject if external client', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+      const refreshResponse = await baseApp
+        .post('/v1/refresh')
+        .set('X-Tamanu-Client', 'FHIR')
+        .send({
+          refreshToken: loginResponse.refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        });
+      expect(refreshResponse).toHaveRequestError();
     });
     it('Should reject invalid refresh token', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
