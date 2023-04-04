@@ -208,7 +208,7 @@ imagingRequest.put(
       }
     }
 
-    if (newResult?.completedById) {
+    if (newResult?.completedAt) {
       const imagingResult = await ImagingResult.create({
         ...newResult,
         imagingRequestId: imagingRequestObject.id,

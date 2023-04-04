@@ -1,6 +1,8 @@
-import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import config from 'config';
+import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { createTestContext } from '../utilities';
 
 describe('Imaging requests', () => {
@@ -237,9 +239,11 @@ describe('Imaging requests', () => {
     // act
     const result = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description',
-      newResultDate: new Date().toISOString(),
-      newResultCompletedById: app.user.dataValues.id,
+      newResult: {
+        description: 'new result description',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
 
     // assert
@@ -263,14 +267,19 @@ describe('Imaging requests', () => {
     // act
     const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description 1',
-      newResultDate: new Date().toISOString(),
-      newResultCompletedById: app.user.dataValues.id,
+      newResult: {
+        description: 'new result description 1',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
     const result2 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description 2',
-      newResultDate: new Date().toISOString(),
+      newResult: {
+        description: 'new result description 2',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
 
     // assert
@@ -293,12 +302,14 @@ describe('Imaging requests', () => {
       requestedById: app.user.id,
     });
 
-    const newResultDate = new Date().toISOString();
+    const newResultDate = getCurrentDateTimeString();
     // act
     const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDate,
-      newResultCompletedById: app.user.dataValues.id,
+      newResult: {
+        completedAt: newResultDate,
+        completedById: app.user.dataValues.id,
+      },
     });
 
     // assert
