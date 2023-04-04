@@ -6,10 +6,14 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
+
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { CancelModal } from '../../components/CancelModal';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { IMAGING_REQUEST_STATUS_OPTIONS, Colors } from '../../constants';
+import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -32,21 +36,53 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
-const PrintButton = ({ imagingRequest }) => {
+const PrintButton = ({ imagingRequest, patient }) => {
   const { modal } = useParams();
+  const certificate = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
+  const api = useApi();
 
-  const { data: encounter, isLoading } = useEncounterData(imagingRequest.encounterId);
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
+    imagingRequest.encounterId,
+  );
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
+    ['additionalData', patient.id],
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
+  );
+  const isVillageEnabled = !!patient?.villageId;
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
+    ['village', patient.villageId],
+    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    {
+      enabled: isVillageEnabled,
+    },
+  );
+  const isLoading =
+    isEncounterLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
 
   return (
     <>
-      <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
+      <Modal
+        title="Imaging Request"
+        open={isModalOpen}
+        onClose={closeModal}
+        width="md"
+        color={Colors.white}
+        printable
+      >
         {isLoading ? (
           <LoadingIndicator />
         ) : (
-          <ImagingRequestPrintout encounter={encounter} imagingRequests={[imagingRequest]} />
+          <ImagingRequestPrintout
+            imagingRequests={[imagingRequest]}
+            patient={patient}
+            village={village}
+            additionalData={additionalData}
+            encounter={encounter}
+            certificate={certificate}
+          />
         )}
       </Modal>
       <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
