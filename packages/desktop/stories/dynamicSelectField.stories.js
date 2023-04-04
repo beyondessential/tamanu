@@ -33,20 +33,22 @@ export default {
   component: DynamicSelectField,
 };
 
-const Template = args => {
+const Template = ({ name, ...args }) => {
   const [value, setValue] = useState(null);
   const handleChange = e => {
     setValue(e.target.value);
   };
-  return <DynamicSelectField field={{ name: 'name', onChange: handleChange, value }} {...args} />;
+  return <DynamicSelectField field={{ name, onChange: handleChange, value }} {...args} />;
 };
 
 export const SevenOrLessItems = Template.bind({});
 SevenOrLessItems.args = {
+  name: 'fruit',
   options: FRUITS,
 };
 
 export const MoreThanSevenItems = Template.bind({});
 MoreThanSevenItems.args = {
+  name: 'furniture',
   options: FURNITURE,
 };
