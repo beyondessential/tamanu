@@ -183,7 +183,14 @@ patientLocations.get(
       LEFT JOIN (
       	SELECT
       	  location_id,
-      	  SUM(DATE_PART('day', age(CASE WHEN end_date IS NULL THEN now() ELSE end_date::date END, CASE WHEN start_date::date > now() - '30 days'::interval THEN start_date::date ELSE now() - '30 days'::interval END))) * 100 / 30 as occupancy
+          SUM(
+        	  DATE_PART('day', age(
+        	    CASE WHEN end_date IS NULL THEN now() ELSE end_date::date END,
+        	    CASE WHEN start_date::date > now() - '30 days'::interval
+        	      THEN start_date::date
+        	      ELSE now() - '30 days'::interval
+        	    END
+      	  ))) * 100 / 30 as occupancy
       	FROM encounters
       	LEFT JOIN locations ON locations.id = encounters.location_id
       	WHERE (end_date::date > now() - '30 days'::interval OR end_date IS NULL)
@@ -200,7 +207,20 @@ patientLocations.get(
       AND locations.max_occupancy = 1
     `;
 
-    const statusCaseStatement = `CASE WHEN locations.max_occupancy = 1 AND planned_patient_encounters.patient_id IS NOT NULL THEN '${LOCATION_AVAILABILITY_STATUS.RESERVED}' ELSE (CASE WHEN patient_encounters.patient_id IS NULL OR locations.max_occupancy IS DISTINCT FROM 1 THEN '${LOCATION_AVAILABILITY_STATUS.AVAILABLE}' ELSE '${LOCATION_AVAILABILITY_STATUS.OCCUPIED}' END) END`;
+    const statusCaseStatement = `
+      CASE WHEN locations.max_occupancy = 1
+        AND planned_patient_encounters.patient_id IS NOT NULL
+      THEN '${LOCATION_AVAILABILITY_STATUS.RESERVED}'
+      ELSE (
+        CASE WHEN patient_encounters.patient_id IS NULL
+          OR locations.max_occupancy IS DISTINCT FROM 1
+        THEN '${LOCATION_AVAILABILITY_STATUS.AVAILABLE}'
+        ELSE '${LOCATION_AVAILABILITY_STATUS.OCCUPIED}'
+        END
+      )
+      END
+    `;
+    
     const patientCaseStatement = patientKey =>
       `CASE WHEN locations.max_occupancy = 1 THEN patient_encounters.${patientKey} END`;
 

@@ -120,6 +120,12 @@ const StyledTableFooter = styled(TableFooter)`
   }
 `;
 
+const HeaderContainer = React.memo(({ children, numeric }) => (
+  <StyledTableCell align={numeric ? 'right' : 'left'}>
+    {children}
+  </StyledTableCell>
+));
+
 const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   <StyledTableRow onClick={onClick} $rowStyle={rowStyle}>
     {children}
@@ -247,9 +253,9 @@ class TableComponent extends React.Component {
 
     return columns.map(
       ({ key, title, numeric, noTitle, titleAccessor, sortable = true, tooltip }) => (
-        <StyledTableCell key={key} align={numeric ? 'right' : 'left'}>
+        <HeaderContainer key={key} numeric={numeric}>
           {getContent(key, sortable, title, titleAccessor, tooltip, noTitle)}
-        </StyledTableCell>
+        </HeaderContainer>
       ),
     );
   }

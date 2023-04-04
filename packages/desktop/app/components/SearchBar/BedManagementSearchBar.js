@@ -4,9 +4,8 @@ import { Button } from '@material-ui/core';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { useSuggester } from '../../api';
-import { useLocationAvailabilityOptions } from '../../hooks';
 import handoverNotes from '../../assets/images/handover_notes.svg';
-import { Colors } from '../../constants';
+import { Colors, locationAvailabilityOptions } from '../../constants';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -26,7 +25,7 @@ const HandoverNotesIcon = styled.img`
 `;
 
 export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }) => {
-  const locationAvailabilityOptions = useLocationAvailabilityOptions();
+
   const locationGroupSuggester = useSuggester('locationGroup', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -58,4 +57,5 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
       />
     </CustomisableSearchBar>
   );
+  
 });
