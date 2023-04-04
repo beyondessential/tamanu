@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { NOTE_TYPES } from 'shared/constants';
@@ -38,6 +39,7 @@ const ReadOnlyNotesField = ({ notes }) => {
 
 export const LabRequestNoteForm = React.memo(({ labRequest, isReadOnly }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const [notes, setNotes] = useState([]);
 
   useEffect(() => {
@@ -55,6 +57,7 @@ export const LabRequestNoteForm = React.memo(({ labRequest, isReadOnly }) => {
     });
     setNotes([...notes, newNote]);
     resetForm();
+    queryClient.invalidateQueries(['labRequestNotes']);
   };
 
   if (isReadOnly) {

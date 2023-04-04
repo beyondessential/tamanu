@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -6,10 +6,13 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
+
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { CancelModal } from '../../components/CancelModal';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { IMAGING_REQUEST_STATUS_OPTIONS, Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -35,35 +38,50 @@ import { SimpleTopBar } from '../../components';
 const PrintButton = ({ imagingRequest, patient }) => {
   const api = useApi();
   const { modal } = useParams();
-  const certificateData = useCertificate();
+  const certificate = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
-  const [encounter, setEncounter] = useState();
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setIsLoading(true);
-    if (!imagingRequest.loading) {
-      (async () => {
-        const res = await api.get(`encounter/${imagingRequest.encounterId}`);
-        setEncounter(res);
-      })();
-      setIsLoading(false);
-    }
-  }, [api, imagingRequest.encounterId, imagingRequest.loading]);
+  const { data: encounter, isLoading: isEncounterLoading } = useQuery(
+    ['encounter', imagingRequest.encounterId],
+    () => api.get(`encounter/${encodeURIComponent(imagingRequest.encounterId)}`),
+  );
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
+    ['additionalData', patient.id],
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
+  );
+  const isVillageEnabled = !!patient?.villageId;
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
+    ['village', patient.villageId],
+    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    {
+      enabled: isVillageEnabled,
+    },
+  );
+  const isLoading =
+    isEncounterLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
 
   return (
     <>
-      <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
+      <Modal
+        title="Imaging Request"
+        open={isModalOpen}
+        onClose={closeModal}
+        width="md"
+        color={Colors.white}
+        printable
+      >
         {isLoading ? (
           <LoadingIndicator />
         ) : (
           <ImagingRequestPrintout
-            imagingRequestData={imagingRequest}
-            patientData={patient}
-            encounterData={encounter}
-            certificateData={certificateData}
+            imagingRequest={imagingRequest}
+            patient={patient}
+            village={village}
+            additionalData={additionalData}
+            encounter={encounter}
+            certificate={certificate}
           />
         )}
       </Modal>
