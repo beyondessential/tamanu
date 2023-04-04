@@ -140,4 +140,24 @@ export class ReportDefinitionVersion extends Model {
 
     return generateReportFromQueryData(queryResults);
   }
+
+  forResponse(includeRelationIds = false) {
+    const {
+      updatedAtSyncTick,
+      createdAt,
+      updatedAt,
+      deletedAt,
+      reportDefinitionId,
+      ReportDefinitionId,
+      userId,
+      ...rest
+    } = this.get();
+    return {
+      ...rest,
+      ...(includeRelationIds && {
+        reportDefinitionId,
+        userId,
+      }),
+    };
+  }
 }

@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants';
-import { sanitizeFilename, stripMetadata } from './utils';
+import { sanitizeFilename } from './utils';
 
 export const reportsRouter = express.Router();
 
@@ -87,7 +87,7 @@ reportsRouter.get(
     if (!version) {
       throw new NotFoundError(`No version found with id ${versionId}`);
     }
-    const versionWithoutMetadata = stripMetadata(version, true);
+    const versionWithoutMetadata = version.forResponse(true);
     const filename = sanitizeFilename(
       reportDefinition.name,
       versionWithoutMetadata.versionNumber,
