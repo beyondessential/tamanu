@@ -6,6 +6,7 @@ import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
+import ClearIcon from '@material-ui/icons/Clear';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -204,6 +205,10 @@ class BaseAutocomplete extends Component {
     }
   };
 
+  handleClearValue = () => {
+    this.setState({ selectedOption: { value: '', tag: null } });
+  };
+
   clearOptions = () => {
     this.setState({ suggestions: [] });
   };
@@ -270,6 +275,14 @@ class BaseAutocomplete extends Component {
                   <SelectTag $background={tag.background} $color={tag.color}>
                     {tag.label}
                   </SelectTag>
+                )}
+                {value && (
+                  <Icon position="end">
+                    <ClearIcon
+                      style={{ cursor: 'pointer', color: Colors.darkText }}
+                      onClick={this.handleClearValue}
+                    />
+                  </Icon>
                 )}
                 <Icon
                   position="end"
