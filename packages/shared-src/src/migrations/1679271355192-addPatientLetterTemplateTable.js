@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import { VISIBILITY_STATUSES } from '../constants';
 
 export async function up(query) {
-  await query.createTable('templates', {
+  await query.createTable('patient_letter_templates', {
     id: {
       type: Sequelize.UUID,
       allowNull: false,
@@ -20,17 +20,12 @@ export async function up(query) {
       type: Sequelize.DATE,
       defaultValue: Sequelize.fn('current_timestamp', 3),
     },
-    template_type: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
     name: {
       type: Sequelize.STRING,
       allowNull: false,
     },
     date_created: {
       type: 'date_string',
-      allowNull: false,
     },
     title: {
       type: Sequelize.STRING,
@@ -48,11 +43,10 @@ export async function up(query) {
         model: 'users',
         key: 'id',
       },
-      allowNull: true,
     },
   });
 }
 
 export async function down(query) {
-  await query.dropTable('templates');
+  await query.dropTable('patient_letter_templates');
 }
