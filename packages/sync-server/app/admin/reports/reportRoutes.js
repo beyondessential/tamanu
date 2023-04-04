@@ -87,7 +87,7 @@ reportsRouter.get(
     if (!version) {
       throw new NotFoundError(`No version found with id ${versionId}`);
     }
-    const versionWithoutMetadata = stripMetadata(version, true);
+    const versionWithoutMetadata = version.forResponse(true);
     const filename = sanitizeFilename(
       reportDefinition.name,
       versionWithoutMetadata.versionNumber,

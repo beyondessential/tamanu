@@ -1,6 +1,6 @@
 import { User } from 'shared/models/User';
 import { createTestContext, withDate } from '../utilities';
-import { sanitizeFilename, stripMetadata } from '../../app/admin/reports/utils';
+import { sanitizeFilename } from '../../app/admin/reports/utils';
 import { REPORT_VERSION_EXPORT_FORMATS } from '../../../shared-src/src/constants/reports';
 
 describe('reports', () => {
@@ -60,8 +60,10 @@ describe('reports', () => {
       const res = await adminApp.get('/v1/admin/reports');
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(1);
-      expect(res.body[0].id).toBe(testReport.id);
-      expect(res.body[0].name).toBe(testReport.name);
+      expect(res.body[0]).toMatchObject({
+        id: testReport.id,
+        name: testReport.name,
+      });
     });
     it('should return version count and last updated', async () => {
       const { ReportDefinitionVersion } = models;
@@ -91,18 +93,19 @@ describe('reports', () => {
       await ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.get(`/v1/admin/reports/${testReport.id}/versions`);
       expect(res).toHaveSucceeded();
-      expect(Object.keys(res.body[0])).toEqual(
-        expect.arrayContaining([
-          'id',
-          'versionNumber',
-          'query',
-          'createdAt',
-          'updatedAt',
-          'status',
-          'notes',
-          'queryOptions',
-        ]),
-      );
+      const allowedKeys = [
+        'id',
+        'versionNumber',
+        'query',
+        'createdAt',
+        'updatedAt',
+        'status',
+        'notes',
+        'queryOptions',
+        'createdBy',
+      ];
+      const additionalKeys = Object.keys(res.body[0]).filter(k => !allowedKeys.includes(k));
+      expect(additionalKeys).toHaveLength(0);
     });
   });
 
@@ -139,32 +142,6 @@ describe('reports', () => {
   });
 
   describe('utils', () => {
-    describe('stripMetadata', () => {
-      it('should strip metadata', async () => {
-        const { ReportDefinitionVersion } = models;
-        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
-        const {
-          updatedAtSyncTick,
-          reportDefinitionId,
-          ReportDefinitionId,
-          deletedAt,
-          userId,
-          ...mockVersionWithoutMetadata
-        } = mockVersion.get({ plain: true });
-        expect(stripMetadata(mockVersion)).toEqual(mockVersionWithoutMetadata);
-      });
-      it('should strip metadata except relationIds if specified', async () => {
-        const { ReportDefinitionVersion } = models;
-        const mockVersion = await ReportDefinitionVersion.create(getMockReportVersion(1));
-        const {
-          updatedAtSyncTick,
-          ReportDefinitionId,
-          deletedAt,
-          ...mockVersionWithoutMetadata
-        } = mockVersion.get({ plain: true });
-        expect(stripMetadata(mockVersion, true)).toEqual(mockVersionWithoutMetadata);
-      });
-    });
     describe('sanitizeFilename', () => {
       const tests = [
         [

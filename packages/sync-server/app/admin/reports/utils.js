@@ -6,32 +6,3 @@ export const sanitizeFilename = (reportName, versionNumber, format) => {
     .toLowerCase();
   return `${sanitizedName}-v${versionNumber}.${format}`;
 };
-
-export const stripMetadata = (
-  {
-    id,
-    versionNumber,
-    query,
-    queryOptions,
-    createdAt,
-    updatedAt,
-    status,
-    notes,
-    reportDefinitionId,
-    userId,
-  },
-  includeRelationIds = false,
-) => ({
-  id,
-  versionNumber,
-  query,
-  queryOptions,
-  createdAt,
-  updatedAt,
-  status,
-  notes,
-  ...(includeRelationIds && {
-    reportDefinitionId,
-    userId,
-  }),
-});
