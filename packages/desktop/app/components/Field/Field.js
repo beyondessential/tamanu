@@ -13,11 +13,11 @@ export const Field = formikConnect(
     const error = status === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
 
-    const combinedOnChange = e => {
+    const combinedOnChange = (...args) => {
       if (onChange) {
-        onChange(e);
+        onChange(...args);
       }
-      return field.onChange(e);
+      return field.onChange(...args);
     };
     return (
       <FormikField
