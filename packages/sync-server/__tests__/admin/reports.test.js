@@ -100,6 +100,7 @@ describe('reports', () => {
         'status',
         'notes',
         'queryOptions',
+        'createdBy',
       ];
       const additionalKeys = Object.keys(res.body[0]).filter(k => !allowedKeys.includes(k));
       expect(additionalKeys).toHaveLength(0);
