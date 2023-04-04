@@ -121,14 +121,18 @@ export const settingsCommand = new Command('settings')
       .description('list all setting keys')
       .argument('[filter]', 'only output keys matching this')
       .option('--facility <facility>', 'ID of facility to scope to')
-      .action((...args) => console.log(`-------------------------\n${listSettings(...args)}`)),
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await listSettings(...args)}`),
+      ),
   )
   .addCommand(
     new Command('get')
       .description('get a setting')
       .argument('<key>', 'key to retrieve')
       .option('--facility <facility>', 'ID of facility to scope to')
-      .action((...args) => console.log(`-------------------------\n${getSetting(...args)}`)),
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await getSetting(...args)}`),
+      ),
   )
   .addCommand(
     new Command('set')
@@ -136,7 +140,9 @@ export const settingsCommand = new Command('settings')
       .argument('<key>', 'key to create/update')
       .argument('<value>', 'value in JSON')
       .option('--facility <facility>', 'ID of facility to scope to')
-      .action((...args) => console.log(`-------------------------\n${setSetting(...args)}`)),
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await setSetting(...args)}`),
+      ),
   )
   .addCommand(
     new Command('load')
@@ -145,5 +151,7 @@ export const settingsCommand = new Command('settings')
       .argument('<file>', 'JSON, TOML, or KDL file to load settings from')
       .option('--facility <facility>', 'ID of facility to scope to')
       .option('--preview', 'Print the settings that would be loaded in JSON')
-      .action((...args) => console.log(`-------------------------\n${loadSettings(...args)}`)),
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await loadSettings(...args)}`),
+      ),
   );
