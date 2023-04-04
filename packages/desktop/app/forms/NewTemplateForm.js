@@ -41,13 +41,10 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
       render={renderForm}
       initialValues={{ type: TEMPLATE_TYPES.PATIENT_LETTER }}
       validationSchema={yup.object().shape({
+        type: yup.string().required(),
         name: yup.string().required(),
-        displayName: yup.string().required(),
-        password: yup.string().required(),
-        email: yup
-          .string()
-          .email()
-          .required(),
+        title: yup.string().required(),
+        contents: yup.string().required(),
       })}
     />
   );

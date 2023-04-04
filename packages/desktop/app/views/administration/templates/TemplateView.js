@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
+
 import { TopBar, PageContainer, ContentPane, DataFetchingTable, DateDisplay } from '../../../components';
 import { Colors } from '../../../constants';
 import { NewTemplateForm } from '../../../forms';
-import { TemplateList } from './TemplateList';
 import { useApi } from '../../../api';
+
+import { TEMPLATE_ENDPOINT } from '../constants';
+import { TemplateList } from './TemplateList';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
@@ -15,13 +18,22 @@ const ContentContainer = styled.div`
 `;
 
 export const TemplateView = ({ }) => {
+  const api = useApi();
+
+  const createTemplate = useCallback(
+    async (data) => {
+      console.log(data);
+      await api.post(TEMPLATE_ENDPOINT, data);
+    },
+    [api],
+  );
 
   return (
     <PageContainer>
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm />
+          <NewTemplateForm onSubmit={createTemplate} />
         </ContentContainer>
         <TemplateList />
       </ContentPane>
