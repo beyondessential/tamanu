@@ -48,12 +48,38 @@ patientLocations.get(
 );
 
 patientLocations.get(
+  '/locations/alos',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Patient');
+
+    const [{ alos } = {}] = await req.db.query(
+      `
+        SELECT
+          SUM(DATE_PART('day', age(end_date::date, start_date::date))) / COUNT(1) as alos
+        FROM encounters
+        WHERE end_date::date > now() - '30 days'::interval
+      `,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({
+      data: alos,
+    });
+  }),
+);
+
+patientLocations.get(
   '/locations/stats',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
     const [
-      { occupied_locations: occupiedLocations, available_locations: availableLocations } = {},
+      {
+        occupied_locations: occupiedLocationCount,
+        available_locations: availableLocationCount,
+      } = {},
     ] = await req.db.query(
       `
         SELECT
@@ -68,7 +94,7 @@ patientLocations.get(
       },
     );
 
-    const [{ reserved_locations: reservedLocations } = {}] = await req.db.query(
+    const [{ reserved_locations: reservedLocationCount } = {}] = await req.db.query(
       `
         SELECT
           SUM(sign(max_1_occupancy_locations.count)) AS reserved_locations
@@ -83,9 +109,9 @@ patientLocations.get(
 
     res.send({
       data: {
-        availableLocations,
-        reservedLocations,
-        occupiedLocations,
+        availableLocationCount,
+        reservedLocationCount,
+        occupiedLocationCount,
       },
     });
   }),

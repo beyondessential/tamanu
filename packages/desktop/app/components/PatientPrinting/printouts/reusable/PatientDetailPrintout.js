@@ -18,6 +18,9 @@ const ColumnContainer = styled.div`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
+  &:first-child *:last-child {
+    padding-bottom: 18px;
+  }
 `;
 
 const LocalisedLabel = styled(LocalisedCertificateLabel)`
@@ -45,7 +48,7 @@ export const PatientDetailPrintout = React.memo(
         <ColumnContainer>
           <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
           <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
-          <PatientBarcode patient={patient} barWidth={2} barHeight={50} margin={0} />
+          <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
         </ColumnContainer>
       </RowContainer>
     );

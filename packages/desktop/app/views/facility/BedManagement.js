@@ -107,14 +107,16 @@ const DashboardItem = ({ color, title, loading, description }) => {
   );
 };
 
-const DetailedDashboardItemElement = ({ loading, title }) => {
+const DetailedDashboardItemNumber = ({ loading, value }) => {
   if (loading) return <DetailedLoadingIndicator />;
-  return <DetailedDashboardItemTitle>{title}</DetailedDashboardItemTitle>;
+  return <DetailedDashboardItemTitle>{value || 0}</DetailedDashboardItemTitle>;
 };
 
 const DetailedDashboardItem = ({ api }) => {
   const {
-    data: { data: { availableLocations, reservedLocations, occupiedLocations } = {} } = {},
+    data: {
+      data: { availableLocationCount, reservedLocationCount, occupiedLocationCount } = {},
+    } = {},
     isLoading: patientLocationsLoading,
   } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
 
@@ -122,17 +124,17 @@ const DetailedDashboardItem = ({ api }) => {
     <DetailedDashboardItemContainer color={Colors.brightBlue}>
       <DetailedDashboardItemTextContainer>
         <div>
-          <DetailedDashboardItemElement
+          <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
-            title={availableLocations || 0}
+            value={availableLocationCount}
           />
-          <DetailedDashboardItemElement
+          <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
-            title={reservedLocations || 0}
+            value={reservedLocationCount}
           />
-          <DetailedDashboardItemElement
+          <DetailedDashboardItemNumber
             loading={patientLocationsLoading}
-            title={occupiedLocations || 0}
+            value={occupiedLocationCount}
           />
         </div>
         <DetailedDashboardItemSection>
@@ -173,6 +175,10 @@ export const BedManagement = () => {
     () => api.get('patient/locations/occupancy'),
   );
 
+  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos'], () =>
+    api.get('patient/locations/alos'),
+  );
+  
   const rowStyle = row =>
     (row.location_max_occupancy !== 1 || !row.patient_id) &&
     '&:hover { background-color: transparent; cursor: default; }';
@@ -206,7 +212,8 @@ export const BedManagement = () => {
             />
             <DashboardItem
               color={Colors.purple}
-              title="- days"
+              title={`${Math.round((alos || 0) * 10) / 10} days`}
+              loading={alosLoading}
               description={`Average length of\nstay (last 30 days)`}
             />
             <DashboardItem
