@@ -22,7 +22,6 @@ async function showStatus() {
         })
       )?.lastUpdated?.toISOString() || 'never';
 
-
     let upstreamCount = 0;
     let upstreamLatest = '';
     for (const UpstreamModel of Resource.UpstreamModels) {
