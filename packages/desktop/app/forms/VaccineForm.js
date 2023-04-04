@@ -142,7 +142,6 @@ export const VaccineForm = ({
           : {}),
       })}
       render={({ submitForm, values, setValues }) => {
-        console.log('values', values);
         return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
           <VaccineGivenForm
             {...baseProps}
