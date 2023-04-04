@@ -58,9 +58,9 @@ describe('reports', () => {
       const res = await adminApp.get('/v1/admin/reports');
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(1);
-      expect(res.body[0]).toMatchObject({ 
+      expect(res.body[0]).toMatchObject({
         id: testReport.id,
-        name: testReport.name
+        name: testReport.name,
       });
     });
     it('should return version count and last updated', async () => {
