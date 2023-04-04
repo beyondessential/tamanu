@@ -215,7 +215,7 @@ createSuggester(
   search => ({
     name: { [Op.iLike]: search },
     surveyType: {
-      [Op.ne]: SURVEY_TYPES.OBSOLETE,
+      [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
     },
   }),
   ({ id, name }) => ({ id, name }),
@@ -259,3 +259,6 @@ createSuggester(
   patient => patient,
   'first_name',
 );
+
+// TODO: Use generic LabTest permissions for this suggester
+createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);

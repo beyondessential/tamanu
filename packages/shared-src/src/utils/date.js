@@ -1,4 +1,4 @@
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, intervalToDuration } from 'date-fns';
 
 // NB: If you're trying to format a date as a string:
 // - if you're storing it or communicating with it, you should keep it as a
@@ -8,4 +8,8 @@ import { differenceInYears } from 'date-fns';
 
 export function getAgeFromDate(date) {
   return differenceInYears(new Date(), new Date(date));
+}
+
+export function getAgeDurationFromDate(date) {
+  return intervalToDuration({ start: new Date(date), end: new Date() });
 }
