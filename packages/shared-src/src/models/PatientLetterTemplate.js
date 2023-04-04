@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, TEMPLATE_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
 
-export class Template extends Model {
+export class PatientLetterTemplate extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -13,6 +13,7 @@ export class Template extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        // TODO: Should this be nullable?
         date_created: dateType('date_created', {
           defaultValue: getCurrentDateString,
         }),
