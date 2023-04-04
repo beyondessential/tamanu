@@ -18,6 +18,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUS_CONFIG,
   LAB_REQUEST_STATUSES,
+  TEMPLATE_TYPES,
 } from 'shared/constants';
 
 import {
@@ -406,6 +407,10 @@ export const ATTENDANT_OF_BIRTH_OPTIONS = [
 export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
+];
+
+export const TEMPLATE_TYPE_OPTIONS = [
+  { value: TEMPLATE_TYPES.PATIENT_LETTER, label: 'Patient Letter' },
 ];
 
 export const PATIENT_STATUS = {

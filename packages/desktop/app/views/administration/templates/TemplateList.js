@@ -10,7 +10,6 @@ export const TemplateList = React.memo(props => (
       {
         key: 'type',
         title: 'Type',
-        minWidth: 100,
         accessor: () => 'Patient Letter',
       },
       {
