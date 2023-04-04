@@ -10,7 +10,7 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
     const NON_SUPPORTED_VACCINE_ID = 'NON-SUPPORTED-ID';
 
     beforeAll(async () => {
-      ctx = await createTestContext();
+      ctx = await createTestContext(requestHeaders['X-Tamanu-Client']);
       app = await ctx.baseApp.asRole('practitioner');
       models = ctx.store.models;
 

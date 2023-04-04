@@ -12,6 +12,7 @@ import { addFieldUpdateTicksToPAD1668987530000 } from './1668987530000-addFieldU
 import { addDefaultLastSuccessfulSyncPull1669160460000 } from './1669160460000-addDefaultLastSuccessfulSyncPull';
 import { resyncPatientAdditionalData1669855692000 } from './1669855692000-resyncPatientAdditionalData';
 import { wipeAllDataAndResync1675907161000 } from './1675907161000-wipeAllDataAndResync';
+import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationGroupTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -27,4 +28,5 @@ export const migrationList = [
   addDefaultLastSuccessfulSyncPull1669160460000,
   resyncPatientAdditionalData1669855692000,
   wipeAllDataAndResync1675907161000,
+  addLocationGroupTable1673396917000,
 ];

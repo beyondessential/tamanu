@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { Typography } from '@material-ui/core';
+import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
 
@@ -27,7 +27,6 @@ import {
   department,
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
@@ -43,25 +42,6 @@ const LISTING_COLUMNS = [
   dateOfBirth,
   status,
 ];
-
-const LocationCell = ({ locationName, plannedLocationName, style }) => (
-  <div style={{ minWidth: 180, ...style }}>
-    {locationName}
-    {plannedLocationName && (
-      <Typography style={{ fontSize: 12, color: Colors.darkText }}>
-        (Planned - {plannedLocationName})
-      </Typography>
-    )}
-  </div>
-);
-
-const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName }) => (
-  <LocationCell
-    locationName={locationGroupName}
-    plannedLocationName={plannedLocationGroupName}
-    style={{ minWidth: 150 }}
-  />
-);
 
 const locationGroup = {
   key: 'locationGroupName',
@@ -163,7 +143,7 @@ export const PatientListingView = ({ onViewPatient }) => {
         <PatientTable
           onViewPatient={onViewPatient}
           fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={searchParameters}
+          searchParameters={{ isAllPatientsListing: true, ...searchParameters }}
           columns={LISTING_COLUMNS}
         />
       </ContentPane>

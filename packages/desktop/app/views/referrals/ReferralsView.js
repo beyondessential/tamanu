@@ -12,9 +12,12 @@ import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { PATIENT_TABS } from '../../constants/patientPaths';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
+  const { navigateToPatient } = usePatientNavigation();
   const [referralSurvey, setReferralSurvey] = useState(null);
   const [referralSurveys, setReferralSurveys] = useState(null);
   const [startTime, setStartTime] = useState(null);
@@ -39,19 +42,18 @@ const ReferralFlow = ({ patient, currentUser }) => {
     setReferralSurvey(null);
   }, []);
 
-  const submitReferral = useCallback(
-    data => {
-      api.post('referral', {
-        surveyId: referralSurvey.id,
-        startTime,
-        patientId: patient.id,
-        endTime: getCurrentDateTimeString(),
-        answers: getAnswersFromData(data, referralSurvey),
-        actions: getActionsFromData(data, referralSurvey),
-      });
-    },
-    [api, referralSurvey, startTime, patient],
-  );
+  const submitReferral = async data => {
+    await api.post('referral', {
+      surveyId: referralSurvey.id,
+      startTime,
+      patientId: patient.id,
+      endTime: getCurrentDateTimeString(),
+      answers: getAnswersFromData(data, referralSurvey),
+      actions: getActionsFromData(data, referralSurvey),
+    });
+
+    navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });
+  };
 
   if (!referralSurvey) {
     return (

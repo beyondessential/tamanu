@@ -54,26 +54,6 @@ describe('Labs', () => {
   });
 
   test.todo('should not record a lab request with zero tests');
-  test.todo(
-    "should not record a lab request with a test whose category does not match the request's category",
-  );
-  /*
-  it("should not record a lab request with a test whose category does not match the request's category", async () => {
-    const [categoryA, categoryB] = await models.ReferenceData.findAll({
-      where: { type: 'labTestCategory' },
-      order: models.ReferenceData.sequelize.random(),
-      limit: 2,
-    });
-    const labTestTypeIdsA = await randomLabTests(categoryA.id, 2);
-    const labTestTypeIdsB = await randomLabTests(categoryB.id, 2);
-
-    const response = await app.post('/v1/labRequest').send({
-      patientId,
-      labTestTypeIds: [...labTestTypeIdsA, ...labTestTypeIdsB],
-    });
-    expect(response).toHaveRequestError();
-  });
-  */
 
   it('should record a test result', async () => {
     const labRequest = await models.LabRequest.createWithTests(
@@ -137,61 +117,4 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  describe('Options', () => {
-    it('should fetch lab test type options', async () => {
-      const response = await app.get(`/v1/labTest/options`);
-      expect(response).toHaveSucceeded();
-
-      expect(response.body.count).toBeGreaterThan(0);
-      const { data } = response.body;
-
-      // ensure it's an array
-      expect(Array.isArray(data)).toBeTruthy();
-
-      // check some fields exist on at least some objects
-      expect(data.find(x => x.maleMin)).toBeDefined();
-      expect(data.find(x => x.maleMax)).toBeDefined();
-      expect(data.find(x => x.femaleMin)).toBeDefined();
-      expect(data.find(x => x.femaleMax)).toBeDefined();
-      expect(data.find(x => x.unit)).toBeDefined();
-
-      // ensure there's at least one response with options
-      // and that options is returned as an array, not a string
-      const withOptions = data.filter(x => x.options);
-      expect(withOptions.length).toBeGreaterThan(0);
-      expect(withOptions.every(x => Array.isArray(x.options))).toEqual(true);
-    });
-
-    it("should fetch only lab test types with visibility status 'current'", async () => {
-      const category = await models.ReferenceData.create({
-        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-        name: 'TestCategory1',
-        code: 'test_category_1',
-      });
-      await models.LabTestType.create({
-        labTestCategoryId: category.id,
-        name: 'Historical Lab Test Type',
-        code: 'historical_lab_test_type',
-        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-      });
-
-      const response = await app.get(`/v1/labTest/options`);
-      expect(response).toHaveSucceeded();
-      expect(response.body.count).toBeGreaterThan(0);
-
-      const { data } = response.body;
-      expect(Array.isArray(data)).toBeTruthy();
-      expect(data.every(l => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT)).toBeTruthy();
-    });
-
-    it('should fetch lab test categories', async () => {
-      const response = await app.get(`/v1/labTest/categories`);
-      expect(response).toHaveSucceeded();
-
-      const { data } = response.body;
-      expect(Array.isArray(data)).toBeTruthy();
-      expect(data[0]).toHaveProperty('name');
-      expect(data[0]).toHaveProperty('code');
-    });
-  });
 });

@@ -30,6 +30,19 @@ describe('Survey calculations', () => {
       expect(calculations.TEST_2).toEqual(99);
     });
 
+    it('should round the value to the configured number of decimal places', () => {
+      const survey = makeDummySurvey([
+        {
+          code: 'TEST',
+          type: 'CalculatedQuestion',
+          calculation: '13 / 3',
+          config: { rounding: 1 },
+        },
+      ]);
+      const calculations = runCalculations(survey, {});
+      expect(calculations.TEST).toEqual(4.3);
+    });
+
     it('should use substitutions', () => {
       const survey = makeDummySurvey([
         { code: 'TEST', type: FieldTypes.CALCULATED, calculation: 'TEST_1 + TEST_2' },
@@ -70,27 +83,21 @@ describe('Survey calculations', () => {
 
   describe('Results', () => {
     it('should return correct values for absent result field', () => {
-      const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Number' },
-      ]);
+      const survey = makeDummySurvey([{ code: 'TEST', type: 'Number' }]);
       const { result, resultText } = getResultValue(survey, { TEST: 123 });
       expect(result).toEqual(0);
       expect(resultText).toEqual('');
     });
 
     it('should use a result field', () => {
-      const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Result' },
-      ]);
+      const survey = makeDummySurvey([{ code: 'TEST', type: 'Result' }]);
       const { result, resultText } = getResultValue(survey, { TEST: 123 });
       expect(result).toEqual(123);
       expect(resultText).toEqual('123%');
     });
 
     it('should be OK with a result field that has no value', () => {
-      const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Result' },
-      ]);
+      const survey = makeDummySurvey([{ code: 'TEST', type: 'Result' }]);
       const { result, resultText } = getResultValue(survey, {});
       expect(result).toEqual(0);
       expect(resultText).toEqual('');
