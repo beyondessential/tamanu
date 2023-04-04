@@ -3,35 +3,40 @@ import React, { useEffect } from 'react';
 import { SelectInput } from './SelectField';
 import { AutocompleteInput } from './AutocompleteField';
 
-export const DynamicSelectField = ({ field, options, suggester, ...props }) => {
-  const [resultLength, setResultLength] = React.useState(0);
+export const DynamicSelectField = ({ field, options, suggester, name, ...props }) => {
+  const [selectOptions, setSelectOptions] = React.useState([]);
+  const [autocompleteOptions, setAutocompleteOptions] = React.useState([]);
+  const [autocompleteSuggester, setAutocompleteSuggester] = React.useState(null);
+
   useEffect(() => {
-    async function findDataLength() {
-      if (options) {
-        setResultLength(options.length);
-      }
-      if (suggester) {
-        const results = await suggester.fetchSuggestions();
-        setResultLength(results.length);
+    async function setInputOptions() {
+      const optionsList = suggester ? await suggester.fetchSuggestions() : options;
+      if (optionsList.length <= 7) {
+        setSelectOptions(optionsList);
+      } else if (optionsList.length > 7 && !suggester) {
+        setAutocompleteOptions(optionsList);
+      } else {
+        setAutocompleteSuggester(suggester);
       }
     }
-    findDataLength();
-  });
+    setInputOptions();
+  }, [options, suggester]);
 
-  return resultLength > 7 ? (
-    <AutocompleteInput
-      name={field.name}
-      onChange={field.onChange}
-      value={field.value}
-      suggester={suggester}
-      {...props}
-    />
-  ) : (
+  return selectOptions.length > 0 ? (
     <SelectInput
       name={field.name}
       onChange={field.onChange}
       value={field.value}
-      options={options}
+      options={selectOptions}
+      {...props}
+    />
+  ) : (
+    <AutocompleteInput
+      name={field.name}
+      onChange={field.onChange}
+      value={field.value}
+      suggester={autocompleteSuggester}
+      options={autocompleteOptions}
       {...props}
     />
   );

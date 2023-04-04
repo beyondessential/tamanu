@@ -3,15 +3,7 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import {
-  AutocompleteField,
-  Field,
-  LocalisedField,
-  DOBFields,
-  SearchField,
-  SelectField,
-  DynamicSelectField
-} from '../Field';
+import { Field, LocalisedField, DOBFields, SearchField, DynamicSelectField } from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';
