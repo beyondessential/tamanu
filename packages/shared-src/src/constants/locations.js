@@ -21,11 +21,3 @@ export const LOCATION_AVAILABILITY_TAG_CONFIG = {
     background: '#F4F4F4',
   },
 };
-
-export const locationAvailabilityOptions = [
-  { value: '', label: 'All' },
-  ...Object.keys(LOCATION_AVAILABILITY_STATUS).map(status => ({
-    value: status,
-    label: LOCATION_AVAILABILITY_TAG_CONFIG[status].label,
-  })),
-];

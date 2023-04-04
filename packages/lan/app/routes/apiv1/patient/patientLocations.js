@@ -220,7 +220,7 @@ patientLocations.get(
       )
       END
     `;
-    
+
     const patientCaseStatement = patientKey =>
       `CASE WHEN locations.max_occupancy = 1 THEN patient_encounters.${patientKey} END`;
 

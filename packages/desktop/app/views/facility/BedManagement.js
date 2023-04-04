@@ -178,7 +178,7 @@ export const BedManagement = () => {
   const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos'], () =>
     api.get('patient/locations/alos'),
   );
-  
+
   const rowStyle = row =>
     (row.location_max_occupancy !== 1 || !row.patient_id) &&
     '&:hover { background-color: transparent; cursor: default; }';

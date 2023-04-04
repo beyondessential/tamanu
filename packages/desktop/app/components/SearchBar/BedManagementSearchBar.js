@@ -25,7 +25,6 @@ const HandoverNotesIcon = styled.img`
 `;
 
 export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }) => {
-
   const locationGroupSuggester = useSuggester('locationGroup', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -57,5 +56,4 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
       />
     </CustomisableSearchBar>
   );
-  
 });

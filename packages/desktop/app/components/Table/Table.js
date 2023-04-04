@@ -121,9 +121,7 @@ const StyledTableFooter = styled(TableFooter)`
 `;
 
 const HeaderContainer = React.memo(({ children, numeric }) => (
-  <StyledTableCell align={numeric ? 'right' : 'left'}>
-    {children}
-  </StyledTableCell>
+  <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
 const RowContainer = React.memo(({ children, rowStyle, onClick }) => (

@@ -1,4 +1,3 @@
-export * from './Tag';
 export * from './TopBar';
 export * from './Button';
 export * from './ButtonRow';
