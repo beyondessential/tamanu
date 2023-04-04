@@ -8,6 +8,7 @@ export * from './fhir';
 export * from './imaging';
 export * from './importable';
 export * from './invoices';
+export * from './jobs';
 export * from './labs';
 export * from './locations';
 export * from './notes';

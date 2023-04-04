@@ -4,7 +4,7 @@ import {
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -131,8 +131,54 @@ describe('Encounter', () => {
   });
 
   test.todo('should get a list of procedures');
-  test.todo('should get a list of imaging requests');
   test.todo('should get a list of prescriptions');
+
+  it('should get a list of imaging requests', async () => {
+    // arrange
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+
+    const imagingRequest = await models.ImagingRequest.create(
+      fake(models.ImagingRequest, {
+        patientId: patient.id,
+        encounterId: encounter.id,
+        requestedById: app.user.id,
+        status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+      }),
+    );
+
+    const areaRefData = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: 'xRayImagingArea' }),
+    );
+
+    const area = await models.ImagingRequestArea.create(
+      fake(models.ImagingRequestArea, {
+        areaId: areaRefData.id,
+        imagingRequestId: imagingRequest.id,
+      }),
+    );
+
+    // act
+    const result = await app.get(
+      `/v1/encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
+    );
+
+    // assert
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      count: 1,
+      data: expect.any(Array),
+    });
+    const resultLabReq = result.body.data[0];
+    expect(resultLabReq.areas).toEqual([
+      expect.objectContaining({
+        id: areaRefData.id,
+        ImagingRequestArea: expect.objectContaining({ id: area.id }),
+      }),
+    ]);
+  });
 
   describe('GET encounter lab requests', () => {
     it('should get a list of lab requests', async () => {

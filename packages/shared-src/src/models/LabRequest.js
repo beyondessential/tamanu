@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { generateDisplayId } from '../utils/generateDisplayId';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -13,8 +13,7 @@ export class LabRequest extends Model {
       {
         id: primaryKey,
         sampleTime: dateTimeType('sampleTime', {
-          allowNull: false,
-          defaultValue: getCurrentDateTimeString,
+          allowNull: true,
         }),
         requestedDate: dateTimeType('requestedDate', {
           allowNull: false,
@@ -46,6 +45,9 @@ export class LabRequest extends Model {
         displayId: {
           type: Sequelize.STRING,
           allowNull: false,
+          defaultValue() {
+            return generateDisplayId();
+          },
         },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
@@ -58,29 +60,40 @@ export class LabRequest extends Model {
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
+      const { LabTest, LabTestPanelRequest } = this.sequelize.models;
+      const { date, labTestPanelId, ...requestData } = data;
+      let newLabRequest;
 
-      const { date, ...requestData } = data;
-
-      const base = await this.create(requestData);
+      if (labTestPanelId) {
+        const { id: labTestPanelRequestId } = await LabTestPanelRequest.create({
+          encounterId: data.encounterId,
+          labTestPanelId,
+        });
+        newLabRequest = await this.create({ ...requestData, labTestPanelRequestId });
+      } else {
+        newLabRequest = await this.create(requestData);
+      }
 
       // then create tests
-      const { LabTest } = this.sequelize.models;
-
       await Promise.all(
         labTestTypeIds.map(t =>
           LabTest.create({
             labTestTypeId: t,
-            labRequestId: base.id,
+            labRequestId: newLabRequest.id,
             date,
           }),
         ),
       );
 
-      return base;
+      return newLabRequest;
     });
   }
 
   static initRelations(models) {
+    this.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'department',
+    });
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
@@ -97,6 +110,11 @@ export class LabRequest extends Model {
     });
 
     this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labSampleSiteId',
+      as: 'site',
+    });
+
+    this.belongsTo(models.ReferenceData, {
       foreignKey: 'labTestPriorityId',
       as: 'priority',
     });
@@ -104,6 +122,11 @@ export class LabRequest extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'labTestLaboratoryId',
       as: 'laboratory',
+    });
+
+    this.belongsTo(models.LabTestPanelRequest, {
+      foreignKey: 'labTestPanelRequestId',
+      as: 'labTestPanelRequest',
     });
 
     this.hasMany(models.LabTest, {
@@ -128,10 +151,13 @@ export class LabRequest extends Model {
 
   static getListReferenceAssociations() {
     return [
+      'department',
       'requestedBy',
       'category',
       'priority',
       'laboratory',
+      'site',
+      { association: 'labTestPanelRequest', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
   }

@@ -1,3 +1,4 @@
+import config from 'config';
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
@@ -48,30 +49,58 @@ export class FhirImagingStudy extends FhirResource {
     const results = this.note.map(n => n.text).join('\n\n');
 
     const imagingAccessCode = this.identifier.find(
-      ({ system }) => system === 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+      i => i?.system === config.hl7.dataDictionaries.imagingStudyAccessionId,
     )?.value;
     if (!imagingAccessCode) {
-      throw new Invalid('Need to have RIS Accession Number identifier', {
+      throw new Invalid('Need to have Accession Number identifier', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
       });
     }
 
-    const serviceRequestFhirId = this.basedOn.find(
-      ({ type, identifier }) =>
-        type === 'ServiceRequest' &&
-        identifier?.system ===
-          'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+    const serviceRequestFhirId = this.basedOn
+      .map(ref => ref.fhirTypeAndId())
+      .filter(Boolean)
+      .find(({ type }) => type === 'ServiceRequest')?.id;
+    const serviceRequestId = this.basedOn.find(
+      b =>
+        b?.type === 'ServiceRequest' &&
+        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestId,
     )?.identifier.value;
-    if (!serviceRequestFhirId) {
+    const serviceRequestDisplayId = this.basedOn.find(
+      b =>
+        b?.type === 'ServiceRequest' &&
+        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestDisplayId,
+    )?.identifier.value;
+
+    let upstreamRequest;
+    if (serviceRequestId) {
+      upstreamRequest = await ImagingRequest.findByPk(serviceRequestId);
+    } else if (serviceRequestDisplayId) {
+      upstreamRequest = await ImagingRequest.findOne({
+        where: { displayId: serviceRequestDisplayId },
+      });
+    }
+
+    let serviceRequest;
+    if (upstreamRequest) {
+      // serviceRequest will always be searched if the upstream record is found
+      serviceRequest = await FhirServiceRequest.findOne({
+        where: { upstreamId: upstreamRequest.id },
+      });
+    } else if (serviceRequestFhirId) {
+      serviceRequest = await FhirServiceRequest.findByPk(serviceRequestFhirId);
+    }
+
+    if (!serviceRequest) {
+      const failedId = serviceRequestFhirId || serviceRequestId || serviceRequestDisplayId;
+      if (failedId) {
+        throw new Invalid(`ServiceRequest ${failedId} does not exist in Tamanu`, {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        });
+      }
+
       throw new Invalid('Need to have basedOn field that includes a Tamanu identifier', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
-      });
-    }
-
-    const serviceRequest = await FhirServiceRequest.findByPk(serviceRequestFhirId);
-    if (!serviceRequest) {
-      throw new Invalid(`ServiceRequest ${serviceRequestFhirId} does not exist in Tamanu`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
 
@@ -83,6 +112,7 @@ export class FhirImagingStudy extends FhirResource {
 
     const imagingRequest = await ImagingRequest.findByPk(serviceRequest.upstreamId);
     if (!imagingRequest) {
+      // this is only a possibility when using a FHIR basedOn reference
       throw new Deleted('ImagingRequest has been deleted in Tamanu');
     }
 
