@@ -250,11 +250,10 @@ const ImagingRequestInfoPane = React.memo(
           ...imagingRequest,
           newResult: {
             completedAt: getCurrentDateTimeString(),
-            description: '',
           },
         }}
       >
-        {({ values, dirty, handleChange }) => {
+        {({ values }) => {
           return (
             <Form>
               <ImagingRequestSection
@@ -268,19 +267,13 @@ const ImagingRequestInfoPane = React.memo(
               {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
                 <ImagingResultsSection
                   {...{
-                    dirty,
                     values,
-                    handleChange,
                     practitionerSuggester,
                   }}
                 />
               )}
               <ButtonRow style={{ marginTop: 20 }}>
-                {!isCancelled && (
-                  <Button disabled={!dirty} type="submit">
-                    Save
-                  </Button>
-                )}
+                {!isCancelled && <Button type="submit">Save</Button>}
               </ButtonRow>
             </Form>
           );
