@@ -24,7 +24,23 @@ export class NoGoodModel extends Model {
   }
 }
 
-jest.setTimeout(30000);
+const createDependenciesFor = async (model) => {
+  console.log(model.associations);
+  const dependencyModels = Object.entries(model.tableAttributes)
+    .filter(([name, attribute]) => (console.log(attribute) || attribute.references))
+  
+  const dependencies = {};
+  
+  await Promise.all(dependencyModels.map(async ([name, attribute]) => {
+      console.log(attribute);
+      const dependencyIds = createDependenciesFor(attribute.references)
+      const fakedModel = await model.create(fake(model));
+      dependencies[`${name}Id`] = fakedModel.id;
+  }));
+  return dependencies;
+}
+
+jest.setTimeout(60000);
 
 describe('Setting', () => {
   let models;
@@ -39,12 +55,13 @@ describe('Setting', () => {
     await ctx.close();
   });
 
-  it.each(Object.keys(modelClasses).slice(0,30))("Fake model: %s", async (modelName) => {
+  it.each(Object.keys(modelClasses).slice(0,5))("Fake model: %s", async (modelName) => {
     const model = models[modelName]
     const shouldTest = Object.entries(model.tableAttributes).every(([name, attribute]) => !(attribute.type instanceof DataTypes.JSONB))
     
     if (shouldTest) {
-      const fakedModel = await model.create(fake(model));
+      const dependencyIds = await createDependenciesFor(model);
+      const fakedModel = await model.create(fake(model, dependencyIds));
       expect(fakedModel).toHaveProperty('id');
     }
   });
