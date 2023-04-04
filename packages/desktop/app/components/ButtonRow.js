@@ -51,6 +51,10 @@ export const ConfirmCancelRow = React.memo(
   ),
 );
 
+const Centered = styled.div`
+  align-self: center;
+`;
+
 export const ConfirmClearRow = React.memo(
   ({
     onClear,
@@ -61,7 +65,7 @@ export const ConfirmClearRow = React.memo(
     ...props
   }) => (
     <ButtonRow {...props}>
-      {onClear && <Link onClick={onClear}>Clear</Link>}
+      {onClear && <Centered><Link onClick={onClear}>Clear</Link></Centered>}
       {onConfirm && (
         <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
           {confirmText}

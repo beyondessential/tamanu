@@ -2,6 +2,8 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
+import { TEMPLATE_TYPES } from 'shared/constants';
+
 import { Form, Field, TextField, MultilineTextField, SelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../constants';
@@ -17,8 +19,8 @@ const SmallSpacer = styled.div`
 const TallMultilineTextField = props =>
   <MultilineTextField style={{ minHeight: '156px' }} {...props}/>
 
-export const NewTemplateForm = memo(({ editedObject, onSubmit, onCancel }) => {
-  const renderForm = ({ submitForm }) => (
+export const NewTemplateForm = memo(({ onSubmit }) => {
+  const renderForm = ({ submitForm, resetForm }) => (
     <>
       <FormGrid columns={2}>
         <Field name="type" label="Type" component={SelectField} options={TEMPLATE_TYPE_OPTIONS} required />
@@ -28,12 +30,7 @@ export const NewTemplateForm = memo(({ editedObject, onSubmit, onCancel }) => {
       <FormGrid columns={1} nested>
         <Field name="title" label="Title" component={TextField} required />
         <Field name="contents" label="Contents" component={TallMultilineTextField}  required />
-        {/* <ButtonRow>
-          
-          {/* confirmText="Create" onConfirm={submitForm} onCancel={onCancel} /> }
-        </ButtonRow> */}
-        {/* <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} /> */}
-        <ConfirmClearRow onConfirm={submitForm} onClear={onCancel} />
+        <ConfirmClearRow onConfirm={submitForm} onClear={resetForm} />
       </FormGrid>
     </>
   );
@@ -42,7 +39,7 @@ export const NewTemplateForm = memo(({ editedObject, onSubmit, onCancel }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      initialValues={editedObject}
+      initialValues={{ type: TEMPLATE_TYPES.PATIENT_LETTER }}
       validationSchema={yup.object().shape({
         name: yup.string().required(),
         displayName: yup.string().required(),
