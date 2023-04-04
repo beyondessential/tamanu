@@ -26,7 +26,7 @@ export class FhirImagingStudy extends FhirResource {
     );
 
     // it's not materialised yet. TBD in EPI-224
-    this.UpstreamModel = models.ImagingResult;
+    this.UpstreamModels = [models.ImagingResult];
   }
 
   static CAN_DO = new Set([FHIR_INTERACTIONS.TYPE.CREATE]);

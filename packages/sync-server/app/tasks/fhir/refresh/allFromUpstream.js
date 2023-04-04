@@ -47,40 +47,42 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
       continue;
     }
 
-    const sql = await prepareQuery(Resource.UpstreamModel, query);
-    const insertSql = `
-      WITH upstreams AS (${sql.replace(/;$/, '')})
-      INSERT INTO fhir.jobs (topic, discriminant, payload)
-      SELECT
-        $topic::text,
-        concat($resource::text, ':', upstreams.id),
-        json_build_object(
-          'resource', $resource::text,
-          'upstreamId', upstreams.id,
-          'table', $table::text,
-          'op', $op::text
-        )
-      FROM upstreams
-      ON CONFLICT (discriminant) DO NOTHING
-    `;
+    for (const UpstreamModel of Resource.UpstreamModels) {
+      const sql = await prepareQuery(UpstreamModel, query);
+      const insertSql = `
+        WITH upstreams AS (${sql.replace(/;$/, '')})
+        INSERT INTO fhir.jobs (topic, discriminant, payload)
+        SELECT
+          $topic::text,
+          concat($resource::text, ':', upstreams.id),
+          json_build_object(
+            'resource', $resource::text,
+            'upstreamId', upstreams.id,
+            'table', $table::text,
+            'op', $op::text
+          )
+        FROM upstreams
+        ON CONFLICT (discriminant) DO NOTHING
+      `;
 
-    const results = await sequelize.query(insertSql, {
-      type: Sequelize.QueryTypes.INSERT,
-      bind: {
-        topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
+      const results = await sequelize.query(insertSql, {
+        type: Sequelize.QueryTypes.INSERT,
+        bind: {
+          topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
+          resource: Resource.fhirName,
+          table,
+          op,
+        },
+      });
+      if (!results) {
+        throw new Error(`Failed to insert jobs: ${JSON.stringify(results)}`);
+      }
+
+      log.debug('FhirWorker: submitted refresh jobs', {
         resource: Resource.fhirName,
-        table,
-        op,
-      },
-    });
-    if (!results) {
-      throw new Error(`Failed to insert jobs: ${JSON.stringify(results)}`);
+        count: results[1],
+      });
     }
-
-    log.debug('FhirWorker: submitted refresh jobs', {
-      resource: Resource.fhirName,
-      count: results[1],
-    });
   }
 }
 

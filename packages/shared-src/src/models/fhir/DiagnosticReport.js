@@ -50,7 +50,7 @@ export class FhirDiagnosticReport extends FhirResource {
       options,
     );
 
-    this.UpstreamModel = models.LabTest;
+    this.UpstreamModels = [models.LabTest];
     this.upstreams = [
       models.LabTest,
       models.LabRequest,

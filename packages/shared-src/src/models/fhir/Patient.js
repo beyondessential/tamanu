@@ -47,7 +47,7 @@ export class FhirPatient extends FhirResource {
       options,
     );
 
-    this.UpstreamModel = models.Patient;
+    this.UpstreamModels = [models.Patient];
     this.upstreams = [models.Patient, models.PatientAdditionalData];
   }
 

@@ -47,7 +47,7 @@ export class FhirImmunization extends FhirResource {
       options,
     );
 
-    this.UpstreamModel = models.AdministeredVaccine;
+    this.UpstreamModels = [models.AdministeredVaccine];
     this.upstreams = [
       models.AdministeredVaccine,
       models.Encounter,
