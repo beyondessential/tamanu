@@ -29,10 +29,11 @@ import { Field, CheckField } from '../components/Field';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
   givenElsewhere: false,
+  consent: false,
 };
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup.string().required('Consent is required'),
+  consent: yup.bool().required('Consent is required'),
   vaccineBrand: yup.string().when('category', {
     is: VACCINE_CATEGORIES.OTHER,
     then: yup.string().required(),
@@ -69,7 +70,7 @@ export const VaccineGivenForm = ({
           label="Given elsewhere"
           component={CheckField}
           onChange={() => {
-            setValues({ ...values, givenBy: null });
+            setValues({ ...values, givenBy: '' });
           }}
         />
       </FullWidthCol>
