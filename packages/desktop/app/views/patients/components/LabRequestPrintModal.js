@@ -11,50 +11,57 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { MultipleLabRequestsPrintout as LabRequestPrintout } from '../../../components/PatientPrinting';
+import { Colors } from '../../../constants';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
-  const certificateData = useCertificate();
+  const certificate = useCertificate();
 
-  const { data: encounterData, isLoading: encounterLoading } = useEncounterData(
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
     labRequest.encounterId,
   );
-  const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalData(
+  const { data: additionalData, isLoading: isAdditionalDataLoading } = usePatientAdditionalData(
     patient.id,
   );
-  const { data: notePages, isLoading: notesLoading } = useLabRequestNotes(labRequest.id);
+  const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(labRequest.id);
 
-  const { data: testsData, isLoading: testsLoading } = useQuery(
+  const { data: testsData, isLoading: areTestsLoading } = useQuery(
     ['labRequest', labRequest.id, 'tests'],
     () => api.get(`labRequest/${labRequest.id}/tests`),
   );
 
-  const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
+  const isVillageEnabled = !!patient.villageId;
+  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['referenceData', patient.villageId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
-    {
-      enabled: !!patient?.villageId,
-    },
+    { enabled: isVillageEnabled },
   );
-
-  const villageLoading = villageQueryLoading && !!patient?.villageId;
+  const isLoading =
+    isEncounterLoading ||
+    areNotesLoading ||
+    areTestsLoading ||
+    isAdditionalDataLoading ||
+    (isVillageEnabled && isVillageLoading);
 
   return (
-    <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-      {encounterLoading ||
-      additionalDataLoading ||
-      villageLoading ||
-      notesLoading ||
-      testsLoading ? (
+    <Modal
+      title="Lab Request"
+      open={open}
+      onClose={onClose}
+      width="md"
+      color={Colors.white}
+      printable
+    >
+      {isLoading ? (
         <LoadingIndicator />
       ) : (
         <LabRequestPrintout
-          patient={patient}
           labRequests={[{ ...labRequest, tests: testsData.data, notePages }]}
-          encounter={encounterData}
+          patient={patient}
           village={village}
           additionalData={additionalData}
-          certificateData={certificateData}
+          encounter={encounter}
+          certificate={certificate}
         />
       )}
     </Modal>

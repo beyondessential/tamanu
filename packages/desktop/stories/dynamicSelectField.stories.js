@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DynamicSelectField } from '../app/components';
+import { useSuggester } from '../app/api';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -22,6 +23,9 @@ const FURNITURE = [
 
 export default {
   argTypes: {
+    name: {
+      control: 'text',
+    },
     label: {
       control: 'text',
     },
@@ -33,12 +37,19 @@ export default {
   component: DynamicSelectField,
 };
 
-const Template = ({ name, ...args }) => {
+const Template = ({ name, suggesterEndpoint, ...args }) => {
+  const suggester = useSuggester(suggesterEndpoint);
   const [value, setValue] = useState(null);
   const handleChange = e => {
     setValue(e.target.value);
   };
-  return <DynamicSelectField field={{ name, onChange: handleChange, value }} {...args} />;
+  return (
+    <DynamicSelectField
+      field={{ name, onChange: handleChange, value }}
+      suggester={suggesterEndpoint ? suggester : null}
+      {...args}
+    />
+  );
 };
 
 export const SevenOrLessItems = Template.bind({});
@@ -51,4 +62,16 @@ export const MoreThanSevenItems = Template.bind({});
 MoreThanSevenItems.args = {
   name: 'furniture',
   options: FURNITURE,
+};
+
+export const SevenOrLessItemsWithSuggester = Template.bind({});
+SevenOrLessItemsWithSuggester.args = {
+  name: 'lessThanSevenCities',
+  suggesterEndpoint: 'lessThanSevenCities',
+};
+
+export const MoreThanSevenItemsWithSuggester = Template.bind({});
+MoreThanSevenItemsWithSuggester.args = {
+  name: 'moreThanSevenCities',
+  suggesterEndpoint: 'moreThanSevenCities',
 };
