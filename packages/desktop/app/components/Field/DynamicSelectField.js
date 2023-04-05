@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { SelectInput } from './SelectField';
 import { AutocompleteInput } from './AutocompleteField';
 
 export const DynamicSelectField = ({ field, options, suggester, name, ...props }) => {
-  const [selectOptions, setSelectOptions] = React.useState([]);
-  const [autocompleteOptions, setAutocompleteOptions] = React.useState([]);
-  const [autocompleteSuggester, setAutocompleteSuggester] = React.useState(null);
+  const [selectOptions, setSelectOptions] = useState([]);
+  const [autocompleteOptions, setAutocompleteOptions] = useState([]);
+  const [autocompleteSuggester, setAutocompleteSuggester] = useState(null);
 
   useEffect(() => {
     async function setInputOptions() {
