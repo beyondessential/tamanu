@@ -1,15 +1,15 @@
 import config from 'config';
 import { DataTypes, Op } from 'sequelize';
 
-import { FhirResource } from './Resource';
+import { FhirResource } from '../Resource';
 
-import { latestDateTime } from '../../utils/dateTime';
+import { latestDateTime } from '../../../utils/dateTime';
 import {
   FhirCodeableConcept,
   FhirCoding,
   FhirIdentifier,
   FhirReference,
-} from '../../services/fhirTypes';
+} from '../../../services/fhirTypes';
 import {
   FHIR_INTERACTIONS,
   FHIR_REQUEST_INTENT,
@@ -18,8 +18,8 @@ import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
-} from '../../constants';
-import { Exception, formatFhirDate } from '../../utils/fhir';
+} from '../../../constants';
+import { Exception, formatFhirDate } from '../../../utils/fhir';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {

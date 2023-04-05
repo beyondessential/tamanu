@@ -7,16 +7,16 @@ import {
   LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
-import { FhirResource } from './Resource';
+import { FhirResource } from '../Resource';
 import {
   FhirCodeableConcept,
   FhirCoding,
   FhirExtension,
   FhirIdentifier,
   FhirReference,
-} from '../../services/fhirTypes';
-import { latestDateTime } from '../../utils/dateTime';
-import { formatFhirDate } from '../../utils/fhir';
+} from '../../../services/fhirTypes';
+import { latestDateTime } from '../../../utils/dateTime';
+import { formatFhirDate } from '../../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {

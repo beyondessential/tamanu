@@ -2,15 +2,15 @@ import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
 import { identity } from 'lodash';
 
-import { FhirResource } from './Resource';
-import { activeFromVisibility } from './utils';
-import { latestDateTime } from '../../utils/dateTime';
+import { FhirResource } from '../Resource';
+import { activeFromVisibility } from '../utils';
+import { latestDateTime } from '../../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
   FHIR_INTERACTIONS,
-} from '../../constants';
+} from '../../../constants';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -18,9 +18,9 @@ import {
   FhirIdentifier,
   FhirPatientLink,
   FhirReference,
-} from '../../services/fhirTypes';
-import { nzEthnicity } from './extensions';
-import { formatFhirDate } from '../../utils/fhir';
+} from '../../../services/fhirTypes';
+import { nzEthnicity } from '../extensions';
+import { formatFhirDate } from '../../../utils/fhir';
 
 export class FhirPatient extends FhirResource {
   static init(options, models) {

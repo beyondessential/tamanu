@@ -7,16 +7,16 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
 } from 'shared/constants/fhir';
 
-import { FhirResource } from './Resource';
+import { FhirResource } from '../Resource';
 import {
   FhirCodeableConcept,
   FhirCoding,
   FhirReference,
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
-} from '../../services/fhirTypes';
-import { latestDateTime } from '../../utils/dateTime';
-import { formatFhirDate } from '../../utils/fhir';
+} from '../../../services/fhirTypes';
+import { latestDateTime } from '../../../utils/dateTime';
+import { formatFhirDate } from '../../../utils/fhir';
 
 export class FhirImmunization extends FhirResource {
   static init(options, models) {
