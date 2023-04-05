@@ -45,8 +45,6 @@ function fakeCity(locationGroup) {
   return { id, name: city, locationGroup, availability };
 }
 
-const fakeLocations = [];
-
 for (let i = 0; i < 10; i++) {
   const country = fakeCountry();
   fakeLocations.push(country);
