@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants';
-import { sanitizeFilename, stripMetadata } from './utils';
+import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 
 export const reportsRouter = express.Router();
 
@@ -104,4 +104,62 @@ reportsRouter.get(
       data: Buffer.from(data),
     });
   }),
+
+  reportsRouter.post(
+    '/import',
+    asyncHandler(async (req, res) => {
+      const { store, body } = req;
+      const {
+        models: { ReportDefinition, ReportDefinitionVersion },
+      } = store;
+
+      const { name, file, userId } = body;
+      const versionData = await readJSON(file);
+
+      await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
+
+      const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
+        where: {
+          name,
+        },
+      });
+
+      const method = !createdDefinition && versionData.versionNumber ? 'update' : 'create';
+
+      if (!createdDefinition) {
+        if (versionData.versionNumber) {
+          const existingVersion = await ReportDefinitionVersion.findOne({
+            where: { reportDefinitionId: definition.id, versionNumber: versionData.versionNumber },
+          });
+          if (!existingVersion) {
+            throw new NotFoundError(
+              `Version ${versionData.versionNumber} does not exist for report ${name}`,
+            );
+          }
+          versionData.id = existingVersion.id;
+        } else {
+          const latestVersion = await ReportDefinitionVersion.findOne({
+            where: { reportDefinitionId: definition.id },
+            order: [['versionNumber', 'DESC']],
+          });
+          versionData.versionNumber = (latestVersion?.versionNumber || 0) + 1;
+        }
+      }
+
+      const versionNumber = versionData.versionNumber || 1;
+
+      await ReportDefinitionVersion.upsert({
+        ...versionData,
+        userId,
+        versionNumber,
+        reportDefinitionId: definition.id,
+      });
+
+      res.send({
+        method,
+        versionNumber,
+        createdDefinition,
+      });
+    }),
+  ),
 );
