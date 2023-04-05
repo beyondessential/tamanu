@@ -8,15 +8,18 @@ export const DynamicSelectField = ({ field, options, suggester, name, ...props }
   const [autocompleteOptions, setAutocompleteOptions] = useState([]);
   const [autocompleteSuggester, setAutocompleteSuggester] = useState(null);
 
+  const SELECT_OPTIONS_LIMIT = 7;
+
   useEffect(() => {
     async function setInputOptions() {
       const optionsList = suggester ? await suggester.fetchSuggestions() : options;
-      if (optionsList.length <= 7) {
-        setSelectOptions(optionsList);
-      } else if (optionsList.length > 7 && !suggester) {
-        setAutocompleteOptions(optionsList);
+      if (optionsList.length > SELECT_OPTIONS_LIMIT) {
+          setAutocompleteSuggester(suggester);
+        } else {
+          setAutocompleteOptions(optionsList);
+        }
       } else {
-        setAutocompleteSuggester(suggester);
+        setSelectOptions(optionsList);
       }
     }
     setInputOptions();
