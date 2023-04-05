@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { DynamicSelectField } from '../app/components';
-import { useApi, useSuggester } from '../app/api';
-import { MockedApi } from './utils/mockedApi';
+import { useSuggester } from '../app/api';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -39,8 +38,7 @@ export default {
 };
 
 const Template = ({ name, suggesterEndpoint, ...args }) => {
-  const testSuggester = useSuggester(suggesterEndpoint);
-  const suggester = testSuggester.endpoint.includes('undefined') ? null : testSuggester;
+  const suggester = useSuggester(suggesterEndpoint);
   const [value, setValue] = useState(null);
   const handleChange = e => {
     setValue(e.target.value);
@@ -48,7 +46,7 @@ const Template = ({ name, suggesterEndpoint, ...args }) => {
   return (
     <DynamicSelectField
       field={{ name, onChange: handleChange, value }}
-      suggester={suggester}
+      suggester={suggesterEndpoint ? suggester : null}
       {...args}
     />
   );
