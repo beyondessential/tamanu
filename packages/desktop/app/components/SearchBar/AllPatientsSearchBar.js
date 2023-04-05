@@ -3,7 +3,14 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { Field, LocalisedField, DOBFields, SearchField, DynamicSelectField } from '../Field';
+import {
+  Field,
+  LocalisedField,
+  DOBFields,
+  SearchField,
+  AutocompleteField,
+  SelectField,
+} from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';
@@ -43,14 +50,14 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             <DOBFields showExactBirth={false} />
             <SexLocalisedField
               name="sex"
-              component={DynamicSelectField}
+              component={SelectField}
               options={sexOptions}
               size="small"
             />
           </TwoColumnsField>
           <VillageLocalisedField
             name="villageId"
-            component={DynamicSelectField}
+            component={AutocompleteField}
             suggester={villageSuggester}
             size="small"
           />
