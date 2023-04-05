@@ -12,6 +12,7 @@ export const markedForSync = {
   key: 'markedForSync',
   minWidth: 26,
   CellComponent: SyncedCell,
+  sortable: false,
 };
 
 export const displayId = {
@@ -39,6 +40,7 @@ export const sex = {
   key: 'sex',
   minWidth: 80,
   CellComponent: SexCell,
+  sortable: false,
 };
 
 export const dateOfBirth = {
@@ -68,6 +70,7 @@ export const department = {
 export const status = {
   key: 'patientStatus',
   title: 'Status',
+  sortable: false,
   minWidth: 100,
   accessor: ({ dateOfDeath: dod, encounterType }) =>
     dod ? <strong>Deceased</strong> : getPatientStatus(encounterType),
