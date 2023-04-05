@@ -136,7 +136,7 @@ export const EncounterView = () => {
         subTitle={encounter.location?.facility?.name}
         encounter={encounter}
       >
-        {facility.id === encounter.location.facilityId && (
+        {(facility.id === encounter.location.facilityId || encounter.endDate) && (
           <EncounterActions encounter={encounter} />
         )}
       </EncounterTopBar>
