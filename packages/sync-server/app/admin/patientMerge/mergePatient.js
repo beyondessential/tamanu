@@ -27,7 +27,6 @@ export const simpleUpdateModels = [
   'Appointment',
   'DocumentMetadata',
   'CertificateNotification',
-  'PatientFieldValue',
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
 ];
@@ -40,6 +39,7 @@ export const specificUpdateModels = [
   'PatientAdditionalData',
   'NotePage',
   'PatientFacility',
+  'PatientFieldValue',
 ];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
@@ -111,6 +111,33 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
   });
   delete mergedPAD.id; // id is a generated field, delete it before creating the new one
   return models.PatientAdditionalData.create(mergedPAD);
+}
+
+export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedFieldValues = await models.PatientFieldValue.find({
+    where: { patientId: unwantedPatientId },
+  });
+  if (existingUnwantedFieldValues.length === 0) return null;
+  const existingUnwantedObject = existingUnwantedFieldValues.reduce((acc, record) => {
+    const { definitionId, value } = record;
+    return { ...acc, [definitionId]: value };
+  }, {});
+
+  const existingKeepFieldValues = await models.PatientFieldValue.find({
+    where: { patientId: keepPatientId },
+  });
+  for (const keepRecord of existingKeepFieldValues) {
+    // Prefer the keep record value if defined, otherwise if the unwanted value is defined use that
+    await keepRecord.update({
+      value: keepRecord.value || existingUnwantedObject[keepRecord.definitionId],
+    });
+  }
+
+  await models.PatientFieldValue.destroy({
+    where: { patientId: unwantedPatientId },
+    force: true,
+  });
+  return existingKeepFieldValues;
 }
 
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
