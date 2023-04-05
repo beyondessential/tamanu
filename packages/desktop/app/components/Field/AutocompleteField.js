@@ -89,6 +89,12 @@ const StyledExpandMore = styled(ExpandMore)`
   ${iconStyle}
 `;
 
+const StyledClearIcon = styled(ClearIcon)`
+  cursor: pointer;
+  color: ${Colors.darkText};
+  font-size: 20px;
+`;
+
 class BaseAutocomplete extends Component {
   constructor() {
     super();
@@ -276,14 +282,7 @@ class BaseAutocomplete extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                {value && (
-                  <Icon position="end">
-                    <ClearIcon
-                      style={{ cursor: 'pointer', color: Colors.darkText }}
-                      onClick={this.handleClearValue}
-                    />
-                  </Icon>
-                )}
+                {value && <StyledClearIcon onClick={this.handleClearValue} />}
                 <Icon
                   position="end"
                   onClick={event => {
