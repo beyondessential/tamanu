@@ -14,6 +14,7 @@ export const DynamicSelectField = ({ field, options, suggester, name, ...props }
     async function setInputOptions() {
       const optionsList = suggester ? await suggester.fetchSuggestions() : options;
       if (optionsList.length > SELECT_OPTIONS_LIMIT) {
+        if (suggester) {
           setAutocompleteSuggester(suggester);
         } else {
           setAutocompleteOptions(optionsList);
