@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ClearIcon from '@material-ui/icons/Clear';
+import ExpandLessRoundedIcon from '@material-ui/icons/ExpandLessRounded';
+import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
+import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -57,8 +57,7 @@ const SuggestionsList = styled(Paper)`
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
-    color: ${Colors.softText};
-    font-size: 20px;
+    color: ${Colors.darkText};
   }
 `;
 
@@ -77,19 +76,19 @@ const Item = styled(MenuItem)`
 `;
 
 const iconStyle = css`
-  color: ${Colors.midText};
+  color: ${Colors.darkText};
   font-size: 24;
 `;
 
-const StyledExpandLess = styled(ExpandLess)`
+const StyledExpandLess = styled(ExpandLessRoundedIcon)`
   ${iconStyle}
 `;
 
-const StyledExpandMore = styled(ExpandMore)`
+const StyledExpandMore = styled(ExpandMoreRoundedIcon)`
   ${iconStyle}
 `;
 
-const StyledClearIcon = styled(ClearIcon)`
+const StyledClearIcon = styled(ClearRoundedIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
   font-size: 20px;
