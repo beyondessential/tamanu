@@ -61,6 +61,7 @@ reportsRouter.get(
         },
       ],
     });
+    console.log(versions)
     res.send(versions);
   }),
 );

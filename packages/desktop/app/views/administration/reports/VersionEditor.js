@@ -101,11 +101,12 @@ const SaveButtonLabel = ({ submitting }) => (
   </Box>
 );
 
-export const VersionEditor = ({ report, version, onBack, onSave }) => {
+export const ReportsEditorView = ({ report, version, onBack, onSave }) => {
   const { id, updatedAt, createdAt, createdBy, versionNumber, ...editableData } = version;
   const { name } = report;
   const { currentUser } = useAuth();
   const [isValid, setIsValid] = useState(true);
+  const [mutatesQuery, setMutatesQuery] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [value, setValue] = useState(editableData);
   const [submitting, setSubmitting] = useState(false);
@@ -117,6 +118,11 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
       setDirty(true);
     }
     setIsValid(ajv.validate(schema, json));
+    setMutatesQuery(
+      editableData.query !== json.query ||
+        JSON.stringify(editableData.queryOptions) !== JSON.stringify(json.queryOptions),
+    );
+    console.log('mutatesQuery', mutatesQuery);
   };
 
   const handleReset = () => {
@@ -170,6 +176,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
               {
                 label: <SaveButtonLabel submitting={submitting} />,
                 onClick: () => handleSave(false),
+                disabled: mutatesQuery,
               },
               { label: 'Save as new version', onClick: () => handleSave(true) },
             ]}
