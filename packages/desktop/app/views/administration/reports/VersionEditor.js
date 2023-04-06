@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
-import { Button, CardItem, formatShort, formatTime } from '../../../components';
-import { DropdownButton } from '../../../components/DropdownButton';
+import { Button, CardItem, OutlinedButton, formatShort, formatTime } from '../../../components';
 import { schema, schemaRefs, templates } from './schema';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
@@ -21,7 +20,7 @@ const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  > button:first-child {
+  > :first-child {
     margin-right: 10px;
   }
 `;
@@ -38,12 +37,6 @@ const DetailList = styled.div`
 
 const ErrorMessage = styled.div`
   word-break: break-word;
-`;
-
-const StyledDropdownButton = styled(DropdownButton)`
-  margin-bottom: 20px;
-  opacity: ${props => props.$disabled && 0.5};
-  pointer-events: ${props => props.$disabled && 'none'};
 `;
 
 const VersionInfoCard = styled.div`
@@ -81,7 +74,10 @@ const VersionInfo = ({ name, version }) => (
       value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}`}
     />
     {version.createdAt !== version.updatedAt && (
-      <CardItem label="Updated" value={formatShort(version.updatedAt)} />
+      <CardItem
+        label="Updated"
+        value={`${formatShort(version.updatedAt)} ${formatTime(version.updatedAt)}`}
+      />
     )}
     <CardItem label="Created by" value={version.createdBy?.displayName} />
   </VersionInfoCard>
@@ -94,15 +90,44 @@ const Error = ({ errorMessage, isCreate }) => (
   </div>
 );
 
-const SaveButtonLabel = ({ submitting }) => (
-  <Box display="flex" alignItems="center">
-    {submitting ? 'Saving' : 'Save'}
-    {submitting && <InlineProgress size={12} />}
-  </Box>
-);
+const SaveButton = ({ isValid, dirty, mutatesQuery, onClick, children, submitting }) => {
+  let errorTooltipText;
+  if (!dirty) {
+    errorTooltipText = 'No changes to json';
+  } else if (!isValid) {
+    errorTooltipText = 'Please fix any errors before saving.';
+  } else if (mutatesQuery) {
+    errorTooltipText = 'A version cannot be saved with changes to the query or query options.';
+  }
+  return (
+    <Tooltip
+      disableHoverListener={!errorTooltipText}
+      title={errorTooltipText}
+      placement="top"
+      arrow
+    >
+      <div>
+        <OutlinedButton onClick={onClick} disabled={!!errorTooltipText || submitting}>
+          <Box display="flex" alignItems="center">
+            {children}
+            {submitting && <InlineProgress size={12} />}
+          </Box>
+        </OutlinedButton>
+      </div>
+    </Tooltip>
+  );
+};
 
-export const ReportsEditorView = ({ report, version, onBack, onSave }) => {
-  const { id, updatedAt, createdAt, createdBy, versionNumber, ...editableData } = version;
+export const VersionEditor = ({ report, version, onBack, onSave }) => {
+  const {
+    id,
+    updatedAt,
+    createdAt,
+    deletedAt,
+    createdBy,
+    versionNumber,
+    ...editableData
+  } = version;
   const { name } = report;
   const { currentUser } = useAuth();
   const [isValid, setIsValid] = useState(true);
@@ -122,10 +147,10 @@ export const ReportsEditorView = ({ report, version, onBack, onSave }) => {
       editableData.query !== json.query ||
         JSON.stringify(editableData.queryOptions) !== JSON.stringify(json.queryOptions),
     );
-    console.log('mutatesQuery', mutatesQuery);
   };
 
   const handleReset = () => {
+    setMutatesQuery(false);
     setDirty(false);
     setValue(null);
     // This has has to be deferred to reload jsoneditor window properly
@@ -162,27 +187,25 @@ export const ReportsEditorView = ({ report, version, onBack, onSave }) => {
           Reset
         </Button>
       </ButtonContainer>
-      <Tooltip
-        disableHoverListener={isValid && dirty}
-        title={!dirty ? 'No changes to json' : !isValid && 'Please fix any errors before saving.'}
-        placement="top"
-        arrow
-      >
-        <div style={{ width: 'fit-content' }}>
-          <StyledDropdownButton
-            variant="outlined"
-            $disabled={!isValid || !dirty}
-            actions={[
-              {
-                label: <SaveButtonLabel submitting={submitting} />,
-                onClick: () => handleSave(false),
-                disabled: mutatesQuery,
-              },
-              { label: 'Save as new version', onClick: () => handleSave(true) },
-            ]}
-          />
-        </div>
-      </Tooltip>
+      <ButtonContainer>
+        <SaveButton
+          onClick={() => handleSave()}
+          submitting={submitting}
+          dirty={dirty}
+          isValid={isValid}
+          mutatesQuery={mutatesQuery}
+        >
+          Save
+        </SaveButton>
+        <SaveButton
+          submitting={submitting}
+          onClick={() => handleSave(true)}
+          dirty={dirty}
+          isValid={isValid}
+        >
+          Save as new version
+        </SaveButton>
+      </ButtonContainer>
       <DetailList>
         <VersionInfo name={name} version={version} />
         {value && (

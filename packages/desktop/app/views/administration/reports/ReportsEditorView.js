@@ -36,7 +36,6 @@ export const ReportsEditorView = () => {
       enabled: areVersionsEnabled,
     },
   );
-  const isLoading = (areVersionsEnabled && areVersionsLoading) || isReportLoading;
 
   const handleBack = () => setVersion(null);
 
@@ -66,14 +65,14 @@ export const ReportsEditorView = () => {
             data={reportData}
             selected={report?.id}
             onRowClick={setReport}
-            loading={isLoading}
+            loading={isReportLoading}
             error={reportError?.message}
           />
           {versionData && (
             <VersionsTableContainer>
               <VersionTable
                 data={versionData}
-                loading={isLoading}
+                loading={areVersionsEnabled && areVersionsLoading}
                 error={versionsError?.message}
                 onRowClick={setVersion}
               />

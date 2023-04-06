@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 import { DryRun } from '../errors';
@@ -61,7 +61,6 @@ reportsRouter.get(
         },
       ],
     });
-    console.log(versions)
     res.send(versions);
   }),
 );
@@ -74,12 +73,40 @@ reportsRouter.post(
       models: { ReportDefinitionVersion },
     } = store;
     const { reportId } = params;
-    await verifyQuery(body, store);
+    await verifyQuery(body.query, body.queryOptions.parameters, store);
     const version = await ReportDefinitionVersion.create({
       ...body,
       reportDefinitionId: reportId,
     });
-    res.send(version.forResponse());
+    res.send(version);
+  }),
+);
+
+reportsRouter.put(
+  '/:reportId/versions/:versionId',
+  asyncHandler(async (req, res) => {
+    const { store, params, body } = req;
+    const {
+      models: { ReportDefinitionVersion },
+    } = store;
+    const { reportId, versionId } = params;
+    const existingVersion = await ReportDefinitionVersion.findOne({
+      where: { id: versionId, reportDefinitionId: reportId },
+    });
+    if (!existingVersion) {
+      throw new NotFoundError(`No version found with id ${versionId}`);
+    }
+    if (
+      body.query !== existingVersion.query ||
+      JSON.stringify(body.queryOptions) !== JSON.stringify(existingVersion.queryOptions)
+    ) {
+      throw new InvalidOperationError(
+        'Cannot update query or query options of an existing version',
+      );
+    }
+    await verifyQuery(body.query, body.queryOptions.parameters, store);
+    const version = await existingVersion.update(body);
+    res.send(version);
   }),
 );
 
@@ -123,83 +150,68 @@ reportsRouter.get(
       data: Buffer.from(data),
     });
   }),
+);
 
-  reportsRouter.post(
-    '/import',
-    asyncHandler(async (req, res) => {
-      const { store, body } = req;
-      const {
-        models: { ReportDefinition, ReportDefinitionVersion },
-        sequelize,
-      } = store;
+reportsRouter.post(
+  '/import',
+  asyncHandler(async (req, res) => {
+    const { store, body } = req;
+    const {
+      models: { ReportDefinition, ReportDefinitionVersion },
+      sequelize,
+    } = store;
 
-      const { name, file, userId, dryRun } = body;
-      const versionData = await readJSON(file);
+    const { name, file, userId, dryRun } = body;
+    const versionData = await readJSON(file);
 
-      await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
+    if (versionData.versionNumber)
+      throw InvalidOperationError('Cannot import a report with a version number');
 
-      const feedback = {};
-      try {
-        await sequelize.transaction(
-          {
-            isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-          },
-          async () => {
-            const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
-              where: {
-                name,
-              },
+    await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
+
+    const feedback = {};
+    try {
+      await sequelize.transaction(
+        {
+          isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+        },
+        async () => {
+          const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
+            where: {
+              name,
+            },
+          });
+
+          feedback.createdDefinition = createdDefinition;
+
+          if (!createdDefinition) {
+            const latestVersion = await ReportDefinitionVersion.findOne({
+              where: { reportDefinitionId: definition.id },
+              order: [['versionNumber', 'DESC']],
             });
+            versionData.versionNumber = (latestVersion?.versionNumber || 0) + 1;
+          }
 
-            feedback.createdDefinition = createdDefinition;
-            feedback.method = !createdDefinition && versionData.versionNumber ? 'update' : 'create';
+          const versionNumber = versionData.versionNumber || 1;
+          feedback.versionNumber = versionNumber;
 
-            if (!createdDefinition) {
-              if (versionData.versionNumber) {
-                // Update existing report version
-                const existingVersion = await ReportDefinitionVersion.findOne({
-                  where: {
-                    reportDefinitionId: definition.id,
-                    versionNumber: versionData.versionNumber,
-                  },
-                });
-                if (!existingVersion) {
-                  throw new NotFoundError(
-                    `Version ${versionData.versionNumber} does not exist for report ${name}`,
-                  );
-                }
-                versionData.id = existingVersion.id;
-              } else {
-                // Create new latest report version
-                const latestVersion = await ReportDefinitionVersion.findOne({
-                  where: { reportDefinitionId: definition.id },
-                  order: [['versionNumber', 'DESC']],
-                });
-                versionData.versionNumber = (latestVersion?.versionNumber || 0) + 1;
-              }
-            }
+          await ReportDefinitionVersion.upsert({
+            ...versionData,
+            userId,
+            versionNumber,
+            reportDefinitionId: definition.id,
+          });
 
-            const versionNumber = versionData.versionNumber || 1;
-            feedback.versionNumber = versionNumber;
-
-            await ReportDefinitionVersion.upsert({
-              ...versionData,
-              userId,
-              versionNumber,
-              reportDefinitionId: definition.id,
-            });
-
-            if (dryRun) {
-              throw new DryRun();
-            }
-          },
-        );
-      } catch (err) {
-        if (!(err instanceof DryRun)) {
-          throw err;
-        }
+          if (dryRun) {
+            throw new DryRun();
+          }
+        },
+      );
+    } catch (err) {
+      if (!(err instanceof DryRun)) {
+        throw err;
       }
-      res.send(feedback);
-    }),
-  ),
+    }
+    res.send(feedback);
+  }),
 );

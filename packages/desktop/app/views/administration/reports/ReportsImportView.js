@@ -37,11 +37,10 @@ const ImportFeedback = ({ name, feedback, dryRun }) => (
   <Alert>
     <Heading4 mb={1}>{dryRun ? 'Dry Run' : 'Successfully imported'}</Heading4>
     <BodyText mb={1}>
-      {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition: <b>{name}</b>
+      {feedback.createdDefinition ? 'Created new' : 'Existing'} definition: <b>{name}</b>
     </BodyText>
     <BodyText>
-      {feedback.method ? 'Created new' : 'Updated existing'} version:{' '}
-      <b>{feedback.versionNumber}</b>
+      Created new version: <b>{feedback.versionNumber}</b>
     </BodyText>
   </Alert>
 );
