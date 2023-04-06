@@ -4,7 +4,7 @@ import { createTestContext, withDate } from '../../utilities';
 import { readJSON, sanitizeFilename } from '../../../app/admin/reports/utils';
 import { REPORT_VERSION_EXPORT_FORMATS } from '../../../../shared-src/src/constants/reports';
 
-describe('reportEndpoints', () => {
+describe('reportRoutes', () => {
   let ctx;
   let models;
   let baseApp;
@@ -104,6 +104,8 @@ describe('reportEndpoints', () => {
         'id',
         'versionNumber',
         'query',
+        'createdAt',
+        'updatedAt',
         'status',
         'notes',
         'queryOptions',
@@ -111,38 +113,6 @@ describe('reportEndpoints', () => {
       ];
       const additionalKeys = Object.keys(res.body[0]).filter(k => !allowedKeys.includes(k));
       expect(additionalKeys).toHaveLength(0);
-    });
-  });
-
-  describe('PUT /reports/:id/versions/:versionId', () => {
-    it('should update a version', async () => {
-      const { ReportDefinitionVersion } = models;
-      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        query: 'select * from patients limit 1',
-      });
-      expect(res).toHaveSucceeded();
-      expect(res.body.query).toBe('select * from patients limit 1');
-    });
-    it('should not return unnecessary metadata', async () => {
-      const { ReportDefinitionVersion } = models;
-      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        query: 'select * from patients limit 1',
-      });
-      expect(res).toHaveSucceeded();
-      expect(Object.keys(res.body)).toEqual(
-        expect.arrayContaining([
-          'id',
-          'versionNumber',
-          'query',
-          'createdAt',
-          'updatedAt',
-          'status',
-          'notes',
-          'queryOptions',
-        ]),
-      );
     });
   });
 
@@ -190,16 +160,16 @@ describe('reportEndpoints', () => {
       const { ReportDefinitionVersion } = models;
       const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        query: 'select * from patients limit 1',
+        status: 'published',
       });
       expect(res).toHaveSucceeded();
-      expect(res.body.query).toBe('select * from patients limit 1');
+      expect(res.body.status).toBe('published');
     });
     it('should not return unnecessary metadata', async () => {
       const { ReportDefinitionVersion } = models;
       const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        query: 'select * from patients limit 1',
+        status: 'published',
       });
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
@@ -214,6 +184,15 @@ describe('reportEndpoints', () => {
           'queryOptions',
         ]),
       );
+    });
+    it('should fail with InvalidOperationError if query is changed', async () => {
+      const { ReportDefinitionVersion } = models;
+      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
+      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
+        query: 'select * from patients limit 1',
+      });
+      expect(res).toHaveRequestError('InvalidOperationError');
+      expect(res.body.error.message).toBe('Cannot change query of an existing version');
     });
   });
 
@@ -231,6 +210,9 @@ describe('reportEndpoints', () => {
       expect(JSON.parse(Buffer.from(res.body.data).toString())).toEqual({
         ...versionData,
         id: v1.id,
+        createdAt: v1.createdAt.toISOString(),
+        updatedAt: v1.updatedAt.toISOString(),
+        deletedAt: null,
       });
     });
     it('should export a report as sql', async () => {
@@ -258,7 +240,6 @@ describe('reportEndpoints', () => {
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
         versionNumber: 1,
-        method: 'create',
         createdDefinition: true,
       });
       const report = await models.ReportDefinition.findOne({
@@ -279,7 +260,6 @@ describe('reportEndpoints', () => {
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
         versionNumber: 1,
-        method: 'create',
         createdDefinition: true,
       });
       const report = await models.ReportDefinition.findOne({
@@ -293,34 +273,6 @@ describe('reportEndpoints', () => {
       expect(report.versions).toHaveLength(1);
       expect(report.versions[0].query).toBe('select * from patients limit 0');
     });
-    it('should override an existing version', async () => {
-      const { ReportDefinitionVersion } = models;
-      const version = await ReportDefinitionVersion.create(
-        getMockReportVersion(1, 'select * from encounters limit 0'),
-      );
-      const res = await adminApp.post(`/v1/admin/reports/import`).send({
-        file: path.join(__dirname, '/data/with-version-number.json'),
-        name: testReport.name,
-        userId: user.id,
-      });
-      expect(res).toHaveSucceeded();
-      expect(res.body).toEqual({
-        versionNumber: 1,
-        method: 'update',
-        createdDefinition: false,
-      });
-      const report = await models.ReportDefinition.findOne({
-        where: { name: testReport.name },
-        include: {
-          model: models.ReportDefinitionVersion,
-          as: 'versions',
-        },
-      });
-      expect(report).toBeTruthy();
-      expect(report.versions).toHaveLength(1);
-      expect(report.versions[0].query).toBe('select * from patients limit 0');
-      expect(report.versions[0].id).toBe(version.id);
-    });
     it('should create a new latest version if existing definition and no version number', async () => {
       const { ReportDefinitionVersion } = models;
       await ReportDefinitionVersion.create(getMockReportVersion(1));
@@ -332,7 +284,6 @@ describe('reportEndpoints', () => {
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
         versionNumber: 2,
-        method: 'create',
         createdDefinition: false,
       });
       const report = await models.ReportDefinition.findOne({
@@ -345,15 +296,16 @@ describe('reportEndpoints', () => {
       expect(report).toBeTruthy();
       expect(report.versions).toHaveLength(2);
     });
-    it('should fail if version does not exist on existing definition', async () => {
+    it('should fail with InvalidOperationError if version number is specified', async () => {
+      const { ReportDefinitionVersion } = models;
+      await ReportDefinitionVersion.create(getMockReportVersion(1));
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/with-version-number.json'),
         name: testReport.name,
         userId: user.id,
       });
-      expect(res).toHaveRequestError();
-      expect(res.status).toBe(404);
-      expect(res.body.error.message).toBe('Version 1 does not exist for report Test Report');
+      expect(res).toHaveRequestError('InvalidOperationError');
+      expect(res.body.error.message).toBe('Cannot import a report with a version number');
     });
   });
 

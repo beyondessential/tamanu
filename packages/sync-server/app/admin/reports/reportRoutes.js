@@ -96,15 +96,13 @@ reportsRouter.put(
     if (!existingVersion) {
       throw new NotFoundError(`No version found with id ${versionId}`);
     }
-    if (
-      body.query !== existingVersion.query ||
-      JSON.stringify(body.queryOptions) !== JSON.stringify(existingVersion.queryOptions)
-    ) {
-      throw new InvalidOperationError(
-        'Cannot update query or query options of an existing version',
-      );
+    const queryMutated =
+      (body.query && body.query !== existingVersion.query) ||
+      (body.queryOptions &&
+        JSON.stringify(body.queryOptions) !== JSON.stringify(existingVersion.queryOptions));
+    if (queryMutated) {
+      throw new InvalidOperationError('Cannot change query of an existing version');
     }
-    await verifyQuery(body.query, body.queryOptions.parameters, store);
     const version = await existingVersion.update(body);
     res.send(version);
   }),
@@ -165,7 +163,7 @@ reportsRouter.post(
     const versionData = await readJSON(file);
 
     if (versionData.versionNumber)
-      throw InvalidOperationError('Cannot import a report with a version number');
+      throw new InvalidOperationError('Cannot import a report with a version number');
 
     await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
 
