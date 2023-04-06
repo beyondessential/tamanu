@@ -114,16 +114,16 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
 }
 
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
-  const existingUnwantedFieldValues = await models.PatientFieldValue.find({
+  const existingUnwantedFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: unwantedPatientId },
   });
-  if (existingUnwantedFieldValues.length === 0) return null;
+  if (existingUnwantedFieldValues.length === 0) return [];
   const existingUnwantedObject = existingUnwantedFieldValues.reduce((acc, record) => {
     const { definitionId, value } = record;
     return { ...acc, [definitionId]: value };
   }, {});
 
-  const existingKeepFieldValues = await models.PatientFieldValue.find({
+  const existingKeepFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: keepPatientId },
   });
   for (const keepRecord of existingKeepFieldValues) {
@@ -234,6 +234,15 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     const updated = await mergePatientAdditionalData(models, keepPatientId, unwantedPatientId);
     if (updated) {
       updates.PatientAdditionalData = 1;
+    }
+
+    const fieldValueUpdates = await mergePatientFieldValues(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (fieldValueUpdates.length > 0) {
+      updates.PatientFieldValue = fieldValueUpdates.length;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup
