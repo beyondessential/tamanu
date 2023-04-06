@@ -5,6 +5,7 @@ import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
+import { IconButton } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -31,10 +32,14 @@ const OptionTag = styled(FormFieldTag)`
   right: 20px;
 `;
 
+const StyledIconButton = styled(IconButton)`
+  padding: 0;
+`;
+
 const StyledClearIcon = styled(ClearRoundedIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
-  font-size: 20px;
+  font-size: 24px;
   position: relative;
 `;
 
@@ -68,7 +73,11 @@ const SingleValue = ({ children, ...props }) => {
 
 const ClearIndicator = props => {
   const { innerProps } = props;
-  return <StyledClearIcon {...innerProps} />;
+  return (
+    <StyledIconButton>
+      <StyledClearIcon {...innerProps} />
+    </StyledIconButton>
+  );
 };
 
 export const SelectInput = ({
@@ -114,7 +123,7 @@ export const SelectInput = ({
     dropdownIndicator: provided => ({
       ...provided,
       color: Colors.darkText,
-      padding: '4px 16px 6px 6px',
+      padding: '4px 16px 6px 0px',
     }),
     placeholder: provided => ({ ...provided, color: Colors.softText }),
     indicatorSeparator: () => ({ display: 'none' }),

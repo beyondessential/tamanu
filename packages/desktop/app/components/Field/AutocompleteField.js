@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
-import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
+import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
 import ExpandLessRoundedIcon from '@material-ui/icons/ExpandLessRounded';
 import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
 import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
@@ -56,6 +56,7 @@ const SuggestionsList = styled(Paper)`
 `;
 
 const Icon = styled(InputAdornment)`
+  margin-left: 0;
   .MuiSvgIcon-root {
     color: ${Colors.darkText};
   }
@@ -88,10 +89,14 @@ const StyledExpandMore = styled(ExpandMoreRoundedIcon)`
   ${iconStyle}
 `;
 
+const StyledIconButton = styled(IconButton)`
+  padding: 0;
+`;
+
 const StyledClearIcon = styled(ClearRoundedIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
-  font-size: 20px;
+  font-size: 24px;
 `;
 
 class BaseAutocomplete extends Component {
@@ -283,7 +288,11 @@ class BaseAutocomplete extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                {value && <StyledClearIcon onClick={this.handleClearValue} />}
+                {value && (
+                  <StyledIconButton>
+                    <StyledClearIcon onClick={this.handleClearValue} />
+                  </StyledIconButton>
+                )}
                 <Icon
                   position="end"
                   onClick={event => {
