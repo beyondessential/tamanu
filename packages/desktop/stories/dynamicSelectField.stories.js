@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { DynamicSelectField } from '../app/components';
 import { useSuggester } from '../app/api';
 
@@ -20,6 +21,11 @@ const FURNITURE = [
   { label: 'Nightstand', value: 'nightstand' },
   { label: 'Bookshelf', value: 'bookshelf' },
 ];
+
+const Container = styled.div`
+  padding: 1rem;
+  max-width: 500px;
+`;
 
 export default {
   argTypes: {
@@ -44,11 +50,13 @@ const Template = ({ name, suggesterEndpoint, ...args }) => {
     setValue(e.target.value);
   };
   return (
-    <DynamicSelectField
-      field={{ name, onChange: handleChange, value }}
-      suggester={suggesterEndpoint ? suggester : null}
-      {...args}
-    />
+    <Container>
+      <DynamicSelectField
+        field={{ name, onChange: handleChange, value }}
+        suggester={suggesterEndpoint ? suggester : null}
+        {...args}
+      />
+    </Container>
   );
 };
 
