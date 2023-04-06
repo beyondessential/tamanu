@@ -65,6 +65,23 @@ reportsRouter.get(
   }),
 );
 
+reportsRouter.post(
+  '/:reportId/versions',
+  asyncHandler(async (req, res) => {
+    const { store, params, body } = req;
+    const {
+      models: { ReportDefinitionVersion },
+    } = store;
+    const { reportId } = params;
+    await verifyQuery(body, store);
+    const version = await ReportDefinitionVersion.create({
+      ...body,
+      reportDefinitionId: reportId,
+    });
+    res.send(version.forResponse());
+  }),
+);
+
 reportsRouter.get(
   '/:reportId/versions/:versionId/export/:format',
   asyncHandler(async (req, res) => {

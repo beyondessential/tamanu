@@ -23,17 +23,20 @@ export const ReportsEditorView = () => {
   const [version, setVersion] = useState(null);
   const api = useApi();
 
-  const { data: reportData = [], isLoading: reportLoading, error: reportError } = useQuery(
+  const { data: reportData = [], isLoading: isReportLoading, error: reportError } = useQuery(
     ['reportList'],
     () => api.get('admin/reports'),
   );
-  const { data: versionData, isLoading: versionsLoading, error: versionsError } = useQuery(
+
+  const areVersionsEnabled = !!report?.id;
+  const { data: versionData, isLoading: areVersionsLoading, error: versionsError } = useQuery(
     ['reportVersions', report?.id],
     () => api.get(`admin/reports/${report?.id}/versions`),
     {
-      enabled: !!report?.id,
+      enabled: areVersionsEnabled,
     },
   );
+  const isLoading = (areVersionsEnabled && areVersionsLoading) || isReportLoading;
 
   const handleBack = () => setVersion(null);
 
@@ -63,14 +66,14 @@ export const ReportsEditorView = () => {
             data={reportData}
             selected={report?.id}
             onRowClick={setReport}
-            loading={reportLoading}
+            loading={isLoading}
             error={reportError?.message}
           />
           {versionData && (
             <VersionsTableContainer>
               <VersionTable
                 data={versionData}
-                loading={versionsLoading}
+                loading={isLoading}
                 error={versionsError?.message}
                 onRowClick={setVersion}
               />
