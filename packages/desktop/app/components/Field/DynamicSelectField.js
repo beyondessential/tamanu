@@ -3,9 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { SelectInput } from './SelectField';
 import { AutocompleteInput } from './AutocompleteField';
 
+const SELECT_OPTIONS_LIMIT = 7;
+
 export const DynamicSelectField = ({ field, options, suggester, name, ...props }) => {
   const [selectOptions, setSelectOptions] = useState([]);
-  const SELECT_OPTIONS_LIMIT = 7;
 
   useEffect(() => {
     async function setInputOptions() {
@@ -16,21 +17,8 @@ export const DynamicSelectField = ({ field, options, suggester, name, ...props }
   }, [options, suggester]);
 
   return selectOptions.length > SELECT_OPTIONS_LIMIT ? (
-    <AutocompleteInput
-      name={field.name}
-      onChange={field.onChange}
-      value={field.value}
-      suggester={suggester}
-      options={selectOptions}
-      {...props}
-    />
+    <AutocompleteInput suggester={suggester} options={selectOptions} {...props} {...field} />
   ) : (
-    <SelectInput
-      name={field.name}
-      onChange={field.onChange}
-      value={field.value}
-      options={selectOptions}
-      {...props}
-    />
+    <SelectInput options={selectOptions} {...props} {...field} />
   );
 };
