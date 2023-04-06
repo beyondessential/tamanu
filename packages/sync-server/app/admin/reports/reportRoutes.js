@@ -1,9 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Sequelize } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
+import { DryRun } from '../errors';
 
 export const reportsRouter = express.Router();
 
@@ -111,55 +112,77 @@ reportsRouter.get(
       const { store, body } = req;
       const {
         models: { ReportDefinition, ReportDefinitionVersion },
+        sequelize
       } = store;
 
-      const { name, file, userId } = body;
+      const { name, file, userId, testRun } = body;
       const versionData = await readJSON(file);
 
       await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
 
-      const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
-        where: {
-          name,
-        },
-      });
+      const report = {};
+      try {
+        await sequelize.transaction(
+          {
+            // strongest level to be sure to read/write good data
+            isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+          },
+          async () => {
+            const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
+              where: {
+                name,
+              },
+            });
 
-      const method = !createdDefinition && versionData.versionNumber ? 'update' : 'create';
+            report.createdDefinition = createdDefinition;
+            report.method = !createdDefinition && versionData.versionNumber ? 'update' : 'create';
 
-      if (!createdDefinition) {
-        if (versionData.versionNumber) {
-          const existingVersion = await ReportDefinitionVersion.findOne({
-            where: { reportDefinitionId: definition.id, versionNumber: versionData.versionNumber },
-          });
-          if (!existingVersion) {
-            throw new NotFoundError(
-              `Version ${versionData.versionNumber} does not exist for report ${name}`,
-            );
-          }
-          versionData.id = existingVersion.id;
-        } else {
-          const latestVersion = await ReportDefinitionVersion.findOne({
-            where: { reportDefinitionId: definition.id },
-            order: [['versionNumber', 'DESC']],
-          });
-          versionData.versionNumber = (latestVersion?.versionNumber || 0) + 1;
+            if (!createdDefinition) {
+              if (versionData.versionNumber) {
+                // Update existing report version
+                const existingVersion = await ReportDefinitionVersion.findOne({
+                  where: {
+                    reportDefinitionId: definition.id,
+                    versionNumber: versionData.versionNumber,
+                  },
+                });
+                if (!existingVersion) {
+                  throw new NotFoundError(
+                    `Version ${versionData.versionNumber} does not exist for report ${name}`,
+                  );
+                }
+                versionData.id = existingVersion.id;
+              } else {
+                // Create new latest report version
+                const latestVersion = await ReportDefinitionVersion.findOne({
+                  where: { reportDefinitionId: definition.id },
+                  order: [['versionNumber', 'DESC']],
+                });
+                versionData.versionNumber = (latestVersion?.versionNumber || 0) + 1;
+              }
+            }
+
+            const versionNumber = versionData.versionNumber || 1;
+            report.versionNumber = versionNumber;
+
+            await ReportDefinitionVersion.upsert({
+              ...versionData,
+              userId,
+              versionNumber,
+              reportDefinitionId: definition.id,
+            });
+
+            if (testRun) {
+              throw new DryRun();
+            }
+          },
+        );
+      } catch (err) {
+        if (!(err instanceof DryRun)) {
+          throw err;
         }
       }
-
-      const versionNumber = versionData.versionNumber || 1;
-
-      await ReportDefinitionVersion.upsert({
-        ...versionData,
-        userId,
-        versionNumber,
-        reportDefinitionId: definition.id,
-      });
-
-      res.send({
-        method,
-        versionNumber,
-        createdDefinition,
-      });
+      res.send(report);
     }),
   ),
 );
