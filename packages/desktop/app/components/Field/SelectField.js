@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import ClearIcon from '@material-ui/icons/Clear';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -28,6 +29,13 @@ const SelectTag = styled(FormFieldTag)`
 
 const OptionTag = styled(FormFieldTag)`
   right: 20px;
+`;
+
+const StyledClearIcon = styled(ClearIcon)`
+  cursor: pointer;
+  color: ${Colors.darkText};
+  font-size: 20px;
+  position: relative;
 `;
 
 const Option = ({ children, ...props }) => {
@@ -58,6 +66,11 @@ const SingleValue = ({ children, ...props }) => {
   );
 };
 
+const ClearIndicator = props => {
+  const { innerProps } = props;
+  return <StyledClearIcon {...innerProps} />;
+};
+
 export const SelectInput = ({
   options,
   value,
@@ -73,7 +86,11 @@ export const SelectInput = ({
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      onChange({ target: { value: changedOption.value, name } });
+      if (changedOption) {
+        onChange({ target: { value: changedOption.value, name } });
+      } else {
+        onChange({ target: { value: '', name } });
+      }
     },
     [onChange, name],
   );
@@ -166,7 +183,8 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          components={{ Option, SingleValue }}
+          isClearable
+          components={{ Option, SingleValue, ClearIndicator }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
