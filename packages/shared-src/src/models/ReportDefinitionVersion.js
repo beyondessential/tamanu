@@ -103,6 +103,7 @@ export class ReportDefinitionVersion extends Model {
 
     this.belongsTo(models.User, {
       foreignKey: { name: 'userId', allowNull: false },
+      as: 'createdBy',
     });
 
     this.hasMany(models.ReportRequest);

@@ -10,6 +10,7 @@ import { referenceDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './ref
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { reportsRouter } from './reports/reportRoutes';
 
 export const adminRoutes = express.Router();
 
@@ -30,6 +31,7 @@ adminRoutes.use(
   }),
 );
 
+adminRoutes.use('/reports', reportsRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
 // A temporary lookup-patient-by-displayId endpoint, just to
