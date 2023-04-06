@@ -124,7 +124,6 @@ reportsRouter.get(
       try {
         await sequelize.transaction(
           {
-            // strongest level to be sure to read/write good data
             isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
           },
           async () => {

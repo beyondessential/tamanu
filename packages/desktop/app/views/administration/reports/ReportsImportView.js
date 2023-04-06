@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import * as yup from 'yup';
-import CheckIcon from '@material-ui/icons/CheckCircleOutlined';
-import { Box } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert/Alert';
 import { useApi } from '../../../api';
 import {
   BodyText,
@@ -29,37 +28,25 @@ const FormContainer = styled(FormGrid)`
   margin-bottom: 30px;
 `;
 
-const FeedbackContainer = styled.div`
-  border-radius: 6px;
-  padding: 20px;
-  background: #edf7ed;
-  color: #1e4620;
-`;
-
 const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   file: yup.string().required('Report JSON is a required field'),
 });
 
-const ImportFeedback = ({ name, feedback, dryRun }) => {
-  return (
-    <FeedbackContainer>
-      <Box display="flex" alignItems="center" mb={2}>
-        <CheckIcon style={{ marginRight: 6 }} />
-        <Heading4>{dryRun ? 'Dry Run' : 'Succesfully imported'}</Heading4>
-      </Box>
-      <BodyText mb={1}>
-        {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition: <b>{name}</b>
-      </BodyText>
-      <BodyText>
-        {feedback.method ? 'Created new' : 'Updated existing'} version:{' '}
-        <b>{feedback.versionNumber}</b>
-      </BodyText>
-    </FeedbackContainer>
-  );
-};
+const ImportFeedback = ({ name, feedback, dryRun }) => (
+  <Alert>
+    <Heading4 mb={1}>{dryRun ? 'Dry Run' : 'Successfully imported'}</Heading4>
+    <BodyText mb={1}>
+      {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition: <b>{name}</b>
+    </BodyText>
+    <BodyText>
+      {feedback.method ? 'Created new' : 'Updated existing'} version:{' '}
+      <b>{feedback.versionNumber}</b>
+    </BodyText>
+  </Alert>
+);
 
-const ImportForm = ({ isSubmitting, setFieldValue, values = {} }) => {
+const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
   const handleNameChange = event => {
     if (values.reportDefinitionId) {
       setFieldValue('reportDefinitionId', null);
@@ -92,13 +79,11 @@ const ImportForm = ({ isSubmitting, setFieldValue, values = {} }) => {
           filters={[{ name: 'JSON (.json)', extensions: ['json'] }]}
         />
         <Field label="Dry Run" name="dryRun" component={CheckField} />
-        <OutlinedButton type="submit" isSubmitting={isSubmitting}>
-          Import
-        </OutlinedButton>
       </FormContainer>
-      {values.feedback && (
-        <ImportFeedback name={values.name} feedback={values.feedback} dryRun={values.dryRun} />
-      )}
+      <OutlinedButton type="submit" isSubmitting={isSubmitting}>
+        Import
+      </OutlinedButton>
+      {feedback && <ImportFeedback name={values.name} dryRun={values.dryRun} feedback={feedback} />}
     </InnerContainer>
   );
 };
@@ -106,14 +91,15 @@ const ImportForm = ({ isSubmitting, setFieldValue, values = {} }) => {
 export const ReportsImportView = () => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const [feedback, setFeedback] = useState(null);
   const { currentUser } = useAuth();
 
-  const handleSubmit = async (payload, { setFieldValue }) => {
+  const handleSubmit = async payload => {
     try {
-      const { reportDefinitionId, feedback, ...importValues } = payload;
-      setFieldValue('feedback', null);
+      const { reportDefinitionId, ...importValues } = payload;
+      setFeedback(null);
       const res = await api.post('admin/reports/import', importValues);
-      setFieldValue('feedback', res);
+      setFeedback(res);
       if (!payload.dryRun) {
         queryClient.invalidateQueries(['reportList']);
         if (payload.reportDefinitionId) {
@@ -135,7 +121,7 @@ export const ReportsImportView = () => {
           dryRun: true,
         }}
         showInlineErrorsOnly
-        render={ImportForm}
+        render={props => <ImportForm {...props} feedback={feedback} />}
       />
     </>
   );
