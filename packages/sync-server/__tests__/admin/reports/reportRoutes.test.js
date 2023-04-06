@@ -1,8 +1,8 @@
 import path from 'path';
 import { User } from 'shared/models/User';
+import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants/reports';
 import { createTestContext, withDate } from '../../utilities';
-import { readJSON, sanitizeFilename } from '../../../app/admin/reports/utils';
-import { REPORT_VERSION_EXPORT_FORMATS } from '../../../../shared-src/src/constants/reports';
+import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 
 describe('reportRoutes', () => {
   let ctx;
@@ -367,6 +367,16 @@ describe('reportRoutes', () => {
       });
       it('should throw error if file is not valid json', async () => {
         expect(readJSON(path.join(__dirname, '/data/invalid.json'))).rejects.toThrow();
+      });
+    });
+    describe('verifyQuery', () => {
+      it('should return true if query is valid', async () => {
+        const query = 'select * from patients limit 1';
+        expect(verifyQuery({ query }, ctx.store)).resolves.not.toThrow();
+      });
+      it('should return false if query is invalid', async () => {
+        const query = 'some random non sql query';
+        expect(verifyQuery({ query }, ctx.store)).rejects.toThrow();
       });
     });
   });
