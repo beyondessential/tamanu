@@ -112,15 +112,15 @@ reportsRouter.get(
       const { store, body } = req;
       const {
         models: { ReportDefinition, ReportDefinitionVersion },
-        sequelize
+        sequelize,
       } = store;
 
-      const { name, file, userId, testRun } = body;
+      const { name, file, userId, dryRun } = body;
       const versionData = await readJSON(file);
 
       await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
 
-      const report = {};
+      const feedback = {};
       try {
         await sequelize.transaction(
           {
@@ -134,8 +134,8 @@ reportsRouter.get(
               },
             });
 
-            report.createdDefinition = createdDefinition;
-            report.method = !createdDefinition && versionData.versionNumber ? 'update' : 'create';
+            feedback.createdDefinition = createdDefinition;
+            feedback.method = !createdDefinition && versionData.versionNumber ? 'update' : 'create';
 
             if (!createdDefinition) {
               if (versionData.versionNumber) {
@@ -163,7 +163,7 @@ reportsRouter.get(
             }
 
             const versionNumber = versionData.versionNumber || 1;
-            report.versionNumber = versionNumber;
+            feedback.versionNumber = versionNumber;
 
             await ReportDefinitionVersion.upsert({
               ...versionData,
@@ -172,7 +172,7 @@ reportsRouter.get(
               reportDefinitionId: definition.id,
             });
 
-            if (testRun) {
+            if (dryRun) {
               throw new DryRun();
             }
           },
@@ -182,7 +182,7 @@ reportsRouter.get(
           throw err;
         }
       }
-      res.send(report);
+      res.send(feedback);
     }),
   ),
 );

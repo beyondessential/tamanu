@@ -145,6 +145,28 @@ describe('reportEndpoints', () => {
   });
 
   describe('POST /reports/import', () => {
+    it('should not create a version if dry run', async () => {
+      const res = await adminApp.post(`/v1/admin/reports/import`).send({
+        file: path.join(__dirname, '/data/without-version-number.json'),
+        name: 'Report Import Test Dry Run',
+        userId: user.id,
+        dryRun: true,
+      });
+      expect(res).toHaveSucceeded();
+      expect(res.body).toEqual({
+        versionNumber: 1,
+        method: 'create',
+        createdDefinition: true,
+      });
+      const report = await models.ReportDefinition.findOne({
+        where: { name: 'Report Import Test Dry Run' },
+        include: {
+          model: models.ReportDefinitionVersion,
+          as: 'versions',
+        },
+      });
+      expect(report).toBeFalsy();
+    });
     it('should import a version for new definition', async () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
