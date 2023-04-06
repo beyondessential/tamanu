@@ -5,6 +5,7 @@ import { persistStore } from 'redux-persist';
 import Root from './Root';
 import './fonts.scss';
 import './react-toastify.scss';
+import './json-editor.scss';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
 import { initStore, restoreSession, authFailure, versionIncompatible } from './store';

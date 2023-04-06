@@ -1,0 +1,90 @@
+import React from 'react';
+import { REPORT_STATUSES } from 'shared/constants';
+import { formatShort, formatTime } from '../../../components';
+import { Table } from '../../../components/Table';
+import { Colors } from '../../../constants';
+import { StatusTag } from '../../../components/Tag';
+
+const STATUS_CONFIG = {
+  [REPORT_STATUSES.DRAFT]: {
+    background: Colors.background,
+    color: Colors.darkGrey,
+  },
+  [REPORT_STATUSES.PUBLISHED]: {
+    color: '#19934E',
+    background: '#DEF0EE',
+  },
+};
+
+const ReportStatusTag = ({ status }) => {
+  const { background, color } = STATUS_CONFIG[status];
+  return (
+    <StatusTag $background={background} $color={color}>
+      {status}
+    </StatusTag>
+  );
+};
+
+export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => (
+  <Table
+    onRowClick={onRowClick}
+    rowStyle={({ id }) => ({
+      backgroundColor: selected === id ? Colors.veryLightBlue : Colors.white,
+    })}
+    columns={[
+      {
+        title: 'Name',
+        key: 'name',
+        minWidth: 400,
+      },
+      {
+        title: 'Last updated',
+        key: 'lastUpdated',
+        minWidth: 300,
+        accessor: ({ lastUpdated }) =>
+          lastUpdated ? `${formatShort(lastUpdated)} ${formatTime(lastUpdated)}` : '-',
+      },
+      {
+        title: 'Version count',
+        key: 'versionCount',
+        numeric: true,
+        minWidth: 200,
+        accessor: ({ versionCount }) => versionCount || 0,
+      },
+    ]}
+    data={data}
+    isLoading={loading}
+    errorMessage={error}
+    elevated={false}
+    allowExport={false}
+  />
+));
+
+export const VersionTable = React.memo(({ data, onRowClick, loading, error }) => (
+  <Table
+    allowExport={false}
+    onRowClick={onRowClick}
+    columns={[
+      {
+        title: 'Version number',
+        key: 'versionNumber',
+        minWidth: 200,
+      },
+      {
+        title: 'Last updated',
+        key: 'updatedAt',
+        minWidth: 300,
+        accessor: ({ updatedAt }) => `${formatShort(updatedAt)} ${formatTime(updatedAt)}`,
+      },
+      {
+        title: 'Status',
+        key: 'status',
+        accessor: ({ status }) => <ReportStatusTag status={status} />,
+      },
+    ]}
+    data={data}
+    elevated={false}
+    isLoading={loading}
+    errorMessage={error}
+  />
+));

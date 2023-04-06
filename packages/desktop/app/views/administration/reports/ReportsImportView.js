@@ -17,7 +17,7 @@ import {
 } from '../../../components';
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { useAuth } from '../../../contexts/Auth';
-import { ReportSelectField } from './ReportSelectFields';
+import { ReportSelectField } from './ReportsSelectFields';
 
 const InnerContainer = styled.div`
   padding: 20px;

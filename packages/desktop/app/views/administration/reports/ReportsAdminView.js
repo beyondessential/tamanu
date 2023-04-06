@@ -5,6 +5,7 @@ import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { ReportsExportView } from './ReportsExportView';
 import { ReportsImportView } from './ReportsImportView';
+import { ReportsEditorView } from './ReportsEditorView';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -24,15 +25,25 @@ const TabContainer = styled.div`
 `;
 
 const REPORT_TABS = {
-  EDIT: 'edit',
+  EDITOR: 'editor',
   IMPORT: 'import',
   EXPORT: 'export',
 };
 
 export const ReportsAdminView = () => {
-  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EXPORT);
+  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDITOR);
 
   const tabs = [
+    {
+      label: 'Editor',
+      key: REPORT_TABS.EDITOR,
+      icon: 'fa fa-edit',
+      render: () => (
+        <TabContainer>
+          <ReportsEditorView />
+        </TabContainer>
+      ),
+    },
     {
       label: 'Export',
       key: REPORT_TABS.EXPORT,

@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants/reports';
 import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
 import { useApi } from '../../../api';
-import { ReportSelectField, VersionSelectField } from './ReportSelectFields';
+import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
