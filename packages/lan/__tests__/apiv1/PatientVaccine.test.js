@@ -242,7 +242,7 @@ describe('PatientVaccine', () => {
       expect(vaccine.disease).toEqual(VACCINE_DISEASE);
     });
 
-    it('Should record vaccine with default department and default location when set', async () => {
+    it('Should record vaccine with default department and default location when givenElsewhere is true', async () => {
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_DEFAULTS,
         { locationId: location.id, departmentId: department.id },
