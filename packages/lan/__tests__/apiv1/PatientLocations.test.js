@@ -23,6 +23,12 @@ describe('PatientLocations', () => {
     patient = await models.Patient.create(await createDummyPatient(models));
     locations = await models.Location.findAll()
     maxOneOccupancyLocations = locations.filter(location => location.maxOccupancy === 1);
+  });
+  beforeEach(async () => {
+    await models.Encounter.destroy({
+      truncate: true,
+      cascade: true,
+    });
     encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
@@ -43,6 +49,7 @@ describe('PatientLocations', () => {
       encounterType: 'admission',
       locationId: maxOneOccupancyLocations[1].id,
       plannedLocationId: maxOneOccupancyLocations[2].id,
+      startDate: new Date(),
       endDate: null,
     });
 
@@ -91,6 +98,7 @@ describe('PatientLocations', () => {
       patientId: patient2.id,
       encounterType: 'clinic',
       locationId: maxOneOccupancyLocations[1].id,
+      startDate: new Date(),
       endDate: null,
     });
 
