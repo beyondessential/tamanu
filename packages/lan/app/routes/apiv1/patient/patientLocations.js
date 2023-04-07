@@ -186,10 +186,7 @@ patientLocations.get(
           SUM(
         	  DATE_PART('day', age(
         	    CASE WHEN end_date IS NULL THEN now() ELSE end_date::date END,
-        	    CASE WHEN start_date::date > now() - '30 days'::interval
-        	      THEN start_date::date
-        	      ELSE now() - '30 days'::interval
-        	    END
+        	    greatest(start_date::date, now() - '30 days'::interval)
       	  ))) * 100 / 30 as occupancy
       	FROM encounters
       	LEFT JOIN locations ON locations.id = encounters.location_id
@@ -209,7 +206,7 @@ patientLocations.get(
 
     const statusCaseStatement = `
       CASE WHEN locations.max_occupancy = 1
-        AND planned_patient_encounters.patient_id IS NOT NULL
+      AND planned_patient_encounters.patient_id IS NOT NULL
       THEN '${LOCATION_AVAILABILITY_STATUS.RESERVED}'
       ELSE (
         CASE WHEN patient_encounters.patient_id IS NULL
@@ -227,6 +224,7 @@ patientLocations.get(
     const whereClauses = [
       ...(filterParams.status ? [`${statusCaseStatement} = $status`] : []),
       ...(filterParams.area ? [`area_id = $area`] : []),
+      ...(filterParams.location ? [`locations.id = $location`] : []),
     ].join(' AND ');
 
     const SORT_KEYS = {
@@ -264,7 +262,7 @@ patientLocations.get(
           last_30_days_closed_encounters.alos,
           locations.max_occupancy as location_max_occupancy,
           last_30_days_encounters.occupancy,
-          locations.number_of_occupants,
+          locations.number_of_occupants::int,
           ${patientCaseStatement('patient_id')} as patient_id,
         	${patientCaseStatement('first_name')} as patient_first_name,
         	${patientCaseStatement('last_name')} as patient_last_name,
@@ -278,6 +276,7 @@ patientLocations.get(
         bind: {
           ...(filterParams.status && { status: filterParams.status }),
           ...(filterParams.area && { area: filterParams.area }),
+          ...(filterParams.location && { location: filterParams.location }),
           facilityId: config.serverFacilityId,
           limit,
           offset,
@@ -298,6 +297,7 @@ patientLocations.get(
         bind: {
           ...(filterParams.status && { status: filterParams.status }),
           ...(filterParams.area && { area: filterParams.area }),
+          ...(filterParams.location && { location: filterParams.location }),
           facilityId: config.serverFacilityId,
         },
       },
