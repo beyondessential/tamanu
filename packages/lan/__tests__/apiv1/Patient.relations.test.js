@@ -2,8 +2,11 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
+  randomReferenceData,
 } from 'shared/demoData/patients';
+import { randomLabRequest, randomDate } from 'shared/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Chance } from 'chance';
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -574,5 +577,121 @@ describe('Patient relations', () => {
         options: ['a', 'b', 'c'],
       });
     });
+  });
+
+  describe('labTests', () => {
+    let labTestsPatient = null;
+    let labTestTypes = [];
+    let randomCategory = null;
+    const publishedLabTests = [];
+    const unpublishedLabTests = [];
+    const repeatEntryCount = 5;
+
+    beforeAll(async () => {
+      labTestsPatient = await models.Patient.create(await createDummyPatient(models));
+      labTestTypes = await models.LabTestType.findAll();
+      randomCategory = await randomReferenceData(models, 'labTestCategory');
+
+      for (let x = 0; x < repeatEntryCount; ++x) {
+        for (let i = 0; i < labTestTypes.length; ++i) {
+          const testType = labTestTypes[i];
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: labTestsPatient.id,
+          });
+          const publishedLabRequest = await models.LabRequest.create({
+            ...(await randomLabRequest(models, {
+              patientId: labTestsPatient.id,
+              encounterId: encounter.id,
+              status: LAB_REQUEST_STATUSES.PUBLISHED,
+              labTestCategoryId: testType.labTestCategoryId,
+              sampleTime: randomDate(),
+            })),
+          });
+          const unpublishedLabRequest = await models.LabRequest.create({
+            ...(await randomLabRequest(models, {
+              patientId: labTestsPatient.id,
+              encounterId: encounter.id,
+              status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+              sampleTime: randomDate(),
+            })),
+          });
+          const publishedLabTest = await models.LabTest.create({
+            labRequestId: publishedLabRequest.id,
+            labTestTypeId: testType.id,
+          });
+          publishedLabTests.push(publishedLabTest.id);
+          const unpublishedLabTest = await models.LabTest.create({
+            labRequestId: unpublishedLabRequest.id,
+            labTestTypeId: testType.id,
+          });
+          unpublishedLabTests.push(unpublishedLabTest.id);
+        }
+      }
+    });
+
+    it('Paginates large quantities of lab tests', async () => {
+      const rowsPerPage = 5;
+      const response = await app.get(
+        `/v1/patient/${labTestsPatient.id}/labTestResults?rowsPerPage=${rowsPerPage}`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(labTestTypes.length);
+      expect(response.body.data.length).toEqual(rowsPerPage);
+    });
+
+    it('Defaults to only fetching published lab tests', async () => {
+      const response = await app.get(`/v1/patient/${labTestsPatient.id}/labTestResults`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(labTestTypes.length);
+      response.body.data.forEach(testResults => {
+        Object.values(testResults.results).forEach(res =>
+          expect(publishedLabTests).toContain(res.id),
+        );
+      });
+    });
+
+    it('Allows overriding the status filter', async () => {
+      const response = await app.get(
+        `/v1/patient/${labTestsPatient.id}/labTestResults?status=${LAB_REQUEST_STATUSES.RECEPTION_PENDING}`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(labTestTypes.length);
+      response.body.data.forEach(testResults => {
+        Object.values(testResults.results).forEach(res =>
+          expect(unpublishedLabTests).toContain(res.id),
+        );
+      });
+    });
+
+    it('Fetches lab tests across multiple categories', async () => {
+      const response = await app.get(`/v1/patient/${labTestsPatient.id}/labTestResults`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(labTestTypes.length);
+      const uniqueCategories = [...new Set(response.body.data.map(x => x.testCategory))];
+      expect(uniqueCategories.length).toBeGreaterThan(1);
+    });
+
+    it('Allows filtering lab tests by category', async () => {
+      const response = await app.get(
+        `/v1/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}`,
+      );
+      expect(response).toHaveSucceeded();
+      response.body.data.forEach(labTest => {
+        expect(labTest.testCategory).toEqual(randomCategory.name);
+      });
+    });
+
+    it('Paginate with filter', async () => {
+      const rowsPerPage = 1;
+      const response = await app.get(
+        `/v1/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}&rowsPerPage=${rowsPerPage}`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toBeGreaterThan(rowsPerPage);
+      expect(response.body.data.length).toEqual(rowsPerPage);
+    });
+
+    test.todo('Allows filtering lab tests by panel');
   });
 });

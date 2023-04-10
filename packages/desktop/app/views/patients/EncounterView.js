@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
@@ -10,6 +10,7 @@ import { EncounterTopBar, ContentPane } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { TabDisplay } from '../../components/TabDisplay';
+import { useApi } from '../../api';
 import {
   VitalsPane,
   NotesPane,
@@ -25,6 +26,7 @@ import {
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
+import { useReferenceData } from '../../api/queries';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -116,12 +118,18 @@ const StyledTabDisplay = styled(TabDisplay)`
 `;
 
 export const EncounterView = () => {
+  const api = useApi();
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
+  const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
   const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
   const disabled = encounter?.endDate || patient.death;
+
+  useEffect(() => {
+    api.post(`user/recently-viewed-patients/${patient.id}`);
+  }, [api, patient.id]);
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
@@ -137,7 +145,11 @@ export const EncounterView = () => {
         <EncounterActions encounter={encounter} />
       </EncounterTopBar>
       <ContentPane>
-        <EncounterInfoPane encounter={encounter} />
+        <EncounterInfoPane
+          encounter={encounter}
+          getLocalisation={getLocalisation}
+          patientBillingType={patientBillingTypeData?.name}
+        />
         <Box mt={4} mb={4}>
           <Divider />
         </Box>

@@ -1,8 +1,10 @@
+import { Op } from 'sequelize';
+
 import { fake, fakeReferenceData, showError } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
-import { fakeUUID } from 'shared/utils/generateId';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -68,10 +70,12 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       const {
         Encounter,
         FhirServiceRequest,
+        FhirWriteLog,
         ImagingRequest,
         ImagingRequestArea,
         ImagingResult,
       } = ctx.store.models;
+      await FhirWriteLog.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
@@ -87,7 +91,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       );
     });
 
-    it('creates a result from an ImagingStudy', () =>
+    it('creates a result from an ImagingStudy with FHIR ID', () =>
       showError(async () => {
         // arrange
         const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
@@ -107,6 +111,55 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         await FhirServiceRequest.resolveUpstreams();
 
         // act
+        const body = {
+          resourceType: 'ImagingStudy',
+          status: 'final',
+          identifier: [
+            {
+              system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+              value: 'ACCESSION',
+            },
+          ],
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              reference: `/ServiceRequest/${mat.id}`,
+            },
+          ],
+          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+        };
+        const response = await app.post(PATH).send(body);
+
+        // assert
+        expect(response).toHaveSucceeded();
+        expect(response.status).toBe(201);
+        const ires = await ImagingResult.findOne({
+          where: { externalCode: 'ACCESSION' },
+        });
+        expect(ires).toBeTruthy();
+        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+      }));
+
+    it('creates a result from an ImagingStudy with upstream Display ID', () =>
+      showError(async () => {
+        // arrange
+        const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: encounter.id,
+            locationId: resources.location.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            priority: 'routine',
+            requestedDate: '2022-03-04 15:30:00',
+          }),
+        );
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        // act
         const response = await app.post(PATH).send({
           resourceType: 'ImagingStudy',
           status: 'final',
@@ -121,7 +174,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               type: 'ServiceRequest',
               identifier: {
                 system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-                value: mat.id,
+                value: ir.displayId,
               },
             },
           ],
@@ -136,6 +189,106 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         });
         expect(ires).toBeTruthy();
         expect(ires.description).toEqual('This is a note\n\nThis is another note');
+      }));
+
+    it('creates a result from an ImagingStudy with upstream UUID', () =>
+      showError(async () => {
+        // arrange
+        const {
+          FhirServiceRequest,
+          FhirWriteLog,
+          ImagingRequest,
+          ImagingResult,
+        } = ctx.store.models;
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: encounter.id,
+            locationId: resources.location.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            priority: 'routine',
+            requestedDate: '2022-03-04 15:30:00',
+          }),
+        );
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.resolveUpstreams();
+
+        // act
+        const body = {
+          resourceType: 'ImagingStudy',
+          status: 'final',
+          identifier: [
+            {
+              system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+              value: 'ACCESSION',
+            },
+          ],
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              identifier: {
+                system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+                value: ir.id,
+              },
+            },
+          ],
+          note: [{ text: 'This is a good note' }, { text: 'This is another note' }],
+        };
+        const response = await app.post(PATH).send(body);
+
+        // assert
+        expect(response).toHaveSucceeded();
+        expect(response.status).toBe(201);
+        const ires = await ImagingResult.findOne({
+          where: { externalCode: 'ACCESSION' },
+        });
+        expect(ires).toBeTruthy();
+        expect(ires.description).toEqual('This is a good note\n\nThis is another note');
+        const flog = await FhirWriteLog.findOne({
+          where: { url: { [Op.like]: '%ImagingStudy%' } },
+        });
+        expect(flog).toBeTruthy();
+        expect(flog.verb).toEqual('POST');
+        expect(flog.body).toMatchObject(body);
+      }));
+
+    it('logs the request even if not handled', () =>
+      showError(async () => {
+        const { FhirWriteLog } = ctx.store.models;
+
+        // act
+        const body = {
+          resourceType: 'ImagingStudy',
+          status: 'final',
+          identifier: [
+            {
+              system: 'http://example.com',
+              value: 'ACCESSION',
+            },
+          ],
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              identifier: {
+                system: 'http://example.com',
+                value: '123',
+              },
+            },
+          ],
+          note: [{ text: 'This is a bad note' }, { text: 'This is another note' }],
+        };
+        const response = await app.post(PATH).send(body);
+
+        // assert
+        expect(response.status).not.toBe(201);
+        const flog = await FhirWriteLog.findOne({
+          where: { url: { [Op.like]: '%ImagingStudy%' } },
+        });
+        expect(flog).toBeTruthy();
+        expect(flog.verb).toEqual('POST');
+        expect(flog.body).toMatchObject(body);
       }));
 
     it('updates a result from an ImagingStudy', () =>
@@ -177,20 +330,17 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           basedOn: [
             {
               type: 'ServiceRequest',
-              identifier: {
-                system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-                value: mat.id,
-              },
+              reference: `ServiceRequest/${mat.id}`,
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a good note' }, { text: 'This is another note' }],
         });
 
         // assert
         expect(response).toHaveSucceeded();
         expect(response.status).toBe(201);
         await ires.reload();
-        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a good note\n\nThis is another note');
       }));
 
     describe('errors', () => {
@@ -249,10 +399,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           basedOn: [
             {
               type: 'ServiceRequest',
-              identifier: {
-                system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-                value: mat.id,
-              },
+              reference: `/ServiceRequest/${mat.id}`,
             },
           ],
           note: [{ text: 'A note' }],

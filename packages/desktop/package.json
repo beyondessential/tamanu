@@ -20,7 +20,6 @@
     "dev": "cross-env START_HOT=1 node -r ./babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
     "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
     "package": "npm run build && electron-builder --publish never",
     "package-all": "npm run build && electron-builder -mwl --publish never",
     "package-linux": "npm run build && electron-builder --linux --publish never",

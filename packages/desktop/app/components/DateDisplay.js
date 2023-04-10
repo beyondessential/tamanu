@@ -3,6 +3,20 @@ import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
 import { parseDate } from 'shared/utils/dateTime';
+import { Typography, Box } from '@material-ui/core';
+import styled from 'styled-components';
+
+import { Colors } from '../constants';
+
+const Text = styled(Typography)`
+  font-size: inherit;
+  line-height: inherit;
+  margin-top: -2px;
+`;
+
+const SoftText = styled(Text)`
+  color: ${Colors.softText};
+`;
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
@@ -41,6 +55,13 @@ const formatShortExplicit = date =>
   intlFormatDate(date, {
     dateStyle: 'medium',
   }); // "4 Mar 2019"
+
+const formatShortestExplicit = date =>
+  intlFormatDate(date, {
+    year: '2-digit',
+    month: 'short',
+    day: 'numeric',
+  }); // "4 Mar 19"
 
 // long format date is displayed on hover
 export const formatLong = date =>
@@ -100,14 +121,28 @@ const DateTooltip = ({ date, children }) => {
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
+  ({
+    date: dateValue,
+    showDate = true,
+    showTime = false,
+    showExplicitDate = false,
+    shortYear = false,
+  }) => {
     const dateObj = parseDate(dateValue);
 
     const parts = [];
     if (showDate) {
-      parts.push(formatShort(dateObj));
+      if (shortYear) {
+        parts.push(formatShortest(dateObj));
+      } else {
+        parts.push(formatShort(dateObj));
+      }
     } else if (showExplicitDate) {
-      parts.push(formatShortExplicit(dateObj));
+      if (shortYear) {
+        parts.push(formatShortestExplicit(dateObj));
+      } else {
+        parts.push(formatShortExplicit(dateObj));
+      }
     }
     if (showTime) {
       parts.push(formatTime(dateObj));
@@ -117,6 +152,18 @@ export const DateDisplay = React.memo(
       <DateTooltip date={dateObj}>
         <span>{parts.join(' ')}</span>
       </DateTooltip>
+    );
+  },
+);
+
+export const MultilineDatetimeDisplay = React.memo(
+  ({ date, showExplicitDate, isTimeSoft = true }) => {
+    const TimeText = isTimeSoft ? SoftText : Text;
+    return (
+      <Box>
+        <DateDisplay date={date} showExplicitDate={showExplicitDate} />
+        <TimeText>{formatTime(date)}</TimeText>
+      </Box>
     );
   },
 );

@@ -29,6 +29,7 @@ type AuthProviderProps = WithAuthStoreProps & {
 interface AuthContextData {
   user: IUser;
   ability: PureAbility;
+  signedIn: boolean;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
@@ -48,6 +49,7 @@ const Provider = ({
   setRefreshToken,
   setUser,
   setSignedInStatus,
+  signedIn,
   children,
   signOutUser,
   navRef,
@@ -94,8 +96,8 @@ const Provider = ({
       password: params.password,
     };
     setPreventSignOutOnFailure(true);
-
     await remoteSignIn(payload);
+    backend.syncManager.triggerSync();
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
@@ -203,6 +205,7 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        signedIn,
         ability,
         requestResetPassword,
         resetPasswordLastEmailUsed,

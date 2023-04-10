@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
-import { LabRequestsTable } from '../../../components/LabRequestsTable';
+import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
@@ -29,6 +29,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           noun="LabRequest"
           variant="outlined"
           color="primary"
+          size="small"
         >
           Print
         </ButtonWithPermissionCheck>
@@ -37,11 +38,12 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           disabled={readonly}
           verb="create"
           noun="LabRequest"
+          size="small"
         >
           New lab request
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <LabRequestsTable encounterId={encounter.id} />
+      <EncounterLabRequestsTable encounterId={encounter.id} />
     </TabPane>
   );
 });

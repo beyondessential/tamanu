@@ -13,7 +13,11 @@ import { addDefaultLastSuccessfulSyncPull1669160460000 } from './1669160460000-a
 import { resyncPatientAdditionalData1669855692000 } from './1669855692000-resyncPatientAdditionalData';
 import { wipeAllDataAndResync1675907161000 } from './1675907161000-wipeAllDataAndResync';
 import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationGroupTable';
+import { addNoteTables1677554085000 } from './1677554085000-addNoteTables';
+import { addDepartmentIdToLabRequest1676853984000 } from './1676853984000-addDepartmentIdToLabRequest';
+import { addLabSampleSiteIdToLabRequest1677723905000 } from './1677723905000-addLabSampleSiteIdToLabRequest';
 import { addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000 } from './1678061990000-addNotGivenReasonIdColumnToAdministeredVaccineTable';
+import { addLabTestPanelTables1678397398000 } from './1678397398000-addLabTestPanelTables';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -30,5 +34,9 @@ export const migrationList = [
   resyncPatientAdditionalData1669855692000,
   wipeAllDataAndResync1675907161000,
   addLocationGroupTable1673396917000,
+  addDepartmentIdToLabRequest1676853984000,
+  addLabSampleSiteIdToLabRequest1677723905000,
+  addNoteTables1677554085000,
   addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
+  addLabTestPanelTables1678397398000,
 ];

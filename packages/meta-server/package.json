@@ -14,11 +14,9 @@
     "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.mjs",
     "test": "NODE_ENV=test jest --runInBand",
-    "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.mjs",
-    "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
+    "lint": "eslint app"
   },
   "devDependencies": {
     "@babel/core": "^7.17.12",

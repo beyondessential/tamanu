@@ -59,7 +59,7 @@ export class Form extends React.PureComponent {
     getValues,
     setStatus,
     ...rest
-  }) => async event => {
+  }) => async (event, submissionParameters) => {
     event.preventDefault();
     event.persist();
 
@@ -73,7 +73,7 @@ export class Form extends React.PureComponent {
     }
 
     setSubmitting(true);
-    const values = getValues();
+    const values = { ...getValues(), ...submissionParameters };
 
     // validation phase
 
@@ -104,7 +104,7 @@ export class Form extends React.PureComponent {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('Error during form submission: ', e);
-      this.setErrors([e.message]);
+      this.setErrors({ form: e.message });
       throw e;
     } finally {
       setSubmitting(false);
@@ -135,10 +135,10 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { render } = this.props;
+    const { render, style } = this.props;
 
     return (
-      <form onSubmit={submitForm} noValidate>
+      <form style={style} onSubmit={submitForm} noValidate>
         {render({
           ...formProps,
           setValues,

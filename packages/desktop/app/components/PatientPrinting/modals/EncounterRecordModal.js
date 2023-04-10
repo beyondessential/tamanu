@@ -3,6 +3,7 @@ import React from 'react';
 import { NOTE_TYPES } from 'shared/constants/notes';
 import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants/diagnoses';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';
@@ -69,9 +70,11 @@ const extractEncounterTypeHistory = (notes, encounterData) => {
 const extractLocationHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, locationNoteMatcher);
   const locationHistory = history?.map(location => {
+    const locationArr = location.to?.split(/,\s+/);
+    const hasLocationGroup = locationArr.length > 1;
     return {
-      newLocationGroup: location.to?.split(',')[0],
-      newLocation: location.to?.split(',')[1].trim(),
+      newLocationGroup: hasLocationGroup && locationArr[0],
+      newLocation: hasLocationGroup ? locationArr[1] : locationArr[0],
       date: location.date,
     };
   });
@@ -95,6 +98,24 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const padDataQuery = usePatientAdditionalData(patient?.id);
   const padData = padDataQuery.data;
 
+  // Filter and sort diagnoses: remove error/cancelled diagnosis, sort by whether it is primary and then date
+  const diagnoses = encounter.diagnoses
+    ?.filter(diagnosis => {
+      return !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(diagnosis.certainty);
+    })
+    .sort((a, b) => {
+      if (a.isPrimary !== b.isPrimary) {
+        return a.isPrimary ? -1 : 1;
+      }
+      return new Date(a.date) - new Date(b.date);
+    });
+
+  const procedures =
+    encounter.procedures?.sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    }) || [];
+
+  // Remove cancelled/entered in error labs. Attach parent lab request data to each test object in order to be displayed in table format
   const labFilterStatuses = [
     LAB_REQUEST_STATUSES.CANCELLED,
     LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -105,7 +126,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     order: 'asc',
     orderBy: 'requestedDate',
   });
-
   const labRequests = labRequestsQuery.data;
   const updatedLabRequests = [];
   if (labRequests) {
@@ -115,7 +135,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           updatedLabRequests.push({
             testType: test.labTestType.name,
             testCategory: labRequest.category.name,
-            requestingClinician: labRequest.requestedBy.displayName,
+            requestedByName: labRequest.requestedBy?.displayName,
             requestDate: labRequest.requestedDate,
             completedDate: test.completedDate,
           });
@@ -124,6 +144,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
 
+  // Remove cancelled/entered in error imaging requests.
   const imagingFilterStatuses = [
     IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
     IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
@@ -149,15 +170,20 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     });
   }
 
-  const medications = encounter.medications.filter(medication => {
-    return !medication.discontinued;
-  });
+  // Remove discontinued medications and sort by date
+  const medications = encounter.medications
+    .filter(medication => {
+      return !medication.discontinued;
+    })
+    .sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    });
 
   const dishchargeQuery = useEncounterDischarge(encounter);
   const discharge = dishchargeQuery.data;
 
   const villageQuery = useReferenceData(patient?.villageId);
-  const village = villageQuery.name;
+  const village = villageQuery?.data?.name;
 
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;
@@ -172,7 +198,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   // Add orignal note to each note object linked to an edited note
   const linkedNotes = displayNotes?.map(note => {
-    const updatedNote = note;
+    const updatedNote = JSON.parse(JSON.stringify(note));
     updatedNote.noteItems = note.noteItems.map(noteItem => {
       const updatedNoteItem = noteItem;
       const linkedNote = note.noteItems.find(item => item.id === noteItem.revisedById);
@@ -204,6 +230,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     return noteCopy;
   });
 
+  // In order to show notes in the orginially created order this checks if it has an original note linked and sorts by
+  // that first and then the actual note date if it has no link
   const orderedNotes = filteredNotes?.map(note => {
     return {
       ...note,
@@ -254,6 +282,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
+          diagnoses={diagnoses}
+          procedures={procedures}
           labRequests={updatedLabRequests}
           imagingRequests={updatedImagingRequests}
           notes={orderedNotes}

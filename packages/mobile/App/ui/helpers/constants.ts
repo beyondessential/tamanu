@@ -204,18 +204,46 @@ export const LabRequestStatus = {
 
 // also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
 export const AutocompleteSourceToColumnMap = {
-  User: 'displayName',
   Department: 'name',
   Facility: 'name',
   Location: 'name',
   LocationGroup: 'name',
   ReferenceData: 'name',
+  User: 'displayName',
 };
 
 export const VitalsDataElements = {
   dateRecorded: 'pde-PatientVitalsDate',
 };
 
+export const NOTE_RECORD_TYPES = {
+  ENCOUNTER: 'Encounter',
+  PATIENT: 'Patient',
+  TRIAGE: 'Triage',
+  PATIENT_CARE_PLAN: 'PatientCarePlan',
+  LAB_REQUEST: 'LabRequest',
+  IMAGING_REQUEST: 'ImagingRequest',
+  // IMPORTANT: if you add any more record types, you must also alter buildNoteLinkedSyncFilter
+};
+
+export const NOTE_TYPES = {
+  TREATMENT_PLAN: 'treatmentPlan',
+  MEDICAL: 'medical',
+  SURGICAL: 'surgical',
+  NURSING: 'nursing',
+  DIETARY: 'dietary',
+  PHARMACY: 'pharmacy',
+  PHYSIOTHERAPY: 'physiotherapy',
+  SOCIAL: 'social',
+  DISCHARGE: 'discharge',
+  AREA_TO_BE_IMAGED: 'areaToBeImaged',
+  RESULT_DESCRIPTION: 'resultDescription',
+  SYSTEM: 'system',
+  OTHER: 'other',
+  CLINICAL_MOBILE: 'clinicalMobile',
+  HANDOVER: 'handover',
+};
+
 export const FORM_STATUSES = {
-  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+  SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
 };

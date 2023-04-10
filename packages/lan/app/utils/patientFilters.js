@@ -14,19 +14,19 @@ export const createPatientFilters = filterParams => {
           : ''
       })`,
       ({ displayId }) => ({
-        displayId: filterParams.displayIdExact === 'true' ? displayId : `%${displayId}%`,
+        displayId: `%${displayId}%`,
         secondaryDisplayId: displayId,
       }),
     ),
     makeFilter(
       filterParams.firstName,
       `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-      ({ firstName }) => ({ firstName: `${firstName}%` }),
+      ({ firstName }) => ({ firstName: `%${firstName}%` }),
     ),
     makeFilter(
       filterParams.lastName,
       `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-      ({ lastName }) => ({ lastName: `${lastName}%` }),
+      ({ lastName }) => ({ lastName: `%${lastName}%` }),
     ),
     makeFilter(
       filterParams.culturalName,
@@ -60,6 +60,8 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
+    makeFilter(filterParams.sex, `patients.sex = :sex`),
+    makeFilter(filterParams.currentPatient, `recent_encounter_by_patient IS NOT NULL`),
   ].filter(f => f);
 
   return filters;

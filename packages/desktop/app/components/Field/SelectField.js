@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
-import { Tag } from '../Tag';
+import { FormFieldTag } from '../Tag';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -22,11 +22,11 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const SelectTag = styled(Tag)`
+const SelectTag = styled(FormFieldTag)`
   right: 5px;
 `;
 
-const OptionTag = styled(Tag)`
+const OptionTag = styled(FormFieldTag)`
   right: 20px;
 `;
 
@@ -82,6 +82,7 @@ export const SelectInput = ({
     control: (provided, state) => {
       const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
+      const fontSize = props.size === 'small' ? '11px' : '14px';
       return {
         ...provided,
         borderColor,
@@ -90,6 +91,7 @@ export const SelectInput = ({
         paddingTop: '5px',
         paddingBottom: '3px',
         paddingLeft: '5px',
+        fontSize,
       };
     },
     dropdownIndicator: provided => ({
@@ -106,16 +108,19 @@ export const SelectInput = ({
       boxShadow: 'none',
       border: `1px solid ${Colors.outline}`,
     }),
-    option: (provided, state) => ({
-      ...provided,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
-      ...(state.isDisabled ? {} : { color: Colors.darkestText }),
-      cursor: 'pointer',
-      fontSize: '14px',
-    }),
+    option: (provided, state) => {
+      const fontSize = props.size === 'small' ? '11px' : '14px';
+      return {
+        ...provided,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
+        ...(state.isDisabled ? {} : { color: Colors.darkestText }),
+        cursor: 'pointer',
+        fontSize,
+      };
+    },
     singleValue: base => ({
       ...base,
       display: 'flex',

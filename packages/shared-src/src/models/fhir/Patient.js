@@ -3,8 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
-import { arrayOf, activeFromVisibility } from './utils';
-import { dateType } from '../dateTimeTypes';
+import { activeFromVisibility } from './utils';
 import { latestDateTime } from '../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
@@ -21,33 +20,35 @@ import {
   FhirReference,
 } from '../../services/fhirTypes';
 import { nzEthnicity } from './extensions';
+import { formatFhirDate } from '../../utils/fhir';
 
 export class FhirPatient extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION),
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        extension: DataTypes.JSONB,
+        identifier: DataTypes.JSONB,
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
           defaultValue: true,
         },
-        name: arrayOf('name', DataTypes.FHIR_HUMAN_NAME),
-        telecom: arrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
+        name: DataTypes.JSONB,
+        telecom: DataTypes.JSONB,
         gender: {
-          type: Sequelize.STRING(10),
+          type: Sequelize.TEXT,
           allowNull: false,
         },
-        birthDate: dateType('birthDate', { allowNull: true }),
-        deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
-        address: arrayOf('address', DataTypes.FHIR_ADDRESS),
-        link: arrayOf('link', DataTypes.FHIR_PATIENT_LINK),
+        birthDate: DataTypes.TEXT,
+        deceasedDateTime: DataTypes.TEXT,
+        address: DataTypes.JSONB,
+        link: DataTypes.JSONB,
       },
       options,
     );
 
     this.UpstreamModel = models.Patient;
+    this.upstreams = [models.Patient, models.PatientAdditionalData];
   }
 
   static CAN_DO = new Set([
@@ -79,8 +80,8 @@ export class FhirPatient extends FhirResource {
       name: names(upstream),
       telecom: telecoms(upstream),
       gender: upstream.sex,
-      birthDate: upstream.dateOfBirth,
-      deceasedDateTime: upstream.dateOfDeath,
+      birthDate: formatFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
+      deceasedDateTime: formatFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
       address: addresses(upstream),
       link: await mergeLinks(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
@@ -93,6 +94,31 @@ export class FhirPatient extends FhirResource {
     const mergedDown = await upstream.getMergedDown();
 
     return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
+  }
+
+  static async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
+    const { Patient, PatientAdditionalData } = this.sequelize.models;
+
+    switch (table) {
+      case Patient.tableName:
+        return { where: { id } };
+      case PatientAdditionalData.tableName:
+        if (deletedRow) {
+          return { where: { id: deletedRow.patient_id } };
+        }
+
+        return {
+          include: [
+            {
+              model: PatientAdditionalData,
+              as: 'additionalData',
+              where: { id },
+            },
+          ],
+        };
+      default:
+        return null;
+    }
   }
 
   asFhir() {

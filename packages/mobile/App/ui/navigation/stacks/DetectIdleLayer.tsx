@@ -1,16 +1,13 @@
 import { debounce } from 'lodash';
-import React, {
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useRef,
-  useEffect,
-  useState,
-  ReactChildren,
-} from 'react';
-import { Keyboard, PanResponder } from 'react-native';
-import { useSelector } from 'react-redux';
-import { authSignedInSelector } from '~/ui/helpers/selectors';
+import React, { ReactElement, ReactNode, useCallback, useRef, useEffect, useState } from 'react';
+import {
+  Keyboard,
+  PanResponder,
+  EmitterSubscription,
+  AppState,
+  NativeEventSubscription,
+  AppStateStatus,
+} from 'react-native';
 import { StyledView } from '~/ui/styled/common';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -21,9 +18,11 @@ interface DetectIdleLayerProps {
 const ONE_MINUTE = 1000 * 60;
 const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
-export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactElement => {
+export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
-  const { signOutClient } = useAuth();
+  const [screenOffTime, setScreenOffTime] = useState<number|null>(null);
+  const appState = useRef(AppState.currentState);
+  const { signOutClient, signedIn } = useAuth();
 
   const resetIdle = (): void => {
     setIdle(0);
@@ -42,27 +41,51 @@ export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactEleme
     signOutClient(true);
   };
 
-  useEffect(() => {
-    const hideEvent = Keyboard.addListener('keyboardDidHide', handleResetIdle);
-    const showEvent = Keyboard.addListener('keyboardDidShow', handleResetIdle);
-    return () => {
-      hideEvent?.remove();
-      showEvent?.remove();
-    };
-  }, []);
+  const handleStateChange = (nextAppState: AppStateStatus): void => {
+   if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
+      // App has moved to the background
+      setScreenOffTime(Date.now());
+   } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+      // App has moved to the foreground
+      if (screenOffTime) {
+        const timeDiff = Date.now() - screenOffTime;
+        const newIdle = idle + timeDiff;
+        setIdle(newIdle);
+        setScreenOffTime(null);
+        if (newIdle >= UI_EXPIRY_TIME) {
+          handleIdleLogout();
+        }
+      }
+   }
+    appState.current = nextAppState;
+  }
+
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const newIdle = idle + ONE_MINUTE;
-      setIdle(newIdle);
-      if (newIdle >= UI_EXPIRY_TIME) {
-        handleIdleLogout();
-      }
-    }, ONE_MINUTE);
+    let intervalId: number;
+    let subscriptions: (EmitterSubscription|NativeEventSubscription)[] = [];
+    if (signedIn) {
+      subscriptions = [
+        AppState.addEventListener('change', handleStateChange),
+        Keyboard.addListener('keyboardDidHide', handleResetIdle),
+        Keyboard.addListener('keyboardDidShow', handleResetIdle),
+      ];
+      intervalId = setInterval(() => {
+        const newIdle = idle + ONE_MINUTE;
+        setIdle(newIdle);
+        if (newIdle >= UI_EXPIRY_TIME) {
+          handleIdleLogout();
+        }
+      }, ONE_MINUTE);
+    }
     return () => {
-      clearInterval(timer);
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      subscriptions.forEach(subscription => subscription?.remove());
     };
-  }, [idle]);
+  }, [idle, signedIn, screenOffTime]);
+
 
   const panResponder = useRef(
     PanResponder.create({
@@ -77,9 +100,4 @@ export const PanResponderView = ({ children }: DetectIdleLayerProps): ReactEleme
       {children}
     </StyledView>
   );
-};
-
-export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement | ReactNode => {
-  const signedIn = useSelector(authSignedInSelector);
-  return signedIn ? <PanResponderView>{children}</PanResponderView> : children;
 };

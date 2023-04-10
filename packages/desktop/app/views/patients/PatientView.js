@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ import {
   ReferralPane,
   InvoicesPane,
   PatientDetailsPane,
+  PatientResultsPane,
 } from './panes';
 import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
@@ -44,6 +45,12 @@ const TABS = [
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
+  },
+  {
+    label: 'Results',
+    key: PATIENT_TABS.RESULTS,
+    icon: 'fa fa-file-alt',
+    render: props => <PatientResultsPane {...props} />,
   },
   {
     label: 'Referrals',
@@ -100,6 +107,10 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+
+  useEffect(() => {
+    api.post(`user/recently-viewed-patients/${patient.id}`);
+  }, [api, patient.id]);
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
