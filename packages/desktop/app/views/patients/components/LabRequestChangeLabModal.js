@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { useSuggester } from '../../../api';
 import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../components';
+import { Colors } from '../../../constants';
+
+const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
+  border-top: 1px solid ${Colors.outline};
+  padding-top: 26px;
+`;
 
 export const LabRequestChangeLabModal = React.memo(
   ({ labTestLaboratoryId: initialLabId, updateLabReq, open, onClose }) => {
@@ -14,6 +21,10 @@ export const LabRequestChangeLabModal = React.memo(
       onClose();
     };
 
+    useEffect(() => {
+      setLabTestLaboratoryId(initialLabId);
+    }, [initialLabId]);
+
     return (
       <Modal open={open} onClose={onClose} title="Change laboratory">
         <FormGrid columns={1}>
@@ -26,7 +37,7 @@ export const LabRequestChangeLabModal = React.memo(
               setLabTestLaboratoryId(value);
             }}
           />
-          <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={onClose} />
+          <StyledConfirmCancelRow onConfirm={updateLab} confirmText="Confirm" onCancel={onClose} />
         </FormGrid>
       </Modal>
     );
