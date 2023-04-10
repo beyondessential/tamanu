@@ -146,6 +146,7 @@ labRequest.get(
       makeSimpleTextFilter('requestedById', 'lab_requests.requested_by_id'),
       makeSimpleTextFilter('departmentId', 'encounter.department_id'),
       makeSimpleTextFilter('locationGroupId', 'location.location_group_id'),
+      makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
       makeFilter(
         filterParams.requestedDateFrom,
         `lab_requests.requested_date >= :requestedDateFrom`,
@@ -178,6 +179,10 @@ labRequest.get(
           ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
         LEFT JOIN reference_data AS site
           ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
+        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
+          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
+        LEFT JOIN lab_test_panels AS lab_test_panel
+          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
@@ -215,6 +220,7 @@ labRequest.get(
       patientName: 'UPPER(patient.last_name)',
       requestId: 'display_id',
       testCategory: 'category.name',
+      labRequestPanelId: 'lab_test_panel.id',
       requestedDate: 'requested_date',
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
