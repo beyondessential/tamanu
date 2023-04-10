@@ -186,7 +186,7 @@ export const SelectInput = ({
         <Select
           value={selectedOption}
           onChange={handleChange}
-          options={options}
+          options={options.filter(option => option.value !== '')}
           menuPlacement="auto"
           menuPosition="fixed"
           styles={customStyles}
