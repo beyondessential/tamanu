@@ -269,7 +269,7 @@ patientRelations.get(
 );
 
 patientRelations.get(
-  '/:id/labTests',
+  '/:id/labTestResults',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'LabTest');
     const {
@@ -279,16 +279,13 @@ patientRelations.get(
       query,
     } = req;
 
-    // TODO: Enable panelId when panels epic is merged
-    const { order = 'ASC', orderBy, categoryId, /* panelId, */ status = 'published' } = query;
-
-    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    const { categoryId, panelId, status = 'published' } = query;
 
     const { count, data } = await runPaginatedQuery(
       db,
       LabTest,
       `
-        SELECT COUNT(1) AS count
+        SELECT COUNT(DISTINCT lab_test_type_id) AS count
         FROM
           lab_tests
         INNER JOIN
@@ -303,29 +300,56 @@ patientRelations.get(
             WHERE
               patient_id = :patientId
             )
-          AND lab_tests.status = '${status}'
-          ${categoryId ? `AND category_id = '${categoryId}'` : ''}
+          AND lab_requests.status = '${status}'
+          AND lab_requests.sample_time IS NOT NULL
+          ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
           ${
-            // TODO: Enable this section when panels epic is merged
-            // panelId
-            //   ? `AND lab_test_type_id IN (
-            //     SELECT lab_test_type_id
-            //     FROM
-            //       lab_test_panel_lab_test_types
-            //     WHERE
-            //       lab_test_panel_id = ${panelId}
-            //   )`:
-            ''
+            panelId
+              ? `AND lab_test_type_id IN (
+                SELECT lab_test_type_id
+                FROM
+                  lab_test_panel_lab_test_types
+                WHERE
+                  lab_test_panel_id = '${panelId}'
+              )`
+              : ''
           }
       `,
       `
-        SELECT lab_tests.*
+        SELECT
+          reference_data.name AS test_category,
+          lab_test_types.name AS test_type,
+          FIRST(lab_test_types.unit) AS unit,
+          JSONB_BUILD_OBJECT(
+            'male', JSONB_BUILD_OBJECT(
+              'min', MIN(lab_test_types.male_min),
+              'max', MAX(lab_test_types.male_max)
+            ),
+            'female', JSONB_BUILD_OBJECT(
+              'min', MIN(lab_test_types.female_min),
+              'max', MAX(lab_test_types.female_max)
+            )
+          ) AS normal_ranges,
+          JSONB_OBJECT_AGG(
+            lab_requests.sample_time, JSONB_BUILD_OBJECT(
+              'result', lab_tests.result,
+              'id', lab_tests.id
+            )
+          ) AS results
         FROM
           lab_tests
         INNER JOIN
           lab_requests
         ON
           lab_tests.lab_request_id = lab_requests.id
+        INNER JOIN
+          lab_test_types
+        ON
+          lab_tests.lab_test_type_id = lab_test_types.id
+        INNER JOIN
+          reference_data
+        ON
+          lab_test_types.lab_test_category_id = reference_data.id
         WHERE
         encounter_id IN (
             SELECT id
@@ -334,21 +358,24 @@ patientRelations.get(
             WHERE
               patient_id = :patientId
           )
-        AND lab_tests.status = '${status}'
-        ${categoryId ? `AND category_id = '${categoryId}'` : ''}
+        AND lab_requests.status = '${status}'
+        AND lab_requests.sample_time IS NOT NULL
+        ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
         ${
-          // TODO: Enable this section when panels epic is merged
-          // panelId
-          //   ? `AND lab_test_type_id IN (
-          //     SELECT lab_test_type_id
-          //     FROM
-          //       lab_test_panel_lab_test_types
-          //     WHERE
-          //       lab_test_panel_id = ${panelId}
-          //   )`:
-          ''
+          panelId
+            ? `AND lab_test_type_id IN (
+               SELECT lab_test_type_id
+               FROM
+                 lab_test_panel_lab_test_types
+               WHERE
+                 lab_test_panel_id = '${panelId}'
+             )`
+            : ''
         }
-        ${orderBy ? `ORDER BY ${orderBy} ${sortDirection}` : ''}
+        GROUP BY
+          test_category, test_type
+        ORDER BY
+          test_category
       `,
       { patientId: params.id },
       query,
