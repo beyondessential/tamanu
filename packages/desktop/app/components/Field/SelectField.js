@@ -192,7 +192,7 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          isClearable
+          isClearable={value !== ''}
           isSearchable={false}
           components={{ Option, SingleValue, ClearIndicator }}
           {...props}
