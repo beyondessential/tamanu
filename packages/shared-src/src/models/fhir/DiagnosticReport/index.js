@@ -76,43 +76,46 @@ export class FhirDiagnosticReport extends FhirResource {
       Encounter,
       Patient,
       User,
+      LabTest,
     } = this.sequelize.models;
 
     const labTest = await this.getUpstream({
-      include: [
-        {
-          model: LabRequest,
-          as: 'labRequest',
-          include: [
-            {
-              model: ReferenceData,
-              as: 'laboratory',
-            },
-            {
-              model: Encounter,
-              as: 'encounter',
-              include: [
-                {
-                  model: Patient,
-                  as: 'patient',
-                },
-                {
-                  model: User,
-                  as: 'examiner',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          model: LabTestType,
-          as: 'labTestType',
-        },
-        {
-          model: ReferenceData,
-          as: 'labTestMethod',
-        },
-      ],
+      [LabTest.tableName]: {
+        include: [
+          {
+            model: LabRequest,
+            as: 'labRequest',
+            include: [
+              {
+                model: ReferenceData,
+                as: 'laboratory',
+              },
+              {
+                model: Encounter,
+                as: 'encounter',
+                include: [
+                  {
+                    model: Patient,
+                    as: 'patient',
+                  },
+                  {
+                    model: User,
+                    as: 'examiner',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: LabTestType,
+            as: 'labTestType',
+          },
+          {
+            model: ReferenceData,
+            as: 'labTestMethod',
+          },
+        ],
+      },
     });
 
     const { labTestType, labTestMethod, labRequest } = labTest;

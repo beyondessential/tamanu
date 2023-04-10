@@ -58,16 +58,18 @@ export class FhirPatient extends FhirResource {
   ]);
 
   async updateMaterialisation() {
-    const { PatientAdditionalData } = this.sequelize.models;
+    const { Patient, PatientAdditionalData } = this.sequelize.models;
 
     const upstream = await this.getUpstream({
-      include: [
-        {
-          model: PatientAdditionalData,
-          as: 'additionalData',
-          limit: 1,
-        },
-      ],
+      [Patient.tableName]: {
+        include: [
+          {
+            model: PatientAdditionalData,
+            as: 'additionalData',
+            limit: 1,
+          },
+        ],
+      },
     });
 
     const [first] = upstream.additionalData || [];

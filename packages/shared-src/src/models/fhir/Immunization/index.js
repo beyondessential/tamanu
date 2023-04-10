@@ -65,35 +65,44 @@ export class FhirImmunization extends FhirResource {
   ]);
 
   async updateMaterialisation() {
-    const { ScheduledVaccine, Encounter, Patient, ReferenceData, User } = this.sequelize.models;
+    const {
+      ScheduledVaccine,
+      Encounter,
+      Patient,
+      ReferenceData,
+      User,
+      AdministeredVaccine,
+    } = this.sequelize.models;
 
     const administeredVaccine = await this.getUpstream({
-      include: [
-        {
-          model: User,
-          as: 'recorder',
-        },
-        {
-          model: ScheduledVaccine,
-          as: 'scheduledVaccine',
-          include: [
-            {
-              model: ReferenceData,
-              as: 'vaccine',
-            },
-          ],
-        },
-        {
-          model: Encounter,
-          as: 'encounter',
-          include: [
-            {
-              model: Patient,
-              as: 'patient',
-            },
-          ],
-        },
-      ],
+      [AdministeredVaccine.tableName]: {
+        include: [
+          {
+            model: User,
+            as: 'recorder',
+          },
+          {
+            model: ScheduledVaccine,
+            as: 'scheduledVaccine',
+            include: [
+              {
+                model: ReferenceData,
+                as: 'vaccine',
+              },
+            ],
+          },
+          {
+            model: Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: Patient,
+                as: 'patient',
+              },
+            ],
+          },
+        ],
+      },
     });
 
     const { encounter, scheduledVaccine, recorder } = administeredVaccine;

@@ -1,7 +1,16 @@
 export function getQueryOptions(models) {
-  const { Encounter, Facility, Location, Patient, ReferenceData, User } = models;
+  const {
+    Encounter,
+    Facility,
+    Location,
+    Patient,
+    ReferenceData,
+    User,
+    ImagingRequest,
+    LabRequest,
+  } = models;
 
-  return {
+  const imagingRequestOptions = {
     include: [
       {
         model: User,
@@ -42,5 +51,12 @@ export function getQueryOptions(models) {
         ],
       },
     ],
+  };
+
+  const labRequestOptions = {};
+
+  return {
+    [ImagingRequest.tableName]: imagingRequestOptions,
+    [LabRequest.tableName]: labRequestOptions,
   };
 }

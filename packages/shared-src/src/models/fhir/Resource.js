@@ -132,8 +132,9 @@ export class FhirResource extends Model {
   async getUpstream(queryOptions = {}) {
     let upstream;
     for (const UpstreamModel of this.constructor.UpstreamModels) {
+      const upstreamQueryOptions = queryOptions[UpstreamModel.tableName] || {};
       upstream = await UpstreamModel.findByPk(this.upstreamId, {
-        ...queryOptions,
+        ...upstreamQueryOptions,
         paranoid: false,
       });
 
