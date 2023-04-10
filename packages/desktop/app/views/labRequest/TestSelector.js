@@ -144,6 +144,7 @@ export const TestSelectorInput = ({
   value,
   requestFormType,
   labTestPanelId,
+  onClearPanel,
   isLoading,
   onChange,
   required,
@@ -163,6 +164,7 @@ export const TestSelectorInput = ({
   const handleClear = () => {
     setTestFilters(values => ({ ...values, labTestPanelId: '' }));
     handleChange([]);
+    onClearPanel();
   };
 
   const handleChangeTestFilters = event =>
