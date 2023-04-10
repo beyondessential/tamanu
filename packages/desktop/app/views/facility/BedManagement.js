@@ -179,6 +179,10 @@ export const BedManagement = () => {
     api.get('patient/locations/alos'),
   );
 
+  const { data: { data: readmissions } = {}, isLoading: readmissionsLoading } = useQuery(['readmissions'], () =>
+    api.get('patient/locations/readmissions'),
+  );
+
   const rowStyle = row =>
     (row.location_max_occupancy !== 1 || !row.patient_id) &&
     '&:hover { background-color: transparent; cursor: default; }';
@@ -224,7 +228,8 @@ export const BedManagement = () => {
             />
             <DashboardItem
               color={Colors.metallicYellow}
-              title="-"
+              title={readmissions || 0}
+              loading={readmissionsLoading}
               description={`Readmission in\nlast 30 days`}
             />
           </DashboardItemListContainer>

@@ -71,6 +71,51 @@ patientLocations.get(
 );
 
 patientLocations.get(
+  '/locations/readmissions',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Patient');
+
+    const [{ count: readmissions } = {}] = await req.db.query(
+      `
+        SELECT
+          COUNT(readmitted_patients.id)
+          FROM
+          (
+          SELECT
+            encounters.patient_id as id,
+            COUNT(id)
+          FROM encounters
+          LEFT JOIN (
+            SELECT
+              id as previous_encounter_id,
+              patient_id,
+              encounter_type,
+              end_date
+            FROM encounters
+          ) previous_encounters
+          ON encounters.patient_id = previous_encounters.patient_id
+          AND encounters.start_date::date > previous_encounters.end_date::date - '30 days'::interval
+          WHERE encounters.end_date IS NULL
+          AND encounters.encounter_type = 'admission'
+          AND previous_encounters.encounter_type = 'admission'
+          AND previous_encounter_id IS NOT NULL
+          GROUP BY encounters.patient_id
+          ORDER BY encounters.patient_id
+          ) readmitted_patients
+      `,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({
+      data: readmissions,
+    });
+  }),
+);
+
+
+patientLocations.get(
   '/locations/stats',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');

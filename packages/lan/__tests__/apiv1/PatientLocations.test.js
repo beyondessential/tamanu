@@ -110,6 +110,33 @@ describe('PatientLocations', () => {
 
   });
 
+  it('should return accurate readmissions', async () => {
+
+    let { body: { data } = {} } = await app.get('/v1/patient/locations/readmissions');
+
+    let readmissions = parseInt(data);
+
+    expect(readmissions).toEqual(0);
+
+    await encounter.update({
+      endDate: new Date(),
+    });
+    const outpatientEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+      encounterType: 'admission',
+      locationId: maxOneOccupancyLocations[1].id,
+      startDate: new Date(),
+      endDate: null,
+    });
+
+    ;({ body: { data } = {} } = await app.get('/v1/patient/locations/readmissions'));
+
+    readmissions = parseInt(data);
+    expect(readmissions).toBeGreaterThanOrEqual(1);
+
+  });
+
   it('should return accurate ALOS', async () => {
 
     const twoDaysAgo = new Date();
