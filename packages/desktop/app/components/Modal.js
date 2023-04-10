@@ -93,6 +93,7 @@ export const Modal = memo(
     additionalActions,
     color = Colors.background,
     overrideContentPadding = false,
+    disableHeaderCloseIcon = false,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -144,9 +145,11 @@ export const Modal = memo(
                 Print
               </StyledButton>
             )}
-            <IconButton onClick={onClose}>
-              <CloseIcon />
-            </IconButton>
+            {!disableHeaderCloseIcon && (
+              <IconButton onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            )}
           </div>
         </ModalTitle>
         <ModalContainer $color={color}>
