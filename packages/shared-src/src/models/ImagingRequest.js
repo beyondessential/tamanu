@@ -18,7 +18,7 @@ const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TY
 const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
 
 export class ImagingRequest extends Model {
-  static init({ primaryKey, ...options }) {
+  static init(options) {
     super.init(
       {
         id: {
