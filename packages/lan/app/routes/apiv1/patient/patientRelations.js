@@ -301,6 +301,7 @@ patientRelations.get(
               patient_id = :patientId
             )
           AND lab_requests.status = '${status}'
+          AND lab_requests.sample_time IS NOT NULL
           ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
           ${
             panelId
@@ -358,6 +359,7 @@ patientRelations.get(
               patient_id = :patientId
           )
         AND lab_requests.status = '${status}'
+        AND lab_requests.sample_time IS NOT NULL
         ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
         ${
           panelId
