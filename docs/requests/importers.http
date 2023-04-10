@@ -48,7 +48,7 @@ Content-Type: application/vnd.ms-excel
 
 ##--------------------------------------------
 ### Import a data definition document
-POST {{syncserver}}/v1/admin/importRefData
+POST {{syncserver}}/v1/admin/import/referenceData
 Content-Type: multipart/form-data; boundary={{boundary}}
 Authorization: Bearer {{token}}
 
