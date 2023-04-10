@@ -4,7 +4,7 @@ import {
   randomReferenceId,
   randomReferenceData,
 } from 'shared/demoData/patients';
-import { randomLabRequest } from 'shared/demoData';
+import { randomLabRequest, randomDate } from 'shared/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Chance } from 'chance';
@@ -605,6 +605,7 @@ describe('Patient relations', () => {
               encounterId: encounter.id,
               status: LAB_REQUEST_STATUSES.PUBLISHED,
               labTestCategoryId: testType.labTestCategoryId,
+              sampleTime: randomDate(),
             })),
           });
           const unpublishedLabRequest = await models.LabRequest.create({
@@ -612,6 +613,7 @@ describe('Patient relations', () => {
               patientId: labTestsPatient.id,
               encounterId: encounter.id,
               status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+              sampleTime: randomDate(),
             })),
           });
           const publishedLabTest = await models.LabTest.create({
