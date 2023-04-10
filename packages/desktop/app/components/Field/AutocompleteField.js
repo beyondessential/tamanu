@@ -172,7 +172,6 @@ class BaseAutocomplete extends Component {
     if (value === '') {
       if (await this.attemptAutoFill({ suggestions })) return;
     }
-
     this.setState({ suggestions });
   };
 
@@ -289,8 +288,8 @@ class BaseAutocomplete extends Component {
                   </SelectTag>
                 )}
                 {value && (
-                  <StyledIconButton>
-                    <StyledClearIcon onClick={this.handleClearValue} />
+                  <StyledIconButton onClick={this.handleClearValue}>
+                    <StyledClearIcon />
                   </StyledIconButton>
                 )}
                 <Icon
