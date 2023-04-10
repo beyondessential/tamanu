@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Search from '@material-ui/icons/Search';
-import { InputAdornment } from '@material-ui/core';
+import { InputAdornment, IconButton } from '@material-ui/core';
+import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
 import styled from 'styled-components';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
@@ -21,7 +22,30 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
+const StyledIconButton = styled(IconButton)`
+  padding: 0;
+`;
+
+const StyledClearIcon = styled(ClearRoundedIcon)`
+  cursor: pointer;
+  color: ${Colors.darkText};
+  font-size: 24px;
+`;
+
 export const SearchField = props => {
+  const {
+    field: { value },
+  } = props;
+  const [searchValue, setSearchValue] = useState(value);
+
+  useEffect(() => {
+    setSearchValue(value);
+  }, [value])
+
+  const clearSearch = () => {
+    setSearchValue('');
+  };
+
   return (
     <StyledTextField
       InputProps={{
@@ -30,9 +54,15 @@ export const SearchField = props => {
             <Search />
           </Icon>
         ),
+        endAdornment: searchValue && (
+          <StyledIconButton onClick={clearSearch}>
+            <StyledClearIcon />
+          </StyledIconButton>
+        ),
       }}
       placeholder={props?.label ? `Search ${props?.label.toLowerCase()}` : ''}
       {...props}
+      value={searchValue}
     />
   );
 };
