@@ -20,6 +20,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
 } from '../../../constants';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
+import { getQueryOptions } from './getQueryOptions';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
@@ -71,58 +72,9 @@ export class FhirServiceRequest extends FhirResource {
   ]);
 
   async updateMaterialisation() {
-    const {
-      Encounter,
-      Facility,
-      ImagingAreaExternalCode,
-      Location,
-      Patient,
-      ReferenceData,
-      User,
-    } = this.sequelize.models;
+    const { ImagingAreaExternalCode } = this.sequelize.models;
 
-    const upstream = await this.getUpstream({
-      include: [
-        {
-          model: User,
-          as: 'requestedBy',
-        },
-        {
-          model: Encounter,
-          as: 'encounter',
-          include: [
-            {
-              model: Patient,
-              as: 'patient',
-            },
-            {
-              model: Location,
-              as: 'location',
-              include: [
-                {
-                  model: Facility,
-                  as: 'facility',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          model: ReferenceData,
-          as: 'areas',
-        },
-        {
-          model: Location,
-          as: 'location',
-          include: [
-            {
-              model: Facility,
-              as: 'facility',
-            },
-          ],
-        },
-      ],
-    });
+    const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
 
     const areaExtCodes = new Map(
       (
