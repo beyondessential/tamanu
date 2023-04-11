@@ -147,7 +147,7 @@ describe('PatientLocations', () => {
       endDate: null,
     });
 
-    const oneReadmittedPatientnReadmissionsResponse = await app.get('/v1/patient/locations/readmissions'));
+    const oneReadmittedPatientnReadmissionsResponse = await app.get('/v1/patient/locations/readmissions');
     expect(oneReadmittedPatientnReadmissionsResponse).toHaveSucceeded();
     expect(oneReadmittedPatientnReadmissionsResponse.body.data).toEqual(1);
 
