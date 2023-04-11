@@ -113,7 +113,7 @@ export const LabRequestView = () => {
     navigateToLabRequest(labRequest.id);
   };
 
-  const handleChangeModal = id => {
+  const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
   };
@@ -136,12 +136,12 @@ export const LabRequestView = () => {
           <Box display="flex" alignItems="center">
             <OutlinedButton
               onClick={() => {
-                handleChangeModal(MODAL_IDS.PRINT);
+                handleChangeModalId(MODAL_IDS.PRINT);
               }}
             >
               Print request
             </OutlinedButton>
-            <Menu setModal={handleChangeModal} status={labRequest.status} />
+            <Menu setModal={handleChangeModalId} status={labRequest.status} />
           </Box>
         }
       />
@@ -163,10 +163,10 @@ export const LabRequestView = () => {
           isReadOnly={isReadOnly}
           actions={{
             'Change status': () => {
-              handleChangeModal(MODAL_IDS.CHANGE_STATUS);
+              handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
             },
             'View status log': () => {
-              handleChangeModal(MODAL_IDS.VIEW_STATUS_LOG);
+              handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
             },
           }}
         />
@@ -188,7 +188,7 @@ export const LabRequestView = () => {
             [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
               ? 'Record sample'
               : 'Edit']: () => {
-              handleChangeModal(MODAL_IDS.RECORD_SAMPLE);
+              handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
             },
           }}
         />
@@ -199,7 +199,7 @@ export const LabRequestView = () => {
           isReadOnly={isReadOnly}
           actions={{
             'Change laboratory': () => {
-              handleChangeModal(MODAL_IDS.CHANGE_LABORATORY);
+              handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY);
             },
           }}
         />
@@ -210,7 +210,7 @@ export const LabRequestView = () => {
           isReadOnly={isReadOnly}
           actions={{
             'Change priority': () => {
-              handleChangeModal(MODAL_IDS.CHANGE_PRIORITY);
+              handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY);
             },
           }}
         />
