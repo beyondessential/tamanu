@@ -39,7 +39,7 @@ const StyledIconButton = styled(IconButton)`
 const StyledClearIcon = styled(ClearRoundedIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
-  font-size: 24px;
+  font-size: 18px;
   position: relative;
 `;
 
@@ -122,7 +122,6 @@ export const SelectInput = ({
     },
     dropdownIndicator: provided => ({
       ...provided,
-      color: Colors.darkText,
       padding: '4px 16px 6px 0px',
     }),
     placeholder: provided => ({ ...provided, color: Colors.softText }),

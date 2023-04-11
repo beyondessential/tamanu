@@ -7,6 +7,7 @@ import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from 
 import ExpandLessRoundedIcon from '@material-ui/icons/ExpandLessRounded';
 import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
 import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
+import { ChevronIcon } from './ChevronIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -78,14 +79,15 @@ const Item = styled(MenuItem)`
 
 const iconStyle = css`
   color: ${Colors.darkText};
-  font-size: 24;
+  font-size: 18px;
 `;
 
-const StyledExpandLess = styled(ExpandLessRoundedIcon)`
+const StyledExpandLess = styled(ChevronIcon)`
   ${iconStyle}
+  transform: rotate(180deg);
 `;
 
-const StyledExpandMore = styled(ExpandMoreRoundedIcon)`
+const StyledExpandMore = styled(ChevronIcon)`
   ${iconStyle}
 `;
 
@@ -95,8 +97,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearRoundedIcon)`
   cursor: pointer;
-  color: ${Colors.darkText};
-  font-size: 24px;
+  ${iconStyle}
 `;
 
 class BaseAutocomplete extends Component {
