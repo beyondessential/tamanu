@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSuggester } from '../../../api';
 import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../components';
@@ -10,8 +10,8 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
 `;
 
 export const LabRequestChangePriorityModal = React.memo(
-  ({ priority: initialPriority, updateLabReq, open, onClose }) => {
-    const [priority, setPriority] = useState(initialPriority);
+  ({ labRequest, updateLabReq, open, onClose }) => {
+    const [priority, setPriority] = useState(labRequest.labTestPriorityId);
     const suggester = useSuggester('labTestPriority');
 
     const updateLab = async () => {
@@ -20,10 +20,6 @@ export const LabRequestChangePriorityModal = React.memo(
       });
       onClose();
     };
-
-    useEffect(() => {
-      setPriority(initialPriority);
-    }, [initialPriority]);
 
     return (
       <Modal open={open} onClose={onClose} title="Change priority">

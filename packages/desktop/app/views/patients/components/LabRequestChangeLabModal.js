@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSuggester } from '../../../api';
 import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../components';
@@ -10,8 +10,8 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
 `;
 
 export const LabRequestChangeLabModal = React.memo(
-  ({ labTestLaboratoryId: initialLabId, updateLabReq, open, onClose }) => {
-    const [labTestLaboratoryId, setLabTestLaboratoryId] = useState(initialLabId);
+  ({ labRequest, updateLabReq, open, onClose }) => {
+    const [labTestLaboratoryId, setLabTestLaboratoryId] = useState(labRequest.laboratory?.id);
     const laboratorySuggester = useSuggester('labTestLaboratory');
 
     const updateLab = async () => {
@@ -20,10 +20,6 @@ export const LabRequestChangeLabModal = React.memo(
       });
       onClose();
     };
-
-    useEffect(() => {
-      setLabTestLaboratoryId(initialLabId);
-    }, [initialLabId]);
 
     return (
       <Modal open={open} onClose={onClose} title="Change laboratory">
