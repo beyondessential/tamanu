@@ -17,6 +17,7 @@ import {
   OutlinedButton,
   TileTag,
   SmallBodyText,
+  MODAL_TRANSITION_DURATION,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -97,7 +98,7 @@ export const LabRequestView = () => {
     // Wait for close animation to finish
     setTimeout(() => {
       setModalId(null);
-    }, 300);
+    }, MODAL_TRANSITION_DURATION);
   };
 
   const patient = useSelector(state => state.patient);
