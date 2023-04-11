@@ -165,14 +165,23 @@ class BaseAutocomplete extends Component {
       return;
     }
 
-    const suggestions = suggester
+    const searchSuggestions = suggester
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
+    const genericSuggestions = suggester ? await suggester.fetchSuggestions('') : options;
+
     if (value === '') {
-      if (await this.attemptAutoFill({ suggestions })) return;
+      if (await this.attemptAutoFill({ searchSuggestions })) return;
     }
-    this.setState({ suggestions });
+
+    this.setState({
+      suggestions:
+        reason === 'input-focused' &&
+        searchSuggestions.find(x => x.label.toLowerCase() === value.toLowerCase())
+          ? genericSuggestions
+          : searchSuggestions,
+    });
   };
 
   attemptAutoFill = async (overrides = { suggestions: null }) => {

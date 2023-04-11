@@ -40,7 +40,7 @@ export const SearchField = props => {
 
   useEffect(() => {
     setSearchValue(value);
-  }, [value])
+  }, [value]);
 
   const clearSearch = () => {
     setSearchValue('');
