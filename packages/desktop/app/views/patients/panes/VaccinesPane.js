@@ -33,7 +33,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   //   setVaccineData(row);
   // }, []);
 
-  const onOpenViewModal = useCallback(async row => {
+  const handleOpenViewModal = useCallback(async row => {
     setIsViewAdministeredModalOpen(true);
     setVaccineData(row);
   }, []);
@@ -83,7 +83,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             Record vaccine
           </Button>
         </TableButtonRow>
-        <ImmunisationsTable patient={patient} onItemClick={id => onOpenViewModal(id)} />
+        <ImmunisationsTable patient={patient} onItemClick={id => handleOpenViewModal(id)} />
       </ContentPane>
       <CovidVaccineCertificateModal
         open={isCovidCertificateModalOpen}
