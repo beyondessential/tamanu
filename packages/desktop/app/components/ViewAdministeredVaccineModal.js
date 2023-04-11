@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Alert, AlertTitle } from '@material-ui/lab';
+import { Box } from '@material-ui/core';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from 'shared/constants';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
@@ -40,6 +42,17 @@ const FieldGroup = styled.div`
   }
   padding-top: 20px;
 `;
+
+const ErrorMessage = () => {
+  return (
+    <Box p={5}>
+      <Alert severity="error">
+        <AlertTitle>Error: Cannot load view modal for this vaccine</AlertTitle>
+        Please contact Tamanu administrator
+      </Alert>
+    </Box>
+  );
+};
 
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   if (!vaccineRecord) return null;
@@ -190,18 +203,22 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
 
   return (
     <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
-      <Container>
-        {modalVersion.fields.map(fieldGroup => (
-          <FieldGroup>
-            {fieldGroup.map(({ label, value }) => (
-              <DisplayField>
-                <Label>{label}</Label>
-                {value}
-              </DisplayField>
-            ))}
-          </FieldGroup>
-        ))}
-      </Container>
+      {modalVersion ? (
+        <Container>
+          {modalVersion.fields.map(fieldGroup => (
+            <FieldGroup>
+              {fieldGroup.map(({ label, value }) => (
+                <DisplayField>
+                  <Label>{label}</Label>
+                  {value}
+                </DisplayField>
+              ))}
+            </FieldGroup>
+          ))}
+        </Container>
+      ) : (
+        <ErrorMessage />
+      )}
       <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>
   );
