@@ -590,10 +590,9 @@ describe('Patient relations', () => {
     beforeAll(async () => {
       labTestsPatient = await models.Patient.create(await createDummyPatient(models));
       randomCategory = await randomReferenceData(models, 'labTestCategory');
-      // Ensure at least one lab test type uses category
+      // Ensure the selected category has at least one test type associated with it
       await models.LabTestType.create({
-        name: 'Test Lab Test Type 1',
-        code: 'TLTT1',
+        ...fake(models.LabTestType),
         labTestCategoryId: randomCategory.id,
       });
       labTestTypes = await models.LabTestType.findAll();
