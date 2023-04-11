@@ -114,7 +114,6 @@ patientLocations.get(
   }),
 );
 
-
 patientLocations.get(
   '/locations/stats',
   asyncHandler(async (req, res) => {
