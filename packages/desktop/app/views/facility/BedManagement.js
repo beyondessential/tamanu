@@ -18,7 +18,7 @@ import {
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
-import { columns } from './columns';
+import { columns } from './bedManagementColumns';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -157,16 +157,16 @@ export const BedManagement = () => {
   );
 
   const {
-    data: { count: totalCurrentPatients } = {},
-    isLoading: totalCurrentPatientsLoading,
-  } = useQuery(['totalCurrentPatients'], () =>
+    data: { count: totalCurrentPatientsCount } = {},
+    isLoading: totalCurrentPatientsCountLoading,
+  } = useQuery(['totalCurrentPatientsCount'], () =>
     api.get('patient', { countOnly: true, currentPatient: true }),
   );
 
   const {
-    data: { count: currentInpatients } = {},
-    isLoading: currentInpatientsLoading,
-  } = useQuery(['currentInpatients'], () =>
+    data: { count: currentInpatientsCount } = {},
+    isLoading: currentInpatientsCountLoading,
+  } = useQuery(['currentInpatientsCount'], () =>
     api.get('patient', { countOnly: true, currentPatient: true, inpatient: true }),
   );
 
@@ -179,18 +179,19 @@ export const BedManagement = () => {
     api.get('patient/locations/alos'),
   );
 
-  const { data: { data: readmissions } = {}, isLoading: readmissionsLoading } = useQuery(
-    ['readmissions'],
+  const { data: { data: readmissionsCount } = {}, isLoading: readmissionsCountLoading } = useQuery(
+    ['readmissionsCount'],
     () => api.get('patient/locations/readmissions'),
   );
 
+  // hides hover for rows that arent clickable (do not have a patient to click to)
   const rowStyle = row =>
-    (row.location_max_occupancy !== 1 || !row.patient_id) &&
+    (row.locationMaxOccupancy !== 1 || !row.patientId) &&
     '&:hover { background-color: transparent; cursor: default; }';
 
   const handleViewPatient = async row => {
-    if (row.location_max_occupancy === 1) {
-      const patientId = row.patient_id || row.planned_patient_id || null;
+    if (row.locationMaxOccupancy === 1) {
+      const patientId = row.patientId || row.plannedPatientId;
       if (patientId) {
         await dispatch(reloadPatient(patientId));
         dispatch(push(`/patients/all/${patientId}`));
@@ -205,14 +206,14 @@ export const BedManagement = () => {
         <DashboardContainer>
           <DashboardItemListContainer>
             <DashboardItem
-              title={totalCurrentPatients || 0}
-              loading={totalCurrentPatientsLoading}
+              title={totalCurrentPatientsCount || 0}
+              loading={totalCurrentPatientsCountLoading}
               description={`Total current\npatients`}
             />
             <DashboardItem
               color={Colors.green}
-              title={currentInpatients || 0}
-              loading={currentInpatientsLoading}
+              title={currentInpatientsCount || 0}
+              loading={currentInpatientsCountLoading}
               description={`Current inpatient\nadmissions`}
             />
             <DashboardItem
@@ -229,8 +230,8 @@ export const BedManagement = () => {
             />
             <DashboardItem
               color={Colors.metallicYellow}
-              title={readmissions || 0}
-              loading={readmissionsLoading}
+              title={readmissionsCount || 0}
+              loading={readmissionsCountLoading}
               description={`Readmission in\nlast 30 days`}
             />
           </DashboardItemListContainer>

@@ -2,9 +2,10 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import { objectToCamelCase } from 'shared/utils';
 import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 
-const patientsLocationSelect = (planned, encountersAndClauses) => `
+const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
   	locations.id,
   	COUNT(open_encounters)
@@ -13,7 +14,7 @@ const patientsLocationSelect = (planned, encountersAndClauses) => `
   	SELECT ${planned ? 'planned_' : ''}location_id
   	FROM encounters
   	WHERE end_date IS NULL
-    ${encountersAndClauses ? `AND ${encountersAndClauses}` : ''}
+    ${encountersWhereAndClauses ? `AND ${encountersWhereAndClauses}` : ''}
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
   WHERE locations.facility_id = '${config.serverFacilityId}'
@@ -31,7 +32,7 @@ patientLocations.get(
     const [{ occupancy } = {}] = await req.db.query(
       `
         SELECT
-          SUM(max_1_occupancy_locations.count) / COUNT(max_1_occupancy_locations) * 100 AS occupancy
+          (SUM(max_1_occupancy_locations.count) / COUNT(max_1_occupancy_locations) * 100)::float AS occupancy
         FROM (
           ${patientsLocationSelect(false, `encounters.encounter_type = 'admission'`)}
         ) max_1_occupancy_locations
@@ -42,7 +43,7 @@ patientLocations.get(
     );
 
     res.send({
-      data: occupancy,
+      data: occupancy || 0,
     });
   }),
 );
@@ -55,7 +56,7 @@ patientLocations.get(
     const [{ alos } = {}] = await req.db.query(
       `
         SELECT
-          SUM(DATE_PART('day', age(end_date::date, start_date::date))) / COUNT(1) as alos
+          (SUM(DATE_PART('day', age(end_date::date, start_date::date))) / COUNT(1))::float as alos
         FROM encounters
         WHERE end_date::date > now() - '30 days'::interval
       `,
@@ -65,7 +66,7 @@ patientLocations.get(
     );
 
     res.send({
-      data: alos,
+      data: alos || 0,
     });
   }),
 );
@@ -121,14 +122,14 @@ patientLocations.get(
 
     const [
       {
-        occupied_locations: occupiedLocationCount,
-        available_locations: availableLocationCount,
+        occupied_location_count: occupiedLocationCount,
+        available_location_count: availableLocationCount,
       } = {},
     ] = await req.db.query(
       `
         SELECT
-          SUM(sign(max_1_occupancy_locations.count)) AS occupied_locations,
-          COUNT(max_1_occupancy_locations) - SUM(sign(max_1_occupancy_locations.count)) AS available_locations
+          SUM(sign(max_1_occupancy_locations.count)) AS occupied_location_count,
+          COUNT(max_1_occupancy_locations) - SUM(sign(max_1_occupancy_locations.count)) AS available_location_count
         FROM (
           ${patientsLocationSelect()}
         ) max_1_occupancy_locations
@@ -138,10 +139,10 @@ patientLocations.get(
       },
     );
 
-    const [{ reserved_locations: reservedLocationCount } = {}] = await req.db.query(
+    const [{ reserved_location_count: reservedLocationCount } = {}] = await req.db.query(
       `
         SELECT
-          SUM(sign(max_1_occupancy_locations.count)) AS reserved_locations
+          SUM(sign(max_1_occupancy_locations.count)) AS reserved_location_count
         FROM (
           ${patientsLocationSelect(true)}
         ) max_1_occupancy_locations
@@ -153,9 +154,9 @@ patientLocations.get(
 
     res.send({
       data: {
-        availableLocationCount,
-        reservedLocationCount,
-        occupiedLocationCount,
+        availableLocationCount: availableLocationCount || 0,
+        reservedLocationCount: reservedLocationCount || 0,
+        occupiedLocationCount: occupiedLocationCount || 0,
       },
     });
   }),
@@ -276,9 +277,9 @@ patientLocations.get(
       location: 'location_id',
       alos: 'alos',
       occupancy: 'occupancy',
-      number_of_occupants: 'number_of_occupants',
-      patient_first_name: `UPPER(${patientCaseStatement('first_name')})`,
-      patient_last_name: `UPPER(${patientCaseStatement('last_name')})`,
+      numberOfOccupants: 'number_of_occupants',
+      patientFirstName: `UPPER(${patientCaseStatement('first_name')})`,
+      patientLastName: `UPPER(${patientCaseStatement('last_name')})`,
       status: 'status',
     };
 
@@ -348,7 +349,7 @@ patientLocations.get(
     );
 
     res.send({
-      data,
+      data: data.map(entry => objectToCamelCase(entry)),
       count: parseInt(count, 10),
     });
   }),
