@@ -95,7 +95,12 @@ export const LabRequestView = () => {
 
   const closeModal = () => {
     setModalOpen(false);
-    // Wait for close animation to finish
+    /**
+     * Wait for close animation to finish this is somewhat of a hack to
+     * get around the issue of the modal contents mounting vanishing before
+     * the closing animation is complete.
+     * @see NASS-745 https://linear.app/bes/issue/NASS-745/contents-of-modals-mount-in-a-weird-way-that-is-causing-issues
+     */
     setTimeout(() => {
       setModalId(null);
     }, MODAL_TRANSITION_DURATION);
