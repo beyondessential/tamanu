@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { unionBy } from 'lodash';
 import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
+import { MultiselectInput } from './MultiselectField';
 
 export const SuggesterSelectField = React.memo(
-  ({ field, endpoint, filterByFacility, initialOptions = [], ...props }) => {
+  ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], ...props }) => {
     const api = useApi();
     const [options, setOptions] = useState(initialOptions);
 
@@ -50,14 +51,17 @@ export const SuggesterSelectField = React.memo(
         });
     }, [api, setOptions, endpoint, filterByFacility]);
 
-    return (
-      <SelectInput
-        name={field.name}
-        options={options}
-        onChange={field.onChange}
-        value={field.value}
-        {...props}
-      />
+    const baseProps = {
+      name: field.name,
+      options,
+      onChange: field.onChange,
+      value: field.value,
+    };
+
+    return isMulti ? (
+      <MultiselectInput {...baseProps} {...props} />
+    ) : (
+      <SelectInput {...baseProps} {...props} />
     );
   },
 );
