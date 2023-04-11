@@ -10,7 +10,7 @@ import { LabRequestsTable } from './LabRequestsTable';
 
 export const LabRequestListingView = React.memo(() => (
   <PageContainer>
-    <TopBar title="Lab requests" />
+    <TopBar title="Active lab requests" />
     <ContentPane>
       <SearchTableTitle>Lab request search</SearchTableTitle>
       <LabRequestsSearchBar />
