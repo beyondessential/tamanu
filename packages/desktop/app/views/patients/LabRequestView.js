@@ -31,6 +31,7 @@ import { LabRequestChangePriorityModal } from './components/LabRequestChangePrio
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { useAuth } from '../../contexts/Auth';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -74,6 +75,7 @@ const Menu = ({ setModal, status }) => {
 
 export const LabRequestView = () => {
   const query = useUrlSearchParams();
+  const { ability } = useAuth();
   const [modal, setModal] = useState(query.get('modal'));
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
@@ -91,16 +93,21 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
+  const canCreateLabRequest = ability.can('create', 'LabRequest');
+  const canCreateLabTest = ability.can('create', 'LabTest');
+
+  const areLabRequestsReadOnly =
+    !canCreateLabRequest || HIDDEN_STATUSES.includes(labRequest.status);
+  const areLabTestsReadOnly = !canCreateLabTest || HIDDEN_STATUSES.includes(labRequest.status);
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
-  const displayStatus = isReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
+  const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   return (
     <Container>
       <Heading2 gutterBottom>Labs</Heading2>
       <LabRequestCard
         labRequest={labRequest}
-        isReadOnly={isReadOnly}
+        isReadOnly={areLabRequestsReadOnly}
         actions={
           <Box display="flex" alignItems="center">
             <OutlinedButton
@@ -114,7 +121,7 @@ export const LabRequestView = () => {
           </Box>
         }
       />
-      <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
+      <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
       <TileContainer>
         <Tile
           Icon={() => <img src={TestCategoryIcon} alt="test category" />}
@@ -129,7 +136,7 @@ export const LabRequestView = () => {
               {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
             </TileTag>
           }
-          isReadOnly={isReadOnly}
+          isReadOnly={areLabRequestsReadOnly}
           actions={{
             'Change status': () => {
               setModal(MODALS.CHANGE_STATUS);
@@ -153,6 +160,7 @@ export const LabRequestView = () => {
               </Box>
             </>
           }
+          isReadOnly={areLabRequestsReadOnly}
           actions={{
             [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
               ? 'Record sample'
@@ -165,7 +173,7 @@ export const LabRequestView = () => {
           Icon={Business}
           text="Laboratory"
           main={(labRequest.laboratory || {}).name || 'Unknown'}
-          isReadOnly={isReadOnly}
+          isReadOnly={areLabRequestsReadOnly}
           actions={{
             'Change laboratory': () => {
               setModal(MODALS.CHANGE_LABORATORY);
@@ -176,7 +184,7 @@ export const LabRequestView = () => {
           Icon={AssignmentLate}
           text="Priority"
           main={(labRequest.priority || {}).name || 'Unknown'}
-          isReadOnly={isReadOnly}
+          isReadOnly={areLabRequestsReadOnly}
           actions={{
             'Change priority': () => {
               setModal(MODALS.CHANGE_PRIORITY);
@@ -185,7 +193,11 @@ export const LabRequestView = () => {
         />
       </TileContainer>
       <Rule />
-      <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
+      <LabRequestResultsTable
+        labRequest={labRequest}
+        patient={patient}
+        isReadOnly={areLabTestsReadOnly}
+      />
       <LabRequestChangeStatusModal
         labRequest={labRequest}
         updateLabReq={updateLabReq}
