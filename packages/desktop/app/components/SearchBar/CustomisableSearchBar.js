@@ -55,10 +55,6 @@ const ActionsContainer = styled(Box)`
   margin-left: 8px;
 `;
 
-const ExpandButton = styled(IconButton)`
-  padding: 6px 14px;
-`;
-
 const SearchButton = styled(Button)`
   margin-right: 20px;
   margin-left: 6px;
@@ -92,7 +88,7 @@ export const CustomisableSearchBar = ({
             {children}
             <ActionsContainer>
               {showExpandButton && (
-                <ExpandButton
+                <IconButton
                   onClick={() => {
                     switchExpandValue();
                   }}
@@ -102,7 +98,7 @@ export const CustomisableSearchBar = ({
                     src={isExpanded ? doubleUp : doubleDown}
                     alt={`${isExpanded ? 'hide' : 'show'} advanced filters`}
                   />
-                </ExpandButton>
+                </IconButton>
               )}
               <SearchButton type="submit">Search</SearchButton>
               <ClearButton onClick={clearForm}>Clear</ClearButton>
