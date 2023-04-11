@@ -47,7 +47,7 @@ patientVaccineRoutes.get(
             administered_vaccines av
             JOIN encounters e ON av.encounter_id = e.id
           WHERE
-            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = '${VACCINE_STATUS.GIVEN}'
+            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = :givenStatus
         ${whereClause}
         GROUP BY sv.id
         ORDER BY max(sv.label), max(sv.schedule);
@@ -56,6 +56,7 @@ patientVaccineRoutes.get(
         replacements: {
           patientId: req.params.id,
           category: req.query.category,
+          givenStatus: VACCINE_STATUS.GIVEN,
         },
         model: req.models.ScheduledVaccine,
         mapToModel: true,
