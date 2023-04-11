@@ -16,7 +16,16 @@ import {
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
 export async function getValues(upstream, models) {
+  const { ImagingRequest, LabRequest } = models;
+
+  if (upstream instanceof ImagingRequest) return getValuesFromImagingRequest(upstream, models);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, models);
+  throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
+}
+
+async function getValuesFromImagingRequest(upstream, models) {
   const { ImagingAreaExternalCode } = models;
+
   const areaExtCodes = new Map(
     (
       await ImagingAreaExternalCode.findAll({
@@ -95,6 +104,11 @@ export async function getValues(upstream, models) {
     }),
     locationCode: locationCode(upstream),
   };
+}
+
+// eslint-disable-next-line no-unused-vars
+async function getValuesFromLabRequest(upstream, models) {
+  return {};
 }
 
 function imagingCode(upstream) {
