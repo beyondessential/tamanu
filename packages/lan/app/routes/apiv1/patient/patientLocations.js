@@ -79,7 +79,7 @@ patientLocations.get(
     const [{ count: readmissionsCount } = {}] = await req.db.query(
       `
         SELECT
-          COUNT(readmitted_patients.id)
+          COUNT(readmitted_patients.id)::int
           FROM
           (
           SELECT

@@ -131,11 +131,9 @@ describe('PatientLocations', () => {
 
   it('should return accurate readmissions', async () => {
 
-    let { body: { data } = {} } = await app.get('/v1/patient/locations/readmissions');
-
-    let readmissions = parseInt(data);
-
-    expect(readmissions).toEqual(0);
+    const oneEncounterReadmissionsResponse = await app.get('/v1/patient/locations/readmissions');
+    expect(oneEncounterReadmissionsResponse).toHaveSucceeded();
+    expect(oneEncounterReadmissionsResponse.body.data).toEqual(0);
 
     await encounter.update({
       endDate: new Date(),
@@ -149,10 +147,9 @@ describe('PatientLocations', () => {
       endDate: null,
     });
 
-    ;({ body: { data } = {} } = await app.get('/v1/patient/locations/readmissions'));
-
-    readmissions = parseInt(data);
-    expect(readmissions).toBeGreaterThanOrEqual(1);
+    const oneReadmittedPatientnReadmissionsResponse = await app.get('/v1/patient/locations/readmissions'));
+    expect(oneReadmittedPatientnReadmissionsResponse).toHaveSucceeded();
+    expect(oneReadmittedPatientnReadmissionsResponse.body.data).toEqual(1);
 
   });
 
