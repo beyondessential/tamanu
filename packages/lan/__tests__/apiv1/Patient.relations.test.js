@@ -589,9 +589,14 @@ describe('Patient relations', () => {
 
     beforeAll(async () => {
       labTestsPatient = await models.Patient.create(await createDummyPatient(models));
-      labTestTypes = await models.LabTestType.findAll();
       randomCategory = await randomReferenceData(models, 'labTestCategory');
-
+      // Ensure at least one lab test type uses category
+      await models.LabTestType.create({
+        name: 'Test Lab Test Type 1',
+        code: 'TLTT1',
+        labTestCategoryId: randomCategory.id,
+      });
+      labTestTypes = await models.LabTestType.findAll();
       for (let x = 0; x < repeatEntryCount; ++x) {
         for (let i = 0; i < labTestTypes.length; ++i) {
           const testType = labTestTypes[i];
