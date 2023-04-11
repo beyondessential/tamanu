@@ -76,7 +76,7 @@ patientLocations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
-    const [{ count: readmissions } = {}] = await req.db.query(
+    const [{ count: readmissionsCount } = {}] = await req.db.query(
       `
         SELECT
           COUNT(readmitted_patients.id)
@@ -110,7 +110,7 @@ patientLocations.get(
     );
 
     res.send({
-      data: readmissions,
+      data: readmissionsCount,
     });
   }),
 );
