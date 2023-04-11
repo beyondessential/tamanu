@@ -104,7 +104,7 @@ const PDFTemplate = args => (
       handoverNotes={handoverNotes}
       logoSrc={Logo}
       getLocalisation={getLocalisation}
-      location="Female ward"
+      locationGroupName="A-Emergency Department"
     />
   </PDFViewer>
 );
