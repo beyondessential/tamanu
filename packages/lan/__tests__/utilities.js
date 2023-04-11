@@ -102,7 +102,7 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext({ withFacility } = {}) {
+export async function createTestContext() {
   const dbResult = await initDatabase();
   const { models, sequelize } = dbResult;
 
@@ -123,8 +123,8 @@ export async function createTestContext({ withFacility } = {}) {
   await seedLabTests(models);
   await seedFacilities(models);
   await seedDepartments(models);
-  await seedLocations(models, withFacility && config.serverFacilityId);
-  await seedLocationGroups(models, withFacility && config.serverFacilityId);
+  await seedLocations(models);
+  await seedLocationGroups(models);
 
   // Create the facility for the current config if it doesn't exist
   await models.Facility.findOrCreate({

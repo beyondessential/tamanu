@@ -18,17 +18,15 @@ const StatusCell = React.memo(({ value }) => (
 ));
 
 const patientFirstNameAccessor = row =>
-  row.location_max_occupancy === 1
-    ? row.patient_first_name || row.planned_patient_first_name || '-'
+  row.locationMaxOccupancy === 1
+    ? row.patientFirstName || row.plannedPatientFirstName || '-'
     : 'N/A';
 
 const patientLastNameAccessor = row =>
-  row.location_max_occupancy === 1
-    ? row.patient_last_name || row.planned_patient_last_name || '-'
-    : 'N/A';
+  row.locationMaxOccupancy === 1 ? row.patientLastName || row.plannedPatientLastName || '-' : 'N/A';
 
 const occupancyAccessor = row =>
-  row.location_max_occupancy === 1 ? `${Math.round((row.occupancy || 0) * 10) / 10}%` : 'N/A';
+  row.locationMaxOccupancy === 1 ? `${Math.round((row.occupancy || 0) * 10) / 10}%` : 'N/A';
 
 export const columns = [
   {
@@ -59,20 +57,20 @@ export const columns = [
     tooltip: 'Bed occupancy, last 30 days',
   },
   {
-    key: 'number_of_occupants',
+    key: 'numberOfOccupants',
     title: 'No. occupants',
     minWidth: 30,
     sortable: false,
     tooltip: 'Current number of occupants',
   },
   {
-    key: 'patient_first_name',
+    key: 'patientFirstName',
     title: 'First Name',
     minWidth: 100,
     accessor: patientFirstNameAccessor,
   },
   {
-    key: 'patient_last_name',
+    key: 'patientLastName',
     title: 'Last Name',
     minWidth: 100,
     accessor: patientLastNameAccessor,

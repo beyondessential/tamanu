@@ -24,6 +24,8 @@ const HandoverNotesIcon = styled.img`
   margin-right: 5px;
 `;
 
+const EmptyGridItem = styled.div``;
+
 export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const locationGroupSuggester = useSuggester('locationGroup', {
     baseQueryParameters: { filterByFacility: true },
@@ -39,7 +41,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         <HandoverNotesIcon src={handoverNotes} />
         Handover notes
       </HandoverNotesButton>
-      <div />
+      <EmptyGridItem />
       <LocalisedField
         name="area"
         defaultLabel="Area"
