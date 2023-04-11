@@ -27,7 +27,7 @@ const useAdvancedFields = advancedFields => {
   return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
 };
 
-const ADVANCED_FIELDS = ['requestedDateFrom', 'requestedDateTo', 'requestedById', 'priority'];
+const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'laboratory', 'priority'];
 
 export const LabRequestsSearchBar = () => {
   const {
@@ -36,7 +36,6 @@ export const LabRequestsSearchBar = () => {
     searchParameters,
     setSearchParameters,
   } = useAdvancedFields(ADVANCED_FIELDS);
-  const clinicianSuggester = useSuggester('practitioner');
   const locationGroupSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
@@ -50,25 +49,26 @@ export const LabRequestsSearchBar = () => {
       showExpandButton
       hiddenFields={
         <>
-          <LocalisedField
-            name="requestedDateFrom"
-            label="Requested from"
-            saveDateAsString
-            component={DateField}
-            $joined
-          />
-          <LocalisedField
-            name="requestedDateTo"
-            defaultLabel="Requested to"
-            saveDateAsString
-            component={DateField}
+          <Field
+            name="locationGroupId"
+            label="Area"
+            component={AutocompleteField}
+            suggester={locationGroupSuggester}
+            size="small"
           />
           <Field
-            name="requestedById"
-            label="Requested by"
-            size="small"
+            name="departmentId"
+            label="Department"
             component={AutocompleteField}
-            suggester={clinicianSuggester}
+            suggester={departmentSuggester}
+            size="small"
+          />
+          <LocalisedField
+            name="laboratory"
+            defaultLabel="Laboratory"
+            component={SuggesterSelectField}
+            endpoint="labTestLaboratory"
+            size="small"
           />
           <LocalisedField
             name="priority"
@@ -93,25 +93,24 @@ export const LabRequestsSearchBar = () => {
           size="small"
         />
         <Field
-          name="locationGroupId"
-          label="Area"
-          component={AutocompleteField}
-          suggester={locationGroupSuggester}
-          size="small"
-        />
-        <Field
-          name="departmentId"
-          label="Department"
-          component={AutocompleteField}
-          suggester={departmentSuggester}
+          name="labTestPanelId"
+          label="Panel"
+          component={SuggesterSelectField}
+          endpoint="labTestPanel"
           size="small"
         />
         <LocalisedField
-          name="laboratory"
-          defaultLabel="Laboratory"
-          component={SuggesterSelectField}
-          endpoint="labTestLaboratory"
-          size="small"
+          name="requestedDateFrom"
+          label="Requested from"
+          saveDateAsString
+          component={DateField}
+          $joined
+        />
+        <LocalisedField
+          name="requestedDateTo"
+          defaultLabel="Requested to"
+          saveDateAsString
+          component={DateField}
         />
         <LocalisedField
           name="status"
