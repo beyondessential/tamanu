@@ -88,7 +88,7 @@ export const VaccineGivenForm = ({
             name="circumstanceIds"
             label="Circumstances"
             component={SuggesterSelectField}
-            endpoint="vaccineCircumstances"
+            endpoint="icd10"
             isMulti
             required
           />

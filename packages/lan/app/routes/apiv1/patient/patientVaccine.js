@@ -147,8 +147,6 @@ patientVaccineRoutes.post(
         encounterId = newEncounter.get('id');
       }
 
-      console.log('vaccineData', vaccineData);
-
       return req.models.AdministeredVaccine.create({
         ...vaccineData,
         encounterId,

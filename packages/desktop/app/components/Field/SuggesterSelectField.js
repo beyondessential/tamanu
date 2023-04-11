@@ -53,9 +53,9 @@ export const SuggesterSelectField = React.memo(
 
     const baseProps = {
       name: field.name,
-      options,
       onChange: field.onChange,
       value: field.value,
+      options,
     };
 
     return isMulti ? (
