@@ -11,12 +11,12 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
 
 export const LabRequestChangePriorityModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
-    const [priority, setPriority] = useState(labRequest.labTestPriorityId);
+    const [priorityId, setPriorityId] = useState(labRequest.labTestPriorityId);
     const suggester = useSuggester('labTestPriority');
 
     const updateLab = async () => {
       await updateLabReq({
-        labTestPriorityId: priority,
+        labTestPriorityId: priorityId,
       });
       onClose();
     };
@@ -28,9 +28,9 @@ export const LabRequestChangePriorityModal = React.memo(
             label="Priority"
             name="priority"
             suggester={suggester}
-            value={priority}
+            value={priorityId}
             onChange={({ target: { value } }) => {
-              setPriority(value);
+              setPriorityId(value);
             }}
           />
           <StyledConfirmCancelRow onConfirm={updateLab} confirmText="Confirm" onCancel={onClose} />
