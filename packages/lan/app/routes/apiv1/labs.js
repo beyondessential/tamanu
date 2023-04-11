@@ -245,6 +245,7 @@ labRequest.get(
           category.name AS category_name,
           priority.id AS priority_id,
           priority.name AS priority_name,
+          lab_test_panel.name as lab_test_panel_name,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name
         ${from}

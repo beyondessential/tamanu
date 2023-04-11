@@ -26,7 +26,6 @@ export const getRequestedBy = ({ requestedBy }) =>
 export const getPatientName = row => <PatientNameDisplay patient={row} />;
 export const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unknown';
 export const getStatus = ({ status }) => <StatusDisplay status={status} />;
-export const getPanel = ({ labRequestPanel }) => labRequestPanel?.name;
 export const getRequestType = ({ categoryName, category }) =>
   categoryName || (category || {}).name || 'Unknown';
 export const getPriority = ({ priorityName, priority }) =>

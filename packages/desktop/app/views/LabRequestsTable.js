@@ -6,7 +6,6 @@ import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
 import {
-  getPanel,
   getPatientName,
   getPatientDisplayId,
   getStatus,
@@ -29,7 +28,7 @@ const columns = [
   },
   { key: 'requestId', title: 'Test ID', accessor: getRequestId },
   { key: 'testCategory', title: 'Test category', accessor: getRequestType },
-  { key: 'labRequestPanelId', title: 'Panel', accessor: getPanel },
+  { key: 'labTestPanelName', title: 'Panel' },
   { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
   { key: 'priority', title: 'Priority', accessor: getPriority },
   { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
