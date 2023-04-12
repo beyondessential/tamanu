@@ -50,7 +50,7 @@ patientVaccineRoutes.get(
             e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = 'GIVEN'
         ${whereClause}
         GROUP BY sv.id
-        ORDER BY max(sv.label), max(sv.schedule);
+        ORDER BY sv.index, max(sv.label), max(sv.schedule);
       `,
       {
         replacements: {
