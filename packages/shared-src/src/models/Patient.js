@@ -120,6 +120,18 @@ export class Patient extends Model {
           as: 'location',
           include: ['locationGroup', 'facility'],
         },
+        {
+          model: models.Department,
+          as: 'department',
+        },
+        {
+          model: models.User,
+          as: 'recorder',
+        },
+        {
+          model: models.ReferenceData,
+          as: 'notGivenReason',
+        },
       );
     }
 

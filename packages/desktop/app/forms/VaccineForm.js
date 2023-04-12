@@ -13,7 +13,6 @@ import {
   VaccineGivenForm,
   VACCINE_GIVEN_INITIAL_VALUES,
   VACCINE_GIVEN_VALIDATION_SCHEMA,
-  validateGivenVaccine,
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { getCurrentUser } from '../store/auth';
@@ -21,28 +20,22 @@ import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdminis
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 
-export const validateBaseVaccine = (category, values) => {
-  const errors = {};
-
-  if (category !== VACCINE_CATEGORIES.OTHER && !values.scheduledVaccineId) {
-    errors.scheduledVaccineId = 'Scheduled vaccine id is required';
-  }
-
-  if (category === VACCINE_CATEGORIES.OTHER && !values.vaccineName) {
-    errors.vaccineName = 'Vaccine name is required';
-  }
-
-  if (category === VACCINE_CATEGORIES.OTHER && !values.disease) {
-    errors.disease = 'Disease is required';
-  }
-
-  return errors;
-};
-
 export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   date: yup.string().required('Date is required'),
   locationId: yup.string().required('Location is required'),
   departmentId: yup.string().required('Department is required'),
+  disease: yup.string().when('category', {
+    is: VACCINE_CATEGORIES.OTHER,
+    then: yup.string().required(),
+  }),
+  vaccineName: yup.string().when('category', {
+    is: VACCINE_CATEGORIES.OTHER,
+    then: yup.string().required(),
+  }),
+  scheduledVaccineId: yup.string().when('category', {
+    is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
+    then: yup.string().required(),
+  }),
 });
 
 export const VaccineForm = ({
@@ -148,22 +141,14 @@ export const VaccineForm = ({
           ? VACCINE_GIVEN_VALIDATION_SCHEMA
           : {}),
       })}
-      validate={values => {
-        let errors = validateBaseVaccine(category, values);
-
-        if (vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN) {
-          errors = { ...errors, ...validateGivenVaccine(category, values) };
-        }
-
-        return errors;
-      }}
-      render={({ submitForm, values = {} }) => {
+      render={({ submitForm, values, setValues }) => {
         return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
           <VaccineGivenForm
             {...baseProps}
             submitForm={submitForm}
             values={values}
             patientId={patientId}
+            setValues={setValues}
           />
         ) : (
           <VaccineNotGivenForm {...baseProps} submitForm={submitForm} />
