@@ -29,7 +29,7 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
       <SmallSpacer />
       <FormGrid columns={1} nested>
         <Field name="title" label="Title" component={TextField} required />
-        <Field name="contents" label="Contents" component={TallMultilineTextField}  required />
+        <Field name="body" label="Contents" component={TallMultilineTextField}  required />
         <ConfirmClearRow onConfirm={submitForm} onClear={resetForm} />
       </FormGrid>
     </>
@@ -44,7 +44,7 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
         type: yup.string().required(),
         name: yup.string().required(),
         title: yup.string().required(),
-        contents: yup.string().required(),
+        body: yup.string().required(),
       })}
     />
   );
