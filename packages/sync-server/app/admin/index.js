@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { ForbiddenError, NotFoundError } from 'shared/errors';
+import { ForbiddenError, NotFoundError, ValidationError } from 'shared/errors';
 import { simpleGetList, simplePost } from 'shared/utils/crudHelpers';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
@@ -71,4 +71,24 @@ adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
 // TODO: Probably should share the api with the lan server?
 adminRoutes.get('/patientLetterTemplate', simpleGetList('PatientLetterTemplate'));
-adminRoutes.post('/patientLetterTemplate', simplePost('PatientLetterTemplate'));
+
+// export const simplePost = modelName =>
+//   asyncHandler(async (req, res) => {
+//     const { models } = req;
+//     const object = await models[modelName].create(req.body);
+//     res.send(object);
+//   });
+
+
+adminRoutes.post('/patientLetterTemplate', asyncHandler(async (req, res) => {
+  const { name } = req.body;
+  const conflictingRecords = await req.models.PatientLetterTemplate.count({
+    where: { name },
+  });
+
+  if(conflictingRecords){
+    throw new ValidationError('Template name must be unique')
+  }
+
+  simplePost('PatientLetterTemplate')(req, res)
+});
