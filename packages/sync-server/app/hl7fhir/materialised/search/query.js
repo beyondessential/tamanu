@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_PREFIXES,
-  MAX_RESOURCES_PER_PAGE,
+  FHIR_MAX_RESOURCES_PER_PAGE,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from 'shared/constants';
@@ -19,7 +19,7 @@ export function pushToQuery(query, param, value) {
 
 export function buildSearchQuery(query, parameters, FhirResource) {
   const sql = {
-    limit: MAX_RESOURCES_PER_PAGE,
+    limit: FHIR_MAX_RESOURCES_PER_PAGE,
   };
 
   if (query.has('_sort')) {
