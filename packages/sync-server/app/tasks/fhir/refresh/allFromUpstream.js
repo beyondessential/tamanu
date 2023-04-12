@@ -36,18 +36,18 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
       op,
     });
 
-    const query = await Resource.queryToFindUpstreamIdsFromTable(tableName, id, deletedRow);
-    if (!query) {
-      log.debug('no upstream found for row', {
-        resource: Resource.fhirName,
-        table,
-        id,
-        op,
-      });
-      continue;
-    }
-
     for (const UpstreamModel of Resource.UpstreamModels) {
+      const query = await Resource.queryToFindUpstreamIdsFromTable(tableName, id, deletedRow);
+      if (!query) {
+        log.debug('no upstream found for row', {
+          resource: Resource.fhirName,
+          table,
+          id,
+          op,
+        });
+        continue;
+      }
+
       const sql = await prepareQuery(UpstreamModel, query);
       const insertSql = `
         WITH upstreams AS (${sql.replace(/;$/, '')})
