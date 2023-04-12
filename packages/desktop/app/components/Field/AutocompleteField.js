@@ -4,10 +4,8 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
-import ExpandLessRoundedIcon from '@material-ui/icons/ExpandLessRounded';
-import ExpandMoreRoundedIcon from '@material-ui/icons/ExpandMoreRounded';
-import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
-import { ChevronIcon } from './ChevronIcon';
+import { CustomChevronIcon } from './CustomChevronIcon';
+import { CustomClearIcon } from './CustomClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -79,25 +77,25 @@ const Item = styled(MenuItem)`
 
 const iconStyle = css`
   color: ${Colors.darkText};
-  font-size: 18px;
+  margin-left: 4px;
+  margin-right: 8px;
 `;
 
-const StyledExpandLess = styled(ChevronIcon)`
+const StyledExpandLess = styled(CustomChevronIcon)`
   ${iconStyle}
   transform: rotate(180deg);
 `;
 
-const StyledExpandMore = styled(ChevronIcon)`
+const StyledExpandMore = styled(CustomChevronIcon)`
   ${iconStyle}
 `;
 
 const StyledIconButton = styled(IconButton)`
-  padding: 0;
+  padding: 5px;
 `;
 
-const StyledClearIcon = styled(ClearRoundedIcon)`
+const StyledClearIcon = styled(CustomClearIcon)`
   cursor: pointer;
-  ${iconStyle}
 `;
 
 class BaseAutocomplete extends Component {
