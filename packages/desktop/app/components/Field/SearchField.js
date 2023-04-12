@@ -3,6 +3,7 @@ import Search from '@material-ui/icons/Search';
 import { InputAdornment, IconButton } from '@material-ui/core';
 import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
 import styled from 'styled-components';
+import { CustomClearIcon } from './CustomClearIcon';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
 
@@ -26,10 +27,9 @@ const StyledIconButton = styled(IconButton)`
   padding: 0;
 `;
 
-const StyledClearIcon = styled(ClearRoundedIcon)`
+const StyledClearIcon = styled(CustomClearIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
-  font-size: 24px;
 `;
 
 export const SearchField = props => {
