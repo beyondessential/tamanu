@@ -193,7 +193,6 @@ export class FhirPatient extends FhirResource {
       link: {
         type: FHIR_SEARCH_PARAMETERS.REFERENCE,
         path: [['link', '[]', 'other']],
-        referenceType: 'Patient',
       },
     };
   }

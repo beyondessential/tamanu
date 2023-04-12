@@ -1,6 +1,6 @@
-import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
+import { FHIR_INTERACTIONS, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
 import { FhirReference } from 'shared/services/fhirTypes/reference';
-import { Exception, FhirError, Invalid, Processing, Unsupported } from 'shared/utils/fhir';
+import { Exception, FhirError, Processing, Unsupported } from 'shared/utils/fhir';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisedResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
@@ -12,10 +12,6 @@ export function resolveIncludes(query, parameters, FhirResource) {
   for (const { resource, parameter, targetType } of query.get('_include')) {
     if (resource === '*') {
       throw new Unsupported(`_include:* is not yet supported`);
-    }
-
-    if (targetType) {
-      throw new Unsupported(`_include targetTypes are not yet supported`);
     }
 
     if (!referenceParameters.has(resource)) {
@@ -38,7 +34,10 @@ export function resolveIncludes(query, parameters, FhirResource) {
       );
     }
 
-    mapmapPush(includes, resource, parameter, searchableReferencesForResource.get(parameter));
+    mapmapPush(includes, resource, parameter, {
+      ...searchableReferencesForResource.get(parameter),
+      targetType,
+    });
   }
 
   return includes;
@@ -78,8 +77,13 @@ function findIncludesToFetch(records, includes, FhirResource) {
   const toFetch = new Map();
 
   for (const [resource, includeParams] of includes.entries()) {
-    for (const [parameter, { path, referenceType }] of includeParams.entries()) {
+    for (const [parameter, { path, targetType }] of includeParams.entries()) {
       const ids = new Set();
+
+      const referenceTypes = new Set();
+      if (targetType) {
+        referenceTypes.add(targetType);
+      }
 
       for (const record of records) {
         for (const ref of pathInto(record, path)) {
@@ -97,14 +101,13 @@ function findIncludesToFetch(records, includes, FhirResource) {
             }
 
             const { type, id } = typeId;
-            if (type !== referenceType) {
-              throw new Invalid(
-                `_include:${resource}:${parameter} on ${FhirResource.fhirName}#${record.id} is unexpectedly of type ${type}`,
-                { status: 500, code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE },
-              );
+            if (targetType && type !== targetType) {
+              // filter off types if the _include discriminates
+              continue;
             }
 
             ids.add(id);
+            referenceTypes.add(type);
           } catch (err) {
             if (err instanceof FhirError) {
               // we collect errors to be nice, even though we're not required to
@@ -116,7 +119,11 @@ function findIncludesToFetch(records, includes, FhirResource) {
         }
       }
 
-      toFetch.set(referenceType, ids);
+      if (ids.size > 0) {
+        for (const referenceType of referenceTypes) {
+          toFetch.set(referenceType, ids);
+        }
+      }
     }
   }
 
