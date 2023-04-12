@@ -1,14 +1,37 @@
 import { escapeRegExp } from 'lodash';
 import { Op, Sequelize } from 'sequelize';
 import * as yup from 'yup';
+
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_PREFIXES,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from 'shared/constants';
-import { Invalid, Unsupported } from 'shared/utils/fhir';
+import { Invalid, Unsupported, RESULT_PARAMETER_NAMES } from 'shared/utils/fhir';
+
+import { findField } from './common';
 import { getJsonbPath, getJsonbQueryFn } from './jsonb';
+
+export function generateWhereClause(query, parameters, FhirResource) {
+  const andWhere = [];
+  for (const [name, paramQueries] of query.entries()) {
+    if (RESULT_PARAMETER_NAMES.includes(name)) continue;
+
+    const def = parameters.get(name);
+    if (def.path.length === 0) continue;
+
+    for (const paramQuery of paramQueries) {
+      const alternates = def.path.flatMap(([field, ...path]) => {
+        const resolvedPath = [findField(FhirResource, field).field, ...path];
+        return singleMatch(resolvedPath, paramQuery, def, FhirResource);
+      });
+
+      andWhere.push({ [Op.or]: alternates });
+    }
+  }
+  return { [Op.and]: andWhere };
+}
 
 const INVERSE_OPS = new Map([
   [Op.regexp, 'OPERATOR(fhir.<~)'],
@@ -205,17 +228,4 @@ function prefixToOp(prefix) {
     default:
       throw new Unsupported(`unsupported search prefix: ${prefix}`);
   }
-}
-// fetch the sequelize field definition
-// generally want the .field value for the in-sql column name
-export function findField(Model, field) {
-  if (Model.rawAttributes && Model.rawAttributes[field]) {
-    return Model.rawAttributes[field];
-  }
-
-  if (Model.fieldRawAttributesMap && Model.fieldRawAttributesMap[field]) {
-    return Model.fieldRawAttributesMap[field];
-  }
-
-  return field;
 }

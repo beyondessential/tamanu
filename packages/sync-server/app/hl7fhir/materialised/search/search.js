@@ -4,7 +4,8 @@ import { FHIR_BUNDLE_TYPES } from 'shared/constants';
 import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'shared/utils/fhir';
 
 import { Bundle } from '../bundle';
-import { buildSearchQuery, pushToQuery } from './query';
+import { pushToQuery } from './common';
+import { buildSearchQuery } from './query';
 
 export function searchHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
@@ -18,11 +19,15 @@ export function searchHandler(FhirResource) {
       const total = await FhirResource.count(sqlQuery);
       const records = await FhirResource.findAll(sqlQuery);
 
+      // split out the included resources
+
       const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
         total,
       });
 
       bundle.addSelfUrl(req);
+      // add in the included resources
+      // bundle.addIncluded(...);
 
       res.send(bundle.asFhir());
     } catch (err) {
