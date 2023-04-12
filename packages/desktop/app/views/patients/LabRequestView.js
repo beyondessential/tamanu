@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -31,7 +32,6 @@ import { LabRequestChangePriorityModal } from './components/LabRequestChangePrio
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
-import { useAuth } from '../../contexts/Auth';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -93,12 +93,11 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const canCreateLabRequest = ability.can('create', 'LabRequest');
-  const canCreateLabTest = ability.can('create', 'LabTest');
+  const canWriteLabRequest = ability.can('write', 'LabRequest');
+  const canWriteLabTest = ability.can('write', 'LabTest');
 
-  const areLabRequestsReadOnly =
-    !canCreateLabRequest || HIDDEN_STATUSES.includes(labRequest.status);
-  const areLabTestsReadOnly = !canCreateLabTest || HIDDEN_STATUSES.includes(labRequest.status);
+  const areLabRequestsReadOnly = !canWriteLabRequest || HIDDEN_STATUSES.includes(labRequest.status);
+  const areLabTestsReadOnly = !canWriteLabTest || HIDDEN_STATUSES.includes(labRequest.status);
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
