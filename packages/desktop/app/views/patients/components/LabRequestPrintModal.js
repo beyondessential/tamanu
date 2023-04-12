@@ -65,7 +65,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
           village={village}
           additionalData={additionalData}
           encounter={encounter}
-          certificate={certificate}
+          certificateData={certificate}
         />
       )}
     </Modal>
