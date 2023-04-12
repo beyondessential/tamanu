@@ -15,7 +15,7 @@ const Container = styled.div`
   }
 `;
 
-const FlexPadding = styled.div`
+const FlexContainer = styled.div`
   // Note: percentage padding is based on the dimensions of the parent element
   padding: 5%;
   display: flex;
@@ -76,7 +76,7 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
   const { patientId, patientName, patientDateOfBirth, testId, labCategory, date } = data;
   return (
     <Container $printWidth={printWidth}>
-      <FlexPadding>
+      <FlexContainer>
         <TextContainer>
           <svg viewBox="0 0 200 120">
             <Item x="0" y="10" label="Patient Name" value={patientName} />
@@ -90,7 +90,7 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
         <BarcodeContainer>
           <Barcode value={testId} width={2} height={57} margin={0} font="Roboto" fontSize={24} />
         </BarcodeContainer>
-      </FlexPadding>
+      </FlexContainer>
     </Container>
   );
 });
