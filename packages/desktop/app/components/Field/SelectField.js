@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
 import { IconButton } from '@material-ui/core';
+import { CustomClearIcon } from './CustomClearIcon';
+import { CustomChevronIcon } from './CustomChevronIcon';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -36,11 +37,14 @@ const StyledIconButton = styled(IconButton)`
   padding: 0;
 `;
 
-const StyledClearIcon = styled(ClearRoundedIcon)`
+const StyledClearIcon = styled(CustomClearIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
-  font-size: 18px;
-  position: relative;
+`;
+
+const StyledChevronIcon = styled(CustomChevronIcon)`
+  margin-left: 8px;
+  margin-right: 15px;
 `;
 
 const Option = ({ children, ...props }) => {
@@ -74,10 +78,14 @@ const SingleValue = ({ children, ...props }) => {
 const ClearIndicator = props => {
   const { innerProps } = props;
   return (
-    <StyledIconButton>
-      <StyledClearIcon {...innerProps} />
+    <StyledIconButton {...innerProps}>
+      <StyledClearIcon />
     </StyledIconButton>
   );
+};
+
+const DropdownIndicator = props => {
+  return <StyledChevronIcon {...props} />;
 };
 
 export const SelectInput = ({
@@ -193,7 +201,7 @@ export const SelectInput = ({
           placeholder="Select"
           isClearable={value !== ''}
           isSearchable={false}
-          components={{ Option, SingleValue, ClearIndicator }}
+          components={{ Option, SingleValue, ClearIndicator, DropdownIndicator }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
