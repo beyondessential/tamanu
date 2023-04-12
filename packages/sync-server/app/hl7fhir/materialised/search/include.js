@@ -1,13 +1,7 @@
 import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
 import { FhirReference } from 'shared/services/fhirTypes/reference';
-import {
-  Exception,
-  FhirError,
-  Invalid,
-  Processing,
-  resourcesThatCanDo,
-  Unsupported,
-} from 'shared/utils/fhir';
+import { Exception, FhirError, Invalid, Processing, Unsupported } from 'shared/utils/fhir';
+import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisedResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
