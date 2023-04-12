@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { FHIR_BUNDLE_TYPES } from 'shared/constants';
 import { latestDateTime } from 'shared/utils/dateTime';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
@@ -15,6 +16,10 @@ export class Bundle {
     this.type = type;
     this.resources = resources;
     this.options = options;
+
+    if (type === FHIR_BUNDLE_TYPES.SEARCHSET) {
+      this.isSearchResult = true;
+    }
   }
 
   addSelfUrl(req) {
