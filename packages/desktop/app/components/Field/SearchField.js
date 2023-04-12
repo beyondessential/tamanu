@@ -3,7 +3,7 @@ import Search from '@material-ui/icons/Search';
 import { InputAdornment, IconButton } from '@material-ui/core';
 import ClearRoundedIcon from '@material-ui/icons/ClearRounded';
 import styled from 'styled-components';
-import { CustomClearIcon } from './CustomClearIcon';
+import { CustomClearIcon } from '../Icons/CustomClearIcon';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
 
