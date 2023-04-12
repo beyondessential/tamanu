@@ -200,7 +200,6 @@ export class FhirImmunization extends FhirResource {
     }
   }
 
-  // Searching for patient is not supported yet
   static searchParameters() {
     return {
       ...super.searchParameters(),

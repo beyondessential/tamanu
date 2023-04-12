@@ -56,7 +56,17 @@ export class Invalid extends FhirError {
   }
 }
 
-export class Unsupported extends FhirError {
+export class Processing extends FhirError {
+  constructor(message, options = {}) {
+    super(message, {
+      status: 500,
+      code: FHIR_ISSUE_TYPE.PROCESSING._,
+      ...options,
+    });
+  }
+}
+
+export class Unsupported extends Processing {
   constructor(message, options = {}) {
     super(message, {
       status: 501,
@@ -66,7 +76,7 @@ export class Unsupported extends FhirError {
   }
 }
 
-export class NotFound extends FhirError {
+export class NotFound extends Processing {
   constructor(message, options = {}) {
     super(message, {
       status: 404,
@@ -76,7 +86,7 @@ export class NotFound extends FhirError {
   }
 }
 
-export class Deleted extends FhirError {
+export class Deleted extends Processing {
   constructor(message, options = {}) {
     super(message, {
       status: 410,
@@ -118,6 +128,23 @@ export class OperationOutcome extends Error {
       id: uuidv4(),
       issue: this.errors.map(err => err.asFhir()),
     };
+  }
+
+  /**
+   * Downgrade all errors to warning severity, leave informationals alone.
+   *
+   * This is useful (and required!) when returning issues alongside a successful
+   * response.
+   */
+  downgradeErrorsToWarnings() {
+    this.errors.forEach(err => {
+      if (!(err instanceof FhirError)) return;
+
+      if (err.severity !== FHIR_ISSUE_SEVERITY.INFORMATION) {
+        // eslint-disable-next-line no-param-reassign
+        err.severity = FHIR_ISSUE_SEVERITY.WARNING;
+      }
+    });
   }
 
   static fromYupError(validationError /*: ValidationError */, pathPrefix = undefined) {

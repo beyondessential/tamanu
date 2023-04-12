@@ -3,7 +3,6 @@ import { last } from 'lodash';
 import { MAX_RESOURCES_PER_PAGE } from 'shared/constants';
 
 import { pushToQuery } from './common';
-import { generateIncludeClause } from './include';
 import { generateWhereClause } from './where';
 import { generateOrderClause } from './order';
 

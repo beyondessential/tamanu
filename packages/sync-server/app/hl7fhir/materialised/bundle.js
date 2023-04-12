@@ -2,12 +2,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { FHIR_BUNDLE_TYPES } from 'shared/constants';
 import { latestDateTime } from 'shared/utils/dateTime';
-import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { formatFhirDate, OperationOutcome } from 'shared/utils/fhir';
 
 import { getBaseUrl, getHL7Link } from '../utils';
 
 export class Bundle {
   included = [];
+
+  issues = [];
 
   /** Set to true if this is a search result bundle. */
   isSearchResult = false;
@@ -29,6 +31,10 @@ export class Bundle {
 
   addIncluded(included) {
     this.included = this.included.concat(included);
+  }
+
+  addIssues(issues) {
+    this.issues = this.issues.concat(issues);
   }
 
   get includes() {
@@ -69,6 +75,12 @@ export class Bundle {
     fields.entry = this.resources
       .map(r => resourceToEntry(r, this.isSearchResult ? 'match' : null))
       .concat(this.included.map(r => resourceToEntry(r, this.isSearchResult ? 'include' : null)));
+
+    if (this.issues.length > 0) {
+      const oo = new OperationOutcome(this.issues);
+      oo.downgradeErrorsToWarnings();
+      fields.issues = oo.asFhir();
+    }
 
     return fields;
   }

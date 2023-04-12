@@ -399,6 +399,11 @@ export class FhirServiceRequest extends FhirResource {
         type: FHIR_SEARCH_PARAMETERS.STRING,
         path: [['status']],
       },
+      subject: {
+        type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+        path: [['subject']],
+        referenceType: 'Patient',
+      },
     };
   }
 }

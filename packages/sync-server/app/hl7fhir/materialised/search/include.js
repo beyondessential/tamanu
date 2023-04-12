@@ -1,0 +1,171 @@
+import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
+import { FhirReference } from 'shared/services/fhirTypes/reference';
+import {
+  Exception,
+  FhirError,
+  Invalid,
+  Processing,
+  resourcesThatCanDo,
+  Unsupported,
+} from 'shared/utils/fhir';
+
+const materialisedResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
+
+export function resolveIncludes(query, parameters, FhirResource) {
+  const includes = new Map();
+  const referenceParameters = invertReferenceParameters(parameters);
+
+  for (const { resource, parameter, targetType } of query.get('_include')) {
+    if (resource === '*') {
+      throw new Unsupported(`_include:* is not yet supported`);
+    }
+
+    if (targetType) {
+      throw new Unsupported(`_include targetTypes are not yet supported`);
+    }
+
+    if (!referenceParameters.has(resource)) {
+      throw new Unsupported(`_include:${resource} is not supported on ${FhirResource.fhirName}`);
+    }
+
+    if (!materialisedResources.some(({ fhirName }) => fhirName === resource)) {
+      throw new Unsupported(`_include:${resource} is not supported (not indexed)`);
+      // "indexed" is FHIR-specese for what we call "materialised"
+    }
+
+    if (parameter === '*') {
+      throw new Unsupported(`_include:${resource}:* is not yet supported`);
+    }
+
+    const searchableReferencesForResource = referenceParameters.get(resource);
+    if (!searchableReferencesForResource.has(parameter)) {
+      throw new Unsupported(
+        `_include:${resource}:${parameter} is not supported on ${FhirResource.fhirName}`,
+      );
+    }
+
+    mapmapPush(includes, resource, parameter, searchableReferencesForResource.get(parameter));
+  }
+
+  return includes;
+}
+
+// In an ideal world, this would not be needed, and instead we'd include the
+// references in the initial query. However, Sequelize 6 doesn't support this
+// (the upcoming 7 mayyyyybe does), so we have to do it in separate queries.
+// It's only one additional query per resource type, so it's not too bad.
+export async function retrieveIncludes(records, includes, FhirResource) {
+  if (includes.size === 0) return { included: [], errors: [] };
+
+  const [toFetch, errors] = findIncludesToFetch(records, includes, FhirResource);
+
+  let included = [];
+  for (const [resource, ids] of toFetch.entries()) {
+    try {
+      const ChildResource = materialisedResources.find(({ fhirName }) => fhirName === resource);
+      const includedRecords = await ChildResource.findAll({
+        where: {
+          id: [...ids],
+        },
+      });
+      included = included.concat(includedRecords);
+    } catch (err) {
+      errors.push(
+        new Processing(`Failed to retrieve included ${resource}(s)`, { diagnostics: err.stack }),
+      );
+    }
+  }
+
+  return { included, errors };
+}
+
+function findIncludesToFetch(records, includes, FhirResource) {
+  const errors = [];
+  const toFetch = new Map();
+
+  for (const [resource, includeParams] of includes.entries()) {
+    for (const [parameter, { path, referenceType }] of includeParams.entries()) {
+      const ids = new Set();
+
+      for (const record of records) {
+        for (const ref of pathInto(record, path)) {
+          // failing to retrieve a reference is not an error
+          try {
+            if (!(ref instanceof FhirReference)) {
+              throw new Exception(`Expected ${path} to be a FhirReference`);
+            }
+
+            const typeId = ref.fhirTypeAndId();
+            if (!typeId) {
+              throw new Unsupported(
+                `Can't _include:${resource}:${parameter} on ${FhirResource.fhirName}#${record.id} because the reference is not explicit`,
+              );
+            }
+
+            const { type, id } = typeId;
+            if (type !== referenceType) {
+              throw new Invalid(
+                `_include:${resource}:${parameter} on ${FhirResource.fhirName}#${record.id} is unexpectedly of type ${type}`,
+                { status: 500, code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE },
+              );
+            }
+
+            ids.add(id);
+          } catch (err) {
+            if (err instanceof FhirError) {
+              // we collect errors to be nice, even though we're not required to
+              errors.push(err);
+            } else {
+              throw err;
+            }
+          }
+        }
+      }
+
+      toFetch.set(referenceType, ids);
+    }
+  }
+
+  return [toFetch, errors];
+}
+
+function invertReferenceParameters(parameters) {
+  const inverted = new Map();
+  for (const [searchField, params] of parameters) {
+    if (params.type !== FHIR_SEARCH_PARAMETERS.REFERENCE) continue;
+
+    const { referenceType } = params;
+    mapmapPush(inverted, referenceType, searchField, params);
+  }
+
+  return inverted;
+}
+
+function mapmapPush(map, key, innerKey, value) {
+  const inner = map.get(key) ?? new Map();
+  inner.set(innerKey, value);
+  map.set(key, inner);
+}
+
+function* pathInto(record, path) {
+  const [field, ...rest] = path;
+  const value = record[field];
+  if (value === undefined) {
+    // yield nothing and return
+  } else if (value === null) {
+    // yield nothing and return
+    // in OUR particular case, we don't care about nulls, but in general we might!
+    // if copying or exporting/using this code elsewhere, check what you want to do
+  } else if (field === '[]') {
+    // iterate over array
+    for (const item of value) {
+      yield* pathInto(item, rest);
+    }
+  } else if (rest.length > 0) {
+    // more path to go, recurse
+    yield* pathInto(value, rest);
+  } else {
+    // reached the end of the path
+    yield value;
+  }
+}

@@ -5,6 +5,7 @@ import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'sha
 
 import { Bundle } from '../bundle';
 import { pushToQuery } from './common';
+import { resolveIncludes, retrieveIncludes } from './include';
 import { buildSearchQuery } from './query';
 
 export function searchHandler(FhirResource) {
@@ -15,19 +16,23 @@ export function searchHandler(FhirResource) {
       const parameters = normaliseParameters(FhirResource);
       const query = await parseRequest(req, parameters);
 
+      let includes = null;
+      if (query.has('_include')) {
+        includes = resolveIncludes(query, parameters, FhirResource);
+      }
+
       const sqlQuery = buildSearchQuery(query, parameters, FhirResource);
       const total = await FhirResource.count(sqlQuery);
       const records = await FhirResource.findAll(sqlQuery);
-
-      // split out the included resources
+      const { included, errors } = await retrieveIncludes(records, includes, FhirResource);
 
       const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
         total,
       });
 
       bundle.addSelfUrl(req);
-      // add in the included resources
-      // bundle.addIncluded(...);
+      bundle.addIncluded(included);
+      bundle.addIssues(errors);
 
       res.send(bundle.asFhir());
     } catch (err) {
