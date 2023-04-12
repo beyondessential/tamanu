@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { TopBar, PageContainer, ContentPane, DataFetchingTable, DateDisplay } from '../../../components';
@@ -20,19 +20,33 @@ const ContentContainer = styled.div`
 
 export const TemplateView = ({ }) => {
   const [refreshCount, setRefreshCount] = useState(0);
+  const [existingTemplateNames, setExistingTemplateNames] = useState([]);
+
   const api = useApi();
   const { currentUser } = useAuth();
 
   const createTemplate = useCallback(
-    async (data) => {
+    async (data, { resetForm }) => {
       console.log(data);
       await api.post(TEMPLATE_ENDPOINT, {
         createdBy: currentUser.id,
         ...data,
       });
-      setRefreshCount(refreshCount => refreshCount + 1)
+      setRefreshCount(refreshCount => refreshCount + 1);
+      resetForm();
     },
     [api, currentUser.id, setRefreshCount],
+  );
+    
+  useEffect(
+    () => {
+    (async () => {
+      const { data: templates } = await api.get(TEMPLATE_ENDPOINT);
+      console.log(templates);
+      setExistingTemplateNames(templates.map(template => template.name));
+    })()
+    },
+    [api, refreshCount],
   );
 
   return (
@@ -40,7 +54,7 @@ export const TemplateView = ({ }) => {
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm onSubmit={createTemplate} />
+          <NewTemplateForm onSubmit={createTemplate} existingTemplateNames={existingTemplateNames} />
         </ContentContainer>
         <TemplateList refreshCount={refreshCount} />
       </ContentPane>

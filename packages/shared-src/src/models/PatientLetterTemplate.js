@@ -31,6 +31,13 @@ export class PatientLetterTemplate extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        // validate: {
+        //   mustHaveUniqueName() {
+        //     if (!this.deletedAt && ) {
+        //       throw new InvalidOperationError('An encounter must have a valid encounter type.');
+        //     }
+        //   },
+        // }
       },
     );
   }
