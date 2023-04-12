@@ -23,7 +23,7 @@ export function generateOrderClause(query, parameters, FhirResource) {
 }
 
 // eslint-disable-next-line no-unused-vars
-export function singleOrder(path, order, def, _Model) {
+function singleOrder(path, order, def, _Model) {
   const entirePath = path;
   if (
     def.type === FHIR_SEARCH_PARAMETERS.TOKEN &&
