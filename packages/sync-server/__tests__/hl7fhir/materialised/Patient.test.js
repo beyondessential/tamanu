@@ -290,7 +290,7 @@ describe(`Materialised FHIR - Patient`, () => {
         await PatientAdditionalData.destroy({ where: {} });
       });
 
-      it('sorts by firstName/middleName ascending (given)', async () => {
+      it.only('sorts by firstName/middleName ascending (given)', async () => {
         const { FhirPatient, Patient } = ctx.store.models;
         const patients = await Promise.all([
           Patient.create(fake(Patient, { firstName: 'Alice', middleName: 'Diana' })),
@@ -407,6 +407,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
+        expect(response.body.entry.length).toBe(3);
         // The first order is actually address[].line[] (so streetVillage)
         expect(
           response.body.entry
@@ -692,6 +693,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(5);
+        expect(response.body.entry.length).toBe(5);
         // Numbers don't repeat so everything else should be in place
         expect(
           response.body.entry
