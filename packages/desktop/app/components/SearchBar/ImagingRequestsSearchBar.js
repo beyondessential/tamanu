@@ -4,7 +4,11 @@ import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 
-export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
+export const ImagingRequestsSearchBar = ({
+  searchParameters,
+  setSearchParameters,
+  statusFilterTable,
+}) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
@@ -30,12 +34,14 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
         component={SelectField}
         options={imagingTypeOptions}
       />
-      <LocalisedField
-        name="status"
-        defaultLabel="Status"
-        component={SelectField}
-        options={IMAGING_REQUEST_STATUS_OPTIONS}
-      />
+      {!statusFilterTable && (
+        <LocalisedField
+          name="status"
+          defaultLabel="Status"
+          component={SelectField}
+          options={IMAGING_REQUEST_STATUS_OPTIONS}
+        />
+      )}
       <LocalisedField
         name="priority"
         defaultLabel="Priority"
