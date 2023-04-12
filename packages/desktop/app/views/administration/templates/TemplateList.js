@@ -2,10 +2,11 @@ import ms from 'ms';
 import React from 'react';
 
 import { TopBar, PageContainer, DataFetchingTable, DateDisplay } from '../../../components';
+import { TEMPLATE_ENDPOINT } from '../constants';
 
 export const TemplateList = React.memo(props => (
   <DataFetchingTable
-    endpoint={'admin/patientLetterTemplate'}
+    endpoint={TEMPLATE_ENDPOINT}
     columns={[
       {
         key: 'type',
@@ -19,15 +20,14 @@ export const TemplateList = React.memo(props => (
       {
         key: 'title',
         title: 'Title',
-        // accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime />,
       },
       {
-        key: 'date_created',
+        key: 'dateCreated',
         title: 'Created on',
-        accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime />,
+        accessor: ({ dateCreated }) => <DateDisplay date={dateCreated} />,
       },
       {
-        key: 'created_by',
+        key: 'createdBy',
         title: 'Created by',
         // accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime />,
       },
