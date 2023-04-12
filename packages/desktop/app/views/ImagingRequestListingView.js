@@ -1,4 +1,5 @@
 import React from 'react';
+import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared-src/src/constants/statuses';
 import {
   TopBar,
   PageContainer,
@@ -9,18 +10,24 @@ import {
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 import { useImagingRequests } from '../contexts/ImagingRequests';
 
-export const ImagingRequestListingView = React.memo(() => {
+export const ImagingRequestListingView = React.memo(({ status }) => {
   const { searchParameters, setSearchParameters } = useImagingRequests();
+
+  const tableTitle = status
+    ? `${IMAGING_REQUEST_STATUS_CONFIG[status].label} imaging requests`
+    : 'Imaging requests';
+  const statusFilter = status ? { status } : {};
+
   return (
     <PageContainer>
-      <TopBar title="Imaging requests" />
+      <TopBar title={tableTitle} />
       <ContentPane>
         <SearchTableTitle>Imaging request search</SearchTableTitle>
         <ImagingRequestsSearchBar
           searchParameters={searchParameters}
           setSearchParameters={setSearchParameters}
         />
-        <ImagingRequestsTable searchParameters={searchParameters} />
+        <ImagingRequestsTable searchParameters={(searchParameters, statusFilter)} />
       </ContentPane>
     </PageContainer>
   );
