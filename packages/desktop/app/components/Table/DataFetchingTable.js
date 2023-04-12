@@ -8,21 +8,13 @@ const DEFAULT_FETCH_STATE = { data: [], count: 0, errorMessage: '', isLoading: t
 
 export const DataFetchingTable = memo(
   ({
-    columns,
-    noDataMessage,
     fetchOptions,
     endpoint,
-    onRowClick,
     transformRow,
     initialSort = DEFAULT_SORT,
-    customSort,
-    className,
-    exportName = 'TamanuExport',
     refreshCount = 0,
-    rowStyle,
-    allowExport = true,
     onDataFetched,
-    elevated,
+    ...props
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -107,7 +99,6 @@ export const DataFetchingTable = memo(
     return (
       <Table
         isLoading={isLoading}
-        columns={columns}
         data={data}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}
@@ -119,15 +110,8 @@ export const DataFetchingTable = memo(
         order={order}
         orderBy={orderBy}
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-        noDataMessage={noDataMessage}
-        onRowClick={onRowClick}
-        className={className}
-        exportName={exportName}
-        customSort={customSort}
         refreshTable={refreshTable}
-        rowStyle={rowStyle}
-        allowExport={allowExport}
-        elevated={elevated}
+        {...props}
       />
     );
   },
