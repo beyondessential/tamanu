@@ -34,7 +34,7 @@ const OptionTag = styled(FormFieldTag)`
 `;
 
 const StyledIconButton = styled(IconButton)`
-  padding: 0;
+  padding: 5px;
 `;
 
 const StyledClearIcon = styled(CustomClearIcon)`
@@ -43,8 +43,8 @@ const StyledClearIcon = styled(CustomClearIcon)`
 `;
 
 const StyledChevronIcon = styled(CustomChevronIcon)`
-  margin-left: 8px;
-  margin-right: 15px;
+  margin-left: 4px;
+  margin-right: 20px;
 `;
 
 const Option = ({ children, ...props }) => {

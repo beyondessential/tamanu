@@ -24,7 +24,7 @@ const StyledTextField = styled(TextField)`
 `;
 
 const StyledIconButton = styled(IconButton)`
-  padding: 0;
+  padding: 5px;
 `;
 
 const StyledClearIcon = styled(CustomClearIcon)`
