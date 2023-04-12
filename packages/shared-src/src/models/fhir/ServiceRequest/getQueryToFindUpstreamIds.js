@@ -1,6 +1,14 @@
 import { Op } from 'sequelize';
 
-export function getQueryToFindUpstreamIds(models, upstreamTable, table, id) {
+export function getQueryToFindUpstreamIds(upstreamTable, models, table, id) {
+  const { ImagingRequest, LabRequest } = models;
+
+  if (upstreamTable === ImagingRequest.tableName) return fromImagingRequests(models, table, id);
+  if (upstreamTable === LabRequest.tableName) return fromLabRequests(models, table, id);
+  return null;
+}
+
+function fromImagingRequests(models, table, id) {
   const {
     ImagingRequest,
     ImagingRequestArea,
@@ -13,8 +21,6 @@ export function getQueryToFindUpstreamIds(models, upstreamTable, table, id) {
     ReferenceData,
     User,
   } = models;
-
-  if (upstreamTable !== ImagingRequest.tableName) return null;
 
   switch (table) {
     case ImagingRequest.tableName:
@@ -166,4 +172,9 @@ export function getQueryToFindUpstreamIds(models, upstreamTable, table, id) {
     default:
       return null;
   }
+}
+
+// eslint-disable-next-line no-unused-vars
+function fromLabRequests(models, table, id) {
+  return null;
 }
