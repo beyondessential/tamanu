@@ -98,8 +98,10 @@ export class FhirPatient extends FhirResource {
     return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
   }
 
-  static async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id, deletedRow = null) {
     const { Patient, PatientAdditionalData } = this.sequelize.models;
+
+    if (upstreamTable !== Patient.tableName) return null;
 
     switch (table) {
       case Patient.tableName:

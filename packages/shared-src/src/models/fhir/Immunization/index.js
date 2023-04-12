@@ -129,7 +129,7 @@ export class FhirImmunization extends FhirResource {
     });
   }
 
-  static async queryToFindUpstreamIdsFromTable(table, id) {
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
     const {
       AdministeredVaccine,
       Encounter,
@@ -138,6 +138,8 @@ export class FhirImmunization extends FhirResource {
       ScheduledVaccine,
       User,
     } = this.sequelize.models;
+
+    if (upstreamTable !== AdministeredVaccine.tableName) return null;
 
     switch (table) {
       case AdministeredVaccine.tableName:

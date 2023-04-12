@@ -145,7 +145,7 @@ export class FhirDiagnosticReport extends FhirResource {
     });
   }
 
-  static async queryToFindUpstreamIdsFromTable(table, id) {
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
     const {
       Encounter,
       LabRequest,
@@ -155,6 +155,8 @@ export class FhirDiagnosticReport extends FhirResource {
       ReferenceData,
       User,
     } = this.sequelize.models;
+
+    if (upstreamTable !== LabTest.tableName) return null;
 
     switch (table) {
       case LabTest.tableName:

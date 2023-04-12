@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 
-export function getQueryToFindUpstreamIds(models, table, id) {
+export function getQueryToFindUpstreamIds(models, upstreamTable, table, id) {
   const {
     ImagingRequest,
     ImagingRequestArea,
@@ -13,6 +13,8 @@ export function getQueryToFindUpstreamIds(models, table, id) {
     ReferenceData,
     User,
   } = models;
+
+  if (upstreamTable !== ImagingRequest.tableName) return null;
 
   switch (table) {
     case ImagingRequest.tableName:

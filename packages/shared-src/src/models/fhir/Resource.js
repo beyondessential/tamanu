@@ -215,13 +215,14 @@ export class FhirResource extends Model {
    * This is called from the materialisation process to find the upstream ID(s)
    * for a given row in a related table, based on trigger events.
    *
+   * @param {string} upstreamTable - the table name of the upstream model
    * @param {string} table - the table name
    * @param {string} id - the row ID
    * @param {null|object} deletedRow - the contents of the row if it was deleted, with field names as in SQL
    * @returns {object|null} the argument to Sequelize#query, a query which will return the upstreams for this row, or null if the row is not relevant
    */
   // eslint-disable-next-line no-unused-vars
-  static async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id, deletedRow = null) {
     return null;
   }
 

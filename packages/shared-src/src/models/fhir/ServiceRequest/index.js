@@ -66,8 +66,8 @@ export class FhirServiceRequest extends FhirResource {
     this.set(values);
   }
 
-  static async queryToFindUpstreamIdsFromTable(table, id) {
-    return getQueryToFindUpstreamIds(this.sequelize.models, table, id);
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
+    return getQueryToFindUpstreamIds(this.sequelize.models, upstreamTable, table, id);
   }
 
   static searchParameters() {
