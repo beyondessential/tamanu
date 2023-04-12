@@ -130,7 +130,7 @@ export const SelectInput = ({
     },
     dropdownIndicator: provided => ({
       ...provided,
-      padding: '4px 16px 6px 0px',
+      padding: '4px 16px 6px 6px',
     }),
     placeholder: provided => ({ ...provided, color: Colors.softText }),
     indicatorSeparator: () => ({ display: 'none' }),
