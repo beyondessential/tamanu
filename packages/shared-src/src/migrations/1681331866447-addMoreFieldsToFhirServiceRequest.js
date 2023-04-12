@@ -3,15 +3,15 @@ import { DataTypes } from 'sequelize';
 const TABLE = { schema: 'fhir', tableName: 'service_requests' };
 
 export async function up(query) {
-  query.addColumn(TABLE, 'contained', {
+  await query.addColumn(TABLE, 'contained', {
     type: DataTypes.JSONB,
     allowNull: true,
   });
-  query.addColumn(TABLE, 'encounter', {
+  await query.addColumn(TABLE, 'encounter', {
     type: DataTypes.JSONB,
     allowNull: true,
   });
-  query.addColumn(TABLE, 'note', {
+  await query.addColumn(TABLE, 'note', {
     type: DataTypes.JSONB,
     allowNull: true,
   });
