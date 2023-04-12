@@ -159,16 +159,16 @@ function singleOrder(path, order, def, _Model) {
   }
 
   // TODO (EPI-202)
-  // The generated SQL *works* and the ordering is correct and stable, with one
+  // The generated SQL *works* and the ordering is correct and stable, with one
   // important caveat: the rows are duplicated due to the order by expression
   // returning a setof, which is expanded into mulitple rows. This is not a bug,
   // literally what this query:
   //
-  // SELECT * FROM table ORDER BY setreturning_expression();
+  // SELECT * FROM table ORDER BY setreturning_expression();
   //
   // "actually" does is:
   //
-  // SELECT *, setreturning_expression() as _ordering FROM table ORDER BY _ordering;
+  // SELECT *, setreturning_expression() as _ordering FROM table ORDER BY _ordering;
   //
   // except it doesn't return the _ordering "output column".
   //
@@ -190,7 +190,7 @@ function singleOrder(path, order, def, _Model) {
   // in what SQL we can do, to preserve performance characteristics.
   //
   // (Why can't we post-process? Well, what does it mean to return the 2nd page
-  // when the first page (LIMIT 20) has been reduced to 10 users in post because
+  // when the first page (LIMIT 20) has been reduced to 10 users in post because
   // of duplicates? What does it mean to return the 12th page? Or the 200th?)
   //
   // ((Similarly, it would be impractical to use temporary tables or subqueries,
