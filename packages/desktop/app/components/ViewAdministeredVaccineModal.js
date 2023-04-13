@@ -202,7 +202,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
 
   return (
-    <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
+    <Modal title="View Vaccination Record" open={open} onClose={onClose} disableHeaderCloseIcon>
       {modalVersion ? (
         <Container>
           {modalVersion.fields.map(fieldGroup => (

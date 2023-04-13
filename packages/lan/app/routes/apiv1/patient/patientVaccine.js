@@ -1,8 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
+<<<<<<< HEAD
 
 import { ENCOUNTER_TYPES, VACCINE_CATEGORIES } from 'shared/constants';
+=======
+import { ENCOUNTER_TYPES, VACCINE_STATUS } from 'shared/constants';
+>>>>>>> dev
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -48,7 +52,7 @@ patientVaccineRoutes.get(
             administered_vaccines av
             JOIN encounters e ON av.encounter_id = e.id
           WHERE
-            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = 'GIVEN'
+            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = :givenStatus
         ${whereClause}
         GROUP BY sv.id
         ORDER BY max(sv.label), max(sv.schedule);
@@ -57,6 +61,7 @@ patientVaccineRoutes.get(
         replacements: {
           patientId: req.params.id,
           category: req.query.category,
+          givenStatus: VACCINE_STATUS.GIVEN,
         },
         model: req.models.ScheduledVaccine,
         mapToModel: true,
@@ -149,6 +154,7 @@ patientVaccineRoutes.post(
 
       return req.models.AdministeredVaccine.create({
         ...vaccineData,
+        status: VACCINE_STATUS.GIVEN,
         encounterId,
       });
     });
@@ -162,8 +168,18 @@ patientVaccineRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
+    const where = JSON.parse(req.query.includeNotGiven || false)
+      ? {
+          status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
+        }
+      : {};
+
     const patient = await req.models.Patient.findByPk(req.params.id);
+<<<<<<< HEAD
     const results = await patient.getAdministeredVaccines(req.query);
+=======
+    const results = await patient.getAdministeredVaccines({ where });
+>>>>>>> dev
 
     // TODO: enable pagination for this endpoint
     res.send({ count: results.length, data: results });
