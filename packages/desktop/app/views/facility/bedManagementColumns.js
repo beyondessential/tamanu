@@ -17,16 +17,22 @@ const StatusCell = React.memo(({ value }) => (
   </BiggerTag>
 ));
 
-const patientFirstNameAccessor = row =>
-  row.locationMaxOccupancy === 1
-    ? row.patientFirstName || row.plannedPatientFirstName || '-'
-    : 'N/A';
+const isSinglePatientLocation = row => row.locationMaxOccupancy === 1;
 
-const patientLastNameAccessor = row =>
-  row.locationMaxOccupancy === 1 ? row.patientLastName || row.plannedPatientLastName || '-' : 'N/A';
+const showIfSinglePatient = accessor => row => {
+  if (!isSinglePatientLocation(row)) return 'N/A';
+  return accessor(row);
+};
 
-const occupancyAccessor = row =>
-  row.locationMaxOccupancy === 1 ? `${Math.round((row.occupancy || 0) * 10) / 10}%` : 'N/A';
+const patientFirstNameAccessor = showIfSinglePatient(
+  row => row.patientFirstName || row.plannedPatientFirstName || '-',
+);
+const patientLastNameAccessor = showIfSinglePatient(
+  row => row.patientLastName || row.plannedPatientLastName || '-',
+);
+const occupancyAccessor = showIfSinglePatient(
+  row => `${Math.round((row.occupancy || 0) * 10) / 10}%`,
+);
 
 export const columns = [
   {

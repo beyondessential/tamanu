@@ -12,6 +12,7 @@ import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
 
 export const MODAL_PADDING = 32;
+export const MODAL_TRANSITION_DURATION = 300;
 
 /*  To keep consistent use of styled-components,
     re-define dialog paper classes here instead of
@@ -128,6 +129,7 @@ export const Modal = memo(
         classes={classes}
         open={open}
         onClose={onDialogClose}
+        transitionDuration={MODAL_TRANSITION_DURATION}
         {...props}
       >
         <ModalTitle>
