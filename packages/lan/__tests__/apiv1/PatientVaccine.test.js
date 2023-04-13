@@ -183,6 +183,14 @@ describe('PatientVaccine', () => {
   });
 
   describe('Administered vaccines', () => {
+    beforeAll(async () => {
+      await models.Setting.set(
+        SETTING_KEYS.VACCINATION_DEFAULTS,
+        { locationId: location.id, departmentId: department.id },
+        facility.id,
+      );
+    });
+
     it('Should get administered vaccines', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
@@ -220,12 +228,6 @@ describe('PatientVaccine', () => {
         name: 'Australia',
         code: 'Australia',
       });
-
-      await models.Setting.set(
-        SETTING_KEYS.VACCINATION_DEFAULTS,
-        { locationId: location.id, departmentId: department.id },
-        facility.id,
-      );
 
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_RECORDING_TYPES.GIVEN,
@@ -278,12 +280,6 @@ describe('PatientVaccine', () => {
     });
 
     it('Should record vaccine with default department and default location when givenElsewhere is true', async () => {
-      await models.Setting.set(
-        SETTING_KEYS.VACCINATION_DEFAULTS,
-        { locationId: location.id, departmentId: department.id },
-        facility.id,
-      );
-
       const [country] = await models.ReferenceData.upsert({
         type: 'country',
         name: 'Australia',

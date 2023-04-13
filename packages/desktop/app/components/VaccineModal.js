@@ -25,6 +25,13 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         const givenByCountry = (await countrySuggester.fetchCurrentOption(data.givenBy))?.label;
         dataToSubmit.givenBy = givenByCountry;
       }
+
+      if (dataToSubmit.givenElsewhere) {
+        delete dataToSubmit.departmentId;
+        delete dataToSubmit.locationGroupId;
+        delete dataToSubmit.locationId;
+      }
+
       await api.post(`patient/${patientId}/administeredVaccine`, {
         ...dataToSubmit,
         patientId,

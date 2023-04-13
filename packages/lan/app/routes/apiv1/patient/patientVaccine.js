@@ -137,15 +137,20 @@ patientVaccineRoutes.post(
       },
     });
 
+    console.log('vaccineData', vaccineData);
+
     let { departmentId, locationId } = vaccineData;
 
-    if (vaccineData.givenElsewhere) {
+    if (!departmentId || !locationId) {
       const vaccinationDefaults =
         (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, config.serverFacilityId)) ||
         {};
-      departmentId = vaccinationDefaults.departmentId;
-      locationId = vaccinationDefaults.locationId;
+      departmentId = departmentId || vaccinationDefaults.departmentId;
+      locationId = locationId || vaccinationDefaults.locationId;
     }
+
+    console.log('departmentId', departmentId);
+    console.log('locationId', locationId);
 
     const newAdministeredVaccine = await db.transaction(async () => {
       let encounterId;
