@@ -174,6 +174,8 @@ class BaseAutocomplete extends Component {
       if (await this.attemptAutoFill({ searchSuggestions })) return;
     }
 
+    // This will show the full suggestions list (or at least the first page) if the user
+    // has either just clicked the input or if the input does not match a value from list
     this.setState({
       suggestions:
         reason === 'input-focused' &&
