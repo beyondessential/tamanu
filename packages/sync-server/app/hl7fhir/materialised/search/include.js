@@ -54,7 +54,7 @@ export function resolveIncludes(query, parameters, FhirResource) {
 // (the upcoming 7 mayyyyybe does), so we have to do it in separate queries.
 // It's only one additional query per resource type, so it's not too bad.
 export async function retrieveIncludes(records, includes, FhirResource) {
-  if (includes.size === 0) return { included: [], errors: [] };
+  if (!includes?.size) return { included: [], errors: [] };
 
   const [toFetch, errors] = findIncludesToFetch(records, includes, FhirResource);
 
