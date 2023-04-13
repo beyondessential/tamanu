@@ -66,7 +66,7 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock, previousTick: tock - 3, previousTock: tock - 2 };
   }
 
-  async startSession() {
+  async startSession(userId, deviceId) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
@@ -75,6 +75,7 @@ export class CentralSyncManager {
     const syncSession = await this.store.models.SyncSession.create({
       startTime,
       lastConnectionTime: startTime,
+      debugInfo: { userId, deviceId },
     });
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
@@ -82,7 +83,7 @@ export class CentralSyncManager {
     // Client should poll for the result later.
     this.prepareSession(syncSession);
 
-    log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
+    log.info('CentralSyncManager.startSession', { sessionId: syncSession.id, deviceId });
 
     return { sessionId: syncSession.id };
   }
@@ -131,10 +132,10 @@ export class CentralSyncManager {
 
   async endSession(sessionId) {
     const session = await this.connectToSession(sessionId);
-    log.info(
-      `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
-    );
+    const durationMs = Date.now() - session.startTime;
+    log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
     await completeSyncSession(this.store, sessionId);
+    log.info('CentralSyncManager.completedSession', { sessionId, durationMs });
   }
 
   async markSnapshotAsProcessing(sessionId) {
@@ -167,17 +168,25 @@ export class CentralSyncManager {
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
   async initiatePull(sessionId, params) {
-    await this.connectToSession(sessionId);
+    try {
+      await this.connectToSession(sessionId);
 
-    // first check if the snapshot is already being processed, to throw a sane error if (for some
-    // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
-    const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
-    if (isAlreadyProcessing) {
-      throw new Error(`Snapshot for session ${sessionId} is already being processed`);
+      // first check if the snapshot is already being processed, to throw a sane error if (for some
+      // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
+      const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
+      if (isAlreadyProcessing) {
+        throw new Error(`Snapshot for session ${sessionId} is already being processed`);
+      }
+
+      const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
+      this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
+    } catch (error) {
+      log.error('CentralSyncManager.initiatePull encountered an error', error);
+      await this.store.models.SyncSession.update(
+        { error: error.message },
+        { where: { id: sessionId } },
+      );
     }
-
-    const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
-    this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
   }
 
   async setupSnapshotForPull(
@@ -220,9 +229,10 @@ export class CentralSyncManager {
       const newPatientFacilities = await models.PatientFacility.findAll({
         where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
       });
-      log.debug(
-        `CentralSyncManager.initiatePull: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
-      );
+      log.debug('CentralSyncManager.initiatePull', {
+        facilityId,
+        newlyMarkedPatientCount: newPatientFacilities.length,
+      });
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
@@ -431,9 +441,10 @@ export class CentralSyncManager {
         : null,
     }));
 
-    log.debug(
-      `CentralSyncManager.addIncomingChanges: Adding ${incomingSnapshotRecords.length} changes for ${sessionId}`,
-    );
+    log.debug('CentralSyncManager.addIncomingChanges', {
+      incomingSnapshotRecordsCount: incomingSnapshotRecords.length,
+      sessionId,
+    });
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 

@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -13,7 +14,8 @@ const patientsLocationSelect = planned => `
   	WHERE end_date IS NULL
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
-  WHERE locations.max_occupancy = 1
+  WHERE locations.facility_id = '${config.serverFacilityId}'
+  AND locations.max_occupancy = 1
   GROUP BY locations.id
 `;
 
@@ -44,12 +46,38 @@ patientLocations.get(
 );
 
 patientLocations.get(
+  '/locations/alos',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Patient');
+
+    const [{ alos } = {}] = await req.db.query(
+      `
+        SELECT
+          SUM(DATE_PART('day', age(end_date::date, start_date::date))) / COUNT(1) as alos
+        FROM encounters
+        WHERE end_date::date > now() - '30 days'::interval
+      `,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send({
+      data: alos,
+    });
+  }),
+);
+
+patientLocations.get(
   '/locations/stats',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
     const [
-      { occupied_locations: occupiedLocations, available_locations: availableLocations } = {},
+      {
+        occupied_locations: occupiedLocationCount,
+        available_locations: availableLocationCount,
+      } = {},
     ] = await req.db.query(
       `
         SELECT
@@ -64,7 +92,7 @@ patientLocations.get(
       },
     );
 
-    const [{ reserved_locations: reservedLocations } = {}] = await req.db.query(
+    const [{ reserved_locations: reservedLocationCount } = {}] = await req.db.query(
       `
         SELECT
           SUM(sign(max_1_occupancy_locations.count)) AS reserved_locations
@@ -79,9 +107,9 @@ patientLocations.get(
 
     res.send({
       data: {
-        availableLocations,
-        reservedLocations,
-        occupiedLocations,
+        availableLocationCount,
+        reservedLocationCount,
+        occupiedLocationCount,
       },
     });
   }),

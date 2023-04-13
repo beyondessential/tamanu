@@ -3,18 +3,12 @@ import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
 
 import { DateDisplay } from '../../DateDisplay';
-import { capitaliseFirstLetter } from '../../../utils/capitalise';
 
-import { NotesSection, LocalisedLabel } from './reusable/SimplePrintout';
+import { NotesSection } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
-import { PatientBarcode } from './reusable/PatientBarcode';
 import { GridTable } from './reusable/GridTable';
-
-const RowContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
+import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -27,17 +21,7 @@ const SignatureBox = styled(Box)`
 
 export const PrescriptionPrintout = React.memo(
   ({ patientData, prescriptionData, encounterData, certificateData }) => {
-    const {
-      firstName,
-      lastName,
-      dateOfBirth,
-      sex,
-      displayId,
-      additionalData,
-      village,
-    } = patientData;
-    const { streetVillage } = additionalData;
-    const { name: villageName } = village;
+    const { additionalData, village } = patientData;
     const { title, subTitle, logo } = certificateData;
     const { prescriber, medication, route, prescription, quantity, date, note } = prescriptionData;
 
@@ -49,22 +33,11 @@ export const PrescriptionPrintout = React.memo(
           logoSrc={logo}
           pageTitle="Prescription"
         />
-        <RowContainer>
-          <div>
-            <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
-            <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-            <LocalisedLabel name="dateOfBirth">
-              <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
-            </LocalisedLabel>
-            <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
-            <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
-          </div>
-          <div>
-            <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
-            <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
-            <PatientBarcode patient={patientData} barWidth={2} barHeight={60} margin={0} />
-          </div>
-        </RowContainer>
+        <PatientDetailPrintout
+          patient={patientData}
+          additionalData={additionalData}
+          village={village}
+        />
         <GridTable
           data={{
             Date: date ? <DateDisplay date={date} /> : null,

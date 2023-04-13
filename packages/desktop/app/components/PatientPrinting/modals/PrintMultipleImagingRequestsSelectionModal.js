@@ -6,7 +6,7 @@ import { PrintMultipleImagingRequestsSelectionForm } from './PrintMultipleImagin
 
 export const PrintMultipleImagingRequestsSelectionModal = ({ encounter, open, onClose }) => {
   return (
-    <Modal title="Print imaging requests" width="md" open={open} onClose={onClose}>
+    <Modal title="Print imaging request/s" width="md" open={open} onClose={onClose}>
       <PrintMultipleImagingRequestsSelectionForm encounter={encounter} onClose={onClose} />
     </Modal>
   );

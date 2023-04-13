@@ -116,7 +116,7 @@ export class ScheduledTask {
   async runImmediately() {
     const name = this.getName();
 
-    return getTracer().startActiveSpan(`ScheduledTask/${name}`, async span => {
+    return getTracer().startActiveSpan(`ScheduledTask/${name}`, { root: true }, async span => {
       span.setAttribute('code.function', name);
       try {
         span.addEvent('call');
