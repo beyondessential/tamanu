@@ -24,8 +24,10 @@ const StatusDisplay = React.memo(({ status }) => {
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
+const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
+const getCompletedDate = ({ results }) => <DateDisplay date={results[0].completedAt} showTime />;
 
 export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters }) => {
   const dispatch = useDispatch();
@@ -42,12 +44,14 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       accessor: getImagingRequestType(imagingTypes),
       sortable: false,
     },
-    { key: 'status', title: 'Status', accessor: getStatus },
-    { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
     { key: 'requestedDate', title: 'Date & time', accessor: getDate },
+    { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
+    { key: 'completedDate', title: 'Completed', accessor: getCompletedDate, sortable: false },
+    { key: 'status', title: 'Status', accessor: getStatus },
   ];
 
   const globalColumns = [
+    { key: 'patient.displayId', title: 'NHN', accessor: getPatientDisplayId, sortable: false },
     { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
     ...encounterColumns,
   ];

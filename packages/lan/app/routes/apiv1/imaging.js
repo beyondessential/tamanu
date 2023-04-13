@@ -361,6 +361,9 @@ globalImagingRequests.get(
       include: [patient],
       required: true,
     };
+    const results = {
+      association: 'results',
+    };
 
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
@@ -377,7 +380,7 @@ globalImagingRequests.get(
         },
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      include: [requestedBy, encounter, areas],
+      include: [requestedBy, encounter, areas, results],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,

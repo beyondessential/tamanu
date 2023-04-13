@@ -24,16 +24,10 @@ export const ImagingRequestsSearchBar = ({
       onSearch={setSearchParameters}
       initialValues={{ displayIdExact: true, ...searchParameters }}
     >
+      <LocalisedField name="displayId" />
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
-      <LocalisedField name="displayId" />
       <LocalisedField name="requestId" defaultLabel="Request ID" />
-      <LocalisedField
-        name="imagingType"
-        defaultLabel="Type"
-        component={SelectField}
-        options={imagingTypeOptions}
-      />
       {!statusFilterTable && (
         <LocalisedField
           name="status"
@@ -43,10 +37,10 @@ export const ImagingRequestsSearchBar = ({
         />
       )}
       <LocalisedField
-        name="priority"
-        defaultLabel="Priority"
+        name="imagingType"
+        defaultLabel="Type"
         component={SelectField}
-        options={imagingPriorities}
+        options={imagingTypeOptions}
       />
       <LocalisedField
         name="requestedDateFrom"
@@ -59,6 +53,12 @@ export const ImagingRequestsSearchBar = ({
         defaultLabel="Requested to"
         saveDateAsString
         component={DateField}
+      />
+      <LocalisedField
+        name="priority"
+        defaultLabel="Priority"
+        component={SelectField}
+        options={imagingPriorities}
       />
     </CustomisableSearchBar>
   );
