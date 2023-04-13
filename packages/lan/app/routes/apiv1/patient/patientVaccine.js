@@ -3,7 +3,12 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import config from 'config';
 
-import { ENCOUNTER_TYPES, VACCINE_CATEGORIES, VACCINE_STATUS, SETTING_KEYS } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  VACCINE_CATEGORIES,
+  VACCINE_STATUS,
+  SETTING_KEYS,
+} from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -182,7 +187,7 @@ patientVaccineRoutes.get(
       : {};
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const results = await patient.getAdministeredVaccines({ where });
+    const results = await patient.getAdministeredVaccines({ ...req.query, where });
 
     // TODO: enable pagination for this endpoint
     res.send({ count: results.length, data: results });
