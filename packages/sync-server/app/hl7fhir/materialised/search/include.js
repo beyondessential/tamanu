@@ -137,8 +137,10 @@ function invertReferenceParameters(parameters) {
   for (const [searchField, params] of parameters) {
     if (params.type !== FHIR_SEARCH_PARAMETERS.REFERENCE) continue;
 
-    const { referenceType } = params;
-    mapmapPush(inverted, referenceType, searchField, params);
+    const { referenceTypes } = params;
+    for (const referenceType of referenceTypes) {
+      mapmapPush(inverted, referenceType, searchField, params);
+    }
   }
 
   return inverted;
