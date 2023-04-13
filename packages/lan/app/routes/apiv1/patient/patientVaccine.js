@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
-import { ENCOUNTER_TYPES, VACCINE_STATUS, VACCINE_CATEGORIES } from 'shared/constants';
+import { ENCOUNTER_TYPES, VACCINE_CATEGORIES, VACCINE_STATUS } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
