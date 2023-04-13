@@ -49,6 +49,15 @@ const CellError = React.memo(({ error }) => {
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
+const OptionRow = styled.div`
+  border-bottom: 1px solid ${Colors.outline};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  font-size: 0.85rem;
+  padding: 0.7rem;
+`;
+
 const StyledTableRow = styled(TableRow)`
   margin-top: 1rem;
 
@@ -335,10 +344,11 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated, headerColor } = this.props;
+    const { className, elevated, headerColor, optionRow } = this.props;
 
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
+        {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable>
           <StyledTableHead $headerColor={headerColor}>
             <TableRow>{this.renderHeaders()}</TableRow>
