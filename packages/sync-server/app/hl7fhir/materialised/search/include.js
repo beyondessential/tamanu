@@ -89,14 +89,10 @@ function findIncludesToFetch(records, includes, FhirResource) {
         for (const ref of pathInto(record, path)) {
           // failing to retrieve a reference is not an error
           try {
-            if (!(ref instanceof FhirReference)) {
-              throw new Exception(`Expected ${path} to be a FhirReference`);
-            }
-
-            const typeId = ref.fhirTypeAndId();
+            const typeId = new FhirReference(ref).fhirTypeAndId();
             if (!typeId) {
               throw new Unsupported(
-                `Can't _include:${resource}:${parameter} on ${FhirResource.fhirName}#${record.id} because the reference is not explicit`,
+                `Can't _include=${resource}:${parameter} on ${FhirResource.fhirName}#${record.id} because the reference is not explicit`,
               );
             }
 
