@@ -11,26 +11,26 @@ export function resolveIncludes(query, parameters, FhirResource) {
 
   for (const { resource, parameter, targetType } of query.get('_include')) {
     if (resource === '*') {
-      throw new Unsupported(`_include:* is not yet supported`);
+      throw new Unsupported(`_include=* is not yet supported`);
     }
 
     if (!referenceParameters.has(resource)) {
-      throw new Unsupported(`_include:${resource} is not supported on ${FhirResource.fhirName}`);
+      throw new Unsupported(`_include=${resource} is not supported on ${FhirResource.fhirName}`);
     }
 
     if (!materialisedResources.some(({ fhirName }) => fhirName === resource)) {
-      throw new Unsupported(`_include:${resource} is not supported (not indexed)`);
+      throw new Unsupported(`_include=${resource} is not supported (not indexed)`);
       // "indexed" is FHIR-specese for what we call "materialised"
     }
 
     if (parameter === '*') {
-      throw new Unsupported(`_include:${resource}:* is not yet supported`);
+      throw new Unsupported(`_include=${resource}:* is not yet supported`);
     }
 
     const searchableReferencesForResource = referenceParameters.get(resource);
     if (!searchableReferencesForResource.has(parameter)) {
       throw new Unsupported(
-        `_include:${resource}:${parameter} is not supported on ${FhirResource.fhirName}`,
+        `_include=${resource}:${parameter} is not supported on ${FhirResource.fhirName}`,
       );
     }
 
