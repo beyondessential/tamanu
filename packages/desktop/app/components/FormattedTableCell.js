@@ -5,7 +5,7 @@ import { Colors } from '../constants';
 import { formatLong, formatShortest, formatTime } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
-const VitalsCellWrapper = styled.div`
+const CellWrapper = styled.div`
   background: ${({ severity }) =>
     severity === 'alert' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'};
   border-radius: 10px;
@@ -14,7 +14,7 @@ const VitalsCellWrapper = styled.div`
   width: fit-content;
 `;
 
-const VitalsHeadCellWrapper = styled.div`
+const HeadCellWrapper = styled.div`
   display: block;
   width: fit-content;
   div {
@@ -25,30 +25,30 @@ const VitalsHeadCellWrapper = styled.div`
   }
 `;
 
-export const VitalsTableHeadCell = React.memo(({ value }) => (
+export const DateHeadCell = React.memo(({ value }) => (
   <TableTooltip title={formatLong(value)}>
-    <VitalsHeadCellWrapper>
+    <HeadCellWrapper>
       <div>{formatShortest(value)}</div>
       <div>{formatTime(value)}</div>
-    </VitalsHeadCellWrapper>
+    </HeadCellWrapper>
   </TableTooltip>
 ));
 
-export const VitalsTableMeasureCell = React.memo(({ value, config, validationCriteria }) => {
+export const RangeTooltipCell = React.memo(({ value, config, validationCriteria }) => {
   const { unit = '' } = config || {};
   const { normalRange } = validationCriteria || {};
   const tooltip =
     normalRange && `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`;
   return tooltip ? (
     <TableTooltip title={tooltip}>
-      <VitalsCellWrapper>{value}</VitalsCellWrapper>
+      <CellWrapper>{value}</CellWrapper>
     </TableTooltip>
   ) : (
-    <VitalsCellWrapper>{value}</VitalsCellWrapper>
+    <CellWrapper>{value}</CellWrapper>
   );
 });
 
-export const VitalsTableCell = React.memo(({ value, config, validationCriteria }) => {
+export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, ...props }) => {
   let tooltip = '';
   let severity = 'info';
   const { rounding = 0, unit = '' } = config || {};
@@ -75,9 +75,11 @@ export const VitalsTableCell = React.memo(({ value, config, validationCriteria }
   }
   return tooltip ? (
     <TableTooltip title={tooltip}>
-      <VitalsCellWrapper severity={severity}>{formattedValue}</VitalsCellWrapper>
+      <CellWrapper severity={severity} {...props}>
+        {formattedValue}
+      </CellWrapper>
     </TableTooltip>
   ) : (
-    <VitalsCellWrapper>{formattedValue}</VitalsCellWrapper>
+    <CellWrapper {...props}>{formattedValue}</CellWrapper>
   );
 });
