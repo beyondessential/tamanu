@@ -6,6 +6,7 @@ import { Box } from '@material-ui/core';
 import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { getPatientNameAsString } from '../../PatientNameDisplay';
 
 const Container = styled.div`
   display: flex;
@@ -38,6 +39,7 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
             <LabRequestPrintLabel
               printWidth={labelWidth}
               data={{
+                patientName: getPatientNameAsString(patient),
                 testId: lab.displayId,
                 patientId: patient.displayId,
                 patientDateOfBirth: patient.dateOfBirth,

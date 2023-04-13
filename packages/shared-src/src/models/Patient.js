@@ -120,6 +120,18 @@ export class Patient extends Model {
           as: 'location',
           include: ['locationGroup', 'facility'],
         },
+        {
+          model: models.Department,
+          as: 'department',
+        },
+        {
+          model: models.User,
+          as: 'recorder',
+        },
+        {
+          model: models.ReferenceData,
+          as: 'notGivenReason',
+        },
       );
     }
 
@@ -136,9 +148,9 @@ export class Patient extends Model {
       ...optRest,
       include,
       where: {
-        ...optWhere,
         '$encounter.patient_id$': this.id,
         status: { [Op.in]: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN] },
+        ...optWhere,
       },
     });
 

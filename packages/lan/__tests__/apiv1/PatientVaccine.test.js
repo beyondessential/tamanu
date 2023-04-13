@@ -10,13 +10,14 @@ import {
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
+import { VACCINE_STATUS } from 'shared/constants/vaccines';
 
 describe('PatientVaccine', () => {
-  let patient = null;
-  let patient2 = null;
+  let ctx;
+  let models = null;
   let app = null;
   let baseApp = null;
-  let models = null;
+
   let scheduled1 = null;
   let scheduled2 = null;
   let scheduled3 = null;
@@ -26,9 +27,22 @@ describe('PatientVaccine', () => {
   let facility = null;
   let givenVaccine1 = null;
   let notGivenVaccine1 = null;
-  let ctx;
+  let patient = null;
 
-  beforeAll(async () => {
+  const administerVaccine = async (patient, vaccine, overrides) => {
+    const encounter = await models.Encounter.create(
+      await createDummyEncounter(models, { patientId: patient.id }),
+    );
+    await models.AdministeredVaccine.create(
+      await createAdministeredVaccine(models, {
+        scheduledVaccineId: vaccine.id,
+        encounterId: encounter.id,
+        ...overrides,
+      }),
+    );
+  };
+
+  beforeAll(async () => {``
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
@@ -41,9 +55,11 @@ describe('PatientVaccine', () => {
     });
     patient = await models.Patient.create(await createDummyPatient(models));
     patient2 = await models.Patient.create(await createDummyPatient(models));
+
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
 
+    // set up reference data
     // create 3 scheduled vaccines, 2 routine and 1 campaign
     scheduled1 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
@@ -62,6 +78,7 @@ describe('PatientVaccine', () => {
     scheduled3 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.CAMPAIGN }),
     );
+
     const locationGroup = await models.LocationGroup.create({
       ...fake(models.LocationGroup),
       facilityId: facility.id,
@@ -108,25 +125,30 @@ describe('PatientVaccine', () => {
         status: VACCINE_STATUS.UNKNOWN,
       }),
     );
+    
+    // set up clinical data
+    patient = await models.Patient.create(await createDummyPatient(models));
+    await administerVaccine(patient, scheduled2);
   });
+
   afterAll(() => ctx.close());
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.get('/v1/patient/1/scheduledVaccines', {});
+    const result = await noPermsApp.get(`/v1/patient/${patient.id}/scheduledVaccines`, {});
     expect(result).toBeForbidden();
   });
 
   describe('Scheduled vaccines', () => {
     it('should get a list of scheduled vaccines', async () => {
-      const result = await app.get(`/v1/patient/1/scheduledVaccines`);
+      const result = await app.get(`/v1/patient/${patient.id}/scheduledVaccines`);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(2);
     });
 
     it('should get a list of scheduled vaccines based on category', async () => {
       const result = await app.get(
-        `/v1/patient/1/scheduledVaccines?category=${VACCINE_CATEGORIES.CAMPAIGN}`,
+        `/v1/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.CAMPAIGN}`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
@@ -134,22 +156,28 @@ describe('PatientVaccine', () => {
     });
 
     it('should indicate administered vaccine', async () => {
-      const patient1Result = await app.get(
+      // add an administered vaccine for patient1, of schedule 2
+
+      const result = await app.get(
         `/v1/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
       );
-      expect(patient1Result).toHaveSucceeded();
-      expect(patient1Result.body).toHaveLength(1);
-      expect(patient1Result.body[0].schedules).toEqual([
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(1);
+      expect(result.body[0].schedules).toEqual([
         { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
         { administered: true, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
       ]);
+    });
 
-      const patient2Result = await app.get(
-        `/v1/patient/${patient2.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
+    it('should indicate pending vaccine', async () => {
+      // just create a new patient with no vaccinations     
+      const freshPatient = await models.Patient.create(await createDummyPatient(models));
+      const result = await app.get(
+        `/v1/patient/${freshPatient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
       );
-      expect(patient2Result).toHaveSucceeded();
-      expect(patient2Result.body).toHaveLength(1);
-      expect(patient2Result.body[0].schedules).toEqual([
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(1);
+      expect(result.body[0].schedules).toEqual([
         { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
         { administered: false, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
       ]);
@@ -167,6 +195,19 @@ describe('PatientVaccine', () => {
       expect(result.body.data.find(v => v.status === VACCINE_STATUS.NOT_GIVEN)?.id).toEqual(
         notGivenVaccine1.id,
       );
+    });
+
+    it('Should include not given vaccines', async () => {
+      const freshPatient = await models.Patient.create(await createDummyPatient(models));
+      await administerVaccine(freshPatient, scheduled1);
+      await administerVaccine(freshPatient, scheduled2, { status: VACCINE_STATUS.NOT_GIVEN });
+      
+      const result = await app.get(`/v1/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(2);
+      expect(result.body.data[0].status).toEqual(VACCINE_STATUS.GIVEN);
+      expect(result.body.data[1].status).toEqual(VACCINE_STATUS.NOT_GIVEN);
     });
 
     it('Should mark an administered vaccine as recorded in error', async () => {

@@ -33,7 +33,10 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
 };
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup.bool().required('Consent is required'),
+  consent: yup
+    .bool()
+    .oneOf([true])
+    .required('Consent is required'),
   vaccineBrand: yup.string().when('category', {
     is: VACCINE_CATEGORIES.OTHER,
     then: yup.string().required(),
