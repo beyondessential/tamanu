@@ -37,62 +37,64 @@ const List = styled(MenuList)`
   }
 `;
 
-export const MenuButton = React.memo(({ actions, className, iconDirection, iconColor }) => {
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
+export const MenuButton = React.memo(
+  ({ actions, className, iconDirection, iconColor, disabled = false }) => {
+    const [open, setOpen] = useState(false);
+    const anchorRef = useRef(null);
 
-  const handleClick = (event, action) => {
-    setOpen(false);
-    action(event);
-  };
+    const handleClick = (event, action) => {
+      setOpen(false);
+      action(event);
+    };
 
-  const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen);
-  };
+    const handleToggle = () => {
+      setOpen(prevOpen => !prevOpen);
+    };
 
-  const handleClose = event => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-    setOpen(false);
-  };
+    const handleClose = event => {
+      if (anchorRef.current && anchorRef.current.contains(event.target)) {
+        return;
+      }
+      setOpen(false);
+    };
 
-  const Icon = iconDirection === 'vertical' ? MoreVertIcon : MoreHorizIcon;
+    const Icon = iconDirection === 'vertical' ? MoreVertIcon : MoreHorizIcon;
 
-  return (
-    <div className={className}>
-      <OpenButton onClick={handleToggle} ref={anchorRef}>
-        <Icon style={{ color: iconColor, cursor: 'pointer' }} />
-      </OpenButton>
-      <Popper
-        open={open}
-        anchorEl={anchorRef.current}
-        transition
-        disablePortal
-        placement="bottom-end"
-        style={{ zIndex: 10 }}
-      >
-        {() => (
-          <Paper id="menu-list-grow" variant="outlined">
-            <ClickAwayListener onClickAway={handleClose}>
-              <List>
-                {Object.entries(actions).map(([label, action]) => (
-                  <Item
-                    key={label}
-                    disabled={!action}
-                    onClick={event => handleClick(event, action)}
-                  >
-                    {label}
-                  </Item>
-                ))}
-              </List>
-            </ClickAwayListener>
-          </Paper>
-        )}
-      </Popper>
-    </div>
-  );
-});
+    return (
+      <div className={className}>
+        <OpenButton disabled={disabled} onClick={handleToggle} ref={anchorRef}>
+          <Icon style={{ color: iconColor, cursor: 'pointer' }} />
+        </OpenButton>
+        <Popper
+          open={open}
+          anchorEl={anchorRef.current}
+          transition
+          disablePortal
+          placement="bottom-end"
+          style={{ zIndex: 10 }}
+        >
+          {() => (
+            <Paper id="menu-list-grow" variant="outlined">
+              <ClickAwayListener onClickAway={handleClose}>
+                <List>
+                  {Object.entries(actions).map(([label, action]) => (
+                    <Item
+                      key={label}
+                      disabled={!action}
+                      onClick={event => handleClick(event, action)}
+                    >
+                      {label}
+                    </Item>
+                  ))}
+                </List>
+              </ClickAwayListener>
+            </Paper>
+          )}
+        </Popper>
+      </div>
+    );
+  },
+);
 
 MenuButton.propTypes = {
   actions: PropTypes.objectOf(PropTypes.func).isRequired,
