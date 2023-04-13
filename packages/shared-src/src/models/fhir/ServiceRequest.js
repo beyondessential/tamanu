@@ -402,6 +402,7 @@ export class FhirServiceRequest extends FhirResource {
       subject: {
         type: FHIR_SEARCH_PARAMETERS.REFERENCE,
         path: [['subject']],
+        referenceTypes: ['Patient'],
       },
     };
   }
