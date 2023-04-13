@@ -45,20 +45,21 @@ const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
   return secondPart
     ? {
-      title: firstPart,
-      textBody: secondPart,
-    }
+        title: firstPart,
+        textBody: secondPart,
+      }
     : {
-      title: '',
-      textBody: firstPart,
-    };
+        title: '',
+        textBody: firstPart,
+      };
 };
 
-const showPatientWarningPopups = (issues: IPatientIssue[]): void => showPopupChain(
-  issues
-    .filter(({ type }) => type === PatientIssueType.Warning)
-    .map(({ note }) => formatNoteToPopup(note)),
-);
+const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
+  showPopupChain(
+    issues
+      .filter(({ type }) => type === PatientIssueType.Warning)
+      .map(({ note }) => formatNoteToPopup(note)),
+  );
 
 const PatientHomeContainer = ({
   navigation,
@@ -93,7 +94,7 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
-        title: 'Lab Request',
+        title: 'Tests',
         Icon: Icons.LabRequestIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
@@ -105,12 +106,10 @@ const PatientHomeContainer = ({
     () => [
       {
         title: 'View patient details',
-        Icon: Icons.PatientDetailsIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
       },
       {
-        title: 'View History',
-        Icon: Icons.HistoryIcon,
+        title: 'View history',
         onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
     ],
