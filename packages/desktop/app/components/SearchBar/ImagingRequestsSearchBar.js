@@ -32,26 +32,31 @@ export const ImagingRequestsSearchBar = ({
       onSearch={setSearchParameters}
       initialValues={{ displayIdExact: true, ...searchParameters }}
       hiddenFields={
-        <>
-          <LocalisedField
-            name="area"
-            defaultLabel="Area"
-            component={AutocompleteField}
-            suggester={areaSuggester}
-          />
-          <LocalisedField
-            name="department"
-            defaultLabel="Department"
-            component={AutocompleteField}
-            suggester={departmentSuggester}
-          />
-          <LocalisedField
-            name="completedDate"
-            defaultLabel="Completed"
-            saveDateAsString
-            component={DateField}
-          />
-        </>
+        statusFilterTable && (
+          <>
+            <LocalisedField
+              name="area"
+              defaultLabel="Area"
+              component={AutocompleteField}
+              suggester={areaSuggester}
+              size="small"
+            />
+            <LocalisedField
+              name="department"
+              defaultLabel="Department"
+              component={AutocompleteField}
+              suggester={departmentSuggester}
+              size="small"
+            />
+            <LocalisedField
+              name="completedDate"
+              defaultLabel="Completed"
+              saveDateAsString
+              component={DateField}
+              size="small"
+            />
+          </>
+        )
       }
     >
       <LocalisedField name="displayId" />
