@@ -5,7 +5,6 @@ import { VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, VACCINE_STATUS } from 'sha
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
-import { VACCINE_STATUS } from 'shared/constants/vaccines';
 
 describe('PatientVaccine', () => {
   let ctx;
@@ -16,7 +15,7 @@ describe('PatientVaccine', () => {
   let scheduled1 = null;
   let scheduled2 = null;
   let scheduled3 = null;
-  
+
   let patient = null;
   let clinician = null;
   let location = null;
@@ -25,9 +24,9 @@ describe('PatientVaccine', () => {
   let givenVaccine1 = null;
   let notGivenVaccine1 = null;
 
-  const administerVaccine = async (patient, vaccine, overrides) => {
+  const administerVaccine = async (patientObject, vaccine, overrides) => {
     const encounter = await models.Encounter.create(
-      await createDummyEncounter(models, { patientId: patient.id }),
+      await createDummyEncounter(models, { patientId: patientObject.id }),
     );
     await models.AdministeredVaccine.create(
       await createAdministeredVaccine(models, {
@@ -38,7 +37,7 @@ describe('PatientVaccine', () => {
     );
   };
 
-  beforeAll(async () => {``
+  beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
@@ -52,6 +51,7 @@ describe('PatientVaccine', () => {
     });
     patient = await models.Patient.create(await createDummyPatient(models));
     patient2 = await models.Patient.create(await createDummyPatient(models));
+
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
 
@@ -122,9 +122,9 @@ describe('PatientVaccine', () => {
       }),
     );
 
-      // set up clinical data
-      patient = await models.Patient.create(await createDummyPatient(models));
-      await administerVaccine(patient, scheduled2);
+    // set up clinical data
+    patient = await models.Patient.create(await createDummyPatient(models));
+    await administerVaccine(patient, scheduled2);
   });
 
   afterAll(() => ctx.close());
@@ -166,7 +166,7 @@ describe('PatientVaccine', () => {
     });
 
     it('should indicate pending vaccine', async () => {
-      // just create a new patient with no vaccinations     
+      // just create a new patient with no vaccinations
       const freshPatient = await models.Patient.create(await createDummyPatient(models));
       const result = await app.get(
         `/v1/patient/${freshPatient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
@@ -192,8 +192,10 @@ describe('PatientVaccine', () => {
       const freshPatient = await models.Patient.create(await createDummyPatient(models));
       await administerVaccine(freshPatient, scheduled1);
       await administerVaccine(freshPatient, scheduled2, { status: VACCINE_STATUS.NOT_GIVEN });
-      
-      const result = await app.get(`/v1/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`);
+
+      const result = await app.get(
+        `/v1/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`,
+      );
 
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
