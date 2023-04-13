@@ -77,7 +77,7 @@ const Item = styled(MenuItem)`
 
 const iconStyle = css`
   color: ${Colors.darkText};
-  margin-left: 4px;
+  margin-left: 6px;
   margin-right: 8px;
 `;
 
