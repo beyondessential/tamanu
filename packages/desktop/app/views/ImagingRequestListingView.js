@@ -18,6 +18,8 @@ export const ImagingRequestListingView = React.memo(({ status }) => {
     : 'Imaging requests';
   const statusFilter = status ? { status } : {};
 
+  // TODO: search not working
+
   return (
     <PageContainer>
       <TopBar title={tableTitle} />
