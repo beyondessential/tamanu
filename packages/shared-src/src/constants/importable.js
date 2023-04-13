@@ -61,6 +61,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'village',
   'xRayImagingArea',
   'vaccineNotGivenReason',
+  'vaccineCircumstances',
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
@@ -105,6 +106,7 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
+  VACCINE_CIRCUMSTANCES: 'vaccineCircumstances',
   ...IMAGING_AREA_TYPES,
 };
 

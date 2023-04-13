@@ -25,11 +25,13 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         const givenByCountry = (await countrySuggester.fetchCurrentOption(data.givenBy))?.label;
         dataToSubmit.givenBy = givenByCountry;
       }
+
       await api.post(`patient/${patientId}/administeredVaccine`, {
         ...dataToSubmit,
         patientId,
         status: currentTabKey,
         recorderId: currentUser.id,
+        circumstanceIds: dataToSubmit.circumstanceIds?.split(',').map(c => c.trim()),
       });
       dispatch(reloadPatient(patientId));
     },
