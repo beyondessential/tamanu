@@ -1,6 +1,6 @@
 import { FHIR_INTERACTIONS, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
 import { FhirReference } from 'shared/services/fhirTypes/reference';
-import { Exception, FhirError, Processing, Unsupported } from 'shared/utils/fhir';
+import { FhirError, Processing, Unsupported } from 'shared/utils/fhir';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisedResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
@@ -9,7 +9,13 @@ export function resolveIncludes(query, parameters, FhirResource) {
   const includes = new Map();
   const referenceParameters = invertReferenceParameters(parameters);
 
-  for (const { resource, parameter, targetType } of query.get('_include')) {
+  for (const { modifier, resource, parameter, targetType } of flattenIncludes(
+    query.get('_include'),
+  )) {
+    if (modifier) {
+      throw new Unsupported(`_include modifiers are not yet supported`);
+    }
+
     if (resource === '*') {
       throw new Unsupported(`_include=* is not yet supported`);
     }
@@ -142,6 +148,14 @@ function mapmapPush(map, key, innerKey, value) {
   const inner = map.get(key) ?? new Map();
   inner.set(innerKey, value);
   map.set(key, inner);
+}
+
+function* flattenIncludes(includes) {
+  for (const { modifier, value } of includes) {
+    for (const vals of value) {
+      yield { ...vals, modifier };
+    }
+  }
 }
 
 function* pathInto(record, path) {
