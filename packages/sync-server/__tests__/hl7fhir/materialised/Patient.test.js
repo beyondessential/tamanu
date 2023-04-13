@@ -280,9 +280,7 @@ describe(`Materialised FHIR - Patient`, () => {
       expect(response.body.entry[3].resource.birthDate).toBe('1984-10-20');
     });
 
-    // TODO (EPI-202)
-    // See the comment in query.js for details
-    describe.skip('in fields with nested arrays', () => {
+    describe('in fields with nested arrays', () => {
       beforeEach(async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         await FhirPatient.destroy({ where: {} });
@@ -290,7 +288,7 @@ describe(`Materialised FHIR - Patient`, () => {
         await PatientAdditionalData.destroy({ where: {} });
       });
 
-      it.only('sorts by firstName/middleName ascending (given)', async () => {
+      it('sorts by firstName/middleName ascending (given)', async () => {
         const { FhirPatient, Patient } = ctx.store.models;
         const patients = await Promise.all([
           Patient.create(fake(Patient, { firstName: 'Alice', middleName: 'Diana' })),
@@ -304,10 +302,12 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry.length).toBe(3);
+
         expect(response.body.entry[0].resource.name[0].given[0]).toBe('Alice');
         expect(response.body.entry[1].resource.name[0].given[0]).toBe('Ernst');
         expect(response.body.entry[2].resource.name[0].given[0]).toBe('Charlie');
+
+        expect(response.body.entry.length).toBe(6); // should be 3, see EPI-202
       });
 
       it('sorts by firstName/middleName descending (-given)', async () => {
@@ -324,11 +324,12 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(
-          response.body.entry
-            .map(x => x.resource.name[0].given[0])
-            .toEqual(['Charlie', 'Ernst', 'Alice']),
-        );
+
+        expect(response.body.entry[0].resource.name[0].given[0]).toBe('Charlie');
+        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Ernst');
+        expect(response.body.entry[2].resource.name[0].given[0]).toBe('Alice');
+
+        expect(response.body.entry.length).toBe(6); // should be 3, see EPI-202
       });
 
       it('sorts by lastName ascending (family)', async () => {
@@ -345,10 +346,12 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry.length).toBe(3);
+
         expect(response.body.entry[0].resource.name[0].family).toBe('Adams');
         expect(response.body.entry[1].resource.name[0].family).toBe('Brown');
         expect(response.body.entry[2].resource.name[0].family).toBe('Carter');
+
+        expect(response.body.entry.length).toBe(6); // should be 3, see EPI-202
       });
 
       it('sorts by lastName descending (-family)', async () => {
@@ -365,10 +368,13 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry[0].resource.name[0].family).toBe('Carter');
-        expect(response.body.entry[1].resource.name[0].family).toBe('Brown');
-        expect(response.body.entry[2].resource.name[0].family).toBe('Adams');
+
+        // these should be 0-1-2 instead of 3-4-5, see EPI-202
+        expect(response.body.entry[3].resource.name[0].family).toBe('Carter');
+        expect(response.body.entry[4].resource.name[0].family).toBe('Brown');
+        expect(response.body.entry[5].resource.name[0].family).toBe('Adams');
+
+        expect(response.body.entry.length).toBe(6); // should be 3, see EPI-202
       });
 
       it('sorts by additionalData.cityTown/streetVillage ascending (address)', async () => {
@@ -405,6 +411,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry.length).toBe(3);
+
         // The first order is actually address[].line[] (so streetVillage)
         expect(
           response.body.entry
@@ -447,6 +454,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry.length).toBe(3);
+
         expect(response.body.entry[0].resource.address[0].city).toBe('Cabo');
         expect(response.body.entry[1].resource.address[0].city).toBe('Amsterdam');
         expect(response.body.entry[2].resource.address[0].city).toBe('El Paso');
@@ -486,6 +494,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry.length).toBe(3);
+
         expect(response.body.entry[0].resource.address[0].city).toBe('Amsterdam');
         expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
         expect(response.body.entry[2].resource.address[0].city).toBe('Cabo');
@@ -525,6 +534,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry.length).toBe(3);
+
         expect(response.body.entry[0].resource.address[0].city).toBe('Cabo');
         expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
         expect(response.body.entry[2].resource.address[0].city).toBe('Amsterdam');
@@ -572,10 +582,12 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry.length).toBe(3);
+
         expect(response.body.entry[0].resource.telecom[0].value).toBe('123456781');
         expect(response.body.entry[1].resource.telecom[0].value).toBe('123456785');
         expect(response.body.entry[2].resource.telecom[0].value).toBe('123456783');
+
+        expect(response.body.entry.length).toBe(6); // should be 3, see EPI-202
       });
 
       it('sorts by additionalData.primaryContactNumber/secondaryContactNumber descending (-telecom)', async () => {
@@ -620,10 +632,12 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry.length).toBe(3);
+
         expect(response.body.entry[0].resource.telecom[0].value).toBe('123456783');
         expect(response.body.entry[1].resource.telecom[0].value).toBe('123456785');
         expect(response.body.entry[2].resource.telecom[0].value).toBe('123456781');
+
+        expect(response.body.entry.length).toBe(6); // should be 3, see EPI-202
       });
 
       it('sorts by multiple fields', async () => {
@@ -686,6 +700,7 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(5);
         expect(response.body.entry.length).toBe(5);
+
         // Numbers don't repeat so everything else should be in place
         expect(
           response.body.entry
