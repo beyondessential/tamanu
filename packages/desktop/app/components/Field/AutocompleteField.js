@@ -76,8 +76,10 @@ const Item = styled(MenuItem)`
 `;
 
 const iconStyle = css`
-  color: ${Colors.midText};
-  font-size: 24;
+  &.MuiSvgIcon-root {
+    color: ${Colors.midText};
+    font-size: 24px;
+  }
 `;
 
 const StyledExpandLess = styled(ExpandLess)`
