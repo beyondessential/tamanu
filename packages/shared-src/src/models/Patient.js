@@ -4,6 +4,7 @@ import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { VACCINE_STATUS } from '../constants';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -135,9 +136,9 @@ export class Patient extends Model {
       ...optRest,
       include,
       where: {
-        ...optWhere,
         '$encounter.patient_id$': this.id,
-        status: 'GIVEN',
+        status: VACCINE_STATUS.GIVEN,
+        ...optWhere,
       },
     });
 

@@ -4,6 +4,7 @@ import Chance from 'chance';
 
 import { ApiContext } from '../app/api';
 import { DataFetchingTable } from '../app/components/Table';
+import { CheckInput } from '../app/components/Field';
 
 const chance = new Chance();
 
@@ -60,6 +61,15 @@ storiesOf('DataFetchingTable', module)
   .add('Plain', () => (
     <ApiContext.Provider value={dummyApi}>
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
+    </ApiContext.Provider>
+  ))
+  .add('With optionRow', () => (
+    <ApiContext.Provider value={dummyApi}>
+      <DataFetchingTable 
+        endpoint="ages" 
+        columns={dummyColumns}
+        optionRow={<CheckInput label={<small>Dummy checkbox</small>} />} 
+      />
     </ApiContext.Provider>
   ))
   .add('With pagination error', () => (
