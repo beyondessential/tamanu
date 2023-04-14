@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
@@ -50,17 +50,60 @@ labRequest.put(
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models } = req;
-    const { note } = req.body;
+    const { models, body, user } = req;
+    const { note } = body;
     req.checkPermission('create', 'LabRequest');
-    const object = await models.LabRequest.createWithTests(req.body);
-    if (note) {
-      const notePage = await object.createNotePage({
-        noteType: NOTE_TYPES.OTHER,
-      });
-      await notePage.createNoteItem({ content: note });
+
+    const { labTestTypeIds } = req.body;
+
+    if (!labTestTypeIds.length) {
+      throw new InvalidOperationError('A lab request must have at least one test');
     }
-    res.send(object);
+
+    const categories = await models.LabTestType.findAll({
+      attributes: [
+        [Sequelize.fn('array_agg', Sequelize.col('id')), 'lab_test_type_ids'],
+        'lab_test_category_id',
+      ],
+      where: {
+        id: {
+          [Op.in]: labTestTypeIds,
+        },
+      },
+      group: ['lab_test_category_id'],
+    });
+
+    // Check to see that all the test types are valid
+    const count = categories.reduce(
+      (validTestTypesCount, category) =>
+        validTestTypesCount + category.get('lab_test_type_ids').length,
+      0,
+    );
+
+    if (count < labTestTypeIds.length) {
+      throw new InvalidOperationError('Invalid test type id');
+    }
+
+    const response = await Promise.all(
+      categories.map(async category => {
+        const labRequestData = {
+          ...body,
+          labTestTypeIds: category.get('lab_test_type_ids'),
+          labTestCategoryId: category.get('lab_test_category_id'),
+        };
+
+        const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        if (note) {
+          const notePage = await newLabRequest.createNotePage({
+            noteType: NOTE_TYPES.OTHER,
+          });
+          await notePage.createNoteItem({ content: note, authorId: user.id });
+        }
+        return newLabRequest;
+      }),
+    );
+
+    res.send(response);
   }),
 );
 
@@ -103,6 +146,7 @@ labRequest.get(
       makeSimpleTextFilter('requestedById', 'lab_requests.requested_by_id'),
       makeSimpleTextFilter('departmentId', 'encounter.department_id'),
       makeSimpleTextFilter('locationGroupId', 'location.location_group_id'),
+      makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
       makeFilter(
         filterParams.requestedDateFrom,
         `lab_requests.requested_date >= :requestedDateFrom`,
@@ -133,6 +177,12 @@ labRequest.get(
           ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
         LEFT JOIN reference_data AS laboratory
           ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
+        LEFT JOIN reference_data AS site
+          ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
+        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
+          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
+        LEFT JOIN lab_test_panels AS lab_test_panel
+          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
@@ -170,6 +220,7 @@ labRequest.get(
       patientName: 'UPPER(patient.last_name)',
       requestId: 'display_id',
       testCategory: 'category.name',
+      labRequestPanelId: 'lab_test_panel.id',
       requestedDate: 'requested_date',
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
@@ -194,6 +245,7 @@ labRequest.get(
           category.name AS category_name,
           priority.id AS priority_id,
           priority.name AS priority_name,
+          lab_test_panel.name as lab_test_panel_name,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name
         ${from}
@@ -275,5 +327,66 @@ export const labTest = express.Router();
 
 labTest.put('/:id', simplePut('LabTest'));
 
+labTest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const labTestId = params.id;
+
+    req.checkPermission('read', 'LabTest');
+
+    const response = await models.LabTest.findByPk(labTestId, {
+      include: [
+        { model: models.LabRequest, as: 'labRequest' },
+        { model: models.LabTestType, as: 'labTestType' },
+        { model: models.ReferenceData, as: 'labTestMethod' },
+      ],
+    });
+
+    res.send(response);
+  }),
+);
+
 export const labTestType = express.Router();
 labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
+labTestType.get(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    req.checkPermission('list', 'LabTestType');
+    const labTests = await models.LabTestType.findAll({
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'category',
+        },
+      ],
+    });
+    res.send(labTests);
+  }),
+);
+
+export const labTestPanel = express.Router();
+
+labTestPanel.get('/:id', simpleGet('LabTestPanel'));
+labTestPanel.get(
+  '/:id/labTestTypes',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const panelId = params.id;
+
+    req.checkPermission('list', 'LabTests');
+
+    const panel = await models.LabTestPanel.findByPk(panelId);
+    const response = await panel.getLabTestTypes({
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'category',
+        },
+      ],
+    });
+
+    res.send(response);
+  }),
+);

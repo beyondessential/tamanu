@@ -25,31 +25,31 @@ import {
   VaccineBrandField,
   DiseaseField,
 } from '../components/VaccineCommonFields';
-import { Field, CheckField } from '../components/Field';
+import { Field, CheckField, SuggesterSelectField } from '../components/Field';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
   givenElsewhere: false,
+  consent: false,
 };
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
   consent: yup
-    .boolean()
+    .bool()
     .oneOf([true])
     .required('Consent is required'),
-};
-
-export const validateGivenVaccine = (category, values) => {
-  const errors = {};
-
-  if (category === VACCINE_CATEGORIES.OTHER && !values.vaccineBrand) {
-    errors.vaccineBrand = 'Vaccine brand is required';
-  }
-
-  if (values.givenElsewhere && !values.givenBy) {
-    errors.givenBy = 'Country is required';
-  }
-
-  return errors;
+  vaccineBrand: yup.string().when('category', {
+    is: VACCINE_CATEGORIES.OTHER,
+    then: yup.string().required(),
+  }),
+  givenBy: yup.string().when('givenElsewhere', {
+    is: true,
+    then: yup.string().required(),
+  }),
+  // will be converted into array of string pre submitting
+  circumstanceIds: yup.string().when('givenElsewhere', {
+    is: true,
+    then: yup.string().required(),
+  }),
 };
 
 export const VaccineGivenForm = ({
@@ -63,6 +63,7 @@ export const VaccineGivenForm = ({
   setCategory,
   setVaccineLabel,
   values,
+  setValues,
 }) => {
   return (
     <TwoTwoGrid>
@@ -72,8 +73,27 @@ export const VaccineGivenForm = ({
         setVaccineLabel={setVaccineLabel}
       />
       <FullWidthCol>
-        <Field name="givenElsewhere" label="Given elsewhere" component={CheckField} />
+        <Field
+          name="givenElsewhere"
+          label="Given elsewhere"
+          component={CheckField}
+          onChange={() => {
+            setValues({ ...values, givenBy: '' });
+          }}
+        />
       </FullWidthCol>
+      {values.givenElsewhere && (
+        <FullWidthCol>
+          <Field
+            name="circumstanceIds"
+            label="Circumstances"
+            component={SuggesterSelectField}
+            endpoint="icd10"
+            isMulti
+            required
+          />
+        </FullWidthCol>
+      )}
       {category === VACCINE_CATEGORIES.OTHER ? (
         <>
           <VaccineNameField />

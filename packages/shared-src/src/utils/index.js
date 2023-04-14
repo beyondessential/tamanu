@@ -7,6 +7,7 @@ export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';
 export * from './uuidToFairlyUniqueInteger';
 export * from './patientCertificates';
+export * from './handoverNotes';
 export * from './sleepAsync';
 export * from './tmpdir';
 export * from './uvci';
