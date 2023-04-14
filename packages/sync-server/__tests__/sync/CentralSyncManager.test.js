@@ -157,7 +157,7 @@ describe('CentralSyncManager', () => {
     });
   });
 
-  describe.skip('setupSnapshotForPull', () => {
+  describe('setupSnapshotForPull', () => {
     describe('handles snapshot process', () => {
       it('returns all encounters for marked-for-sync patients', async () => {
         const OLD_SYNC_TICK = 10;
