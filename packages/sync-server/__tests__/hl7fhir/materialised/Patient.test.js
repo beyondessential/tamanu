@@ -295,7 +295,7 @@ describe(`Materialised FHIR - Patient`, () => {
         await PatientAdditionalData.destroy({ where: {} });
       });
 
-      it.only('sorts by firstName/middleName ascending (given)', async () => {
+      it('sorts by firstName/middleName ascending (given)', async () => {
         const { FhirPatient, Patient } = ctx.store.models;
         const patients = await Promise.all([
           Patient.create(fake(Patient, { firstName: 'Alice', middleName: 'Diana' })),
