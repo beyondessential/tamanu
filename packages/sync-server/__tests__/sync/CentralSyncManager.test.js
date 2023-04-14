@@ -479,6 +479,9 @@ describe('CentralSyncManager', () => {
           { pushedSoFar: 0, totalToPush: 3 },
           ['surveys'],
         );
+        await centralSyncManager.completePush(sessionIdTwo);
+        // Wait for persist of session 2 to complete
+        await sleepAsync(100);
 
         // Now release the lock to see if the snapshot captures the newly inserted records above
         await resolveMockedModelQueryPromise();
