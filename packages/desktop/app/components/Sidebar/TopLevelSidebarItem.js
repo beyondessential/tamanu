@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ListItem, ListItemText, Divider, Tooltip } from '@material-ui/core';
+import { ListItem, ListItemText, Divider } from '@material-ui/core';
 import { administrationIcon } from '../../constants/images';
-import { Colors } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
 
 const TopLevelListItem = styled(ListItem)`
   border-radius: 4px;
@@ -51,16 +51,14 @@ const ListDivider = styled(Divider)`
   margin: 2px 10px 2px 16px;
 `;
 
-const StyledTooltip = styled(props => <Tooltip classes={{ popper: props.className }} {...props} />)`
+const StyledTooltip = styled(ThemedTooltip)`
   .MuiTooltip-tooltip {
     margin-bottom: -10px;
     margin-left: 25px;
-    background-color: ${Colors.primaryDark};
     padding: 10px;
   }
   .MuiTooltip-arrow {
     transform: translate(-90%);
-    color: ${Colors.primaryDark};
   }
 `;
 
