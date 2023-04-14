@@ -4,12 +4,11 @@ import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
-  AutocompleteField,
   Field,
   LocalisedField,
-  DisplayIdField,
   DOBFields,
   SearchField,
+  AutocompleteField,
   SelectField,
 } from '../Field';
 import { useSuggester } from '../../api';
@@ -46,7 +45,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       initialValues={{ displayIdExact: true, ...searchParameters }}
       hiddenFields={
         <>
-          <LocalisedField component={SearchField} name="culturalName" />
+          <LocalisedField component={SearchField} name="culturalName" useShortLabel />
           <TwoColumnsField>
             <DOBFields showExactBirth={false} />
             <SexLocalisedField
@@ -66,7 +65,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         </>
       }
     >
-      <DisplayIdField />
+      <LocalisedField useShortLabel component={SearchField} name="displayId" />
       <LocalisedField component={SearchField} name="firstName" />
       <LocalisedField component={SearchField} name="lastName" />
       <Field

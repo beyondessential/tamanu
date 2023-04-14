@@ -11,6 +11,8 @@ import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
+import { theme } from '~/ui/styled/theme';
+
 export interface RefObject<T> {
   readonly current: T | null;
 }
@@ -84,29 +86,26 @@ export const TextField = React.memo(
       setFocus(false);
     }, [setFocus, onBlur]);
 
-    const inputMarginTop = useMemo(() => {
-      if (multiline) return 0;
-      if (!label) return screenPercentageToDP(0.8, Orientation.Height);
-      return screenPercentageToDP(1.5, Orientation.Height);
-    }, []);
+    const inputHeight = useMemo(() => {
+      if (!label) return '100%';
+      if (multiline) return '82%';
+      return '68%';
+    }, [label, multiline]);
+
+    const styledViewHeight = useMemo(() => {
+      if (multiline) return screenPercentageToDP('15.36', Orientation.Height);
+      if (!label) return screenPercentageToDP('6', Orientation.Height)
+      return screenPercentageToDP('8.8', Orientation.Height);
+    }, [label, multiline]);
 
     return (
       <StyledView
-        height={
-          multiline
-            ? screenPercentageToDP('13.36', Orientation.Height)
-            : screenPercentageToDP('6.68', Orientation.Height)
-        }
-        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
+        height={styledViewHeight}
+        marginBottom={error ? screenPercentageToDP(3, Orientation.Height) : 0}
         width="100%"
       >
-        <InputContainer
-          disabled={disabled}
-          hasValue={value && value.length > 0}
-          error={error}
-          paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
-        >
-          {!multiline && label && (
+        <InputContainer>
+          {!!label && (
             <TextFieldLabel
               error={error}
               focus={focused}
@@ -117,9 +116,13 @@ export const TextField = React.memo(
             </TextFieldLabel>
           )}
           <StyledTextInput
+            disabled={disabled}
+            focused={focused}
+            hasValue={value?.length > 0}
+            error={error}
             testID={label}
             value={!hideValue && value}
-            marginTop={inputMarginTop}
+            height={inputHeight}
             ref={ref}
             autoCapitalize={
               keyboardType === 'email-address' ? 'none' : autoCapitalize
@@ -140,9 +143,10 @@ export const TextField = React.memo(
             blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
             onSubmitEditing={onSubmitEditing}
+            placeholderTextColor={theme.colors.TEXT_SOFT}
           />
         </InputContainer>
-        {error && (
+        {!!error && (
           <TextFieldErrorMessage>
             {error}
           </TextFieldErrorMessage>

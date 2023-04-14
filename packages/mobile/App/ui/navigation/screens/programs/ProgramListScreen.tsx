@@ -24,9 +24,14 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
   const { ability } = useAuth();
 
-  const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
-    surveyType: SurveyTypes.Programs,
-  }));
+  const [surveys, error] = useBackendEffect(({ models }) =>
+    models.Survey.find({
+      surveyType: SurveyTypes.Programs,
+      order: {
+        name: 'ASC',
+      },
+    }),
+  );
 
   const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
 
@@ -44,11 +49,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
 
   return (
     <FullView>
-      <StackHeader
-        title="Programs"
-        subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
-      />
+      <StackHeader title="Programs" subtitle={joinNames(selectedPatient)} onGoBack={goBack} />
       {error ? (
         <ErrorScreen error={error} />
       ) : (
@@ -58,6 +59,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             width: '100%',
             height: '100%',
             backgroundColor: theme.colors.BACKGROUND_GREY,
+            paddingTop: 5,
           }}
           showsVerticalScrollIndicator={false}
           data={filteredSurveys}
@@ -67,7 +69,6 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
               key={item.id}
               title={item.name}
               onPress={(): void => onNavigateToSurvey(item)}
-              fontWeight={500}
             />
           )}
           ItemSeparatorComponent={Separator}
