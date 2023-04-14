@@ -2,12 +2,23 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
+import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TopBar, PageContainer, ContentPane } from '../../components';
+import { reloadPatient } from '../../store/patient';
+import {
+  TopBar,
+  PageContainer,
+  BedManagementSearchBar,
+  ContentPane,
+  SearchTable,
+} from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { columns } from './bedManagementColumns';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -138,19 +149,24 @@ const DetailedDashboardItem = ({ api }) => {
 
 export const BedManagement = () => {
   const api = useApi();
+  const dispatch = useDispatch();
   const { facility } = useAuth();
 
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.BedManagementView,
+  );
+
   const {
-    data: { count: totalCurrentPatients } = {},
-    isLoading: totalCurrentPatientsLoading,
-  } = useQuery(['totalCurrentPatients'], () =>
+    data: { count: totalCurrentPatientsCount } = {},
+    isLoading: totalCurrentPatientsCountLoading,
+  } = useQuery(['totalCurrentPatientsCount'], () =>
     api.get('patient', { countOnly: true, currentPatient: true }),
   );
 
   const {
-    data: { count: currentInpatients } = {},
-    isLoading: currentInpatientsLoading,
-  } = useQuery(['currentInpatients'], () =>
+    data: { count: currentInpatientsCount } = {},
+    isLoading: currentInpatientsCountLoading,
+  } = useQuery(['currentInpatientsCount'], () =>
     api.get('patient', { countOnly: true, currentPatient: true, inpatient: true }),
   );
 
@@ -163,6 +179,21 @@ export const BedManagement = () => {
     api.get('patient/locations/alos'),
   );
 
+  // hides hover for rows that arent clickable (do not have a patient to click to)
+  const rowStyle = row =>
+    (row.locationMaxOccupancy !== 1 || !row.patientId) &&
+    '&:hover { background-color: transparent; cursor: default; }';
+
+  const handleViewPatient = async row => {
+    if (row.locationMaxOccupancy === 1) {
+      const patientId = row.patientId || row.plannedPatientId;
+      if (patientId) {
+        await dispatch(reloadPatient(patientId));
+        dispatch(push(`/patients/all/${patientId}`));
+      }
+    }
+  };
+
   return (
     <PageContainer>
       <TopBar title="Bed management" subTitle={facility.name} />
@@ -170,14 +201,14 @@ export const BedManagement = () => {
         <DashboardContainer>
           <DashboardItemListContainer>
             <DashboardItem
-              title={totalCurrentPatients}
-              loading={totalCurrentPatientsLoading}
+              title={totalCurrentPatientsCount || 0}
+              loading={totalCurrentPatientsCountLoading}
               description={`Total current\npatients`}
             />
             <DashboardItem
               color={Colors.green}
-              title={currentInpatients}
-              loading={currentInpatientsLoading}
+              title={currentInpatientsCount || 0}
+              loading={currentInpatientsCountLoading}
               description={`Current inpatient\nadmissions`}
             />
             <DashboardItem
@@ -200,6 +231,20 @@ export const BedManagement = () => {
           </DashboardItemListContainer>
           <DetailedDashboardItem api={api} />
         </DashboardContainer>
+      </ContentPane>
+      <ContentPane>
+        <BedManagementSearchBar
+          searchParameters={searchParameters}
+          onSearch={setSearchParameters}
+        />
+        <SearchTable
+          columns={columns}
+          noDataMessage="No locations found"
+          onRowClick={handleViewPatient}
+          rowStyle={rowStyle}
+          fetchOptions={searchParameters}
+          endpoint="patient/locations/bedManagement"
+        />
       </ContentPane>
     </PageContainer>
   );

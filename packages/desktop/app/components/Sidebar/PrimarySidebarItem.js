@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ExpandMore } from '@material-ui/icons';
-import { Collapse, List, ListItem, ListItemText, Divider, Tooltip } from '@material-ui/core';
+import { Collapse, List, ListItem, ListItemText, Divider } from '@material-ui/core';
 import { administrationIcon } from '../../constants/images';
-import { Colors } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
 
 const PrimaryListItem = styled(ListItem)`
   border-radius: 4px;
@@ -65,16 +65,14 @@ const ListDivider = styled(Divider)`
   transition: ${props => props.theme.transitions.create('margin')};
 `;
 
-const StyledTooltip = styled(props => <Tooltip classes={{ popper: props.className }} {...props} />)`
+const StyledTooltip = styled(ThemedTooltip)`
   .MuiTooltip-tooltip {
     margin-bottom: -10px;
     margin-left: 25px;
-    background-color: ${Colors.primaryDark};
     padding: 10px;
   }
   .MuiTooltip-arrow {
     transform: translate(-90%);
-    color: ${Colors.primaryDark};
   }
 `;
 
@@ -95,7 +93,7 @@ export const PrimarySidebarItem = ({
 }) => (
   <>
     {divider && <ListDivider $retracted={retracted} />}
-    <StyledTooltip title={retracted ? label : ''} placement="top-end" arrow>
+    <StyledTooltip title={retracted ? label : ''} placement="top-end">
       <PrimaryListItem
         button
         onClick={onClick}
