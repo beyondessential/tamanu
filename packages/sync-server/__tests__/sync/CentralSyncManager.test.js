@@ -237,7 +237,7 @@ describe('CentralSyncManager', () => {
       });
     });
 
-    describe.skip('handles concurrent transactions', () => {
+    describe('handles concurrent transactions', () => {
       const prepareRecordsForSync = async () => {
         // Pre insert the records below for snapshotting later
         const facility = await models.Facility.create(fake(models.Facility));
@@ -409,7 +409,7 @@ describe('CentralSyncManager', () => {
         );
       });
 
-      it('excludes inserted records from another sync session when snapshot transaction already started', async () => {
+      it.skip('excludes inserted records from another sync session when snapshot transaction already started', async () => {
         const [facility, program, survey] = await prepareRecordsForSync();
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
