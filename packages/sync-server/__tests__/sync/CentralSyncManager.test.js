@@ -409,7 +409,7 @@ describe('CentralSyncManager', () => {
         );
       });
 
-      it.skip('excludes inserted records from another sync session when snapshot transaction already started', async () => {
+      it('excludes inserted records from another sync session when snapshot transaction already started', async () => {
         const [facility, program, survey] = await prepareRecordsForSync();
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
@@ -476,7 +476,7 @@ describe('CentralSyncManager', () => {
         await centralSyncManager.addIncomingChanges(
           sessionIdTwo,
           changes,
-          { pushedSoFar: 3, totalToPush: 3 },
+          { pushedSoFar: 0, totalToPush: 3 },
           ['surveys'],
         );
 
