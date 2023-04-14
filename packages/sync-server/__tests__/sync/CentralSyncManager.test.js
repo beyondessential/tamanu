@@ -33,12 +33,9 @@ describe('CentralSyncManager', () => {
   };
 
   const waitForSession = async (centralSyncManager, sessionId) => {
-    const maxAttempts = 20; // safe to wait 20 attempts
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const ready = await centralSyncManager.checkSessionReady(sessionId);
-      if (ready) {
-        break;
-      }
+    let ready = false;
+    while (!ready) {
+      ready = await centralSyncManager.checkSessionReady(sessionId);
     }
   };
 
