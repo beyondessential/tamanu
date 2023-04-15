@@ -179,6 +179,11 @@ export const BedManagement = () => {
     api.get('patient/locations/alos'),
   );
 
+  const { data: { data: readmissionsCount } = {}, isLoading: readmissionsCountLoading } = useQuery(
+    ['readmissionsCount'],
+    () => api.get('patient/locations/readmissions'),
+  );
+
   // hides hover for rows that arent clickable (do not have a patient to click to)
   const rowStyle = row =>
     (row.locationMaxOccupancy !== 1 || !row.patientId) &&
@@ -225,7 +230,8 @@ export const BedManagement = () => {
             />
             <DashboardItem
               color={Colors.metallicYellow}
-              title="-"
+              title={readmissionsCount || 0}
+              loading={readmissionsCountLoading}
               description={`Readmission in\nlast 30 days`}
             />
           </DashboardItemListContainer>
