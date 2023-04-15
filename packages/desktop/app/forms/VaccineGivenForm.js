@@ -116,7 +116,7 @@ export const VaccineGivenForm = ({
         />
       ) : null}
 
-      <VaccineDateField label="Date given" required={!values.givenElsewhere} />
+      <VaccineDateField label="Date given" />
       <InjectionSiteField />
 
       <StyledDivider />
