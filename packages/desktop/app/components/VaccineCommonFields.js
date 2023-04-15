@@ -82,8 +82,8 @@ export const ScheduledOptionsField = ({ scheduleOptions }) => (
   />
 );
 
-export const VaccineDateField = ({ label, required = true }) => (
-  <Field name="date" label={label} component={DateField} required={required} saveDateAsString />
+export const VaccineDateField = ({ label }) => (
+  <Field name="date" label={label} component={DateField} required saveDateAsString />
 );
 
 export const InjectionSiteField = () => (
