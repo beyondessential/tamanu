@@ -12,6 +12,7 @@ import {
   FHIR_REQUEST_PRIORITY,
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
 } from '../../../constants';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
@@ -19,7 +20,7 @@ export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
 
   if (upstream instanceof ImagingRequest) return getValuesFromImagingRequest(upstream, models);
-  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, models);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream);
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
@@ -60,7 +61,7 @@ async function getValuesFromImagingRequest(upstream, models) {
         value: upstream.displayId,
       }),
     ],
-    status: status(upstream),
+    status: statusFromImagingRequest(upstream),
     intent: FHIR_REQUEST_INTENT.ORDER._,
     category: [
       new FhirCodeableConcept({
@@ -106,9 +107,53 @@ async function getValuesFromImagingRequest(upstream, models) {
   };
 }
 
-// eslint-disable-next-line no-unused-vars
-async function getValuesFromLabRequest(upstream, models) {
-  return {};
+async function getValuesFromLabRequest(upstream) {
+  return {
+    lastUpdated: latestDateTime(
+      upstream.updatedAt,
+      upstream.requestedBy?.updatedAt,
+      upstream.encounter?.updatedAt,
+      upstream.encounter?.patient?.updatedAt,
+    ),
+    contained: null,
+    identifier: [
+      new FhirIdentifier({
+        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html', // TODO: Create new config?
+        value: upstream.id,
+      }),
+      new FhirIdentifier({
+        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html', // TODO: Create new config?
+        value: upstream.display_id,
+      }),
+    ],
+    status: statusFromLabRequest(upstream),
+    intent: FHIR_REQUEST_INTENT.ORDER._,
+    category: [
+      new FhirCodeableConcept({
+        coding: [
+          new FhirCoding({
+            system: 'http://snomed.info/sct',
+            code: '108252007',
+          }),
+        ],
+      }),
+    ],
+    priority: validatePriority(upstream.priority),
+    code: labCode(upstream),
+    orderDetail: null, // TODO
+    subject: new FhirReference({
+      type: 'upstream://patient',
+      reference: upstream.encounter.patient.id,
+      display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
+    }),
+    encounter: null, // TODO
+    occurrenceDateTime: formatFhirDate(upstream.requestedDate),
+    requester: new FhirReference({
+      reference: `Practitioner/${upstream.requestedBy.id}`,
+      display: upstream.requestedBy.displayName,
+    }),
+    note: null, // TODO
+  };
 }
 
 function imagingCode(upstream) {
@@ -152,7 +197,7 @@ function locationCode(upstream) {
   ];
 }
 
-function status(upstream) {
+function statusFromImagingRequest(upstream) {
   return (
     {
       [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: FHIR_REQUEST_STATUS.REVOKED,
@@ -163,4 +208,40 @@ function status(upstream) {
       [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
     }[upstream.status] ?? FHIR_REQUEST_STATUS.UNKNOWN
   );
+}
+
+function statusFromLabRequest(upstream) {
+  switch (upstream.status) {
+    case LAB_REQUEST_STATUSES.RECEPTION_PENDING:
+      return FHIR_REQUEST_STATUS.DRAFT;
+    case LAB_REQUEST_STATUSES.RESULTS_PENDING:
+    case LAB_REQUEST_STATUSES.TO_BE_VERIFIED:
+    case LAB_REQUEST_STATUSES.VERIFIED:
+      return FHIR_REQUEST_STATUS.ACTIVE;
+    case LAB_REQUEST_STATUSES.PUBLISHED:
+      return FHIR_REQUEST_STATUS.COMPLETED;
+    case LAB_REQUEST_STATUSES.CANCELLED:
+    case LAB_REQUEST_STATUSES.DELETED:
+      return FHIR_REQUEST_STATUS.REVOKED;
+    case LAB_REQUEST_STATUSES.ENTERED_IN_ERROR:
+      return FHIR_REQUEST_STATUS.ENTERED_IN_ERROR;
+    case LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED:
+      return '?????'; // TODO: Figure out
+    default:
+      return FHIR_REQUEST_STATUS.UNKNOWN;
+  }
+}
+
+function labCode(upstream) {
+  if (!upstream.labTestPanelRequest.labTestPanel.externalCode) return null; // TODO: Figure out if this is possible
+
+  return new FhirCodeableConcept({
+    coding: [
+      new FhirCoding({
+        system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+        code: '', // TODO: LabRequest.LabTestPanelRequest.LabTestPanel.externalCode
+        display: '', // TODO: Lab test panel name
+      }),
+    ],
+  });
 }
