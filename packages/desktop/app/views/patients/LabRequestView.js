@@ -71,19 +71,19 @@ const MODALS = {
   [MODAL_IDS.CANCEL]: LabRequestCancelModal,
 };
 
-const Menu = ({ setModal, status }) => {
+const Menu = ({ setModal, status, disabled }) => {
   const menuActions = {
     'Print label': () => {
-      setModal(MODALS.LABEL_PRINT);
+      setModal(MODAL_IDS.LABEL_PRINT);
     },
   };
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions['Cancel request'] = () => {
-      setModal(MODALS.CANCEL);
+      setModal(MODAL_IDS.CANCEL);
     };
   }
-  return <MenuButton status={status} actions={menuActions} />;
+  return <MenuButton disabled={disabled} status={status} actions={menuActions} />;
 };
 
 export const LabRequestView = () => {
@@ -135,13 +135,14 @@ export const LabRequestView = () => {
         actions={
           <Box display="flex" alignItems="center">
             <OutlinedButton
+              disabled={isReadOnly}
               onClick={() => {
                 handleChangeModalId(MODAL_IDS.PRINT);
               }}
             >
               Print request
             </OutlinedButton>
-            <Menu setModal={handleChangeModalId} status={labRequest.status} />
+            <Menu setModal={handleChangeModalId} status={labRequest.status} disabled={isReadOnly} />
           </Box>
         }
       />
@@ -160,11 +161,12 @@ export const LabRequestView = () => {
               {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
             </TileTag>
           }
-          isReadOnly={isReadOnly}
           actions={{
-            'Change status': () => {
-              handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-            },
+            ...(!isReadOnly && {
+              'Change status': () => {
+                handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+              },
+            }),
             'View status log': () => {
               handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
             },
@@ -173,6 +175,7 @@ export const LabRequestView = () => {
         <Tile
           Icon={() => <img src={BeakerIcon} alt="beaker" />}
           text="Sample collected"
+          isReadOnly={isReadOnly}
           main={
             <>
               <DateDisplay date={labRequest.sampleTime} showTime />
