@@ -54,11 +54,11 @@ async function getValuesFromImagingRequest(upstream, models) {
     ),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestId,
+        system: config.hl7.dataDictionaries.serviceRequestImagingId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestDisplayId,
+        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
         value: upstream.displayId,
       }),
     ],
@@ -125,11 +125,11 @@ async function getValuesFromLabRequest(upstream) {
     contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
-        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html', // TODO: Create new config?
+        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html',
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html', // TODO: Create new config?
+        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html',
         value: upstream.display_id,
       }),
     ],
