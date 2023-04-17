@@ -1,4 +1,6 @@
 import { fake } from 'shared/test-helpers';
+import { REPORT_STATUSES, REPORT_DEFAULT_DATE_RANGES } from 'shared/constants';
+import { setHardcodedPermissionsUseForTestsOnly, unsetUseHardcodedPermissionsUseForTestsOnly } from 'shared/permissions/rolesToPermissions';
 import { createTestContext } from '../utilities';
 
 const reportsUtils = {
@@ -65,6 +67,70 @@ describe('Reports', () => {
     });
   });
 
+  describe('list', () => {
+    let app;
+    let user;
+    let permittedReports;
+    let restrictedReports;
+    let result;
+
+    beforeAll(async () => {
+      // Arrange
+      setHardcodedPermissionsUseForTestsOnly(false);
+      const { models } = ctx;
+      const { Role, Permission, ReportDefinition, ReportDefinitionVersion } = models;
+      const role = await Role.create(fake(Role));
+      app = await baseApp.asRole(role.id);
+      user = app.user;
+      const reports = await ReportDefinition.bulkCreate(
+        Array(5)
+          .fill(null)
+          .map((_, i) => fake(ReportDefinition, { id: `report-def-list-test_${i}` })),
+      );
+      await ReportDefinitionVersion.bulkCreate(reports.map(r => fake(ReportDefinitionVersion, {
+        id: `${r.id}_version-1`,
+        versionNumber: 1,
+        reportDefinitionId: r.id,
+        status: REPORT_STATUSES.PUBLISHED,
+        query: 'SELECT 1+1',
+        queryOptions: JSON.stringify({
+          parameters: [],
+          dataSources: [],
+          defaultDateRange: REPORT_DEFAULT_DATE_RANGES.ALL_TIME,
+        }),
+        userId: user.id,
+      })));
+      permittedReports = reports.slice(0, 2);
+      // restrictedReports = reports.slice(2);
+      await Permission.bulkCreate(
+        permittedReports.map(r => ({
+          roleId: role.id,
+          userId: user.id,
+          verb: 'run',
+          noun: 'ReportDefinition',
+          objectId: r.id,
+        })),
+      );
+
+    });
+
+    afterAll(() => {
+      unsetUseHardcodedPermissionsUseForTestsOnly();
+    });
+
+    it('should get db and builtin reports', async () => {
+      // Act
+      const res = await app.get('/v1/reports');
+
+      // Assert
+      expect(res).toHaveSucceeded();
+      expect(res.body).toHaveLength(permittedReports.length);
+      expect(res.body.map(r => r.id).sort()).toEqual(permittedReports.map(
+        r => `${r.id}_version-1`,
+      ).sort());
+    });
+  });
+
   describe('post', () => {
     let app = null;
     beforeAll(async () => {
@@ -83,10 +149,12 @@ describe('Reports', () => {
       expect(res.body).toEqual({ error: { message: 'Report module not found' } });
     });
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
-      const res = await app.post('/v1/reports/incomplete-referrals').send({ parameters: {
-        fromDate: '2020-01-01',
-        toDate: 'invalid-date',
-      } });
+      const res = await app.post('/v1/reports/incomplete-referrals').send({
+        parameters: {
+          fromDate: '2020-01-01',
+          toDate: 'invalid-date',
+        },
+      });
       expect(res).toHaveStatus(400);
       expect(res.body).toEqual({ error: { message: 'Not a valid date' } });
     });
