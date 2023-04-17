@@ -26,7 +26,8 @@ export const PatientSearchBar = React.memo(
         onSearch={onSearch}
         isExpanded={showAdvancedFields}
         setIsExpanded={setShowAdvancedFields}
-        initialValues={{ displayIdExact: true, ...searchParameters }}
+        initialValues={searchParameters}
+        staticValues={{ displayIdExact: true }}
         hiddenFields={
           <>
             <LocalisedField useShortLabel component={SearchField} name="displayId" />

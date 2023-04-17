@@ -11,6 +11,7 @@ const chance = new Chance();
 
 const mockData = () => {
   return {
+    patientName: chance.name(),
     patientId: chance.hash({ length: 10 }),
     testId: chance.hash({ length: 8 }),
     patientDateOfBirth: chance.birthday({ type: 'child' }),

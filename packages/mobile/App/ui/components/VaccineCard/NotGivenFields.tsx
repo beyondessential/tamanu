@@ -24,7 +24,7 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
       Icon={CalendarIcon}
     />
     <Separator />
-    <ModalField label="Reason" value={administeredVaccine.reason} />
+    <ModalField label="Reason" value={administeredVaccine.notGivenReason?.name} />
     <Separator />
     <ModalField label="Practitioner" value={administeredVaccine.encounter.examiner.displayName || 'Unknown'} />
   </StyledView>

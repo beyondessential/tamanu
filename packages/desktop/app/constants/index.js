@@ -18,6 +18,8 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUS_CONFIG,
   LAB_REQUEST_STATUSES,
+  LOCATION_AVAILABILITY_STATUS,
+  LOCATION_AVAILABILITY_TAG_CONFIG,
   TEMPLATE_TYPES,
 } from 'shared/constants';
 
@@ -310,6 +312,14 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   label: status,
   value: status,
 }));
+
+export const locationAvailabilityOptions = [
+  { value: '', label: 'All' },
+  ...Object.keys(LOCATION_AVAILABILITY_STATUS).map(status => ({
+    value: status,
+    label: LOCATION_AVAILABILITY_TAG_CONFIG[status].label,
+  })),
+];
 
 export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
   .filter(

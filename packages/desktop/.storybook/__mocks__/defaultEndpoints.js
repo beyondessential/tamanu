@@ -59,5 +59,7 @@ export const defaultEndpoints = {
   },
   'suggestions/labTestLaboratory/all': () => Array.from({ length: 10 }, fakeLabTestLaboratory),
   'suggestions/labTestPriority/all': () => Array.from({ length: 10 }, fakeLabTestPriority),
-  'suggestions/labTestCategory/all': () => Array.from({ length: 10 }, fakeLabTestCategory)
+  'suggestions/labTestCategory/all': () => Array.from({ length: 10 }, fakeLabTestCategory),
+  'suggestions/lessThanSevenCities': () => Array.from({ length: 6 }, fakeCity),
+  'suggestions/moreThanSevenCities': () => Array.from({ length: 10 }, fakeCity),
 };
