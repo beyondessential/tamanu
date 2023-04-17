@@ -16,8 +16,10 @@ import { Colors } from '../../../constants';
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
   const certificate = useCertificate();
-  
-  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(labRequest.encounterId);
+
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
+    labRequest.encounterId,
+  );
 
   const { data: additionalData, isLoading: isAdditionalDataLoading } = usePatientAdditionalData(
     patient.id,

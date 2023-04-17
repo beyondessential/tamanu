@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import {
   DateField,
   SelectField,
@@ -9,7 +10,6 @@ import {
   DisplayIdField,
   AutocompleteField,
 } from '../Field';
-import styled from 'styled-components';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
