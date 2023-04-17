@@ -8,8 +8,6 @@ import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 import { createTestContext } from '../../utilities';
 
-import { createTestContext } from '../../utilities';
-
 const INTEGRATION_ROUTE = 'fhir/mat';
 
 describe(`Materialised FHIR - ServiceRequest`, () => {
