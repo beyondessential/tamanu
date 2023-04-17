@@ -2,6 +2,7 @@ import config from 'config';
 
 import { latestDateTime } from '../../../utils/dateTime';
 import {
+  FhirAnnotation,
   FhirCodeableConcept,
   FhirCoding,
   FhirIdentifier,
@@ -115,7 +116,7 @@ async function getValuesFromLabRequest(upstream) {
       upstream.encounter?.updatedAt,
       upstream.encounter?.patient?.updatedAt,
     ),
-    contained: null,
+    contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
         system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html', // TODO: Create new config?
@@ -140,19 +141,21 @@ async function getValuesFromLabRequest(upstream) {
     ],
     priority: validatePriority(upstream.priority),
     code: labCode(upstream),
-    orderDetail: null, // TODO
+    orderDetail: labOrderDetails(upstream),
     subject: new FhirReference({
       type: 'upstream://patient',
       reference: upstream.encounter.patient.id,
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
-    encounter: null, // TODO
+    encounter: new FhirReference({
+      reference: `Encounter/${upstream.encounter.id}`,
+    }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({
       reference: `Practitioner/${upstream.requestedBy.id}`,
       display: upstream.requestedBy.displayName,
     }),
-    note: null, // TODO
+    note: labAnnotations(upstream),
   };
 }
 
@@ -233,15 +236,50 @@ function statusFromLabRequest(upstream) {
 }
 
 function labCode(upstream) {
-  if (!upstream.labTestPanelRequest.labTestPanel.externalCode) return null; // TODO: Figure out if this is possible
+  const { externalCode, name } = upstream.labTestPanelRequest.labTestPanel;
+  if (!externalCode) return null; // TODO: Figure out if this is possible
 
   return new FhirCodeableConcept({
     coding: [
       new FhirCoding({
         system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
-        code: '', // TODO: LabRequest.LabTestPanelRequest.LabTestPanel.externalCode
-        display: '', // TODO: Lab test panel name
+        code: externalCode,
+        display: name,
       }),
     ],
+  });
+}
+
+function labContained(upstream) {
+  return [
+    {
+      resourceType: 'Specimen',
+      collection: {
+        collectedDateTime: formatFhirDate(upstream.sampleTime),
+      },
+    },
+  ];
+}
+
+function labOrderDetails(upstream) {
+  return upstream.tests.map(test => {
+    return new FhirCodeableConcept({
+      coding: [
+        new FhirCoding({
+          system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+          code: test.labTestType.externalCode,
+          display: test.labTestType.name,
+        }),
+      ],
+    });
+  });
+}
+
+function labAnnotations(upstream) {
+  return upstream.notePages.map(notePage => {
+    return new FhirAnnotation({
+      time: formatFhirDate(notePage.date),
+      text: notePage.noteItems.map(noteItem => noteItem.content).join('\n\n'),
+    });
   });
 }
