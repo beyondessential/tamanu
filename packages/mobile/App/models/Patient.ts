@@ -207,7 +207,7 @@ export class Patient extends BaseModel implements IPatient {
     const repo = this.getRepository();
     const results = await repo.query(
       `SELECT
-           answer.id, pde.name, answer.dataElementId, answer.responseId, ssc.config, answer.body
+           answer.id, pde.name, answer.dataElementId, answer.responseId, ssc.config, ssc.validationCriteria, answer.body
         FROM
         survey_response_answer answer
         INNER JOIN

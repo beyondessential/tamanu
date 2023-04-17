@@ -258,10 +258,39 @@ patientRoute.get(
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
+    // Check if this is the main patient listing and change FROM and SELECT
+    // clauses to improve query speed by removing unused joins
+    const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
-    const from = `
+    const from = isAllPatientsListing
+      ? `
+      FROM patients
+        LEFT JOIN (
+            SELECT patient_id, max(start_date) AS most_recent_open_encounter
+            FROM encounters
+            WHERE end_date IS NULL
+            GROUP BY patient_id
+          ) recent_encounter_by_patient
+          ON patients.id = recent_encounter_by_patient.patient_id
+        LEFT JOIN encounters
+          ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+        LEFT JOIN reference_data AS village
+          ON (village.type = 'village' AND village.id = patients.village_id)
+        LEFT JOIN (
+          SELECT
+            patient_id,
+            ARRAY_AGG(value) AS secondary_ids
+          FROM patient_secondary_ids
+          GROUP BY patient_id
+        ) psi
+          ON (patients.id = psi.patient_id)
+        LEFT JOIN patient_facilities
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
+      ${whereClauses && `WHERE ${whereClauses}`}
+      `
+      : `
       FROM patients
         LEFT JOIN (
             SELECT patient_id, max(start_date) AS most_recent_open_encounter
@@ -321,24 +350,38 @@ patientRoute.get(
       return;
     }
 
+    const select = isAllPatientsListing
+      ? `
+      SELECT
+        patients.*,
+        encounters.id AS encounter_id,
+        encounters.encounter_type,
+        village.id AS village_id,
+        village.name AS village_name,
+        patient_facilities.patient_id IS NOT NULL as marked_for_sync
+      `
+      : `
+      SELECT
+        patients.*,
+        encounters.id AS encounter_id,
+        encounters.encounter_type,
+        department.id AS department_id,
+        department.name AS department_name,
+        location.id AS location_id,
+        location.name AS location_name,
+        location_group.name AS location_group_name,
+        planned_location_group.name AS planned_location_group_name,
+        planned_location.id AS planned_location_id,
+        planned_location.name AS planned_location_name,
+        encounters.planned_location_start_time,
+        village.id AS village_id,
+        village.name AS village_name,
+        patient_facilities.patient_id IS NOT NULL as marked_for_sync
+    `;
+
     const result = await req.db.query(
       `
-        SELECT
-          patients.*,
-          encounters.id AS encounter_id,
-          encounters.encounter_type,
-          department.id AS department_id,
-          department.name AS department_name,
-          location.id AS location_id,
-          location.name AS location_name,
-          location_group.name AS location_group_name,
-          planned_location_group.name AS planned_location_group_name,
-          planned_location.id AS planned_location_id,
-          planned_location.name AS planned_location_name,
-          encounters.planned_location_start_time,
-          village.id AS village_id,
-          village.name AS village_name,
-          patient_facilities.patient_id IS NOT NULL as marked_for_sync
+        ${select}
         ${from}
 
         ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
@@ -371,11 +414,15 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
 
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { Patient } = models;
+    const { certType } = query;
 
     const patient = await Patient.findByPk(params.id);
-    const labTests = await patient.getCovidLabTests();
+    const labTests =
+      certType === 'clearance'
+        ? await patient.getCovidClearanceLabTests()
+        : await patient.getCovidLabTests();
 
     res.json({ data: labTests, count: labTests.length });
   }),

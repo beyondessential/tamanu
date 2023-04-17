@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { get } from 'lodash';
 
 const overrides = {}; // add keys to this object to help with development
@@ -10,8 +10,9 @@ const LocalisationContext = React.createContext({
 
 export const useLocalisation = () => useContext(LocalisationContext);
 
-export const DumbLocalisationProvider = ({ children, reduxLocalisation }) => {
+export const LocalisationProvider = ({ children }) => {
   const [localisation, setLocalisation] = useState({});
+  const reduxLocalisation = useSelector(state => state.auth.localisation);
 
   useEffect(() => {
     setLocalisation({ ...reduxLocalisation, ...overrides });
@@ -27,9 +28,3 @@ export const DumbLocalisationProvider = ({ children, reduxLocalisation }) => {
     </LocalisationContext.Provider>
   );
 };
-
-// we wrap this in a LocalisationProvider because it's a side effect of logging in
-// and logging in is still handled within a redux reducer
-export const LocalisationProvider = connect(({ auth: { localisation } }) => ({
-  reduxLocalisation: localisation,
-}))(DumbLocalisationProvider);
