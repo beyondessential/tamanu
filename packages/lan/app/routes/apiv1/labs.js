@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
@@ -161,6 +162,11 @@ labRequest.get(
           requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
         }),
       ),
+      makeFilter(
+        !JSON.parse(filterParams.allFacilities || false),
+        `location.facility_id = :facilityId`,
+        () => ({ facilityId: config.serverFacilityId }),
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -189,6 +195,8 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
+        LEFT JOIN locations AS location
+          ON (location.id = encounter.location_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -247,7 +255,8 @@ labRequest.get(
           priority.name AS priority_name,
           lab_test_panel.name as lab_test_panel_name,
           laboratory.id AS laboratory_id,
-          laboratory.name AS laboratory_name
+          laboratory.name AS laboratory_name,
+          location.facility_id AS facility_id
         ${from}
         
         ORDER BY ${sortKey} ${sortDirection}

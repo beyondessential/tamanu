@@ -42,7 +42,7 @@ export class FhirReference extends FhirBaseType {
   fhirTypeAndId() {
     const TYPE_ID_URL_REGEX = /\/?(?<type>\w+)\/(?<id>[0-9a-f-]+)$/i;
 
-    const { reference } = this;
+    const { reference } = this.params;
     if (!reference) return null;
 
     const match = TYPE_ID_URL_REGEX.exec(reference);

@@ -10,19 +10,19 @@ import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { MultipleLabRequestsPrintout as LabRequestPrintout } from '../../../components/PatientPrinting';
+import { MultipleLabRequestsPrintout } from '../../../components/PatientPrinting';
 import { Colors } from '../../../constants';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
   const certificate = useCertificate();
+  
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(labRequest.encounterId);
 
-  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
-    labRequest.encounterId,
-  );
   const { data: additionalData, isLoading: isAdditionalDataLoading } = usePatientAdditionalData(
     patient.id,
   );
+
   const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(labRequest.id);
 
   const { data: testsData, isLoading: areTestsLoading } = useQuery(
@@ -36,10 +36,11 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     { enabled: isVillageEnabled },
   );
+
   const isLoading =
     isEncounterLoading ||
-    areNotesLoading ||
     areTestsLoading ||
+    areNotesLoading ||
     isAdditionalDataLoading ||
     (isVillageEnabled && isVillageLoading);
 
@@ -55,7 +56,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <LabRequestPrintout
+        <MultipleLabRequestsPrintout
           labRequests={[{ ...labRequest, tests: testsData.data, notePages }]}
           patient={patient}
           village={village}
