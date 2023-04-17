@@ -70,7 +70,7 @@ export const NewVaccineTabComponent = ({
         },
       );
 
-      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne({
+      const vaccineData = {
         ...otherValues,
         date: date ? formatISO9075(date) : null,
         id: administeredVaccine?.id,
@@ -78,7 +78,28 @@ export const NewVaccineTabComponent = ({
         recorder: recorderId,
         encounter: vaccineEncounter.id,
         notGivenReasonId,
-      });
+      };
+
+      // If id exists then it means user is updating an existing vaccine record
+      if (administeredVaccine?.id) {
+        const existingVaccine = await models.AdministeredVaccine.findOne({
+          id: administeredVaccine.id,
+        });
+
+        // If it is an existing vaccine record, and the previous status was NOT_GIVEN
+        // => Update the old NOT_GIVEN vaccine record's status to HISTORICAL (so that it is hidden)
+        // And create a new GIVEN vaccine record
+        if (
+          existingVaccine?.status === VaccineStatus.NOT_GIVEN &&
+          administeredVaccine.status === VaccineStatus.GIVEN
+        ) {
+          delete vaccineData.id; // Will creates a new vaccine record if no id supplied
+          existingVaccine.status = VaccineStatus.HISTORICAL;
+          await existingVaccine.save();
+        }
+      }
+
+      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne(vaccineData);
 
       const notGivenReason = await models.ReferenceData.findOne({ id: notGivenReasonId });
 
