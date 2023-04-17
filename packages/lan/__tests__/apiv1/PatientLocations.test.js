@@ -129,6 +129,30 @@ describe('PatientLocations', () => {
 
   });
 
+  it('should return accurate readmissions', async () => {
+
+    const oneEncounterReadmissionsResponse = await app.get('/v1/patient/locations/readmissions');
+    expect(oneEncounterReadmissionsResponse).toHaveSucceeded();
+    expect(oneEncounterReadmissionsResponse.body.data).toEqual(0);
+
+    await encounter.update({
+      endDate: new Date(),
+    });
+    const outpatientEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+      encounterType: 'admission',
+      locationId: maxOneOccupancyLocations[1].id,
+      startDate: new Date(),
+      endDate: null,
+    });
+
+    const oneReadmittedPatientnReadmissionsResponse = await app.get('/v1/patient/locations/readmissions');
+    expect(oneReadmittedPatientnReadmissionsResponse).toHaveSucceeded();
+    expect(oneReadmittedPatientnReadmissionsResponse.body.data).toEqual(1);
+
+  });
+
   it('should return accurate ALOS', async () => {
 
     const twoDaysAgo = new Date();
