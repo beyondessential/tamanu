@@ -17,7 +17,7 @@ type HeaderTitleProps = {
 
 const HeaderTitle = ({ subtitle, title }: HeaderTitleProps): ReactElement => (
   <CenterView top="25%" position="absolute" zIndex={-1} width="100%">
-    <StyledText fontSize={11} color={theme.colors.WHITE}>
+    <StyledText fontSize={11} color={theme.colors.WHITE} marginBottom={2} marginTop={-2}>
       {subtitle}
     </StyledText>
     <StyledText color={theme.colors.WHITE} fontSize={16}>
@@ -54,21 +54,18 @@ export const StackHeader = ({
           width={screenPercentageToDP(2.43, Orientation.Height)}
         />
       </StyledTouchableOpacity>
-      {
-        onRightSideIconTap
-        && (
-          <StyledTouchableOpacity
-            accessibilityLabel="menu"
-            paddingTop={25}
-            paddingLeft={25}
-            paddingRight={25}
-            paddingBottom={25}
-            onPress={onRightSideIconTap}
-          >
-            <KebabIcon />
-          </StyledTouchableOpacity>
-        )
-      }
+      {onRightSideIconTap && (
+        <StyledTouchableOpacity
+          accessibilityLabel="menu"
+          paddingTop={25}
+          paddingLeft={25}
+          paddingRight={25}
+          paddingBottom={25}
+          onPress={onRightSideIconTap}
+        >
+          <KebabIcon />
+        </StyledTouchableOpacity>
+      )}
       <HeaderTitle title={title} subtitle={subtitle} />
     </RowView>
   </StyledSafeAreaView>

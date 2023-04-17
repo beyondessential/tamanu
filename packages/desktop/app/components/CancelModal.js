@@ -16,7 +16,7 @@ const ModalBody = styled.div`
 `;
 
 const Wrapper = styled.div`
-  margin: 0 auto 50px;
+  margin: 30px auto 50px;
   max-width: 350px;
 `;
 const isReasonForDelete = reason => reason === 'duplicate' || reason === 'entered-in-error';
@@ -34,6 +34,7 @@ export const CancelModal = React.memo(
             <BodyText>{bodyText}</BodyText>
             <Wrapper>
               <Field
+                required
                 component={SelectField}
                 label="Reason for cancellation"
                 name="reasonForCancellation"
