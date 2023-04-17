@@ -21,11 +21,7 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const StyledSelect = styled(props => <Select 
-  className={props.className + " react-select-container"} 
-  classNamePrefix="react-select"
-  {...props} 
-/>)`
+const StyledSelect = styled(props => <Select className="react-select-container" classNamePrefix="react-select" {...props} />)`
 
   .react-select__control {
     padding-right: 8px;
