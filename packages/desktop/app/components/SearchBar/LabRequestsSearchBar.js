@@ -9,6 +9,7 @@ import {
   SearchField,
   DisplayIdField,
   AutocompleteField,
+  CheckField,
 } from '../Field';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
