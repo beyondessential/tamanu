@@ -236,8 +236,8 @@ function statusFromLabRequest(upstream) {
 }
 
 function labCode(upstream) {
-  const { externalCode, name } = upstream.labTestPanelRequest.labTestPanel;
-  if (!externalCode) return null; // TODO: Figure out if this is possible
+  const { externalCode, name } = upstream?.labTestPanelRequest?.labTestPanel;
+  if (!externalCode) throw new Error('No external code specified for this lab test panel.');
 
   return new FhirCodeableConcept({
     coding: [
@@ -263,12 +263,15 @@ function labContained(upstream) {
 
 function labOrderDetails(upstream) {
   return upstream.tests.map(test => {
+    const { externalCode, name } = test?.labTestType;
+    if (!externalCode) throw new Error('No external code specified for this lab test type.');
+
     return new FhirCodeableConcept({
       coding: [
         new FhirCoding({
           system: 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
-          code: test.labTestType.externalCode,
-          display: test.labTestType.name,
+          code: externalCode,
+          display: name,
         }),
       ],
     });
