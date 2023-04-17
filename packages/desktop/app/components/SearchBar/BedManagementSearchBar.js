@@ -54,7 +54,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         initialValues={searchParameters}
       >
         <HandoverNotesButton
-          type="button"
           disabled={!searchParameters?.area}
           startIcon={
             <HandoverIcon color={searchParameters?.area ? Colors.primary : Colors.softText} />
