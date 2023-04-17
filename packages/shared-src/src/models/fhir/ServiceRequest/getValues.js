@@ -115,6 +115,12 @@ async function getValuesFromLabRequest(upstream) {
       upstream.requestedBy?.updatedAt,
       upstream.encounter?.updatedAt,
       upstream.encounter?.patient?.updatedAt,
+      upstream.labTestPanelRequest?.labTestPanel?.updatedAt,
+      ...upstream.tests.map(test => test.updatedAt),
+      ...upstream.notePages.map(notePage => notePage.updatedAt),
+      ...upstream.notePages.flatMap(notePage =>
+        notePage.noteItems.map(noteItem => noteItem.updatedAt),
+      ),
     ),
     contained: labContained(upstream),
     identifier: [
