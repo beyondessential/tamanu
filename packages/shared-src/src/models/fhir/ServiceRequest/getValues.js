@@ -215,6 +215,7 @@ function statusFromImagingRequest(upstream) {
 
 function statusFromLabRequest(upstream) {
   switch (upstream.status) {
+    case LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED:
     case LAB_REQUEST_STATUSES.RECEPTION_PENDING:
       return FHIR_REQUEST_STATUS.DRAFT;
     case LAB_REQUEST_STATUSES.RESULTS_PENDING:
@@ -228,8 +229,6 @@ function statusFromLabRequest(upstream) {
       return FHIR_REQUEST_STATUS.REVOKED;
     case LAB_REQUEST_STATUSES.ENTERED_IN_ERROR:
       return FHIR_REQUEST_STATUS.ENTERED_IN_ERROR;
-    case LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED:
-      return '?????'; // TODO: Figure out
     default:
       return FHIR_REQUEST_STATUS.UNKNOWN;
   }
