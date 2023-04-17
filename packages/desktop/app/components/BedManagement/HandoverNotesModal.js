@@ -15,7 +15,10 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const {
     data: { data: handoverNotes = [], locationGroup = {} } = {},
     refetch: refetchHandoverNotes,
-  } = useQuery(['locationGroupHandoverNotes'], () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`));
+  } = useQuery(
+    ['locationGroupHandoverNotes'],
+    () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`),
+  );
 
   useEffect(() => {
     if (areaId) {
