@@ -174,7 +174,138 @@ function fromImagingRequests(models, table, id) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function fromLabRequests(models, table, id) {
-  return null;
+  const {
+    LabRequest,
+    LabTest,
+    LabTestType,
+    LabTestPanelRequest,
+    LabTestPanel,
+    NotePage,
+    NoteItem,
+    Encounter,
+    Patient,
+    User,
+  } = models;
+
+  switch (table) {
+    case LabRequest.tableName:
+      return { where: { id } };
+    case LabTest.tableName:
+      return {
+        include: [
+          {
+            model: LabTest,
+            as: 'tests',
+            where: { id },
+          },
+        ],
+      };
+    case LabTestType.tableName:
+      return {
+        include: [
+          {
+            model: LabTest,
+            as: 'tests',
+            include: [
+              {
+                model: LabTestType,
+                as: 'labTestType',
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+    case LabTestPanelRequest.tableName:
+      return {
+        include: [
+          {
+            model: LabTestPanelRequest,
+            as: 'labTestPanelRequest',
+            where: { id },
+          },
+        ],
+      };
+    case LabTestPanel.tableName:
+      return {
+        include: [
+          {
+            model: LabTestPanelRequest,
+            as: 'labTestPanelRequest',
+            include: [
+              {
+                model: LabTestPanel,
+                as: 'labTestPanel',
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+    case NotePage.tableName:
+      return {
+        include: [
+          {
+            model: NotePage,
+            as: 'notePages',
+            where: { id },
+          },
+        ],
+      };
+    case NoteItem.tableName:
+      return {
+        include: [
+          {
+            model: NotePage,
+            as: 'notePages',
+            include: [
+              {
+                model: NoteItem,
+                as: 'noteItems',
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+    case Encounter.tableName:
+      return {
+        include: [
+          {
+            model: Encounter,
+            as: 'encounter',
+            where: { id },
+          },
+        ],
+      };
+    case Patient.tableName:
+      return {
+        include: [
+          {
+            model: Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: Patient,
+                as: 'patient',
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+    case User.tableName:
+      return {
+        include: [
+          {
+            model: User,
+            as: 'requestedBy',
+            where: { id },
+          },
+        ],
+      };
+    default:
+      return null;
+  }
 }
