@@ -161,6 +161,7 @@ describe(`Materialised FHIR - Patient`, () => {
               ],
               birthDate: format(new Date(patient.dateOfBirth), 'yyyy-MM-dd'),
               deceasedDateTime: format(new Date(patient.dateOfDeath), 'yyyy-MM-dd'),
+              extension: [],
               gender: patient.sex,
               identifier: [
                 {

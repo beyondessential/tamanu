@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import * as yup from 'yup';
 
 export const patientDeath = express.Router();
@@ -36,7 +38,8 @@ patientDeath.get(
     }
 
     const deathData = await PatientDeathData.findOne({
-      where: { patientId },
+      where: { patientId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: User,
@@ -76,6 +79,7 @@ patientDeath.get(
       dateOfBirth: patient.dateOfBirth,
       dateOfDeath: patient.dateOfDeath,
 
+      isFinal: deathData.isFinal,
       manner: deathData.manner,
       causes: {
         primary: deathData.primaryCauseCondition
@@ -163,7 +167,12 @@ patientDeath.post(
       .lowercase()
       .oneOf(['yes', 'no']);
 
-    const schema = yup.object().shape({
+    const partialSchema = yup.object().shape({
+      clinicianId: yup.string().required(),
+      timeOfDeath: yup.date().required(),
+    });
+
+    const fullSchema = yup.object().shape({
       ageOfMother: yup.number(),
       antecedentCause1: yup.string(),
       antecedentCause1Interval: yup.number().default(0),
@@ -194,19 +203,27 @@ patientDeath.post(
       timeOfDeath: yup.date().required(),
     });
 
+    const { isPartialWorkflow } = req.body;
+    const schema = isPartialWorkflow ? partialSchema : fullSchema;
     const body = await schema.validate(req.body);
 
     const patient = await Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError('Patient not found');
-    if (patient.dateOfDeath) throw new InvalidOperationError('Patient is already deceased');
 
     const doc = await User.findByPk(body.clinicianId);
     if (!doc) throw new NotFoundError('Discharge clinician not found');
 
+    const existingDeathData = await PatientDeathData.findOne({
+      where: { patientId: patient.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
+    });
+
     await transactionOnPostgres(db, async () => {
       await patient.update({ dateOfDeath: body.timeOfDeath });
 
-      const deathData = await PatientDeathData.create({
+      const [deathData] = await PatientDeathData.upsert({
+        id: existingDeathData?.id,
+        isFinal: !isPartialWorkflow,
         antecedentCause1ConditionId: body.antecedentCause1,
         antecedentCause1TimeAfterOnset: body.antecedentCause1Interval,
         antecedentCause2ConditionId: body.antecedentCause2,
@@ -238,7 +255,7 @@ patientDeath.post(
           : null,
       });
 
-      if (body.otherContributingConditions) {
+      if (!isPartialWorkflow && body.otherContributingConditions) {
         for (const condition of body.otherContributingConditions) {
           await ContributingDeathCause.create({
             patientDeathDataId: deathData.id,
@@ -248,14 +265,56 @@ patientDeath.post(
         }
       }
 
-      const activeEncounters = await patient.getEncounters({
-        where: {
-          endDate: null,
-        },
-      });
-      for (const encounter of activeEncounters) {
-        await encounter.dischargeWithDischarger(doc, body.timeOfDeath);
+      if (!existingDeathData) {
+        const activeEncounters = await patient.getEncounters({
+          where: {
+            endDate: null,
+          },
+        });
+        for (const encounter of activeEncounters) {
+          await encounter.dischargeWithDischarger(doc, body.timeOfDeath);
+        }
       }
+    });
+
+    res.send({
+      data: {},
+    });
+  }),
+);
+
+patientDeath.post(
+  '/:id/revertDeath',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Patient');
+    req.checkPermission('create', 'PatientDeath');
+
+    const {
+      db,
+      models: { Patient, PatientDeathData, DeathRevertLog },
+      params: { id: patientId },
+    } = req;
+
+    const patient = await Patient.findByPk(patientId);
+    if (!patient) throw new NotFoundError('Patient not found');
+
+    const deathData = await PatientDeathData.findOne({
+      where: { patientId: patient.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [['createdAt', 'DESC']],
+    });
+    if (!deathData) throw new NotFoundError('Death data not found');
+    if (deathData.isFinal)
+      throw new InvalidOperationError('Death data is final and cannot be reverted.');
+
+    await transactionOnPostgres(db, async () => {
+      await DeathRevertLog.create({
+        revertTime: getCurrentDateTimeString(),
+        deathDataId: deathData.id,
+        patientId,
+        revertedById: req.user.id,
+      });
+      await patient.update({ dateOfDeath: null });
+      await deathData.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
     });
 
     res.send({

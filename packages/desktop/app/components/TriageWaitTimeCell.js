@@ -59,10 +59,9 @@ export const TriageWaitTimeCell = React.memo(
       case ENCOUNTER_TYPES.OBSERVATION:
       case ENCOUNTER_TYPES.EMERGENCY:
         return (
-          <TriageCell arrivalTime={arrivalTime}>{`Seen at ${format(
-            new Date(closedTime),
-            'h:mma',
-          )}`}</TriageCell>
+          <TriageCell arrivalTime={arrivalTime}>
+            {`Seen at ${format(new Date(closedTime), 'h:mma')}`}
+          </TriageCell>
         );
       default:
         return <PlainCell>Admitted</PlainCell>;

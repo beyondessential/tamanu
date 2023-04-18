@@ -11,8 +11,10 @@ const Red = styled.p`
 const ConfirmInstructions = () => (
   <div>
     <Red>Confirm merging of patients - this action is irreversible.</Red>
-    <p>{`Merging patients can't be undone. Please allow 24 hours for this change to be synced
-      throughout the entire system.`}</p>
+    <p>
+      {`Merging patients can't be undone. Please allow 24 hours for this change to be synced
+      throughout the entire system.`}
+    </p>
   </div>
 );
 

@@ -1,7 +1,7 @@
 - name: tamanu deployment
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
-  tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$)
+  tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
   steps:
     - name: copy files
       service: app-without-db
@@ -67,9 +67,9 @@
             - name: onto staging
               tag: ^(staging-)
               command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
-            # - name: onto nauru demo
-            #   tag: ^(master$)
-            #   command: ./scripts/deploy_sync.sh nauru-demo tamanu-central-server-nauru-demo
+            - name: onto nauru demo
+              tag: ^(deploy-nauru-demo$)
+              command: ./scripts/deploy_sync.sh nauru-demo tamanu-central-server-nauru-demo
             - name: onto klaus
               tag: ^(klaus-)
               command: ./scripts/deploy_sync.sh klaus tamanu-central-server-klaus
@@ -108,6 +108,9 @@
             - name: onto da A
               tag: ^(da-)
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
+            - name: onto da B
+              tag: ^(da-)
+              command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-b
             - name: onto uat
               tag: ^uat-
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
@@ -123,12 +126,12 @@
             - name: onto staging B
               tag: ^(staging-)
               command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
-            # - name: onto nauru demo
-            #   tag: ^(master$)
-            #   command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo
-            # - name: onto nauru demo 2
-            #   tag: ^(master$)
-            #   command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo-2
+            - name: onto nauru demo
+              tag: ^(deploy-nauru-demo$)
+              command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo
+            - name: onto nauru demo 2
+              tag: ^(deploy-nauru-demo$)
+              command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo-2
         - name: the meta server
           service: awsdeployment
           type: serial

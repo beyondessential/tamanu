@@ -13,14 +13,36 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const { sessionId, tick } = await syncManager.startSession();
+      const { user, deviceId } = req;
+      const { sessionId, tick } = await syncManager.startSession(user.id, deviceId);
       res.json({ sessionId, tick });
+    }),
+  );
+
+  // fetch if the session is ready to start syncing
+  syncRoutes.get(
+    '/:sessionId/ready',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { sessionId } = params;
+      const ready = await syncManager.checkSessionReady(sessionId);
+      res.json(ready);
+    }),
+  );
+
+  // fetch sync metadata
+  syncRoutes.get(
+    '/:sessionId/metadata',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { startedAtTick } = await syncManager.fetchSyncMetadata(params.sessionId);
+      res.json({ startedAtTick });
     }),
   );
 
   // set the since and facilityId for a pull session
   syncRoutes.post(
-    '/:sessionId/pullFilter',
+    '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
       const { params, body } = req;
       const {
@@ -34,24 +56,36 @@ export const buildSyncRoutes = ctx => {
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
-      const { tick } = await syncManager.setPullFilter(params.sessionId, {
+      await syncManager.initiatePull(params.sessionId, {
         since,
         facilityId,
         tablesToInclude,
         tablesForFullResync,
         isMobile,
       });
-      res.json({ tick });
+      res.json({});
     }),
   );
 
-  // count the outgoing changes for a session, or return null if it is not finished snapshotting
+  // check if pull snapshot is ready, so client can poll while server asynchronously snapshots
+  // changes to pull (which can also be blocked by another sync session finishing its persist phase)
   syncRoutes.get(
-    '/:sessionId/pull/count',
+    '/:sessionId/pull/ready',
     asyncHandler(async (req, res) => {
       const { params } = req;
-      const count = await syncManager.fetchPullCount(params.sessionId);
-      res.json(count);
+      const { sessionId } = params;
+      const ready = await syncManager.checkPullReady(sessionId);
+      res.json(ready);
+    }),
+  );
+
+  // count the outgoing changes for a session, and grab the sync tick the pull snapshots up until
+  syncRoutes.get(
+    '/:sessionId/pull/metadata',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(params.sessionId);
+      res.json({ totalToPull, pullUntil });
     }),
   );
 
@@ -75,12 +109,35 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/push',
     asyncHandler(async (req, res) => {
-      const { params, body, query } = req;
+      const { params, body } = req;
       const { sessionId } = params;
-      const { changes, tablesToInclude } = body;
-      await syncManager.addIncomingChanges(sessionId, changes, query, tablesToInclude);
+      const { changes } = body;
+      await syncManager.addIncomingChanges(sessionId, changes);
       log.info(`POST to ${sessionId} : ${changes.length} records`);
       res.json({});
+    }),
+  );
+
+  // mark push completed, so server will persist changes to db
+  syncRoutes.post(
+    '/:sessionId/push/complete',
+    asyncHandler(async (req, res) => {
+      const { params, body } = req;
+      const { sessionId } = params;
+      const { tablesToInclude } = body;
+      await syncManager.completePush(sessionId, tablesToInclude);
+      res.json({});
+    }),
+  );
+
+  // check if push is complete, so client can poll while server asynchronously persists changes
+  syncRoutes.get(
+    '/:sessionId/push/complete',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { sessionId } = params;
+      const isComplete = await syncManager.checkPushComplete(sessionId);
+      res.json(isComplete);
     }),
   );
 

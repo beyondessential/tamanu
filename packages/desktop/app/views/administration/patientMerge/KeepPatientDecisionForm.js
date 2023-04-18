@@ -32,12 +32,13 @@ export const KeepPatientDecisionForm = ({
     <ConfirmCancelRow
       confirmText="Next"
       confirmDisabled={!selectedPatient}
-      onConfirm={() =>
+      onConfirm={() => {
+        const patientToRemove = selectedPatient === firstPatient ? secondPatient : firstPatient;
         onSelectPlan({
           keepPatient: selectedPatient,
-          removePatient: selectedPatient === firstPatient ? secondPatient : firstPatient,
-        })
-      }
+          removePatient: patientToRemove,
+        });
+      }}
       onCancel={onCancel}
     />
   );

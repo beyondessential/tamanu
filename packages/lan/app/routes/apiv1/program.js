@@ -15,7 +15,7 @@ program.get(
     req.checkPermission('list', 'Program');
     const { models, ability } = req;
     const records = await models.Program.findAll({
-      include: [{ association: 'surveys' }],
+      include: [{ association: 'surveys', where: { surveyType: 'programs' } }],
     });
 
     // Don't include programs that don't have any permitted survey to submit

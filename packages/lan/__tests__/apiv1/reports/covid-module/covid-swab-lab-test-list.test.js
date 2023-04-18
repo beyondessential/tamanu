@@ -143,7 +143,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
     date: '2021-03-20 10:50:28',
   });
 
-  // SHOULD NOT DISPLAY - Due to it's deleted status
+  // SHOULD NOT DISPLAY - Due to it's DELETED status
   const encounter5 = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: expectedPatient2.id }),
   );
@@ -159,6 +159,46 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest5Data.labTestTypeIds[0],
     labRequestId: labRequest5.id,
+    date: '2021-03-20 10:50:28',
+  });
+
+  // SHOULD NOT DISPLAY - Due to it's CANCELLED status
+  const encounter5A = await models.Encounter.create(
+    await createDummyEncounter(models, { patientId: expectedPatient2.id }),
+  );
+
+  const labRequest5AData = await randomLabRequest(models, {
+    labTestCategoryId: 'labTestCategory-COVID',
+    patientId: expectedPatient2.id,
+    requestedDate: '2021-03-20 10:50:28',
+    displayId: 'labRequest5A',
+    encounterId: encounter5A.id,
+    status: LAB_REQUEST_STATUSES.CANCELLED,
+  });
+  const labRequest5A = await models.LabRequest.create(labRequest5AData);
+  await models.LabTest.create({
+    labTestTypeId: labRequest5Data.labTestTypeIds[0],
+    labRequestId: labRequest5A.id,
+    date: '2021-03-20 10:50:28',
+  });
+
+  // SHOULD NOT DISPLAY - Due to it's ENTERED IN ERROR status
+  const encounter5B = await models.Encounter.create(
+    await createDummyEncounter(models, { patientId: expectedPatient2.id }),
+  );
+
+  const labRequest5BData = await randomLabRequest(models, {
+    labTestCategoryId: 'labTestCategory-COVID',
+    patientId: expectedPatient2.id,
+    requestedDate: '2021-03-20 10:50:28',
+    displayId: 'labRequest5B',
+    encounterId: encounter5B.id,
+    status: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+  });
+  const labRequest5B = await models.LabRequest.create(labRequest5BData);
+  await models.LabTest.create({
+    labTestTypeId: labRequest5Data.labTestTypeIds[0],
+    labRequestId: labRequest5B.id,
     date: '2021-03-20 10:50:28',
   });
 
@@ -430,7 +470,6 @@ describe('Covid swab lab test list', () => {
         expectedPatient1.displayId,
       ]);
     });
-
     it('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({
         parameters: {
