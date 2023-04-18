@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Popup } from 'popup-ui';
 import {
   StyledView,
@@ -29,7 +29,7 @@ interface VaccineTableCellProps {
 
 const CellContent = ({
   cellStatus, status,
-}: { status?: string; cellStatus?: string }): ReactElement => {
+}: { status?: string; cellStatus?: string }): JSX.Element => {
   const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
   const Icon = cellData.Icon;
 

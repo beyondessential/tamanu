@@ -1,6 +1,6 @@
 {
   "name": "shared-src",
-  "version": "1.24.5",
+  "version": "1.25.2",
   "description": "Common code across Tamanu packages",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@casl/ability": "^4.1.0",
-    "@react-pdf/renderer": "^2.1.1",
+    "@react-pdf/renderer": "^3.1.3",
     "await-to-js": "^2.0.1",
     "bcrypt": "^3.0.1",
     "calculate-luhn-mod-n": "^2.0.12",

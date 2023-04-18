@@ -257,6 +257,15 @@ const dummySuggester = {
 addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
 ))
+  .add('Small', () => (
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      value="pomegranates"
+      label="Fruit"
+      size="small"
+      suggester={dummySuggester}
+    />
+  ))
   .add('Asynchronous options', () => (
     <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
   ))

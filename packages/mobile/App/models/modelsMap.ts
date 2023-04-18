@@ -21,6 +21,7 @@ import { Attachment } from './Attachment';
 import { Facility } from './Facility';
 import { Department } from './Department';
 import { Location } from './Location';
+import { LocationGroup } from './LocationGroup';
 import { BaseModel } from './BaseModel';
 import { LabRequest } from './LabRequest';
 import { LabTest } from './LabTest';
@@ -52,6 +53,7 @@ export const MODELS_MAP = {
   Facility,
   Department,
   Location,
+  LocationGroup,
   LabRequest,
   LabTest,
   LabTestType,

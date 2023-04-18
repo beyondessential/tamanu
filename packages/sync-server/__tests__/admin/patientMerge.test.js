@@ -3,13 +3,14 @@ import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { NOTE_TYPES } from 'shared/constants/notes';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
+import { LocalSystemFact } from 'shared/models/LocalSystemFact';
+import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import {
   mergePatient,
   getTablesWithNoMergeCoverage,
 } from '../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
-import { LocalSystemFact } from 'shared/models/LocalSystemFact';
 
 describe('Patient merge', () => {
   let ctx;
@@ -284,6 +285,73 @@ describe('Patient merge', () => {
     });
   });
 
+  describe('PatientFieldValue', () => {
+    it('Merge patient field values', async () => {
+      const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
+
+      const category = await PatientFieldDefinitionCategory.create(
+        fake(PatientFieldDefinitionCategory),
+      );
+      const definitionA = await PatientFieldDefinition.create({
+        categoryId: category.id,
+        name: 'Secret Identity',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+      });
+      const definitionB = await PatientFieldDefinition.create({
+        categoryId: category.id,
+        name: 'Alter Ego',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+      });
+
+      const [keep, merge] = await makeTwoPatients();
+      const testValuesObject = {
+        [definitionA.id]: {
+          merge: 'Dick Grayson',
+          keep: 'Jason Todd',
+          expect: 'Jason Todd',
+        },
+        [definitionB.id]: {
+          merge: 'Robin',
+          keep: '',
+          expect: 'Robin',
+        },
+      };
+
+      await PatientFieldValue.create({
+        patientId: merge.id,
+        definitionId: definitionA.id,
+        value: testValuesObject[definitionA.id].merge,
+      });
+      await PatientFieldValue.create({
+        patientId: keep.id,
+        definitionId: definitionA.id,
+        value: testValuesObject[definitionA.id].keep,
+      });
+      await PatientFieldValue.create({
+        patientId: merge.id,
+        definitionId: definitionB.id,
+        value: testValuesObject[definitionB.id].merge,
+      });
+      await PatientFieldValue.create({
+        patientId: keep.id,
+        definitionId: definitionB.id,
+        value: testValuesObject[definitionB.id].keep,
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 1,
+        PatientFieldValue: 2,
+      });
+
+      const updatedFieldValues = await PatientFieldValue.findAll({});
+      expect(updatedFieldValues.length).toEqual(2);
+      updatedFieldValues.forEach(fieldValue => {
+        expect(fieldValue.value).toEqual(testValuesObject[fieldValue.definitionId].expect);
+      });
+    });
+  });
+
   describe('PatientFacility', () => {
     it('Should replace patient facility records with a new one per facility', async () => {
       const { Facility, PatientFacility } = models;
@@ -421,7 +489,7 @@ describe('Patient merge', () => {
 
     it('Should remerge some patient additional data', async () => {
       const { PatientAdditionalData, LocalSystemFact } = models;
-      
+
       const [keep, merge] = await makeTwoPatients();
       await mergePatient(models, keep.id, merge.id);
 
@@ -431,8 +499,8 @@ describe('Patient merge', () => {
         patientId: keep.id,
       });
 
-      // increment sync tick so the reconciler knows how to merge the records 
-      await LocalSystemFact.increment('currentSyncTick'); 
+      // increment sync tick so the reconciler knows how to merge the records
+      await LocalSystemFact.increment('currentSyncTick');
 
       // create second record
       const mergePad = await PatientAdditionalData.create({
@@ -448,8 +516,8 @@ describe('Patient merge', () => {
 
       // all of the values should end up in the keep pad
       await keepPad.reload();
-      expect(keepPad).toHaveProperty('passport', 'keep');      
-      expect(keepPad).toHaveProperty('placeOfBirth', 'merge');      
+      expect(keepPad).toHaveProperty('passport', 'keep');
+      expect(keepPad).toHaveProperty('placeOfBirth', 'merge');
 
       // and the merge pad should be deleted
       const deletedPad = await PatientAdditionalData.findByPk(mergePad.id);
@@ -499,7 +567,7 @@ describe('Patient merge', () => {
         where: {
           patientId: keep.id,
           facilityId: facility.id,
-        }
+        },
       });
       expect(updatedFacility).toBeTruthy();
 
@@ -508,7 +576,7 @@ describe('Patient merge', () => {
         where: {
           patientId: merge.id,
           facilityId: facility.id,
-        }
+        },
       });
       expect(removedFacility).toBeFalsy();
     });

@@ -18,15 +18,13 @@ export interface InputContainerProps {
 export const InputContainer = styled(StyledView)`
   background-color: ${(props: InputContainerProps): string => {
     if (props.disabled) return theme.colors.BACKGROUND_GREY;
-    if (!props.hasValue || (props.hasValue && !props.error)) return theme.colors.WHITE;
-    if (props.hasValue && props.error) return theme.colors.ERROR_LIGHT;
     return theme.colors.WHITE;
   }};
   border: 1px solid
     ${(props: InputContainerProps): string => {
-    if (props.error) return theme.colors.ERROR;
-    return theme.colors.DEFAULT_OFF;
-  }};
+      if (props.error) return theme.colors.ERROR;
+      return theme.colors.DEFAULT_OFF;
+    }};
   border-radius: 3px;
   padding-top: 3px;
   text-align: center;
