@@ -147,7 +147,7 @@ export const RecordedByField = () => {
     <Field
       disabled
       name="recorderId"
-      label="Recorded By"
+      label="Recorded by"
       component={SelectField}
       options={[
         {
@@ -160,16 +160,15 @@ export const RecordedByField = () => {
   );
 };
 
-export const ConsentField = () => (
+export const ConsentField = ({ label }) => (
   <FullWidthCol>
     <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
-    <Field
-      name="consent"
-      label="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
-      component={CheckField}
-      required
-    />
+    <Field name="consent" label={label} component={CheckField} required />
   </FullWidthCol>
+);
+
+export const ConsentGivenByField = () => (
+  <Field name="consentGivenBy" label="Consent given by" component={TextField} />
 );
 
 export const AdministeredVaccineScheduleField = ({ administeredOptions, scheduleOptions }) => (
@@ -199,12 +198,10 @@ export const VaccineNameField = () => (
 );
 
 export const VaccineBrandField = () => (
-  <Field name="vaccineBrand" label="Vaccine brand" component={TextField} required />
+  <Field name="vaccineBrand" label="Vaccine brand" component={TextField} />
 );
 
-export const DiseaseField = () => (
-  <Field name="disease" label="Disease" component={TextField} required />
-);
+export const DiseaseField = () => <Field name="disease" label="Disease" component={TextField} />;
 
 export const ConfirmCancelRowField = ({ onConfirm, category, scheduleOptions, onCancel }) => (
   <ConfirmCancelRow
