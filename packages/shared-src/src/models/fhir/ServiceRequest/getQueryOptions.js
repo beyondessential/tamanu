@@ -8,6 +8,12 @@ export function getQueryOptions(models) {
     User,
     ImagingRequest,
     LabRequest,
+    LabTest,
+    LabTestType,
+    LabTestPanelRequest,
+    LabTestPanel,
+    NotePage,
+    NoteItem,
   } = models;
 
   const imagingRequestOptions = {
@@ -53,7 +59,54 @@ export function getQueryOptions(models) {
     ],
   };
 
-  const labRequestOptions = {};
+  const labRequestOptions = {
+    include: [
+      {
+        model: User,
+        as: 'requestedBy',
+      },
+      {
+        model: Encounter,
+        as: 'encounter',
+        include: [
+          {
+            model: Patient,
+            as: 'patient',
+          },
+        ],
+      },
+      {
+        model: LabTest,
+        as: 'tests',
+        include: [
+          {
+            model: LabTestType,
+            as: 'labTestType',
+          },
+        ],
+      },
+      {
+        model: LabTestPanelRequest,
+        as: 'labTestPanelRequest',
+        include: [
+          {
+            model: LabTestPanel,
+            as: 'labTestPanel',
+          },
+        ],
+      },
+      {
+        model: NotePage,
+        as: 'notePages',
+        include: [
+          {
+            model: NoteItem,
+            as: 'noteItems',
+          },
+        ],
+      },
+    ],
+  };
 
   return {
     [ImagingRequest.tableName]: imagingRequestOptions,
