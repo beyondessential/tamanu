@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Search from '@material-ui/icons/Search';
 import { InputAdornment, IconButton } from '@material-ui/core';
 import styled from 'styled-components';
-import { CustomClearIcon } from '../Icons/CustomClearIcon';
+import { CustomClearIcon } from '../Icons/ClearIcon';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
 
