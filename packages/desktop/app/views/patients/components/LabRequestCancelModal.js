@@ -5,7 +5,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModal } from '../../../components/CancelModal';
 import { useAuth } from '../../../contexts/Auth';
 
-export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequestId }) => {
+export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequest }) => {
   const api = useApi();
   const auth = useAuth();
   const { getLocalisation } = useLocalisation();
@@ -26,7 +26,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       status = LAB_REQUEST_STATUSES.CANCELLED;
     }
 
-    await api.post(`labRequest/${labRequestId}/notes`, {
+    await api.post(`labRequest/${labRequest.id}/notes`, {
       content: note,
       authorId: auth.currentUser.id,
       noteType: NOTE_TYPES.OTHER,
