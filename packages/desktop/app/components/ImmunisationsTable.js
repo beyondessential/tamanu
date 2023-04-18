@@ -10,7 +10,7 @@ import { Colors } from '../constants';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
 const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label || 'Unknown';
-const getDate = ({ date }) => <DateDisplay date={date} />;
+const getDate = ({ date }) => (date ? <DateDisplay date={date} /> : 'Unknown');
 const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
@@ -28,11 +28,11 @@ const getFacility = record =>
   record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
 
 const columns = [
-  { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
-  { key: 'schedule', title: 'Schedule', accessor: getSchedule },
+  { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
+  { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
   { key: 'date', title: 'Date', accessor: getDate },
-  { key: 'givenBy', title: 'Given by', accessor: getGiver },
-  { key: 'facility', title: 'Facility/Country', accessor: getFacility },
+  { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
+  { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
 ];
 
 const TableHeaderCheckbox = styled(CheckInput)`

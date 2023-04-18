@@ -1,8 +1,14 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Op } from 'sequelize';
+import Sequelize, { QueryTypes, Op } from 'sequelize';
+import config from 'config';
 
-import { ENCOUNTER_TYPES, VACCINE_CATEGORIES, VACCINE_STATUS } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  VACCINE_CATEGORIES,
+  VACCINE_STATUS,
+  SETTING_KEYS,
+} from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -51,7 +57,7 @@ patientVaccineRoutes.get(
             e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = :givenStatus
         ${whereClause}
         GROUP BY sv.id
-        ORDER BY max(sv.label), max(sv.schedule);
+        ORDER BY sv.index, max(sv.label), max(sv.schedule);
       `,
       {
         replacements: {
@@ -131,6 +137,21 @@ patientVaccineRoutes.post(
       },
     });
 
+    console.log('vaccineData', vaccineData);
+
+    let { departmentId, locationId } = vaccineData;
+
+    if (!departmentId || !locationId) {
+      const vaccinationDefaults =
+        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, config.serverFacilityId)) ||
+        {};
+      departmentId = departmentId || vaccinationDefaults.departmentId;
+      locationId = locationId || vaccinationDefaults.locationId;
+    }
+
+    console.log('departmentId', departmentId);
+    console.log('locationId', locationId);
+
     const newAdministeredVaccine = await db.transaction(async () => {
       let encounterId;
       if (existingEncounter) {
@@ -138,11 +159,11 @@ patientVaccineRoutes.post(
       } else {
         const newEncounter = await req.models.Encounter.create({
           encounterType: ENCOUNTER_TYPES.CLINIC,
-          startDate: req.body.date,
+          startDate: vaccineData.date,
           patientId: req.params.id,
-          locationId: req.body.locationId,
-          examinerId: req.body.recorderId,
-          departmentId: req.body.departmentId,
+          examinerId: vaccineData.recorderId,
+          locationId,
+          departmentId,
         });
         await newEncounter.update({ endDate: req.body.date });
         encounterId = newEncounter.get('id');
@@ -171,7 +192,39 @@ patientVaccineRoutes.get(
       : {};
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const results = await patient.getAdministeredVaccines({ ...req.query, where });
+    const { orderBy = 'date', order = 'ASC', ...rest } = req.query;
+    // Here we create two custom columns with names that can be referenced by the key
+    // in the column object for the DataFetchingTable. These are used for sorting the table.
+    const customSortingColumns = {
+      attributes: {
+        include: [
+          [
+            // Use either the freetext vaccine name if it exists or the scheduled vaccine label
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('vaccine_name'),
+              Sequelize.col('scheduledVaccine.label'),
+            ),
+            'vaccineDisplayName',
+          ],
+          [
+            // If the vaccine was given elsewhere, use the given_by field which will have the country name saved as text,
+            // otherwise use the facility name
+            Sequelize.literal(
+              `CASE WHEN given_elsewhere THEN given_by ELSE "location->facility"."name" END`,
+            ),
+            'displayLocation',
+          ],
+        ],
+      },
+    };
+
+    const results = await patient.getAdministeredVaccines({
+      ...rest,
+      ...customSortingColumns,
+      order: [[...orderBy.split('.'), order]],
+      where,
+    });
 
     // TODO: enable pagination for this endpoint
     res.send({ count: results.length, data: results });

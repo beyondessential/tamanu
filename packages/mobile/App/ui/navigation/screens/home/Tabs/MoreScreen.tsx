@@ -1,35 +1,16 @@
-import React, {
-  ReactElement,
-  useMemo,
-  useCallback,
-} from 'react';
+import React, { ReactElement, useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  RowView,
-  StyledView,
-  StyledText,
-  FullView,
-  CenterView,
-} from '/styled/common';
-import {
-  screenPercentageToDP,
-  Orientation,
-  setStatusBar,
-} from '/helpers/screen';
+import { RowView, StyledView, StyledText, FullView, CenterView } from '/styled/common';
+import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { FlatList } from 'react-native-gesture-handler';
-import {
-  CameraOutlineIcon,
-  FeedbackIcon,
-  QuestionIcon,
-  RingIcon,
-} from '/components/Icons';
+import { CameraOutlineIcon, FeedbackIcon, QuestionIcon, RingIcon } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
-import { Linking} from 'react-native';
+import { Linking } from 'react-native';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
@@ -157,9 +138,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             showsVerticalScrollIndicator={false}
             data={settings}
             keyExtractor={(item): string => item.title}
-            renderItem={({ item }): ReactElement => (
-              <MenuOptionButton {...item} fontWeight={500} />
-            )}
+            renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
             ItemSeparatorComponent={Separator}
             ListFooterComponent={Separator}
           />
