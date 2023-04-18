@@ -1,8 +1,6 @@
 import {
   LAB_TEST_STATUSES,
   LAB_REQUEST_STATUSES,
-  REFERENCE_TYPES,
-  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import config from 'config';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
@@ -123,9 +121,8 @@ describe('Labs', () => {
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
       const location = await models.Location.create({
+        ...fake(models.Location),
         facilityId,
-        name: 'Test Facility Location',
-        code: 'testFacilityLocation',
       });
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
