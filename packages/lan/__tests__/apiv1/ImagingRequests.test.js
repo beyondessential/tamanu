@@ -2,6 +2,7 @@ import config from 'config';
 import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -371,9 +372,8 @@ describe('Imaging requests', () => {
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
       const testLocation = await models.Location.create({
+        ...fake(models.Location),
         facilityId,
-        name: 'Test Facility Location',
-        code: 'testFacilityLocation',
       });
       const testEncounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
