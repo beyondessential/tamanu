@@ -73,7 +73,7 @@ export class FhirImagingStudy extends FhirResource {
     const serviceRequestDisplayId = this.basedOn.find(
       b =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestDisplayId,
+        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
     )?.identifier.value;
 
     let upstreamRequest;
