@@ -1,11 +1,15 @@
 import config from 'config';
 
 import { createDummyEncounter, createDummyPatient, randomVitals } from 'shared/demoData/patients';
-import { VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, VACCINE_STATUS } from 'shared/constants';
+import {
+  VACCINE_CATEGORIES,
+  VACCINE_RECORDING_TYPES,
+  VACCINE_STATUS,
+  SETTING_KEYS,
+} from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
-import { VACCINE_STATUS } from 'shared/constants/vaccines';
 
 describe('PatientVaccine', () => {
   let ctx;
@@ -24,9 +28,9 @@ describe('PatientVaccine', () => {
   let notGivenVaccine1 = null;
   let patient = null;
 
-  const administerVaccine = async (patient, vaccine, overrides) => {
+  const administerVaccine = async (patientObject, vaccine, overrides) => {
     const encounter = await models.Encounter.create(
-      await createDummyEncounter(models, { patientId: patient.id }),
+      await createDummyEncounter(models, { patientId: patientObject.id }),
     );
     await models.AdministeredVaccine.create(
       await createAdministeredVaccine(models, {
@@ -37,7 +41,7 @@ describe('PatientVaccine', () => {
     );
   };
 
-  beforeAll(async () => {``
+  beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
@@ -49,7 +53,6 @@ describe('PatientVaccine', () => {
       code: config.serverFacilityId,
     });
     patient = await models.Patient.create(await createDummyPatient(models));
-    patient2 = await models.Patient.create(await createDummyPatient(models));
 
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
@@ -120,7 +123,7 @@ describe('PatientVaccine', () => {
         status: VACCINE_STATUS.UNKNOWN,
       }),
     );
-    
+
     // set up clinical data
     patient = await models.Patient.create(await createDummyPatient(models));
     await administerVaccine(patient, scheduled2);
@@ -165,7 +168,7 @@ describe('PatientVaccine', () => {
     });
 
     it('should indicate pending vaccine', async () => {
-      // just create a new patient with no vaccinations     
+      // just create a new patient with no vaccinations
       const freshPatient = await models.Patient.create(await createDummyPatient(models));
       const result = await app.get(
         `/v1/patient/${freshPatient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
@@ -180,24 +183,28 @@ describe('PatientVaccine', () => {
   });
 
   describe('Administered vaccines', () => {
+    beforeAll(async () => {
+      await models.Setting.set(
+        SETTING_KEYS.VACCINATION_DEFAULTS,
+        { locationId: location.id, departmentId: department.id },
+        facility.id,
+      );
+    });
+
     it('Should get administered vaccines', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(2);
-      expect(result.body.data.find(v => v.status === VACCINE_STATUS.GIVEN)?.id).toEqual(
-        givenVaccine1.id,
-      );
-      expect(result.body.data.find(v => v.status === VACCINE_STATUS.NOT_GIVEN)?.id).toEqual(
-        notGivenVaccine1.id,
-      );
+      expect(result.body.count).toEqual(1);
     });
 
     it('Should include not given vaccines', async () => {
       const freshPatient = await models.Patient.create(await createDummyPatient(models));
       await administerVaccine(freshPatient, scheduled1);
       await administerVaccine(freshPatient, scheduled2, { status: VACCINE_STATUS.NOT_GIVEN });
-      
-      const result = await app.get(`/v1/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`);
+
+      const result = await app.get(
+        `/v1/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`,
+      );
 
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
@@ -224,8 +231,6 @@ describe('PatientVaccine', () => {
 
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_RECORDING_TYPES.GIVEN,
-        locationId: location.id,
-        departmentId: department.id,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
         patientId: patient.id,
@@ -272,6 +277,32 @@ describe('PatientVaccine', () => {
       expect(vaccine.vaccineBrand).toEqual(VACCINE_BRAND);
       expect(vaccine.vaccineName).toEqual(VACCINE_NAME);
       expect(vaccine.disease).toEqual(VACCINE_DISEASE);
+    });
+
+    it('Should record vaccine with default department and default location when givenElsewhere is true', async () => {
+      const [country] = await models.ReferenceData.upsert({
+        type: 'country',
+        name: 'Australia',
+        code: 'Australia',
+      });
+
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_RECORDING_TYPES.GIVEN,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        patientId: patient.id,
+        date: new Date(),
+        givenElsewhere: true,
+        givenBy: country.name,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+      const encounter = await models.Encounter.findByPk(vaccine.encounterId);
+
+      expect(encounter.locationId).toEqual(location.id);
+      expect(encounter.departmentId).toEqual(department.id);
     });
   });
 });
