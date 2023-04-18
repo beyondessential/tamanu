@@ -28,11 +28,11 @@ const getFacility = record =>
   record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
 
 const columns = [
-  { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
-  { key: 'schedule', title: 'Schedule', accessor: getSchedule },
+  { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
+  { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
   { key: 'date', title: 'Date', accessor: getDate },
-  { key: 'givenBy', title: 'Given by', accessor: getGiver },
-  { key: 'facility', title: 'Facility/Country', accessor: getFacility },
+  { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
+  { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
 ];
 
 const TableHeaderCheckbox = styled(CheckInput)`
