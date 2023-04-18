@@ -125,11 +125,11 @@ async function getValuesFromLabRequest(upstream) {
     contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
-        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html',
+        system: config.hl7.dataDictionaries.serviceRequestImagingId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html',
+        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
         value: upstream.display_id,
       }),
     ],
