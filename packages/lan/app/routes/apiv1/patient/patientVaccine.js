@@ -137,8 +137,6 @@ patientVaccineRoutes.post(
       },
     });
 
-    console.log('vaccineData', vaccineData);
-
     let { departmentId, locationId } = vaccineData;
 
     if (!departmentId || !locationId) {
@@ -148,9 +146,6 @@ patientVaccineRoutes.post(
       departmentId = departmentId || vaccinationDefaults.departmentId;
       locationId = locationId || vaccinationDefaults.locationId;
     }
-
-    console.log('departmentId', departmentId);
-    console.log('locationId', locationId);
 
     const newAdministeredVaccine = await db.transaction(async () => {
       let encounterId;
@@ -171,7 +166,6 @@ patientVaccineRoutes.post(
 
       return req.models.AdministeredVaccine.create({
         ...vaccineData,
-        status: VACCINE_STATUS.GIVEN,
         encounterId,
       });
     });
