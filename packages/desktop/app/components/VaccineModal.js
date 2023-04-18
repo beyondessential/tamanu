@@ -37,6 +37,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         patientId,
         status: currentTabKey,
         recorderId: currentUser.id,
+        circumstanceIds: dataToSubmit.circumstanceIds?.split(',').map(c => c.trim()),
       });
       dispatch(reloadPatient(patientId));
     },
@@ -56,6 +57,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         <VaccineForm
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
+          patientId={patientId}
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
         />

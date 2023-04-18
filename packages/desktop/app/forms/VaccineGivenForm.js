@@ -25,7 +25,7 @@ import {
   VaccineBrandField,
   DiseaseField,
 } from '../components/VaccineCommonFields';
-import { Field, CheckField } from '../components/Field';
+import { Field, CheckField, SuggesterSelectField } from '../components/Field';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
   givenElsewhere: false,
@@ -42,6 +42,11 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
     then: yup.string().required(),
   }),
   givenBy: yup.string().when('givenElsewhere', {
+    is: true,
+    then: yup.string().required(),
+  }),
+  // will be converted into array of string pre submitting
+  circumstanceIds: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(),
   }),
@@ -77,6 +82,18 @@ export const VaccineGivenForm = ({
           }}
         />
       </FullWidthCol>
+      {values.givenElsewhere && (
+        <FullWidthCol>
+          <Field
+            name="circumstanceIds"
+            label="Circumstances"
+            component={SuggesterSelectField}
+            endpoint="icd10"
+            isMulti
+            required
+          />
+        </FullWidthCol>
+      )}
       {category === VACCINE_CATEGORIES.OTHER ? (
         <>
           <VaccineNameField />
@@ -99,7 +116,7 @@ export const VaccineGivenForm = ({
         />
       ) : null}
 
-      <VaccineDateField label="Date given" />
+      <VaccineDateField label="Date given" required={!values.givenElsewhere} />
       <InjectionSiteField />
 
       {!values.givenElsewhere ? (
