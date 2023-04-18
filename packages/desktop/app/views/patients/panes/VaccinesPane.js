@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
+import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import { VaccineModal } from '../../../components/VaccineModal';
 import {
@@ -23,11 +24,17 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
   const [isCovidCertificateModalOpen, setIsCovidCertificateModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [isViewAdministeredModalOpen, setIsViewAdministeredModalOpen] = useState(false);
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
 
-  const onOpenEditModal = useCallback(async row => {
-    setIsEditAdministeredModalOpen(true);
+  // const onOpenEditModal = useCallback(async row => {
+  //   setIsEditAdministeredModalOpen(true);
+  //   setVaccineData(row);
+  // }, []);
+
+  const handleOpenViewModal = useCallback(async row => {
+    setIsViewAdministeredModalOpen(true);
     setVaccineData(row);
   }, []);
 
@@ -41,6 +48,12 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
         open={isAdministerModalOpen}
         patientId={patient.id}
         onClose={() => setIsAdministerModalOpen(false)}
+      />
+      <ViewAdministeredVaccineModal
+        open={isViewAdministeredModalOpen}
+        patientId={patient.id}
+        vaccineRecord={vaccineData}
+        onClose={() => setIsViewAdministeredModalOpen(false)}
       />
       <EditAdministeredVaccineModal
         open={isEditAdministeredModalOpen}
@@ -70,7 +83,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             Record vaccine
           </Button>
         </TableButtonRow>
-        <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
+        <ImmunisationsTable patient={patient} onItemClick={id => handleOpenViewModal(id)} />
       </ContentPane>
       <CovidVaccineCertificateModal
         open={isCovidCertificateModalOpen}

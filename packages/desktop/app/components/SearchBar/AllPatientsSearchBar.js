@@ -4,11 +4,11 @@ import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
-  AutocompleteField,
   Field,
   LocalisedField,
   DOBFields,
   SearchField,
+  AutocompleteField,
   SelectField,
 } from '../Field';
 import { useSuggester } from '../../api';

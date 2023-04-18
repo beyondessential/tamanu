@@ -8,6 +8,7 @@ import { Modal } from './Modal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 import { ALPHABET_FOR_ID } from '../constants';
 
+// Todo: move the generating of display id to the model default to match LabRequests
 // generates 8 character id (while excluding 0, O, I, 1 and L)
 const configureCustomRequestId = () => customAlphabet(ALPHABET_FOR_ID, 8);
 

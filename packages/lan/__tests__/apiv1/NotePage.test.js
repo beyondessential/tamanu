@@ -58,7 +58,7 @@ describe('Note', () => {
 
     it('should attach a note to a lab request', async () => {
       const content = chance.paragraph();
-      const response = await app.post(`/v1/labRequest/${labRequest.body.id}/notes`).send({
+      const response = await app.post(`/v1/labRequest/${labRequest.body[0].id}/notes`).send({
         content,
         noteType: NOTE_TYPES.OTHER,
       });
@@ -77,7 +77,7 @@ describe('Note', () => {
       const noteItem = notePage.noteItems[0];
       expect(noteItem.content).toEqual(content);
       expect(notePage.recordType).toEqual('LabRequest');
-      expect(notePage.recordId).toEqual(labRequest.body.id);
+      expect(notePage.recordId).toEqual(labRequest.body[0].id);
     });
   });
 

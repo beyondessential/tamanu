@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
 import { VACCINE_STATUS } from 'shared/constants/vaccines';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { StatusTag } from './Tag';
+import { CheckInput } from './Field';
 import { Colors } from '../constants';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
@@ -33,12 +35,41 @@ const columns = [
   { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
 ];
 
-export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
-  <DataFetchingTable
-    endpoint={`patient/${patient.id}/administeredVaccines`}
-    columns={columns}
-    onRowClick={onItemClick}
-    noDataMessage="No vaccinations found"
-    initialSort={{ order: 'desc', orderBy: 'date' }}
-  />
-));
+const TableHeaderCheckbox = styled(CheckInput)`
+  color: ${Colors.darkText};
+  label {
+    display: flex;
+    align-items: center;
+  }
+  .MuiTypography-root {
+    font-size: 11px;
+    line-height: 15px;
+  }
+  .MuiButtonBase-root {
+    padding: 0 6px;
+  }
+`;
+
+export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => {
+  const [includeNotGiven, setIncludeNotGiven] = useState(false);
+
+  const notGivenCheckBox = (
+    <TableHeaderCheckbox
+      label="Include vaccines not given"
+      value={includeNotGiven}
+      onClick={() => setIncludeNotGiven(!includeNotGiven)}
+    />
+  );
+
+  return (
+    <DataFetchingTable
+      endpoint={`patient/${patient.id}/administeredVaccines`}
+      initialSort={[['date', 'desc']]}
+      fetchOptions={{ includeNotGiven }}
+      columns={columns}
+      optionRow={notGivenCheckBox}
+      onRowClick={row => onItemClick(row)}
+      noDataMessage="No vaccinations found"
+    />
+  );
+});
