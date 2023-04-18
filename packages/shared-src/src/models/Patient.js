@@ -149,7 +149,7 @@ export class Patient extends Model {
       include,
       where: {
         '$encounter.patient_id$': this.id,
-        status: { [Op.in]: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN] },
+        status: { [Op.in]: [VACCINE_STATUS.GIVEN] },
         ...optWhere,
       },
     });
