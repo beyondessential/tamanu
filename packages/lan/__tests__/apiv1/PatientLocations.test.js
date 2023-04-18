@@ -163,6 +163,7 @@ describe('PatientLocations', () => {
       ...(await createDummyEncounter(models)),
       patientId: patient2.id,
       locationId: maxOneOccupancyLocations[1].id,
+      encounterType: 'admission',
       startDate: twoDaysAgo,
       endDate: new Date(),
     });
@@ -179,6 +180,7 @@ describe('PatientLocations', () => {
       ...(await createDummyEncounter(models)),
       patientId: patient3.id,
       locationId: maxOneOccupancyLocations[2].id,
+      encounterType: 'admission',
       startDate: fourDaysAgo,
       endDate: new Date(),
     });
