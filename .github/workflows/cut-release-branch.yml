@@ -1,0 +1,46 @@
+name: Cut Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release
+        required: true
+        default: next
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    name: Cut Release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: main
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: yarn
+    - run: yarn
+
+    - name: Create new release branch
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          import run from './scripts/gha-create-release-branch.mjs';
+          await run(github, context);
+
+    - name: Bump version on main
+      run: node scripts/version.mjs '${{ github.event.inputs.version }}'
+
+    - name: Commit and push
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        version=$(jq -r .version package.json)
+        git commit -am "Bump version to $version"
+        git push
