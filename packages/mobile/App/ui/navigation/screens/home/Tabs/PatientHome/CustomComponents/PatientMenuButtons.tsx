@@ -10,9 +10,7 @@ interface PatientMenuListProps {
   list: MenuOptionButtonProps[];
 }
 
-export const PatientMenuButtons = ({
-  list,
-}: PatientMenuListProps): ReactElement => (
+export const PatientMenuButtons = ({ list }: PatientMenuListProps): ReactElement => (
   <StyledView background={theme.colors.WHITE}>
     <FlatList
       scrollEnabled={false}

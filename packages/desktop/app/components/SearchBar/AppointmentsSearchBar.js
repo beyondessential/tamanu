@@ -24,6 +24,8 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       }}
       initialValues={{
         after: startOfDay(new Date()),
+      }}
+      staticValues={{
         displayIdExact: true,
       }}
     >

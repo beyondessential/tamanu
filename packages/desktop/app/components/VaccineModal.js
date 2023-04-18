@@ -25,11 +25,19 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         const givenByCountry = (await countrySuggester.fetchCurrentOption(data.givenBy))?.label;
         dataToSubmit.givenBy = givenByCountry;
       }
+
+      if (dataToSubmit.givenElsewhere) {
+        delete dataToSubmit.departmentId;
+        delete dataToSubmit.locationGroupId;
+        delete dataToSubmit.locationId;
+      }
+
       await api.post(`patient/${patientId}/administeredVaccine`, {
         ...dataToSubmit,
         patientId,
         status: currentTabKey,
         recorderId: currentUser.id,
+        circumstanceIds: dataToSubmit.circumstanceIds?.split(',').map(c => c.trim()),
       });
       dispatch(reloadPatient(patientId));
     },
@@ -49,6 +57,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         <VaccineForm
           onSubmit={handleCreateVaccine}
           onCancel={onClose}
+          patientId={patientId}
           getScheduledVaccines={getScheduledVaccines}
           vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
         />
