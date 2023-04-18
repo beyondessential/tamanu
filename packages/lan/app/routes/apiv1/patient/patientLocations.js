@@ -56,9 +56,10 @@ patientLocations.get(
     const [{ alos } = {}] = await req.db.query(
       `
         SELECT
-          (SUM(DATE_PART('day', age(end_date::date, start_date::date))) / COUNT(1))::float as alos
+          (SUM(EXTRACT(epoch from age(end_date::date, start_date::date)) / 86400) / COUNT(1))::float as alos
         FROM encounters
         WHERE end_date::date > now() - '30 days'::interval
+        AND encounters.encounter_type = 'admission'
       `,
       {
         type: QueryTypes.SELECT,
@@ -219,9 +220,10 @@ patientLocations.get(
       LEFT JOIN (
         SELECT
           location_id,
-          SUM(DATE_PART('day', age(end_date::date, start_date::date))) / COUNT(1) as alos
+          SUM(EXTRACT(epoch from age(end_date::date, start_date::date)) / 86400) / COUNT(1) as alos
         FROM encounters
         WHERE end_date::date > now() - '30 days'::interval
+        AND encounters.encounter_type = 'admission'
         GROUP BY location_id
       ) last_30_days_closed_encounters
       ON locations.id = last_30_days_closed_encounters.location_id
@@ -229,10 +231,10 @@ patientLocations.get(
       	SELECT
       	  location_id,
           SUM(
-        	  DATE_PART('day', age(
+        	  EXTRACT(epoch from age(
         	    CASE WHEN end_date IS NULL THEN now() ELSE end_date::date END,
         	    greatest(start_date::date, now() - '30 days'::interval)
-      	  ))) * 100 / 30 as occupancy
+      	  )) / 86400 ) * 100 / 30 as occupancy
       	FROM encounters
       	LEFT JOIN locations ON locations.id = encounters.location_id
       	WHERE (end_date::date > now() - '30 days'::interval OR end_date IS NULL)
