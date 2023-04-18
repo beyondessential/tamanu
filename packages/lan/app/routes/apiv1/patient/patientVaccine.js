@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Op } from 'sequelize';
+import Sequelize, { QueryTypes, Op } from 'sequelize';
 import config from 'config';
 
 import {
@@ -192,7 +192,39 @@ patientVaccineRoutes.get(
       : {};
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const results = await patient.getAdministeredVaccines({ ...req.query, where });
+    const { orderBy = 'date', order = 'ASC', ...rest } = req.query;
+    // Here we create two custom columns with names that can be referenced by the key
+    // in the column object for the DataFetchingTable. These are used for sorting the table.
+    const customSortingColumns = {
+      attributes: {
+        include: [
+          [
+            // Use either the freetext vaccine name if it exists or the scheduled vaccine label
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('vaccine_name'),
+              Sequelize.col('scheduledVaccine.label'),
+            ),
+            'vaccineDisplayName',
+          ],
+          [
+            // If the vaccine was given elsewhere, use the given_by field which will have the country name saved as text,
+            // otherwise use the facility name
+            Sequelize.literal(
+              `CASE WHEN given_elsewhere THEN given_by ELSE "location->facility"."name" END`,
+            ),
+            'displayLocation',
+          ],
+        ],
+      },
+    };
+
+    const results = await patient.getAdministeredVaccines({
+      ...rest,
+      ...customSortingColumns,
+      order: [[...orderBy.split('.'), order]],
+      where,
+    });
 
     // TODO: enable pagination for this endpoint
     res.send({ count: results.length, data: results });
