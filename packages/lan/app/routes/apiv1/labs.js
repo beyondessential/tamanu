@@ -176,7 +176,7 @@ labRequest.get(
         LEFT JOIN encounters AS encounter
           ON (encounter.id = lab_requests.encounter_id)
         LEFT JOIN locations AS location
-          ON encounter.location_id = location.id
+          ON (encounter.location_id = location.id)
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
         LEFT JOIN reference_data AS priority
@@ -195,8 +195,6 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-        LEFT JOIN locations AS location
-          ON (location.id = encounter.location_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
