@@ -48,9 +48,11 @@ export const LabRequestsSearchBar = () => {
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
+
   return (
     <CustomisableSearchBar
-      initialValues={{ displayIdExact: true, ...searchParameters }}
+      initialValues={searchParameters}
+      staticValues={{ displayIdExact: true }}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}

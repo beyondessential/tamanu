@@ -25,7 +25,8 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
     <CustomisableSearchBar
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={{ displayIdExact: true, ...searchParameters }}
+      initialValues={searchParameters}
+      staticValues={{ displayIdExact: true }}
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
