@@ -18,11 +18,16 @@ export const screen2ValidationSchema = yup.object().shape({
 export const LabRequestFormScreen2 = props => {
   const {
     values: { requestFormType, labTestPanelId },
+    setFieldValue,
   } = props;
   const api = useApi();
   const { data: testTypesData, isLoading } = useQuery(['labTestTypes'], () =>
     api.get('labTestType'),
   );
+
+  const handleClearPanel = () => {
+    setFieldValue('labTestPanelId', undefined);
+  };
 
   return (
     <>
@@ -32,6 +37,7 @@ export const LabRequestFormScreen2 = props => {
           label={`Select the test ${
             requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? 'panel' : 'category'
           }`}
+          onClearPanel={handleClearPanel}
           component={TestSelectorField}
           requestFormType={requestFormType}
           labTestPanelId={labTestPanelId}

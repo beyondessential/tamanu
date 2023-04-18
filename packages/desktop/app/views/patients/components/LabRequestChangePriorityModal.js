@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { useSuggester } from '../../../api';
 import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../components';
+import { Colors } from '../../../constants';
+
+const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
+  border-top: 1px solid ${Colors.outline};
+  padding-top: 26px;
+`;
 
 export const LabRequestChangePriorityModal = React.memo(
-  ({ priority: initialPriority, updateLabReq, open, onClose }) => {
-    const [priority, setPriority] = useState(initialPriority);
+  ({ labRequest, updateLabReq, open, onClose }) => {
+    const [priorityId, setPriorityId] = useState(labRequest.labTestPriorityId);
     const suggester = useSuggester('labTestPriority');
 
     const updateLab = async () => {
       await updateLabReq({
-        labTestPriorityId: priority,
+        labTestPriorityId: priorityId,
       });
       onClose();
     };
@@ -21,12 +28,12 @@ export const LabRequestChangePriorityModal = React.memo(
             label="Priority"
             name="priority"
             suggester={suggester}
-            value={priority}
+            value={priorityId}
             onChange={({ target: { value } }) => {
-              setPriority(value);
+              setPriorityId(value);
             }}
           />
-          <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={onClose} />
+          <StyledConfirmCancelRow onConfirm={updateLab} confirmText="Confirm" onCancel={onClose} />
         </FormGrid>
       </Modal>
     );
