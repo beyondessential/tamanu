@@ -1,8 +1,14 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
+import config from 'config';
 
-import { ENCOUNTER_TYPES, VACCINE_CATEGORIES, VACCINE_STATUS } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  VACCINE_CATEGORIES,
+  VACCINE_STATUS,
+  SETTING_KEYS,
+} from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
@@ -131,6 +137,21 @@ patientVaccineRoutes.post(
       },
     });
 
+    console.log('vaccineData', vaccineData);
+
+    let { departmentId, locationId } = vaccineData;
+
+    if (!departmentId || !locationId) {
+      const vaccinationDefaults =
+        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, config.serverFacilityId)) ||
+        {};
+      departmentId = departmentId || vaccinationDefaults.departmentId;
+      locationId = locationId || vaccinationDefaults.locationId;
+    }
+
+    console.log('departmentId', departmentId);
+    console.log('locationId', locationId);
+
     const newAdministeredVaccine = await db.transaction(async () => {
       let encounterId;
       if (existingEncounter) {
@@ -138,11 +159,11 @@ patientVaccineRoutes.post(
       } else {
         const newEncounter = await req.models.Encounter.create({
           encounterType: ENCOUNTER_TYPES.CLINIC,
-          startDate: req.body.date,
+          startDate: vaccineData.date,
           patientId: req.params.id,
-          locationId: req.body.locationId,
-          examinerId: req.body.recorderId,
-          departmentId: req.body.departmentId,
+          examinerId: vaccineData.recorderId,
+          locationId,
+          departmentId,
         });
         await newEncounter.update({
           endDate: req.body.date,

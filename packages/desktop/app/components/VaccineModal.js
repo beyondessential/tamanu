@@ -26,6 +26,12 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         dataToSubmit.givenBy = givenByCountry;
       }
 
+      if (dataToSubmit.givenElsewhere) {
+        delete dataToSubmit.departmentId;
+        delete dataToSubmit.locationGroupId;
+        delete dataToSubmit.locationId;
+      }
+
       await api.post(`patient/${patientId}/administeredVaccine`, {
         ...dataToSubmit,
         patientId,

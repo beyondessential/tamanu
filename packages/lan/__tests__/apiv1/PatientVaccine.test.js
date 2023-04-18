@@ -1,7 +1,12 @@
 import config from 'config';
 
 import { createDummyEncounter, createDummyPatient, randomVitals } from 'shared/demoData/patients';
-import { VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, VACCINE_STATUS } from 'shared/constants';
+import {
+  VACCINE_CATEGORIES,
+  VACCINE_RECORDING_TYPES,
+  VACCINE_STATUS,
+  SETTING_KEYS,
+} from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
@@ -181,6 +186,14 @@ describe('PatientVaccine', () => {
   });
 
   describe('Administered vaccines', () => {
+    beforeAll(async () => {
+      await models.Setting.set(
+        SETTING_KEYS.VACCINATION_DEFAULTS,
+        { locationId: location.id, departmentId: department.id },
+        facility.id,
+      );
+    });
+
     it('Should get administered vaccines', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
@@ -222,8 +235,6 @@ describe('PatientVaccine', () => {
 
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_RECORDING_TYPES.GIVEN,
-        locationId: location.id,
-        departmentId: department.id,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
         patientId: patient.id,
@@ -270,6 +281,32 @@ describe('PatientVaccine', () => {
       expect(vaccine.vaccineBrand).toEqual(VACCINE_BRAND);
       expect(vaccine.vaccineName).toEqual(VACCINE_NAME);
       expect(vaccine.disease).toEqual(VACCINE_DISEASE);
+    });
+
+    it('Should record vaccine with default department and default location when givenElsewhere is true', async () => {
+      const [country] = await models.ReferenceData.upsert({
+        type: 'country',
+        name: 'Australia',
+        code: 'Australia',
+      });
+
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_RECORDING_TYPES.GIVEN,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        patientId: patient.id,
+        date: new Date(),
+        givenElsewhere: true,
+        givenBy: country.name,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+      const encounter = await models.Encounter.findByPk(vaccine.encounterId);
+
+      expect(encounter.locationId).toEqual(location.id);
+      expect(encounter.departmentId).toEqual(department.id);
     });
   });
 });
