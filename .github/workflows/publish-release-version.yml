@@ -1,0 +1,46 @@
+name: Publish Release Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Next version on this release branch
+        required: true
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    name: Publish Release Version
+    runs-on: ubuntu-latest
+    steps:
+    - if: "!startsWith(github.ref, 'refs/heads/release/')"
+      run: |
+        echo "This workflow can only be run on a release branch"
+        exit 1
+
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    - name: Push tag for current version
+      run: |
+        set -euxo pipefail
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        version=$(jq -r .version package.json)
+        git tag -a $version -m "Release $version"
+        git push --tags
+
+    - name: Bump version on branch
+      run: node scripts/version.mjs '${{ github.event.inputs.version }}'
+
+    - name: Commit and push
+      run: |
+        set -euxo pipefail
+        version=$(jq -r .version package.json)
+        git commit -am "Bump version to $version"
+        git push

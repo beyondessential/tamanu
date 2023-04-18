@@ -1,12 +1,12 @@
-name: Cut Release
+name: Cut Release Branch
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: Version to release
+        description: Next version number
         required: true
-        default: next
+        default: minor
 
 permissions:
   contents: write
@@ -23,8 +23,6 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16
-        cache: yarn
-    - run: yarn
 
     - name: Create new release branch
       uses: actions/github-script@v5
