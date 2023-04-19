@@ -24,8 +24,10 @@ const getGiver = record => {
   }
   return record.givenBy || 'Unknown';
 };
-const getFacility = record =>
-  record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
+const getFacility = record => {
+  const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
+  return facility || '';
+};
 
 const columns = [
   { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
@@ -64,7 +66,7 @@ export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => {
   return (
     <DataFetchingTable
       endpoint={`patient/${patient.id}/administeredVaccines`}
-      initialSort={[['date', 'desc']]}
+      initialSort={{ orderBy: 'date', order: 'desc' }}
       fetchOptions={{ includeNotGiven }}
       columns={columns}
       optionRow={notGivenCheckBox}
