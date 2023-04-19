@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
-export async function run({ readFileSync }, github, context) {
+export async function run({ readFileSync }, github, context, cwd) {
   console.log('Reading current version...');
-  const { version } = JSON.parse(readFileSync('package.json', 'utf-8'));
+  const { version } = JSON.parse(readFileSync(`${cwd}/package.json`, 'utf-8'));
 
   const [major, minor] = version.split('.', 3);
   const branch = `release/${major}.${minor}`;
