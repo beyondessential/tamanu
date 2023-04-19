@@ -90,6 +90,7 @@ export const ImagingRequestsTable = React.memo(
         onRowClick={selectImagingRequest}
         fetchOptions={searchParameters}
         elevated={false}
+        initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
       />
     );
   },

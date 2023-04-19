@@ -36,21 +36,21 @@ export const ImagingRequestsSearchBar = ({
         statusFilterTable && (
           <>
             <LocalisedField
-              name="area"
+              name="locationGroupId"
               defaultLabel="Area"
               component={AutocompleteField}
               suggester={areaSuggester}
               size="small"
             />
             <LocalisedField
-              name="department"
+              name="departmentId"
               defaultLabel="Department"
               component={AutocompleteField}
               suggester={departmentSuggester}
               size="small"
             />
             <LocalisedField
-              name="completedDate"
+              name="completedAt"
               defaultLabel="Completed"
               saveDateAsString
               component={DateField}
