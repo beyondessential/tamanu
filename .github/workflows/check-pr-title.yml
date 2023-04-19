@@ -5,6 +5,7 @@ on:
     types:
       - opened
       - edited
+      - synchronize # temp for testing
 
 jobs:
   merge-to-main:
@@ -14,8 +15,10 @@ jobs:
     steps:
     - name: Warn if feature PR title is not prefixed with ticket number
       if: startsWith(github.head_ref, 'feature/')
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        if [[ ! ${{ github.event.pull_request.title }} =~ ^[A-Z]+-[0-9]+ ]]; then
+        if [[ ! "$PR_TITLE" =~ '^[A-Z]+-[0-9]+' ]]; then
           echo "PR title should start with ticket number, e.g. 'ABC-123: ...'"
           exit 1
         fi
