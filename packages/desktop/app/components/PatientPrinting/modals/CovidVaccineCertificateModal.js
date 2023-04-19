@@ -19,7 +19,8 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   const { data: vaccineData } = useAdministeredVaccines(patient.id, {
-    order: [['date', 'ASC']],
+    orderBy: 'date',
+    order: 'ASC',
     includeNotGiven: false,
   });
   const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
