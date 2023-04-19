@@ -166,7 +166,6 @@ patientVaccineRoutes.post(
 
       return req.models.AdministeredVaccine.create({
         ...vaccineData,
-        status: VACCINE_STATUS.GIVEN,
         encounterId,
       });
     });

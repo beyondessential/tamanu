@@ -18,6 +18,7 @@ import {
   GivenByCountryField,
   RecordedByField,
   ConsentField,
+  ConsentGivenByField,
   StyledDivider,
   FullWidthCol,
   ConfirmCancelRowField,
@@ -37,10 +38,6 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
     .bool()
     .oneOf([true])
     .required('Consent is required'),
-  vaccineBrand: yup.string().when('category', {
-    is: VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
-  }),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(),
@@ -71,44 +68,69 @@ export const VaccineGivenForm = ({
         category={category}
         setCategory={setCategory}
         setVaccineLabel={setVaccineLabel}
+        onChange={(_e, value) => {
+          const newValues = { ...values };
+          if (value !== VACCINE_CATEGORIES.OTHER) {
+            delete newValues.vaccineName;
+            delete newValues.vaccineBrand;
+            delete newValues.disease;
+          } else {
+            delete newValues.scheduledVaccineId;
+          }
+
+          setValues(newValues);
+        }}
       />
       <FullWidthCol>
         <Field
           name="givenElsewhere"
           label="Given elsewhere"
           component={CheckField}
-          onChange={() => {
-            setValues({ ...values, givenBy: '' });
+          onChange={(_e, value) => {
+            const newValues = { ...values };
+            delete newValues.givenBy;
+
+            if (!value) {
+              delete newValues.circumstanceIds;
+            }
+
+            setValues(newValues);
           }}
         />
       </FullWidthCol>
       {values.givenElsewhere && (
-        <FullWidthCol>
-          <Field
-            name="circumstanceIds"
-            label="Circumstances"
-            component={SuggesterSelectField}
-            endpoint="icd10"
-            isMulti
-            required
-          />
-        </FullWidthCol>
+        <>
+          <FullWidthCol>
+            <Field
+              name="circumstanceIds"
+              label="Circumstances"
+              component={SuggesterSelectField}
+              endpoint="vaccineCircumstances"
+              isMulti
+              required
+            />
+          </FullWidthCol>
+          <StyledDivider />
+        </>
       )}
       {category === VACCINE_CATEGORIES.OTHER ? (
         <>
           <VaccineNameField />
+          <BatchField />
           <VaccineBrandField />
           <DiseaseField />
         </>
       ) : (
-        <VaccineLabelField
-          vaccineLabel={vaccineLabel}
-          vaccineOptions={vaccineOptions}
-          setVaccineLabel={setVaccineLabel}
-        />
+        <>
+          <VaccineLabelField
+            vaccineLabel={vaccineLabel}
+            vaccineOptions={vaccineOptions}
+            setVaccineLabel={setVaccineLabel}
+          />
+          <BatchField />
+        </>
       )}
 
-      <BatchField />
       {administeredOptions.length || scheduleOptions.length ? (
         <AdministeredVaccineScheduleField
           administeredOptions={administeredOptions}
@@ -132,6 +154,8 @@ export const VaccineGivenForm = ({
 
       {values.givenElsewhere ? <GivenByCountryField /> : <GivenByField />}
 
+      {values.givenElsewhere && <StyledDivider />}
+
       <RecordedByField />
 
       <StyledDivider />
@@ -143,6 +167,9 @@ export const VaccineGivenForm = ({
             : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
         }
       />
+
+      <ConsentGivenByField />
+
       <ConfirmCancelRowField
         onConfirm={submitForm}
         category={category}
