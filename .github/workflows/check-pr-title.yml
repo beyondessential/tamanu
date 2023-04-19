@@ -19,7 +19,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       shell: bash
       run: |
-        if grep -qP '^[A-Z]+-[0-9]+(:\s+\w+)?' <<< "$PR_TITLE"; then
+        if ! grep -qP '^[A-Z]+-[0-9]+(:\s+\w+)?' <<< "$PR_TITLE"; then
           echo "::warning::PR title should start with ticket number, e.g. 'ABC-123: ...'"
           exit 1
         fi
