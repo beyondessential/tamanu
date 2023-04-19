@@ -10,7 +10,7 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
 import { getNoteWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
@@ -311,6 +311,18 @@ globalImagingRequests.get(
     const encounterFilters = mapQueryFilters(filterParams, [
       { key: 'departmentId', operator: Op.eq },
     ]);
+    // TODO: still a bit broken, need to fix. Doesnt seem to show even when the made into a string that matches
+    const resultFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'completedAt',
+        operator: Op.eq,
+        mapFn: (fieldName, operator, value) => ({
+          [fieldName]: {
+            [operator]: toDateString(new Date(value)),
+          },
+        }),
+      },
+    ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
@@ -368,6 +380,7 @@ globalImagingRequests.get(
     };
     const results = {
       association: 'results',
+      where: resultFilters,
     };
 
     // Query database
