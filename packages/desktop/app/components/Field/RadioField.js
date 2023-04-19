@@ -88,6 +88,7 @@ export const RadioInput = ({
             value={option.value}
             $fullWidth={fullWidth}
             selected={value === option.value}
+            style={option.style}
             theme={
               option.color
                 ? {

@@ -13,6 +13,7 @@ export class AdministeredVaccine extends Model {
         id: primaryKey,
         batch: Sequelize.STRING,
         consent: Sequelize.BOOLEAN,
+        consentGivenBy: Sequelize.TEXT,
         status: {
           type: Sequelize.STRING,
           allowNull: false,
