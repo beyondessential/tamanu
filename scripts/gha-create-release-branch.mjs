@@ -14,7 +14,7 @@ export async function run({ readFileSync }, github, context, cwd) {
   } = context;
 
   console.log('Checking if branch exists...');
-  const ref = `refs/heads/${branch}`;
+  const ref = `heads/${branch}`;
   try {
     const exists = await github.rest.git.getRef({ owner, repo, ref });
     if (exists.status === 200) {
