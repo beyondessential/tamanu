@@ -45,9 +45,10 @@ export const ImagingRequestsTable = React.memo(
         accessor: getImagingRequestType(imagingTypes),
       },
       { key: 'requestedDate', title: 'Date & time', accessor: getDate },
-      { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
+      { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
+      // TODO: Fix sorting for completed time
       statusFilterTable && {
-        key: 'completedDate',
+        key: 'results[0].completedAt',
         title: 'Completed',
         accessor: getCompletedDate,
       },
@@ -55,7 +56,8 @@ export const ImagingRequestsTable = React.memo(
     ];
 
     const globalColumns = [
-      { key: 'patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
+      // TODO: Fix sorting for nhn
+      { key: 'encounter.patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
       { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
       ...encounterColumns,
     ];

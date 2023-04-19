@@ -379,7 +379,7 @@ globalImagingRequests.get(
           },
         },
       },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
       include: [requestedBy, encounter, areas, results],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
