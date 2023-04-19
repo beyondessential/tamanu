@@ -120,8 +120,9 @@ patientVaccineRoutes.post(
     }
 
     const { models } = req;
-
+    const patientId = req.params.id;
     const vaccineData = { ...req.body };
+
     if (vaccineData.category === VACCINE_CATEGORIES.OTHER) {
       vaccineData.scheduledVaccineId = (
         await models.ScheduledVaccine.getOtherCategoryScheduledVaccine()
@@ -133,7 +134,7 @@ patientVaccineRoutes.post(
         endDate: {
           [Op.is]: null,
         },
-        patientId: req.params.id,
+        patientId,
       },
     });
 
@@ -155,13 +156,39 @@ patientVaccineRoutes.post(
         const newEncounter = await req.models.Encounter.create({
           encounterType: ENCOUNTER_TYPES.CLINIC,
           startDate: vaccineData.date,
-          patientId: req.params.id,
+          patientId,
           examinerId: vaccineData.recorderId,
           locationId,
           departmentId,
         });
         await newEncounter.update({ endDate: req.body.date });
         encounterId = newEncounter.get('id');
+      }
+
+      // When recording a GIVEN vaccine, check and update
+      // any existing NOT_GIVEN vaccines to status HISTORICAL so they are hidden
+      if (vaccineData.status === VACCINE_STATUS.GIVEN) {
+        await req.models.AdministeredVaccine.sequelize.query(
+          `
+          UPDATE administered_vaccines
+          SET
+            status = :newStatus
+          FROM encounters
+          WHERE
+            encounters.id = administered_vaccines.encounter_id
+            AND administered_vaccines.status = :status
+            AND administered_vaccines.scheduled_vaccine_id = :scheduledVaccineId
+            AND encounters.patient_id = :patientId
+        `,
+          {
+            replacements: {
+              newStatus: VACCINE_STATUS.HISTORICAL,
+              status: VACCINE_STATUS.NOT_GIVEN,
+              scheduledVaccineId: vaccineData.scheduledVaccineId,
+              patientId,
+            },
+          },
+        );
       }
 
       return req.models.AdministeredVaccine.create({
