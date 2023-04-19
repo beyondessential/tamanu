@@ -29,11 +29,11 @@ describe('PatientVaccine', () => {
   let givenVaccine1 = null;
   let notGivenVaccine1 = null;
 
-  const administerVaccine = async (patientObject, vaccine, overrides) => {
+  const recordAdministeredVaccine = async (patientObject, vaccine, overrides) => {
     const encounter = await models.Encounter.create(
       await createDummyEncounter(models, { patientId: patientObject.id }),
     );
-    await models.AdministeredVaccine.create(
+    return models.AdministeredVaccine.create(
       await createAdministeredVaccine(models, {
         scheduledVaccineId: vaccine.id,
         encounterId: encounter.id,
@@ -129,7 +129,7 @@ describe('PatientVaccine', () => {
 
     // set up clinical data
     patient = await models.Patient.create(await createDummyPatient(models));
-    await administerVaccine(patient, scheduled2);
+    await recordAdministeredVaccine(patient, scheduled2);
   });
 
   afterAll(() => ctx.close());
@@ -203,8 +203,10 @@ describe('PatientVaccine', () => {
 
     it('Should include not given vaccines', async () => {
       const freshPatient = await models.Patient.create(await createDummyPatient(models));
-      await administerVaccine(freshPatient, scheduled1);
-      await administerVaccine(freshPatient, scheduled2, { status: VACCINE_STATUS.NOT_GIVEN });
+      await recordAdministeredVaccine(freshPatient, scheduled1);
+      await recordAdministeredVaccine(freshPatient, scheduled2, {
+        status: VACCINE_STATUS.NOT_GIVEN,
+      });
 
       const result = await app.get(
         `/v1/patient/${freshPatient.id}/administeredVaccines?includeNotGiven=true`,
@@ -307,6 +309,29 @@ describe('PatientVaccine', () => {
 
       expect(encounter.locationId).toEqual(location.id);
       expect(encounter.departmentId).toEqual(department.id);
+    });
+
+    it('Should update corresponding NOT_GIVEN vaccine to HISTORICAL when recording GIVEN vaccine', async () => {
+      patient = await models.Patient.create(await createDummyPatient(models));
+      const notGivenVaccine = await recordAdministeredVaccine(patient, scheduled1, {
+        status: VACCINE_STATUS.NOT_GIVEN,
+      });
+
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_STATUS.GIVEN,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        date: new Date(),
+        givenBy: 'Clinician',
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const givenVaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+      const histocalVaccine = await models.AdministeredVaccine.findByPk(notGivenVaccine.id);
+
+      expect(givenVaccine.status).toEqual(VACCINE_STATUS.GIVEN);
+      expect(histocalVaccine.status).toEqual(VACCINE_STATUS.HISTORICAL);
     });
   });
 });
