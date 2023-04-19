@@ -9,6 +9,7 @@ import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 import { QueryTypes } from 'sequelize';
 import {
   mergePatientAdditionalData,
+  mergePatientFieldValues,
   reconcilePatientFacilities,
   simpleUpdateModels,
   specificUpdateModels,
@@ -129,6 +130,22 @@ export class PatientMergeMaintainer extends ScheduledTask {
       if (mergedPad) {
         records.push(mergedPad);
       }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientFieldValue() {
+    const { PatientFieldValue } = this.models;
+    const fieldValueMerges = await this.findPendingMergePatients(PatientFieldValue);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of fieldValueMerges) {
+      const mergedFieldValues = await mergePatientFieldValues(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      records.push(...mergedFieldValues);
     }
     return records;
   }

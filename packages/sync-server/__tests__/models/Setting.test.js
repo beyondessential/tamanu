@@ -210,7 +210,6 @@ describe('Setting', () => {
           name: 'Pacific/Tongatapu',
           offset: {
             hours: 12,
-            minutes: null,
           },
           daylightSavingsBounds: ['02/04', '25/09'],
         },
@@ -224,30 +223,18 @@ describe('Setting', () => {
     // Act
 
     // add another key to a nested object
-    await Setting.set('cats', {
-      breeds: { siamese: { include: false } },
-    });
+    await Setting.set('cats.breeds.siamese', { include: false });
 
-    // alter existing keys in a nested object
-    await Setting.set(
-      'timezone',
-      { offset: { minutes: 30 }, daylightSavingsBounds: ['02/04', '30/09'] },
-      facilityA,
-    );
-
-    // alter an existing key and add a new one at the same time
-    await Setting.set('timezone', { name: 'Australia/Sydney', code: 'AEST' }, facilityA);
-
-    // alter an existing key using dot notation
+    // alter an existing key for a facility
     await Setting.set('timezone.offset.hours', 10, facilityA);
 
-    // add a new setting separate to the facility specific one
+    // add new settings separate to the facility specific one
+    await Setting.set('timezone.name', 'Australia/Sydney');
     await Setting.set('timezone.offset.hours', 14);
 
     // Assert
 
-    const cats = await Setting.get('cats');
-    expect(cats).toEqual({
+    expect(await Setting.get('cats')).toEqual({
       breeds: {
         persian: {
           include: true,
@@ -258,15 +245,42 @@ describe('Setting', () => {
       },
     });
 
-    const timezone = await Setting.get('timezone', facilityA);
-    expect(timezone).toEqual({
-      name: 'Australia/Sydney',
-      code: 'AEST',
+    expect(await Setting.get('timezone', facilityA)).toEqual({
+      name: 'Pacific/Tongatapu',
       offset: {
         hours: 10,
-        minutes: 30,
       },
-      daylightSavingsBounds: ['02/04', '30/09'],
+      daylightSavingsBounds: ['02/04', '25/09'],
+    });
+
+    expect(await Setting.get('timezone')).toEqual({
+      name: 'Australia/Sydney',
+      offset: {
+        hours: 14,
+      },
+    });
+  });
+
+  it('updates settings with deletions', async () => {
+    // Arrange
+    await Setting.set('testing.key', {
+      a: 'stays identical',
+      b: 'gets updated',
+      c: 'gets deleted',
+    });
+
+    // Act
+    await Setting.set('testing.key', {
+      a: 'stays identical',
+      b: 'gets updated here',
+      d: 'gets added',
+    });
+
+    // Assert
+    expect(await Setting.get('testing.key')).toEqual({
+      a: 'stays identical',
+      b: 'gets updated here',
+      d: 'gets added',
     });
   });
 });

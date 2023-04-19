@@ -142,6 +142,10 @@ export class FhirServiceRequest extends FhirResource {
           system: config.hl7.dataDictionaries.serviceRequestId,
           value: upstream.id,
         }),
+        new FhirIdentifier({
+          system: config.hl7.dataDictionaries.serviceRequestDisplayId,
+          value: upstream.displayId,
+        }),
       ],
       status: {
         [IMAGING_REQUEST_STATUS_TYPES.PENDING]: FHIR_REQUEST_STATUS.DRAFT,
@@ -183,7 +187,7 @@ export class FhirServiceRequest extends FhirResource {
       subject: new FhirReference({
         type: 'upstream://patient',
         reference: upstream.encounter.patient.id,
-        display: upstream.encounter.patient.displayId,
+        display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
       }),
       occurrenceDateTime: dateTimeStringIntoCountryTimezone(upstream.requestedDate),
       requester: new FhirReference({

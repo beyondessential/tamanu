@@ -7,7 +7,8 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { tmpdir, VaccineCertificate, getPatientSurveyResponseAnswer } from 'shared/utils';
-import { CovidLabCertificate } from 'shared/utils/patientCertificates';
+import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
+
 import { getLocalisation } from '../localisation';
 
 export const makeVaccineCertificate = async (patient, printedBy, models, uvci, qrData = null) => {
@@ -141,7 +142,11 @@ export const makeCovidCertificate = async (
   };
 
   try {
-    const labs = await patient.getCovidLabTests();
+    const labs =
+      certType === CertificateTypes.test
+        ? await patient.getCovidLabTests()
+        : await patient.getCovidClearanceLabTests();
+
     await ReactPDF.render(
       <CovidLabCertificate
         patient={patientData}

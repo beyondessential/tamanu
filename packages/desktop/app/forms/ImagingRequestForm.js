@@ -99,7 +99,7 @@ export const ImagingRequestForm = React.memo(
       <Form
         onSubmit={onSubmit}
         initialValues={{
-          id: generateId(),
+          displayId: generateId(),
           requestedDate: getCurrentDateTimeString(),
           ...editedObject,
         }}
@@ -111,7 +111,7 @@ export const ImagingRequestForm = React.memo(
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
             <FormGrid>
-              <Field name="id" label="Imaging request code" disabled component={TextField} />
+              <Field name="displayId" label="Imaging request code" disabled component={TextField} />
               <Field
                 name="requestedDate"
                 label="Order date and time"

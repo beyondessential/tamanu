@@ -63,6 +63,14 @@ export const EncounterForm = React.memo(
             suggester={practitionerSuggester}
           />
           <Field name="locationId" component={LocalisedLocationField} required />
+          <LocationAvailabilityWarningMessage
+            locationId={values?.locationId}
+            style={{
+              gridColumn: '2',
+              marginTop: '-1.2rem',
+              fontSize: '12px',
+            }}
+          />
           <LocalisedField
             name="referralSourceId"
             suggester={referralSourceSuggester}
@@ -81,9 +89,6 @@ export const EncounterForm = React.memo(
             rows={2}
             style={{ gridColumn: 'span 2' }}
           />
-          <div style={{ gridColumn: '1/-1' }}>
-            <LocationAvailabilityWarningMessage locationId={values?.locationId} />
-          </div>
           <div style={{ gridColumn: 2, textAlign: 'right' }}>
             <Button variant="contained" onClick={submitForm} color="primary">
               {buttonText}

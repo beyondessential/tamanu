@@ -9,14 +9,13 @@ type FormValidationMessageProps = {
 export const FormValidationMessage = ({
   message,
 }: FormValidationMessageProps): ReactElement => {
-  
   if (!message) return null;
- 
+
   return (
     <StyledText
       fontSize={16}
       color={theme.colors.ALERT}
-      textAlign='center'
+      textAlign="center"
     >
       {message}
     </StyledText>

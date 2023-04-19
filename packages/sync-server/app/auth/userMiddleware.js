@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { verifyToken, stripUser, findUser, findUserById } from './utils';
 
 const FAKE_TOKEN = 'fake-token';
@@ -9,6 +10,9 @@ const FAKE_TOKEN = 'fake-token';
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
+
+    const { canonicalHostName, auth } = config;
+    const { allowDummyToken } = auth;
 
     // get token
     const { authorization } = headers;
@@ -22,7 +26,7 @@ export const userMiddleware = ({ secret }) =>
       throw new BadAuthenticationError('Only Bearer token is supported');
     }
 
-    if (config.auth.allowDummyToken && token === FAKE_TOKEN) {
+    if (allowDummyToken && token === FAKE_TOKEN) {
       req.user = await findUser(store.models, config.auth.initialUser.email);
       next();
       return;
@@ -30,12 +34,15 @@ export const userMiddleware = ({ secret }) =>
 
     let contents = null;
     try {
-      contents = verifyToken(token, secret);
+      contents = verifyToken(token, secret, {
+        issuer: canonicalHostName,
+        audience: JWT_TOKEN_TYPES.ACCESS,
+      });
     } catch (e) {
       throw new BadAuthenticationError('Invalid token');
     }
 
-    const { userId } = contents;
+    const { userId, deviceId } = contents;
 
     const user = await findUserById(store.models, userId);
 
@@ -44,6 +51,7 @@ export const userMiddleware = ({ secret }) =>
     }
 
     req.user = stripUser(user);
+    req.deviceId = deviceId;
 
     next();
   });

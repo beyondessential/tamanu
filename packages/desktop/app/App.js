@@ -3,13 +3,11 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
 import { Colors } from './constants';
-
 import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
-import { DecisionSupportModal } from './components/DecisionSupportModal';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 
 const AppContainer = styled.div`
@@ -27,6 +25,7 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
+
   if (!isUserLoggedIn) {
     return <LoginView />;
   }
@@ -38,7 +37,6 @@ export function App({ sidebar, children }) {
         <ErrorBoundary errorKey={currentRoute}>
           <AppContentsContainer>
             {children}
-            <DecisionSupportModal />
             <ForbiddenErrorModal />
           </AppContentsContainer>
         </ErrorBoundary>

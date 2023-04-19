@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as yup from 'yup';
-import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
 import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
-import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
+import { ageInMonths, ageInYears, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import {
   ArrayField,
-  Button,
-  OutlinedButton,
   Field,
   FieldWithTooltip,
   AutocompleteField,
@@ -24,6 +21,9 @@ import {
   FormGrid,
   FormSeparatorLine,
 } from '../components';
+import { useAuth } from '../contexts/Auth';
+import { DeathFormScreen } from './DeathFormScreen';
+import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 
 const binaryOptions = [
   { value: 'yes', label: 'Yes' },
@@ -31,97 +31,6 @@ const binaryOptions = [
 ];
 
 const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
-
-const Actions = styled(MuiBox)`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  button ~ button {
-    margin-left: 12px;
-  }
-`;
-
-const RedHeading = styled(Typography)`
-  font-size: 18px;
-  line-height: 21px;
-  font-weight: 500;
-  color: ${props => props.theme.palette.error.main};
-`;
-
-const Text = styled(Typography)`
-  font-size: 15px;
-  line-height: 21px;
-  font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
-  margin-bottom: 48px;
-`;
-
-const BaseConfirmScreen = ({
-  heading,
-  text,
-  onStepBack,
-  onCancel,
-  onContinue,
-  continueButtonText,
-}) => (
-  <FormGrid columns={1}>
-    <RedHeading>{heading}</RedHeading>
-    <Text>{text}</Text>
-    <Actions>
-      <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-        Back
-      </OutlinedButton>
-      <MuiBox>
-        <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-        <Button color="primary" variant="contained" onClick={onContinue}>
-          {continueButtonText}
-        </Button>
-      </MuiBox>
-    </Actions>
-  </FormGrid>
-);
-
-const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
-  <BaseConfirmScreen
-    heading="Confirm death record"
-    text="This action is irreversible. This should only be done under the direction
-      of the responsible clinician. Do you wish to record the death of this patient?"
-    continueButtonText="Record death"
-    onStepBack={onStepBack}
-    onContinue={submitForm}
-    onCancel={onCancel}
-  />
-);
-
-const DoubleConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
-  const [dischargeConfirmed, setDischargeConfirmed] = useState(false);
-
-  if (!dischargeConfirmed) {
-    return (
-      <BaseConfirmScreen
-        heading="Patient will be auto-discharged and locked"
-        text="This patient has an active encounter. Please ensure that all
-          encounter details are up-to-date and correct before proceeding."
-        continueButtonText="Continue"
-        onStepBack={onStepBack}
-        onContinue={() => {
-          setDischargeConfirmed(true);
-        }}
-        onCancel={onCancel}
-      />
-    );
-  }
-  return (
-    <ConfirmScreen
-      onStepBack={() => {
-        setDischargeConfirmed(false);
-      }}
-      submitForm={submitForm}
-      onCancel={onCancel}
-    />
-  );
-};
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
@@ -154,11 +63,12 @@ export const DeathForm = React.memo(
     onCancel,
     onSubmit,
     patient,
-    hasCurrentEncounter,
+    deathData,
     practitionerSuggester,
     icd10Suggester,
     facilitySuggester,
   }) => {
+    const { currentUser } = useAuth();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
@@ -166,13 +76,20 @@ export const DeathForm = React.memo(
       <PaginatedForm
         onSubmit={onSubmit}
         onCancel={onCancel}
-        SummaryScreen={hasCurrentEncounter ? DoubleConfirmScreen : ConfirmScreen}
+        FormScreen={DeathFormScreen}
+        SummaryScreen={deathData ? SummaryScreenTwo : SummaryScreenThree}
         validationSchema={yup.object().shape({
-          causeOfDeath: yup.string().required(),
-          causeOfDeathInterval: yup
-            .string()
-            .required()
-            .label('Time between onset and death'),
+          causeOfDeath: yup.string().when('isPartialWorkflow', {
+            is: undefined,
+            then: yup.string().required(),
+          }),
+          causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
+            is: undefined,
+            then: yup
+              .string()
+              .required()
+              .label('Time between onset and death'),
+          }),
           clinicianId: yup
             .string()
             .required()
@@ -190,8 +107,26 @@ export const DeathForm = React.memo(
         })}
         initialValues={{
           outsideHealthFacility: false,
+          timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
+          clinicianId: deathData?.clinicianId || currentUser.id,
         }}
       >
+        <StyledFormGrid columns={1}>
+          <Field
+            name="timeOfDeath"
+            label="Date/Time"
+            component={props => <DateTimeField {...props} InputProps={{}} />}
+            saveDateAsString
+            required
+          />
+          <Field
+            name="clinicianId"
+            label="Attending Clinician"
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            required
+          />
+        </StyledFormGrid>
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
             name="causeOfDeath"
@@ -253,20 +188,6 @@ export const DeathForm = React.memo(
             )}
           />
           <FormSeparatorLine />
-          <Field
-            name="clinicianId"
-            label="Attending Clinician"
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-            required
-          />
-          <Field
-            name="timeOfDeath"
-            label="Date/Time"
-            component={props => <DateTimeField {...props} InputProps={{}} />}
-            saveDateAsString
-            required
-          />
           <Field
             name="facilityId"
             label="Facility"

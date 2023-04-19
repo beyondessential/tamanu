@@ -6,7 +6,7 @@ import { RegisterAccountScreenProps } from '../../../../interfaces/screens/SignU
 // context
 import {
   RegisterAccountContext,
-  RegisterAccountFormStep3Props,
+  RegisterAccountFormStep3FormValues,
 } from '../../../../contexts/RegisterAccountContext';
 //helpers
 import {
@@ -34,7 +34,7 @@ export const RegisterAccountStep3Container: FC<any> = ({
     new Value(screenPercentageToDP(4.43, Orientation.Height)),
   );
 
-  const step3FormProps = useMemo<RegisterAccountFormStep3Props>(
+  const step3FormValues = useMemo<RegisterAccountFormStep3FormValues>(
     () => ({
       password: registerFormState.password,
       confirmPassword: registerFormState.confirmPassword,
@@ -86,7 +86,7 @@ export const RegisterAccountStep3Container: FC<any> = ({
       navigateToIntro={navigateToIntro}
       navigateFormStepBack={navigateFormStepBack}
       onSubmitForm={onSubmitForm}
-      step3FormProps={step3FormProps}
+      step3FormValues={step3FormValues}
       titleFont={titleFont}
       iconContainerPosition={viewTopPosition}
     />

@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
 import { useSelector, useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { useApi } from 'desktop/app/api';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { SURVEY_TYPES } from 'shared/constants';
-
 import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
-
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
 import { FormGrid } from 'desktop/app/components/FormGrid';
@@ -20,14 +18,27 @@ import {
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useEncounter } from '../../contexts/Encounter';
+import { PATIENT_TABS } from '../../constants/patientPaths';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
+  const params = useParams();
+  const { encounter, loadEncounter } = useEncounter();
+  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
+
+  useEffect(() => {
+    if (params.encounterId) {
+      loadEncounter(params.encounterId);
+    }
+  }, [loadEncounter, params.encounterId]);
 
   useEffect(() => {
     (async () => {
@@ -67,18 +78,21 @@ const SurveyFlow = ({ patient, currentUser }) => {
     [api, selectedProgramId],
   );
 
-  const submitSurveyResponse = useCallback(
-    data =>
-      api.post('surveyResponse', {
-        surveyId: survey.id,
-        startTime,
-        patientId: patient.id,
-        endTime: getCurrentDateTimeString(),
-        answers: getAnswersFromData(data, survey),
-        actions: getActionsFromData(data, survey),
-      }),
-    [api, startTime, survey, patient],
-  );
+  const submitSurveyResponse = async data => {
+    await api.post('surveyResponse', {
+      surveyId: survey.id,
+      startTime,
+      patientId: patient.id,
+      endTime: getCurrentDateTimeString(),
+      answers: getAnswersFromData(data, survey),
+      actions: getActionsFromData(data, survey),
+    });
+    if (params?.encounterId && encounter && !encounter.endDate) {
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
+    } else {
+      navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    }
+  };
 
   if (!programs) {
     return <LoadingIndicator />;

@@ -20,11 +20,13 @@ import {
   FhirPatientLink,
   FhirReference,
 } from '../../services/fhirTypes';
+import { nzEthnicity } from './extensions';
 
 export class FhirPatient extends FhirResource {
   static init(options, models) {
     super.init(
       {
+        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION),
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         active: {
           type: Sequelize.BOOLEAN,
@@ -71,6 +73,7 @@ export class FhirPatient extends FhirResource {
     upstream.additionalData = first;
 
     this.set({
+      extension: extension(upstream),
       identifier: identifiers(upstream),
       active: activeFromVisibility(upstream),
       name: names(upstream),
@@ -167,6 +170,10 @@ export class FhirPatient extends FhirResource {
 
 function compactBy(array, access = identity) {
   return array.filter(access);
+}
+
+function extension(patient) {
+  return [...nzEthnicity(patient)];
 }
 
 function identifiers(patient) {

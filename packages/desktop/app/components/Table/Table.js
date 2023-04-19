@@ -55,7 +55,7 @@ const StyledTableRow = styled(TableRow)`
       ? `
       cursor: pointer;
       &:hover {
-        background: #f4f9ff;
+        background: ${Colors.veryLightBlue};
       }
     `
       : ''}

@@ -5,7 +5,7 @@ import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
-import { Suggester } from '../../helpers/suggester';
+import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 
 const styles = StyleSheet.create({
   container: {
@@ -36,7 +36,7 @@ type AutocompleteModalScreenProps = {
   navigation: NavigationProp<any>;
   route: {
     params: {
-      suggester: Suggester;
+      suggester: Suggester<BaseModelSubclass>;
       callback: (item: any) => any;
     };
   };

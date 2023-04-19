@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Platform, KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
+import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -68,7 +68,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             width="100%"
             justifyContent="flex-end"
             position="absolute"
-            top={Platform.OS === 'ios' ? 30 : 0}
+            top={0}
           >
             <StyledTouchableOpacity
               onPress={(): void => navigation.navigate(Routes.SignUpStack.Intro)}

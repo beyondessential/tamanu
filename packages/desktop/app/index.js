@@ -56,3 +56,11 @@ function start() {
 }
 
 start();
+
+// Add this work around for webpack hot module reloading. We should be able to remove it if we update
+// our webpack version to a version higher than 5.40 @see https://github.com/webpack-contrib/webpack-hot-middleware/issues/390
+if (process.env.NODE_ENV === 'development') {
+  if (module.hot) {
+    module.hot.accept();
+  }
+}

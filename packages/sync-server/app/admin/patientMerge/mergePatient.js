@@ -27,7 +27,8 @@ export const simpleUpdateModels = [
   'Appointment',
   'DocumentMetadata',
   'CertificateNotification',
-  'PatientFieldValue',
+  'DeathRevertLog',
+  'UserRecentlyViewedPatient',
 ];
 
 // These ones need a little more attention.
@@ -38,6 +39,7 @@ export const specificUpdateModels = [
   'PatientAdditionalData',
   'NotePage',
   'PatientFacility',
+  'PatientFieldValue',
 ];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
@@ -109,6 +111,33 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
   });
   delete mergedPAD.id; // id is a generated field, delete it before creating the new one
   return models.PatientAdditionalData.create(mergedPAD);
+}
+
+export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedFieldValues = await models.PatientFieldValue.findAll({
+    where: { patientId: unwantedPatientId },
+  });
+  if (existingUnwantedFieldValues.length === 0) return [];
+  const existingUnwantedObject = existingUnwantedFieldValues.reduce((acc, record) => {
+    const { definitionId, value } = record;
+    return { ...acc, [definitionId]: value };
+  }, {});
+
+  const existingKeepFieldValues = await models.PatientFieldValue.findAll({
+    where: { patientId: keepPatientId },
+  });
+  for (const keepRecord of existingKeepFieldValues) {
+    // Prefer the keep record value if defined, otherwise if the unwanted value is defined use that
+    await keepRecord.update({
+      value: keepRecord.value || existingUnwantedObject[keepRecord.definitionId],
+    });
+  }
+
+  await models.PatientFieldValue.destroy({
+    where: { patientId: unwantedPatientId },
+    force: true,
+  });
+  return existingKeepFieldValues;
 }
 
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
@@ -205,6 +234,15 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     const updated = await mergePatientAdditionalData(models, keepPatientId, unwantedPatientId);
     if (updated) {
       updates.PatientAdditionalData = 1;
+    }
+
+    const fieldValueUpdates = await mergePatientFieldValues(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (fieldValueUpdates.length > 0) {
+      updates.PatientFieldValue = fieldValueUpdates.length;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup

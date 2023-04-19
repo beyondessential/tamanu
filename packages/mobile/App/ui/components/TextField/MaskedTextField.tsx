@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { KeyboardType, Platform, ReturnKeyTypeOptions } from 'react-native';
+import { KeyboardType, ReturnKeyTypeOptions } from 'react-native';
 import {
   TextInputMaskTypeProp,
   TextInputMaskOptionProp,
@@ -11,7 +11,6 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { InputContainer, StyledMaskedInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { RefObject } from './TextField';
-import { isIOS, isAndroid } from '/helpers/platform';
 
 export interface TextFieldProps extends BaseInputProps {
   value: string;
@@ -60,12 +59,8 @@ export const MaskedTextField = React.memo(
       value,
       focused,
       style: {
-        paddingTop: isIOS()
-          ? screenPercentageToDP(1.21, Orientation.Height)
-          : 0,
-        marginTop: isAndroid()
-          ? screenPercentageToDP(1.71, Orientation.Height)
-          : 0,
+        paddingTop: 0,
+        marginTop: 0,
       },
     };
 
@@ -77,11 +72,7 @@ export const MaskedTextField = React.memo(
         <InputContainer
           hasValue={value && value.length > 0}
           error={error}
-          paddingLeft={
-            Platform.OS === 'ios'
-              ? screenPercentageToDP(2.0, Orientation.Width)
-              : screenPercentageToDP(1.5, Orientation.Width)
-          }
+          paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
         >
           {label && (
             <TextFieldLabel

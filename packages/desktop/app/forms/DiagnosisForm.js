@@ -14,9 +14,10 @@ import {
   AutocompleteField,
   DateField,
 } from '../components/Field';
+import { useSuggester } from '../api';
 
 export const DiagnosisForm = React.memo(
-  ({ isTriage = false, onCancel, onSave, diagnosis, icd10Suggester }) => {
+  ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = diagnosisCertaintyOptions.filter(x => {
@@ -25,6 +26,10 @@ export const DiagnosisForm = React.memo(
       return true;
     });
     const defaultCertainty = certaintyOptions[0].value;
+
+    const icd10Suggester = useSuggester('icd10', {
+      filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
+    });
 
     return (
       <Form

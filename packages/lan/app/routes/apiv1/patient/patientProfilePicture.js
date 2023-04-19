@@ -8,7 +8,7 @@ export const patientProfilePicture = express.Router();
 patientProfilePicture.get(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {
-    const { params } = req;
+    const { params, deviceId } = req;
 
     // what we want is:
     // - the answer body
@@ -52,7 +52,7 @@ patientProfilePicture.get(
     const attachmentId = result[0].body;
 
     // load the attachment from the central server
-    const centralServer = new CentralServerConnection();
+    const centralServer = new CentralServerConnection({ deviceId });
     const response = await centralServer.fetch(`attachment/${attachmentId}?base64=true`, {
       method: 'GET',
     });

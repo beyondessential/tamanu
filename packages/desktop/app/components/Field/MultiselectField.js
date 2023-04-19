@@ -1,9 +1,24 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
-
+import styled from 'styled-components';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
+
+const StyledFormControl = styled(FormControl)`
+  display: flex;
+  flex-direction: column;
+
+  // helper text
+  .MuiFormHelperText-root {
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    margin: 4px 2px 2px;
+  }
+`;
 
 export const MultiselectInput = ({
   options,
@@ -14,6 +29,8 @@ export const MultiselectInput = ({
   readonly,
   onChange,
   name,
+  helperText,
+  inputRef,
   form: { initialValues },
   ...props
 }) => {
@@ -55,17 +72,20 @@ export const MultiselectInput = ({
   }
 
   return (
-    <OuterLabelFieldWrapper label={label} {...props}>
-      <Select
-        value={selected}
-        isMulti
-        onChange={handleChange}
-        options={options}
-        menuPlacement="auto"
-        menuPosition="fixed"
-        menuShouldBlockScroll="true"
-        {...props}
-      />
+    <OuterLabelFieldWrapper label={label} {...props} ref={inputRef}>
+      <StyledFormControl {...props}>
+        <Select
+          value={selected}
+          isMulti
+          onChange={handleChange}
+          options={options}
+          menuPlacement="auto"
+          menuPosition="fixed"
+          menuShouldBlockScroll="true"
+          {...props}
+        />
+        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+      </StyledFormControl>
     </OuterLabelFieldWrapper>
   );
 };

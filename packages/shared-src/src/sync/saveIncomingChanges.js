@@ -41,8 +41,10 @@ const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentral
   );
 };
 
-const saveDeletes = async (model, recordIds) =>
-  model.destroy({ where: { id: { [Op.in]: recordIds } } });
+const saveDeletes = async (model, recordIds) => {
+  if (recordIds.length === 0) return;
+  await model.destroy({ where: { id: { [Op.in]: recordIds } } });
+};
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
   const sanitizeData = d =>

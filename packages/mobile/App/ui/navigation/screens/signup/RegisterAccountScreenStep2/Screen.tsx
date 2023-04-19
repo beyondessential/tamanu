@@ -10,7 +10,7 @@ import {
   StyledText,
   RowView,
 } from '/styled/common';
-import { CrossIcon, UserIcon } from '/components/Icons';
+import { CrossIcon } from '/components/Icons';
 import { RegisterAccountFormStep02 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep02';
 import { StepMarker } from '/components/StepMarker';
 // Theme
@@ -18,28 +18,28 @@ import { theme } from '/styled/theme';
 //Helpers
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 // protocols
-import { RegisterAccountFormStep2Props } from '../../../../contexts/RegisterAccountContext';
+import { RegisterAccountFormStep2FormValues } from '../../../../contexts/RegisterAccountContext';
 import { UserIconContainer } from '../common';
 
 interface ScreenProps {
   navigateToIntro: () => void;
-  step2FormProps: RegisterAccountFormStep2Props;
+  step2FormValues: RegisterAccountFormStep2FormValues;
   iconSize: Value<number>;
   titleFont: Value<number>;
   navigateFormStepBack: () => void;
   viewTopPosition: Value<number>;
-  onSubmitForm: (values: RegisterAccountFormStep2Props) => void;
+  onSubmitForm: (values: RegisterAccountFormStep2FormValues) => void;
 }
 
-export const Screen: FunctionComponent<ScreenProps> = ({
+export const Screen = ({
   navigateToIntro,
   viewTopPosition,
-  step2FormProps,
+  step2FormValues,
   navigateFormStepBack,
   iconSize,
   titleFont,
   onSubmitForm,
-}: ScreenProps) => (
+}: ScreenProps): JSX.Element => (
   <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <RowView justifyContent="flex-end">
@@ -70,7 +70,7 @@ export const Screen: FunctionComponent<ScreenProps> = ({
       </CenterView>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <RegisterAccountFormStep02
-          formState={step2FormProps}
+          formState={step2FormValues}
           onSubmit={onSubmitForm}
           navigateFormStepBack={navigateFormStepBack}
         />

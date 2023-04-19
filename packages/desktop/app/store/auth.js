@@ -52,6 +52,11 @@ export const logout = () => ({
   type: LOGOUT,
 });
 
+export const idleTimeout = () => ({
+  type: LOGOUT_WITH_ERROR,
+  error: 'You have been logged out due to inactivity',
+});
+
 export const requestPasswordReset = (host, email) => async (dispatch, getState, { api }) => {
   dispatch({ type: REQUEST_PASSWORD_RESET_START });
 

@@ -32,7 +32,7 @@ export const Header = ({ onGoBack }: HeaderProps): ReactElement => (
         justifyContent="center"
         width="100%"
         zIndex={-1}
-        height={70}
+        height={50}
       >
         <StyledText color={theme.colors.WHITE} fontSize={16}>
           Register New Patient

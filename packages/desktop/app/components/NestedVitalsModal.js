@@ -16,12 +16,7 @@ export const NestedVitalsModal = React.memo(({ field, patient }) => {
     <>
       <OutlinedButton onClick={openModal}>Record vitals</OutlinedButton>
       <Modal open={isOpen} onClose={closeModal} title="Record vitals">
-        <VitalsForm
-          editedObject={field.value || {}}
-          patient={patient}
-          onSubmit={onSubmit}
-          onClose={closeModal}
-        />
+        <VitalsForm patient={patient} onSubmit={onSubmit} onClose={closeModal} />
       </Modal>
     </>
   );

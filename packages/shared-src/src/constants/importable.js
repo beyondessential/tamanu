@@ -9,7 +9,6 @@ export const REFERENCE_TYPES = {
   PROCEDURE_TYPE: 'procedureType',
   IMAGING_TYPE: 'imagingType',
   LAB_TEST_CATEGORY: 'labTestCategory',
-  LAB_TEST_TYPE: 'labTestType',
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
   LAB_TEST_METHOD: 'labTestMethod',

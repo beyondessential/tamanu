@@ -14,9 +14,9 @@ import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacil
 const Stack = createStackNavigator();
 
 function getSignInFlowRoute(): string {
-  const authCtx = useAuth();
+  const { signedIn } = useAuth();
   const { facilityId } = useFacility();
-  if (!authCtx.isUserAuthenticated()) {
+  if (!signedIn) {
     return Routes.SignUpStack.Index;
   } else if (!facilityId) {
     return Routes.SignUpStack.SelectFacility;
@@ -28,12 +28,13 @@ export const Core: FunctionComponent<any> = () => {
   const initialRouteName = getSignInFlowRoute();
 
   return (
-    <Stack.Navigator
-      headerMode="none"
-      initialRouteName={initialRouteName}
-    >
+    <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>
       <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
-      <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
+      <Stack.Screen
+        name={Routes.SignUpStack.Index}
+        component={SignUpStack}
+        initialParams={{ signedOutFromInactivity: false }}
+      />
       <Stack.Screen name={Routes.SignUpStack.SelectFacility} component={SelectFacilityScreen} />
       <Stack.Screen
         options={noSwipeGestureOnNavigator}

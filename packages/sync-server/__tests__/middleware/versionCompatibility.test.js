@@ -94,7 +94,7 @@ describe('Version compatibility', () => {
     it('Should allow any version of an unspecified client (so that tests work)', async () => {
       await Promise.all(
         ['0.0.1', '1.0.0', '1.0.9', '999.999.999'].map(async version => {
-          const response = await app.get('/').set({
+          const response = await app.get('/').unset('X-Tamanu-Client').set({
             'X-Version': version,
           });
           expect(response).toHaveSucceeded();

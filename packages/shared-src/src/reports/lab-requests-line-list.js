@@ -1,6 +1,7 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
+import { LAB_REQUEST_STATUS_CONFIG } from '../constants';
 
 const FIELDS = [
   'Patient ID',
@@ -24,12 +25,44 @@ const FIELDS = [
   'Test category',
   'Tests',
   'Status',
+  'Reason for cancellation',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+// Reason for cancellation is a configurable field but these are the default values
+const DEFAULT_REASONS_FOR_CANCELLATION = {
+  clinical: 'Clinical reason',
+  duplicate: 'Duplicate',
+  'entered-in-error': 'Entered in error',
+  'patient-discharged': 'Patient discharged',
+  'patient-refused': 'Patient refused',
+  other: 'Other',
+};
+
+const reportColumnTemplate = FIELDS.map(field => {
+  if (field === 'Status') {
+    return {
+      title: field,
+      accessor: data =>
+        LAB_REQUEST_STATUS_CONFIG[data[field]]
+          ? LAB_REQUEST_STATUS_CONFIG[data[field]].label
+          : data[field],
+    };
+  }
+
+  if (field === 'Reason for cancellation') {
+    return {
+      title: field,
+      accessor: data => {
+        return DEFAULT_REASONS_FOR_CANCELLATION[data[field]] ?? data[field];
+      },
+    };
+  }
+
+  return {
+    title: field,
+    accessor: data => data[field],
+  };
+});
 
 const query = `
 with lab_test_items(lab_request_id, Tests) as
@@ -72,7 +105,11 @@ select
     when lr.status = 'verified' then 'Verified'
     when lr.status = 'published' then 'Published'
     else lr.status
-  end as "Status"
+  end as "Status",
+  case
+      when lr.status = 'cancelled' then lr.reason_for_cancellation
+      else null
+      end as "Reason for cancellation"
 from lab_requests lr
   left join encounters e on e.id = lr.encounter_id
   left join patients p on p.id = e.patient_id
@@ -80,6 +117,7 @@ from lab_requests lr
   left join location_groups locationGroup on l.location_group_id=locationGroup.id
   left join facilities f on f.id = l.facility_id
   left join lab_test_items lti on lti.lab_request_id = lr.id
+  left join lab_tests lt on lr.id = lt.lab_request_id
   left join reference_data rd_request_type on rd_request_type.id = lr.lab_test_category_id
   left join users requested_by_user on requested_by_user.id = lr.requested_by_id
   left join users examiner_by_user on examiner_by_user.id = e.examiner_id
@@ -87,9 +125,7 @@ from lab_requests lr
   left join reference_data rd_laboratory on rd_laboratory.id = lr.lab_test_laboratory_id
   left join departments d on d.id = e.department_id
   left join reference_data rd_village on rd_village.id = p.village_id
-where
-  lr.status != 'deleted'
-  and p.id not in (
+where p.id not in (
     '4d719b6f-af55-42ac-99b3-5a27cadaab2b',
     '2d574680-e0fc-4956-a37e-121ccb434995',
     'c11229a7-b95c-4416-a3ad-560cd75d8f21',
@@ -99,17 +135,27 @@ where
   and case when :to_date is not null then lr.requested_date::date <= :to_date::date else true end
   and case when :requested_by_id is not null then lr.requested_by_id = :requested_by_id else true end
   and case when :lab_test_category_id is not null then rd_request_type.id = :lab_test_category_id else true end
-  and case when :status is not null then lr.status = :status else true end
+  and case when :are_lab_test_types is not null then lt.lab_test_type_id IN(:lab_test_types) else true end
+  and case when :are_statuses is not null then lr.status IN(:statuses) else true end
 order by lr.requested_date;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate, toDate, requestedById, labTestCategoryId, status } = parameters;
+  const {
+    fromDate,
+    toDate,
+    requestedById,
+    labTestCategoryId,
+    statuses,
+    labTestTypeIds,
+  } = parameters;
 
   const queryFromDate = toDateTimeString(
     startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
   );
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
+  const selectedStatuses = statuses?.split(', ') ?? null;
+  const selectedLabTestTypes = labTestTypeIds?.split(', ') ?? null;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
@@ -118,7 +164,10 @@ const getData = async (sequelize, parameters) => {
       to_date: queryToDate ?? null,
       requested_by_id: requestedById ?? null,
       lab_test_category_id: labTestCategoryId ?? null,
-      status: status ?? null,
+      statuses: selectedStatuses,
+      are_statuses: selectedStatuses ? 'true' : null,
+      lab_test_types: selectedLabTestTypes ?? null,
+      are_lab_test_types: selectedLabTestTypes ? 'true' : null,
     },
   });
 };

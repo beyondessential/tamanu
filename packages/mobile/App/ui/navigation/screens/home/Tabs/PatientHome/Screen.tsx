@@ -1,19 +1,12 @@
 import React, { ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 // Components
-import {
-  FullView,
-  StyledView,
-  StyledSafeAreaView,
-  RowView,
-  StyledText,
-} from '/styled/common';
+import { FullView, StyledView, StyledSafeAreaView, RowView, StyledText } from '/styled/common';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
 import {
   BackButton,
   SearchButton,
-  DotsMenuButton,
   VisitTypeButtonList,
   PatientMenuButtons,
 } from './CustomComponents';
@@ -24,11 +17,13 @@ import { IPatient } from '~/types';
 import { joinNames, getGender } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
+import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
-  visitTypeButtons: any[];
-  patientMenuButtons: any[];
+  visitTypeButtons: MenuOptionButtonProps[];
+  patientMenuButtons: MenuOptionButtonProps[];
   markPatientForSync: () => void;
   selectedPatient: IPatient;
 }
@@ -56,9 +51,7 @@ export const Screen = ({
           marginTop={screenPercentageToDP(1.5, Orientation.Height)}
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
         >
-          <StyledView
-            marginRight={screenPercentageToDP(3.64, Orientation.Width)}
-          >
+          <StyledView marginRight={screenPercentageToDP(3.64, Orientation.Width)}>
             <UserAvatar
               size={screenPercentageToDP(7.29, Orientation.Height)}
               sex={selectedPatient.sex}
@@ -77,8 +70,8 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {getGender(selectedPatient.sex)},{' '}
-              {getAgeFromDate(selectedPatient.dateOfBirth)} years old{' '}
+              {getGender(selectedPatient.sex)}, {getAgeFromDate(selectedPatient.dateOfBirth)} years
+              old{' '}
             </StyledText>
             <Button
               marginTop={screenPercentageToDP(1.21, Orientation.Height)}
@@ -96,6 +89,9 @@ export const Screen = ({
       <StyledView flex={1} background={theme.colors.BACKGROUND_GREY}>
         <PatientMenuButtons list={patientMenuButtons} />
         <VisitTypeButtonList list={visitTypeButtons} />
+        <StyledView position="absolute" bottom={0} width="100%">
+          <SyncInactiveAlert />
+        </StyledView>
       </StyledView>
     </StyledSafeAreaView>
   </FullView>

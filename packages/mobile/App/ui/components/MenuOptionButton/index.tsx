@@ -4,14 +4,7 @@ import { StyledText, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ArrowForwardIcon } from '../Icons';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
-
-export interface MenuOptionButtonProps {
-  Icon?: FC<IconWithSizeProps>;
-  title: string;
-  onPress: () => void;
-  fontWeight?: number;
-}
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
   Icon,

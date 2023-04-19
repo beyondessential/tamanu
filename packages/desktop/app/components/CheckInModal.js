@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { REFERRAL_STATUSES } from 'shared/constants';
+import { ENCOUNTER_TYPES, REFERRAL_STATUSES } from 'shared/constants';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../api';
 
@@ -9,7 +9,7 @@ import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 
 export const CheckInModal = React.memo(
-  ({ open, onClose, patientId, referral, patientBillingTypeId, ...props }) => {
+  ({ open, onClose, onSubmitEncounter, patientId, referral, patientBillingTypeId, ...props }) => {
     const { createEncounter } = useEncounter();
     const api = useApi();
     const dispatch = useDispatch();
@@ -17,22 +17,34 @@ export const CheckInModal = React.memo(
     const onCreateEncounter = useCallback(
       async data => {
         onClose();
-        await createEncounter({
+        const newEncounter = {
           patientId,
           referralId: referral?.id,
           ...data,
-        });
+        };
+
+        await createEncounter(newEncounter);
         if (referral) {
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
+        if (typeof onSubmitEncounter === 'function') {
+          onSubmitEncounter(newEncounter);
+        }
+
         dispatch(reloadPatient(patientId));
       },
-      [dispatch, patientId, api, createEncounter, onClose, referral],
+      [dispatch, patientId, api, createEncounter, onSubmitEncounter, onClose, referral],
     );
 
     return (
-      <Modal title="Check-in" open={open} onClose={onClose}>
+      <Modal
+        title={`Admit or check-in | ${
+          props?.encounterType === ENCOUNTER_TYPES.ADMISSION ? 'Hospital admission' : ''
+        }${props?.encounterType === ENCOUNTER_TYPES.CLINIC ? 'Clinic' : ''}`}
+        open={open}
+        onClose={onClose}
+      >
         <EncounterForm
           onSubmit={onCreateEncounter}
           onCancel={onClose}

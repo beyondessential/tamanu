@@ -32,6 +32,7 @@ const CheckField = ({ field }) => (
 export const DisplayIdField = () => (
   <FieldContainer
     name="displayId"
+    className="display-field"
     InputProps={{
       endAdornment: (
         <InputAdornment position="end">

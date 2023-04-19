@@ -25,7 +25,7 @@ export const usePatientRoutes = () => {
   const { encounter } = useEncounter();
   return [
     {
-      path: `${PATIENT_PATHS.PATIENT}/:modal?`,
+      path: PATIENT_PATHS.PATIENT,
       component: PatientView,
       navigateTo: () => navigateToPatient(patient.id),
       title: getPatientNameAsString(patient || {}),
@@ -50,6 +50,11 @@ export const usePatientRoutes = () => {
               path: `${PATIENT_PATHS.SUMMARY}/view`,
               component: DischargeSummaryView,
               title: 'Discharge Summary',
+            },
+            {
+              path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
+              component: ProgramsView,
+              title: 'New Survey',
             },
             {
               path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,

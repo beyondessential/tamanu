@@ -114,6 +114,7 @@ jobs:
         node:
           - '16.x'
         package:
+          - desktop
           - lan
           - meta-server
           - shared-src
@@ -134,33 +135,33 @@ jobs:
         node: ${{ matrix.node }}
 
     - run: yarn workspace ${{ matrix.package }} run lint
-
-  ## disable for now as it's broken
-  # storybook:
-  #   needs: build
-  #   continue-on-error: true
-  #
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       node:
-  #         - '16.x'
-  #
-  #   name: Test storybook node=${{ matrix.node }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Use Node.js ${{ matrix.node }}
-  #     uses: actions/setup-node@v3
-  #     with:
-  #       node-version: ${{ matrix.node }}
-  #       cache: yarn
-  #   - name: Get prebuilt shared
-  #     uses: ./.github/actions/get-shared
-  #     with:
-  #       node: ${{ matrix.node }}
-  #
-  #   - run: yarn workspace desktop run verify-storybook
+  storybook:
+    needs: build
+    # Workaround for define plugin conflict warning
+    env: 
+        NODE_ENV: development
+    continue-on-error: true
+  
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '16.x'
+  
+    name: Test storybook node=${{ matrix.node }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - run: yarn
+      shell: bash
+    - run: yarn build-shared
+      shell: bash
+    - run: yarn workspace desktop run verify-storybook
 
   migrations:
     needs: build
@@ -215,3 +216,19 @@ jobs:
 
     - run: yarn test
       working-directory: packages/mobile
+
+  # Dummy job to have a stable name for PR requirements
+  tests-pass:
+    if: always() # always run even if dependencies fail
+    name: Tests pass
+    needs:
+      - test
+      - lint
+      - storybook
+      - migrations
+      - test-mobile
+    runs-on: ubuntu-latest
+    steps:
+    # fail if ANY dependency has failed or been skipped or cancelled
+    - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')"
+      run: exit 1

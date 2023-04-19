@@ -1,18 +1,16 @@
 import React from 'react';
-import { connectApi } from '../../api';
+import { useSuggester } from '../../api';
 import { AutocompleteField, Field } from '../../components';
-import { Suggester } from '../../utils/suggester';
 
-const DumbPractitionerField = ({ name = 'practitioner', practitionerSuggester, required }) => (
-  <Field
-    name={name}
-    label="Doctor/nurse"
-    component={AutocompleteField}
-    suggester={practitionerSuggester}
-    required={required}
-  />
-);
-
-export const PractitionerField = connectApi(api => ({
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-}))(DumbPractitionerField);
+export const PractitionerField = ({ name = 'practitioner', required }) => {
+  const practitionerSuggester = useSuggester('practitioner');
+  return (
+    <Field
+      name={name}
+      label="Doctor/nurse"
+      component={AutocompleteField}
+      suggester={practitionerSuggester}
+      required={required}
+    />
+  );
+};

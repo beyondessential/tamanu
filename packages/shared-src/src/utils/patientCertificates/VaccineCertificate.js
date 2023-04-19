@@ -68,7 +68,7 @@ export const VaccineCertificate = ({
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
-  const countryCode = getLocalisation('country.alpha-3');
+  const countryCode = getLocalisation('country.alpha-2');
   const countryName = getLocalisation('country.name');
   const uvciFormat = getLocalisation('previewUvciFormat');
 

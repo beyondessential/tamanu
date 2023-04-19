@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../../api';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
-import { ImmunisationCertificateModal } from '../../../components/ImmunisationCertificateModal';
+import { ImmunisationCertificateModal } from '../../../components/PatientPrinting';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 

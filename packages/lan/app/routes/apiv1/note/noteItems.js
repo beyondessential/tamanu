@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { VISIBILITY_STATUSES } from 'shared/constants';
 
 import { checkNotePermission } from '../../../utils/checkNotePermission';
 
@@ -19,7 +20,9 @@ noteItemRoute.post(
       req.checkPermission('write', 'OtherPractitionerEncounterNote');
     }
 
-    const notePage = await models.NotePage.findByPk(notePageId);
+    const notePage = await models.NotePage.findOne({
+      where: { id: notePageId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
     await checkNotePermission(req, notePage, 'create');
 
     await models.NoteItem.create({
@@ -55,7 +58,9 @@ noteItemRoute.get(
     const { models, params } = req;
     const { notePageId } = params;
 
-    const notePage = await models.NotePage.findByPk(notePageId);
+    const notePage = await models.NotePage.findOne({
+      where: { id: notePageId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
     await checkNotePermission(req, notePage, 'list');
 
     const noteItems = await models.NoteItem.findAll({

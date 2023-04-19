@@ -38,7 +38,7 @@ export class OngoingConditionForm extends React.PureComponent {
           disabled={resolving}
         />
         <Field
-          name="practitioner"
+          name="examinerId"
           label="Doctor/nurse"
           disabled={resolving}
           component={AutocompleteField}
@@ -48,9 +48,14 @@ export class OngoingConditionForm extends React.PureComponent {
         <Field name="resolved" label="Resolved" component={CheckField} />
         <Collapse in={resolving}>
           <FormGrid columns={1}>
-            <Field name="resolutionDate" label="Date resolved" component={DateField} />
             <Field
-              name="resolutionPractitioner"
+              name="resolutionDate"
+              saveDateAsString
+              label="Date resolved"
+              component={DateField}
+            />
+            <Field
+              name="resolutionPractitionerId"
               label="Doctor/nurse confirming resolution"
               component={AutocompleteField}
               suggester={practitionerSuggester}
@@ -71,7 +76,7 @@ export class OngoingConditionForm extends React.PureComponent {
     }
 
     // remove resolution-specific fields if not resolved
-    const { resolutionDate, resolutionNote, resolutionPractitioner, ...rest } = data;
+    const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
     onSubmit(rest);
   };
 
@@ -83,19 +88,19 @@ export class OngoingConditionForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           recordedDate: getCurrentDateTimeString(),
-          resolutionDate: new Date(),
+          resolutionDate: getCurrentDateTimeString(),
           resolved: false,
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
           conditionId: foreignKey('Condition is a required field'),
           recordedDate: yup.date(),
-          practitioner: yup.string(),
+          examinerId: yup.string(),
           note: yup.string(),
 
           resolved: yup.boolean(),
-          resolutionDate: yup.string(),
-          resolutionPractitioner: yup.string(),
+          resolutionDate: yup.date(),
+          resolutionPractitionerId: yup.string(),
           resolutionNote: yup.string(),
         })}
       />

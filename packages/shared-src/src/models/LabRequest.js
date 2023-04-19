@@ -32,6 +32,9 @@ export class LabRequest extends Model {
           type: Sequelize.STRING,
           defaultValue: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         },
+        reasonForCancellation: {
+          type: Sequelize.STRING,
+        },
         senaiteId: {
           type: Sequelize.STRING,
           allowNull: true,

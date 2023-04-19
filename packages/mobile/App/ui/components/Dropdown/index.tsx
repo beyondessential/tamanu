@@ -3,6 +3,8 @@ import { StyledView } from '/styled/common';
 import MultiSelect from 'react-native-multiple-select';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -27,7 +29,6 @@ const DEFAULT_STYLE_PROPS = {
 };
 
 const ERROR_STYLE_PROPS = {
-  textColor: theme.colors.ERROR,
   styleInputGroup: {
     borderColor: theme.colors.ERROR,
     borderWidth: 1,
@@ -53,16 +54,18 @@ export const Dropdown = React.memo(
     const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
     const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
-      (items) => {
+      items => {
         setSelectedItems(items);
         onChange(items.join(', ')); // Form submits selected items as comma separated string.
       },
       [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
-
     return (
-      <StyledView width="100%" marginTop={10}>
+      <StyledView
+        width="100%"
+        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
+      >
         <MultiSelect
           single={!multiselect}
           items={options}
@@ -84,10 +87,15 @@ export const Dropdown = React.memo(
           styleMainWrapper={{ zIndex: 999 }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
+          styleDropdownMenu={{
+            height: screenPercentageToDP(6.8, Orientation.Height),
+            marginBottom: 0,
+          }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
           {...(error ? ERROR_STYLE_PROPS : DEFAULT_STYLE_PROPS)}
         />
+        {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
       </StyledView>
     );
   },

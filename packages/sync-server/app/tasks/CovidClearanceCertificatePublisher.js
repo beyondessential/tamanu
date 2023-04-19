@@ -1,11 +1,8 @@
 import config from 'config';
 
-import { subDays, startOfDay } from 'date-fns';
-import { Op } from 'sequelize';
 import { ScheduledTask } from 'shared/tasks';
-import { getPatientSurveyResponseAnswer } from 'shared/utils';
+import { getPatientSurveyResponseAnswer, getCovidClearanceCertificateFilter } from 'shared/utils';
 import {
-  LAB_REQUEST_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
   CERTIFICATE_NOTIFICATION_STATUSES,
 } from 'shared/constants';
@@ -23,42 +20,23 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
   }
 
   async run() {
-    const {
-      after,
-      labTestCategories,
-      labTestTypes,
-      daysSinceSampleTime,
-    } = config.schedules.covidClearanceCertificatePublisher;
     const { LabRequest, LabTest, CertificateNotification, Encounter } = this.models;
     const questionId = config.questionCodeIds?.email;
+
+    const labRequestsWhere = {
+      ...(await getCovidClearanceCertificateFilter(this.models)),
+      '$certificate_notification.id$': null,
+    };
 
     // Get lab requests that were sampled 13 days before the start
     // of today, and with configured lab test categories
     const clearedRequests = await LabRequest.findAll({
-      where: {
-        status: LAB_REQUEST_STATUSES.PUBLISHED,
-        sampleTime: {
-          [Op.lt]: subDays(startOfDay(new Date()), daysSinceSampleTime),
-          [Op.gt]: after,
-        },
-        labTestCategoryId: {
-          [Op.in]: labTestCategories,
-        },
-        '$tests.lab_test_type_id$': {
-          [Op.in]: labTestTypes,
-        },
-        '$certificate_notification.id$': null,
-      },
+      where: labRequestsWhere,
       include: [
         {
           model: LabTest,
           as: 'tests',
           required: true,
-          // We only want to generate clearance notifications for patients who had positive tests
-          // Note that LabTest.status is not a used field so we don't need to filter on it
-          where: {
-            result: 'Positive',
-          },
         },
         {
           model: CertificateNotification,

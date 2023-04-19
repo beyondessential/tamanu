@@ -7,10 +7,14 @@ import { DISCOVERY_MAGIC_STRING, DISCOVERY_PORT } from 'shared/constants';
 import { version } from './serverInfo';
 
 export function listenForServerQueries() {
+  const serverPort = config.port;
+  const { enabled, overrideAddress, overridePort, protocol } = config.discovery;
+  if (!enabled) {
+    return;
+  }
+
   const socket = dgram.createSocket('udp4');
   let address = '';
-  const serverPort = config.port;
-  const { overrideAddress, overridePort, protocol } = config.discovery;
 
   socket.on('message', (msg, rinfo) => {
     if (`${msg}`.trim() !== DISCOVERY_MAGIC_STRING) {

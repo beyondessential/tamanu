@@ -260,7 +260,7 @@ patientRoute.get(
 
     // Check if this is the main patient listing and change FROM and SELECT
     // clauses to improve query speed by removing unused joins
-    const isAllPatientsListing = !filterParams.facilityId;
+    const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
@@ -414,11 +414,15 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
 
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { Patient } = models;
+    const { certType } = query;
 
     const patient = await Patient.findByPk(params.id);
-    const labTests = await patient.getCovidLabTests();
+    const labTests =
+      certType === 'clearance'
+        ? await patient.getCovidClearanceLabTests()
+        : await patient.getCovidLabTests();
 
     res.json({ data: labTests, count: labTests.length });
   }),

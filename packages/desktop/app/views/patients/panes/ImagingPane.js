@@ -1,21 +1,37 @@
 import React, { useState } from 'react';
 import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
+import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TableButtonRow, Button } from '../../../components';
 import { TabPane } from '../components';
 
 export const ImagingPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
+  const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
+  // TODO: should these be ButtonWithPermissionCheck?
   return (
     <TabPane>
       <ImagingRequestModal
-        open={modalOpen}
+        open={newRequestModalOpen}
         encounter={encounter}
-        onClose={() => setModalOpen(false)}
+        onClose={() => setNewRequestModalOpen(false)}
+      />
+      <PrintMultipleImagingRequestsSelectionModal
+        encounter={encounter}
+        open={printRequestsModalOpen}
+        onClose={() => setPrintRequestsModalOpen(false)}
       />
       <TableButtonRow variant="small">
-        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
+        <Button
+          onClick={() => setPrintRequestsModalOpen(true)}
+          disabled={readonly}
+          variant="outlined"
+          color="primary"
+        >
+          Print
+        </Button>
+        <Button onClick={() => setNewRequestModalOpen(true)} disabled={readonly}>
           New imaging request
         </Button>
       </TableButtonRow>

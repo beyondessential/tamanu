@@ -1,8 +1,8 @@
 import React from 'react';
 import * as yup from 'yup';
 import { inRange } from 'lodash';
+import { intervalToDuration, parseISO } from 'date-fns';
 
-import { ageInYears } from 'shared/utils/dateTime';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -10,7 +10,7 @@ import {
   MultiselectField,
   DateField,
   NullableBooleanField,
-  SurveyQuestionAutocomplete,
+  SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   NumberField,
   ReadOnlyTextField,
@@ -32,7 +32,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: props => <DateTimeField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: props => <DateField {...props} saveDateAsString />,
@@ -105,10 +105,18 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
+      const isMultiSelect =
+        matchingComponent.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'
@@ -181,9 +189,22 @@ function transformPatientData(patient, config) {
   const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
 
+  const { months, years } = intervalToDuration({
+    start: parseISO(dateOfBirth),
+    end: new Date(),
+  });
+
+  const yearPlural = years !== 1 ? 's' : '';
+  const monthPlural = months !== 1 ? 's' : '';
+
   switch (column) {
     case 'age':
-      return ageInYears(dateOfBirth).toString();
+      return years.toString();
+    case 'ageWithMonths':
+      if (!years) {
+        return `${months} month${monthPlural}`;
+      }
+      return `${years} year${yearPlural}, ${months} month${monthPlural}`;
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
@@ -220,7 +241,6 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }
-
   return initialValues;
 }
 
@@ -291,7 +311,12 @@ export const getValidationSchema = surveyData => {
           valueSchema = yup.mixed();
           break;
       }
-      return { ...acc, [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired']() };
+      return {
+        ...acc,
+        [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
+          mandatory ? 'Required' : null,
+        ),
+      };
     },
     {},
   );

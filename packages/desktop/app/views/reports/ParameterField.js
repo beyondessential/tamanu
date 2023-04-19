@@ -11,6 +11,7 @@ import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
 import { PractitionerField } from './PractitionerField';
 import { DiagnosisField } from './DiagnosisField';
+import { LabTestTypeField } from './LabTestTypeField';
 import { LabTestCategoryField } from './LabTestCategoryField';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { ImagingTypeField } from './ImagingTypeField';
@@ -50,6 +51,7 @@ const PARAMETER_FIELD_COMPONENTS = {
   ImagingTypeField,
   LabTestCategoryField,
   ParameterSuggesterSelectField,
+  LabTestTypeField,
 };
 
 export const ParameterField = ({ parameterField, name, required, label, values, ...props }) => {

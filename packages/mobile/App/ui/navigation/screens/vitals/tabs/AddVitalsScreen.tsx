@@ -1,8 +1,6 @@
 import React, { ReactElement } from 'react';
-import { FormScreenView } from '/components/Forms/FormScreenView';
 import { VitalsForm } from '/components/Forms/VitalsForm';
 import { Routes } from '/helpers/routes';
-import { FullView } from '/styled/common';
 import { NavigationProp } from '@react-navigation/native';
 
 interface ScreenProps {
@@ -17,11 +15,5 @@ export const AddVitalsScreen: React.FC<ScreenProps> = ({ navigation }): ReactEle
     });
   };
 
-  return (
-    <FormScreenView>
-      <FullView>
-        <VitalsForm onAfterSubmit={onAfterSubmit} />
-      </FullView>
-    </FormScreenView>
-  );
+  return <VitalsForm onAfterSubmit={onAfterSubmit} />;
 };

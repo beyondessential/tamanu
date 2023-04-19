@@ -5,6 +5,7 @@ import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
@@ -33,41 +34,41 @@ export const Checkbox = ({
     return theme.colors.PRIMARY_MAIN;
   }, [error, value]);
   return (
-    <RowView alignItems="center">
-      <TouchableHighlight
-        onPress={ChangeCallback}
-        underlayColor="rgba(0,0,0,0.1)"
-      >
-        <StyledView
-          height={screenPercentageToDP('2.82', Orientation.Height)}
-          width={screenPercentageToDP('2.82', Orientation.Height)}
-          background={background}
-          borderRadius={5}
-          borderColor={getColor()}
-          borderWidth={1}
-          alignItems="center"
-          justifyContent="center"
-        >
-          {value && (
-            <CheckboxMarkIcon
-              stroke={color}
-              height={screenPercentageToDP('1.82', Orientation.Height)}
-              width={screenPercentageToDP('1.82', Orientation.Height)}
-            />
-          )}
-        </StyledView>
-      </TouchableHighlight>
-      {text && (
-        <StyledText
-          marginLeft={10}
-          onPress={ChangeCallback}
-          fontSize={screenPercentageToDP('1.70', Orientation.Height)}
-          color={theme.colors.TEXT_MID}
-        >
-          {`${text}${required ? '*' : ''}`}
-        </StyledText>
-      )}
-    </RowView>
+    <StyledView>
+      <RowView alignItems="center">
+        <TouchableHighlight onPress={ChangeCallback} underlayColor="rgba(0,0,0,0.1)">
+          <StyledView
+            height={screenPercentageToDP('2.82', Orientation.Height)}
+            width={screenPercentageToDP('2.82', Orientation.Height)}
+            background={background}
+            borderRadius={5}
+            borderColor={getColor()}
+            borderWidth={1}
+            alignItems="center"
+            justifyContent="center"
+          >
+            {value && (
+              <CheckboxMarkIcon
+                stroke={color}
+                height={screenPercentageToDP('1.82', Orientation.Height)}
+                width={screenPercentageToDP('1.82', Orientation.Height)}
+              />
+            )}
+          </StyledView>
+        </TouchableHighlight>
+        {text && (
+          <StyledText
+            marginLeft={10}
+            onPress={ChangeCallback}
+            fontSize={screenPercentageToDP('1.70', Orientation.Height)}
+            color={theme.colors.TEXT_MID}
+          >
+            {`${text}${required ? '*' : ''}`}
+          </StyledText>
+        )}
+      </RowView>
+      {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
+    </StyledView>
   );
 };
 

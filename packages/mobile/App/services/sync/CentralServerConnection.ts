@@ -1,5 +1,6 @@
 import mitt from 'mitt';
 
+import { getUniqueId } from 'react-native-device-info';
 import { readConfig } from '../config';
 import { LoginResponse, SyncRecord, FetchOptions } from './types';
 import {
@@ -13,6 +14,7 @@ import {
 import { version } from '/root/package.json';
 
 import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
+import { CentralConnectionStatus } from '~/types';
 
 const API_VERSION = 1;
 
@@ -51,23 +53,27 @@ const fetchAndParse = async (
 
 export class CentralServerConnection {
   host: string;
+  deviceId: string;
 
   token: string | null;
+  refreshToken: string | null;
 
   emitter = mitt();
 
   connect(host: string): void {
     this.host = host;
+    this.deviceId = `mobile-${getUniqueId()}`;
   }
 
   async fetch(
     path: string,
-    query: Record<string, string | number>,
-    { backoff, ...config }: FetchOptions = {},
-  ) {
+    query: Record<string, string | number | boolean>,
+    { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
+  ): Promise<any> {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
     }
+
     const queryString = Object.entries(query)
       .map(([k, v]) => `${k}=${v}`)
       .join('&');
@@ -80,14 +86,29 @@ export class CentralServerConnection {
       'X-Version': version,
       ...extraHeaders,
     };
-    const response = await callWithBackoff(
-      async () => fetchAndParse(url, { ...config, headers }, path.startsWith('login')),
-      backoff,
-    );
-    return response;
+    const isLogin = path.startsWith('login');
+    try {
+      const response = await callWithBackoff(
+        async () => fetchAndParse(url, { ...config, headers }, isLogin),
+        backoff,
+        );
+        return response;
+      } catch(err) {
+          // Handle sync disconnection and attempt refresh if possible
+          if (err instanceof AuthenticationError && !isLogin) {
+            this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
+            if (this.refreshToken && !skipAttemptRefresh) {
+              await this.refresh();
+              // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
+              const updatedConfig = { ...config, skipAttemptRefresh: true };
+              return this.fetch(path, query, updatedConfig);
+            }
+          }
+        throw err;
+      }
   }
 
-  async get(path: string, query: Record<string, string | number>) {
+  async get(path: string, query: Record<string, string | number | boolean>) {
     return this.fetch(path, query, { method: 'GET' });
   }
 
@@ -200,7 +221,15 @@ export class CentralServerConnection {
     this.token = null;
   }
 
-  throwError(err: Error) {
+  setRefreshToken(refreshToken: string): void {
+    this.refreshToken = refreshToken;
+  }
+
+  clearRefreshToken(): void {
+    this.refreshToken = null;
+  }
+
+  throwError(err: Error): never {
     // emit error after throwing
     setTimeout(() => {
       this.emitter.emit('error', err);
@@ -208,21 +237,38 @@ export class CentralServerConnection {
     throw err;
   }
 
+  async refresh(): Promise<void> {
+    const data = await this.post(
+      'refresh',
+      {},
+      { refreshToken: this.refreshToken, deviceId: this.deviceId },
+      { skipAttemptRefresh: true, backoff: { maxAttempts: 1 } },
+    );
+    if (!data.token || !data.refreshToken) {
+      // auth failed in some other regard
+      console.warn('Token refresh failed with an inexplicable error', data);
+      throw new AuthenticationError(generalErrorMessage);
+    }
+    this.setRefreshToken(data.refreshToken);
+    this.setToken(data.token);
+    this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
+  }
+
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
       const data = await this.post(
         'login',
         {},
-        { email, password },
+        { email, password, deviceId: this.deviceId },
         { backoff: { maxAttempts: 1 } },
       );
 
-      if (!data.token || !data.user) {
+      if (!data.token || !data.refreshToken || !data.user) {
         // auth failed in some other regard
         console.warn('Auth failed with an inexplicable error', data);
         throw new AuthenticationError(generalErrorMessage);
       }
-
+      this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
       return data;
     } catch (err) {
       this.throwError(err);

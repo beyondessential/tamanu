@@ -1,8 +1,4 @@
-import {
-  createDummyPatient,
-  randomReferenceId,
-  randomUser,
-} from 'shared/demoData/patients';
+import { createDummyPatient, randomReferenceId, randomUser } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('Ongoing conditions', () => {
@@ -25,10 +21,28 @@ describe('Ongoing conditions', () => {
     const result = await app.post('/v1/ongoingCondition').send({
       conditionId: await randomReferenceId(models, 'icd10'),
       patientId: patient.id,
-      practitionerId: await randomUser(models),
+      examinerId: await randomUser(models),
     });
     expect(result).toHaveSucceeded();
     expect(result.body.recordedDate).toBeTruthy();
+  });
+
+  it('should save all fields from a submitted form including resolved', async () => {
+    const dummyFormObject = {
+      note: 'Initial Note',
+      recordedDate: '2023-02-17 10:50:15',
+      resolved: true,
+      patientId: patient.id,
+      examinerId: await randomUser(models),
+      conditionId: await randomReferenceId(models, 'icd10'),
+      resolutionDate: '2023-02-18 00:00:00',
+      resolutionPractitionerId: await randomUser(models),
+      resolutionNote: 'Resolution Note',
+    };
+
+    const result = await app.post('/v1/ongoingCondition').send(dummyFormObject);
+
+    expect(result.body).toMatchObject(dummyFormObject);
   });
 
   it('should require a valid diagnosis', async () => {

@@ -3,13 +3,13 @@ import { Dimensions, View, Alert, TouchableOpacity } from 'react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
 import CameraRoll from '@react-native-community/cameraroll';
 import Modal from 'react-native-modal';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { useBackend } from '~/ui/hooks';
 import { theme } from '/styled/theme';
 import { StyledView, StyledText, StyledImage } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
 import { saveFileInDocuments, deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../interfaces/BaseInputProps';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
   imageId: string;
@@ -17,9 +17,9 @@ export interface ViewPhotoLinkProps extends BaseInputProps {
 
 const MODAL_HEIGHT = Dimensions.get('window').width * 0.6;
 
-const Message = ({ color, message }) => (
-  <StyledView background='white' justifyContent='center' height={MODAL_HEIGHT}>
-    <StyledText margin='0 auto' color={color} fontSize={15}>
+const Message = ({ color, message }): JSX.Element => (
+  <StyledView background="white" justifyContent="center" height={MODAL_HEIGHT}>
+    <StyledText margin="0 auto" color={color} fontSize={15}>
       {message}
     </StyledText>
   </StyledView>
@@ -49,14 +49,14 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
       setImageData(null);
       setLoading(false);
       setErrorMessage(
-        'You do not currently have an internet connection.\n Images require live internet for viewing.'
+        'You do not currently have an internet connection.\n Images require live internet for viewing.',
       );
       return;
     }
 
     try {
       const { data } = await centralServer.get(`attachment/${imageId}`, {
-        base64: true
+        base64: true,
       });
       setImageData(data);
       setLoading(false);
@@ -81,38 +81,38 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
       [
         {
           text: 'Save',
-          onPress: async () => {
+          onPress: async (): Promise<void> => {
             const time = new Date().getTime();
             const fileName = `${time}-image.jpg`;
             const filePath = await saveFileInDocuments(imageData, fileName);
             await CameraRoll.save(`file://${filePath}`, {
-              type: 'photo'
+              type: 'photo',
             });
             await deleteFileInDocuments(fileName);
 
             showMessage({
               message: 'Image saved',
               type: 'default',
-              backgroundColor: theme.colors.BRIGHT_BLUE
+              backgroundColor: theme.colors.BRIGHT_BLUE,
             });
           },
-          style: 'default'
+          style: 'default',
         },
         {
           text: 'Cancel',
-          style: 'cancel'
-        }
+          style: 'cancel',
+        },
       ],
       {
-        cancelable: true
-      }
+        cancelable: true,
+      },
     );
   }, [imageData]);
   return (
     <View>
       <TouchableOpacity onPress={openModalCallback}>
         <StyledText
-          fontWeight='bold'
+          fontWeight="bold"
           color={theme.colors.BRIGHT_BLUE}
           fontSize={18}
         >
@@ -123,10 +123,10 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
         {imageData && (
           <TouchableOpacity onLongPress={imagePressCallback}>
             <StyledImage
-              textAlign='center'
+              textAlign="center"
               height={MODAL_HEIGHT}
               source={{ uri: imageToBase64URI(imageData) }}
-              resizeMode='cover'
+              resizeMode="cover"
             />
           </TouchableOpacity>
         )}
@@ -136,10 +136,10 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
         {loading && (
           <Message
             color={theme.colors.BRIGHT_BLUE}
-            message='Loading image...'
+            message="Loading image..."
           />
         )}
-        <FlashMessage position='top' />
+        <FlashMessage position="top" />
       </Modal>
     </View>
   );

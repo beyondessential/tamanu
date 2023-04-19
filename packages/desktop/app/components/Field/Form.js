@@ -3,10 +3,9 @@ import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
-
 import { flattenObject } from '../../utils';
-
 import { Dialog } from '../Dialog';
+import { FORM_STATUSES } from '../../constants';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -25,20 +24,31 @@ export class Form extends React.PureComponent {
     super();
     this.state = {
       validationErrors: {},
-      isErrorDialogVisible: false,
     };
   }
 
   setErrors = validationErrors => {
-    const { onError } = this.props;
+    const { onError, showInlineErrorsOnly } = this.props;
     if (onError) {
       onError(validationErrors);
     }
-    this.setState({ validationErrors, isErrorDialogVisible: true });
+
+    if (showInlineErrorsOnly) {
+      // If validationErrors, only show form level errors in the Error Dialog
+      if (validationErrors?.form) {
+        this.setState({
+          validationErrors: {
+            form: validationErrors.form,
+          },
+        });
+      }
+    } else {
+      this.setState({ validationErrors });
+    }
   };
 
   hideErrorDialog = () => {
-    this.setState({ isErrorDialogVisible: false });
+    this.setState({ validationErrors: {} });
   };
 
   createSubmissionHandler = ({
@@ -47,10 +57,15 @@ export class Form extends React.PureComponent {
     isSubmitting,
     setSubmitting,
     getValues,
+    setStatus,
     ...rest
   }) => async event => {
     event.preventDefault();
     event.persist();
+
+    // Use formik status prop to track if the user has attempted to submit the form. This is used in
+    // Field.js to only show error messages once the user has attempted to submit the form
+    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
     // avoid multiple submissions
     if (isSubmitting) {
@@ -58,12 +73,19 @@ export class Form extends React.PureComponent {
     }
 
     setSubmitting(true);
+    const values = getValues();
 
     // validation phase
-    const values = getValues();
-    const formErrors = await validateForm(values);
-    if (Object.entries(formErrors).length) {
+
+    // There is a bug in formik when you have validateOnChange set to true and validate manually as
+    // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
+    // @see https://github.com/jaredpalmer/formik/issues/1209
+    const { isCanceled, ...formErrors } = await validateForm(values);
+
+    if (Object.keys(formErrors).length > 0) {
       this.setErrors(formErrors);
+      // Set submitting false before throwing the error so that the form is reset
+      // for future form submissions
       setSubmitting(false);
       throw new ValidationError('Form was not filled out correctly');
     }
@@ -130,8 +152,14 @@ export class Form extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, showInlineErrorsOnly, showErrorDialog = true, ...props } = this.props;
-    const { validationErrors, isErrorDialogVisible } = this.state;
+    const {
+      onSubmit,
+      showInlineErrorsOnly,
+      validateOnChange,
+      validateOnBlur,
+      ...props
+    } = this.props;
+    const { validationErrors } = this.state;
 
     // read children from additional props rather than destructuring so
     // eslint ignores it (there's not good support for "forbidden" props)
@@ -139,27 +167,26 @@ export class Form extends React.PureComponent {
       throw new Error('Form must not have any children -- use the `render` prop instead please!');
     }
 
+    const displayErrorDialog = Object.keys(validationErrors).length > 0;
+
     return (
       <>
         <Formik
           onSubmit={onSubmit}
-          validateOnChange={false}
-          validateOnBlur={false}
+          validateOnChange={validateOnChange}
+          validateOnBlur={validateOnBlur}
           initialStatus={{
             page: 1,
           }}
           {...props}
           render={this.renderFormContents}
         />
-
-        {showErrorDialog && (
-          <Dialog
-            isVisible={isErrorDialogVisible}
-            onClose={this.hideErrorDialog}
-            headerTitle="Please fix below errors to continue"
-            contentText={<FormErrors errors={validationErrors} />}
-          />
-        )}
+        <Dialog
+          isVisible={displayErrorDialog}
+          onClose={this.hideErrorDialog}
+          headerTitle="Please fix below errors to continue"
+          contentText={<FormErrors errors={validationErrors} />}
+        />
       </>
     );
   }
@@ -172,6 +199,8 @@ Form.propTypes = {
   render: PropTypes.func.isRequired,
   showInlineErrorsOnly: PropTypes.bool,
   initialValues: PropTypes.shape({}),
+  validateOnChange: PropTypes.bool,
+  validateOnBlur: PropTypes.bool,
 };
 
 Form.defaultProps = {
@@ -179,4 +208,6 @@ Form.defaultProps = {
   onError: null,
   onSuccess: null,
   initialValues: {},
+  validateOnChange: false,
+  validateOnBlur: false,
 };
