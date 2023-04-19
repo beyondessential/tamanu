@@ -89,12 +89,14 @@ export const ImagingRequestsSearchBar = ({
         saveDateAsString
         component={DateField}
       />
-      <LocalisedField
-        name="priority"
-        defaultLabel="Priority"
-        component={SelectField}
-        options={imagingPriorities}
-      />
+      {!statusFilterTable && (
+        <LocalisedField
+          name="priority"
+          defaultLabel="Priority"
+          component={SelectField}
+          options={imagingPriorities}
+        />
+      )}
     </CustomisableSearchBar>
   );
 };

@@ -26,8 +26,8 @@ const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || '
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
-const getCompletedDate = ({ results }) => <DateDisplay date={results[0].completedAt} showTime />;
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
+const getCompletedDate = ({ results }) => <DateDisplay date={results[0].completedAt} />;
 
 export const ImagingRequestsTable = React.memo(
   ({ encounterId, searchParameters, statusFilterTable }) => {
@@ -38,26 +38,24 @@ export const ImagingRequestsTable = React.memo(
     const imagingTypes = getLocalisation('imagingTypes') || {};
 
     const encounterColumns = [
-      { key: 'displayId', title: 'Request ID' },
+      { key: 'displayId', title: 'Request ID', sortable: false },
       {
         key: 'imagingType',
         title: 'Type',
         accessor: getImagingRequestType(imagingTypes),
-        sortable: false,
       },
       { key: 'requestedDate', title: 'Date & time', accessor: getDate },
-      { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
+      { key: 'displayName', title: 'Requested by', accessor: getDisplayName },
       statusFilterTable && {
         key: 'completedDate',
         title: 'Completed',
         accessor: getCompletedDate,
-        sortable: false,
       },
-      { key: 'status', title: 'Status', accessor: getStatus },
+      { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
     ];
 
     const globalColumns = [
-      { key: 'patient.displayId', title: 'NHN', accessor: getPatientDisplayId, sortable: false },
+      { key: 'patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
       { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
       ...encounterColumns,
     ];

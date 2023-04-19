@@ -20,8 +20,6 @@ export const ImagingRequestListingView = React.memo(({ status }) => {
 
   // TODO: search not working
 
-  console.log(searchParameters)
-
   return (
     <PageContainer>
       <TopBar title={tableTitle} />
@@ -33,7 +31,7 @@ export const ImagingRequestListingView = React.memo(({ status }) => {
           statusFilterTable={!!status}
         />
         <ImagingRequestsTable
-          searchParameters={({...searchParameters, ...statusFilter})}
+          searchParameters={{ ...searchParameters, ...statusFilter }}
           statusFilterTable={!!status}
         />
       </ContentPane>
