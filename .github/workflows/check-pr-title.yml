@@ -20,4 +20,5 @@ jobs:
       run: |
         if [[ ! "$PR_TITLE" =~ '^[A-Z]+-[0-9]+' ]]; then
           echo "::warning::PR title should start with ticket number, e.g. 'ABC-123: ...'"
+          exit 1
         fi
