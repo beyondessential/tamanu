@@ -28,6 +28,7 @@ interface LabelProps {
   isValueEmpty: boolean;
   error: string;
   onFocus: Function;
+  labelColor?: string;
 }
 
 export const TextFieldLabel = ({
