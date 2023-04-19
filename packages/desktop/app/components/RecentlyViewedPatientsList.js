@@ -15,6 +15,8 @@ const colorFromEncounterType = {
   admission: Colors.green,
   clinic: '#E9AC50',
   triage: Colors.orange,
+  observation: Colors.orange,
+  emergency: Colors.orange,
   default: Colors.blue,
 };
 
@@ -161,7 +163,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
     api.get('user/recently-viewed-patients', { encounterType }),
   );
 
-  const pageCount = Math.floor(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
+  const pageCount = Math.ceil(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
   const changePage = delta => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(
