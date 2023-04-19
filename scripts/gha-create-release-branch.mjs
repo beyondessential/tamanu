@@ -27,6 +27,6 @@ export async function run({ readFileSync }, github, context, cwd) {
   }
 
   console.log("It doesn't, creating branch...");
-  await github.rest.git.createRef({ owner, repo, ref, sha });
+  await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha });
   console.log('Done.');
 }
