@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-export default async function({ readFileSync }, github, context) {
+export async function run({ readFileSync }, github, context) {
   console.log('Reading current version...');
   const { version } = JSON.parse(readFileSync('package.json', 'utf-8'));
 
