@@ -19,14 +19,14 @@ import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 
-interface SignInFormModel {
+interface SignInFormModelValues {
   email: string;
   password: string;
   server: string;
 }
 
 const signInValidationSchema = Yup.object().shape({
-  email: Yup.string().email(),
+  email: Yup.string().email('Must be a valid email address'),
   // .required(),
   password: Yup.string(), //.required(),
   server: Yup.string(),
@@ -49,7 +49,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const passwordRef = useRef(null);
   const authCtx = useAuth();
   const signIn = useCallback(
-    async (values: SignInFormModel) => {
+    async (values: SignInFormModelValues) => {
       try {
         if (!existingHost && !values.server) {
           // TODO it would be better to properly respond to form validation and show the error
@@ -81,6 +81,8 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
         password: '',
         server: '',
       }}
+      validateOnChange={false}
+      validateOnBlur={false}
       validationSchema={signInValidationSchema}
       onSubmit={signIn}
     >
@@ -99,17 +101,19 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             ) : (
               <Field name="server" component={ServerSelector} label="Select a country" />
             )}
-            <Field
-              name="email"
-              keyboardType="email-address"
-              component={TextField}
-              label="Email"
-              blurOnSubmit={false}
-              returnKeyType="next"
-              onSubmitEditing={(): void => {
-                passwordRef.current.focus();
-              }}
-            />
+            <StyledView marginBottom={screenPercentageToDP(2.3, Orientation.Height)}>
+              <Field
+                name="email"
+                keyboardType="email-address"
+                component={TextField}
+                label="Email"
+                blurOnSubmit={false}
+                returnKeyType="next"
+                onSubmitEditing={(): void => {
+                  passwordRef.current.focus();
+                }}
+              />
+            </StyledView>
             <Field
               name="password"
               inputRef={passwordRef}

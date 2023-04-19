@@ -1,31 +1,33 @@
 import React, { ReactElement } from 'react';
 import { Formik, FormikProps } from 'formik';
-import * as Yup from 'yup';
+import { FormValidate, FormOnSubmit, FormValidationSchema, GenericFormValues } from '~/types/Forms';
 
-type InitialValuesProps = {
-  [key: string]: any;
-};
-
-type ValidationSchema = Yup.ObjectSchema;
-
-type onSubmit<T> = (data: T) => Promise<void>;
-type FormProps<T extends InitialValuesProps> = {
+type FormProps<T extends GenericFormValues> = {
   initialValues: T;
-  validationSchema: ValidationSchema;
-  onSubmit: onSubmit<T>;
+  validateOnChange?: boolean;
+  validateOnBlur?: boolean;
+  validationSchema: FormValidationSchema<T>;
+  onSubmit: FormOnSubmit<T>;
   children: (props: FormikProps<T>) => ReactElement;
+  validate?: FormValidate<T>;
 };
 
 export function Form<T>({
   initialValues,
   validationSchema,
+  validateOnChange = false,
+  validateOnBlur = false,
   onSubmit,
   children,
-}: FormProps<T>): ReactElement {
+  validate,
+}: FormProps<T>): JSX.Element {
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
+      validate={validate}
+      validateOnChange={validateOnChange}
+      validateOnBlur={validateOnBlur}
       onSubmit={onSubmit}
     >
       {children}

@@ -9,6 +9,7 @@ import { importer as programImporter, PERMISSIONS as PROGRAM_PERMISSIONS } from 
 import { importer as refdataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './refdataImporter';
 
 import { mergePatientHandler } from './patientMerge';
+import { syncLastCompleted } from './sync';
 
 export const adminRoutes = express.Router();
 
@@ -64,3 +65,5 @@ adminRoutes.post(
   '/importProgram',
   createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
 );
+
+adminRoutes.get('/sync/lastCompleted', syncLastCompleted);

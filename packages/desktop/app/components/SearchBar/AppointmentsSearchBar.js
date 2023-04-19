@@ -7,9 +7,7 @@ import { useSuggester } from '../../api';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   return (
     <CustomisableSearchBar
@@ -38,10 +36,10 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         suggester={practitionerSuggester}
       />
       <LocalisedField
-        name="locationId"
-        defaultLabel="Location"
+        defaultLabel="Area"
+        name="locationGroupId"
         component={AutocompleteField}
-        suggester={locationSuggester}
+        suggester={locationGroupSuggester}
       />
       <LocalisedField
         name="type"

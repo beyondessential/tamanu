@@ -38,7 +38,5 @@ export interface IEncounter {
   examiner?: IUser | string;
   examinerId?: string;
 
-  markedForUpload?: boolean;
-
   deviceId?: string;
 }

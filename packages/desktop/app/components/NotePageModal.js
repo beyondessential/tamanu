@@ -50,7 +50,6 @@ export const NotePageModal = ({
         ...data,
         authorId: currentUser.id,
         onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
-        date: getCurrentDateTimeString(),
         recordId: encounterId,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       };

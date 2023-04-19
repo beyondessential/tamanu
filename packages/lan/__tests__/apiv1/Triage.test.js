@@ -25,17 +25,15 @@ describe('Triage', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
 
-    facility = await models.Facility.create({
-      ...fake(models.Facility, { id: config.serverFacilityId }),
+    facility = await models.Facility.findOne({
+      where: { id: config.serverFacilityId },
     });
 
-    [emergencyDepartment] = await models.Department.findOrCreate({
-      where: {
-        id: 'emergency',
-        code: 'emergency',
-        name: 'Emergency',
-        facilityId: config.serverFacilityId,
-      },
+    [emergencyDepartment] = await models.Department.upsert({
+      id: 'emergency',
+      code: 'Emergency',
+      name: 'Emergency',
+      facilityId: config.serverFacilityId,
     });
   });
 
@@ -227,8 +225,12 @@ describe('Triage', () => {
     await emergencyDepartment.update({ facilityId: config.serverFacilityId });
   });
 
-  describe('listing & filtering', () => {
+  describe('Listing & filtering', () => {
+    let createTestTriage;
+
     beforeAll(async () => {
+      await models.Triage.truncate({ cascade: true });
+
       // create a few test triages
       const { id: locationId } = await models.Location.create({
         ...fake(models.Location),
@@ -257,10 +259,10 @@ describe('Triage', () => {
         },
       ];
 
-      const createTriagePatient = async overrides => {
+      createTestTriage = async overrides => {
         const { Patient, Triage } = models;
         const encounterPatient = await Patient.create(await createDummyPatient(models));
-        await Triage.create(
+        return Triage.create(
           await createDummyTriage(models, {
             patientId: encounterPatient.id,
             locationId,
@@ -271,7 +273,7 @@ describe('Triage', () => {
 
       const promises = [];
       triageConfigs.forEach(c => {
-        promises.push(createTriagePatient(c));
+        promises.push(createTestTriage(c));
       });
       await Promise.all(promises);
     });
@@ -289,6 +291,18 @@ describe('Triage', () => {
       expect(results.data[2]).toHaveProperty('arrivalTime', '2022-01-03 08:15:00');
       expect(results.data[3]).toHaveProperty('arrivalTime', '2022-01-03 09:15:00');
       expect(results.data[4]).toHaveProperty('arrivalTime', '2022-01-03 10:15:00');
+    });
+
+    it('should include short stay patients in the triage list', async () => {
+      const createdTriage = await createTestTriage();
+      const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+      await createdEncounter.update({
+        reasonForEncounter: 'Test include short stay',
+        encounterType: ENCOUNTER_TYPES.EMERGENCY,
+      });
+      const response = await app.get('/v1/triage');
+
+      expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
     });
 
     test.todo('should get a list of all triages with relevant attached data');

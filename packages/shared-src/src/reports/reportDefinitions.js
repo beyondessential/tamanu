@@ -1,10 +1,12 @@
 import {
   APPOINTMENT_STATUSES,
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  LAB_REQUEST_STATUS_CONFIG,
+  MANNER_OF_DEATH_OPTIONS,
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
-  IMAGING_REQUEST_STATUS_OPTIONS,
-  MANNER_OF_DEATH_OPTIONS,
-  LAB_REQUEST_STATUS_OPTIONS,
   REPORT_DATE_RANGE_LABELS,
   REPORT_DEFAULT_DATE_RANGES,
 } from 'shared/constants';
@@ -59,9 +61,9 @@ export const REPORT_DEFINITIONS = [
       },
       {
         parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
         suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
@@ -376,9 +378,9 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
-    name: 'Fiji Aspen encounter summary - Line list',
-    id: 'fiji-aspen-encounter-summary-line-list',
-    dateRangeLabel: ALL_TIME_DATE_LABEL, // TODO: Changed in new PR
+    name: 'Encounter summary - Line list',
+    id: 'encounter-summary-line-list',
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -397,9 +399,9 @@ export const REPORT_DEFINITIONS = [
       },
       {
         parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
         suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
     ],
@@ -430,9 +432,9 @@ export const REPORT_DEFINITIONS = [
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
         suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
@@ -467,10 +469,13 @@ export const REPORT_DEFINITIONS = [
       },
       { parameterField: 'ImagingTypeField' },
       {
-        parameterField: 'ParameterSelectField',
+        parameterField: 'ParameterMultiselectField',
         label: 'Status',
-        name: 'status',
-        options: IMAGING_REQUEST_STATUS_OPTIONS,
+        name: 'statuses',
+        options: Object.values(IMAGING_REQUEST_STATUS_TYPES).map(status => ({
+          label: IMAGING_REQUEST_STATUS_CONFIG[status].label,
+          value: status,
+        })),
       },
     ],
   },
@@ -521,11 +526,15 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'practitioner',
       },
       { parameterField: 'LabTestCategoryField' },
+      { parameterField: 'LabTestTypeField' },
       {
-        parameterField: 'ParameterSelectField',
+        parameterField: 'ParameterMultiselectField',
         label: 'Status',
-        name: 'status',
-        options: LAB_REQUEST_STATUS_OPTIONS,
+        name: 'statuses',
+        options: Object.values(LAB_REQUEST_STATUSES).map(status => ({
+          label: LAB_REQUEST_STATUS_CONFIG[status].label,
+          value: status,
+        })),
       },
     ],
   },

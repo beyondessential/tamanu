@@ -13,10 +13,7 @@ import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 
-import {
-  screenPercentageToDP,
-  Orientation,
-} from '/helpers/screen';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -29,8 +26,10 @@ import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserFi
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const IllnessFormSchema = Yup.object().shape({
-  certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
-  diagnosis: Yup.string(),
+  certainty: Yup.mixed()
+    .oneOf(Object.values(Certainty))
+    .required(),
+  diagnosis: Yup.string().required(),
 });
 
 const styles = StyleSheet.create({
@@ -51,43 +50,34 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const user = useSelector(authUserSelector);
 
-  const onRecordIllness = useCallback(
-    async ({ diagnosis, certainty }: any): Promise<any> => {
-      // TODO: persist fields other than diagnosis and certainty
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-      );
+  const onRecordIllness = useCallback(async ({ diagnosis, certainty }: any): Promise<any> => {
+    // TODO: persist fields other than diagnosis and certainty
+    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      selectedPatient.id,
+      user.id,
+    );
 
-      await models.Diagnosis.createAndSaveOne({
-        // TODO: support selecting multiple diagnoses and flagging as primary/non primary
-        isPrimary: true,
-        encounter: encounter.id,
-        date: getCurrentDateTimeString(),
-        diagnosis,
-        certainty,
-      });
+    await models.Diagnosis.createAndSaveOne({
+      // TODO: support selecting multiple diagnoses and flagging as primary/non primary
+      isPrimary: true,
+      encounter: encounter.id,
+      date: getCurrentDateTimeString(),
+      diagnosis,
+      certainty,
+    });
 
-      navigateToHistory();
-    }, [],
-  );
+    navigateToHistory();
+  }, []);
 
-  const icd10Suggester = new Suggester(
-    models.ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.ICD10,
-      },
+  const icd10Suggester = new Suggester(models.ReferenceData, {
+    where: {
+      type: ReferenceDataType.ICD10,
     },
-  );
+  });
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik
-        onSubmit={onRecordIllness}
-        initialValues={{}}
-        validationSchema={IllnessFormSchema}
-      >
+      <Formik onSubmit={onRecordIllness} initialValues={{}} validationSchema={IllnessFormSchema}>
         {({ handleSubmit }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}
@@ -106,22 +96,12 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 scrollToOverflowEnabled
                 overScrollMode="always"
               >
-                <StyledView
-                >
+                <StyledView>
                   <SectionHeader h3>INFORMATION</SectionHeader>
                 </StyledView>
-                <StyledView
-                  justifyContent="space-between"
-                >
-                  <CurrentUserField
-                    name="examiner"
-                    label="Examiner"
-                  />
-                  <Field
-                    component={TextField}
-                    name="labRequest"
-                    label="Test Results"
-                  />
+                <StyledView justifyContent="space-between">
+                  <CurrentUserField name="examiner" label="Examiner" />
+                  <Field component={TextField} name="labRequest" label="Test Results" />
                   <Field
                     component={AutocompleteModalField}
                     placeholder="Search diagnoses"
@@ -130,24 +110,20 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
-                <Field
-                  component={Dropdown}
-                  options={CERTAINTY_OPTIONS}
-                  name="certainty"
-                  label="Certainty"
-                />
-                <SectionHeader h3>Treatment notes</SectionHeader>
-                <Field
-                  component={TextField}
-                  name="reasonForEncounter"
-                  multiline
-                />
-                <Button
-                  marginTop={screenPercentageToDP(1.22, Orientation.Height)}
-                  backgroundColor={theme.colors.PRIMARY_MAIN}
-                  onPress={handleSubmit}
-                  buttonText="Submit"
-                />
+                  <Field
+                    component={Dropdown}
+                    options={CERTAINTY_OPTIONS}
+                    name="certainty"
+                    label="Certainty"
+                  />
+                  <SectionHeader h3>Treatment notes</SectionHeader>
+                  <Field component={TextField} name="reasonForEncounter" multiline />
+                  <Button
+                    marginTop={screenPercentageToDP(1.22, Orientation.Height)}
+                    backgroundColor={theme.colors.PRIMARY_MAIN}
+                    onPress={handleSubmit}
+                    buttonText="Submit"
+                  />
                 </StyledView>
               </ScrollView>
             </KeyboardAvoidingView>

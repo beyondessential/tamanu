@@ -9,11 +9,13 @@ export const createPatientFilters = filterParams => {
       filterParams.displayId,
       `(UPPER(patients.display_id) LIKE UPPER(:displayId)${
         filterParams.matchSecondaryIds === 'true'
-          ? ' OR UPPER(patient_secondary_ids.value) LIKE UPPER(:displayId)'
+          ? // need to cast the array to text and back to be able to uppercase it
+            ' OR UPPER(:secondaryDisplayId) = ANY(UPPER(secondary_ids::text)::text[])'
           : ''
       })`,
       ({ displayId }) => ({
         displayId: filterParams.displayIdExact === 'true' ? displayId : `%${displayId}%`,
+        secondaryDisplayId: displayId,
       }),
     ),
     makeFilter(
@@ -49,6 +51,7 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.dateOfBirthExact, `patients.date_of_birth = :dateOfBirthExact`),
     makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
     makeFilter(filterParams.locationId, `location.id = :locationId`),
+    makeFilter(filterParams.locationGroupId, `location_group.id = :locationGroupId`),
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
     makeFilter(
       filterParams.facilityId === ':local' ? config.serverFacilityId : filterParams.facilityId,

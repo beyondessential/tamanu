@@ -1,8 +1,8 @@
 import { splitIds } from './utilities';
 
-const buildProcedure = ({ _id, name: nameAndCode }) => {
+const buildProcedure = ({ id, name: nameAndCode }) => {
   const [code, name] = nameAndCode.split(/\t/);
-  return { _id, name, code };
+  return { id, name, code };
 };
 export const PROCEDURE_TYPES = splitIds(`
   34830	Open repair of infrarenal aortic aneurysm or dissection, plus repair of associated arterial trauma, following unsuccessful endovascular repair; tube prosthesis

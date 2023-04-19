@@ -4,9 +4,12 @@ import { BaseModel } from './BaseModel';
 import { Department } from './Department';
 import { Location } from './Location';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('facility')
 export class Facility extends BaseModel implements IFacility {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column({ nullable: true })
   code?: string;
 
@@ -34,9 +37,19 @@ export class Facility extends BaseModel implements IFacility {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
-  @OneToMany(() => Location, ({ facility }) => facility)
+  @OneToMany(
+    () => Location,
+    ({ facility }) => facility,
+  )
   locations: Location[];
 
-  @OneToMany(() => Department, ({ facility }) => facility)
+  @OneToMany(
+    () => Department,
+    ({ facility }) => facility,
+  )
   departments: Department[];
+
+  static getTableNameForSync(): string {
+    return 'facilities';
+  }
 }

@@ -10,9 +10,9 @@ import {
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { useReferenceData } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { getFullLocationName } from '../../../utils/location';
 
 const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
-const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
 
@@ -28,14 +28,14 @@ export const EncounterInfoPane = React.memo(({ encounter }) => {
     <Card>
       {encounter.plannedLocation && (
         <CardHeader>
-          <CardItem label="Planned move" value={encounter.plannedLocation.name} />
+          <CardItem label="Planned move" value={getFullLocationName(encounter.plannedLocation)} />
         </CardHeader>
       )}
       <CardBody>
         <CardDivider />
         <CardItem label="Department" value={getDepartmentName(encounter)} />
         <CardItem label="Patient type" value={patientTypeData?.name} />
-        <CardItem label="Location" value={getLocationName(encounter)} />
+        <CardItem label="Location" value={getFullLocationName(encounter?.location)} />
         {!getLocalisation(`${referralSourcePath}.hidden`) && (
           <CardItem
             label={getLocalisation(`${referralSourcePath}.shortLabel`)}

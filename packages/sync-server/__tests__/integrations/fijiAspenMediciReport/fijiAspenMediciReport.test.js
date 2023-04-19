@@ -1,6 +1,6 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
-import { utcToZonedTime, zonedTimeToUtc, formatInTimeZone } from 'date-fns-tz';
+import { utcToZonedTime } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
@@ -33,6 +33,7 @@ const createLocalDateTimeStringFromUTC = (
 
 const fakeAllData = async models => {
   const { id: userId } = await models.User.create(fake(models.User));
+  const { id: examinerId } = await models.User.create(fake(models.User));
   const { id: facilityId } = await models.Facility.create(fake(models.Facility));
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
@@ -124,6 +125,20 @@ const fakeAllData = async models => {
       dateOfBirth: '1952-10-12',
     }),
   );
+  // open encounter
+  await models.Encounter.create(
+    fake(models.Encounter, {
+      patientId: patient.id,
+      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      reasonForEncounter: 'Severe Migrane',
+      patientBillingTypeId,
+      locationId: location1Id,
+      departmentId,
+      examinerId,
+    }),
+  );
+  // closed encounter
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
@@ -134,6 +149,7 @@ const fakeAllData = async models => {
       patientBillingTypeId,
       locationId: location1Id,
       departmentId,
+      examinerId,
     }),
   );
   // Call build and save to avoid custom triage.create logic
@@ -215,14 +231,14 @@ const fakeAllData = async models => {
       requestedDate: '2022-06-11T01:20:54.225+00:00',
     }),
   );
-  await models.ImagingRequestAreas.create(
-    fake(models.ImagingRequestAreas, {
+  await models.ImagingRequestArea.create(
+    fake(models.ImagingRequestArea, {
       imagingRequestId,
       areaId: leftImagingAreaId,
     }),
   );
-  await models.ImagingRequestAreas.create(
-    fake(models.ImagingRequestAreas, {
+  await models.ImagingRequestArea.create(
+    fake(models.ImagingRequestArea, {
       imagingRequestId,
       areaId: rightImagingAreaId,
     }),
@@ -317,7 +333,6 @@ describe('fijiAspenMediciReport', () => {
   let models;
   let fakedata;
 
-  // Reset everything between each test. Might be innefficient but there's only 2 tests
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
@@ -327,26 +342,67 @@ describe('fijiAspenMediciReport', () => {
 
   afterAll(() => ctx.close());
 
-  it.each([
-    // [ expectedResults, period.start, period.end ]
-    [1, '2022-06-09', '2022-10-09'],
-    [0, '2022-06-10', '2022-10-09'],
-    [0, '2022-06-09T00:02:53-02:00', '2022-10-09'],
-    [1, '2022-06-09T00:02:53Z', '2022-10-09'],
-    [0, '2022-06-09T00:02:55Z', '2022-10-09'],
-    [1, '2022-06-09T00:02:55+01:00', '2022-10-09'],
-    [0, '2022-06-09T00:02:53-01:00', '2022-10-09'],
-    // Dates/times inputted without timezone will be server timezone
-    [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 55).replace(' ', 'T'), '2023'],
-    [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 53).replace(' ', 'T'), '2023'],
-  ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
-    const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(end)}`;
+  describe('should filter encounters correctly', () => {
+    it.each([
+      // [ expectedResults, period.start, period.end ]
+      [1, '2022-06-09', '2022-10-09'],
+      [0, '2022-06-15', '2022-10-09'],
+      [0, '2022-06-12T00:02:53-02:00', '2022-10-09'],
+      [1, '2022-06-12T00:02:53Z', '2022-10-09'],
+      [0, '2022-06-12T00:02:55Z', '2022-10-09'],
+      [1, '2022-06-12T00:02:55+01:00', '2022-10-09'],
+      [0, '2022-06-12T00:02:53-01:00', '2022-10-09'],
+      // Dates/times input without timezone will be server timezone
+      [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'), '2023'],
+      [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'), '2023'],
+    ])(
+      'Date filtering: Should return %p result(s) between %p and %s',
+      async (expectedResults, start, end) => {
+        const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
+          end,
+        )}`;
+        const response = await app
+          .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+          .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+        expect(response).toHaveSucceeded();
+        expect(response.body.data.length).toEqual(expectedResults);
+      },
+    );
+
+    it('should filter by encounter id - 0 results', async () => {
+      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${encodeURIComponent([
+        'nonexistant-id',
+      ])}`;
+      const response = await app
+        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+        .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.length).toEqual(0);
+    });
+
+    it('should filter by encounter id - 1 result', async () => {
+      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${encodeURIComponent([
+        fakedata.encounterId,
+        'nonexistant-id',
+      ])}`;
+      const response = await app
+        .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+        .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.length).toEqual(1);
+    });
+  });
+
+  it('should produce reports without any params', async () => {
     const response = await app
-      .get(`/v1/integration/fijiAspenMediciReport?${query}`)
+      .get('/v1/integration/fijiAspenMediciReport')
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     expect(response).toHaveSucceeded();
-    expect(response.body.data.length).toEqual(expectedResults);
+    expect(response.body.data.length).toEqual(2);
   });
 
   it(`Should produce a simple report`, async () => {
@@ -374,6 +430,7 @@ describe('fijiAspenMediciReport', () => {
         // Note that seconds is the highest level of precision - so the milliseconds are truncated
         encounterStartDate: '2022-06-09T00:02:54.000Z',
         encounterEndDate: '2022-06-12T00:02:54.000Z',
+        dischargeDate: '2022-06-12T00:02:54.000Z',
         encounterType: 'AR-DRG',
         reasonForEncounter: 'Severe Migrane',
 

@@ -42,7 +42,11 @@ const COLUMNS = [
     title: 'Clinician',
     accessor: row => `${row.clinician && row.clinician.displayName}`,
   },
-  { key: 'locationId', title: 'Location', accessor: row => row.location.name },
+  {
+    key: 'locationGroupId',
+    title: 'Area',
+    accessor: row => row.locationGroup.name,
+  },
   { key: 'type', title: 'Type' },
   { key: 'status', title: 'Status' },
 ];

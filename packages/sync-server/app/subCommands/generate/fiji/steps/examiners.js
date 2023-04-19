@@ -6,7 +6,7 @@ export default {
     const { User } = store.models;
     const examiners = [];
     for (let i = 0; i < NUM_EXAMINERS; i++) {
-      const examiner = await User.upsert(
+      const [examiner] = await User.upsert(
         {
           ...fake(User),
           role: 'practitioner',

@@ -56,7 +56,7 @@ export class SignerRenewalSender extends ScheduledTask {
           to: config.integrations.signer.sendSignerRequestTo,
           from: config.mailgun.from,
           subject: get(localisation, 'signerRenewalEmail.subject'),
-          content: get(localisation, 'signerRenewalEmail.body'),
+          text: get(localisation, 'signerRenewalEmail.body'),
           attachment: {
             filename: `Tamanu_${format(signer.createdAt, 'yyyy-MM-dd')}.csr`,
             data: Buffer.from(signer.request),

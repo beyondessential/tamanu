@@ -3,9 +3,8 @@
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
-import chalk from 'chalk';
 import merge from 'webpack-merge';
-import { spawn, execSync } from 'child_process';
+import { spawn } from 'child_process';
 import baseConfig from './webpack.config.base';
 import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 
@@ -223,6 +222,8 @@ export default merge.smart(baseConfig, {
     publicPath,
     compress: true,
     noInfo: true,
+    liveReload: false,
+    hot: true,
     stats: 'errors-only',
     inline: true,
     lazy: false,

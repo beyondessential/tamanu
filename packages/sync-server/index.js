@@ -7,6 +7,7 @@ import { log } from 'shared/services/logging';
 
 import * as cmd from './app/subCommands';
 import { setupEnv } from './app/env';
+import { closeDatabase } from './app/database';
 
 async function run() {
   program
@@ -20,6 +21,9 @@ async function run() {
 
   setupEnv();
   await program.parseAsync(process.argv);
+
+  log.debug('run(): closing database connection...');
+  await closeDatabase();
 }
 
 // catch and exit if run() throws an error

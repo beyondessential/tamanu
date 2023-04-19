@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import {
   COMMUNICATION_STATUSES,
   COMMUNICATION_STATUSES_VALUES,
@@ -27,7 +28,7 @@ export class PatientCommunication extends Model {
         destination: Sequelize.STRING,
         attachment: Sequelize.STRING,
       },
-      options,
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
 
