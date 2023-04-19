@@ -91,7 +91,7 @@ export const NewVaccineTabComponent = ({
         // And create a new GIVEN vaccine record
         if (
           existingVaccine?.status === VaccineStatus.NOT_GIVEN &&
-          administeredVaccine.status === VaccineStatus.GIVEN
+          vaccineData.status === VaccineStatus.GIVEN
         ) {
           delete vaccineData.id; // Will creates a new vaccine record if no id supplied
           existingVaccine.status = VaccineStatus.HISTORICAL;
