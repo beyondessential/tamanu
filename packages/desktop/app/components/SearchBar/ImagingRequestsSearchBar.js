@@ -30,7 +30,8 @@ export const ImagingRequestsSearchBar = ({
       setIsExpanded={setShowAdvancedFields}
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={{ displayIdExact: true, ...searchParameters }}
+      initialValues={searchParameters}
+      staticValues={{ displayIdExact: true }}
       hiddenFields={
         statusFilterTable && (
           <>

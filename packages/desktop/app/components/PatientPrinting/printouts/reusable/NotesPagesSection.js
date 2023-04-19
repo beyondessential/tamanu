@@ -26,7 +26,7 @@ export const NotesPagesSection = ({ idsAndNotePages }) => {
       return {
         content: (
           <BodyText key={id} mb={2}>
-            {idsAndNotePages.length > 1 && <StyledId>id</StyledId>}
+            {idsAndNotePages.length > 1 && <StyledId>{id}</StyledId>}
             {content}
           </BodyText>
         ),

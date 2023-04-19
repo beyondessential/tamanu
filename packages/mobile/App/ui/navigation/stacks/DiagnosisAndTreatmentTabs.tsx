@@ -37,14 +37,14 @@ const TabNavigator = ({
         <Tabs.Navigator>
           <Tabs.Screen
             options={{
-              title: 'ADD DETAILS',
+              title: 'Add details',
             }}
             name={Routes.HomeStack.DiagnosisAndTreatmentTabs.AddIllnessScreen}
             component={AddIllnessScreen}
           />
           <Tabs.Screen
             options={{
-              title: 'PRESCRIBE MEDICATION',
+              title: 'Prescribe medication',
             }}
             name={Routes.HomeStack.DiagnosisAndTreatmentTabs.PrescribeMedication}
             component={PrescribeMedicationScreen}
