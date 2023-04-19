@@ -10,7 +10,7 @@ jobs:
   merge-to-main:
     name: When merging to main
     runs-on: ubuntu-latest
-    if: github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev'
     steps:
     - name: Warn if feature PR title is not prefixed with ticket number
       if: startsWith(github.head_ref, 'feature/')

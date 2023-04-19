@@ -9,7 +9,7 @@ jobs:
   merge-to-main:
     name: When merging to main
     runs-on: ubuntu-latest
-    if: github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev'
     steps:
     - name: Warn if branch name is not prefixed with feature/ or fix/
       if: "!(startsWith(github.head_ref, 'feature/') || startsWith(github.head_ref, 'fix/'))"
