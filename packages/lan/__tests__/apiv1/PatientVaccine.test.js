@@ -307,7 +307,7 @@ describe('PatientVaccine', () => {
       expect(encounter.departmentId).toEqual(department.id);
     });
 
-    it.only('Should update corresponding NOT_GIVEN vaccine to HISTORICAL if recording GIVEN vaccine', async () => {
+    it('Should update corresponding NOT_GIVEN vaccine to HISTORICAL if recording GIVEN vaccine', async () => {
       patient = await models.Patient.create(await createDummyPatient(models));
       const notGivenVaccine = await recordAdministeredVaccine(patient, scheduled1, {
         status: VACCINE_STATUS.NOT_GIVEN,
