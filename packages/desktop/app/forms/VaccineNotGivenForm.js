@@ -44,11 +44,14 @@ export const VaccineNotGivenForm = ({
         <DiseaseField />
       </>
     ) : (
-      <VaccineLabelField
-        vaccineLabel={vaccineLabel}
-        vaccineOptions={vaccineOptions}
-        setVaccineLabel={setVaccineLabel}
-      />
+      <>
+        <VaccineLabelField
+          vaccineLabel={vaccineLabel}
+          vaccineOptions={vaccineOptions}
+          setVaccineLabel={setVaccineLabel}
+        />
+        <br />
+      </>
     )}
 
     {administeredOptions.length || scheduleOptions.length ? (
@@ -57,12 +60,14 @@ export const VaccineNotGivenForm = ({
         scheduleOptions={scheduleOptions}
       />
     ) : null}
+
     <Field
       name="notGivenReasonId"
       label="Reason"
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
     />
+
     <VaccineDateField label="Date recorded" />
 
     <StyledDivider />
