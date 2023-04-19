@@ -35,7 +35,7 @@ async function bumpPackageJson(packagePath, newVersion) {
   console.log('Bumping', fullPath, 'to', newVersion);
   const file = JSON.parse(await fs.readFile(fullPath, 'utf8'));
   file.version = newVersion;
-  await fs.writeFile(fullPath, JSON.stringify(file, null, 2));
+  await fs.writeFile(fullPath, `${JSON.stringify(file, null, 2)}\n`);
 }
 
 console.log('Bumping package.jsons to', version);
