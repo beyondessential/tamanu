@@ -72,7 +72,6 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     disease,
     givenElsewhere,
     notGivenReason,
-    supervisingClinician,
   } = vaccineRecord;
 
   const routine = !vaccineName;
@@ -89,13 +88,16 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
     location: { label: 'Location', value: location.name || '-' },
     department: { label: 'Department', value: department.name || '-' },
     facility: { label: 'Facility', value: location.facility.name || '-' },
-    givenBy: { label: 'Given by', value: supervisingClinician || '-' },
+    givenBy: { label: 'Given by', value: givenBy || '-' },
     supervisingClinician: { label: 'Supervising clincian', value: givenBy || '-' },
     recordedBy: { label: 'Recorded by', value: recorder?.displayName || '-' },
     vaccineName: { label: 'Vaccine name', value: vaccineName || '-' },
     vaccineBrand: { label: 'Vaccine brand', value: vaccineBrand || '-' },
     disease: { label: 'Disease', value: disease || '-' },
-    status: { label: 'Status', value: VACCINE_STATUS_LABELS[status] || '-' },
+    status: {
+      label: 'Status',
+      value: givenElsewhere ? 'Given elsewhere' : VACCINE_STATUS_LABELS[status] || '-',
+    },
     country: { label: 'Country', value: givenBy || '-' },
     reason: { label: 'Reason', value: notGivenReason?.name || '-' },
     // circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
@@ -202,7 +204,7 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
 
   return (
-    <Modal title="View Vaccination Record" open={open} onClose={onClose} cornerExitButton={false}>
+    <Modal title="View vaccine record" open={open} onClose={onClose} disableHeaderCloseIcon>
       {modalVersion ? (
         <Container>
           {modalVersion.fields.map(fieldGroup => (
