@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState } from 'react';
+import React, { useContext, createContext, useState, useCallback, useEffect } from 'react';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -6,7 +6,36 @@ const LabRequestContext = createContext({
   isLoading: false,
 });
 
-export const useLabRequest = () => useContext(LabRequestContext);
+export const LabRequestKeys = {
+  All: 'LabRequestListingView',
+  Published: 'PublishedLabRequestsListingView',
+};
+
+export const useLabRequest = (key = 'General') => {
+  const {
+    searchParameters: allSearchParameters,
+    setSearchParameters: setAllSearchParameters,
+    ...otherProps
+  } = useContext(LabRequestContext);
+
+  const searchParameters = allSearchParameters[key];
+  const setSearchParameters = useCallback(
+    value => {
+      setAllSearchParameters({
+        ...allSearchParameters,
+        [key]: value,
+      });
+    },
+    [key, allSearchParameters, setAllSearchParameters],
+  );
+
+  useEffect(() => {
+    if (!searchParameters) {
+      setSearchParameters({});
+    }
+  }, [searchParameters, setSearchParameters]);
+  return { searchParameters: searchParameters || {}, setSearchParameters, ...otherProps };
+};
 
 export const LabRequestProvider = ({ children }) => {
   const [labRequest, setLabRequest] = useState({});
