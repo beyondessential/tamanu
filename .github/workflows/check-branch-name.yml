@@ -13,17 +13,22 @@ jobs:
     if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev'
     steps:
     - name: Warn if branch name is not prefixed with feature/ or fix/
-      if: "!(startsWith(github.head_ref, 'feature/') || startsWith(github.head_ref, 'fix/'))"
+      env:
+        BRANCH_NAME: ${{ github.head_ref }}
+      shell: bash
       run: |
-        echo "::warning::Branch name should be prefixed with feature/ or fix/"
-        exit 1
+        if ! grep -qP '^(feature|fix)/' <<< "$BRANCH_NAME"; then
+          echo "::warning::Branch name should be prefixed with feature/ or fix/"
+          exit 1
+        fi
 
     - name: Warn if feature branch name is not prefixed with ticket number
       if: always() && startsWith(github.head_ref, 'feature/')
       env:
         BRANCH_NAME: ${{ github.head_ref }}
+      shell: bash
       run: |
-        if [[ ! "$BRANCH_NAME" =~ '^feature/[A-Za-z]+-[0-9]+' ]]; then
+        if ! grep -qP '^feature/[A-Za-z]+-[0-9]+(-\w+)?' <<< "$BRANCH_NAME"; then
           echo "::warning::Feature branch name should be prefixed with ticket number, e.g. feature/abc-123-..."
           exit 1
         fi
