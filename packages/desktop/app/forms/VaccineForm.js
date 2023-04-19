@@ -1,5 +1,4 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
@@ -15,10 +14,10 @@ import {
   VACCINE_GIVEN_VALIDATION_SCHEMA,
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
-import { getCurrentUser } from '../store/auth';
 import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
+import { useAuth } from '../contexts/Auth';
 
 export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   date: yup.string().required('Date is required'),
@@ -29,10 +28,6 @@ export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   departmentId: yup.string().when('givenElsewhere', {
     is: false,
     then: yup.string().required('Department is required'),
-  }),
-  disease: yup.string().when('category', {
-    is: VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
   }),
   vaccineName: yup.string().when('category', {
     is: VACCINE_CATEGORIES.OTHER,
@@ -78,7 +73,7 @@ export const VaccineForm = ({
     selectedVaccine,
   ]);
 
-  const currentUser = useSelector(getCurrentUser);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const fetchScheduledVaccines = async () => {
@@ -112,18 +107,6 @@ export const VaccineForm = ({
     );
   }
 
-  const baseProps = {
-    vaccineLabel,
-    vaccineOptions,
-    category,
-    setCategory,
-    setVaccineLabel,
-    administeredOptions,
-    scheduleOptions,
-    onCancel,
-    currentUser,
-  };
-
   return (
     <Form
       onSubmit={data => onSubmit({ ...data, category })}
@@ -147,20 +130,55 @@ export const VaccineForm = ({
           ? VACCINE_GIVEN_VALIDATION_SCHEMA
           : {}),
       })}
-      render={({ submitForm, values, setValues }) => {
-        return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
-          <VaccineGivenForm
-            {...baseProps}
-            submitForm={submitForm}
-            values={values}
-            patientId={patientId}
-            setValues={setValues}
-          />
-        ) : (
-          <VaccineNotGivenForm {...baseProps} submitForm={submitForm} />
-        );
-      }}
+      render={({ submitForm, resetForm, values, setValues }) => (
+        <VaccineFormComponent
+          vaccineRecordingType={vaccineRecordingType}
+          submitForm={submitForm}
+          resetForm={resetForm}
+          values={values}
+          setValues={setValues}
+          vaccineLabel={vaccineLabel}
+          vaccineOptions={vaccineOptions}
+          category={category}
+          setCategory={setCategory}
+          setVaccineLabel={setVaccineLabel}
+          administeredOptions={administeredOptions}
+          scheduleOptions={scheduleOptions}
+          onCancel={onCancel}
+          currentUser={currentUser}
+        />
+      )}
     />
+  );
+};
+
+const VaccineFormComponent = ({
+  vaccineRecordingType,
+  submitForm,
+  resetForm,
+  values,
+  setValues,
+  patientId,
+  ...props
+}) => {
+  useEffect(() => {
+    // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
+    resetForm();
+
+    // we strictly only want to reset the form values when vaccineRecordingType is changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vaccineRecordingType]);
+
+  return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
+    <VaccineGivenForm
+      {...props}
+      submitForm={submitForm}
+      values={values}
+      patientId={patientId}
+      setValues={setValues}
+    />
+  ) : (
+    <VaccineNotGivenForm {...props} submitForm={submitForm} />
   );
 };
 
