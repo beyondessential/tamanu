@@ -19,6 +19,6 @@ jobs:
     - name: Warn if feature branch name is not prefixed with ticket number
       if: startsWith(github.head_ref, 'feature/')
       run: |
-        if [[ ! "${{ github.head_ref }}" =~ ^feature/[A-Z]+-[0-9]+ ]]; then
-          echo "::warning::Feature branch name should be prefixed with ticket number"
+        if [[ ! "${{ github.head_ref }}" =~ ^feature/[A-Za-z]+-[0-9]+ ]]; then
+          echo "::warning::Feature branch name should be prefixed with ticket number, e.g. feature/abc-123-..."
         fi
