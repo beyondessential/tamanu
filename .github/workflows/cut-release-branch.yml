@@ -28,7 +28,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          import run from './scripts/gha-create-release-branch.mjs';
+          const { run } = await import('./scripts/gha-create-release-branch.mjs');
           await run(github, context);
 
     - name: Bump version on main
