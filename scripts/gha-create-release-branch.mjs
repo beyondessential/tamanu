@@ -15,12 +15,12 @@ export async function run({ readFileSync }, github, context) {
 
   console.log('Checking if branch exists...');
   const ref = `refs/heads/${branch}`;
-  const exists = await github.git.getRef({ owner, repo, ref });
+  const exists = await github.rest.git.getRef({ owner, repo, ref });
   if (exists.status === 200) {
     throw new Error(`Branch ${branch} already exists`);
   }
 
   console.log("It doesn't, creating branch...");
-  await github.git.createRef({ owner, repo, ref, sha });
+  await github.rest.git.createRef({ owner, repo, ref, sha });
   console.log('Done.');
 }
