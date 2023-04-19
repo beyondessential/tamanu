@@ -28,9 +28,8 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const { join } = await import('path');
-          const { run } = await import(join('${{ github.workspace }}', 'scripts/gha-create-release-branch.mjs'));
-          await run(github, context);
+          const { run } = await import('${{ github.workspace }}/scripts/gha-create-release-branch.mjs');
+          await run(await import('fs'), github, context);
 
     - name: Bump version on main
       run: node scripts/version.mjs '${{ github.event.inputs.version }}'

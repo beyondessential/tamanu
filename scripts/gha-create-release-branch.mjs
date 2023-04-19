@@ -1,10 +1,8 @@
 /* eslint-disable no-console */
 
-import fs from 'fs/promises';
-
-export default async function(github, context) {
+export default async function({ readFileSync }, github, context) {
   console.log('Reading current version...');
-  const { version } = JSON.parse(await fs.readFile('package.json'));
+  const { version } = JSON.parse(readFileSync('package.json', 'utf-8'));
 
   const [major, minor] = version.split('.', 3);
   const branch = `release/${major}.${minor}`;
