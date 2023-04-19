@@ -167,7 +167,12 @@ export const BedManagement = () => {
     data: { count: currentInpatientsCount } = {},
     isLoading: currentInpatientsCountLoading,
   } = useQuery(['currentInpatientsCount'], () =>
-    api.get('patient', { countOnly: true, currentPatient: true, inpatient: true, facilityId: ':local' }),
+    api.get('patient', {
+      countOnly: true,
+      currentPatient: true,
+      inpatient: true,
+      facilityId: ':local',
+    }),
   );
 
   const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
