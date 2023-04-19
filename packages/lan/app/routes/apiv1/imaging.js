@@ -308,6 +308,9 @@ globalImagingRequests.get(
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
     ]);
+    const encounterFilters = mapQueryFilters(filterParams, [
+      { key: 'departmentId', operator: Op.eq },
+    ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
@@ -319,6 +322,7 @@ globalImagingRequests.get(
       { key: 'status', operator: Op.eq },
 
       { key: 'priority', operator: Op.eq },
+      { key: 'locationGroupId', operator: Op.eq },
       {
         key: 'requestedDateFrom',
         alias: 'requestedDate',
@@ -359,6 +363,7 @@ globalImagingRequests.get(
     const encounter = {
       association: 'encounter',
       include: [patient],
+      where: encounterFilters,
       required: true,
     };
     const results = {
