@@ -50,3 +50,35 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
   });
 }
 
+export async function publishRelease(github, context, version) {
+  let release;
+  try {
+    console.log(`Fetch release ${version}...`);
+    release = await github.repos.getReleaseByTag({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      tag: `v${version}`,
+    })?.data;
+  } catch (err) {
+    if (err.toString().includes('Not Found')) {
+      console.log('Release not found, skipping');
+      return;
+    }
+
+    throw err;
+  }
+
+  if (!release?.draft) {
+    console.log(`Release ${version} is not a draft, skipping`);
+    return;
+  }
+
+  console.log('Publishing release...');
+  await github.repos.updateRelease({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    release_id: release.id,
+    draft: false,
+  });
+  console.log('Done.')
+}
