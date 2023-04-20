@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { DateField, LocalisedField, SelectField, AutocompleteField } from '../Field';
+import {
+  DateField,
+  LocalisedField,
+  SelectField,
+  AutocompleteField,
+  DynamicSelectField,
+} from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
@@ -15,6 +21,7 @@ export const ImagingRequestsSearchBar = ({
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const areaSuggester = useSuggester('locationGroup') || [];
   const departmentSuggester = useSuggester('department') || [];
+  const requesterSuggester = useSuggester('practitioner') || [];
 
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
@@ -96,6 +103,14 @@ export const ImagingRequestsSearchBar = ({
           defaultLabel="Priority"
           component={SelectField}
           options={imagingPriorities}
+        />
+      )}
+      {statusFilterTable && (
+        <LocalisedField
+          name="requestedBy"
+          defaultLabel="Requested by"
+          component={DynamicSelectField}
+          suggester={requesterSuggester}
         />
       )}
     </CustomisableSearchBar>

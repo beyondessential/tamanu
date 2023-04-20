@@ -308,10 +308,10 @@ globalImagingRequests.get(
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
     ]);
+
     const encounterFilters = mapQueryFilters(filterParams, [
       { key: 'departmentId', operator: Op.eq },
     ]);
-    // TODO: still a bit broken, need to fix. Doesnt seem to show even when the made into a string that matches
     const resultFilters = mapQueryFilters(filterParams, [
       {
         key: 'completedAt',
@@ -330,9 +330,7 @@ globalImagingRequests.get(
         mapFn: caseInsensitiveStartsWithFilter,
       },
       { key: 'imagingType', operator: Op.eq },
-
       { key: 'status', operator: Op.eq },
-
       { key: 'priority', operator: Op.eq },
       { key: 'locationGroupId', operator: Op.eq },
       {
