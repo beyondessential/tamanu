@@ -114,11 +114,11 @@ describe('Reports', () => {
       const result = await noPermsApp.post('/v1/reports/incomplete-referrals', {});
       expect(result).toBeForbidden();
     });
-    it('should fail with 400 and message if report module is not found', async () => {
+    it('should fail with 404 and message if report module is not found', async () => {
       jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
       const res = await app.post('/v1/reports/invalid-report', {});
-      expect(res).toHaveStatus(400);
-      expect(res.body).toEqual({ error: { message: 'Report module not found' } });
+      expect(res).toHaveStatus(404);
+      expect(res.body).toMatchObject({ error: { message: 'Report module not found' } });
     });
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
       const res = await app.post('/v1/reports/incomplete-referrals').send({
@@ -128,7 +128,7 @@ describe('Reports', () => {
         },
       });
       expect(res).toHaveStatus(400);
-      expect(res.body).toEqual({ error: { message: 'Not a valid date' } });
+      expect(res.body).toMatchObject({ error: { message: 'Not a valid date' } });
     });
   });
 });

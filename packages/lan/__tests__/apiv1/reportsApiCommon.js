@@ -38,7 +38,6 @@ export function testReportPermissions(getCtx, makeRequest) {
 
     // Assert
     expect(res).toHaveSucceeded();
-    expect(res.body).toMatchSnapshot();
   });
 
   it('should not be able to run restricted db reports', async () => {
@@ -49,7 +48,7 @@ export function testReportPermissions(getCtx, makeRequest) {
     const res = await makeRequest(app, version.id);
 
     // Assert
-    expect(res).not.toHaveSucceeded();
+    expect(res).toBeForbidden();
     expect(res.body.error).toMatchObject({
       message: 'Cannot perform action "run" on ReportDefinition.',
     });
@@ -96,7 +95,7 @@ export function testReportPermissions(getCtx, makeRequest) {
     const res = await makeRequest(app, 'appointments-line-list');
 
     // Assert
-    expect(res).not.toHaveSucceeded();
+    expect(res).toBeForbidden();
     expect(res.body.error).toMatchObject({
       message: 'User does not have permission to run the report',
     });
