@@ -108,7 +108,7 @@ export const ImagingRequestsSearchBar = ({
       )}
       {statusFilterTable && (
         <LocalisedField
-          name="requestedBy"
+          name="requestedById"
           defaultLabel="Requested by"
           component={DynamicSelectField}
           suggester={requesterSuggester}

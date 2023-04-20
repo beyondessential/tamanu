@@ -353,6 +353,7 @@ globalImagingRequests.get(
           },
         }),
       },
+      { key: 'requestedById', operator: Op.eq },
     ]);
 
     // Associations to include on query
