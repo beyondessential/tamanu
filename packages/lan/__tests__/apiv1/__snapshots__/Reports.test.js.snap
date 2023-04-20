@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Reports permissions should be able to run permitted db reports 1`] = `
+exports[`Reports post permissions should be able to run permitted db reports 1`] = `
 [
   [
     "test_column",

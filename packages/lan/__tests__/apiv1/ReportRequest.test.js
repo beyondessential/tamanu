@@ -1,4 +1,5 @@
 import { createTestContext } from '../utilities';
+import { testReportPermissions } from './reportsApiCommon';
 
 describe('ReportRequest', () => {
   let baseApp = null;
@@ -12,8 +13,17 @@ describe('ReportRequest', () => {
 
   it('should reject reading a patient with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post('/v1/reportRequest/', {});
+    const result = await noPermsApp.post('/v1/reportRequest/', {
+      reportId: 'incomplete-referrals',
+    });
     expect(result).toBeForbidden();
+  });
+
+  describe('permissions', () => {
+    testReportPermissions(
+      () => ctx,
+      (reportApp, reportId) => reportApp.post('/v1/reportRequest', { reportId }),
+    );
   });
 
   describe('write', () => {
