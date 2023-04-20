@@ -128,7 +128,13 @@ patientVaccineRoutes.post(
           examinerId: req.body.recorderId,
           departmentId: req.body.departmentId,
         });
-        await newEncounter.update({ endDate: req.body.date });
+        await newEncounter.update({
+          endDate: req.body.date,
+          systemNote: 'Automatically discharged',
+          discharge: {
+            note: 'Automatically discharged after giving vaccine',
+          },
+        });
         encounterId = newEncounter.get('id');
       }
 
