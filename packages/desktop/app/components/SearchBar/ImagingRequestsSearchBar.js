@@ -61,7 +61,6 @@ export const ImagingRequestsSearchBar = ({
               defaultLabel="Completed"
               saveDateAsString
               component={DateField}
-              size="small"
             />
           </>
         )
@@ -77,6 +76,7 @@ export const ImagingRequestsSearchBar = ({
           defaultLabel="Status"
           component={SelectField}
           options={IMAGING_REQUEST_STATUS_OPTIONS}
+          size="small"
         />
       )}
       <LocalisedField
@@ -84,6 +84,7 @@ export const ImagingRequestsSearchBar = ({
         defaultLabel="Type"
         component={SelectField}
         options={imagingTypeOptions}
+        size="small"
       />
       <LocalisedField
         name="requestedDateFrom"
@@ -111,6 +112,7 @@ export const ImagingRequestsSearchBar = ({
           defaultLabel="Requested by"
           component={DynamicSelectField}
           suggester={requesterSuggester}
+          size="small"
         />
       )}
     </CustomisableSearchBar>
