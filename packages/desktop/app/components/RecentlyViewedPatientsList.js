@@ -159,8 +159,9 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   const dispatch = useDispatch();
   const api = useApi();
 
-  const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(['recentlyViewedPatients'], () =>
-    api.get('user/recently-viewed-patients', { encounterType }),
+  const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(
+    ['recentlyViewedPatients'],
+    () => api.get('user/recently-viewed-patients', { encounterType }),
   );
 
   const pageCount = Math.ceil(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
