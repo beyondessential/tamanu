@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-export async function run({ readFileSync }, github, context, cwd) {
+export async function createReleaseBranch({ readFileSync }, github, context, cwd) {
   console.log('Reading current version...');
   const { version } = JSON.parse(readFileSync(`${cwd}/package.json`, 'utf-8'));
 
@@ -28,5 +28,25 @@ export async function run({ readFileSync }, github, context, cwd) {
 
   console.log("It doesn't, creating branch...");
   await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha });
+  console.log('Creating draft release...');
+  await createDraftRelease({ readFileSync }, github, context, cwd, version);
   console.log('Done.');
 }
+
+export async function createDraftRelease({ readFileSync }, github, context, cwd, version) {
+  const template = readFileSync(
+    `${cwd}/.github/PULL_REQUEST_TEMPLATE/release_candidate.md`,
+    'utf8',
+  );
+
+  await github.repos.createRelease({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    tag_name: `v${version}`,
+    name: `v${version}`,
+    draft: true,
+    prerelease: false,
+    body: template.replace(/%VERSION%/g, version),
+  });
+}
+
