@@ -315,7 +315,7 @@ globalImagingRequests.get(
     const resultFilters = mapQueryFilters(filterParams, [
       {
         key: 'completedAt',
-        operator: Op.eq,
+        operator: Op.startsWith,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
             [operator]: toDateString(new Date(value)),
