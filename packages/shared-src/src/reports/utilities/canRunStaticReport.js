@@ -1,14 +1,7 @@
-// pseudo-model so we can define permissions for 'run', 'StaticReport'
-class StaticReport {
-  id = null;
-
-  constructor(id) {
-    this.id = id;
-  }
-}
+import { subject } from '@casl/ability';
 
 export function canRunStaticReport(ability, id, permission) {
   const canReadPermission = permission && ability.can('read', permission);
-  const canRunReport = ability.can('run', new StaticReport(id));
+  const canRunReport = ability.can('run', subject('StaticReport', { id }));
   return canReadPermission || canRunReport;
 }
