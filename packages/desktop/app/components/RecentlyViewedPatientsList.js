@@ -159,7 +159,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   const dispatch = useDispatch();
   const api = useApi();
 
-  const { data: { data: recentlyViewedPatients } = {} } = useQuery(['recentlyViewedPatients'], () =>
+  const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(['recentlyViewedPatients'], () =>
     api.get('user/recently-viewed-patients', { encounterType }),
   );
 
