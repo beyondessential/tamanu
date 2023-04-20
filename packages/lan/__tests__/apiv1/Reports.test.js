@@ -67,19 +67,19 @@ describe('Reports', () => {
     });
   });
 
-  describe('list', () => {
+  describe('permissions', () => {
     let app;
     let user;
     let permittedReports;
     let restrictedReports;
-    let result;
+    let role;
 
     beforeAll(async () => {
       // Arrange
       setHardcodedPermissionsUseForTestsOnly(false);
       const { models } = ctx;
       const { Role, Permission, ReportDefinition, ReportDefinitionVersion } = models;
-      const role = await Role.create(fake(Role));
+      role = await Role.create(fake(Role));
       app = await baseApp.asRole(role.id);
       user = app.user;
       const reports = await ReportDefinition.bulkCreate(
@@ -92,7 +92,7 @@ describe('Reports', () => {
         versionNumber: 1,
         reportDefinitionId: r.id,
         status: REPORT_STATUSES.PUBLISHED,
-        query: 'SELECT 1+1',
+        query: 'SELECT 1+1 AS test_column',
         queryOptions: JSON.stringify({
           parameters: [],
           dataSources: [],
@@ -101,7 +101,7 @@ describe('Reports', () => {
         userId: user.id,
       })));
       permittedReports = reports.slice(0, 2);
-      // restrictedReports = reports.slice(2);
+      restrictedReports = reports.slice(2);
       await Permission.bulkCreate(
         permittedReports.map(r => ({
           roleId: role.id,
@@ -118,7 +118,7 @@ describe('Reports', () => {
       unsetUseHardcodedPermissionsUseForTestsOnly();
     });
 
-    it('should get db and builtin reports', async () => {
+    it('should get permitted db and builtin reports', async () => {
       // Act
       const res = await app.get('/v1/reports');
 
@@ -128,6 +128,77 @@ describe('Reports', () => {
       expect(res.body.map(r => r.id).sort()).toEqual(permittedReports.map(
         r => `${r.id}_version-1`,
       ).sort());
+    });
+
+    it('should be able to run permitted db reports', async () => {
+      // Arrange
+      const [version] = await permittedReports[0].getVersions();
+
+      // Act
+      const res = await app.post(`/v1/reports/${version.id}`);
+
+      // Assert
+      expect(res).toHaveSucceeded();
+      expect(res.body).toMatchSnapshot();
+    });
+
+    it('should not be able to run restricted db reports', async () => {
+      // Arrange
+      const [version] = await restrictedReports[0].getVersions();
+
+      // Act
+      const res = await app.post(`/v1/reports/${version.id}`);
+
+      // Assert
+      expect(res).not.toHaveSucceeded();
+      expect(res.body.error).toMatchObject({ message: 'Cannot perform action "run" on ReportDefinition.' });
+    });
+
+    it('should be able to run permitted static reports with "read" permissions', async () => {
+      // Arrange
+      const { Permission } = ctx.models;
+      await Permission.create({
+        roleId: role.id,
+        userId: user.id,
+        verb: 'read',
+        noun: 'Referral',
+      });
+
+      // Act
+      const res = await app.post('/v1/reports/incomplete-referrals');
+
+      // Assert
+      expect(res).toHaveSucceeded();
+    });
+
+    it('should be able to run permitted static reports with "run" permissions', async () => {
+      // Arrange
+      const { Permission } = ctx.models;
+      const reportId = 'admissions';
+      await Permission.create({
+        roleId: role.id,
+        userId: user.id,
+        verb: 'run',
+        noun: 'StaticReport',
+        objectId: reportId,
+      });
+
+      // Act
+      const res = await app.post(`/v1/reports/${reportId}`);
+
+      // Assert
+      expect(res).toHaveSucceeded();            
+    });
+
+    it('should not be able to run restricted static reports', async () => {
+      // Act
+      const res = await app.post(`/v1/reports/appointments-line-list`);      
+
+      // Assert
+      expect(res).not.toHaveSucceeded();
+      expect(res.body.error).toMatchObject({
+        message: 'User does not have permission to run the report',
+      });
     });
   });
 

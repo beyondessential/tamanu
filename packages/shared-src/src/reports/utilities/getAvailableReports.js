@@ -1,17 +1,24 @@
 import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from 'shared/constants';
 import * as reportUtils from 'shared/reports';
+import { canRunStaticReport } from './canRunStaticReport';
 
-const getBuiltinReports = ability => {
-  const permittedReports = reportUtils.REPORT_DEFINITIONS.filter(r => ability.can('run', r));
+const getStaticReports = async (ability, models) => {
+  const permittedReports = [];
+  for (const reportDef of reportUtils.REPORT_DEFINITIONS) {
+    const reportModule = await reportUtils.getReportModule(reportDef.id, models);
+    if (canRunStaticReport(ability, reportDef.id, reportModule.permission)) {
+      permittedReports.push(reportDef);
+    }
+  }
   return permittedReports.map(r => ({ ...r, legacyReport: true }));
 };
 
 const getDbReports = async (ability, models) => {
-  const { ReportDefinition } = models;
+  const { ReportDefinition, ReportDefinitionVersion } = models;
   const reportDefinitions = await ReportDefinition.findAll({
     include: [
       {
-        model: models.ReportDefinitionVersion,
+        model: ReportDefinitionVersion,
         as: 'versions',
         where: { status: REPORT_STATUSES.PUBLISHED },
       },
@@ -49,7 +56,7 @@ const getDisabledReportIds = async (models, userId) => {
 
 export const getAvailableReports = async (ability, models, userId) => {
   const permittedReports = [
-    ...getBuiltinReports(ability),
+    ...(await getStaticReports(ability, models)),
     ...(await getDbReports(ability, models)),
   ];
   const disabledReportIds = await getDisabledReportIds(models, userId);
