@@ -115,6 +115,7 @@ export const DateField = React.memo(
               flexDirection="row"
               justifyContent="space-between"
               paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
+              backgroundColor={theme.colors.WHITE}
             >
               <StyledText
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}

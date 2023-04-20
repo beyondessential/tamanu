@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Barcode from 'react-barcode';
 import { formatShort } from '../../DateDisplay';
-import { getDisplayAge } from '../../../utils/dateTime';
 
 const Container = styled.div`
   position: relative;
@@ -16,12 +15,14 @@ const Container = styled.div`
   }
 `;
 
-const Padding = styled.div`
+const FlexContainer = styled.div`
   // Note: percentage padding is based on the dimensions of the parent element
-  padding: 2.5%;
+  padding: 5%;
+  display: flex;
 `;
 
 const TextContainer = styled.div`
+  width: 70%;
   svg {
     width: 100%;
   }
@@ -51,9 +52,9 @@ const Item = ({ label, value, x, y }) => (
 
 const BarcodeContainer = styled.div`
   margin: 0 auto 0;
+  transform: rotate(270deg);
   padding-top: 1%;
-  max-width: 80%;
-
+  width: 30%;
   svg {
     width: 100%;
     height: 100%;
@@ -72,25 +73,24 @@ const BarcodeContainer = styled.div`
  * why the whole component is made with svgs
  */
 export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
-  const { patientId, patientDateOfBirth, testId, date, labCategory } = data;
-  const age = getDisplayAge(patientDateOfBirth);
-
+  const { patientId, patientName, patientDateOfBirth, testId, labCategory, date } = data;
   return (
     <Container $printWidth={printWidth}>
-      <Padding>
+      <FlexContainer>
         <TextContainer>
-          <svg viewBox="0 0 300 60">
-            <Item x="0" y="11" label="Patient ID" value={patientId} />
-            <Item x="50%" y="11" label="Test ID" value={testId} />
-            <Item x="0" y="30" label="Age" value={age} />
-            <Item x="50%" y="30" label="Date collected" value={formatShort(date)} />
-            <Item x="0%" y="50" label="Lab category" value={labCategory} />
+          <svg viewBox="0 0 200 120">
+            <Item x="0" y="10" label="Patient Name" value={patientName} />
+            <Item x="0" y="30" label="Patient ID" value={patientId} />
+            <Item x="0" y="50" label="DOB" value={formatShort(patientDateOfBirth)} />
+            <Item x="0" y="70" label="Test ID" value={testId} />
+            <Item x="0" y="90" label="Date collected" value={formatShort(date)} />
+            <Item x="0" y="110" label="Lab category" value={labCategory} />
           </svg>
         </TextContainer>
         <BarcodeContainer>
-          <Barcode value={testId} width={2} height={57} margin={0} font="Roboto" fontSize={15} />
+          <Barcode value={testId} width={2} height={57} margin={0} font="Roboto" fontSize={24} />
         </BarcodeContainer>
-      </Padding>
+      </FlexContainer>
     </Container>
   );
 });

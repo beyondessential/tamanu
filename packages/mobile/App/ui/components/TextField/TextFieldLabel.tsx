@@ -7,13 +7,8 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 const AnimatedLabel = posed.Text({
   open: {
-    fontSize: screenPercentageToDP(1.74, Orientation.Height),
-    bottom: screenPercentageToDP(3.0, Orientation.Height),
-  },
-  closed: {
-    fontSize: screenPercentageToDP(1.94, Orientation.Height),
-    bottom: screenPercentageToDP(1.21, Orientation.Height),
-  },
+    fontSize: screenPercentageToDP(2.1, Orientation.Height),
+  }
 });
 
 interface AnimatedText {
@@ -21,11 +16,10 @@ interface AnimatedText {
 }
 
 const StyledAnimatedLabel = styled(StyledText) <AnimatedText>`
-  font-size: ${screenPercentageToDP(1.94, Orientation.Height)};
-  font-weight: 400;
-  margin-bottom: 5;
-  padding-left: ${screenPercentageToDP(2.42, Orientation.Width)};
-  position: absolute;
+  font-size: ${screenPercentageToDP(2.1, Orientation.Height)};
+  font-weight: 600;
+  padding-left: ${screenPercentageToDP(1, Orientation.Width)};
+  margin-bottom: ${screenPercentageToDP(0.5, Orientation.Width)};
 `;
 
 interface LabelProps {
@@ -34,6 +28,7 @@ interface LabelProps {
   isValueEmpty: boolean;
   error: string;
   onFocus: Function;
+  labelColor?: string;
 }
 
 export const TextFieldLabel = ({
@@ -42,19 +37,15 @@ export const TextFieldLabel = ({
   onFocus,
   isValueEmpty,
   error,
+  labelColor,
 }: LabelProps): JSX.Element => {
-  function getColor(hasValue: boolean, errorMessage?: string): string {
-    if (!errorMessage && hasValue) return theme.colors.TEXT_SOFT;
-    if (errorMessage) return theme.colors.ALERT;
-    return theme.colors.TEXT_MID;
-  }
-  const isLabelLifted = focus || isValueEmpty ? 'open' : 'closed';
+
   return (
     <StyledAnimatedLabel
       as={AnimatedLabel}
       onPress={(): void => onFocus(!focus)}
-      color={getColor(isValueEmpty, error)}
-      pose={isLabelLifted}
+      pose="open"
+      style={{color: labelColor || theme.colors.TEXT_SUPER_DARK}}
     >
       {children}
     </StyledAnimatedLabel>
