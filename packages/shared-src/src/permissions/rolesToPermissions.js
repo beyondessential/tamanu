@@ -55,7 +55,7 @@ export async function queryPermissionsForRoles(roleString) {
 
 // these functions allow testing permissions in isolation
 // they should ONLY be used in tests
-let useHardcodedPermissions = config.auth.useHardcodedPermissions;
+let { useHardcodedPermissions } = config.auth;
 export function setHardcodedPermissionsUseForTestsOnly(val) {
   useHardcodedPermissions = Boolean(val);
   resetPermissionCache();
@@ -64,7 +64,6 @@ export function unsetUseHardcodedPermissionsUseForTestsOnly() {
   useHardcodedPermissions = config.auth.useHardcodedPermissions;
   resetPermissionCache();
 }
-
 
 export async function getPermissionsForRoles(roleString) {
   if (useHardcodedPermissions) {
