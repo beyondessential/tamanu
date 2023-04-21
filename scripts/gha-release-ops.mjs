@@ -39,7 +39,7 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
     'utf8',
   );
 
-  await github.repos.createRelease({
+  await github.rest.repos.createRelease({
     owner: context.repo.owner,
     repo: context.repo.repo,
     tag_name: `v${version}`,
@@ -55,7 +55,7 @@ export async function publishRelease(github, context, version) {
   try {
     console.log(`Fetch release ${version}...`);
     release = (
-      (await github.repos.getReleaseByTag({
+      (await github.rest.repos.getReleaseByTag({
         owner: context.repo.owner,
         repo: context.repo.repo,
         tag: `v${version}`,
@@ -76,7 +76,7 @@ export async function publishRelease(github, context, version) {
   }
 
   console.log('Publishing release...');
-  await github.repos.updateRelease({
+  await github.rest.repos.updateRelease({
     owner: context.repo.owner,
     repo: context.repo.repo,
     release_id: release.id,
