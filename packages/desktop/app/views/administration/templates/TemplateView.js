@@ -9,6 +9,7 @@ import { useAuth } from '../../../contexts/Auth';
 
 import { TEMPLATE_ENDPOINT } from '../constants';
 import { TemplateList } from './TemplateList';
+import { EditTemplateModal } from './EditTemplateModal';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
@@ -19,6 +20,7 @@ const ContentContainer = styled.div`
 `;
 
 export const TemplateView = ({ }) => {
+  const [editingTemplate, setEditingTemplate] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [existingTemplateNames, setExistingTemplateNames] = useState([]);
 
@@ -37,28 +39,33 @@ export const TemplateView = ({ }) => {
     },
     [api, currentUser.id, setRefreshCount],
   );
-    
-  useEffect(
-    () => {
-    (async () => {
-      const { data: templates } = await api.get(TEMPLATE_ENDPOINT);
-      console.log(templates);
-      setExistingTemplateNames(templates.map(template => template.name));
-    })()
+
+  // TODO: redundant callback
+  const editTemplate = useCallback(
+    template => {
+      console.log(template);
+      setEditingTemplate(template)
     },
-    [api, refreshCount],
+    [setEditingTemplate],
+  );
+
+  const closeModal = useCallback(
+    () => {
+      setEditingTemplate(null)
+    },
+    [setEditingTemplate],
   );
 
   return (
     <PageContainer>
+      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onClose={closeModal} />
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm onSubmit={createTemplate} existingTemplateNames={existingTemplateNames} />
+          <NewTemplateForm onSubmit={createTemplate} } />
         </ContentContainer>
-        <TemplateList refreshCount={refreshCount} />
+        <TemplateList refreshCount={refreshCount} onRowClick={editTemplate} />
       </ContentPane>
-      {/* {modal} */}
     </PageContainer>
   );
 };

@@ -10,3 +10,8 @@ export const FormGrid = styled.div`
   grid-template-columns: repeat(${({ columns = 2 }) => columns}, 1fr);
   align-items: start;
 `;
+
+// From FormGrid -> row-gap
+export const SmallGridSpacer = styled.div`
+  margin-bottom: 1.2rem;
+`;

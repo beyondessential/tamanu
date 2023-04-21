@@ -11,19 +11,20 @@ import { TEMPLATE_TYPE_OPTIONS } from '../constants';
 import { ConfirmCancelRow, ConfirmClearRow } from '../components/ButtonRow';
 import { ButtonRow } from '../components/ButtonRow';
 
+
+
 const TallMultilineTextField = props =>
   <MultilineTextField style={{ minHeight: '156px' }} {...props}/>
 
-export const NewTemplateForm = memo(({ onSubmit }) => {
+export const EditPatientLetterTemplateForm = memo(({ onSubmit, existingTemplateNames, initialValues }) => {
   const renderForm = ({ submitForm, resetForm }) => (
     <>
       <FormGrid columns={2}>
-        <Field name="type" label="Type" component={SelectField} options={TEMPLATE_TYPE_OPTIONS} required />
         <Field name="name" label="Template name" component={TextField} required />
+        <Field name="title" label="Title" component={TextField} />
       </FormGrid>
       <SmallGridSpacer />
       <FormGrid columns={1} nested>
-        <Field name="title" label="Title" component={TextField} />
         <Field name="body" label="Contents" component={TallMultilineTextField} />
       </FormGrid>
       <ConfirmClearRow onConfirm={submitForm} onClear={resetForm} />
@@ -34,9 +35,8 @@ export const NewTemplateForm = memo(({ onSubmit }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      initialValues={{ type: TEMPLATE_TYPES.PATIENT_LETTER }}
+      initialValues={initialValues}
       validationSchema={yup.object().shape({
-        type: yup.string().required(),
         name: yup.string().required(),
         title: yup.string(),
         body: yup.string(),

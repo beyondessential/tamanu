@@ -1,4 +1,5 @@
 export { AllergyForm } from './AllergyForm';
+export { EditPatientLetterTemplateForm } from './EditPatientLetterTemplateForm';
 export { FamilyHistoryForm } from './FamilyHistoryForm';
 export { NewLocationForm } from './NewLocationForm';
 export { NewPatientForm } from './NewPatientForm';

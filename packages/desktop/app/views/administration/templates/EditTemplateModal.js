@@ -1,27 +1,19 @@
 import React from 'react';
 import { ButtonRow, Button, Modal } from '../../../components';
+import { EditPatientLetterTemplateForm } from '../../../forms';
 
-export const MergeResultModal = ({ result, onClose }) => {
-  const { updates = {} } = result;
-
+export const EditTemplateModal = ({ template, onClose, open }) => {
   const actions = (
     <ButtonRow>
       <Button onClick={onClose}>OK</Button>
     </ButtonRow>
   );
   return (
-    <Modal title="Merge patients" actions={actions} open onClose={onClose}>
+    <Modal title="Merge patients" actions={actions} open={open} onClose={onClose}>
+      <EditPatientLetterTemplateForm />
       <p>
         <strong>Merge successful.</strong> Records updated:
       </p>
-      <ul>
-        {Object.entries(updates).map(([modelName, count]) => (
-          <li key={modelName}>
-            <span>{`${modelName}: `}</span>
-            <strong>{count}</strong>
-          </li>
-        ))}
-      </ul>
     </Modal>
   );
 };
