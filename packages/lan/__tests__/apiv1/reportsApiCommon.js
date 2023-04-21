@@ -7,106 +7,98 @@ import {
 
 export function testReportPermissions(getCtx, makeRequest) {
   let ctx;
-  let app;
-  let user;
-  let permittedReports;
-  let restrictedReports;
-  let role;
+  let baseApp;
 
   beforeAll(async () => {
     setHardcodedPermissionsUseForTestsOnly(false);
     ctx = getCtx();
-    const { baseApp, models } = ctx;
-    const data = await setupReportPermissionsTest(baseApp, models);
-    app = data.app;
-    user = data.user;
-    permittedReports = data.permittedReports;
-    restrictedReports = data.restrictedReports;
-    role = data.role;
+    baseApp = ctx.baseApp;
   });
 
   afterAll(() => {
     unsetUseHardcodedPermissionsUseForTestsOnly();
   });
 
-  it('should be able to run permitted db reports', async () => {
-    // Arrange
-    const [version] = await permittedReports[0].getVersions();
+  describe('db reports', () => {
+    let app;
+    let permittedReports;
+    let restrictedReports;
 
-    // Act
-    const res = await makeRequest(app, version.id);
+    beforeAll(async () => {
+      const { models } = ctx;
+      const data = await setupReportPermissionsTest(baseApp, models);
+      app = data.app;
+      permittedReports = data.permittedReports;
+      restrictedReports = data.restrictedReports;
+    });
 
-    // Assert
-    expect(res).toHaveSucceeded();
-  });
+    it('should be able to run permitted reports', async () => {
+      // Arrange
+      const [version] = await permittedReports[0].getVersions();
 
-  it('should not be able to run restricted db reports', async () => {
-    // Arrange
-    const [version] = await restrictedReports[0].getVersions();
+      // Act
+      const res = await makeRequest(app, version.id);
 
-    // Act
-    const res = await makeRequest(app, version.id);
+      // Assert
+      expect(res).toHaveSucceeded();
+    });
 
-    // Assert
-    expect(res).toBeForbidden();
-    expect(res.body.error).toMatchObject({
-      message: 'Cannot perform action "run" on ReportDefinition.',
+    it('should not be able to run restricted reports', async () => {
+      // Arrange
+      const [version] = await restrictedReports[0].getVersions();
+
+      // Act
+      const res = await makeRequest(app, version.id);
+
+      // Assert
+      expect(res).toBeForbidden();
+      expect(res.body.error).toMatchObject({
+        message: 'Cannot perform action "run" on ReportDefinition.',
+      });
     });
   });
 
-  it('should be able to run permitted static reports with "read" permissions', async () => {
-    // Arrange
-    const { Permission } = ctx.models;
-    await Permission.create({
-      roleId: role.id,
-      userId: user.id,
-      verb: 'read',
-      noun: 'Referral',
+  describe('static reports', () => {
+    let app;
+    beforeAll(async () => {
+      app = await baseApp.asNewRole([
+        ['run', 'StaticReport', 'admissions'],
+        ['read', 'Referral'],
+      ]);
     });
 
-    // Act
-    const res = await makeRequest(app, 'incomplete-referrals');
+    it('should be able to run permitted reports with "read" permissions', async () => {
+      // Act
+      const res = await makeRequest(app, 'incomplete-referrals');
 
-    // Assert
-    expect(res).toHaveSucceeded();
-  });
-
-  it('should be able to run permitted static reports with "run" permissions', async () => {
-    // Arrange
-    const { Permission } = ctx.models;
-    const reportId = 'admissions';
-    await Permission.create({
-      roleId: role.id,
-      userId: user.id,
-      verb: 'run',
-      noun: 'StaticReport',
-      objectId: reportId,
+      // Assert
+      expect(res).toHaveSucceeded();
     });
 
-    // Act
-    const res = await makeRequest(app, reportId);
+    it('should be able to run permitted static reports with "run" permissions', async () => {
+      // Act
+      const res = await makeRequest(app, 'admissions');
 
-    // Assert
-    expect(res).toHaveSucceeded();
-  });
+      // Assert
+      expect(res).toHaveSucceeded();
+    });
 
-  it('should not be able to run restricted static reports', async () => {
-    // Act
-    const res = await makeRequest(app, 'appointments-line-list');
+    it('should not be able to run restricted static reports', async () => {
+      // Act
+      const res = await makeRequest(app, 'appointments-line-list');
 
-    // Assert
-    expect(res).toBeForbidden();
-    expect(res.body.error).toMatchObject({
-      message: 'User does not have permission to run the report',
+      // Assert
+      expect(res).toBeForbidden();
+      expect(res.body.error).toMatchObject({
+        message: 'User does not have permission to run the report',
+      });
     });
   });
 }
 
 export async function setupReportPermissionsTest(baseApp, models) {
-  const { Role, Permission, ReportDefinition, ReportDefinitionVersion } = models;
-  const role = await Role.create(fake(Role));
-  const app = await baseApp.asRole(role.id);
-  const { user } = app;
+  const { User, ReportDefinition, ReportDefinitionVersion } = models;
+  const owner = await User.create(fake(User));
   const reports = await ReportDefinition.bulkCreate(
     Array(5)
       .fill(null)
@@ -125,20 +117,12 @@ export async function setupReportPermissionsTest(baseApp, models) {
           dataSources: [],
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.ALL_TIME,
         }),
-        userId: user.id,
+        userId: owner.id,
       }),
     ),
   );
   const permittedReports = reports.slice(0, 2);
   const restrictedReports = reports.slice(2);
-  await Permission.bulkCreate(
-    permittedReports.map(r => ({
-      roleId: role.id,
-      userId: user.id,
-      verb: 'run',
-      noun: 'ReportDefinition',
-      objectId: r.id,
-    })),
-  );
-  return { app, role, user, permittedReports, restrictedReports };
+  const app = await baseApp.asNewRole(permittedReports.map(r => ['run', 'ReportDefinition', r.id]));
+  return { app, role: app.role, user: app.user, permittedReports, restrictedReports };
 }
