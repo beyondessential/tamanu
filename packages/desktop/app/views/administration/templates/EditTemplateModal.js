@@ -1,19 +1,12 @@
-import React from 'react';
-import { ButtonRow, Button, Modal } from '../../../components';
+import React, { useCallback } from 'react';
+import styled from 'styled-components';
+import { ButtonRow, Button, Modal, BlankActionRow, OutlinedDeleteButton, OutlinedButton } from '../../../components';
 import { EditPatientLetterTemplateForm } from '../../../forms';
 
-export const EditTemplateModal = ({ template, onClose, open }) => {
-  const actions = (
-    <ButtonRow>
-      <Button onClick={onClose}>OK</Button>
-    </ButtonRow>
-  );
+export const EditTemplateModal = ({ template, onClose, open, onSubmit, onDelete, refreshTable }) => {
   return (
-    <Modal title="Merge patients" actions={actions} open={open} onClose={onClose}>
-      <EditPatientLetterTemplateForm />
-      <p>
-        <strong>Merge successful.</strong> Records updated:
-      </p>
+    <Modal title="Patient Letter" open={open} onClose={onClose}>
+      <EditPatientLetterTemplateForm onSubmit={onSubmit} editedObject={template} onDelete={onDelete} onClose={onClose}/>
     </Modal>
   );
 };

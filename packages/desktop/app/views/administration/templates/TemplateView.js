@@ -27,6 +27,8 @@ export const TemplateView = ({ }) => {
   const api = useApi();
   const { currentUser } = useAuth();
 
+  const refreshTable = useCallback(() => setRefreshCount(refreshCount => refreshCount + 1), [setRefreshCount]);
+
   const createTemplate = useCallback(
     async (data, { resetForm }) => {
       console.log(data);
@@ -34,10 +36,23 @@ export const TemplateView = ({ }) => {
         createdBy: currentUser.id,
         ...data,
       });
-      setRefreshCount(refreshCount => refreshCount + 1);
+      refreshTable();
       resetForm();
     },
-    [api, currentUser.id, setRefreshCount],
+    [api, currentUser.id, refreshTable],
+  );
+
+  // TODO: NEED to rename
+  const onEditTemplate = useCallback(
+    async data => {
+      console.log(data);
+      await api.put(TEMPLATE_ENDPOINT, {
+        createdBy: currentUser.id,
+        ...data,
+      });
+      refreshTable();
+    },
+    [api, currentUser.id, refreshTable],
   );
 
   // TODO: redundant callback
@@ -58,11 +73,11 @@ export const TemplateView = ({ }) => {
 
   return (
     <PageContainer>
-      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onClose={closeModal} />
+      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onSubmit={onEditTemplate} onClose={closeModal} />
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm onSubmit={createTemplate} } />
+          <NewTemplateForm onSubmit={createTemplate} refreshTable={refreshTable}/>
         </ContentContainer>
         <TemplateList refreshCount={refreshCount} onRowClick={editTemplate} />
       </ContentPane>
