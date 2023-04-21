@@ -2,24 +2,20 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Form, Field, TextField, MultilineTextField, SelectField } from '../components/Field';
+import { Form, Field, TextField, MultilineTextField } from '../components/Field';
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
-import { TEMPLATE_TYPE_OPTIONS } from '../constants';
-import { Button, BlankActionRow, OutlinedDeleteButton, OutlinedButton } from '../components';
-
-import { ConfirmCancelRow, ConfirmClearRow } from '../components/ButtonRow';
-import { ButtonRow } from '../components/ButtonRow';
+import { Button, ButtonRow, BlankActionRow, OutlinedDeleteButton, OutlinedButton } from '../components';
 
 const Gap = styled.div`
   margin-left: auto;
 `;
 
 const UneditedActions = ({ onClose, onDelete }) => (
-  <BlankActionRow>
+  <ButtonRow>
     <OutlinedDeleteButton onClick={onDelete}>Delete</OutlinedDeleteButton>
     <Gap />
     <Button onClick={onClose}>Close</Button>
-  </BlankActionRow>
+  </ButtonRow>
 );
 
 const EditedActions = ({ onClose, onDelete, onSave }) => (
