@@ -54,11 +54,13 @@ export async function publishRelease(github, context, version) {
   let release;
   try {
     console.log(`Fetch release ${version}...`);
-    release = await github.repos.getReleaseByTag({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      tag: `v${version}`,
-    })?.data;
+    release = (
+      (await github.repos.getReleaseByTag({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        tag: `v${version}`,
+      })) || {}
+    ).data;
   } catch (err) {
     if (err.toString().includes('Not Found')) {
       console.log('Release not found, skipping');
@@ -68,7 +70,7 @@ export async function publishRelease(github, context, version) {
     throw err;
   }
 
-  if (!release?.draft) {
+  if (!release || !release.draft) {
     console.log(`Release ${version} is not a draft, skipping`);
     return;
   }
@@ -80,5 +82,5 @@ export async function publishRelease(github, context, version) {
     release_id: release.id,
     draft: false,
   });
-  console.log('Done.')
+  console.log('Done.');
 }
