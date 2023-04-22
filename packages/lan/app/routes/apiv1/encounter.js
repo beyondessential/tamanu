@@ -21,7 +21,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-} from './crudHelpers';
+} from 'shared/utils/crudHelpers';
 import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();

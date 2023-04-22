@@ -28,9 +28,7 @@ export const TemplateView = () => {
   const api = useApi();
   const { currentUser } = useAuth();
 
-  const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [
-    setRefreshCount,
-  ]);
+  const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
 
   const createTemplate = useCallback(
     async (data, { resetForm }) => {

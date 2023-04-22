@@ -14,7 +14,7 @@ import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { getNoteWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
-import { permissionCheckingRouter } from './crudHelpers';
+import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults(models, imagingRequest) {

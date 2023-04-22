@@ -8,7 +8,7 @@ import { Form, Field, TextField, MultilineTextField, SelectField } from '../comp
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../constants';
 
-import { ConfirmCancelRow, ConfirmClearRow , ButtonRow } from '../components/ButtonRow';
+import { ConfirmCancelRow, ConfirmClearRow, ButtonRow } from '../components/ButtonRow';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />

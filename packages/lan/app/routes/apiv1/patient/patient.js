@@ -8,7 +8,7 @@ import { NotFoundError } from 'shared/errors';
 import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { isGeneratedDisplayId } from 'shared/utils/generateId';
 
-import { renameObjectKeys } from '../../../utils/renameObjectKeys';
+import { renameObjectKeys } from 'shared/utils';
 import { createPatientFilters } from '../../../utils/patientFilters';
 import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
