@@ -104,7 +104,7 @@ export const DateField = React.memo(
       <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
         <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
           {label}
-          {required ? '*' : ''}
+          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
         </StyledText>
         <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
           <TouchableWithoutFeedback onPress={showDatePicker}>
@@ -115,6 +115,7 @@ export const DateField = React.memo(
               flexDirection="row"
               justifyContent="space-between"
               paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
+              backgroundColor={theme.colors.WHITE}
             >
               <StyledText
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}

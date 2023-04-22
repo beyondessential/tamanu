@@ -27,6 +27,7 @@ import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
+import { useAuth } from '../../contexts/Auth';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -121,6 +122,7 @@ export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
+  const { facility } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
@@ -142,7 +144,9 @@ export const EncounterView = () => {
         subTitle={encounter.location?.facility?.name}
         encounter={encounter}
       >
-        <EncounterActions encounter={encounter} />
+        {(facility.id === encounter.location.facilityId || encounter.endDate) && (
+          <EncounterActions encounter={encounter} />
+        )}
       </EncounterTopBar>
       <ContentPane>
         <EncounterInfoPane

@@ -31,3 +31,17 @@ export function formatStringDate(date: string, dateFormat: string): string {
 export function getCurrentDateTimeString(): string {
   return formatISO9075(new Date());
 }
+
+export function getCombinedDateString(date: Date, time: Date): string {
+  return formatISO9075(
+    new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      time.getHours(),
+      time.getMinutes(),
+      time.getSeconds(),
+      time.getMilliseconds(),
+    ),
+  );
+}

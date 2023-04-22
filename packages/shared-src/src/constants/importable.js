@@ -30,7 +30,6 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'labTestCategory',
   'labTestLaboratory',
   'labTestMethod',
-  'labTestPanelExternalCode',
   'labTestPriority',
   'labTestType',
   'labTestPanel',

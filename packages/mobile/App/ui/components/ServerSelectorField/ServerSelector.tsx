@@ -58,7 +58,7 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
   return (
     <>
       <StyledView marginBottom={10} height={screenPercentageToDP(4.86, Orientation.Height)}>
-        <InputContainer>
+        <InputContainer background={theme.colors.WHITE}>
           <StyledText
             color={theme.colors.TEXT_DARK}
             paddingTop={screenPercentageToDP(0.66, Orientation.Height)}
