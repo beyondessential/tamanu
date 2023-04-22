@@ -16,7 +16,6 @@ interface AnimatedText {
 }
 
 const StyledAnimatedLabel = styled(StyledText) <AnimatedText>`
-  color: ${theme.colors.TEXT_SUPER_DARK};
   font-size: ${screenPercentageToDP(2.1, Orientation.Height)};
   font-weight: 600;
   padding-left: ${screenPercentageToDP(1, Orientation.Width)};
@@ -29,6 +28,7 @@ interface LabelProps {
   isValueEmpty: boolean;
   error: string;
   onFocus: Function;
+  labelColor?: string;
 }
 
 export const TextFieldLabel = ({
@@ -37,6 +37,7 @@ export const TextFieldLabel = ({
   onFocus,
   isValueEmpty,
   error,
+  labelColor,
 }: LabelProps): JSX.Element => {
 
   return (
@@ -44,6 +45,7 @@ export const TextFieldLabel = ({
       as={AnimatedLabel}
       onPress={(): void => onFocus(!focus)}
       pose="open"
+      style={{color: labelColor || theme.colors.TEXT_SUPER_DARK}}
     >
       {children}
     </StyledAnimatedLabel>

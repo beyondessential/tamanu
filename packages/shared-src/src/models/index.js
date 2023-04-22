@@ -34,7 +34,6 @@ export * from './EncounterMedication';
 export * from './LabRequest';
 export * from './LabTest';
 export * from './LabRequestLog';
-export * from './LabTestPanelExternalCode';
 export * from './LabTestType';
 export * from './LabTestPanel';
 export * from './LabTestPanelRequest';
