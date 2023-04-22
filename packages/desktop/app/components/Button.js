@@ -94,6 +94,10 @@ export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
+export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+  border: 1px solid ${Colors.alert};
+  color: ${Colors.alert};
+`;
 
 // const StyledOutlinedButton = styled(StyledButton)`
 //   border-color: ${props => props.theme.palette.primary.main};
@@ -135,11 +139,6 @@ export const DeleteButton = props => {
     </StyledDeleteButton>
   );
 };
-
-export const OutlinedDeleteButton = styled(props => <StyledButton {...props} />)`
-  border: 1px solid ${Colors.alert};
-  color: ${Colors.alert};
-`;
 
 const StyledTextButton = styled(Button)`
   font-size: 16px;

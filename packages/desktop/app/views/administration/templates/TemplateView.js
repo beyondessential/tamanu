@@ -33,7 +33,7 @@ export const TemplateView = ({ }) => {
     async (data, { resetForm }) => {
       console.log(data);
       await api.post(TEMPLATE_ENDPOINT, {
-        createdBy: currentUser.id,
+        createdById: currentUser.id,
         ...data,
       });
       refreshTable();
@@ -46,11 +46,12 @@ export const TemplateView = ({ }) => {
   const onEditTemplate = useCallback(
     async data => {
       console.log(data);
-      await api.put(TEMPLATE_ENDPOINT, {
-        createdBy: currentUser.id,
+      await api.put(`${TEMPLATE_ENDPOINT}/${data.id}`, {
+        createdById: currentUser.id,
         ...data,
       });
       refreshTable();
+      setEditingTemplate(null);
     },
     [api, currentUser.id, refreshTable],
   );

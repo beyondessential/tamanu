@@ -11,6 +11,7 @@ export * from './FormGrid';
 export * from './FormTooltip';
 export * from './Layout';
 export * from './Modal';
+export * from './ModalActionRow';
 export * from './MenuButton';
 export * from './Notification';
 export * from './PageContainer';

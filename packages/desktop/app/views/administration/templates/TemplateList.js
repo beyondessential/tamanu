@@ -4,6 +4,8 @@ import React from 'react';
 import { TopBar, PageContainer, DataFetchingTable, DateDisplay } from '../../../components';
 import { TEMPLATE_ENDPOINT } from '../constants';
 
+const getDisplayName = ({ createdBy }) => (createdBy || {}).displayName || 'Unknown';
+
 export const TemplateList = React.memo(props => (
   <DataFetchingTable
     endpoint={TEMPLATE_ENDPOINT}
@@ -29,7 +31,7 @@ export const TemplateList = React.memo(props => (
       {
         key: 'createdBy',
         title: 'Created by',
-        // accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime />,
+        accessor: getDisplayName,
       },
       {
         key: 'body',

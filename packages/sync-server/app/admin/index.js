@@ -1,6 +1,8 @@
 import express from 'express';
+import { Op, ValidationError } from 'sequelize';
 
-import { ForbiddenError, NotFoundError, ValidationError } from 'shared/errors';
+
+import { ForbiddenError, NotFoundError } from 'shared/errors';
 import { simpleGetList, simplePost, simplePut } from 'shared/utils/crudHelpers';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
@@ -69,21 +71,51 @@ adminRoutes.post(
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
-const checkUniqueNameAnd = fn => asyncHandler(async (req, res) => {
-  const { name } = req.body;
-  const conflictingRecords = await req.models.PatientLetterTemplate.count({
-    where: { name },
-  });
+// const checkUniqueNameAnd = fn => asyncHandler(async (req, res) => {
+  // const { name, id } = req.body;
+  // const conflictingRecords = await req.models.PatientLetterTemplate.count({
+  //   where: { name, id: { [Op.ne]: id } },
+  // });
 
-  if(conflictingRecords){
-    throw new ValidationError('Template name must be unique')
-  }
-
-  fn(req, res);
-});
+  // if(conflictingRecords){
+  //   throw new ValidationError('Template name must be unique');
+  // }
+//   fn(req, res);
+// });
 
 // TODO: Probably should share the api with the lan server?
 adminRoutes.get('/patientLetterTemplate', simpleGetList('PatientLetterTemplate'));
 
-adminRoutes.post('/patientLetterTemplate', checkUniqueNameAnd(simplePost('PatientLetterTemplate')));
-adminRoutes.put('/patientLetterTemplate', checkUniqueNameAnd(simplePut('PatientLetterTemplate')));
+adminRoutes.post('/patientLetterTemplate',   asyncHandler(async (req, res) => {
+  const { name, id } = req.body;
+  const conflictingRecords = await req.models.PatientLetterTemplate.count({
+    where: { name, id: { [Op.ne]: id } },
+  });
+  
+  if(conflictingRecords){
+    throw new ValidationError('Template name must be unique');
+  }
+  
+  const { models } = req;
+  const object = await models.PatientLetterTemplate.create(req.body);
+  res.send(object);
+}));
+
+adminRoutes.put('/patientLetterTemplate/:id',   asyncHandler(async (req, res) => {
+  const { name, id } = req.body;
+  const conflictingRecords = await req.models.PatientLetterTemplate.count({
+    where: { name, id: { [Op.ne]: id } },
+  });
+
+  if(conflictingRecords){
+    throw new ValidationError('Template name must be unique');
+  }
+
+  const { models, params } = req;
+  const object = await models.PatientLetterTemplate.findByPk(params.id);
+  console.log('object', object, params, req.body);
+  if (!object) throw new NotFoundError();
+  await object.update(req.body);
+  res.send(object);
+}));
+// checkUniqueNameAnd(simplePut('PatientLetterTemplate')));

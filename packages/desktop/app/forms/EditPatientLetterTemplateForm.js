@@ -4,27 +4,32 @@ import styled from 'styled-components';
 
 import { Form, Field, TextField, MultilineTextField } from '../components/Field';
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
-import { Button, ButtonRow, BlankActionRow, OutlinedDeleteButton, OutlinedButton } from '../components';
+import { Button, ButtonRow, BlankModalActionRow, RedOutlinedButton, OutlinedButton } from '../components';
 
-const Gap = styled.div`
-  margin-left: auto;
+const DeleteButton = styled(RedOutlinedButton)`
+  margin-left: 0px !important;
 `;
 
+const Gap = styled.div`
+  margin-left: auto !important;
+`;
+
+// TODO: RedOutlinedButton
 const UneditedActions = ({ onClose, onDelete }) => (
-  <ButtonRow>
-    <OutlinedDeleteButton onClick={onDelete}>Delete</OutlinedDeleteButton>
+  <BlankModalActionRow>
+    <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
     <Gap />
     <Button onClick={onClose}>Close</Button>
-  </ButtonRow>
+  </BlankModalActionRow>
 );
 
 const EditedActions = ({ onClose, onDelete, onSave }) => (
-  <BlankActionRow>
-    <OutlinedDeleteButton onClick={onDelete}>Delete</OutlinedDeleteButton>
+  <BlankModalActionRow>
+    <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
     <Gap />
     <OutlinedButton onClick={onClose}>Cancel</OutlinedButton>
     <Button onClick={onSave}>Save</Button>
-  </BlankActionRow>
+  </BlankModalActionRow>
 );
 
 
@@ -39,10 +44,10 @@ export const EditPatientLetterTemplateForm = memo(({ onSubmit, editedObject, onD
         <Field name="title" label="Title" component={TextField} />
       </FormGrid>
       <SmallGridSpacer />
-      <FormGrid columns={1} nested>
+      <FormGrid columns={1} nested style={{marginBottom: "42px"}}>
         <Field name="body" label="Contents" component={TallMultilineTextField} />
       </FormGrid>
-      {dirty ? <EditedActions onDelete={onDelete} onClose={onClose}/> : <UneditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose}/>}
+      {dirty ? <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose}/> : <UneditedActions onDelete={onDelete} onClose={onClose}/>}
     </>
   );
 

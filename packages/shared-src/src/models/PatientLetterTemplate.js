@@ -48,4 +48,8 @@ export class PatientLetterTemplate extends Model {
       as: 'createdBy',
     });
   }
+
+  static getListReferenceAssociations() {
+    return ['createdBy'];
+  }
 }
