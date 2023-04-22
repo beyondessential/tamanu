@@ -14,7 +14,7 @@ export class PatientLetterTemplate extends Model {
           allowNull: false,
         },
         // TODO: Should this be nullable?
-        date_created: dateType('date_created', {
+        dateCreated: dateType('dateCreated', {
           defaultValue: getCurrentDateString,
         }),
         title: {
@@ -40,5 +40,9 @@ export class PatientLetterTemplate extends Model {
       foreignKey: 'createdById',
       as: 'createdBy',
     });
+  }
+
+  static getListReferenceAssociations() {
+    return ['createdBy'];
   }
 }
