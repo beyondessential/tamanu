@@ -513,7 +513,7 @@ export const fake = (model, passedOverrides = {}) => {
       return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
     }
 
-    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name]?.[fieldName]) {
+    if (type instanceof DataTypes.JSONB && FHIR_MODELS_HANDLERS[model.name][fieldName]) {
       return FHIR_MODELS_HANDLERS[model.name][fieldName](model, attribute, id);
     }
 
