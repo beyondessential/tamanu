@@ -13,7 +13,6 @@ export class PatientLetterTemplate extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        // TODO: Should this be nullable?
         dateCreated: dateType('dateCreated', {
           defaultValue: getCurrentDateString,
         }),
@@ -26,7 +25,7 @@ export class PatientLetterTemplate extends Model {
         visibilityStatus: {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
-        }
+        },
       },
       {
         ...options,
