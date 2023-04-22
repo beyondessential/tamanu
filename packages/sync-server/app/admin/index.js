@@ -3,6 +3,7 @@ import { Op, ValidationError } from 'sequelize';
 
 
 import { ForbiddenError, NotFoundError } from 'shared/errors';
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { simpleGetList, simplePost, simplePut } from 'shared/utils/crudHelpers';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
@@ -84,7 +85,7 @@ adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 // });
 
 // TODO: Probably should share the api with the lan server?
-adminRoutes.get('/patientLetterTemplate', simpleGetList('PatientLetterTemplate'));
+adminRoutes.get('/patientLetterTemplate', simpleGetList('PatientLetterTemplate', null, { additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT }}));
 
 adminRoutes.post('/patientLetterTemplate',   asyncHandler(async (req, res) => {
   const { name, id } = req.body;

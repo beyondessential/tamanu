@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
+import { VISIBILITY_STATUSES } from 'shared/constants';
+
 import { TopBar, PageContainer, ContentPane, DataFetchingTable, DateDisplay } from '../../../components';
 import { Colors } from '../../../constants';
 import { NewTemplateForm } from '../../../forms';
@@ -56,6 +58,17 @@ export const TemplateView = ({ }) => {
     [api, currentUser.id, refreshTable],
   );
 
+  const onDeleteTemplate = useCallback(
+    async () => {
+      await api.put(`${TEMPLATE_ENDPOINT}/${template.id}`, {
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      refreshTable();
+      setEditingTemplate(null);
+    },
+    [api, currentUser.id, refreshTable, template.id],
+  );
+
   // TODO: redundant callback
   const editTemplate = useCallback(
     template => {
@@ -74,7 +87,7 @@ export const TemplateView = ({ }) => {
 
   return (
     <PageContainer>
-      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onSubmit={onEditTemplate} onClose={closeModal} />
+      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onSubmit={onEditTemplate} onClose={closeModal} onDelete={onDeleteTemplate} />
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
