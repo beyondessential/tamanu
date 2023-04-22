@@ -8,17 +8,23 @@ import { Form, Field, TextField, MultilineTextField, SelectField } from '../comp
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../constants';
 
-import { ConfirmCancelRow, ConfirmClearRow } from '../components/ButtonRow';
-import { ButtonRow } from '../components/ButtonRow';
+import { ConfirmCancelRow, ConfirmClearRow , ButtonRow } from '../components/ButtonRow';
 
-const TallMultilineTextField = props =>
-  <MultilineTextField style={{ minHeight: '156px' }} {...props}/>
+const TallMultilineTextField = props => (
+  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
+);
 
 export const NewTemplateForm = memo(({ onSubmit }) => {
   const renderForm = ({ submitForm, resetForm }) => (
     <>
       <FormGrid columns={2}>
-        <Field name="type" label="Type" component={SelectField} options={TEMPLATE_TYPE_OPTIONS} required />
+        <Field
+          name="type"
+          label="Type"
+          component={SelectField}
+          options={TEMPLATE_TYPE_OPTIONS}
+          required
+        />
         <Field name="name" label="Template name" component={TextField} required />
       </FormGrid>
       <SmallGridSpacer />

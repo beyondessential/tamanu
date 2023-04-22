@@ -26,10 +26,8 @@ export const StyledButtonRow = styled(ButtonRow)`
   justify-content: flex-end;
 `;
 
-export const ModalButtonRow = ({ children, ...props}) => (
+export const ModalButtonRow = ({ children, ...props }) => (
   <FullWidthRow>
-    <StyledButtonRow {...props}>
-      {children}
-    </StyledButtonRow>
+    <StyledButtonRow {...props}>{children}</StyledButtonRow>
   </FullWidthRow>
 );

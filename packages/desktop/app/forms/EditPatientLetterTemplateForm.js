@@ -31,35 +31,41 @@ const EditedActions = ({ onClose, onDelete, onSave }) => (
   </ModalButtonRow>
 );
 
+const TallMultilineTextField = props => (
+  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
+);
 
-const TallMultilineTextField = props =>
-  <MultilineTextField style={{ minHeight: '156px' }} {...props}/>
+export const EditPatientLetterTemplateForm = memo(
+  ({ onSubmit, editedObject, onDelete, onClose }) => {
+    const renderForm = ({ submitForm, dirty }) => (
+      <>
+        <FormGrid columns={2}>
+          <Field name="name" label="Template name" component={TextField} required />
+          <Field name="title" label="Title" component={TextField} />
+        </FormGrid>
+        <SmallGridSpacer />
+        <FormGrid columns={1} nested style={{ marginBottom: '42px' }}>
+          <Field name="body" label="Contents" component={TallMultilineTextField} />
+        </FormGrid>
+        {dirty ? (
+          <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose} />
+        ) : (
+          <UneditedActions onDelete={onDelete} onClose={onClose} />
+        )}
+      </>
+    );
 
-export const EditPatientLetterTemplateForm = memo(({ onSubmit, editedObject, onDelete, onClose }) => {
-  const renderForm = ({ submitForm, dirty }) => (
-    <>
-      <FormGrid columns={2}>
-        <Field name="name" label="Template name" component={TextField} required />
-        <Field name="title" label="Title" component={TextField} />
-      </FormGrid>
-      <SmallGridSpacer />
-      <FormGrid columns={1} nested style={{marginBottom: "42px"}}>
-        <Field name="body" label="Contents" component={TallMultilineTextField} />
-      </FormGrid>
-      {dirty ? <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose}/> : <UneditedActions onDelete={onDelete} onClose={onClose}/>}
-    </>
-  );
-
-  return (
-    <Form
-      onSubmit={onSubmit}
-      render={renderForm}
-      initialValues={editedObject}
-      validationSchema={yup.object().shape({
-        name: yup.string().required(),
-        title: yup.string(),
-        body: yup.string(),
-      })}
-    />
-  );
-});
+    return (
+      <Form
+        onSubmit={onSubmit}
+        render={renderForm}
+        initialValues={editedObject}
+        validationSchema={yup.object().shape({
+          name: yup.string().required(),
+          title: yup.string(),
+          body: yup.string(),
+        })}
+      />
+    );
+  },
+);

@@ -46,7 +46,9 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
       throw new Error(
-        `The ${type === SERVER_TYPES.LAN ? 'LAN Server' : type} is unavailable. Please check with your system administrator that the address is set correctly, and that it is running`,
+        `The ${
+          type === SERVER_TYPES.LAN ? 'LAN Server' : type
+        } is unavailable. Please check with your system administrator that the address is set correctly, and that it is running`,
       );
     }
     throw e; // some other unhandled error

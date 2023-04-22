@@ -28,11 +28,12 @@ export const TemplateView = () => {
   const api = useApi();
   const { currentUser } = useAuth();
 
-  const refreshTable = useCallback(() => setRefreshCount(refreshCount => refreshCount + 1), [setRefreshCount]);
+  const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [
+    setRefreshCount,
+  ]);
 
   const createTemplate = useCallback(
     async (data, { resetForm }) => {
-      console.log(data);
       await api.post(TEMPLATE_ENDPOINT, {
         createdById: currentUser.id,
         ...data,
@@ -45,7 +46,6 @@ export const TemplateView = () => {
 
   const onEditTemplate = useCallback(
     async data => {
-      console.log(data);
       await api.put(`${TEMPLATE_ENDPOINT}/${data.id}`, {
         createdById: currentUser.id,
         ...data,
@@ -56,24 +56,27 @@ export const TemplateView = () => {
     [api, currentUser.id, refreshTable],
   );
 
-  const onDeleteTemplate = useCallback(
-    async () => {
-      await api.put(`${TEMPLATE_ENDPOINT}/${editingTemplate.id}`, {
-        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-      });
-      refreshTable();
-      setEditingTemplate(null);
-    },
-    [api, currentUser.id, refreshTable, editingTemplate.id],
-  );
+  const onDeleteTemplate = useCallback(async () => {
+    await api.put(`${TEMPLATE_ENDPOINT}/${editingTemplate.id}`, {
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+    refreshTable();
+    setEditingTemplate(null);
+  }, [api, refreshTable, editingTemplate.id]);
 
   return (
     <PageContainer>
-      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onSubmit={onEditTemplate} onClose={() => setEditingTemplate(null)} onDelete={onDeleteTemplate} />
+      <EditTemplateModal
+        open={!!editingTemplate}
+        template={editingTemplate}
+        onSubmit={onEditTemplate}
+        onClose={() => setEditingTemplate(null)}
+        onDelete={onDeleteTemplate}
+      />
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm onSubmit={createTemplate} refreshTable={refreshTable}/>
+          <NewTemplateForm onSubmit={createTemplate} refreshTable={refreshTable} />
         </ContentContainer>
         <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
       </ContentPane>
