@@ -99,14 +99,6 @@ export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
   color: ${Colors.alert};
 `;
 
-// const StyledOutlinedButton = styled(StyledButton)`
-//   border-color: ${props => props.theme.palette.primary.main};
-// `;
-
-// export const OutlinedButton = props => (
-//   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
-// );
-
 const StyledLargeButton = styled(StyledButton)`
   font-size: 15px;
   line-height: 18px;

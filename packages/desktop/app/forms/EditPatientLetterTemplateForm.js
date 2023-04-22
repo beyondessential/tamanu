@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { Form, Field, TextField, MultilineTextField } from '../components/Field';
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
-import { Button, ButtonRow, BlankModalActionRow, RedOutlinedButton, OutlinedButton } from '../components';
+import { Button, ModalButtonRow, RedOutlinedButton, OutlinedButton } from '../components';
 
 const DeleteButton = styled(RedOutlinedButton)`
   margin-left: 0px !important;
@@ -14,22 +14,21 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
-// TODO: RedOutlinedButton
 const UneditedActions = ({ onClose, onDelete }) => (
-  <BlankModalActionRow>
+  <ModalButtonRow>
     <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
     <Gap />
     <Button onClick={onClose}>Close</Button>
-  </BlankModalActionRow>
+  </ModalButtonRow>
 );
 
 const EditedActions = ({ onClose, onDelete, onSave }) => (
-  <BlankModalActionRow>
+  <ModalButtonRow>
     <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
     <Gap />
     <OutlinedButton onClick={onClose}>Cancel</OutlinedButton>
     <Button onClick={onSave}>Save</Button>
-  </BlankModalActionRow>
+  </ModalButtonRow>
 );
 
 

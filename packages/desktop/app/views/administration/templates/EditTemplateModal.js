@@ -1,6 +1,5 @@
-import React, { useCallback } from 'react';
-import styled from 'styled-components';
-import { ButtonRow, Button, Modal, BlankActionRow, OutlinedDeleteButton, OutlinedButton } from '../../../components';
+import React from 'react';
+import { Modal } from '../../../components';
 import { EditPatientLetterTemplateForm } from '../../../forms';
 
 export const EditTemplateModal = ({ template, onClose, open, onSubmit, onDelete }) => {

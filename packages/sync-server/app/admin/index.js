@@ -72,19 +72,6 @@ adminRoutes.post(
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
-// const checkUniqueNameAnd = fn => asyncHandler(async (req, res) => {
-  // const { name, id } = req.body;
-  // const conflictingRecords = await req.models.PatientLetterTemplate.count({
-  //   where: { name, id: { [Op.ne]: id } },
-  // });
-
-  // if(conflictingRecords){
-  //   throw new ValidationError('Template name must be unique');
-  // }
-//   fn(req, res);
-// });
-
-// TODO: Probably should share the api with the lan server?
 adminRoutes.get('/patientLetterTemplate', simpleGetList('PatientLetterTemplate', null, { additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT }}));
 
 adminRoutes.post('/patientLetterTemplate',   asyncHandler(async (req, res) => {

@@ -17,13 +17,6 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-const lofiCheckPermission = (user) => (noun, verb) => {
-  if (user?.role !== 'admin') {
-    throw new Error('forbidden');
-  }
-}
-
-
 export function createApp(ctx) {
   const { store, emailService } = ctx;
 
@@ -51,7 +44,6 @@ export function createApp(ctx) {
     req.models = store.models;
     req.emailService = emailService;
     req.ctx = ctx;
-    // req.checkPermission = lofiCheckPermission
 
     next();
   });

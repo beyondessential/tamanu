@@ -1,9 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from 'shared/constants';
 
-import { TopBar, PageContainer, ContentPane, DataFetchingTable, DateDisplay } from '../../../components';
+import { TopBar, PageContainer, ContentPane } from '../../../components';
 import { Colors } from '../../../constants';
 import { NewTemplateForm } from '../../../forms';
 import { useApi } from '../../../api';
@@ -21,10 +21,9 @@ const ContentContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-export const TemplateView = ({ }) => {
+export const TemplateView = () => {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
-  const [existingTemplateNames, setExistingTemplateNames] = useState([]);
 
   const api = useApi();
   const { currentUser } = useAuth();
@@ -44,7 +43,6 @@ export const TemplateView = ({ }) => {
     [api, currentUser.id, refreshTable],
   );
 
-  // TODO: NEED to rename
   const onEditTemplate = useCallback(
     async data => {
       console.log(data);
@@ -60,40 +58,24 @@ export const TemplateView = ({ }) => {
 
   const onDeleteTemplate = useCallback(
     async () => {
-      await api.put(`${TEMPLATE_ENDPOINT}/${template.id}`, {
+      await api.put(`${TEMPLATE_ENDPOINT}/${editingTemplate.id}`, {
         visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
       });
       refreshTable();
       setEditingTemplate(null);
     },
-    [api, currentUser.id, refreshTable, template.id],
-  );
-
-  // TODO: redundant callback
-  const editTemplate = useCallback(
-    template => {
-      console.log(template);
-      setEditingTemplate(template)
-    },
-    [setEditingTemplate],
-  );
-
-  const closeModal = useCallback(
-    () => {
-      setEditingTemplate(null)
-    },
-    [setEditingTemplate],
+    [api, currentUser.id, refreshTable, editingTemplate.id],
   );
 
   return (
     <PageContainer>
-      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onSubmit={onEditTemplate} onClose={closeModal} onDelete={onDeleteTemplate} />
+      <EditTemplateModal open={!!editingTemplate} template={editingTemplate} onSubmit={onEditTemplate} onClose={() => setEditingTemplate(null)} onDelete={onDeleteTemplate} />
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
           <NewTemplateForm onSubmit={createTemplate} refreshTable={refreshTable}/>
         </ContentContainer>
-        <TemplateList refreshCount={refreshCount} onRowClick={editTemplate} />
+        <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
       </ContentPane>
     </PageContainer>
   );

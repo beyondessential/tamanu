@@ -1,7 +1,6 @@
-import ms from 'ms';
 import React from 'react';
 
-import { TopBar, PageContainer, DataFetchingTable, DateDisplay } from '../../../components';
+import { DataFetchingTable, DateDisplay } from '../../../components';
 import { TEMPLATE_ENDPOINT } from '../constants';
 
 const getDisplayName = ({ createdBy }) => (createdBy || {}).displayName || 'Unknown';
@@ -38,7 +37,7 @@ export const TemplateList = React.memo(props => (
         title: 'Contents',
       },
     ]}
-    noDataMessage="No data"
+    noDataMessage="No templates found"
     {...props}
   />
 ));

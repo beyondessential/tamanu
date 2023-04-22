@@ -20,7 +20,6 @@ const Row = styled.div`
   }
 `;
 
-
 export const ButtonRow = React.memo(({ children, ...props }) => (
   <Row items={Children.toArray(children).length || 1} {...props}>
     {children}
@@ -52,7 +51,7 @@ export const ConfirmCancelRow = React.memo(
   ),
 );
 
-const Centered = styled.div`
+const CenteredLink = styled(Link)`
   align-self: center;
 `;
 
@@ -66,7 +65,7 @@ export const ConfirmClearRow = React.memo(
     ...props
   }) => (
     <ButtonRow {...props}>
-      {onClear && <Centered><Link onClick={onClear}>Clear</Link></Centered>}
+      {onClear && <CenteredLink onClick={onClear}>Clear</CenteredLink>}
       {onConfirm && (
         <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
           {confirmText}
