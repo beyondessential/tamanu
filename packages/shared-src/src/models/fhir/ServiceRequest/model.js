@@ -2,14 +2,11 @@ import { DataTypes } from 'sequelize';
 
 import { FhirResource } from '../Resource';
 
-import {
-  FHIR_INTERACTIONS,
-  FHIR_SEARCH_PARAMETERS,
-  FHIR_SEARCH_TOKEN_TYPES,
-} from '../../../constants';
+import { FHIR_INTERACTIONS } from '../../../constants';
 import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';
 import { getQueryToFindUpstreamIds } from './getQueryToFindUpstreamIds';
+import { searchParameters } from './searchParameters';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
@@ -76,32 +73,7 @@ export class FhirServiceRequest extends FhirResource {
   static searchParameters() {
     return {
       ...super.searchParameters(),
-      identifier: {
-        type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['identifier', '[]']],
-        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
-      },
-      category: {
-        type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['category', '[]', 'coding', '[]']],
-        tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
-      },
-      intent: {
-        type: FHIR_SEARCH_PARAMETERS.STRING,
-        path: [['intent']],
-      },
-      occurrence: {
-        type: FHIR_SEARCH_PARAMETERS.DATE,
-        path: [['occurrenceDateTime']],
-      },
-      priority: {
-        type: FHIR_SEARCH_PARAMETERS.STRING,
-        path: [['priority']],
-      },
-      status: {
-        type: FHIR_SEARCH_PARAMETERS.STRING,
-        path: [['status']],
-      },
+      ...searchParameters,
     };
   }
 }
