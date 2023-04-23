@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 
-import { SYNC_DIRECTIONS } from '../../constants';
-import { Model } from '../Model';
+import { SYNC_DIRECTIONS } from '../../../constants';
+import { Model } from '../../Model';
 
 export class FhirWriteLog extends Model {
   static init({ primaryKey, ...options }) {
