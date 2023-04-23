@@ -7,16 +7,16 @@ import {
   LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
-import { FhirResource } from './Resource';
+import { FhirResource } from '../Resource';
 import {
   FhirCodeableConcept,
   FhirCoding,
   FhirExtension,
   FhirIdentifier,
   FhirReference,
-} from '../../services/fhirTypes';
-import { latestDateTime } from '../../utils/dateTime';
-import { formatFhirDate } from '../../utils/fhir';
+} from '../../../services/fhirTypes';
+import { latestDateTime } from '../../../utils/dateTime';
+import { formatFhirDate } from '../../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -50,7 +50,7 @@ export class FhirDiagnosticReport extends FhirResource {
       options,
     );
 
-    this.UpstreamModel = models.LabTest;
+    this.UpstreamModels = [models.LabTest];
     this.upstreams = [
       models.LabTest,
       models.LabRequest,
@@ -76,43 +76,46 @@ export class FhirDiagnosticReport extends FhirResource {
       Encounter,
       Patient,
       User,
+      LabTest,
     } = this.sequelize.models;
 
     const labTest = await this.getUpstream({
-      include: [
-        {
-          model: LabRequest,
-          as: 'labRequest',
-          include: [
-            {
-              model: ReferenceData,
-              as: 'laboratory',
-            },
-            {
-              model: Encounter,
-              as: 'encounter',
-              include: [
-                {
-                  model: Patient,
-                  as: 'patient',
-                },
-                {
-                  model: User,
-                  as: 'examiner',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          model: LabTestType,
-          as: 'labTestType',
-        },
-        {
-          model: ReferenceData,
-          as: 'labTestMethod',
-        },
-      ],
+      [LabTest.tableName]: {
+        include: [
+          {
+            model: LabRequest,
+            as: 'labRequest',
+            include: [
+              {
+                model: ReferenceData,
+                as: 'laboratory',
+              },
+              {
+                model: Encounter,
+                as: 'encounter',
+                include: [
+                  {
+                    model: Patient,
+                    as: 'patient',
+                  },
+                  {
+                    model: User,
+                    as: 'examiner',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: LabTestType,
+            as: 'labTestType',
+          },
+          {
+            model: ReferenceData,
+            as: 'labTestMethod',
+          },
+        ],
+      },
     });
 
     const { labTestType, labTestMethod, labRequest } = labTest;
@@ -142,7 +145,7 @@ export class FhirDiagnosticReport extends FhirResource {
     });
   }
 
-  static async queryToFindUpstreamIdsFromTable(table, id) {
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
     const {
       Encounter,
       LabRequest,
@@ -152,6 +155,8 @@ export class FhirDiagnosticReport extends FhirResource {
       ReferenceData,
       User,
     } = this.sequelize.models;
+
+    if (upstreamTable !== LabTest.tableName) return null;
 
     switch (table) {
       case LabTest.tableName:
