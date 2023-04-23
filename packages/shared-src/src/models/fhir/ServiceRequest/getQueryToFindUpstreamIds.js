@@ -1,14 +1,6 @@
 import { Op } from 'sequelize';
 
-export function getQueryToFindUpstreamIds(upstreamTable, models, table, id) {
-  const { ImagingRequest, LabRequest } = models;
-
-  if (upstreamTable === ImagingRequest.tableName) return fromImagingRequests(models, table, id);
-  if (upstreamTable === LabRequest.tableName) return fromLabRequests(models, table, id);
-  return null;
-}
-
-function fromImagingRequests(models, table, id) {
+export function fromImagingRequests(models, table, id) {
   const {
     ImagingRequest,
     ImagingRequestArea,
@@ -174,7 +166,7 @@ function fromImagingRequests(models, table, id) {
   }
 }
 
-function fromLabRequests(models, table, id) {
+export function fromLabRequests(models, table, id) {
   const {
     LabRequest,
     LabTest,

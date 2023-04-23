@@ -5,7 +5,7 @@ import { FhirResource } from '../Resource';
 import { FHIR_INTERACTIONS } from '../../../constants';
 import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';
-import { getQueryToFindUpstreamIds } from './getQueryToFindUpstreamIds';
+import { fromImagingRequests, fromLabRequests } from './getQueryToFindUpstreamIds';
 import { searchParameters } from './searchParameters';
 
 export class FhirServiceRequest extends FhirResource {
@@ -67,7 +67,15 @@ export class FhirServiceRequest extends FhirResource {
   }
 
   static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
-    return getQueryToFindUpstreamIds(upstreamTable, this.sequelize.models, table, id);
+    const { ImagingRequest, LabRequest } = this.sequelize.models;
+
+    if (upstreamTable === ImagingRequest.tableName) {
+      return fromImagingRequests(this.sequelize.models, table, id);
+    }
+    if (upstreamTable === LabRequest.tableName) {
+      return fromLabRequests(this.sequelize.models, table, id);
+    }
+    return null;
   }
 
   static searchParameters() {
