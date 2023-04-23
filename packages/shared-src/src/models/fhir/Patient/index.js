@@ -2,15 +2,15 @@ import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
 import { identity } from 'lodash';
 
-import { FhirResource } from './Resource';
-import { activeFromVisibility } from './utils';
-import { latestDateTime } from '../../utils/dateTime';
+import { FhirResource } from '../Resource';
+import { activeFromVisibility } from '../utils';
+import { latestDateTime } from '../../../utils/dateTime';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
   FHIR_INTERACTIONS,
-} from '../../constants';
+} from '../../../constants';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -18,9 +18,9 @@ import {
   FhirIdentifier,
   FhirPatientLink,
   FhirReference,
-} from '../../services/fhirTypes';
-import { nzEthnicity } from './extensions';
-import { formatFhirDate } from '../../utils/fhir';
+} from '../../../services/fhirTypes';
+import { nzEthnicity } from '../extensions';
+import { formatFhirDate } from '../../../utils/fhir';
 
 export class FhirPatient extends FhirResource {
   static init(options, models) {
@@ -47,7 +47,7 @@ export class FhirPatient extends FhirResource {
       options,
     );
 
-    this.UpstreamModel = models.Patient;
+    this.UpstreamModels = [models.Patient];
     this.upstreams = [models.Patient, models.PatientAdditionalData];
   }
 
@@ -58,16 +58,18 @@ export class FhirPatient extends FhirResource {
   ]);
 
   async updateMaterialisation() {
-    const { PatientAdditionalData } = this.sequelize.models;
+    const { Patient, PatientAdditionalData } = this.sequelize.models;
 
     const upstream = await this.getUpstream({
-      include: [
-        {
-          model: PatientAdditionalData,
-          as: 'additionalData',
-          limit: 1,
-        },
-      ],
+      [Patient.tableName]: {
+        include: [
+          {
+            model: PatientAdditionalData,
+            as: 'additionalData',
+            limit: 1,
+          },
+        ],
+      },
     });
 
     const [first] = upstream.additionalData || [];
@@ -96,8 +98,10 @@ export class FhirPatient extends FhirResource {
     return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
   }
 
-  static async queryToFindUpstreamIdsFromTable(table, id, deletedRow = null) {
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id, deletedRow = null) {
     const { Patient, PatientAdditionalData } = this.sequelize.models;
+
+    if (upstreamTable !== Patient.tableName) return null;
 
     switch (table) {
       case Patient.tableName:

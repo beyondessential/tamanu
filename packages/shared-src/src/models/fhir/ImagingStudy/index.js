@@ -2,12 +2,16 @@ import config from 'config';
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { FhirResource } from './Resource';
+import { FhirResource } from '../Resource';
 
-import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
-import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, IMAGING_REQUEST_STATUS_TYPES } from '../../constants';
-import { Deleted, Invalid } from '../../utils/fhir';
-import { getCurrentDateTimeString, toDateTimeString } from '../../utils/dateTime';
+import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../../services/fhirTypes';
+import {
+  FHIR_INTERACTIONS,
+  FHIR_ISSUE_TYPE,
+  IMAGING_REQUEST_STATUS_TYPES,
+} from '../../../constants';
+import { Deleted, Invalid } from '../../../utils/fhir';
+import { getCurrentDateTimeString, toDateTimeString } from '../../../utils/dateTime';
 
 export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
@@ -26,7 +30,7 @@ export class FhirImagingStudy extends FhirResource {
     );
 
     // it's not materialised yet. TBD in EPI-224
-    this.UpstreamModel = models.ImagingResult;
+    this.UpstreamModels = [models.ImagingResult];
   }
 
   static CAN_DO = new Set([FHIR_INTERACTIONS.TYPE.CREATE]);
@@ -64,13 +68,13 @@ export class FhirImagingStudy extends FhirResource {
     const serviceRequestId = this.basedOn.find(
       ({ params: b }) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.params.system === config.hl7.dataDictionaries.serviceRequestId,
-    )?.params.identifier.params.value;
+        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingId,
+    )?.identifier.value;
     const serviceRequestDisplayId = this.basedOn.find(
       ({ params: b }) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.params.system === config.hl7.dataDictionaries.serviceRequestDisplayId,
-    )?.params.identifier.params.value;
+        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+    )?.identifier.value;
 
     let upstreamRequest;
     if (serviceRequestId) {
