@@ -19,6 +19,17 @@ import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 
+const NEW_ADMINISTERED_VACCINE_VALIDATION_FIELDS = {
+  vaccineName: yup.string().when('category', {
+    is: VACCINE_CATEGORIES.OTHER,
+    then: yup.string().required(),
+  }),
+  scheduledVaccineId: yup.string().when('category', {
+    is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
+    then: yup.string().required(),
+  }),
+};
+
 export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   date: yup.string().required('Date is required'),
   locationId: yup.string().when('givenElsewhere', {
@@ -29,19 +40,13 @@ export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
     is: false,
     then: yup.string().required('Department is required'),
   }),
-  vaccineName: yup.string().when('category', {
-    is: VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
-  }),
-  scheduledVaccineId: yup.string().when('category', {
-    is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
-  }),
 });
 
 export const VaccineForm = ({
   onCancel,
   onSubmit,
+  editMode,
+  currentVaccineRecordValues,
   patientId,
   getScheduledVaccines,
   vaccineRecordingType,
@@ -76,23 +81,25 @@ export const VaccineForm = ({
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    const fetchScheduledVaccines = async () => {
-      if (!category || category === VACCINE_CATEGORIES.OTHER) {
-        setVaccineOptions([]);
-        return;
-      }
-      const availableScheduledVaccines = await getScheduledVaccines({ category });
-      setVaccineOptions(
-        availableScheduledVaccines.map(vaccine => ({
-          label: vaccine.label,
-          value: vaccine.label,
-          schedules: vaccine.schedules,
-        })),
-      );
-    };
+    if(!editMode){
+      const fetchScheduledVaccines = async () => {
+        if (!category || category === VACCINE_CATEGORIES.OTHER) {
+          setVaccineOptions([]);
+          return;
+        }
+        const availableScheduledVaccines = await getScheduledVaccines({ category });
+        setVaccineOptions(
+          availableScheduledVaccines.map(vaccine => ({
+            label: vaccine.label,
+            value: vaccine.label,
+            schedules: vaccine.schedules,
+          })),
+        );
+      };
 
-    fetchScheduledVaccines();
-  }, [category, getScheduledVaccines]);
+      fetchScheduledVaccines();
+    }
+  }, [category, getScheduledVaccines, editMode]);
 
   if (isLoadingCurrentEncounter || isLoadingVaccinationDefaults) {
     return <LoadingIndicator />;
@@ -110,7 +117,7 @@ export const VaccineForm = ({
   return (
     <Form
       onSubmit={data => onSubmit({ ...data, category })}
-      initialValues={{
+      initialValues={!editMode ? {
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults.data?.locationGroupId
@@ -124,17 +131,19 @@ export const VaccineForm = ({
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
           ? VACCINE_GIVEN_INITIAL_VALUES
           : {}),
+      } : {
+        ...currentVaccineRecordValues,
       }}
       validationSchema={BASE_VACCINE_SCHEME_VALIDATION.shape({
-        ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
-          ? VACCINE_GIVEN_VALIDATION_SCHEMA
-          : {}),
+        ...(!editMode && NEW_ADMINISTERED_VACCINE_VALIDATION_FIELDS),
+        ...((vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN) && VACCINE_GIVEN_VALIDATION_SCHEMA),
       })}
       render={({ submitForm, resetForm, values, setValues }) => (
         <VaccineFormComponent
           vaccineRecordingType={vaccineRecordingType}
           submitForm={submitForm}
           resetForm={resetForm}
+          editMode={editMode}
           values={values}
           setValues={setValues}
           vaccineLabel={vaccineLabel}

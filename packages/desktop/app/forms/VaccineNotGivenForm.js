@@ -24,6 +24,7 @@ export const VaccineNotGivenForm = ({
   vaccineLabel,
   vaccineOptions,
   administeredOptions,
+  editMode,   // boolean
   submitForm,
   category,
   scheduleOptions,
@@ -32,18 +33,22 @@ export const VaccineNotGivenForm = ({
   setVaccineLabel,
 }) => (
   <TwoTwoGrid>
-    <CategoryField
-      category={category}
-      setCategory={setCategory}
-      setVaccineLabel={setVaccineLabel}
-    />
+    {
+      !editMode &&
+      <CategoryField
+        category={category}
+        setCategory={setCategory}
+        setVaccineLabel={setVaccineLabel}
+      />
+    }
     {category === VACCINE_CATEGORIES.OTHER ? (
       <>
-        <VaccineNameField />
+        {!editMode && <VaccineNameField />}
 
         <DiseaseField />
       </>
     ) : (
+      !editMode &&
       <>
         <VaccineLabelField
           vaccineLabel={vaccineLabel}
@@ -54,7 +59,7 @@ export const VaccineNotGivenForm = ({
       </>
     )}
 
-    {administeredOptions.length || scheduleOptions.length ? (
+    {!editMode && (administeredOptions.length || scheduleOptions.length) ? (
       <AdministeredVaccineScheduleField
         administeredOptions={administeredOptions}
         scheduleOptions={scheduleOptions}
@@ -78,12 +83,14 @@ export const VaccineNotGivenForm = ({
     <StyledDivider />
 
     <GivenByField label="Supervising clinician" />
-    <RecordedByField />
+
+    {!editMode && <RecordedByField />}
 
     <ConfirmCancelRowField
       onConfirm={submitForm}
       category={category}
       scheduleOptions={scheduleOptions}
+      editMode={editMode}
       onCancel={onCancel}
     />
   </TwoTwoGrid>

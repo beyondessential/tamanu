@@ -43,6 +43,21 @@ const FieldGroup = styled.div`
   padding-top: 20px;
 `;
 
+const FieldsViewer = ({ labelValueFieldGroups }) => (
+  <Container>
+    {labelValueFieldGroups.map(fieldGroup => (
+      <FieldGroup>
+        {fieldGroup.map(({ label, value }) => (
+          <DisplayField>
+            <Label>{label}</Label>
+            {value}
+          </DisplayField>
+        ))}
+      </FieldGroup>
+    ))}
+  </Container>
+);
+
 const ErrorMessage = () => {
   return (
     <Box p={5}>
@@ -54,7 +69,7 @@ const ErrorMessage = () => {
   );
 };
 
-export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
+export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   if (!vaccineRecord) return null;
 
   const {
@@ -110,29 +125,49 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
       fields: [
         [
           fieldObjects.vaccine,
-          fieldObjects.batch,
+          ...(editMode ? [] : [fieldObjects.batch]),
           fieldObjects.schedule,
           fieldObjects.status,
-          fieldObjects.dateGiven,
-          fieldObjects.injectionSite,
+          ...(editMode ? [
+            fieldObjects.recordedBy,
+            fieldObjects.facility,
+          ] : [
+            fieldObjects.dateGiven,
+            fieldObjects.injectionSite
+          ]),
         ],
-        [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
-        [fieldObjects.givenBy, fieldObjects.recordedBy],
+        ...(editMode ? [] : [
+          [
+            fieldObjects.area,
+            fieldObjects.location,
+            fieldObjects.department,
+            fieldObjects.facility
+          ],
+          [fieldObjects.givenBy, fieldObjects.recordedBy],
+        ]),
       ],
     },
     {
       name: 'routineOverseas',
       condition: routine && !notGiven && givenElsewhere,
       fields: [
-        [fieldObjects.status],
+        ...(editMode ? [] : [fieldObjects.status]),
         [
           fieldObjects.vaccine,
-          fieldObjects.batch,
-          fieldObjects.dateGiven,
-          fieldObjects.injectionSite,
+          fieldObjects.schedule,
+          ...(editMode ? [
+            fieldObjects.status,
+            fieldObjects.recordedBy,
+          ] : [
+            fieldObjects.batch,
+            fieldObjects.dateGiven,
+            fieldObjects.injectionSite,
+          ]),
         ],
-        [fieldObjects.country],
-        [fieldObjects.facility, fieldObjects.recordedBy],
+        ...(editMode ? [] : [
+          [fieldObjects.country],
+          [fieldObjects.facility, fieldObjects.recordedBy],
+        ]),
       ],
     },
     {
@@ -141,32 +176,47 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
       fields: [
         [
           fieldObjects.vaccineName,
-          fieldObjects.batch,
-          fieldObjects.vaccineBrand,
-          fieldObjects.disease,
-          fieldObjects.dateGiven,
-          fieldObjects.injectionSite,
+          ...(editMode ? [
+            fieldObjects.facility,
+            fieldObjects.recordedBy,
+          ] : [
+            fieldObjects.batch,
+            fieldObjects.vaccineBrand,
+            fieldObjects.disease,
+            fieldObjects.dateGiven,
+            fieldObjects.injectionSite,
+          ]),
           fieldObjects.status,
         ],
-        [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
-        [fieldObjects.givenBy, fieldObjects.recordedBy],
+        ...(editMode ? [] : [
+          [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
+          [fieldObjects.givenBy, fieldObjects.recordedBy],
+        ]),
       ],
     },
     {
       name: 'otherOverseas',
       condition: !routine && !notGiven && givenElsewhere,
       fields: [
-        [fieldObjects.status],
+        ...(editMode ? [] : [fieldObjects.status]),
         [
           fieldObjects.vaccineName,
-          fieldObjects.batch,
-          fieldObjects.vaccineBrand,
-          fieldObjects.disease,
-          fieldObjects.dateGiven,
-          fieldObjects.injectionSite,
+          ...(editMode ? [
+            fieldObjects.status,
+            fieldObjects.facility,
+            fieldObjects.recordedBy,
+          ] : [
+            fieldObjects.batch,
+            fieldObjects.vaccineBrand,
+            fieldObjects.disease,
+            fieldObjects.dateGiven,
+            fieldObjects.injectionSite,
+          ]),
         ],
-        [fieldObjects.country],
-        [fieldObjects.facility, fieldObjects.recordedBy],
+        ...(editMode ? [] : [
+          [fieldObjects.country],
+          [fieldObjects.facility, fieldObjects.recordedBy],
+        ]),
       ],
     },
     {
@@ -176,12 +226,18 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
         [
           fieldObjects.vaccine,
           fieldObjects.schedule,
-          fieldObjects.reason,
-          fieldObjects.dateRecorded,
+          ...(editMode ? [
+            fieldObjects.recordedBy,
+          ] : [
+            fieldObjects.reason,
+            fieldObjects.dateRecorded,
+          ]),
           fieldObjects.status,
         ],
-        [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
-        [fieldObjects.supervisingClinician, fieldObjects.recordedBy],
+        ...(editMode ? [] : [
+          [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
+          [fieldObjects.supervisingClinician, fieldObjects.recordedBy],
+        ]),
       ],
     },
     {
@@ -190,13 +246,19 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
       fields: [
         [
           fieldObjects.vaccineName,
-          fieldObjects.disease,
-          fieldObjects.reason,
-          fieldObjects.dateRecorded,
+          ...(editMode ? [
+            fieldObjects.recordedBy,
+          ] : [
+            fieldObjects.disease,
+            fieldObjects.reason,
+            fieldObjects.dateRecorded,
+          ]),
           fieldObjects.status,
         ],
-        [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
-        [fieldObjects.supervisingClinician, fieldObjects.recordedBy],
+        ...(editMode ? [] : [
+          [fieldObjects.area, fieldObjects.location, fieldObjects.department, fieldObjects.facility],
+          [fieldObjects.supervisingClinician, fieldObjects.recordedBy],
+        ]),
       ],
     },
   ];
@@ -204,23 +266,21 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
 
   return (
+    modalVersion ? (
+      <FieldsViewer
+        labelValueFieldGroups={modalVersion.fields}
+      />
+    ) : (
+      <ErrorMessage />
+    )
+  );
+};
+
+export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
+  if (!vaccineRecord) return null;
+  return (
     <Modal title="View vaccine record" open={open} onClose={onClose} disableHeaderCloseIcon>
-      {modalVersion ? (
-        <Container>
-          {modalVersion.fields.map(fieldGroup => (
-            <FieldGroup>
-              {fieldGroup.map(({ label, value }) => (
-                <DisplayField>
-                  <Label>{label}</Label>
-                  {value}
-                </DisplayField>
-              ))}
-            </FieldGroup>
-          ))}
-        </Container>
-      ) : (
-        <ErrorMessage />
-      )}
+      <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>
   );
