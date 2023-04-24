@@ -6,10 +6,6 @@ import { honeycombTransport } from './honeycomb';
 
 // defensive destructure to allow for testing shared-src directly
 const { path } = config?.log || {};
-const overridesForCI = !!process.env.CI ? {
-  transports: [],
-  level: 'emerg'
-} : {};
 
 export const log = winston.createLogger({
   level: 'info',
@@ -20,5 +16,4 @@ export const log = winston.createLogger({
     localTransport,
     honeycombTransport,
   ].filter(t => !!t),
-  ...overridesForCI,
 });
