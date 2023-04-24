@@ -1,6 +1,6 @@
 import { last } from 'lodash';
 
-import { MAX_RESOURCES_PER_PAGE } from 'shared/constants';
+import { FHIR_MAX_RESOURCES_PER_PAGE } from 'shared/constants';
 
 import { pushToQuery } from './common';
 import { generateWhereClause } from './where';
@@ -13,7 +13,7 @@ import { generateOrderClause } from './order';
  */
 export function buildSearchQuery(query, parameters, FhirResource) {
   const sql = {
-    limit: MAX_RESOURCES_PER_PAGE,
+    limit: FHIR_MAX_RESOURCES_PER_PAGE,
   };
 
   if (query.has('_sort')) {

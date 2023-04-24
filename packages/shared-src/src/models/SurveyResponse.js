@@ -170,6 +170,10 @@ export class SurveyResponse extends Model {
 
     return newEncounter.update({
       endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
+      systemNote: 'Automatically discharged',
+      discharge: {
+        note: 'Automatically discharged after survey completion',
+      },
     });
   }
 

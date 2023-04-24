@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
+import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useApi, useSuggester } from '../api';
 import { combineQueries } from '../api/combineQueries';
 import { Modal } from './Modal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
 import { useEncounter } from '../contexts/Encounter';
+
+const SECTION_TITLES = {
+  [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'Individual',
+  [LAB_REQUEST_FORM_TYPES.PANEL]: 'Panel',
+};
 
 const useLabRequests = labRequestIds => {
   const api = useApi();
@@ -22,6 +28,7 @@ const useLabRequests = labRequestIds => {
 };
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
+  const [sectionTitle, setSectionTitle] = useState('');
   const api = useApi();
   const { loadEncounter } = useEncounter();
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
@@ -47,10 +54,16 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
     onClose();
   };
 
+  const handleChangeStep = (step, values) => {
+    const { requestFormType } = values;
+    setSectionTitle(step === 0 ? '' : SECTION_TITLES[requestFormType]);
+  };
+
   let ModalBody = (
     <LabRequestMultiStepForm
       isSubmitting={isLoading}
       onSubmit={handleSubmit}
+      onChangeStep={handleChangeStep}
       onCancel={onClose}
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
@@ -69,7 +82,13 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   }
 
   return (
-    <Modal maxWidth="md" title="New lab request" open={open} onClose={handleClose} minHeight={500}>
+    <Modal
+      maxWidth="md"
+      title={`New lab request${sectionTitle ? ` | ${sectionTitle}` : ''}`}
+      open={open}
+      onClose={handleClose}
+      minHeight={500}
+    >
       {ModalBody}
     </Modal>
   );
