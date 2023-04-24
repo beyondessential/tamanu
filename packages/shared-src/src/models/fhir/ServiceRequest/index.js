@@ -1,1 +1,1 @@
-export * from './FhirServiceRequest';
+export { FhirServiceRequest } from './FhirServiceRequest';

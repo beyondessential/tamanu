@@ -1,1 +1,1 @@
-export * from './FhirDiagnosticReport';
+export { FhirDiagnosticReport } from './FhirDiagnosticReport';

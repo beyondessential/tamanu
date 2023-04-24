@@ -1,1 +1,1 @@
-export * from './FhirImagingStudy';
+export { FhirImagingStudy } from './FhirImagingStudy';
