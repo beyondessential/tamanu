@@ -1,4 +1,4 @@
-const common = require('../jest.config.common.js');
+const common = require('../../jest.config.common.js');
 
 module.exports = {
   ...common,
