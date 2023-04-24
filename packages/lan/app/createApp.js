@@ -6,6 +6,7 @@ import path from 'path';
 
 import { SERVER_TYPES } from 'shared/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
+import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
@@ -29,6 +30,7 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
   app.set('trust proxy', config.proxy.trusted);
   app.use(getLoggingMiddleware());
+  app.use(getAuditMiddleware());
 
   app.use((req, res, next) => {
     req.models = models;
