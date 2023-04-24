@@ -20,7 +20,10 @@ import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 
 export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
-  date: yup.string().required('Date is required'),
+  date: yup.string().when('givenElsewhere', {
+    is: false,
+    then: yup.string().required('Date is required'),
+  }),
   locationId: yup.string().when('givenElsewhere', {
     is: false,
     then: yup.string().required('Location is required'),
