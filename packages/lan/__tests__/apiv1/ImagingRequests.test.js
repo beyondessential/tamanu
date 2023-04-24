@@ -1,5 +1,9 @@
+import config from 'config';
 import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { fake } from 'shared/test-helpers/fake';
+
 import { createTestContext } from '../utilities';
 
 describe('Imaging requests', () => {
@@ -236,9 +240,11 @@ describe('Imaging requests', () => {
     // act
     const result = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description',
-      newResultDate: new Date().toISOString(),
-      newResultCompletedById: app.user.dataValues.id,
+      newResult: {
+        description: 'new result description',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
 
     // assert
@@ -262,14 +268,19 @@ describe('Imaging requests', () => {
     // act
     const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description 1',
-      newResultDate: new Date().toISOString(),
-      newResultCompletedById: app.user.dataValues.id,
+      newResult: {
+        description: 'new result description 1',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
     const result2 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
       status: 'completed',
-      newResultDescription: 'new result description 2',
-      newResultDate: new Date().toISOString(),
+      newResult: {
+        description: 'new result description 2',
+        completedAt: getCurrentDateTimeString(),
+        completedById: app.user.dataValues.id,
+      },
     });
 
     // assert
@@ -282,6 +293,35 @@ describe('Imaging requests', () => {
     expect(results.length).toBe(2);
     expect(results[0].description).toBe('new result description 1');
     expect(results[1].description).toBe('new result description 2');
+  });
+
+  it('should create imaging result with description as optional', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+
+    const newResultDate = getCurrentDateTimeString();
+    // act
+    const result1 = await app.put(`/v1/imagingRequest/${ir.id}`).send({
+      status: 'completed',
+      newResult: {
+        completedAt: newResultDate,
+        completedById: app.user.dataValues.id,
+      },
+    });
+
+    // assert
+    expect(result1).toHaveSucceeded();
+
+    const results = await models.ImagingResult.findAll({
+      where: { imagingRequestId: ir.id },
+    });
+    expect(results.length).toBe(1);
+    expect(results[0].completedById).toBe(app.user.dataValues.id);
+    expect(results[0].completedAt).toBe(newResultDate);
   });
 
   it('should query an external provider for imaging results if configured so', async () => {
@@ -325,6 +365,59 @@ describe('Imaging requests', () => {
       completedBy: {
         id: app.user.dataValues.id,
       },
+    });
+  });
+
+  describe('Filtering by allFacilities', () => {
+    const otherFacilityId = 'kerang';
+    const makeRequestAtFacility = async facilityId => {
+      const testLocation = await models.Location.create({
+        ...fake(models.Location),
+        facilityId,
+      });
+      const testEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: testLocation.id,
+        patientId: patient.id,
+      });
+      await models.ImagingRequest.create({
+        encounterId: testEncounter.id,
+        imagingType: IMAGING_TYPES.CT_SCAN,
+        requestedById: app.user.id,
+      });
+    };
+
+    beforeAll(async () => {
+      await models.ImagingRequest.truncate({ cascade: true });
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+    });
+
+    it('should omit external requests when allFacilities is false', async () => {
+      const result = await app.get(`/v1/imagingRequest?allFacilities=false`);
+      expect(result).toHaveSucceeded();
+      result.body.data.forEach(ir => {
+        expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
+      });
+    });
+
+    it('should include all requests when allFacilities is true', async () => {
+      const result = await app.get(`/v1/imagingRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const hasConfigFacility = result.body.data.some(
+        ir => ir.encounter.location.facilityId === config.serverFacilityId,
+      );
+      expect(hasConfigFacility).toBe(true);
+
+      const hasOtherFacility = result.body.data.some(
+        ir => ir.encounter.location.facilityId === otherFacilityId,
+      );
+      expect(hasOtherFacility).toBe(true);
     });
   });
 });

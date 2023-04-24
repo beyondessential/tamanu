@@ -37,6 +37,7 @@ export interface TextFieldProps extends BaseInputProps {
   blurOnSubmit?: boolean;
   inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
+  labelColor?: string;
 }
 
 const styles = StyleSheet.create({
@@ -50,6 +51,7 @@ export const TextField = React.memo(
     value,
     onChange,
     label,
+    labelColor,
     error,
     keyboardType,
     multiline = false,
@@ -111,6 +113,7 @@ export const TextField = React.memo(
               focus={focused}
               onFocus={onFocusLabel}
               isValueEmpty={value !== ''}
+              labelColor={labelColor}
             >
               {label}
             </TextFieldLabel>
