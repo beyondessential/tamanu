@@ -15,6 +15,7 @@ export function findField(Model, field) {
   return field;
 }
 
+/** Push a param to the query map with less boilerplate. @internal utility, do not use outside of search. */
 export function pushToQuery(query, param, value) {
   const insert = query.get(param) ?? [];
   insert.push(value);
