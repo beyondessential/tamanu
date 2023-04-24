@@ -84,7 +84,7 @@ export const VaccineForm = ({
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    if(!editMode){
+    if (!editMode) {
       const fetchScheduledVaccines = async () => {
         if (!category || category === VACCINE_CATEGORIES.OTHER) {
           setVaccineOptions([]);
@@ -120,26 +120,31 @@ export const VaccineForm = ({
   return (
     <Form
       onSubmit={data => onSubmit({ ...data, category })}
-      initialValues={!editMode ? {
-        date: getCurrentDateTimeString(),
-        locationGroupId: !currentEncounter
-          ? vaccinationDefaults.data?.locationGroupId
-          : currentEncounter.location?.locationGroup?.id,
-        locationId: !currentEncounter
-          ? vaccinationDefaults.data?.locationId
-          : currentEncounter.location?.id,
-        departmentId: !currentEncounter
-          ? vaccinationDefaults.data?.departmentId
-          : currentEncounter.department?.id,
-        ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
-          ? VACCINE_GIVEN_INITIAL_VALUES
-          : {}),
-      } : {
-        ...currentVaccineRecordValues,
-      }}
+      initialValues={
+        !editMode
+          ? {
+              date: getCurrentDateTimeString(),
+              locationGroupId: !currentEncounter
+                ? vaccinationDefaults.data?.locationGroupId
+                : currentEncounter.location?.locationGroup?.id,
+              locationId: !currentEncounter
+                ? vaccinationDefaults.data?.locationId
+                : currentEncounter.location?.id,
+              departmentId: !currentEncounter
+                ? vaccinationDefaults.data?.departmentId
+                : currentEncounter.department?.id,
+              ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
+                ? VACCINE_GIVEN_INITIAL_VALUES
+                : {}),
+            }
+          : {
+              ...currentVaccineRecordValues,
+            }
+      }
       validationSchema={BASE_VACCINE_SCHEME_VALIDATION.shape({
         ...(!editMode && NEW_ADMINISTERED_VACCINE_VALIDATION_FIELDS),
-        ...((vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN) && VACCINE_GIVEN_VALIDATION_SCHEMA),
+        ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
+          VACCINE_GIVEN_VALIDATION_SCHEMA),
       })}
       render={({ submitForm, resetForm, values, setValues }) => (
         <VaccineFormComponent

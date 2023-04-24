@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { VACCINE_STATUS } from 'shared/constants/vaccines';
 import { OutlinedButton } from './Button';
-import { MenuButton }from './MenuButton';
+import { MenuButton } from './MenuButton';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { StatusTag } from './Tag';
@@ -44,30 +44,31 @@ const MarginedMenuButton = styled(MenuButton)`
 const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => record => {
   return (
     <ActionButtonsContainer>
-      <OutlinedButton
-        onClick={() => onItemClick(record)}
-      >
-        View
-      </OutlinedButton>
+      <OutlinedButton onClick={() => onItemClick(record)}>View</OutlinedButton>
       <MarginedMenuButton
         iconColor={Colors.primary}
         actions={{
-          'Edit': () => onItemEditClick(record),
-          'Delete': () => onItemDeleteClick(record),
+          Edit: () => onItemEditClick(record),
+          Delete: () => onItemDeleteClick(record),
         }}
       />
     </ActionButtonsContainer>
   );
-}
+};
 
-const columns = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => ([
+const columns = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => [
   { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
   { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
   { key: 'date', title: 'Date', accessor: getDate },
   { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
   { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
-  { key: 'action', title: 'Action', accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }), sortable: false },
-]);
+  {
+    key: 'action',
+    title: 'Action',
+    accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
+    sortable: false,
+  },
+];
 
 const TableHeaderCheckbox = styled(CheckInput)`
   color: ${Colors.darkText};
@@ -84,26 +85,28 @@ const TableHeaderCheckbox = styled(CheckInput)`
   }
 `;
 
-export const ImmunisationsTable = React.memo(({ patient, onItemClick, onItemEditClick, onItemDeleteClick }) => {
-  const [includeNotGiven, setIncludeNotGiven] = useState(false);
+export const ImmunisationsTable = React.memo(
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick }) => {
+    const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
-  const notGivenCheckBox = (
-    <TableHeaderCheckbox
-      label="Include vaccines not given"
-      value={includeNotGiven}
-      onClick={() => setIncludeNotGiven(!includeNotGiven)}
-    />
-  );
+    const notGivenCheckBox = (
+      <TableHeaderCheckbox
+        label="Include vaccines not given"
+        value={includeNotGiven}
+        onClick={() => setIncludeNotGiven(!includeNotGiven)}
+      />
+    );
 
-  return (
-    <DataFetchingTable
-      endpoint={`patient/${patient.id}/administeredVaccines`}
-      initialSort={{ orderBy: 'date', order: 'desc' }}
-      fetchOptions={{ includeNotGiven }}
-      columns={columns({ onItemClick, onItemEditClick, onItemDeleteClick })}
-      optionRow={notGivenCheckBox}
-      // onRowClick={row => onItemClick(row)}
-      noDataMessage="No vaccinations found"
-    />
-  );
-});
+    return (
+      <DataFetchingTable
+        endpoint={`patient/${patient.id}/administeredVaccines`}
+        initialSort={{ orderBy: 'date', order: 'desc' }}
+        fetchOptions={{ includeNotGiven }}
+        columns={columns({ onItemClick, onItemEditClick, onItemDeleteClick })}
+        optionRow={notGivenCheckBox}
+        // onRowClick={row => onItemClick(row)}
+        noDataMessage="No vaccinations found"
+      />
+    );
+  },
+);

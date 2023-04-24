@@ -208,10 +208,18 @@ export const VaccineBrandField = () => (
 
 export const DiseaseField = () => <Field name="disease" label="Disease" component={TextField} />;
 
-export const ConfirmCancelRowField = ({ onConfirm, category, scheduleOptions, onCancel, editMode }) => (
+export const ConfirmCancelRowField = ({
+  onConfirm,
+  category,
+  scheduleOptions,
+  onCancel,
+  editMode,
+}) => (
   <ConfirmCancelRow
     onConfirm={onConfirm}
-    confirmDisabled={category !== VACCINE_CATEGORIES.OTHER && scheduleOptions.length === 0 && !editMode}
+    confirmDisabled={
+      category !== VACCINE_CATEGORIES.OTHER && scheduleOptions.length === 0 && !editMode
+    }
     onCancel={onCancel}
     confirmText={editMode ? 'Save' : undefined}
   />

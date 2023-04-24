@@ -67,7 +67,7 @@ export const VaccineGivenForm = ({
 }) => {
   return (
     <TwoTwoGrid>
-      {!editMode &&
+      {!editMode && (
         <>
           <CategoryField
             category={category}
@@ -105,7 +105,7 @@ export const VaccineGivenForm = ({
             />
           </FullWidthCol>
         </>
-      }
+      )}
       {values.givenElsewhere && (
         <>
           <FullWidthCol>
@@ -130,13 +130,13 @@ export const VaccineGivenForm = ({
         </>
       ) : (
         <>
-          {!editMode &&
+          {!editMode && (
             <VaccineLabelField
               vaccineLabel={vaccineLabel}
               vaccineOptions={vaccineOptions}
               setVaccineLabel={setVaccineLabel}
             />
-          }
+          )}
           <BatchField />
         </>
       )}

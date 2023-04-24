@@ -24,7 +24,7 @@ export const VaccineNotGivenForm = ({
   vaccineLabel,
   vaccineOptions,
   administeredOptions,
-  editMode,   // boolean
+  editMode, // boolean
   submitForm,
   category,
   scheduleOptions,
@@ -33,14 +33,13 @@ export const VaccineNotGivenForm = ({
   setVaccineLabel,
 }) => (
   <TwoTwoGrid>
-    {
-      !editMode &&
+    {!editMode && (
       <CategoryField
         category={category}
         setCategory={setCategory}
         setVaccineLabel={setVaccineLabel}
       />
-    }
+    )}
     {category === VACCINE_CATEGORIES.OTHER ? (
       <>
         {!editMode && <VaccineNameField />}
@@ -48,15 +47,16 @@ export const VaccineNotGivenForm = ({
         <DiseaseField />
       </>
     ) : (
-      !editMode &&
-      <>
-        <VaccineLabelField
-          vaccineLabel={vaccineLabel}
-          vaccineOptions={vaccineOptions}
-          setVaccineLabel={setVaccineLabel}
-        />
-        <br />
-      </>
+      !editMode && (
+        <>
+          <VaccineLabelField
+            vaccineLabel={vaccineLabel}
+            vaccineOptions={vaccineOptions}
+            setVaccineLabel={setVaccineLabel}
+          />
+          <br />
+        </>
+      )
     )}
 
     {!editMode && (administeredOptions.length || scheduleOptions.length) ? (
