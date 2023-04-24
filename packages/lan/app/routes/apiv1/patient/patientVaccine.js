@@ -10,6 +10,7 @@ import {
   SETTING_KEYS,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -155,13 +156,13 @@ patientVaccineRoutes.post(
       } else {
         const newEncounter = await req.models.Encounter.create({
           encounterType: ENCOUNTER_TYPES.CLINIC,
-          startDate: vaccineData.date,
+          startDate: vaccineData.date || getCurrentDateTimeString(),
           patientId,
           examinerId: vaccineData.recorderId,
           locationId,
           departmentId,
         });
-        await newEncounter.update({ endDate: req.body.date });
+        await newEncounter.update({ endDate: vaccineData.date || getCurrentDateTimeString() });
         encounterId = newEncounter.get('id');
       }
 
@@ -193,6 +194,7 @@ patientVaccineRoutes.post(
 
       return req.models.AdministeredVaccine.create({
         ...vaccineData,
+        date: vaccineData.date || getCurrentDateTimeString(),
         encounterId,
       });
     });
