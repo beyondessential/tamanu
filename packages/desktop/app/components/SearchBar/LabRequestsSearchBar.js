@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import {
   DateField,
   SelectField,
@@ -37,7 +38,7 @@ const FacilityCheckbox = styled.div`
   margin-top: 20px;
 `;
 
-export const LabRequestsSearchBar = () => {
+export const LabRequestsSearchBar = ({ excludePublished }) => {
   const {
     showAdvancedFields,
     setShowAdvancedFields,
@@ -126,7 +127,13 @@ export const LabRequestsSearchBar = () => {
           name="status"
           defaultLabel="Status"
           component={SelectField}
-          options={LAB_REQUEST_STATUS_OPTIONS}
+          options={
+            excludePublished
+              ? LAB_REQUEST_STATUS_OPTIONS.filter(
+                  option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
+                )
+              : LAB_REQUEST_STATUS_OPTIONS
+          }
           size="small"
         />
         <FacilityCheckbox>

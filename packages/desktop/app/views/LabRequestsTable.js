@@ -36,7 +36,7 @@ const columns = [
   { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
 ];
 
-export const LabRequestsTable = () => {
+export const LabRequestsTable = ({ excludePublished }) => {
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest();
@@ -58,7 +58,7 @@ export const LabRequestsTable = () => {
       columns={columns}
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
-      fetchOptions={searchParameters}
+      fetchOptions={{ ...searchParameters, excludePublished }}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
     />
   );

@@ -13,8 +13,8 @@ export const LabRequestListingView = React.memo(() => (
     <TopBar title="Active lab requests" />
     <ContentPane>
       <SearchTableTitle>Lab request search</SearchTableTitle>
-      <LabRequestsSearchBar />
-      <LabRequestsTable />
+      <LabRequestsSearchBar excludePublished />
+      <LabRequestsTable excludePublished />
     </ContentPane>
   </PageContainer>
 ));
