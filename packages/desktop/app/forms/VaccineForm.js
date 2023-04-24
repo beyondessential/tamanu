@@ -31,7 +31,10 @@ const NEW_ADMINISTERED_VACCINE_VALIDATION_FIELDS = {
 };
 
 export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
-  date: yup.string().required('Date is required'),
+  date: yup.string().when('givenElsewhere', {
+    is: false,
+    then: yup.string().required('Date is required'),
+  }),
   locationId: yup.string().when('givenElsewhere', {
     is: false,
     then: yup.string().required('Location is required'),

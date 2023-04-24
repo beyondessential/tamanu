@@ -7,16 +7,16 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
 } from 'shared/constants/fhir';
 
-import { FhirResource } from './Resource';
+import { FhirResource } from '../Resource';
 import {
   FhirCodeableConcept,
   FhirCoding,
   FhirReference,
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
-} from '../../services/fhirTypes';
-import { latestDateTime } from '../../utils/dateTime';
-import { formatFhirDate } from '../../utils/fhir';
+} from '../../../services/fhirTypes';
+import { latestDateTime } from '../../../utils/dateTime';
+import { formatFhirDate } from '../../../utils/fhir';
 
 export class FhirImmunization extends FhirResource {
   static init(options, models) {
@@ -47,7 +47,7 @@ export class FhirImmunization extends FhirResource {
       options,
     );
 
-    this.UpstreamModel = models.AdministeredVaccine;
+    this.UpstreamModels = [models.AdministeredVaccine];
     this.upstreams = [
       models.AdministeredVaccine,
       models.Encounter,
@@ -65,35 +65,44 @@ export class FhirImmunization extends FhirResource {
   ]);
 
   async updateMaterialisation() {
-    const { ScheduledVaccine, Encounter, Patient, ReferenceData, User } = this.sequelize.models;
+    const {
+      ScheduledVaccine,
+      Encounter,
+      Patient,
+      ReferenceData,
+      User,
+      AdministeredVaccine,
+    } = this.sequelize.models;
 
     const administeredVaccine = await this.getUpstream({
-      include: [
-        {
-          model: User,
-          as: 'recorder',
-        },
-        {
-          model: ScheduledVaccine,
-          as: 'scheduledVaccine',
-          include: [
-            {
-              model: ReferenceData,
-              as: 'vaccine',
-            },
-          ],
-        },
-        {
-          model: Encounter,
-          as: 'encounter',
-          include: [
-            {
-              model: Patient,
-              as: 'patient',
-            },
-          ],
-        },
-      ],
+      [AdministeredVaccine.tableName]: {
+        include: [
+          {
+            model: User,
+            as: 'recorder',
+          },
+          {
+            model: ScheduledVaccine,
+            as: 'scheduledVaccine',
+            include: [
+              {
+                model: ReferenceData,
+                as: 'vaccine',
+              },
+            ],
+          },
+          {
+            model: Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: Patient,
+                as: 'patient',
+              },
+            ],
+          },
+        ],
+      },
     });
 
     const { encounter, scheduledVaccine, recorder } = administeredVaccine;
@@ -120,7 +129,7 @@ export class FhirImmunization extends FhirResource {
     });
   }
 
-  static async queryToFindUpstreamIdsFromTable(table, id) {
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id) {
     const {
       AdministeredVaccine,
       Encounter,
@@ -129,6 +138,8 @@ export class FhirImmunization extends FhirResource {
       ScheduledVaccine,
       User,
     } = this.sequelize.models;
+
+    if (upstreamTable !== AdministeredVaccine.tableName) return null;
 
     switch (table) {
       case AdministeredVaccine.tableName:

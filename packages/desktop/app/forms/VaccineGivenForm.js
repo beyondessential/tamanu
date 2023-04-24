@@ -3,6 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { VACCINE_CATEGORIES } from 'shared/constants';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
@@ -93,11 +94,12 @@ export const VaccineGivenForm = ({
               onChange={(_e, value) => {
                 const newValues = { ...values };
                 delete newValues.givenBy;
-
                 if (!value) {
                   delete newValues.circumstanceIds;
+                  newValues.date = getCurrentDateTimeString();
+                } else {
+                  delete newValues.date;
                 }
-
                 setValues(newValues);
               }}
             />

@@ -53,6 +53,7 @@ export const NewVaccineTabComponent = ({
         date,
         scheduledVaccine,
         encounter,
+        notGivenReasonId,
         ...otherValues
       } = values;
       const facilityId = await readConfig('facilityId', '');
@@ -75,6 +76,7 @@ export const NewVaccineTabComponent = ({
         scheduledVaccine: scheduledVaccineId,
         recorder: recorderId,
         encounter: vaccineEncounter.id,
+        notGivenReasonId,
       };
 
       // If id exists then it means user is updating an existing vaccine record
@@ -91,12 +93,15 @@ export const NewVaccineTabComponent = ({
           vaccineData.status === VaccineStatus.GIVEN
         ) {
           delete vaccineData.id; // Will creates a new vaccine record if no id supplied
+          delete vaccineData.notGivenReasonId;
           existingVaccine.status = VaccineStatus.HISTORICAL;
           await existingVaccine.save();
         }
       }
 
       const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne(vaccineData);
+
+      const notGivenReason = await models.ReferenceData.findOne({ id: notGivenReasonId });
 
       if (values.administeredVaccine) {
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
@@ -106,7 +111,9 @@ export const NewVaccineTabComponent = ({
               ...updatedVaccine,
               encounter,
               scheduledVaccine,
+              notGivenReason,
             },
+            status: updatedVaccine.status,
           },
         });
       } else {

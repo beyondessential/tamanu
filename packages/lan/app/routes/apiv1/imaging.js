@@ -1,4 +1,5 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
@@ -141,15 +142,7 @@ imagingRequest.put(
       models: { ImagingRequest, ImagingResult },
       params: { id },
       user,
-      body: {
-        areas,
-        note,
-        areaNote,
-        newResultCompletedBy,
-        newResultDate,
-        newResultDescription,
-        ...imagingRequestData
-      },
+      body: { areas, note, areaNote, newResult, ...imagingRequestData },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
 
@@ -215,18 +208,16 @@ imagingRequest.put(
       }
     }
 
-    if (newResultDescription?.length > 0) {
-      const newResult = await ImagingResult.create({
-        description: newResultDescription,
-        completedAt: newResultDate,
-        completedById: newResultCompletedBy,
+    if (newResult?.completedAt) {
+      const imagingResult = await ImagingResult.create({
+        ...newResult,
         imagingRequestId: imagingRequestObject.id,
       });
 
       if (imagingRequestObject.results) {
-        imagingRequestObject.results.push(newResult);
+        imagingRequestObject.results.push(imagingResult);
       } else {
-        imagingRequestObject.results = [newResult];
+        imagingRequestObject.results = [imagingResult];
       }
     }
 
@@ -356,9 +347,22 @@ globalImagingRequests.get(
       association: 'patient',
       where: patientFilters,
     };
+
+    const locationWhere = {
+      where:
+        filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
+          ? {}
+          : { facilityId: { [Op.eq]: config.serverFacilityId } },
+    };
+
+    const location = {
+      association: 'location',
+      ...locationWhere,
+    };
+
     const encounter = {
       association: 'encounter',
-      include: [patient],
+      include: [patient, location],
       required: true,
     };
 
