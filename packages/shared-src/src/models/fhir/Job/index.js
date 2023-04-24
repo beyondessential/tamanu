@@ -2,10 +2,10 @@ import { trace } from '@opentelemetry/api';
 import ms from 'ms';
 import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
 
-import { Model } from '../Model';
-import { SYNC_DIRECTIONS } from '../../constants';
-import { log } from '../../services/logging';
-import { sleepAsync } from '../../utils/sleepAsync';
+import { Model } from '../../Model';
+import { SYNC_DIRECTIONS } from '../../../constants';
+import { log } from '../../../services/logging';
+import { sleepAsync } from '../../../utils/sleepAsync';
 
 export class FhirJob extends Model {
   static init({ primaryKey, ...options }) {

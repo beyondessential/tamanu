@@ -164,7 +164,13 @@ patientVaccineRoutes.post(
           locationId,
           departmentId,
         });
-        await newEncounter.update({ endDate: vaccineData.date || currentDate });
+        await newEncounter.update({
+          endDate: vaccineData.date || currentDate,
+          systemNote: 'Automatically discharged',
+          discharge: {
+            note: 'Automatically discharged after giving vaccine',
+          },
+        });
         encounterId = newEncounter.get('id');
       }
 
