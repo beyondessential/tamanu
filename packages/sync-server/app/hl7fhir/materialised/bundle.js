@@ -11,7 +11,7 @@ export class Bundle {
 
   issues = [];
 
-  /** Set to true if this is a search result bundle. */
+  /** Will be set to true if this is a search result bundle. */
   isSearchResult = false;
 
   constructor(type, resources, options = {}) {
