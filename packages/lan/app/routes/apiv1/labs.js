@@ -177,6 +177,13 @@ labRequest.get(
           };
         },
       ),
+      makeFilter(
+        JSON.parse(filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED),
+        `lab_requests.status != :published`,
+        () => ({
+          [LAB_REQUEST_STATUSES.PUBLISHED]: LAB_REQUEST_STATUSES.PUBLISHED,
+        }),
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
