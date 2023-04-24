@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import {
   AutocompleteField,
   DateTimeField,
@@ -81,7 +81,7 @@ export const LabRequestFormScreen1 = ({
     handleChange(event);
     const isSampleCollected = event.target.value === 'yes';
     if (isSampleCollected) {
-      setFieldValue('sampleTime', getCurrentDateString());
+      setFieldValue('sampleTime', getCurrentDateTimeString());
       setFieldValue('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
     } else {
       setFieldValue('sampleTime', null);
