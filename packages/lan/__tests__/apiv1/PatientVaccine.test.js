@@ -329,5 +329,22 @@ describe('PatientVaccine', () => {
       expect(givenVaccine.status).toEqual(VACCINE_STATUS.GIVEN);
       expect(histocalVaccine.status).toEqual(VACCINE_STATUS.HISTORICAL);
     });
+
+    it('Should assign current date to vaccine date when no date is provided', async () => {
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_STATUS.GIVEN,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        givenBy: 'Clinician',
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+      const encounter = await models.Encounter.findByPk(vaccine.encounterId);
+      expect(vaccine.date).toBeDefined();
+      expect(encounter.startDate).toBeDefined();
+      expect(encounter.endDate).toBeDefined();
+    });
   });
 });

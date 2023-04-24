@@ -149,6 +149,8 @@ patientVaccineRoutes.post(
       locationId = locationId || vaccinationDefaults.locationId;
     }
 
+    const currentDate = getCurrentDateTimeString();
+
     const newAdministeredVaccine = await db.transaction(async () => {
       let encounterId;
       if (existingEncounter) {
@@ -156,13 +158,13 @@ patientVaccineRoutes.post(
       } else {
         const newEncounter = await req.models.Encounter.create({
           encounterType: ENCOUNTER_TYPES.CLINIC,
-          startDate: vaccineData.date || getCurrentDateTimeString(),
+          startDate: vaccineData.date || currentDate,
           patientId,
           examinerId: vaccineData.recorderId,
           locationId,
           departmentId,
         });
-        await newEncounter.update({ endDate: vaccineData.date || getCurrentDateTimeString() });
+        await newEncounter.update({ endDate: vaccineData.date || currentDate });
         encounterId = newEncounter.get('id');
       }
 
@@ -194,7 +196,7 @@ patientVaccineRoutes.post(
 
       return req.models.AdministeredVaccine.create({
         ...vaccineData,
-        date: vaccineData.date || getCurrentDateTimeString(),
+        date: vaccineData.date || currentDate,
         encounterId,
       });
     });
