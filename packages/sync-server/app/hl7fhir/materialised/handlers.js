@@ -1,7 +1,9 @@
 import { Router } from 'express';
 
 import { FHIR_INTERACTIONS } from 'shared/constants';
+import { OperationOutcome } from 'shared/utils/fhir';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
+
 import { log } from 'shared/services/logging';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
@@ -29,6 +31,12 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
     next();
   });
 
+  // eslint-disable-next-line no-unused-vars
+  routes.use((err, _req, res, _next) => {
+    const oo = new OperationOutcome([err]);
+    res.status(oo.status()).send(oo.asFhir());
+  });
+
   if (requireClientHeaders) {
     routes.use(requireClientHeadersMiddleware);
   }
@@ -44,9 +52,6 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
   for (const Resource of resourcesThatCanDo(FHIR_INTERACTIONS.TYPE.CREATE)) {
     routes.post(`/${Resource.fhirName}`, createHandler(Resource));
   }
-
-  // TODO: handle method/route errors with FHIR errors
-  // and/or use a generic FHIR error handler middleware
 
   return routes;
 }
