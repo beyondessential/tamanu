@@ -10,8 +10,6 @@ import { buildSearchQuery } from './query';
 
 export function searchHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    res.header('Content-Type', 'application/fhir+json; fhirVersion=4.3');
-
     try {
       const parameters = normaliseParameters(FhirResource);
       const query = await parseRequest(req, parameters);

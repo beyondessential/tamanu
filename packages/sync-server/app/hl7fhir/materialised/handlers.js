@@ -13,7 +13,7 @@ import { createHandler } from './create';
 export function fhirRoutes({ requireClientHeaders } = {}) {
   const routes = Router();
 
-  routes.use((req, _res, next) => {
+  routes.use((req, res, next) => {
     if (!['HEAD', 'GET'].includes(req.method)) {
       const { FhirWriteLog } = req.store.models;
       setImmediate(async () => {
@@ -25,6 +25,7 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
       }).unref();
     }
 
+    res.header('Content-Type', 'application/fhir+json; fhirVersion=4.3');
     next();
   });
 
