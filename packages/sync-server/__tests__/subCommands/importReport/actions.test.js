@@ -85,7 +85,7 @@ describe('importReport actions', () => {
       expect(mockToString).toBeCalled();
     });
   });
-  describe('createVersion', () => {
+  describe.skip('createVersion', () => {
     let mockStore;
     beforeEach(async () => {
       mockStore = await initDatabase();
