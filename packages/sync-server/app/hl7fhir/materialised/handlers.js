@@ -31,12 +31,6 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
     next();
   });
 
-  // eslint-disable-next-line no-unused-vars
-  routes.use((err, _req, res, _next) => {
-    const oo = new OperationOutcome([err]);
-    res.status(oo.status()).send(oo.asFhir());
-  });
-
   if (requireClientHeaders) {
     routes.use(requireClientHeadersMiddleware);
   }
@@ -52,6 +46,16 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
   for (const Resource of resourcesThatCanDo(FHIR_INTERACTIONS.TYPE.CREATE)) {
     routes.post(`/${Resource.fhirName}`, createHandler(Resource));
   }
+
+  routes.use((err, _req, res, next) => {
+    if (res.headersSent) {
+      next(err);
+      return;
+    }
+
+    const oo = new OperationOutcome([err]);
+    res.status(oo.status()).send(oo.asFhir());
+  });
 
   return routes;
 }
