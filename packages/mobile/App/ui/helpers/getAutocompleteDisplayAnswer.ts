@@ -1,9 +1,10 @@
 import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
+import { MODELS_MAP } from '~/models/modelsMap';
 
 export async function getAutocompleteDisplayAnswer(
-  models,
-  dataElementId,
-  sourceId,
+  models: typeof MODELS_MAP,
+  dataElementId: string,
+  sourceId: string,
 ): Promise<string | null> {
   const autocompleteComponent = await models.SurveyScreenComponent.findOne({
     where: {
