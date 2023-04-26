@@ -129,6 +129,7 @@ export class FhirResource extends Model {
   }
 
   // fetch (single) upstream with query options (e.g. includes)
+  // this implies that the PK on every upstream table is unique across all!
   async getUpstream(queryOptions = {}) {
     let upstream;
     for (const UpstreamModel of this.constructor.UpstreamModels) {
