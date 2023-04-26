@@ -33,10 +33,5 @@ export class LabTestPanel extends Model {
       as: 'labTestTypes',
       foreignKey: 'labTestPanelId',
     });
-
-    this.hasOne(models.LabTestPanelExternalCode, {
-      as: 'labTestPanelExternalCode',
-      foreignKey: 'labTestPanelId',
-    });
   }
 }

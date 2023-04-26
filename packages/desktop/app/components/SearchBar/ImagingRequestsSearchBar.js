@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -6,10 +7,18 @@ import {
   SelectField,
   AutocompleteField,
   DynamicSelectField,
+  Field,
+  CheckField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
+
+const FacilityCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+`;
 
 export const ImagingRequestsSearchBar = ({
   searchParameters,
@@ -115,6 +124,9 @@ export const ImagingRequestsSearchBar = ({
           size="small"
         />
       )}
+      <FacilityCheckbox>
+        <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+      </FacilityCheckbox>
     </CustomisableSearchBar>
   );
 };
