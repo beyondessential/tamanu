@@ -1,19 +1,16 @@
 import express from 'express';
-import { Op, ValidationError } from 'sequelize';
-
+import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError, NotFoundError } from 'shared/errors';
-import { VISIBILITY_STATUSES } from 'shared/constants';
-import { simpleGetList, simplePost, simplePut } from 'shared/utils/crudHelpers';
 import { constructPermission } from 'shared/permissions/middleware';
-import asyncHandler from 'express-async-handler';
-import { createDataImporterEndpoint } from './importerEndpoint';
 
+import { createDataImporterEndpoint } from './importerEndpoint';
 import { programImporter, PERMISSIONS as PROGRAM_PERMISSIONS } from './programImporter';
 import { referenceDataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './referenceDataImporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 
 export const adminRoutes = express.Router();
 
@@ -72,38 +69,6 @@ adminRoutes.post(
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
-adminRoutes.get('/patientLetterTemplate', simpleGetList('PatientLetterTemplate', null, { additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT }}));
 
-adminRoutes.post('/patientLetterTemplate',   asyncHandler(async (req, res) => {
-  const { name, id } = req.body;
-  const conflictingRecords = await req.models.PatientLetterTemplate.count({
-    where: { name, id: { [Op.ne]: id } },
-  });
-  
-  if(conflictingRecords){
-    throw new ValidationError('Template name must be unique');
-  }
-  
-  const { models } = req;
-  const object = await models.PatientLetterTemplate.create(req.body);
-  res.send(object);
-}));
+adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
-adminRoutes.put('/patientLetterTemplate/:id',   asyncHandler(async (req, res) => {
-  const { name, id } = req.body;
-  const conflictingRecords = await req.models.PatientLetterTemplate.count({
-    where: { name, id: { [Op.ne]: id } },
-  });
-
-  if(conflictingRecords){
-    throw new ValidationError('Template name must be unique');
-  }
-
-  const { models, params } = req;
-  const object = await models.PatientLetterTemplate.findByPk(params.id);
-  console.log('object', object, params, req.body);
-  if (!object) throw new NotFoundError();
-  await object.update(req.body);
-  res.send(object);
-}));
-// checkUniqueNameAnd(simplePut('PatientLetterTemplate')));
