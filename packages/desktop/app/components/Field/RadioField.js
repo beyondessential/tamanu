@@ -112,32 +112,35 @@ export const RadioInput = ({
         {...props}
       >
         {options.map(option => (
-          <ControlLabel
-            key={option.value}
-            labelPlacement={option.description ? 'start' : 'end'}
-            control={<Radio value={option.value} selected={value === option.value} />}
-            label={
-              option.description ? (
-                <LabelWithDescription label={option.label} description={option.description} />
-              ) : (
-                option.label
-              )
-            }
-            value={option.value}
-            $fullWidth={fullWidth}
-            selected={value === option.value}
-            style={option.style}
-            theme={
-              option.color
-                ? {
-                    color: { default: Colors.midText, selected: option.color },
-                    background: { default: Colors.white, selected: `${option.color}11` },
-                    border: { default: option.color, selected: option.color },
-                    text: { default: Colors.darkText, selected: Colors.darkestText },
-                  }
-                : DEFAULT_LABEL_THEME
-            }
-          />
+          <>
+            {option.leftOptionalElement ? option.leftOptionalElement : null}
+            <ControlLabel
+              key={option.value}
+              labelPlacement={option.description ? 'start' : 'end'}
+              control={<Radio value={option.value} selected={value === option.value} />}
+              label={
+                option.description ? (
+                  <LabelWithDescription label={option.label} description={option.description} />
+                ) : (
+                  option.label
+                )
+              }
+              value={option.value}
+              $fullWidth={fullWidth}
+              selected={value === option.value}
+              style={option.style}
+              theme={
+                option.color
+                  ? {
+                      color: { default: Colors.midText, selected: option.color },
+                      background: { default: Colors.white, selected: `${option.color}11` },
+                      border: { default: option.color, selected: option.color },
+                      text: { default: Colors.darkText, selected: Colors.darkestText },
+                    }
+                  : DEFAULT_LABEL_THEME
+              }
+            />
+          </>
         ))}
       </StyledRadioGroup>
       {helperText && <FormHelperText>{helperText}</FormHelperText>}

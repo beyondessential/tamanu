@@ -34,11 +34,11 @@ export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   }),
   vaccineName: yup.string().when('category', {
     is: VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
+    then: yup.string().required('Vaccine name is required'),
   }),
   scheduledVaccineId: yup.string().when('category', {
     is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
+    then: yup.string().required('Scheduled vaccine is required'),
   }),
 });
 
@@ -164,10 +164,12 @@ const VaccineFormComponent = ({
   patientId,
   ...props
 }) => {
+  const { setCategory, setVaccineLabel } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
     resetForm();
-
+    setCategory(null);
+    setVaccineLabel(null);
     // we strictly only want to reset the form values when vaccineRecordingType is changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaccineRecordingType]);

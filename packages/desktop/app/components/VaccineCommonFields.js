@@ -32,17 +32,26 @@ export const StyledDivider = styled(Divider)`
   grid-column: 1/-1;
 `;
 
+export const VerticalDivider = styled(Divider)`
+  height: 50px;
+  margin-left: 5px;
+`;
+
 const VACCINE_FIELD_CATEGORY_OPTIONS = [
   ...VACCINE_CATEGORY_OPTIONS.filter(o => o.value !== VACCINE_CATEGORIES.OTHER),
-  { value: VACCINE_CATEGORIES.OTHER, label: 'Other', style: { marginLeft: '15px' } },
+  {
+    value: VACCINE_CATEGORIES.OTHER,
+    label: 'Other',
+    leftOptionalElement: <VerticalDivider orientation="vertical" />,
+    style: { marginLeft: '15px' },
+  },
 ];
 
-export const CategoryField = ({ category, setCategory, setVaccineLabel }) => (
+export const CategoryField = ({ setCategory, setVaccineLabel }) => (
   <FullWidthCol>
     <Field
       name="category"
       label="Category"
-      value={category}
       component={RadioField}
       options={VACCINE_FIELD_CATEGORY_OPTIONS}
       onChange={e => {
@@ -54,11 +63,10 @@ export const CategoryField = ({ category, setCategory, setVaccineLabel }) => (
   </FullWidthCol>
 );
 
-export const VaccineLabelField = ({ vaccineLabel, vaccineOptions, setVaccineLabel }) => (
+export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
   <Field
     name="vaccineLabel"
     label="Vaccine"
-    value={vaccineLabel}
     component={SelectField}
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}

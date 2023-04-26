@@ -35,18 +35,15 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
 };
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup
-    .bool()
-    .oneOf([true])
-    .required('Consent is required'),
+  consent: yup.bool().oneOf([true], 'Consent is required'),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
-    then: yup.string().required(),
+    then: yup.string().required('Country is required'),
   }),
   // will be converted into array of string pre submitting
   circumstanceIds: yup.string().when('givenElsewhere', {
     is: true,
-    then: yup.string().required(),
+    then: yup.string().required('At least 1 circumstance is required'),
   }),
 };
 
