@@ -13,6 +13,7 @@ import {
   OutlinedButton,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { useLabRequestNotes } from '../../../api/queries';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -115,7 +116,9 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
   });
 
   // All the lab requests were made in a batch and have the same details
-  const { sampleTime, requestedDate, requestedBy, department, priority, site } = labRequests[0];
+  const { id, sampleTime, requestedDate, requestedBy, department, priority, site } = labRequests[0];
+
+  const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(id);
 
   return (
     <Container>
@@ -153,12 +156,19 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
           open={isOpen === MODALS.LABEL_PRINT}
           onClose={() => setIsOpen(false)}
         />
-        <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.PRINT)}>
+        <OutlinedButton
+          disabled={areNotesLoading}
+          size="small"
+          onClick={() => setIsOpen(MODALS.PRINT)}
+        >
           Print request
         </OutlinedButton>
         <MultipleLabRequestsPrintoutModal
           encounter={encounter}
-          labRequests={selectedRows}
+          labRequests={selectedRows.map(row => ({
+            ...row,
+            notePages,
+          }))}
           open={isOpen === MODALS.PRINT}
           onClose={() => setIsOpen(false)}
         />

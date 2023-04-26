@@ -151,7 +151,7 @@ export const LabRequestView = () => {
         <Tile
           Icon={() => <img src={TestCategoryIcon} alt="test category" />}
           text="Test Category"
-          main={labRequest.category?.name}
+          main={labRequest.category?.name || '-'}
         />
         <Tile
           Icon={Timelapse}
@@ -198,7 +198,7 @@ export const LabRequestView = () => {
         <Tile
           Icon={Business}
           text="Laboratory"
-          main={(labRequest.laboratory || {}).name || 'Unknown'}
+          main={labRequest.laboratory?.name || '-'}
           isReadOnly={isReadOnly}
           actions={{
             'Change laboratory': () => {
@@ -209,7 +209,7 @@ export const LabRequestView = () => {
         <Tile
           Icon={AssignmentLate}
           text="Priority"
-          main={(labRequest.priority || {}).name || 'Unknown'}
+          main={labRequest.priority?.name || '-'}
           isReadOnly={isReadOnly}
           actions={{
             'Change priority': () => {
