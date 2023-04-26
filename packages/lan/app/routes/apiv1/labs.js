@@ -169,11 +169,13 @@ labRequest.get(
         () => ({ facilityId: config.serverFacilityId }),
       ),
       makeFilter(
-        filterParams.completed,
-        `lab_tests.completed_date::date = :completed`,
-        ({ completed }) => ({
-          completed: toDateTimeString(startOfDay(new Date(completed))),
-        }),
+        filterParams.publishedDate,
+        `lab_requests.published_date LIKE :publishedDate`,
+        ({ publishedDate }) => {
+          return {
+            publishedDate: `${publishedDate}%`,
+          };
+        },
       ),
     ].filter(f => f);
 
@@ -203,18 +205,9 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-        ${
-          filterParams.publishedLabRequestScreen
-            ? `LEFT JOIN (
-          SELECT lab_request_id, max(completed_date) AS completed_date
-          FROM lab_tests
-          GROUP BY lab_request_id
-        ) AS lab_tests
-          ON lab_requests.id = lab_tests.lab_request_id`
-            : ''
-        }
-      ${whereClauses && `WHERE ${whereClauses}`}
+        ${whereClauses && `WHERE ${whereClauses}`}
     `;
+
     const filterReplacements = filters
       .filter(f => f.transform)
       .reduce(
@@ -248,7 +241,7 @@ labRequest.get(
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
       status: 'status',
-      completed: 'lab_requests.completed',
+      publishedDate: 'published_date',
     };
 
     const sortKey = sortKeys[orderBy];
@@ -271,17 +264,8 @@ labRequest.get(
           priority.name AS priority_name,
           lab_test_panel.name as lab_test_panel_name,
           laboratory.id AS laboratory_id,
-<<<<<<< HEAD
           laboratory.name AS laboratory_name,
           location.facility_id AS facility_id
-=======
-          laboratory.name AS laboratory_name
-          ${
-            filterParams.publishedLabRequestScreen
-              ? ', lab_tests.completed_date as completed_date'
-              : ''
-          }
->>>>>>> b47539af5 (NASS-657: Published lab requests)
         ${from}
         
         ORDER BY ${sortKey} ${sortDirection}

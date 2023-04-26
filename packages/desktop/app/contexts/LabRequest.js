@@ -1,4 +1,6 @@
 import React, { useContext, createContext, useState, useCallback, useEffect } from 'react';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { format } from 'shared/utils/dateTime';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -56,6 +58,10 @@ export const LabRequestProvider = ({ children }) => {
     if (data.status) {
       update.userId = api.user.id;
     }
+    if (data.status === LAB_REQUEST_STATUSES.PUBLISHED) {
+      update.publishedDate = format(new Date(), 'yyyy-MM-dd HH:mm');
+    }
+
     await api.put(`labRequest/${labRequestId}`, update);
     await loadLabRequest(labRequestId);
   };

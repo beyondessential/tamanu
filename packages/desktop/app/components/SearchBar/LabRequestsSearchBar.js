@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-<<<<<<< HEAD
 import styled from 'styled-components';
-=======
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
->>>>>>> b47539af5 (NASS-657: Published lab requests)
 import {
   DateField,
   SelectField,
@@ -16,7 +13,6 @@ import {
   AutocompleteField,
   CheckField,
 } from '../Field';
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest, LabRequestKeys } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
@@ -93,7 +89,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             />
           )}
           {publishedStatus && (
-            <Field name="completed" label="Completed" saveDateAsString component={DateField} />
+            <Field name="publishedDate" label="Published" saveDateAsString component={DateField} />
           )}
           {!publishedStatus && (
             <LocalisedField
@@ -104,6 +100,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
               size="small"
             />
           )}
+          <FacilityCheckbox>
+            <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+          </FacilityCheckbox>
         </>
       }
     >
@@ -155,11 +154,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             options={LAB_REQUEST_STATUS_OPTIONS}
             size="small"
           />
-        )}        
-        <FacilityCheckbox>
-          <Field name="allFacilities" label="Include all facilities" component={CheckField} />
-        </FacilityCheckbox>
-
+        )}
       </>
     </CustomisableSearchBar>
   );

@@ -15,7 +15,7 @@ import {
   getPriority,
   getDateTime,
   getRequestId,
-  getCompletedDate,
+  getPublishedDate,
 } from '../utils/lab';
 
 export const LabRequestsTable = ({ status = '' }) => {
@@ -39,7 +39,7 @@ export const LabRequestsTable = ({ status = '' }) => {
       { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
       { key: 'requestedBy', title: 'Requested by', accessor: getRequestedBy },
       !publishedStatus && { key: 'priority', title: 'Priority', accessor: getPriority },
-      publishedStatus && { key: 'completed', title: 'Completed', accessor: getCompletedDate },
+      publishedStatus && { key: 'publishedDate', title: 'Published', accessor: getPublishedDate },
       { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
     ];
   }, [publishedStatus]);
