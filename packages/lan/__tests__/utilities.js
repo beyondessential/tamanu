@@ -11,7 +11,7 @@ import {
   seedLocationGroups,
   seedLabTests,
 } from 'shared/demoData';
-import { showError } from 'shared/test-helpers';
+import { fake, showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -158,6 +158,23 @@ export async function createTestContext() {
     });
 
     return baseApp.asUser(newUser);
+  };
+
+  baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
+    const { Role, Permission } = models;
+    const role = await Role.create(fake(Role), roleOverrides);
+    const app = await baseApp.asRole(role.id);
+    app.role = role;
+    await Permission.bulkCreate(
+      permissions.map(([verb, noun, objectId]) => ({
+        roleId: role.id,
+        userId: app.user.id,
+        verb,
+        noun,
+        objectId,
+      })),
+    );
+    return app;
   };
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy

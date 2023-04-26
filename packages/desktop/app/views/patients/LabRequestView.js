@@ -18,6 +18,7 @@ import {
   OutlinedButton,
   TileTag,
   SmallBodyText,
+  MODAL_TRANSITION_DURATION,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -47,7 +48,7 @@ const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
 
-const MODALS = {
+const MODAL_IDS = {
   CHANGE_STATUS: 'changeStatus',
   VIEW_STATUS_LOG: 'viewStatusLog',
   RECORD_SAMPLE: 'recordSample',
@@ -58,30 +59,53 @@ const MODALS = {
   CANCEL: 'cancel',
 };
 
-const Menu = ({ setModal, status }) => {
+const MODALS = {
+  [MODAL_IDS.CHANGE_STATUS]: LabRequestChangeStatusModal,
+  [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
+  [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
+  [MODAL_IDS.PRINT]: LabRequestPrintModal,
+  [MODAL_IDS.LABEL_PRINT]: ({ labRequest, ...props }) => (
+    <LabRequestPrintLabelModal {...props} labRequests={[labRequest]} />
+  ),
+  [MODAL_IDS.CHANGE_LABORATORY]: LabRequestChangeLabModal,
+  [MODAL_IDS.CHANGE_PRIORITY]: LabRequestChangePriorityModal,
+  [MODAL_IDS.CANCEL]: LabRequestCancelModal,
+};
+
+const Menu = ({ setModal, status, disabled }) => {
   const menuActions = {
     'Print label': () => {
-      setModal(MODALS.LABEL_PRINT);
+      setModal(MODAL_IDS.LABEL_PRINT);
     },
   };
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions['Cancel request'] = () => {
-      setModal(MODALS.CANCEL);
+      setModal(MODAL_IDS.CANCEL);
     };
   }
-  return <MenuButton status={status} actions={menuActions} />;
+  return <MenuButton disabled={disabled} status={status} actions={menuActions} />;
 };
 
 export const LabRequestView = () => {
   const query = useUrlSearchParams();
   const { ability } = useAuth();
-  const [modal, setModal] = useState(query.get('modal'));
+  const [modalId, setModalId] = useState(query.get('modal'));
+  const [modalOpen, setModalOpen] = useState(false);
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
 
   const closeModal = () => {
-    setModal(null);
+    setModalOpen(false);
+    /**
+     * Wait for close animation to finish this is somewhat of a hack to
+     * get around the issue of the modal contents mounting vanishing before
+     * the closing animation is complete.
+     * @see NASS-745 https://linear.app/bes/issue/NASS-745/contents-of-modals-mount-in-a-weird-way-that-is-causing-issues
+     */
+    setTimeout(() => {
+      setModalId(null);
+    }, MODAL_TRANSITION_DURATION);
   };
 
   const patient = useSelector(state => state.patient);
@@ -91,15 +115,23 @@ export const LabRequestView = () => {
     navigateToLabRequest(labRequest.id);
   };
 
+  const handleChangeModalId = id => {
+    setModalId(id);
+    setModalOpen(true);
+  };
+
   if (isLoading) return <LoadingIndicator />;
 
   const canWriteLabRequest = ability.can('write', 'LabRequest');
   const canWriteLabTest = ability.can('write', 'LabTest');
 
-  const areLabRequestsReadOnly = !canWriteLabRequest || HIDDEN_STATUSES.includes(labRequest.status);
-  const areLabTestsReadOnly = !canWriteLabTest || HIDDEN_STATUSES.includes(labRequest.status);
+  const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
+  const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
+  const areLabTestsReadOnly = !canWriteLabTest || isHidden;
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
+
+  const ActiveModal = MODALS[modalId] || null;
 
   return (
     <Container>
@@ -110,13 +142,14 @@ export const LabRequestView = () => {
         actions={
           <Box display="flex" alignItems="center">
             <OutlinedButton
+              disabled={isHidden}
               onClick={() => {
-                setModal(MODALS.PRINT);
+                handleChangeModalId(MODAL_IDS.PRINT);
               }}
             >
               Print request
             </OutlinedButton>
-            <Menu setModal={setModal} status={labRequest.status} />
+            <Menu setModal={handleChangeModalId} status={labRequest.status} disabled={isHidden} />
           </Box>
         }
       />
@@ -125,7 +158,7 @@ export const LabRequestView = () => {
         <Tile
           Icon={() => <img src={TestCategoryIcon} alt="test category" />}
           text="Test Category"
-          main={labRequest.category?.name}
+          main={labRequest.category?.name || '-'}
         />
         <Tile
           Icon={Timelapse}
@@ -135,19 +168,21 @@ export const LabRequestView = () => {
               {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
             </TileTag>
           }
-          isReadOnly={areLabRequestsReadOnly}
           actions={{
-            'Change status': () => {
-              setModal(MODALS.CHANGE_STATUS);
-            },
+            ...(!areLabRequestsReadOnly && {
+              'Change status': () => {
+                handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+              },
+            }),
             'View status log': () => {
-              setModal(MODALS.VIEW_STATUS_LOG);
+              handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
             },
           }}
         />
         <Tile
           Icon={() => <img src={BeakerIcon} alt="beaker" />}
           text="Sample collected"
+          isReadOnly={areLabRequestsReadOnly}
           main={
             <>
               <DateDisplay date={labRequest.sampleTime} showTime />
@@ -159,90 +194,53 @@ export const LabRequestView = () => {
               </Box>
             </>
           }
-          isReadOnly={areLabRequestsReadOnly}
           actions={{
             [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
               ? 'Record sample'
               : 'Edit']: () => {
-              setModal(MODALS.RECORD_SAMPLE);
+              handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
             },
           }}
         />
         <Tile
           Icon={Business}
           text="Laboratory"
-          main={(labRequest.laboratory || {}).name || 'Unknown'}
+          main={labRequest.laboratory?.name || '-'}
           isReadOnly={areLabRequestsReadOnly}
           actions={{
             'Change laboratory': () => {
-              setModal(MODALS.CHANGE_LABORATORY);
+              handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY);
             },
           }}
         />
         <Tile
           Icon={AssignmentLate}
           text="Priority"
-          main={(labRequest.priority || {}).name || 'Unknown'}
+          main={labRequest.priority?.name || '-'}
           isReadOnly={areLabRequestsReadOnly}
           actions={{
             'Change priority': () => {
-              setModal(MODALS.CHANGE_PRIORITY);
+              handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY);
             },
           }}
         />
       </TileContainer>
       <Rule />
+
       <LabRequestResultsTable
         labRequest={labRequest}
         patient={patient}
         isReadOnly={areLabTestsReadOnly}
       />
-      <LabRequestChangeStatusModal
-        labRequest={labRequest}
-        updateLabReq={updateLabReq}
-        open={modal === MODALS.CHANGE_STATUS}
-        onClose={closeModal}
-      />
-      <LabRequestPrintModal
-        labRequest={labRequest}
-        patient={patient}
-        open={modal === MODALS.PRINT}
-        onClose={closeModal}
-      />
-      <LabRequestPrintLabelModal
-        labRequests={[labRequest]}
-        open={modal === MODALS.LABEL_PRINT}
-        onClose={closeModal}
-      />
-      <LabRequestChangeLabModal
-        labTestLaboratoryId={labRequest.laboratory?.id}
-        updateLabReq={updateLabReq}
-        open={modal === MODALS.CHANGE_LABORATORY}
-        onClose={closeModal}
-      />
-      <LabRequestRecordSampleModal
-        updateLabReq={updateLabReq}
-        labRequest={labRequest}
-        open={modal === MODALS.RECORD_SAMPLE}
-        onClose={closeModal}
-      />
-      <LabRequestCancelModal
-        updateLabReq={updateLabReq}
-        labRequestId={labRequest.id}
-        open={modal === MODALS.CANCEL}
-        onClose={closeModal}
-      />
-      <LabRequestLogModal
-        labRequest={labRequest}
-        open={modal === MODALS.VIEW_STATUS_LOG}
-        onClose={closeModal}
-      />
-      <LabRequestChangePriorityModal
-        priority={labRequest.labTestPriorityId}
-        updateLabReq={updateLabReq}
-        open={modal === MODALS.CHANGE_PRIORITY}
-        onClose={closeModal}
-      />
+      {modalId && (
+        <ActiveModal
+          labRequest={labRequest}
+          patient={patient}
+          updateLabReq={updateLabReq}
+          open={modalOpen}
+          onClose={closeModal}
+        />
+      )}
     </Container>
   );
 };

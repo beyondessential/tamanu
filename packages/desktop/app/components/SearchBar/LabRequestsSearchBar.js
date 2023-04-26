@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
+import styled from 'styled-components';
 import {
   DateField,
   SelectField,
@@ -9,7 +9,9 @@ import {
   SearchField,
   DisplayIdField,
   AutocompleteField,
+  CheckField,
 } from '../Field';
+import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
@@ -29,6 +31,12 @@ const useAdvancedFields = advancedFields => {
 
 const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'laboratory', 'priority'];
 
+const FacilityCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+`;
+
 export const LabRequestsSearchBar = () => {
   const {
     showAdvancedFields,
@@ -40,9 +48,11 @@ export const LabRequestsSearchBar = () => {
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
+
   return (
     <CustomisableSearchBar
-      initialValues={{ displayIdExact: true, ...searchParameters }}
+      initialValues={searchParameters}
+      staticValues={{ displayIdExact: true }}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
@@ -119,6 +129,9 @@ export const LabRequestsSearchBar = () => {
           options={LAB_REQUEST_STATUS_OPTIONS}
           size="small"
         />
+        <FacilityCheckbox>
+          <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+        </FacilityCheckbox>
       </>
     </CustomisableSearchBar>
   );
