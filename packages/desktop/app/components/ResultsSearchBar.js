@@ -22,7 +22,7 @@ const Fields = styled.div`
 `;
 
 export const ResultsSearchBar = React.memo(
-  ({ setSearchParameters, searchParameters, patientId }) => {
+  ({ setSearchParameters, searchParameters, patientId, disabled }) => {
     const panelSuggester = useSuggester('patientLabTestPanelTypes', {
       baseQueryParameters: { patientId },
     });
@@ -36,6 +36,7 @@ export const ResultsSearchBar = React.memo(
           <AutocompleteInput
             name="category"
             label="Test category"
+            disabled={disabled}
             suggester={categorySuggester}
             value={searchParameters.categoryId}
             onChange={event => {
@@ -45,6 +46,7 @@ export const ResultsSearchBar = React.memo(
           <AutocompleteInput
             name="panel"
             label="Test panel"
+            disabled={disabled}
             value={searchParameters.panelId}
             suggester={panelSuggester}
             onChange={event => {

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { usePatientLabTestResults } from '../../api/queries/usePatientLabTestResults';
 import { Table } from '../../components/Table';
 import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
@@ -73,8 +72,6 @@ const StyledTable = styled(Table)`
   }
 `;
 
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
-
 const CategoryCell = styled.div`
   font-weight: 500;
   color: ${props => props.theme.palette.text.secondary};
@@ -92,99 +89,94 @@ const StyledButton = styled(Button)`
   border-radius: 0;
 `;
 
-export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-  const { data, isLoading } = usePatientLabTestResults(patient.id, {
-    page,
-    rowsPerPage,
-    ...searchParameters,
-  });
-  const [modalLabTestId, setModalLabTestId] = useState();
-  const [modalOpen, setModalOpen] = useState(false);
-  const openModal = id => {
-    if (id) {
-      setModalLabTestId(id);
-      setModalOpen(true);
-    }
-  };
+export const PatientLabTestsTable = React.memo(
+  ({ patient, setRowsPerPage, setPage, page, rowsPerPage, labTests = [], count, isLoading }) => {
+    const [modalLabTestId, setModalLabTestId] = useState();
+    const [modalOpen, setModalOpen] = useState(false);
+    const openModal = id => {
+      if (id) {
+        setModalLabTestId(id);
+        setModalOpen(true);
+      }
+    };
 
-  const allDates = isLoading
-    ? []
-    : Object.keys(Object.assign({}, ...data?.data.map(x => x.results)));
-  const columns = [
-    {
-      key: 'testCategory.id',
-      title: 'Test category',
-      accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
-    },
-    {
-      key: 'testType',
-      title: 'Test type',
-      accessor: row => (
-        <CategoryCell>
-          {row.testType}
-          <br />
-          {row.unit ? `(${row.unit})` : null}
-        </CategoryCell>
-      ),
-    },
-    {
-      key: 'normalRange',
-      title: 'Normal range',
-      accessor: row => {
-        const range = row.normalRanges[patient?.sex];
-        const value = !range.min ? '-' : `${range.min}-${range.max}`;
-        return <CategoryCell>{value}</CategoryCell>;
+    const allDates = isLoading
+      ? []
+      : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
+    const columns = [
+      {
+        key: 'testCategory.id',
+        title: 'Test category',
+        accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
       },
-    },
-    ...allDates
-      .sort((a, b) => b.localeCompare(a))
-      .map(date => ({
-        title: <DateHeadCell value={date} />,
-        sortable: false,
-        key: date,
+      {
+        key: 'testType',
+        title: 'Test type',
+        accessor: row => (
+          <CategoryCell>
+            {row.testType}
+            <br />
+            {row.unit ? `(${row.unit})` : null}
+          </CategoryCell>
+        ),
+      },
+      {
+        key: 'normalRange',
+        title: 'Normal range',
         accessor: row => {
-          const normalRange = row.normalRanges[patient?.sex];
-          const cellData = row.results[date];
-          if (cellData) {
-            return (
-              <StyledButton onClick={() => openModal(cellData.id)}>
-                <RangeValidatedCell
-                  value={cellData.result}
-                  config={{ unit: row.unit }}
-                  validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-                />
-              </StyledButton>
-            );
-          }
-
-          return '-';
+          const range = row.normalRanges[patient?.sex];
+          const value = !range.min ? '-' : `${range.min}-${range.max}`;
+          return <CategoryCell>{value}</CategoryCell>;
         },
-      })),
-  ];
+      },
+      ...allDates
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: <DateHeadCell value={date} />,
+          sortable: false,
+          key: date,
+          accessor: row => {
+            const normalRange = row.normalRanges[patient?.sex];
+            const cellData = row.results[date];
+            if (cellData) {
+              return (
+                <StyledButton onClick={() => openModal(cellData.id)}>
+                  <RangeValidatedCell
+                    value={cellData.result}
+                    config={{ unit: row.unit }}
+                    validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                  />
+                </StyledButton>
+              );
+            }
 
-  return (
-    <>
-      <StyledTable
-        elevated={false}
-        columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onChangeRowsPerPage={setRowsPerPage}
-        onChangePage={setPage}
-        count={data?.count}
-        allowExport
-        exportName="PatientResults"
-      />
-      <LabTestResultModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        labTestId={modalLabTestId}
-      />
-    </>
-  );
-});
+            return '-';
+          },
+        })),
+    ];
+
+    return (
+      <>
+        <StyledTable
+          elevated={false}
+          columns={columns}
+          data={labTests}
+          isLoading={isLoading}
+          noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onChangeRowsPerPage={setRowsPerPage}
+          onChangePage={setPage}
+          count={count}
+          allowExport
+          exportName="PatientResults"
+        />
+        <LabTestResultModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          labTestId={modalLabTestId}
+        />
+      </>
+    );
+  },
+);

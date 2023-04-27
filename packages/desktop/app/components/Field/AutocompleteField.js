@@ -32,6 +32,10 @@ const SuggestionsList = styled(Paper)`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
 
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+
   .react-autosuggest__suggestions-list {
     margin: 0;
     padding: 0;

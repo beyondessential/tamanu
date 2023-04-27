@@ -5,6 +5,7 @@ import { DataFetchingTable, Modal } from '../../../components';
 import { ManualLabResultForm } from '../../../forms/ManualLabResultForm';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
+import { LabTestResultModal } from '../LabTestResultModal';
 
 const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly }) => {
   const { updateLabTest, labRequest } = useLabRequest();
@@ -25,12 +26,16 @@ const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly })
     [labRequest, labTest, onClose, updateLabTest, navigateToLabRequest],
   );
 
+  if (isReadOnly) {
+    return <LabTestResultModal labTestId={labTest?.id} onClose={onClose} open={open} />;
+  }
+
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
-        labRequest.displayId}`}
+      title={`${isReadOnly ? '' : 'Enter result – '}${labTest &&
+        labTest.labTestType.name} | Test ID ${labRequest && labRequest.displayId}`}
     >
       <ManualLabResultForm
         labTest={labTest}

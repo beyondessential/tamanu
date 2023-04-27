@@ -51,6 +51,18 @@ export const StyledTextField = styled(MuiTextField)`
     margin: 4px 2px 2px;
   }
 
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+
+  .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+
+  .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+
   // Hover state
   .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
     border-color: ${props => props.theme.palette.grey['400']};
