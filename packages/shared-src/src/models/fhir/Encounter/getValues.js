@@ -1,8 +1,8 @@
 import config from 'config';
+import { addSeconds, parseISO } from 'date-fns';
 
 import {
   ENCOUNTER_TYPES,
-  FHIR_DATETIME_PRECISION,
   FHIR_ENCOUNTER_CLASS_CODE,
   FHIR_ENCOUNTER_CLASS_DISPLAY,
   FHIR_ENCOUNTER_LOCATION_STATUS,
@@ -80,9 +80,20 @@ function classificationCode({ encounterType }) {
 }
 
 function period(encounter) {
+  const start = parseISO(encounter.startDate);
+  let end = encounter.endDate;
+  if (end) {
+    end = parseISO(end);
+    if (end <= start) {
+      // should never happen in real usage, but test, imported, or migrated data
+      // may do this; in that case satisfy Period's requirement that end > start.
+      end = addSeconds(start, 1);
+    }
+  }
+
   return new FhirPeriod({
-    start: formatFhirDate(encounter.startDate, FHIR_DATETIME_PRECISION.DAY),
-    end: encounter.endDate ? formatFhirDate(encounter.endDate, FHIR_DATETIME_PRECISION.DAY) : null,
+    start: formatFhirDate(start),
+    end: end ? formatFhirDate(end) : null,
   });
 }
 
