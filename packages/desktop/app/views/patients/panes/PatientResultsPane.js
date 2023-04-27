@@ -5,13 +5,18 @@ import { PatientLabTestsTable } from '../PatientLabTestsTable';
 import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 
 export const PatientResultsPane = React.memo(({ patient }) => {
-  const [searchParameters, setSearchParameters] = useState({});
-
+  const [searchParameters, setSearchParameters] = useState({ panelId: '', categoryId: '' });
   return (
     <>
-      <ResultsSearchBar setSearchParameters={setSearchParameters} patientId={patient?.id} />
+      <ResultsSearchBar
+        searchParameters={searchParameters}
+        setSearchParameters={setSearchParameters}
+        patientId={patient?.id}
+      />
       <ContentPane>
-        <PatientLabTestsTable patient={patient} searchParameters={searchParameters} />
+        {(searchParameters.categoryId || searchParameters.panelId) && (
+          <PatientLabTestsTable patient={patient} searchParameters={searchParameters} />
+        )}
       </ContentPane>
     </>
   );
