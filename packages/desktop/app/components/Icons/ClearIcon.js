@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const CustomClearIcon = React.memo(({ ...props }) => (
+export const ClearIcon = React.memo(({ ...props }) => (
   <svg
     width="10"
     height="10"

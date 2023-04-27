@@ -5,8 +5,8 @@ import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
-import { CustomClearIcon } from '../Icons/ClearIcon';
-import { CustomChevronIcon } from '../Icons/ChevronIcon';
+import { ClearIcon } from '../Icons/ClearIcon';
+import { ChevronIcon } from '../Icons/ChevronIcon';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -37,12 +37,12 @@ const StyledIconButton = styled(IconButton)`
   padding: 5px;
 `;
 
-const StyledClearIcon = styled(CustomClearIcon)`
+const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
 `;
 
-const StyledChevronIcon = styled(CustomChevronIcon)`
+const StyledChevronIcon = styled(ChevronIcon)`
   margin-left: 4px;
   margin-right: 20px;
 `;

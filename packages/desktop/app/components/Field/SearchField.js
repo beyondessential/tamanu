@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Search from '@material-ui/icons/Search';
 import { InputAdornment, IconButton } from '@material-ui/core';
 import styled from 'styled-components';
-import { CustomClearIcon } from '../Icons/ClearIcon';
+import { ClearIcon } from '../Icons/ClearIcon';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
 
@@ -26,7 +26,7 @@ const StyledIconButton = styled(IconButton)`
   padding: 5px;
 `;
 
-const StyledClearIcon = styled(CustomClearIcon)`
+const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
   color: ${Colors.darkText};
 `;

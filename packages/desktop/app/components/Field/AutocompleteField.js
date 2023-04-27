@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
-import { CustomChevronIcon } from '../Icons/ChevronIcon';
-import { CustomClearIcon } from '../Icons/ClearIcon';
+import { ChevronIcon } from '../Icons/ChevronIcon';
+import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -81,12 +81,12 @@ const iconStyle = css`
   margin-right: 8px;
 `;
 
-const StyledExpandLess = styled(CustomChevronIcon)`
+const StyledExpandLess = styled(ChevronIcon)`
   ${iconStyle}
   transform: rotate(180deg);
 `;
 
-const StyledExpandMore = styled(CustomChevronIcon)`
+const StyledExpandMore = styled(ChevronIcon)`
   ${iconStyle}
 `;
 
@@ -94,7 +94,7 @@ const StyledIconButton = styled(IconButton)`
   padding: 5px;
 `;
 
-const StyledClearIcon = styled(CustomClearIcon)`
+const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
 `;
 

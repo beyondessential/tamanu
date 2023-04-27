@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const CustomChevronIcon = React.memo(({ ...props }) => (
+export const ChevronIcon = React.memo(({ ...props }) => (
   <svg
     width="10"
     height="6"
