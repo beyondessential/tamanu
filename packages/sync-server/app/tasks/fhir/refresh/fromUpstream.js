@@ -4,7 +4,7 @@ import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
 export async function fromUpstream(
-  { payload: { resource, upstreamId } },
+  { payload: { resource, upstreamId, options = {} } },
   { log, models: { FhirJob } },
 ) {
   log.debug('Finding resource by name', { resource });
@@ -14,12 +14,13 @@ export async function fromUpstream(
   }
 
   log.debug('Starting materialise', { resource, upstreamId });
-  const result = await Resource.materialiseFromUpstream(upstreamId);
+  const result = await Resource.materialiseFromUpstream(upstreamId, options);
   log.debug('Done materialising', {
     resource,
     upstreamId,
     resourceId: result.id,
     versionId: result.versionId,
+    options,
   });
 
   await FhirJob.submit(

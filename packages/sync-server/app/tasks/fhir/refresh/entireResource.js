@@ -3,7 +3,7 @@ import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
-export async function entireResource({ payload: { resource } }, { log, sequelize }) {
+export async function entireResource({ payload: { resource, options = {} } }, { log, sequelize }) {
   log.debug('Finding resource by name', { resource });
   const Resource = materialisableResources.find(({ fhirName }) => fhirName === resource);
   if (!Resource) {
@@ -27,13 +27,15 @@ export async function entireResource({ payload: { resource } }, { log, sequelize
           $topic::text as topic,
           json_build_object(
             'resource', $resource::text,
-            'upstreamId', id
+            'upstreamId', id,
+            'options', $options::jsonb
           ) as payload
         FROM ${UpstreamModel.tableName}`,
       {
         bind: {
           topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
           resource,
+          options,
         },
       },
     );

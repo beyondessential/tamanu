@@ -74,7 +74,7 @@ export class FhirResource extends Model {
 
   // set upstream_id, call updateMaterialisation
   // do not set relatedToId when calling this, it's for internal use only.
-  static async materialiseFromUpstream(id, relatedToId = null) {
+  static async materialiseFromUpstream(id, options = {}, relatedToId = null) {
     let resource = await this.findOne({
       where: {
         upstreamId: id,
@@ -100,7 +100,7 @@ export class FhirResource extends Model {
       for (const relatedId of await resource.getRelatedUpstreamIds()) {
         if (relatedId === id) continue;
         if (relatedId === relatedToId) continue;
-        await this.materialiseFromUpstream(relatedId, id);
+        await this.materialiseFromUpstream(relatedId, options, id);
       }
     }
 

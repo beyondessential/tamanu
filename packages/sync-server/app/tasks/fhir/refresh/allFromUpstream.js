@@ -5,7 +5,7 @@ import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
 export async function allFromUpstream({ payload }, { log, sequelize }) {
-  const { table, op, id, deletedRow = null } = payload;
+  const { table, op, id, deletedRow = null, options = {} } = payload;
   const [schema, tableName] = table.toLowerCase().split('.', 2);
 
   const resources = materialisableResources.filter(resource =>
@@ -64,7 +64,8 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
             'resource', $resource::text,
             'upstreamId', upstreams.id,
             'table', $table::text,
-            'op', $op::text
+            'op', $op::text,
+            'options', $options::jsonb
           )
         FROM upstreams
         ON CONFLICT (discriminant) DO NOTHING
@@ -77,6 +78,7 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
           resource: Resource.fhirName,
           table,
           op,
+          options,
         },
       });
       if (!results) {
