@@ -107,7 +107,6 @@ export const ImmunisationsTable = React.memo(
         fetchOptions={{ includeNotGiven }}
         columns={COLUMNS}
         optionRow={notGivenCheckBox}
-        // onRowClick={row => onItemClick(row)}
         noDataMessage="No vaccinations found"
       />
     );
