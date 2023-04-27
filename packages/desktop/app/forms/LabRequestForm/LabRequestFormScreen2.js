@@ -65,7 +65,7 @@ export const LabRequestFormScreen2 = props => {
         )}
         <Field
           name="labTestTypeIds"
-          label={`${labels.testTypeIdLabel || 'Select tests'}`}
+          label={labels.testTypeIdLabel || 'Select tests'}
           onClearPanel={handleClearPanel}
           component={TestSelectorField}
           requestFormType={requestFormType}
