@@ -81,3 +81,10 @@ function classificationCode({ encounterType }) {
       return null; // these should be filtered out (TODO EPI-452)
   }
 }
+
+function period(encounter) {
+  return new FhirPeriod({
+    start: formatFhirDate(encounter.startDate, FHIR_DATETIME_PRECISION.DAY),
+    end: encounter.endDate ? formatFhirDate(encounter.endDate, FHIR_DATETIME_PRECISION.DAY) : null,
+  });
+}
