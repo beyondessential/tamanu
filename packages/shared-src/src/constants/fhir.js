@@ -247,3 +247,10 @@ export const FHIR_ENCOUNTER_STATUS = {
   ENTERED_IN_ERROR: 'entered-in-error',
   UNKNOWN: 'unknown',
 };
+
+export const FHIR_ENCOUNTER_LOCATION_STATUS = {
+  PLANNED: 'planned',
+  ACTIVE: 'active',
+  RESERVED: 'reserved',
+  COMPLETED: 'completed',
+};

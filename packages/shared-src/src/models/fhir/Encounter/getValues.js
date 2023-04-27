@@ -1,16 +1,17 @@
 import config from 'config';
-import { identity } from 'lodash';
 
 import {
   ENCOUNTER_TYPES,
   FHIR_DATETIME_PRECISION,
   FHIR_ENCOUNTER_CLASS_CODE,
   FHIR_ENCOUNTER_CLASS_DISPLAY,
+  FHIR_ENCOUNTER_LOCATION_STATUS,
   FHIR_ENCOUNTER_STATUS,
 } from '../../../constants';
 import {
   FhirCodeableConcept,
   FhirCoding,
+  FhirEncounterLocation,
   FhirPeriod,
   FhirReference,
 } from '../../../services/fhirTypes';
@@ -31,10 +32,6 @@ async function getValuesFromEncounter(upstream) {
     subject: subjectRef(upstream),
     location: locationRef(upstream),
   };
-}
-
-function compactBy(array, access = identity) {
-  return array.filter(access);
 }
 
 function status(encounter) {
@@ -95,4 +92,16 @@ function subjectRef(encounter) {
     reference: encounter.patient.id,
     display: `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   });
+}
+
+function locationRef(encounter) {
+  return [
+    new FhirEncounterLocation({
+      location: new FhirReference({
+        display: encounter.location.name,
+        id: encounter.location.id,
+      }),
+      status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
+    }),
+  ];
 }
