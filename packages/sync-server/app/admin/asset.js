@@ -16,12 +16,14 @@ assetRoutes.put('/:name', asyncHandler(async (req, res) => {
   const { params, body } = req;
   const { name } = params;
   
+  const ext = (body.filename || '').split('.').slice(-1);
+  const type = ASSET_MIME_TYPES[ext] || 'unknown';
   const data = Buffer.from(body.data, 'base64');
 
   const record = {
     name,
     data,
-    type: body.type,
+    type,
   };
   await assetSchema.validate(record);
 

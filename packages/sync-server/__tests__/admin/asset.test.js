@@ -1,8 +1,8 @@
-import { ASSET_NAMES } from '../../app/admin/asset';
+import { ASSET_NAMES } from 'shared/constants/importable';
 import { createTestContext } from '../utilities';
 
 // doesn't really matter which name it is as long is it's consistent
-const [NAME, OTHER_NAME] = ASSET_NAMES;
+const [NAME, OTHER_NAME] = Object.values(ASSET_NAMES);
 
 const B64_PNG_1X1_CLEAR = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
 const B64_PNG_1X1_BLACK = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRFAAAAp3o92gAAAApJREFUeJxjYAAAAAIAAUivpHEAAAAASUVORK5CYII=';
@@ -25,16 +25,10 @@ describe('', () => {
     await ctx.close();
   });
 
-  it('should fetch a suggester list of asset names', async () => {
-    const response = await adminApp.get('/v1/admin/asset');
-    expect(response).toHaveSucceeded();
-    expect(response.body).toEqual(ASSET_NAMES);
-  });
-
   it('should forbid uploading without permission', async () => {
     const response = await baseApp.put(`/v1/admin/asset/${NAME}`).send({
       name: NAME,
-      type: 'image/png',
+      filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
     expect(response).toBeForbidden();
@@ -42,7 +36,7 @@ describe('', () => {
 
   it('should upload a new asset', async () => {
     const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
-      type: 'image/png',
+      filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
     expect(response).toHaveSucceeded();
@@ -60,7 +54,7 @@ describe('', () => {
   it('should update an existing asset', async () => {
     const response = await adminApp.put(`/v1/admin/asset/${OTHER_NAME}`).send({
       name: OTHER_NAME,
-      type: 'image/png',
+      filename: 'test.png',
       data: B64_PNG_1X1_WHITE,
     });
     expect(response).toHaveSucceeded();
@@ -68,7 +62,7 @@ describe('', () => {
 
     const response2 = await adminApp.put(`/v1/admin/asset/${OTHER_NAME}`).send({
       name: OTHER_NAME,
-      type: 'image/png',
+      filename: 'test.png',
       data: B64_PNG_1X1_BLACK,
     });
     expect(response2).toHaveSucceeded();
@@ -82,16 +76,29 @@ describe('', () => {
 
   it('should reject an asset with an invalid name', async () => {
     const response = await adminApp.put('/v1/admin/asset/madeupname').send({
-      type: 'image/png',
+      filename: 'test.png',
       data: B64_PNG_1X1_CLEAR,
     });
     expect(response).not.toHaveSucceeded();
     expect(response.body.error.message).toMatch('one of the following values');
   });
 
-  it('should reject an asset with an invalid mime type', async () => {
+  it('should detect .svg as image/svg', async () => {
     const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
-      type: 'image/oilpainting',
+      filename: 'test.svg',
+      data: B64_PNG_1X1_CLEAR,
+    });
+    expect(response).toHaveSucceeded();
+
+    const asset = await models.Asset.findOne({ where: { name: NAME }});
+    expect(asset).toBeTruthy();
+    expect(asset).toMatchObject({ name: NAME, type: 'image/svg' });
+    expect(response.body).toHaveProperty('id', asset.id);
+  });
+
+  it('should reject an asset with an invalid mime filename', async () => {
+    const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
+      filename: 'test.xyz',
       data: B64_PNG_1X1_CLEAR,
     });
     expect(response).not.toHaveSucceeded();
@@ -100,7 +107,7 @@ describe('', () => {
 
   it('should reject an asset without data', async () => {
     const response = await adminApp.put(`/v1/admin/asset/${NAME}`).send({
-      type: 'image/png',
+      filename: 'test.png',
       data: '',
     });
     expect(response).not.toHaveSucceeded();
