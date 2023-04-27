@@ -125,12 +125,6 @@ export function ageInYears(dob) {
   return differenceInYears(new Date(), new Date(dob));
 }
 
-export function latestDateTime(...args) {
-  const times = args.filter(x => x);
-  times.sort(compareDesc);
-  return times[0];
-}
-
 /*
  * date-fns wrappers
  * Wrapper functions around date-fns functions that parse date_string and date_time_string types
