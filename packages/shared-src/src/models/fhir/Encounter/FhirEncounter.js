@@ -24,7 +24,7 @@ export class FhirEncounter extends FhirResource {
     );
 
     this.UpstreamModels = [models.Encounter];
-    this.upstreams = [models.Encounter];
+    this.upstreams = [models.Encounter, models.Discharge, models.Patient, models.Location];
   }
 
   static CAN_DO = new Set([
