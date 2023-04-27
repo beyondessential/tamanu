@@ -89,6 +89,12 @@ const StyledButton = styled(Button)`
   border-radius: 0;
 `;
 
+const EmptyCellWrapper = styled.div`
+  padding: 8px 14px;
+`;
+
+const EmptyCell = () => <EmptyCellWrapper>-</EmptyCellWrapper>;
+
 export const PatientLabTestsTable = React.memo(
   ({ patient, setRowsPerPage, setPage, page, rowsPerPage, labTests = [], count, isLoading }) => {
     const [modalLabTestId, setModalLabTestId] = useState();
@@ -150,7 +156,7 @@ export const PatientLabTestsTable = React.memo(
               );
             }
 
-            return '-';
+            return <EmptyCell />;
           },
         })),
     ];
