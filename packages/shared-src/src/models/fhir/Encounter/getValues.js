@@ -6,6 +6,7 @@ import {
   FHIR_DATETIME_PRECISION,
   FHIR_ENCOUNTER_CLASS_CODE,
   FHIR_ENCOUNTER_CLASS_DISPLAY,
+  FHIR_ENCOUNTER_STATUS,
 } from '../../../constants';
 import {
   FhirCodeableConcept,
@@ -23,15 +24,11 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromEncounter(upstream) {
-  const [first] = upstream.additionalData || [];
-  // eslint-disable-next-line no-param-reassign
-  upstream.additionalData = first;
-
   return {
     status: status(upstream),
     class: classification(upstream),
-    subject: subjectRef(upstream),
     actualPeriod: period(upstream),
+    subject: subjectRef(upstream),
     location: locationRef(upstream),
   };
 }
@@ -40,7 +37,13 @@ function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
-function status(encounter) {}
+function status(encounter) {
+  if (encounter.discharge) {
+    return FHIR_ENCOUNTER_STATUS.DISCHARGED;
+  }
+
+  return FHIR_ENCOUNTER_STATUS.IN_PROGRESS;
+}
 
 function classification(encounter) {
   const code = classificationCode(encounter);

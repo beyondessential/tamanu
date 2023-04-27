@@ -1,7 +1,15 @@
 export function getQueryOptions(models) {
-  const { Encounter } = models;
+  const { Encounter, Discharge } = models;
 
   return {
-    [Encounter.tableName]: {},
+    [Encounter.tableName]: {
+      include: [
+        {
+          model: Discharge,
+          as: 'discharge',
+          required: false,
+        },
+      ],
+    },
   };
 }
