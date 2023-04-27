@@ -88,3 +88,11 @@ function period(encounter) {
     end: encounter.endDate ? formatFhirDate(encounter.endDate, FHIR_DATETIME_PRECISION.DAY) : null,
   });
 }
+
+function subjectRef(encounter) {
+  return new FhirReference({
+    type: 'upstream://patient',
+    reference: encounter.patient.id,
+    display: `${encounter.patient.firstName} ${encounter.patient.lastName}`,
+  });
+}

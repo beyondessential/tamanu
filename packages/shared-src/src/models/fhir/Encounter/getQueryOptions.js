@@ -1,5 +1,5 @@
 export function getQueryOptions(models) {
-  const { Encounter, Discharge } = models;
+  const { Encounter, Discharge, Patient } = models;
 
   return {
     [Encounter.tableName]: {
@@ -8,6 +8,10 @@ export function getQueryOptions(models) {
           model: Discharge,
           as: 'discharge',
           required: false,
+        },
+        {
+          model: Patient,
+          as: 'patient',
         },
       ],
     },
