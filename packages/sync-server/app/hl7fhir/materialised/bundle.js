@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { latestDateTime } from 'shared/utils/dateTime';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
 import { getBaseUrl, getHL7Link } from '../utils';
@@ -18,19 +17,18 @@ export class Bundle {
   }
 
   asFhir() {
+    const timestamp = formatFhirDate(new Date());
     const fields = {
       resourceType: 'Bundle',
       id: uuidv4(),
       type: this.type,
-      timestamp: formatFhirDate(new Date()),
+      timestamp,
+      meta: {
+        // LEGACY: not explicitly required in the spec, and redundant with timestamp.
+        // Candidate for removal at next version.
+        lastUpdated: timestamp,
+      },
     };
-
-    const latestUpdated = latestDateTime(...this.resources.map(r => new Date(r.lastUpdated)));
-    if (latestUpdated) {
-      fields.meta = {
-        lastUpdated: formatFhirDate(latestUpdated),
-      };
-    }
 
     if (typeof this.options.total === 'number') {
       fields.total = this.options.total;
