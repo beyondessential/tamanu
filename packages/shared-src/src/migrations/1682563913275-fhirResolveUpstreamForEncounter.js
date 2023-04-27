@@ -7,13 +7,13 @@ export async function up(query) {
         SET subject = json_build_object(
             'reference', 'Patient/' || p.id,
             'type', 'Patient',
-            'identifier', (e.subject #>> 'identifier'),
-            'display', (e.subject #>> 'display')
+            'identifier', (e.subject ->> 'identifier'),
+            'display', (e.subject ->> 'display')
           )
         FROM fhir.patients p
         WHERE true
-          AND (e.subject #>> 'type') = 'upstream://patient'
-          AND p.upstream_id::text = (e.subject #>> 'reference')
+          AND (e.subject ->> 'type') = 'upstream://patient'
+          AND p.upstream_id::text = (e.subject ->> 'reference')
     $$
   `);
 
