@@ -75,8 +75,7 @@ const SingleValue = ({ children, ...props }) => {
   );
 };
 
-const ClearIndicator = props => {
-  const { innerProps } = props;
+const ClearIndicator = ({ innerProps }) => {
   return (
     <StyledIconButton {...innerProps}>
       <StyledClearIcon />
