@@ -89,7 +89,15 @@ export class FhirResource extends Model {
       });
     }
 
+    const { lastUpdated } = resource;
     await resource.updateMaterialisation();
+
+    if (options?.keepLastUpdated) {
+      resource.set({ lastUpdated });
+    } else {
+      resource.set({ lastUpdated: Sequelize.fn('NOW') });
+    }
+
     await resource.save();
 
     // don't look up related records if we're already in the process of doing so
