@@ -11,7 +11,6 @@ export class FhirEncounter extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: DataTypes.JSONB,
         status: {
           type: Sequelize.TEXT,
           allowNull: false,

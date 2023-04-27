@@ -10,7 +10,6 @@ import {
 import {
   FhirCodeableConcept,
   FhirCoding,
-  FhirIdentifier,
   FhirPeriod,
   FhirReference,
 } from '../../../services/fhirTypes';
@@ -29,7 +28,6 @@ async function getValuesFromEncounter(upstream) {
   upstream.additionalData = first;
 
   return {
-    identifier: identifiers(upstream),
     status: status(upstream),
     class: classification(upstream),
     subject: subjectRef(upstream),
@@ -42,6 +40,7 @@ function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
+function status(encounter) {}
 
 function classification(encounter) {
   const code = classificationCode(encounter);
@@ -78,34 +77,4 @@ function classificationCode({ encounterType }) {
     default:
       return null; // these should be filtered out (TODO EPI-452)
   }
-}
-
-function identifiers(encounter) {
-  return compactBy(
-    [
-      {
-        use: 'usual',
-        value: patient.displayId,
-        assigner: new FhirReference({
-          display: config.hl7.assigners.patientDisplayId,
-        }),
-        system: config.hl7.dataDictionaries.patientDisplayId,
-      },
-      {
-        use: 'secondary',
-        assigner: new FhirReference({
-          display: config.hl7.assigners.patientPassport,
-        }),
-        value: patient.additionalData?.passportNumber,
-      },
-      {
-        use: 'secondary',
-        assigner: new FhirReference({
-          display: config.hl7.assigners.patientDrivingLicense,
-        }),
-        value: patient.additionalData?.drivingLicense,
-      },
-    ],
-    x => x.value,
-  ).map(i => new FhirIdentifier(i));
 }

@@ -5,11 +5,6 @@ import {
 } from '../../../constants';
 
 export const searchParameters = {
-  identifier: {
-    type: FHIR_SEARCH_PARAMETERS.TOKEN,
-    path: [['identifier', '[]']],
-    tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
-  },
   class: {
     type: FHIR_SEARCH_PARAMETERS.TOKEN,
     path: [['class', '[]']],
