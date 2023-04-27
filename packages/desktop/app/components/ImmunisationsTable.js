@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { VACCINE_STATUS } from 'shared/constants/vaccines';
@@ -56,20 +56,6 @@ const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) =
   );
 };
 
-const columns = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => [
-  { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
-  { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
-  { key: 'date', title: 'Date', accessor: getDate },
-  { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
-  { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
-  {
-    key: 'action',
-    title: 'Action',
-    accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
-    sortable: false,
-  },
-];
-
 const TableHeaderCheckbox = styled(CheckInput)`
   color: ${Colors.darkText};
   label {
@@ -97,12 +83,29 @@ export const ImmunisationsTable = React.memo(
       />
     );
 
+    const COLUMNS = useMemo(
+      () => [
+        { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
+        { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
+        { key: 'date', title: 'Date', accessor: getDate },
+        { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
+        { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
+        {
+          key: 'action',
+          title: 'Action',
+          accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
+          sortable: false,
+        },
+      ],
+      [onItemClick, onItemEditClick, onItemDeleteClick],
+    );
+
     return (
       <DataFetchingTable
         endpoint={`patient/${patient.id}/administeredVaccines`}
         initialSort={{ orderBy: 'date', order: 'desc' }}
         fetchOptions={{ includeNotGiven }}
-        columns={columns({ onItemClick, onItemEditClick, onItemDeleteClick })}
+        columns={COLUMNS}
         optionRow={notGivenCheckBox}
         // onRowClick={row => onItemClick(row)}
         noDataMessage="No vaccinations found"

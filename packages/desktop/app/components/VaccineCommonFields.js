@@ -213,7 +213,7 @@ export const ConfirmCancelRowField = ({
   category,
   scheduleOptions,
   onCancel,
-  editMode,
+  editMode = false,
 }) => (
   <ConfirmCancelRow
     onConfirm={onConfirm}

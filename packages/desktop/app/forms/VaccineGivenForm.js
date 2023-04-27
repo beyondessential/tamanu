@@ -55,7 +55,7 @@ export const VaccineGivenForm = ({
   vaccineLabel,
   vaccineOptions,
   administeredOptions,
-  editMode, // boolean
+  editMode = false,
   submitForm,
   category,
   scheduleOptions,

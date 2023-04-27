@@ -21,7 +21,7 @@ export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vacci
 
   return (
     <ConfirmModal
-      title="Delete Vaccination Record"
+      title="Delete vaccination record"
       text="WARNING: This action is irreversible!"
       subText="Are you sure you want to delete this vaccination record?"
       open={open}

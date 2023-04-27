@@ -48,7 +48,7 @@ export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
 export const VaccineForm = ({
   onCancel,
   onSubmit,
-  editMode,
+  editMode = false,
   currentVaccineRecordValues,
   patientId,
   getScheduledVaccines,
