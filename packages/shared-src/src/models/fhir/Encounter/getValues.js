@@ -1,8 +1,15 @@
 import config from 'config';
 import { identity } from 'lodash';
 
-import { FHIR_DATETIME_PRECISION } from '../../../constants';
 import {
+  ENCOUNTER_TYPES,
+  FHIR_DATETIME_PRECISION,
+  FHIR_ENCOUNTER_CLASS_CODE,
+  FHIR_ENCOUNTER_CLASS_DISPLAY,
+} from '../../../constants';
+import {
+  FhirCodeableConcept,
+  FhirCoding,
   FhirIdentifier,
   FhirPeriod,
   FhirReference,
@@ -35,7 +42,42 @@ function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
-function status(encounter) {
+
+function classification(encounter) {
+  const code = classificationCode(encounter);
+  if (!code) return [];
+
+  return [
+    new FhirCodeableConcept({
+      coding: [
+        new FhirCoding({
+          system: config.hl7.dataDictionaries.encounterClass,
+          code,
+          display: FHIR_ENCOUNTER_CLASS_DISPLAY[code] ?? null,
+        }),
+      ],
+    }),
+  ];
+}
+
+function classificationCode({ encounterType }) {
+  switch (encounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+    case ENCOUNTER_TYPES.CLINIC:
+    case ENCOUNTER_TYPES.IMAGING:
+      return FHIR_ENCOUNTER_CLASS_CODE.IMP;
+
+    case ENCOUNTER_TYPES.EMERGENCY:
+    case ENCOUNTER_TYPES.TRIAGE:
+      return FHIR_ENCOUNTER_CLASS_CODE.EMER;
+
+    case ENCOUNTER_TYPES.OBSERVATION:
+      return FHIR_ENCOUNTER_CLASS_CODE.OBSENC;
+
+    case ENCOUNTER_TYPES.SURVEY_RESPONSE:
+    default:
+      return null; // these should be filtered out (TODO EPI-452)
+  }
 }
 
 function identifiers(encounter) {
