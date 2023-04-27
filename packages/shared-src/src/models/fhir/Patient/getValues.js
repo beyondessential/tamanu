@@ -19,7 +19,7 @@ export async function getValues(upstream, models) {
   const { Patient } = models;
 
   if (upstream instanceof Patient) return getValuesFromPatient(upstream);
-  throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
+  throw new Error(`Invalid upstream type for patient ${upstream.constructor.name}`);
 }
 
 async function getValuesFromPatient(upstream) {
