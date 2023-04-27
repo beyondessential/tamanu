@@ -33,7 +33,6 @@ const handoverNotes = [
     diagnosis: 'Diabetes (Confirmed), Pneumonia (For investigation)',
     location: 'Bed 1',
     notes: `Notes: This is a full width note from Tamanu with line breaks This is a full width note from Tamanu with line breaksThis is a full width note from Tamanu with line breaks
-
   This is a full width note from Tamanu with line breaks This is a full width note from Tamanu with line breaks`,
     createdAt: new Date(),
   },
@@ -90,7 +89,7 @@ const PDFTemplate = args => (
       handoverNotes={handoverNotes}
       logoSrc={Logo}
       getLocalisation={getLocalisation}
-      location="Female ward"
+      locationGroupName="A-Emergency Department"
     />
   </PDFViewer>
 );

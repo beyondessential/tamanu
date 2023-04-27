@@ -1,4 +1,3 @@
-export * from './TopBar';
 export * from './Button';
 export * from './ButtonRow';
 export * from './Card';
@@ -19,6 +18,8 @@ export * from './LocationSearchBar';
 export * from './SearchBar';
 export * from './Table';
 export * from './TamanuLogo';
+export * from './Tag';
+export * from './TopBar';
 export * from './Typography';
 export * from './ImmunisationsTable';
 export * from './LocalisedText';

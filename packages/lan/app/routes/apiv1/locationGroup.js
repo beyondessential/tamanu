@@ -72,7 +72,7 @@ locationGroup.get(
        encounters.start_date,
        string_agg(reference_data.name, ', ') AS diagnosis,
        string_agg(note_items.content, ', ') AS notes,
-       note_pages.created_at 
+       note_pages.created_at
         FROM locations
         INNER JOIN location_groups ON locations.location_group_id = location_groups.id
         INNER JOIN encounters ON locations.id = encounters.location_id
@@ -85,6 +85,7 @@ locationGroup.get(
           AND note_pages.note_type = 'handover'
         LEFT JOIN note_items ON note_items.note_page_id = note_pages.id
         WHERE location_groups.id = :id and locations.max_occupancy = 1
+        AND locations.facility_id = :facilityId
         GROUP BY location_groups.name,
           locations.name,
           patients.display_id,
@@ -98,6 +99,7 @@ locationGroup.get(
       {
         replacements: {
           id: req.params.id,
+          facilityId: config.serverFacilityId,
         },
         type: QueryTypes.SELECT,
       },
