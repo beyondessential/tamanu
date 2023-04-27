@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { VACCINE_STATUS } from 'shared/constants/vaccines';
+import { OutlinedButton } from './Button';
+import { MenuButton } from './MenuButton';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { CheckInput } from './Field';
@@ -29,13 +31,30 @@ const getFacility = record => {
   return facility || '';
 };
 
-const columns = [
-  { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
-  { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
-  { key: 'date', title: 'Date', accessor: getDate },
-  { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
-  { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
-];
+const ActionButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const MarginedMenuButton = styled(MenuButton)`
+  margin-left: 15px;
+`;
+
+const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => record => {
+  return (
+    <ActionButtonsContainer>
+      <OutlinedButton onClick={() => onItemClick(record)}>View</OutlinedButton>
+      <MarginedMenuButton
+        iconColor={Colors.primary}
+        actions={{
+          Edit: () => onItemEditClick(record),
+          Delete: () => onItemDeleteClick(record),
+        }}
+      />
+    </ActionButtonsContainer>
+  );
+};
 
 const TableHeaderCheckbox = styled(CheckInput)`
   color: ${Colors.darkText};
@@ -52,26 +71,44 @@ const TableHeaderCheckbox = styled(CheckInput)`
   }
 `;
 
-export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => {
-  const [includeNotGiven, setIncludeNotGiven] = useState(false);
+export const ImmunisationsTable = React.memo(
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick }) => {
+    const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
-  const notGivenCheckBox = (
-    <TableHeaderCheckbox
-      label="Include vaccines not given"
-      value={includeNotGiven}
-      onClick={() => setIncludeNotGiven(!includeNotGiven)}
-    />
-  );
+    const notGivenCheckBox = (
+      <TableHeaderCheckbox
+        label="Include vaccines not given"
+        value={includeNotGiven}
+        onClick={() => setIncludeNotGiven(!includeNotGiven)}
+      />
+    );
 
-  return (
-    <DataFetchingTable
-      endpoint={`patient/${patient.id}/administeredVaccines`}
-      initialSort={{ orderBy: 'date', order: 'desc' }}
-      fetchOptions={{ includeNotGiven }}
-      columns={columns}
-      optionRow={notGivenCheckBox}
-      onRowClick={row => onItemClick(row)}
-      noDataMessage="No vaccinations found"
-    />
-  );
-});
+    const COLUMNS = useMemo(
+      () => [
+        { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
+        { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
+        { key: 'date', title: 'Date', accessor: getDate },
+        { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
+        { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
+        {
+          key: 'action',
+          title: 'Action',
+          accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
+          sortable: false,
+        },
+      ],
+      [onItemClick, onItemEditClick, onItemDeleteClick],
+    );
+
+    return (
+      <DataFetchingTable
+        endpoint={`patient/${patient.id}/administeredVaccines`}
+        initialSort={{ orderBy: 'date', order: 'desc' }}
+        fetchOptions={{ includeNotGiven }}
+        columns={COLUMNS}
+        optionRow={notGivenCheckBox}
+        noDataMessage="No vaccinations found"
+      />
+    );
+  },
+);
