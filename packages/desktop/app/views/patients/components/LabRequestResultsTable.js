@@ -34,8 +34,8 @@ const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly })
     <Modal
       open={open}
       onClose={onClose}
-      title={`${isReadOnly ? '' : 'Enter result – '}${labTest &&
-        labTest.labTestType.name} | Test ID ${labRequest && labRequest.displayId}`}
+      title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
+        labRequest.displayId}`}
     >
       <ManualLabResultForm
         labTest={labTest}

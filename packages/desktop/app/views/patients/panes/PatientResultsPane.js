@@ -6,6 +6,7 @@ import { PatientLabTestsTable } from '../PatientLabTestsTable';
 import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTestResults';
 import { Colors } from '../../../constants';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -41,7 +42,7 @@ const NoResultsMessage = () => (
 export const PatientResultsPane = React.memo(({ patient }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-  const [searchParameters, setSearchParameters] = useState({ panelId: '', categoryId: '' });
+  const [searchParameters, setSearchParameters] = useState({});
 
   const { data, isLoading } = usePatientLabTestResults(patient.id, {
     page,
@@ -49,20 +50,22 @@ export const PatientResultsPane = React.memo(({ patient }) => {
     ...searchParameters,
   });
 
-  const hasSearchParams = searchParameters.categoryId || searchParameters.panelId;
-  const disabled = !hasSearchParams && !isLoading && data?.count === 0;
+  const dirty = Object.keys(searchParameters).length > 0;
+  const isInitialLoad = isLoading && !dirty;
+  const noResults = !isLoading && !dirty && data?.count === 0;
 
   return (
     <>
       <ResultsSearchBar
-        disabled={disabled}
+        disabled={noResults || isInitialLoad}
         searchParameters={searchParameters}
         setSearchParameters={setSearchParameters}
         patientId={patient?.id}
       />
       <ContentPane>
-        {disabled && <NoResultsMessage />}
-        {hasSearchParams && (
+        {noResults && <NoResultsMessage />}
+        {isInitialLoad && <LoadingIndicator height={400} />}
+        {dirty && (
           <PatientLabTestsTable
             patient={patient}
             searchParameters={searchParameters}

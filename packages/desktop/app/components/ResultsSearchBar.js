@@ -40,7 +40,8 @@ export const ResultsSearchBar = React.memo(
             suggester={categorySuggester}
             value={searchParameters.categoryId}
             onChange={event => {
-              setSearchParameters({ categoryId: event.target.value, panelId: '' });
+              const categoryId = event.target.value;
+              setSearchParameters(categoryId ? { categoryId } : {});
             }}
           />
           <AutocompleteInput
@@ -50,7 +51,8 @@ export const ResultsSearchBar = React.memo(
             value={searchParameters.panelId}
             suggester={panelSuggester}
             onChange={event => {
-              setSearchParameters({ categoryId: '', panelId: event.target.value });
+              const panelId = event.target.value;
+              setSearchParameters(panelId ? { panelId } : {});
             }}
           />
         </Fields>
