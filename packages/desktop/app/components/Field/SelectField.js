@@ -104,9 +104,9 @@ export const SelectInput = ({
     changedOption => {
       if (changedOption) {
         onChange({ target: { value: changedOption.value, name } });
-      } else {
-        onChange({ target: { value: '', name } });
+        return;
       }
+      onChange({ target: { value: '', name } });
     },
     [onChange, name],
   );
