@@ -9,7 +9,6 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../../services/fhirTypes';
-import { latestDateTime } from '../../../utils/dateTime';
 import { formatFhirDate } from '../../../utils/fhir';
 
 export async function getValues(upstream, models) {
@@ -25,16 +24,6 @@ async function getValuesFromLabTest(labTest) {
   const { patient, examiner } = encounter;
 
   return {
-    lastUpdated: latestDateTime(
-      labTest.updatedAt,
-      labRequest.updatedAt,
-      labTestType.updatedAt,
-      labTestMethod?.updatedAt,
-      encounter.updatedAt,
-      laboratory?.updatedAt,
-      patient.updatedAt,
-      examiner.updatedAt,
-    ),
     extension: extension(labTestMethod),
     identifier: identifiers(labRequest),
     status: status(labRequest),

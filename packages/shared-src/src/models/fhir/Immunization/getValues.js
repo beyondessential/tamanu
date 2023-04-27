@@ -6,7 +6,6 @@ import {
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
 } from '../../../services/fhirTypes';
-import { latestDateTime } from '../../../utils/dateTime';
 import { formatFhirDate } from '../../../utils/fhir';
 
 export async function getValues(upstream, models) {
@@ -21,14 +20,6 @@ async function getValuesFromAdministeredVaccine(administeredVaccine) {
   const { patient } = encounter;
 
   return {
-    lastUpdated: latestDateTime(
-      administeredVaccine?.updatedAt,
-      encounter?.updatedAt,
-      scheduledVaccine?.updatedAt,
-      recorder?.updatedAt,
-      scheduledVaccine?.vaccine?.updatedAt,
-      patient?.updatedAt,
-    ),
     status: status(administeredVaccine.status),
     vaccineCode: vaccineCode(scheduledVaccine),
     patient: patientReference(patient),

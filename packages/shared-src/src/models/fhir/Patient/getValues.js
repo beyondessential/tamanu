@@ -2,7 +2,6 @@ import config from 'config';
 import { identity } from 'lodash';
 
 import { activeFromVisibility } from '../utils';
-import { latestDateTime } from '../../../utils/dateTime';
 import { FHIR_DATETIME_PRECISION } from '../../../constants';
 import {
   FhirAddress,
@@ -38,7 +37,6 @@ async function getValuesFromPatient(upstream) {
     deceasedDateTime: formatFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
     address: addresses(upstream),
     link: await mergeLinks(upstream),
-    lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
   };
 }
 
