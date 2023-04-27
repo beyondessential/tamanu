@@ -7,8 +7,8 @@ import {
 export const searchParameters = {
   class: {
     type: FHIR_SEARCH_PARAMETERS.TOKEN,
-    path: [['class', '[]']],
-    tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+    path: [['class', '[]', 'coding', '[]']],
+    tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
   },
   'date-start': {
     type: FHIR_SEARCH_PARAMETERS.DATE,
