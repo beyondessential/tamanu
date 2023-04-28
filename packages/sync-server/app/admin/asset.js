@@ -32,10 +32,10 @@ assetRoutes.put('/:name', asyncHandler(async (req, res) => {
 
   if (existing) {
     await existing.update(record);
-    res.send({ action: 'updated', id: existing.id });
+    res.send({ action: 'updated', id: existing.id, name, type });
     return;
   } 
   
   const created = await Asset.create(record);
-  res.send({ action: 'created', id: created.id });
+  res.send({ action: 'created', id: created.id, name, type });
 }));
