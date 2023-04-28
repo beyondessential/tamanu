@@ -23,6 +23,9 @@ export function normaliseSheetName(name) {
   if (norm === 'vaccineSchedule') return 'scheduledVaccine';
   if (norm === 'procedure') return 'procedureType';
 
+  // This is needed to handle the way we are exporting that data
+  if (norm === 'patientFieldDefCategory') return 'patientFieldDefinitionCategory';
+
   return norm;
 }
 

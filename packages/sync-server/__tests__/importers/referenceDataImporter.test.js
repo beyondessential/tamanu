@@ -279,6 +279,17 @@ describe('Data definition import', () => {
     const response = await nonAdminApp.post('/v1/admin/importRefData');
     expect(response).toBeForbidden();
   });
+
+  it('should import patient field definition categories with a tab named "Patient Field Def Category"', async () => {
+    const { errors, stats } = await doImport({ file: 'patient-field-definition-categories' });
+    expect(errors).toBeEmpty();
+    expect(stats).toMatchObject({
+      PatientFieldDefinitionCategory: {
+        created: 1,
+        deleted: 0,
+      },
+    });
+  });
 });
 
 describe('Permissions import', () => {

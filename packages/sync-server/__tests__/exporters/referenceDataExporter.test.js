@@ -17,10 +17,11 @@ describe('Reference data exporter', () => {
   afterAll(() => ctx.close());
 
   afterEach(async () => {
-    const { ReferenceData, Patient } = ctx.store.models;
+    const { ReferenceData, Patient, PatientFieldDefinitionCategory } = ctx.store.models;
     jest.clearAllMocks();
     await ReferenceData.destroy({ where: {}, force: true });
     await Patient.destroy({ where: {}, force: true });
+    await PatientFieldDefinitionCategory.destroy({ where: {}, force: true });
   });
 
   async function createDiagnosis() {
@@ -35,6 +36,17 @@ describe('Reference data exporter', () => {
       code: 'S79.9',
       id: 'icd10-S79-9',
       name: 'Thigh injury',
+    });
+  }
+
+  async function createPatientFieldDefCategory() {
+    await models.PatientFieldDefinitionCategory.create({
+      id: '123',
+      name: 'test 123',
+    });
+    await models.PatientFieldDefinitionCategory.create({
+      id: '1234',
+      name: 'test 1234',
     });
   }
 
@@ -73,10 +85,15 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export a tab with name "Patient Field Def Category" for "patientFieldDefinitionCategory"', async () => {
+    await createPatientFieldDefCategory();
     await referenceDataExporter(models, { 1: 'patientFieldDefinitionCategory' });
     expect(writeExcelFileSpy).toBeCalledWith([
       {
-        data: [],
+        data: [
+          ['id', 'name'],
+          ['123', 'test 123'],
+          ['1234', 'test 1234'],
+        ],
         name: 'Patient Field Def Category',
       },
     ]);
@@ -250,5 +267,10 @@ describe('Reference data exporter', () => {
         name: 'Diagnosis',
       },
     ]);
+  });
+
+  it('Should throw an error when passing an wrong data type', async () => {
+    await createPatientFieldDefCategory();
+    await expect(referenceDataExporter(models, { 1: 'wrongDataType' })).rejects.toThrow();
   });
 });
