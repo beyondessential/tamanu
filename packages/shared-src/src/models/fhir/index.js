@@ -1,4 +1,5 @@
 export * from './DiagnosticReport';
+export * from './Encounter';
 export * from './ImagingStudy';
 export * from './Immunization';
 export * from './Patient';
