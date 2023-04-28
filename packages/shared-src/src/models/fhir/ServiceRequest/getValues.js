@@ -269,8 +269,9 @@ function labContained(upstream) {
 
 function labOrderDetails(upstream) {
   return upstream.tests.map(test => {
-    const labTestType = test?.labTestType || {};
-    const { externalCode, name } = labTestType;
+    if (!test) throw new Exception('Received a null test');
+    
+    const { externalCode, name } = test.labTestType;
     if (!externalCode) throw new Error('No external code specified for this lab test type.');
 
     return new FhirCodeableConcept({
