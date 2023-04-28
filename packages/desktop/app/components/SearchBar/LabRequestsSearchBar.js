@@ -87,6 +87,9 @@ export const LabRequestsSearchBar = () => {
             endpoint="labTestPriority"
             size="small"
           />
+          <FacilityCheckbox>
+            <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+          </FacilityCheckbox>
         </>
       }
     >
@@ -129,9 +132,6 @@ export const LabRequestsSearchBar = () => {
           options={LAB_REQUEST_STATUS_OPTIONS}
           size="small"
         />
-        <FacilityCheckbox>
-          <Field name="allFacilities" label="Include all facilities" component={CheckField} />
-        </FacilityCheckbox>
       </>
     </CustomisableSearchBar>
   );

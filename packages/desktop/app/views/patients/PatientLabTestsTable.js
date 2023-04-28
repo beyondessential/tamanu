@@ -14,7 +14,9 @@ const COLUMNS = {
 
 const StyledTable = styled(Table)`
   table {
+    table-layout: fixed;
     position: relative;
+    width: initial;
 
     thead tr th:nth-child(1),
     tbody tr td:nth-child(1),
@@ -52,6 +54,30 @@ const StyledTable = styled(Table)`
       border-right: 2px solid ${Colors.outline};
     }
 
+    tfoot tr td:nth-child(1) {
+      position: sticky;
+      left: 0;
+    }
+
+    tfoot tr td:nth-child(2) {
+      position: sticky;
+      right: 0;
+    }
+
+    tfoot {
+      inset-inline-end: 0;
+    }
+
+    thead tr th:nth-child(n + 4),
+    tbody tr td:nth-child(n + 4) {
+      width: 120px;
+    }
+
+    thead tr th:last-child,
+    tbody tr td:last-child {
+      width: 100%;
+    }
+
     thead tr th {
       color: ${props => props.theme.palette.text.secondary};
       background: ${Colors.background};
@@ -78,22 +104,14 @@ const CategoryCell = styled.div`
 `;
 
 const StyledButton = styled(Button)`
-  position: absolute;
-  padding: 0;
   text-transform: none;
   font-weight: 400;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-radius: 0;
+  border-radius: 10px;
+  padding: 8px 4px;
+  & > span > div {
+    margin: -8px -4px;
+  }
 `;
-
-const EmptyCellWrapper = styled.div`
-  padding: 8px 14px;
-`;
-
-const EmptyCell = () => <EmptyCellWrapper>-</EmptyCellWrapper>;
 
 export const PatientLabTestsTable = React.memo(
   ({ patient, setRowsPerPage, setPage, page, rowsPerPage, labTests = [], count, isLoading }) => {
@@ -156,7 +174,7 @@ export const PatientLabTestsTable = React.memo(
               );
             }
 
-            return <EmptyCell />;
+            return <StyledButton disabled>-</StyledButton>;
           },
         })),
     ];

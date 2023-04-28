@@ -21,6 +21,20 @@ const Fields = styled.div`
   }
 `;
 
+const StyledAutoCompleteInput = styled(AutocompleteInput)`
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+
+  .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+
+  .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+`;
+
 export const ResultsSearchBar = React.memo(
   ({ setSearchParameters, searchParameters, patientId, disabled }) => {
     const panelSuggester = useSuggester('patientLabTestPanelTypes', {
@@ -33,7 +47,7 @@ export const ResultsSearchBar = React.memo(
       <Container>
         <Heading3 mb={2}>Lab results</Heading3>
         <Fields>
-          <AutocompleteInput
+          <StyledAutoCompleteInput
             name="category"
             label="Test category"
             disabled={disabled}
@@ -44,7 +58,7 @@ export const ResultsSearchBar = React.memo(
               setSearchParameters(categoryId ? { categoryId } : {});
             }}
           />
-          <AutocompleteInput
+          <StyledAutoCompleteInput
             name="panel"
             label="Test panel"
             disabled={disabled}
