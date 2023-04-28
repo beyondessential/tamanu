@@ -19,6 +19,7 @@ export class LabTestPanel extends Model {
           type: Sequelize.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
+        externalCode: Sequelize.TEXT,
       },
       {
         ...options,
