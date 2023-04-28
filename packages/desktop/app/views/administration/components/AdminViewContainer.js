@@ -34,7 +34,7 @@ export const AdminViewContainer = ({ title, showLoadingIndicator, children }) =>
     )}
     <ContentContainer>
       <Title>{title}</Title>
-      { children }
+      {children}
     </ContentContainer>
   </OuterContainer>
 );
