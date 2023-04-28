@@ -6,6 +6,7 @@ import { action } from '@storybook/addon-actions';
 import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
 import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
 import { ImportExportView } from '../app/views/administration/components/ImportExportView';
+import { AssetUploaderView } from '../app/views/administration/AssetUploaderView';
 
 const sampleResponse = {
   sentData: false,
@@ -90,3 +91,6 @@ storiesOf('Admin/ImportStats', module).add('Default', () => (
 storiesOf('Admin/ErrorTable', module)
   .add('Default', () => <ImportErrorsTable errors={sampleResponse.errors} />)
   .add('No errors', () => <ImportErrorsTable errors={[]} />);
+
+storiesOf('Admin/AssetUploaderView', module)
+  .add('Default', () => <AssetUploaderView />);

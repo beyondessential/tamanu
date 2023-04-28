@@ -120,3 +120,15 @@ export const HIDDEN_VISIBILITY_STATUSES = [
   VISIBILITY_STATUSES.HISTORICAL,
   VISIBILITY_STATUSES.MERGED,
 ];
+
+export const ASSET_NAMES = {
+  LETTERHEAD_LOGO: 'letterhead-logo',
+  VACCINE_CERTIFICATE_WATERMARK: 'vaccine-certificate-watermark',
+  CERTIFICATE_BOTTOM_HALF_IMG: 'certificate-bottom-half-img',
+  DEATH_CERTIFICATE_BOTTOM_HALF_IMG: 'death-certificate-bottom-half-img',
+};
+
+export const ASSET_MIME_TYPES = {
+  png: 'image/png',
+  svg: 'image/svg',
+};
