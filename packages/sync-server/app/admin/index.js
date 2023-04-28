@@ -11,6 +11,7 @@ import { referenceDataExporter } from './referenceDataExporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { assetRoutes } from './asset';
 
 export const adminRoutes = express.Router();
 
@@ -71,3 +72,5 @@ adminRoutes.get(
 );
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
+
+adminRoutes.use('/asset', assetRoutes);

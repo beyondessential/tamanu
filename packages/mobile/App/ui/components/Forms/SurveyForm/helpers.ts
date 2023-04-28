@@ -1,6 +1,5 @@
 import * as Yup from 'yup';
 
-import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
@@ -120,27 +119,4 @@ export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectS
   }, {});
 
   return Yup.object().shape(objectShapeSchema);
-}
-
-export async function getAutocompleteDisplayAnswer(
-  models,
-  dataElementId,
-  sourceId,
-): Promise<string | null> {
-  const autocompleteComponent = await models.SurveyScreenComponent.findOne({
-    where: {
-      dataElement: dataElementId,
-    },
-  });
-  const autocompleteConfig = autocompleteComponent?.getConfigObject();
-
-  if (autocompleteConfig) {
-    const fullLinkedAnswer = await models[autocompleteConfig.source]
-      .getRepository()
-      .findOne(sourceId);
-    const columnToDisplay = AutocompleteSourceToColumnMap[autocompleteConfig.source];
-    return fullLinkedAnswer[columnToDisplay];
-  }
-
-  return null;
 }

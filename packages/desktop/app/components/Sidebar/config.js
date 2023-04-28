@@ -177,6 +177,11 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/patientMerge',
   },
   {
+    key: 'assets',
+    label: 'Asset upload',
+    path: '/admin/assets',
+  },
+  {
     key: 'sync',
     label: 'Sync status',
     path: '/admin/sync',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
+import styled from 'styled-components';
 import {
   DateField,
   SelectField,
@@ -9,7 +9,9 @@ import {
   SearchField,
   DisplayIdField,
   AutocompleteField,
+  CheckField,
 } from '../Field';
+import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
@@ -27,7 +29,13 @@ const useAdvancedFields = advancedFields => {
   return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
 };
 
-const ADVANCED_FIELDS = ['requestedDateFrom', 'requestedDateTo', 'requestedById', 'priority'];
+const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'laboratory', 'priority'];
+
+const FacilityCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+`;
 
 export const LabRequestsSearchBar = () => {
   const {
@@ -36,39 +44,41 @@ export const LabRequestsSearchBar = () => {
     searchParameters,
     setSearchParameters,
   } = useAdvancedFields(ADVANCED_FIELDS);
-  const clinicianSuggester = useSuggester('practitioner');
   const locationGroupSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
+
   return (
     <CustomisableSearchBar
-      initialValues={{ displayIdExact: true, ...searchParameters }}
+      initialValues={searchParameters}
+      staticValues={{ displayIdExact: true }}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       showExpandButton
       hiddenFields={
         <>
-          <LocalisedField
-            name="requestedDateFrom"
-            label="Requested from"
-            saveDateAsString
-            component={DateField}
-            $joined
-          />
-          <LocalisedField
-            name="requestedDateTo"
-            defaultLabel="Requested to"
-            saveDateAsString
-            component={DateField}
+          <Field
+            name="locationGroupId"
+            label="Area"
+            component={AutocompleteField}
+            suggester={locationGroupSuggester}
+            size="small"
           />
           <Field
-            name="requestedById"
-            label="Requested by"
-            size="small"
+            name="departmentId"
+            label="Department"
             component={AutocompleteField}
-            suggester={clinicianSuggester}
+            suggester={departmentSuggester}
+            size="small"
+          />
+          <LocalisedField
+            name="laboratory"
+            defaultLabel="Laboratory"
+            component={SuggesterSelectField}
+            endpoint="labTestLaboratory"
+            size="small"
           />
           <LocalisedField
             name="priority"
@@ -93,25 +103,24 @@ export const LabRequestsSearchBar = () => {
           size="small"
         />
         <Field
-          name="locationGroupId"
-          label="Area"
-          component={AutocompleteField}
-          suggester={locationGroupSuggester}
-          size="small"
-        />
-        <Field
-          name="departmentId"
-          label="Department"
-          component={AutocompleteField}
-          suggester={departmentSuggester}
+          name="labTestPanelId"
+          label="Panel"
+          component={SuggesterSelectField}
+          endpoint="labTestPanel"
           size="small"
         />
         <LocalisedField
-          name="laboratory"
-          defaultLabel="Laboratory"
-          component={SuggesterSelectField}
-          endpoint="labTestLaboratory"
-          size="small"
+          name="requestedDateFrom"
+          label="Requested from"
+          saveDateAsString
+          component={DateField}
+          $joined
+        />
+        <LocalisedField
+          name="requestedDateTo"
+          defaultLabel="Requested to"
+          saveDateAsString
+          component={DateField}
         />
         <LocalisedField
           name="status"
@@ -120,6 +129,9 @@ export const LabRequestsSearchBar = () => {
           options={LAB_REQUEST_STATUS_OPTIONS}
           size="small"
         />
+        <FacilityCheckbox>
+          <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+        </FacilityCheckbox>
       </>
     </CustomisableSearchBar>
   );

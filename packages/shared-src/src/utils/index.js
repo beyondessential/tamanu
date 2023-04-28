@@ -16,3 +16,4 @@ export * from './withConfig';
 export * from './dischargeOutpatientEncounters';
 export * from './getCovidClearanceCertificateFilter';
 export * from './getLabTestsFromLabRequests';
+export * from './objectToCamelCase';

@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
@@ -146,6 +147,7 @@ labRequest.get(
       makeSimpleTextFilter('requestedById', 'lab_requests.requested_by_id'),
       makeSimpleTextFilter('departmentId', 'encounter.department_id'),
       makeSimpleTextFilter('locationGroupId', 'location.location_group_id'),
+      makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
       makeFilter(
         filterParams.requestedDateFrom,
         `lab_requests.requested_date >= :requestedDateFrom`,
@@ -160,6 +162,11 @@ labRequest.get(
           requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
         }),
       ),
+      makeFilter(
+        !JSON.parse(filterParams.allFacilities || false),
+        `location.facility_id = :facilityId`,
+        () => ({ facilityId: config.serverFacilityId }),
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -169,7 +176,7 @@ labRequest.get(
         LEFT JOIN encounters AS encounter
           ON (encounter.id = lab_requests.encounter_id)
         LEFT JOIN locations AS location
-          ON encounter.location_id = location.id
+          ON (encounter.location_id = location.id)
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
         LEFT JOIN reference_data AS priority
@@ -178,6 +185,10 @@ labRequest.get(
           ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
         LEFT JOIN reference_data AS site
           ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
+        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
+          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
+        LEFT JOIN lab_test_panels AS lab_test_panel
+          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
@@ -215,6 +226,7 @@ labRequest.get(
       patientName: 'UPPER(patient.last_name)',
       requestId: 'display_id',
       testCategory: 'category.name',
+      labTestPanelName: 'lab_test_panel.id',
       requestedDate: 'requested_date',
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
@@ -239,8 +251,10 @@ labRequest.get(
           category.name AS category_name,
           priority.id AS priority_id,
           priority.name AS priority_name,
+          lab_test_panel.name as lab_test_panel_name,
           laboratory.id AS laboratory_id,
-          laboratory.name AS laboratory_name
+          laboratory.name AS laboratory_name,
+          location.facility_id AS facility_id
         ${from}
         
         ORDER BY ${sortKey} ${sortDirection}
