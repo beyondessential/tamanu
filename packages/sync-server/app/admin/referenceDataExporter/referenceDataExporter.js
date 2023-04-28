@@ -1,17 +1,6 @@
-import xlsx from 'xlsx';
 import { REFERENCE_TYPE_VALUES } from 'shared/constants';
 import { startCase } from 'lodash';
-
-function writeExcelFile(sheets) {
-  const workbook = xlsx.utils.book_new();
-  sheets.forEach(sheet => {
-    const worksheet = xlsx.utils.aoa_to_sheet(sheet.data);
-    xlsx.utils.book_append_sheet(workbook, worksheet, sheet.name);
-  });
-  const filename = `./export-${Date.now()}.xlsx`;
-  xlsx.writeFile(workbook, filename);
-  return filename;
-}
+import { writeExcelFile } from './excelUtils';
 
 const METADATA_COLUMNS = [
   'createdAt',
@@ -23,7 +12,7 @@ const METADATA_COLUMNS = [
 ];
 
 const CUSTOM_TAB_NAME = {
-  patientFieldDefinitionCategory: 'patientFieldDefinitionCategory',
+  patientFieldDefinitionCategory: 'Patient Field Def Category',
 };
 
 const HIDDEN_COLUMNS_PER_MODEL_NAME = {
