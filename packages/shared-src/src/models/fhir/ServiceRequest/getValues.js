@@ -270,7 +270,7 @@ function labContained(upstream) {
 function labOrderDetails(upstream) {
   return upstream.tests.map(test => {
     if (!test) throw new Exception('Received a null test');
-    
+
     const { externalCode, name } = test.labTestType;
     if (!externalCode) throw new Error('No external code specified for this lab test type.');
 
