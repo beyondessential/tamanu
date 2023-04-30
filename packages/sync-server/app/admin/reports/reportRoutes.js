@@ -1,6 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import { NotFoundError } from 'shared/errors';
+import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants';
+import { sanitizeFilename } from './utils';
 
 export const reportsRouter = express.Router();
 
@@ -17,6 +20,7 @@ reportsRouter.get(
     FROM report_definitions rd
         LEFT JOIN report_definition_versions rdv ON rd.id = rdv.report_definition_id
     GROUP BY rd.id
+    HAVING max(rdv.version_number) > 0
     ORDER BY rd.name
         `,
       {
@@ -57,5 +61,47 @@ reportsRouter.get(
       ],
     });
     res.send(versions);
+  }),
+);
+
+reportsRouter.get(
+  '/:reportId/versions/:versionId/export/:format',
+  asyncHandler(async (req, res) => {
+    const { store, params } = req;
+    const { ReportDefinition, ReportDefinitionVersion } = store.models;
+    const { reportId, versionId, format } = params;
+    const reportDefinition = await ReportDefinition.findOne({
+      where: { id: reportId },
+      include: [
+        {
+          model: ReportDefinitionVersion,
+          as: 'versions',
+          where: { id: versionId },
+        },
+      ],
+    });
+    if (!reportDefinition) {
+      throw new NotFoundError(`No report found with id ${reportId}`);
+    }
+    const version = reportDefinition.versions[0];
+    if (!version) {
+      throw new NotFoundError(`No version found with id ${versionId}`);
+    }
+    const versionWithoutMetadata = version.forResponse(true);
+    const filename = sanitizeFilename(
+      reportDefinition.name,
+      versionWithoutMetadata.versionNumber,
+      format,
+    );
+    let data;
+    if (format === REPORT_VERSION_EXPORT_FORMATS.JSON) {
+      data = JSON.stringify(versionWithoutMetadata, null, 2);
+    } else if (format === REPORT_VERSION_EXPORT_FORMATS.SQL) {
+      data = versionWithoutMetadata.query;
+    }
+    res.send({
+      filename,
+      data: Buffer.from(data),
+    });
   }),
 );

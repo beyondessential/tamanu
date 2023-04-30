@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
+import { ReportsExportView } from './ReportsExportView';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -28,14 +29,18 @@ const REPORT_TABS = {
 };
 
 export const ReportsAdminView = () => {
-  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDIT);
+  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EXPORT);
 
   const tabs = [
     {
-      label: 'Edit',
-      key: REPORT_TABS.EDIT,
+      label: 'Export',
+      key: REPORT_TABS.EXPORT,
       icon: 'fa fa-file-export',
-      render: () => <TabContainer>Coming soon</TabContainer>,
+      render: () => (
+        <TabContainer>
+          <ReportsExportView />
+        </TabContainer>
+      ),
     },
   ];
 
