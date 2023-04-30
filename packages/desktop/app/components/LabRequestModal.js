@@ -35,10 +35,10 @@ const useLabRequests = labRequestIds => {
 };
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
-  const [sectionTitle, setSectionTitle] = useState('');
+  const [requestFormType, setRequestFormType] = useState(null);
+  const [newLabRequestIds, setNewLabRequestIds] = useState([]);
   const api = useApi();
   const { loadEncounter } = useEncounter();
-  const [newLabRequestIds, setNewLabRequestIds] = useState([]);
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -62,8 +62,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   };
 
   const handleChangeStep = (step, values) => {
-    const { requestFormType } = values;
-    setSectionTitle(step === 0 ? '' : SECTION_TITLES[requestFormType]);
+    setRequestFormType(step === 0 ? null : values.requestFormType);
   };
 
   let ModalBody = (
@@ -83,6 +82,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       <LabRequestSummaryPane
         encounter={encounter}
         labRequests={newLabRequests}
+        requestFormType={requestFormType}
         onClose={handleClose}
       />
     );
@@ -90,7 +90,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
 
   return (
     <StyledModal
-      title={`New lab request${sectionTitle ? ` | ${sectionTitle}` : ''}`}
+      maxWidth="md"
+      title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
       open={open}
       onClose={handleClose}
       minHeight={500}

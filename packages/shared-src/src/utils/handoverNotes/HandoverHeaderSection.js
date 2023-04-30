@@ -4,7 +4,7 @@ import { Box, Logo } from '../patientCertificates/Layout';
 import { H1, H3 } from '../patientCertificates/Typography';
 import { Divider } from './Divider';
 
-export const HandoverHeaderSection = ({ getLocalisation, logoSrc, area }) => {
+export const HandoverHeaderSection = ({ getLocalisation, logoSrc, locationGroupName }) => {
   const title = getLocalisation('templates.letterhead.title');
   const subTitle = getLocalisation('templates.letterhead.subTitle');
   return (
@@ -14,7 +14,8 @@ export const HandoverHeaderSection = ({ getLocalisation, logoSrc, area }) => {
         style={{
           maxWidth: 400,
           marginLeft: 'auto',
-          marginRight: '40',
+          marginRight: '0',
+          width: '100%',
         }}
       >
         <H3
@@ -47,11 +48,11 @@ export const HandoverHeaderSection = ({ getLocalisation, logoSrc, area }) => {
         <H1
           style={{
             textAlign: 'right',
-            fontSize: 18,
+            fontSize: 17,
             marginTop: 0,
           }}
         >
-          {area} | {getDisplayDate(new Date(), 'dd/MM/yyyy hh:mm a')}
+          {locationGroupName} | {getDisplayDate(new Date(), 'dd/MM/yyyy hh:mm a')}
         </H1>
       </Box>
       <Divider />
