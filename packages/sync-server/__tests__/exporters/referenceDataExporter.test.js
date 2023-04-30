@@ -206,7 +206,7 @@ describe('Reference data exporter', () => {
     ]);
   });
 
-  it('Should export mixed Reference Data and Other table data', async () => {
+  it('Should export mixed Reference Data and other table data', async () => {
     const patientData = createDummyPatient(models);
     const patient = await models.Patient.create(patientData);
     await createDiagnosis();
