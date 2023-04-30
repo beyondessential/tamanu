@@ -90,7 +90,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             variant="outlined"
             disabled={!vaccinations.length}
           >
-            View certificate
+            Vaccine certificate
           </Button>
           <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
             Record vaccine
