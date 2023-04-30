@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { Collapse, Divider, IconButton, ListItem, Tooltip, Typography } from '@material-ui/core';
+import { Collapse, Divider, IconButton, ListItem, Typography } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { ExpandMore, ExpandLess, NavigateBefore, NavigateNext } from '@material-ui/icons';
@@ -9,11 +9,14 @@ import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
 import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
+import { ThemedTooltip } from './Tooltip';
 
 const colorFromEncounterType = {
   admission: Colors.green,
   clinic: '#E9AC50',
   triage: Colors.orange,
+  observation: Colors.orange,
+  emergency: Colors.orange,
   default: Colors.blue,
 };
 
@@ -126,17 +129,6 @@ const MarginDiv = styled.div`
   width: 30px;
 `;
 
-const StyledTooltip = styled(props => <Tooltip classes={{ popper: props.className }} {...props} />)`
-  .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    padding: 8px;
-    font-size: 11px;
-  }
-  .MuiTooltip-arrow {
-    color: ${Colors.primaryDark};
-  }
-`;
-
 const PATIENTS_PER_PAGE = 6;
 
 const Card = ({ patient, handleClick }) => {
@@ -144,15 +136,11 @@ const Card = ({ patient, handleClick }) => {
     <CardComponent onClick={() => handleClick(patient.id)}>
       <EncounterTypeIndicator encounterType={patient.encounter_type} />
       <CardComponentContent>
-        <StyledTooltip
-          title={`${patient.firstName || ''} ${patient.lastName || ''}`}
-          placement="top"
-          arrow
-        >
+        <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
           <CardTitle encounterType={patient.encounter_type}>
             {patient.firstName} {patient.lastName}
           </CardTitle>
-        </StyledTooltip>
+        </ThemedTooltip>
         <CardText>{patient.displayId}</CardText>
         <CapitalizedCardText>{patient.sex}</CapitalizedCardText>
         <CardText>
@@ -171,11 +159,12 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   const dispatch = useDispatch();
   const api = useApi();
 
-  const { data: { data: recentlyViewedPatients } = {} } = useQuery(['recentlyViewedPatients'], () =>
-    api.get('user/recently-viewed-patients', { encounterType }),
+  const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(
+    ['recentlyViewedPatients'],
+    () => api.get('user/recently-viewed-patients', { encounterType }),
   );
 
-  const pageCount = Math.floor(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
+  const pageCount = Math.ceil(recentlyViewedPatients?.length / PATIENTS_PER_PAGE);
   const changePage = delta => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(

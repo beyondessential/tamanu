@@ -28,6 +28,7 @@ const columns = [
     maxWidth: 200,
   },
   { key: 'requestId', title: 'Test ID', accessor: getRequestId },
+  { key: 'labTestPanelName', title: 'Panel' },
   { key: 'testCategory', title: 'Test category', accessor: getRequestType },
   { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
   { key: 'requestedBy', title: 'Requested by', accessor: getRequestedBy },

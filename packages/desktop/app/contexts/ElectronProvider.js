@@ -1,5 +1,6 @@
 import React from 'react';
 import { remote, shell } from 'electron';
+import { readFile } from 'fs/promises';
 
 import { ElectronContext } from './Electron';
 
@@ -20,6 +21,7 @@ export const ElectronProvider = ({ children }) => {
         showItemInFolder,
         openPath,
         printPage,
+        readFile,
       }}
     >
       {children}

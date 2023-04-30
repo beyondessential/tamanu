@@ -51,8 +51,10 @@ export const NewVaccineTabComponent = ({
         date,
         scheduledVaccine,
         encounter,
+        notGivenReasonId,
         ...otherValues
       } = values;
+
       const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -65,7 +67,10 @@ export const NewVaccineTabComponent = ({
         scheduledVaccine: scheduledVaccineId,
         recorder: recorderId,
         encounter: vaccineEncounter.id,
+        notGivenReasonId,
       });
+
+      const notGivenReason = await models.ReferenceData.findOne({ id: notGivenReasonId });
 
       if (values.administeredVaccine) {
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
@@ -75,7 +80,9 @@ export const NewVaccineTabComponent = ({
               ...updatedVaccine,
               encounter,
               scheduledVaccine,
+              notGivenReason,
             },
+            status: updatedVaccine.status,
           },
         });
       } else {
