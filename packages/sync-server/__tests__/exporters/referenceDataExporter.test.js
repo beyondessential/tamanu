@@ -114,7 +114,7 @@ describe('Reference data exporter', () => {
     ]);
   });
 
-  it('Should not export when exporting other reference data', async () => {
+  it('Should not export reference data types that are not included in the whitelist', async () => {
     await createDiagnosis();
     await referenceDataExporter(models, { 1: REFERENCE_TYPES.ALLERGY });
     expect(writeExcelFileSpy).toBeCalledWith([
