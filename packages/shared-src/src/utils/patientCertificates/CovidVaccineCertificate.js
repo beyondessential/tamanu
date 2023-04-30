@@ -64,6 +64,7 @@ export const CovidVaccineCertificate = ({
   uvci,
   getLocalisation,
   extraPatientFields,
+  printedDate,
 }) => {
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
@@ -101,7 +102,7 @@ export const CovidVaccineCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
+              <P>Printing date: {getDisplayDate(printedDate)}</P>
             </Col>
           </Row>
         </Box>

@@ -33,6 +33,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
+        createdAt: new Date(),
       });
     },
     [api, patient.id, printedBy],
@@ -59,6 +60,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           logoSrc={logo}
           signingSrc={footerImg}
           printedBy={printedBy}
+          printedDate={new Date()}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>
