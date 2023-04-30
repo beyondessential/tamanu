@@ -1,7 +1,7 @@
 import { User } from 'shared/models/User';
 import { createTestContext, withDate } from '../utilities';
 import { sanitizeFilename } from '../../app/admin/reports/utils';
-import { REPORT_VERSION_EXPORT_FORMATS } from '../../../shared-src/src/constants/reports';
+import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants/reports';
 
 describe('reports', () => {
   let ctx;
