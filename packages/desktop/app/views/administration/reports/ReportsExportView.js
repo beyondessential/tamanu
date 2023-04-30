@@ -3,7 +3,6 @@ import { promises as fs } from 'fs';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { remote, shell } from 'electron';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants/reports';
 import {
@@ -15,6 +14,7 @@ import {
   SelectField,
 } from '../../../components';
 import { useApi } from '../../../api';
+import { useElectron } from '../../../contexts/Electron';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -37,10 +37,9 @@ const schema = yup.object().shape({
     .required('Format is a required field'),
 });
 
-const SuccessMessage = ({ filePath }) => (
+const SuccessMessage = ({ onClick, filePath }) => (
   <>
-    Successfully exported to{' '}
-    <StyledLink onClick={() => shell.showItemInFolder(filePath)}>{filePath}</StyledLink>
+    Successfully exported to <StyledLink onClick={onClick}>{filePath}</StyledLink>
   </>
 );
 
@@ -98,20 +97,27 @@ const VersionSelectField = ({ error, helperText, ...props }) => {
 
 export const ReportsExportView = () => {
   const api = useApi();
+  const { showItemInFolder, showSaveDialog } = useElectron();
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
       const { filename, data } = await api.get(
         `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
       );
-      const result = await remote.dialog.showSaveDialog({
+      const result = await showSaveDialog({
         defaultPath: filename,
       });
       if (!result.canceled) {
         await fs.writeFile(result.filePath, Buffer.from(data));
-        toast.success(<SuccessMessage filePath={result.filePath} />, {
-          autoClose: false,
-        });
+        toast.success(
+          <SuccessMessage
+            filePath={result.filePath}
+            onClick={() => showItemInFolder(result.filePath)}
+          />,
+          {
+            autoClose: false,
+          },
+        );
       }
     } catch (err) {
       toast.error(`Failed to export: ${err.message}`);
