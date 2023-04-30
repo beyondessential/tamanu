@@ -78,6 +78,7 @@ const ClearAllButton = styled(TextButton)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 400;
+  text-transform: none;
   text-decoration: underline;
   color: ${({ theme }) => theme.palette.primary.main};
   &:hover {
@@ -144,6 +145,7 @@ export const TestSelectorInput = ({
   value,
   requestFormType,
   labTestPanelId,
+  onClearPanel,
   isLoading,
   onChange,
   required,
@@ -163,6 +165,7 @@ export const TestSelectorInput = ({
   const handleClear = () => {
     setTestFilters(values => ({ ...values, labTestPanelId: '' }));
     handleChange([]);
+    onClearPanel();
   };
 
   const handleChangeTestFilters = event =>

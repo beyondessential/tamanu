@@ -12,6 +12,7 @@ import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
 
 export const MODAL_PADDING = 32;
+export const MODAL_TRANSITION_DURATION = 300;
 
 /*  To keep consistent use of styled-components,
     re-define dialog paper classes here instead of
@@ -93,6 +94,7 @@ export const Modal = memo(
     additionalActions,
     color = Colors.background,
     overrideContentPadding = false,
+    disableHeaderCloseIcon = false,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -127,6 +129,7 @@ export const Modal = memo(
         classes={classes}
         open={open}
         onClose={onDialogClose}
+        transitionDuration={MODAL_TRANSITION_DURATION}
         {...props}
       >
         <ModalTitle>
@@ -144,9 +147,11 @@ export const Modal = memo(
                 Print
               </StyledButton>
             )}
-            <IconButton onClick={onClose}>
-              <CloseIcon />
-            </IconButton>
+            {!disableHeaderCloseIcon && (
+              <IconButton onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            )}
           </div>
         </ModalTitle>
         <ModalContainer $color={color}>

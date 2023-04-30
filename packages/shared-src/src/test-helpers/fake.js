@@ -1,4 +1,4 @@
-import { random, sample } from 'lodash';
+import { random, sample, snakeCase } from 'lodash';
 import Chance from 'chance';
 import { DataTypes } from 'sequelize';
 import { inspect } from 'util';
@@ -335,6 +335,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
     email: chance.email(),
     displayName: chance.name(),
     role: 'practitioner',
+  }),
+  Role: () => ({
+    name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
   }),
   Survey: () => ({
     isSensitive: false,

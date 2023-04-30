@@ -297,7 +297,7 @@ patientRoute.get(
 
     // Check if this is the main patient listing and change FROM and SELECT
     // clauses to improve query speed by removing unused joins
-    const isAllPatientsListing = !filterParams.facilityId;
+    const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 

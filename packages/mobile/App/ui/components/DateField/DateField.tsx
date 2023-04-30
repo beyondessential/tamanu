@@ -8,7 +8,6 @@ import { theme } from '/styled/theme';
 import { DateFormats } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as Icons from '../Icons';
-import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import { InputContainer } from '../TextField/styles';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
@@ -102,7 +101,11 @@ export const DateField = React.memo(
     const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
     return (
-      <StyledView width="100%">
+      <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
+        <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
+          {label}
+          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+        </StyledText>
         <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
           <TouchableWithoutFeedback onPress={showDatePicker}>
             <InputContainer
@@ -112,33 +115,24 @@ export const DateField = React.memo(
               flexDirection="row"
               justifyContent="space-between"
               paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
+              backgroundColor={theme.colors.WHITE}
             >
-              {label && (
-                <TextFieldLabel
-                  error={error}
-                  focus={disabled ? false : isDatePickerVisible}
-                  onFocus={showDatePicker}
-                  isValueEmpty={value !== null}
-                >
-                  {`${label}${required ? '*' : ''}`}
-                </TextFieldLabel>
-              )}
               <StyledText
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}
                 color={theme.colors.TEXT_DARK}
-                marginTop={
-                  label
-                    ? screenPercentageToDP(2.2, Orientation.Height)
-                    : screenPercentageToDP(1.2, Orientation.Height)
-                }
+                marginTop={screenPercentageToDP(1.2, Orientation.Height)}
               >
                 {formatValue()}
               </StyledText>
-              <StyledView marginRight={10} height="100%" justifyContent="center">
+              <StyledView
+                marginRight={10}
+                height="100%"
+                width={screenPercentageToDP(2.4, Orientation.Height)}
+              >
                 <IconComponent
-                  height={screenPercentageToDP(3.03, Orientation.Height)}
-                  width={screenPercentageToDP(3.03, Orientation.Height)}
-                  fill={error ? theme.colors.ERROR : theme.colors.BOX_OUTLINE}
+                  height={screenPercentageToDP(2.4, Orientation.Height)}
+                  width={screenPercentageToDP(2.4, Orientation.Height)}
+                  fill={error ? theme.colors.ERROR : theme.colors.PRIMARY_MAIN}
                 />
               </StyledView>
             </InputContainer>
