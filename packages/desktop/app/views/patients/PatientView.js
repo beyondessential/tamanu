@@ -66,8 +66,8 @@ const TABS = [
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Immunisation',
-    key: PATIENT_TABS.IMMUNISATION,
+    label: 'Vaccines',
+    key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
     render: props => <VaccinesPane {...props} />,
   },
