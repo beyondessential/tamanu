@@ -13,7 +13,7 @@ export async function getValues(upstream, models) {
   const { AdministeredVaccine } = models;
 
   if (upstream instanceof AdministeredVaccine) return getValuesFromAdministeredVaccine(upstream);
-  throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
+  throw new Error(`Invalid upstream type for immunization ${upstream.constructor.name}`);
 }
 
 async function getValuesFromAdministeredVaccine(administeredVaccine) {
