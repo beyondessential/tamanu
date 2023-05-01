@@ -149,7 +149,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       name: 'routineOverseas',
       condition: routine && !notGiven && givenElsewhere,
       fields: [
-        ...(editMode ? [] : [fieldObjects.status]),
+        ...(editMode ? [] : [[fieldObjects.status]]),
         [
           fieldObjects.vaccine,
           fieldObjects.schedule,
