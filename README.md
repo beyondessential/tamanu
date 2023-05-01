@@ -67,6 +67,29 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 ## Run
 
 <details>
+<summary>Prerequisites</summary>
+
+#### Install postgres
+
+##### OSX
+
+Run:
+```bash
+brew install postgres
+brew services start postgres
+```
+
+##### WSL
+
+Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`
+
+##### Linux
+
+Install PostgreSQL from your package manager
+
+</details>
+
+<details>
 <summary>Sync server</summary>
 
 By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
@@ -76,8 +99,6 @@ By default, the sync server will not run migrations automatically. To enable aut
 Run:
 
 ```bash
-brew install postgres
-brew services start postgres
 createdb tamanu-sync
 yarn install
 yarn workspace sync-server setup-dev
@@ -85,8 +106,7 @@ yarn sync-start-dev
 ```
 
 #### WSL
-
-Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then run:
+run:
 
 ```bash
 yarn install
@@ -95,8 +115,6 @@ yarn sync-start-dev
 ```
 
 #### Linux
-
-Install PostgreSQL from your package manager, and create a new database `tamanu-sync`, then run:
 
 ```bash
 yarn install
