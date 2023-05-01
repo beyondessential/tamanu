@@ -54,18 +54,16 @@ export const NewVaccineTabComponent = ({
         scheduledVaccine,
         encounter,
         notGivenReasonId,
+        departmentId,
+        locationId,
         ...otherValues
       } = values;
-      const facilityId = await readConfig('facilityId', '');
-      const { departmentId, locationId } =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
-
       const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
         {
-          departmentId,
-          locationId,
+          department: departmentId,
+          location: locationId,
         },
       );
 
@@ -77,6 +75,8 @@ export const NewVaccineTabComponent = ({
         recorder: recorderId,
         encounter: vaccineEncounter.id,
         notGivenReasonId,
+        department: departmentId,
+        location: locationId,
       };
 
       // If id exists then it means user is updating an existing vaccine record

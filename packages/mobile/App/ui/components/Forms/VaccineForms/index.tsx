@@ -1,5 +1,7 @@
 import React, { FC, useMemo } from 'react';
 import * as Yup from 'yup';
+import { NavigationProp } from '@react-navigation/native';
+
 import { RowView } from '/styled/common';
 import { ScrollView } from 'react-native';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
@@ -27,6 +29,9 @@ export type VaccineFormValues = {
   date: Date;
   reason?: string;
   batch?: string;
+  locationId: string;
+  locationGroupId: string;
+  departmentId: string;
   injectionSite?: InjectionSiteType;
   scheduledVaccineId?: string;
   givenBy?: string;
@@ -34,11 +39,12 @@ export type VaccineFormValues = {
   status: string | VaccineStatus;
 };
 
-interface VaccineForm {
+interface VaccineFormProps {
   status: VaccineStatus;
   initialValues: VaccineFormValues;
   onSubmit: (values: VaccineFormValues) => Promise<void>;
   onCancel: () => void;
+  navigation: NavigationProp<any>;
 }
 
 const createInitialValues = (initialValues: VaccineFormValues): VaccineFormValues => ({
@@ -55,26 +61,31 @@ export const VaccineForm = ({
   status,
   onSubmit,
   onCancel,
-}: VaccineForm): JSX.Element => {
+  navigation,
+}: VaccineFormProps): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
-  const consentSchema =
-    status === VaccineStatus.GIVEN
-      ? Yup.boolean()
-          .oneOf([true])
-          .required()
-      : Yup.boolean();
+  const consentSchema = status === VaccineStatus.GIVEN
+    ? Yup.boolean()
+      .oneOf([true])
+      .required('Required')
+    : Yup.boolean();
   return (
     <Form
       onSubmit={onSubmit}
       validationSchema={Yup.object().shape({
-        date: Yup.date().required(),
+        date: Yup.date()
+          .typeError('Required')
+          .required(),
+        locationGroupId: Yup.string().required('Required'),
+        locationId: Yup.string().required('Required'),
+        departmentId: Yup.string().required('Required'),
         consent: consentSchema,
       })}
       initialValues={createInitialValues({ ...initialValues, status })}
     >
       {(): JSX.Element => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
-          <StatusForm />
+          <StatusForm navigation={navigation} />
           <RowView paddingTop={20} paddingBottom={20} flex={1}>
             <Button
               width={screenPercentageToDP(43.1, Orientation.Width)}

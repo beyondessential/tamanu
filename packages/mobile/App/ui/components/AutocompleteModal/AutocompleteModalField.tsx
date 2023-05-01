@@ -17,6 +17,7 @@ interface AutocompleteModalFieldProps {
   error?: string;
   label?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 export const AutocompleteModalField = ({
@@ -29,6 +30,7 @@ export const AutocompleteModalField = ({
   error,
   required,
   marginTop = 0,
+  disabled = false,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(placeholder);
@@ -54,10 +56,17 @@ export const AutocompleteModalField = ({
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
-      <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
-        {fieldLabel}
-        {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
-      </StyledText>
+      {!!fieldLabel && (
+        <StyledText
+          fontSize={14}
+          fontWeight={600}
+          marginBottom={2}
+          color={theme.colors.TEXT_SUPER_DARK}
+        >
+          {fieldLabel}
+          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+        </StyledText>
+      )}
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
@@ -73,6 +82,7 @@ export const AutocompleteModalField = ({
         fontSize={15}
         padding={10}
         onPress={openModal}
+        disabled={disabled}
       />
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>
