@@ -108,7 +108,7 @@ By default, the sync server will not run migrations automatically. To enable aut
 
 #### Prerequisite
 1. Duplicate `sync-server/config/local.example` as new file `config/local.json`.
-2. Create db `tamanu-sync` or customised name, new db can be with or without owner.
+2. Create db using `tamanu-sync` or any customised name, new db can be with or without owner.
 3. Store db name, root username, password or db owner credentials to `config/local.json` db config.
 
 #### Run
@@ -138,7 +138,7 @@ local development, this can just be another process on the same host.
 #### Prerequisite
 1. Start `sync-server`
 2. Duplicate `lan/config/local.example` as new file `config/local.json`.
-3. Create db `tamanu-lan` or customised name, new db can be with or without owner.
+3. Create db using `tamanu-lan` or any customised name, new db can be with or without owner.
 4. Store db name, root username, password or db owner credentials to `config/local.json` db config.
 
 #### Run
