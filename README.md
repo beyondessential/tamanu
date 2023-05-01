@@ -99,12 +99,20 @@ By default, the sync server will not run migrations automatically. To enable aut
 2. Create db `tamanu-sync` or customised name, new db can be with or without owner.
 3. Store db name, root username, password or db owner credentials to `config/local.json` db config.
 
-#### Run:
+#### Run
 
 ```bash
 yarn install
-yarn workspace sync-server setup-dev
+yarn workspace sync-server setup-dev # If it doesn't work, go for 'Pull data from remote'
 yarn sync-start-dev
+```
+
+#### Pull data from remote
+1. Ask help for pulling data from tamanu dev
+2. Import data to local by running: 
+
+```
+psql -U [DB_USERNAME] -d tamanu-sync < [Path to tamanu-central-dev.sql]
 ```
 
 </details>
