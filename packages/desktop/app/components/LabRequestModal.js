@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import styled from 'styled-components';
 import { useApi, useSuggester } from '../api';
 import { combineQueries } from '../api/combineQueries';
 import { Modal } from './Modal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
 import { useEncounter } from '../contexts/Encounter';
+
+const StyledModal = styled(Modal)`
+  .MuiDialog-paper {
+    max-width: 926px;
+  }
+`;
 
 const SECTION_TITLES = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'Individual',
@@ -82,7 +89,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   }
 
   return (
-    <Modal
+    <StyledModal
       maxWidth="md"
       title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
       open={open}
@@ -90,6 +97,6 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       minHeight={500}
     >
       {ModalBody}
-    </Modal>
+    </StyledModal>
   );
 });

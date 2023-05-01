@@ -1,5 +1,5 @@
 import config from 'config';
-import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
@@ -178,22 +178,43 @@ describe('Imaging requests', () => {
     expect(record).toHaveProperty('requestedBy.displayName');
   });
 
-  it('should return areas to be imaged', async () => {
-    const result = await app.get('/v1/imagingRequest/areas');
-    expect(result).toHaveSucceeded();
-    const { body } = result;
-    const expectedAreas = expect.arrayContaining([
-      expect.objectContaining({
-        id: expect.any(String),
-      }),
-    ]);
-    expect(body).toEqual(
-      expect.objectContaining({
-        xRay: expectedAreas,
-        ctScan: expectedAreas,
-        ultrasound: expectedAreas,
-      }),
-    );
+  describe('Area listing', () => {
+
+    it('should return areas to be imaged', async () => {
+      const result = await app.get('/v1/imagingRequest/areas');
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+      const expectedAreas = expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(String),
+        }),
+      ]);
+      expect(body).toEqual(
+        expect.objectContaining({
+          xRay: expectedAreas,
+          ctScan: expectedAreas,
+          ultrasound: expectedAreas,
+        }),
+      );
+    });
+
+    it('should respect visibilityStatus', async () => {
+      const hiddenArea = await models.ReferenceData.create(fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      }));
+      
+      const result = await app.get('/v1/imagingRequest/areas');
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+
+      expect(body.xRay).not.toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          id: hiddenArea.id,
+        })
+      ]));
+    });
+
   });
 
   it('should return all results for an imaging request', async () => {
