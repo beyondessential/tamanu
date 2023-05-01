@@ -26,6 +26,7 @@ import {
   dateOfBirth,
   status,
   department,
+  clinician,
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
@@ -50,21 +51,12 @@ const locationGroup = {
   accessor: LocationGroupCell,
 };
 
-const location = {
-  key: 'locationName',
-  title: 'Location',
-  minWidth: 100,
-  accessor: LocationCell,
-};
-
-const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, dateOfBirth]
-  .map(column => ({
+const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
+  [locationGroup, department, clinician].map(column => ({
     ...column,
     sortable: false,
-  })) // the above columns are not sortable due to backend query
-  // https://github.com/beyondessential/tamanu/pull/2029#issuecomment-1090981599
-  // location and department should be sortable
-  .concat([locationGroup, location, department]);
+  })),
+);
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
