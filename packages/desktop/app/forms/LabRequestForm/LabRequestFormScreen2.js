@@ -20,19 +20,19 @@ const SECTION_LABELS = {
     subheading: 'Select tests',
     instructions:
       'Please select the test or tests you would like to request below and add any relevant notes. You can filter test by category using the field below.',
-    testTypeIdLabel: 'Select tests',
+    testSelectorFieldLabel: 'Select tests',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
     subheading: 'Select panel',
     instructions:
       'Please select the panel or panels you would like to request below and add any relevant notes.',
-    testTypeIdLabel: 'Select the test panel or panels',
+    testSelectorFieldLabel: 'Select the test panel or panels',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: 'Select superset',
     instructions:
       'Please select the superset you would like to request below and add any relevant notes. You can also remove or add additional panels to your request.',
-    testTypeIdLabel: 'Select superset',
+    testSelectorFieldLabel: 'Select superset',
   },
 };
 
@@ -42,8 +42,8 @@ export const LabRequestFormScreen2 = props => {
     setFieldValue,
   } = props;
 
-  const labels = useMemo(() => {
-    return SECTION_LABELS[requestFormType] || {};
+  const formTypeToLabelConfig = useMemo(() => {
+    return SECTION_LABELS[requestFormType] || { testSelectorFieldLabel: 'Select tests' };
   }, [requestFormType]);
   const api = useApi();
   const { data: testTypesData, isLoading } = useQuery(['labTestTypes'], () =>
@@ -57,15 +57,17 @@ export const LabRequestFormScreen2 = props => {
   return (
     <>
       <div style={{ gridColumn: '1 / -1' }}>
-        {labels.subheading && <Heading3 mb="12px">{labels.subheading}</Heading3>}
-        {labels.instructions && (
+        {formTypeToLabelConfig.subheading && (
+          <Heading3 mb="12px">{formTypeToLabelConfig.subheading}</Heading3>
+        )}
+        {formTypeToLabelConfig.instructions && (
           <BodyText mb="28px" color="textTertiary">
-            {labels.instructions}
+            {formTypeToLabelConfig.instructions}
           </BodyText>
         )}
         <Field
           name="labTestTypeIds"
-          label={labels.testTypeIdLabel || 'Select tests'}
+          label={formTypeToLabelConfig.testSelectorFieldLabel || 'Select tests'}
           onClearPanel={handleClearPanel}
           component={TestSelectorField}
           requestFormType={requestFormType}
