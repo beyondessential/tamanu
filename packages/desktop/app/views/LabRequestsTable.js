@@ -38,8 +38,7 @@ export const LabRequestsTable = ({ status = '' }) => {
       { key: 'labTestPanelName', title: 'Panel' },
       { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
       { key: 'requestedBy', title: 'Requested by', accessor: getRequestedBy },
-      !publishedStatus && { key: 'priority', title: 'Priority', accessor: getPriority },
-      publishedStatus && { key: 'publishedDate', title: 'Published', accessor: getPublishedDate },
+      publishedStatus ? { key: 'publishedDate', title: 'Published', accessor: getPublishedDate } : { key: 'priority', title: 'Priority', accessor: getPriority },
       { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
     ];
   }, [publishedStatus]);
