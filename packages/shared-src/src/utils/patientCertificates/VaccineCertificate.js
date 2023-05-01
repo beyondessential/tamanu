@@ -55,6 +55,7 @@ const columns = [
 export const VaccineCertificate = ({
   patient,
   printedBy,
+  printedDate,
   vaccinations,
   certificateId,
   signingSrc,
@@ -107,7 +108,7 @@ export const VaccineCertificate = ({
               <Col>
                 <P>
                   <P bold>Printing date: </P>
-                  {getDisplayDate(undefined, undefined, getLocalisation)}
+                  {getDisplayDate(printedDate)}
                 </P>
               </Col>
             </Row>
