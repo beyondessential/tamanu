@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import styled from 'styled-components';
 import { useApi, useSuggester } from '../api';
 import { combineQueries } from '../api/combineQueries';
 import { Modal } from './Modal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
 import { useEncounter } from '../contexts/Encounter';
+
+const StyledModal = styled(Modal)`
+  .MuiDialog-paper {
+    max-width: 926px;
+  }
+`;
 
 const SECTION_TITLES = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'Individual',
@@ -28,10 +35,10 @@ const useLabRequests = labRequestIds => {
 };
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
-  const [sectionTitle, setSectionTitle] = useState('');
+  const [requestFormType, setRequestFormType] = useState(null);
+  const [newLabRequestIds, setNewLabRequestIds] = useState([]);
   const api = useApi();
   const { loadEncounter } = useEncounter();
-  const [newLabRequestIds, setNewLabRequestIds] = useState([]);
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -55,8 +62,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   };
 
   const handleChangeStep = (step, values) => {
-    const { requestFormType } = values;
-    setSectionTitle(step === 0 ? '' : SECTION_TITLES[requestFormType]);
+    setRequestFormType(step === 0 ? null : values.requestFormType);
   };
 
   let ModalBody = (
@@ -76,20 +82,21 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       <LabRequestSummaryPane
         encounter={encounter}
         labRequests={newLabRequests}
+        requestFormType={requestFormType}
         onClose={handleClose}
       />
     );
   }
 
   return (
-    <Modal
+    <StyledModal
       maxWidth="md"
-      title={`New lab request${sectionTitle ? ` | ${sectionTitle}` : ''}`}
+      title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
       open={open}
       onClose={handleClose}
       minHeight={500}
     >
       {ModalBody}
-    </Modal>
+    </StyledModal>
   );
 });

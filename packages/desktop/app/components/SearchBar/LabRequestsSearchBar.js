@@ -138,6 +138,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           saveDateAsString
           component={DateField}
         />
+<<<<<<< HEAD
         {publishedStatus ? (
           <LocalisedField
             name="laboratory"
@@ -155,6 +156,15 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             size="small"
           />
         )}
+=======
+        <LocalisedField
+          name="status"
+          defaultLabel="Status"
+          component={SelectField}
+          options={LAB_REQUEST_STATUS_OPTIONS}
+          size="small"
+        />
+>>>>>>> e8b30c683af84d3662b6477a5ae247fd227ead83
       </>
     </CustomisableSearchBar>
   );

@@ -78,6 +78,7 @@ const ClearAllButton = styled(TextButton)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 400;
+  text-transform: none;
   text-decoration: underline;
   color: ${({ theme }) => theme.palette.primary.main};
   &:hover {
