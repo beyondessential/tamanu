@@ -33,6 +33,15 @@ const dataTypeToModelNameAndWhere = dataType => {
   return { modelName: dataType.charAt(0).toUpperCase() + dataType.slice(1), where: {} };
 };
 
+function isDate(dateString) {
+  const regEx = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateString || !dateString.match(regEx)) return false; // Invalid format
+  const d = new Date(dateString);
+  const dNum = d.getTime();
+  if (!dNum && dNum !== 0) return false; // NaN value, Invalid date
+  return d.toISOString().slice(0, 10) === dateString;
+}
+
 async function buildSheetDataForDataType(models, dataType) {
   const { modelName, where } = dataTypeToModelNameAndWhere(dataType);
 
@@ -45,10 +54,18 @@ async function buildSheetDataForDataType(models, dataType) {
       !METADATA_COLUMNS.includes(header) &&
       !(HIDDEN_COLUMNS_PER_MODEL_NAME[modelName] || []).includes(header),
   );
-  return [headers, ...data.map(row => headers.map(header => row[header]))];
+  return [
+    headers,
+    ...data.map(row =>
+      headers.map(header => {
+        const value = row[header];
+        return isDate(value) ? new Date(value) : value;
+      }),
+    ),
+  ];
 }
 
-export async function referenceDataExporter(models, includedDataTypes = {}) {
+export async function referenceDataExporter(models, includedDataTypes = {}, fileName = '') {
   const sheets = await Promise.all(
     Object.values(includedDataTypes).map(async dataType => {
       const data = await buildSheetDataForDataType(models, dataType);
@@ -58,5 +75,5 @@ export async function referenceDataExporter(models, includedDataTypes = {}) {
       };
     }),
   );
-  return writeExcelFile(sheets);
+  return writeExcelFile(sheets, fileName);
 }

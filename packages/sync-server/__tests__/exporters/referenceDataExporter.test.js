@@ -24,47 +24,6 @@ describe('Reference data exporter', () => {
     await PatientFieldDefinitionCategory.destroy({ where: {}, force: true });
   });
 
-  async function createDiagnosis() {
-    await models.ReferenceData.create({
-      type: 'icd10',
-      code: 'M79.7',
-      id: 'icd10-M79-7',
-      name: 'Myofibrosis',
-    });
-    await models.ReferenceData.create({
-      type: 'icd10',
-      code: 'S79.9',
-      id: 'icd10-S79-9',
-      name: 'Thigh injury',
-    });
-  }
-
-  async function createPatientFieldDefCategory() {
-    await models.PatientFieldDefinitionCategory.create({
-      id: '123',
-      name: 'test 123',
-    });
-    await models.PatientFieldDefinitionCategory.create({
-      id: '1234',
-      name: 'test 1234',
-    });
-  }
-
-  async function createAllergy() {
-    await models.ReferenceData.create({
-      type: 'allergy',
-      code: 'Sesame',
-      id: 'allergy-Sesame',
-      name: 'Sesame',
-    });
-    await models.ReferenceData.create({
-      type: 'allergy',
-      code: 'Wheat',
-      id: 'allergy-Wheat',
-      name: 'Wheat',
-    });
-  }
-
   it('Should export empty data if no data type selected', async () => {
     await referenceDataExporter(models);
     expect(writeExcelFileSpy).toBeCalledWith([]);
@@ -85,7 +44,7 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export a tab with name "Patient Field Def Category" for "patientFieldDefinitionCategory"', async () => {
-    await createPatientFieldDefCategory();
+    await createPatientFieldDefCategory(models);
     await referenceDataExporter(models, { 1: 'patientFieldDefinitionCategory' });
     expect(writeExcelFileSpy).toBeCalledWith([
       {
@@ -100,7 +59,7 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export a tab "Diagnosis" and uses all Reference Data where type equals "icd10"', async () => {
-    await createDiagnosis();
+    await createDiagnosis(models);
     await referenceDataExporter(models, { 1: 'diagnosis' });
     expect(writeExcelFileSpy).toBeCalledWith([
       {
@@ -115,7 +74,7 @@ describe('Reference data exporter', () => {
   });
 
   it('Should not export reference data types that are not included in the whitelist', async () => {
-    await createDiagnosis();
+    await createDiagnosis(models);
     await referenceDataExporter(models, { 1: REFERENCE_TYPES.ALLERGY });
     expect(writeExcelFileSpy).toBeCalledWith([
       {
@@ -126,8 +85,8 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export allergy only', async () => {
-    await createDiagnosis();
-    await createAllergy();
+    await createDiagnosis(models);
+    await createAllergy(models);
     await referenceDataExporter(models, { 1: REFERENCE_TYPES.ALLERGY });
     expect(writeExcelFileSpy).toBeCalledWith([
       {
@@ -142,8 +101,8 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export both Diagnosis and Allergy', async () => {
-    await createDiagnosis();
-    await createAllergy();
+    await createDiagnosis(models);
+    await createAllergy(models);
     await referenceDataExporter(models, { 1: REFERENCE_TYPES.ALLERGY, 2: 'diagnosis' });
     expect(writeExcelFileSpy).toBeCalledWith([
       {
@@ -209,8 +168,8 @@ describe('Reference data exporter', () => {
   it('Should export mixed Reference Data and other table data', async () => {
     const patientData = createDummyPatient(models);
     const patient = await models.Patient.create(patientData);
-    await createDiagnosis();
-    await createAllergy();
+    await createDiagnosis(models);
+    await createAllergy(models);
     await referenceDataExporter(models, {
       1: 'patient',
       2: REFERENCE_TYPES.ALLERGY,
@@ -270,7 +229,7 @@ describe('Reference data exporter', () => {
   });
 
   it('Should throw an error when passing an wrong data type', async () => {
-    await createPatientFieldDefCategory();
+    await createPatientFieldDefCategory(models);
     await expect(referenceDataExporter(models, { 1: 'wrongDataType' })).rejects.toThrow();
   });
 });
