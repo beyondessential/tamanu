@@ -182,6 +182,11 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/templates',
   },
   {
+    key: 'assets',
+    label: 'Asset upload',
+    path: '/admin/assets',
+  },
+  {
     key: 'sync',
     label: 'Sync status',
     path: '/admin/sync',

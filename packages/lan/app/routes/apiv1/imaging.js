@@ -77,6 +77,7 @@ imagingRequest.get(
     const records = await ReferenceData.findAll({
       where: {
         type: Object.values(IMAGING_AREA_TYPES),
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
     // Key areas by imagingType
