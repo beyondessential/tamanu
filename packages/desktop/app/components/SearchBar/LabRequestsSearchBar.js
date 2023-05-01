@@ -79,26 +79,25 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             suggester={departmentSuggester}
             size="small"
           />
-          {!publishedStatus && (
-            <LocalisedField
-              name="laboratory"
-              defaultLabel="Laboratory"
-              component={SuggesterSelectField}
-              endpoint="labTestLaboratory"
-              size="small"
-            />
-          )}
-          {publishedStatus && (
+          {publishedStatus ? (
             <Field name="publishedDate" label="Published" saveDateAsString component={DateField} />
-          )}
-          {!publishedStatus && (
-            <LocalisedField
-              name="priority"
-              defaultLabel="Priority"
-              component={SuggesterSelectField}
-              endpoint="labTestPriority"
-              size="small"
-            />
+          ) : (
+            <>
+              <LocalisedField
+                name="laboratory"
+                defaultLabel="Laboratory"
+                component={SuggesterSelectField}
+                endpoint="labTestLaboratory"
+                size="small"
+              />
+              <LocalisedField
+                name="priority"
+                defaultLabel="Priority"
+                component={SuggesterSelectField}
+                endpoint="labTestPriority"
+                size="small"
+              />
+            </>
           )}
           <FacilityCheckbox>
             <Field name="allFacilities" label="Include all facilities" component={CheckField} />
@@ -138,7 +137,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           saveDateAsString
           component={DateField}
         />
-<<<<<<< HEAD
         {publishedStatus ? (
           <LocalisedField
             name="laboratory"
@@ -156,15 +154,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             size="small"
           />
         )}
-=======
-        <LocalisedField
-          name="status"
-          defaultLabel="Status"
-          component={SelectField}
-          options={LAB_REQUEST_STATUS_OPTIONS}
-          size="small"
-        />
->>>>>>> e8b30c683af84d3662b6477a5ae247fd227ead83
       </>
     </CustomisableSearchBar>
   );

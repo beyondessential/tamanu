@@ -10,7 +10,6 @@ import {
   getRequestedBy,
   getPatientName,
   getPatientDisplayId,
-  getStatus,
   getRequestType,
   getPriority,
   getDateTime,
@@ -38,8 +37,9 @@ export const LabRequestsTable = ({ status = '' }) => {
       { key: 'labTestPanelName', title: 'Panel' },
       { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
       { key: 'requestedBy', title: 'Requested by', accessor: getRequestedBy },
-      publishedStatus ? { key: 'publishedDate', title: 'Published', accessor: getPublishedDate } : { key: 'priority', title: 'Priority', accessor: getPriority },
-      { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
+      publishedStatus
+        ? { key: 'publishedDate', title: 'Published', accessor: getPublishedDate }
+        : { key: 'priority', title: 'Priority', accessor: getPriority },
     ];
   }, [publishedStatus]);
   const dispatch = useDispatch();
