@@ -34,7 +34,7 @@ coverage.md
 lints.md
 
 # Local config files
-**/config/local.*
+**/config/local.json
 
 # Hidden files
 *.aes

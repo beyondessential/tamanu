@@ -94,27 +94,12 @@ Install PostgreSQL from your package manager
 
 By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
 
-#### OSX
+#### Prerequisite
+1. Duplicate `sync-server/config/local.example` as new file `config/local.json`.
+2. Create db `tamanu-sync` or customised name, new db can be with or without owner.
+3. Store db name, root username, password or db owner credentials to `config/local.json` db config.
 
-Run:
-
-```bash
-createdb tamanu-sync
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### WSL
-run:
-
-```bash
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### Linux
+#### Run:
 
 ```bash
 yarn install
@@ -129,6 +114,14 @@ yarn sync-start-dev
 
 The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
+
+#### Prerequisite
+1. Start `sync-server`
+2. Duplicate `lan/config/local.example` as new file `config/local.json`.
+3. Create db `tamanu-lan` or customised name, new db can be with or without owner.
+4. Store db name, root username, password or db owner credentials to `config/local.json` db config.
+
+#### Run
 
 ```bash
 $ yarn lan-start-dev
