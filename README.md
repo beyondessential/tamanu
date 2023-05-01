@@ -67,6 +67,46 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 ## Run
 
 <details>
+<summary>Sync server</summary>
+
+By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
+
+#### OSX
+
+Run:
+
+```bash
+brew install postgres
+brew services start postgres
+createdb tamanu-sync
+yarn install
+yarn workspace sync-server setup-dev
+yarn sync-start-dev
+```
+
+#### WSL
+
+Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then run:
+
+```bash
+yarn install
+yarn workspace sync-server setup-dev
+yarn sync-start-dev
+```
+
+#### Linux
+
+Install PostgreSQL from your package manager, and create a new database `tamanu-sync`, then run:
+
+```bash
+yarn install
+yarn workspace sync-server setup-dev
+yarn sync-start-dev
+```
+
+</details>
+
+<details>
 <summary>LAN server</summary>
 
 The Tamanu desktop app needs a lan server running to operate correctly. For
@@ -106,45 +146,6 @@ Note that we also use storybook to develop components in isolation, which you ca
 the desktop directory using `yarn storybook`.
 </details>
 
-<details>
-<summary>Sync server</summary>
-
-By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
-
-#### OSX
-
-Run:
-
-```bash
-brew install postgres
-brew services start postgres
-createdb tamanu-sync
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### WSL
-
-Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then run:
-
-```bash
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### Linux
-
-Install PostgreSQL from your package manager, and create a new database `tamanu-sync`, then run:
-
-```bash
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-</details>
 
 ## Integrations
 
