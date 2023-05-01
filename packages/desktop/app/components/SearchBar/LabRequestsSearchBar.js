@@ -14,12 +14,12 @@ import {
   CheckField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { useLabRequest, LabRequestKeys } from '../../contexts/LabRequest';
+import { useLabRequest, LabRequestSearchParamKeys } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 
 const useAdvancedFields = (advancedFields, publishedStatus) => {
   const { searchParameters, setSearchParameters } = useLabRequest(
-    publishedStatus ? LabRequestKeys.Published : LabRequestKeys.All,
+    publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
   );
 
   // If one of the advanced fields is filled in when landing on the screen,

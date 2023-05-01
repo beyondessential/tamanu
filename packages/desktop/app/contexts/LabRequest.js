@@ -1,6 +1,6 @@
-import React, { useContext, createContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, createContext, useState, useCallback } from 'react';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
-import { format } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -8,12 +8,13 @@ const LabRequestContext = createContext({
   isLoading: false,
 });
 
-export const LabRequestKeys = {
+export const LabRequestSearchParamKeys = {
   All: 'LabRequestListingView',
   Published: 'PublishedLabRequestsListingView',
+  Other: 'OtherView',
 };
 
-export const useLabRequest = (key = 'General') => {
+export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
   const {
     searchParameters: allSearchParameters,
     setSearchParameters: setAllSearchParameters,
@@ -31,18 +32,17 @@ export const useLabRequest = (key = 'General') => {
     [key, allSearchParameters, setAllSearchParameters],
   );
 
-  useEffect(() => {
-    if (!searchParameters) {
-      setSearchParameters({});
-    }
-  }, [searchParameters, setSearchParameters]);
-  return { searchParameters: searchParameters || {}, setSearchParameters, ...otherProps };
+  return { searchParameters, setSearchParameters, ...otherProps };
 };
 
 export const LabRequestProvider = ({ children }) => {
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [searchParameters, setSearchParameters] = useState({});
+  const [searchParameters, setSearchParameters] = useState({
+    [LabRequestSearchParamKeys.All]: {},
+    [LabRequestSearchParamKeys.Published]: {},
+    [LabRequestSearchParamKeys.Other]: {},
+  });
 
   const api = useApi();
 
@@ -59,7 +59,7 @@ export const LabRequestProvider = ({ children }) => {
       update.userId = api.user.id;
     }
     if (data.status === LAB_REQUEST_STATUSES.PUBLISHED) {
-      update.publishedDate = format(new Date(), 'yyyy-MM-dd HH:mm');
+      update.publishedDate = getCurrentDateTimeString();
     }
 
     await api.put(`labRequest/${labRequestId}`, update);

@@ -5,7 +5,7 @@ import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { SearchTable } from '../components';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
-import { useLabRequest, LabRequestKeys } from '../contexts/LabRequest';
+import { useLabRequest, LabRequestSearchParamKeys } from '../contexts/LabRequest';
 import {
   getRequestedBy,
   getPatientName,
@@ -46,7 +46,7 @@ export const LabRequestsTable = ({ status = '' }) => {
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest(
-    publishedStatus ? LabRequestKeys.Published : LabRequestKeys.All,
+    publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
   );
 
   const selectLab = async lab => {
@@ -68,7 +68,7 @@ export const LabRequestsTable = ({ status = '' }) => {
       onRowClick={selectLab}
       fetchOptions={{
         ...searchParameters,
-        ...(publishedStatus && { status: LAB_REQUEST_STATUSES.PUBLISHED }),
+        ...(status && { status }),
       }}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
     />
