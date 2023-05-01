@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -13,6 +14,7 @@ import {
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
+import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../../contexts/ImagingRequests';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -20,19 +22,36 @@ const FacilityCheckbox = styled.div`
   margin-top: 20px;
 `;
 
-export const ImagingRequestsSearchBar = ({
-  searchParameters,
-  setSearchParameters,
-  statusFilterTable,
-}) => {
+const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt'];
+
+const useAdvancedFields = (advancedFields, completedStatus) => {
+  const { searchParameters, setSearchParameters } = useImagingRequests(
+    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
+  );
+
+  // If one of the advanced fields is filled in when landing on the screen,
+  // show the advanced fields section
+  const defaultIsOpen = Object.keys(searchParameters).some(searchKey =>
+    advancedFields.includes(searchKey),
+  );
+  const [showAdvancedFields, setShowAdvancedFields] = useState(defaultIsOpen);
+  return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
+};
+
+export const ImagingRequestsSearchBar = ({ statusFilterTable, status = '' }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const areaSuggester = useSuggester('locationGroup') || [];
   const departmentSuggester = useSuggester('department') || [];
   const requesterSuggester = useSuggester('practitioner') || [];
-
-  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+  const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+  const {
+    showAdvancedFields,
+    setShowAdvancedFields,
+    searchParameters,
+    setSearchParameters,
+  } = useAdvancedFields(ADVANCED_FIELDS, completedStatus);
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,
