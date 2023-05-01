@@ -54,6 +54,7 @@ async function buildSheetDataForDataType(models, dataType) {
       !METADATA_COLUMNS.includes(header) &&
       !(HIDDEN_COLUMNS_PER_MODEL_NAME[modelName] || []).includes(header),
   );
+
   return [
     headers,
     ...data.map(row =>
@@ -65,7 +66,7 @@ async function buildSheetDataForDataType(models, dataType) {
   ];
 }
 
-export async function referenceDataExporter(models, includedDataTypes = {}, fileName = '') {
+export async function referenceDataExporter(models, includedDataTypes = {}, fileName='') {
   const sheets = await Promise.all(
     Object.values(includedDataTypes).map(async dataType => {
       const data = await buildSheetDataForDataType(models, dataType);
