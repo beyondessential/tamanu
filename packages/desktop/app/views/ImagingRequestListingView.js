@@ -26,7 +26,6 @@ export const ImagingRequestListingView = React.memo(({ status }) => {
         <ImagingRequestsSearchBar
           searchParameters={searchParameters}
           setSearchParameters={setSearchParameters}
-          statusFilterTable={!!status}
           status={status}
         />
         <ImagingRequestsTable

@@ -38,7 +38,7 @@ const useAdvancedFields = (advancedFields, completedStatus) => {
   return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
 };
 
-export const ImagingRequestsSearchBar = ({ statusFilterTable, status = '' }) => {
+export const ImagingRequestsSearchBar = ({ status = '' }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
@@ -68,7 +68,7 @@ export const ImagingRequestsSearchBar = ({ statusFilterTable, status = '' }) => 
       initialValues={searchParameters}
       staticValues={{ displayIdExact: true }}
       hiddenFields={
-        statusFilterTable && (
+        status && (
           <>
             <LocalisedField
               name="locationGroupId"
@@ -98,7 +98,7 @@ export const ImagingRequestsSearchBar = ({ statusFilterTable, status = '' }) => 
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
       <LocalisedField name="requestId" defaultLabel="Request ID" />
-      {!statusFilterTable && (
+      {!status && (
         <LocalisedField
           name="status"
           defaultLabel="Status"
@@ -126,7 +126,7 @@ export const ImagingRequestsSearchBar = ({ statusFilterTable, status = '' }) => 
         saveDateAsString
         component={DateField}
       />
-      {!statusFilterTable && (
+      {!status && (
         <LocalisedField
           name="priority"
           defaultLabel="Priority"
@@ -134,7 +134,7 @@ export const ImagingRequestsSearchBar = ({ statusFilterTable, status = '' }) => 
           options={imagingPriorities}
         />
       )}
-      {statusFilterTable && (
+      {status && (
         <LocalisedField
           name="requestedById"
           defaultLabel="Requested by"
