@@ -14,13 +14,14 @@ const columns = [
     key: 'vaccine',
     title: 'Vaccine',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).label,
+    accessor: ({ scheduledVaccine, vaccineName }) => vaccineName || (scheduledVaccine || {}).label,
   },
   {
     key: 'vaccineBrand',
     title: 'Vaccine brand',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine }) => ((scheduledVaccine || {}).vaccine || {}).name,
+    accessor: ({ scheduledVaccine, vaccineBrand }) =>
+      vaccineBrand || ((scheduledVaccine || {}).vaccine || {}).name,
   },
   {
     key: 'schedule',
