@@ -116,6 +116,7 @@ export const Dropdown = React.memo(
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
           tagTextColor={theme.colors.PRIMARY_MAIN}
+          textColor={value?.length ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
           selectedItemTextColor={theme.colors.PRIMARY_MAIN}
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
           itemTextColor="#000"

@@ -33,7 +33,7 @@ export const AutocompleteModalField = ({
   disabled = false,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
-  const [label, setLabel] = useState(placeholder);
+  const [label, setLabel] = useState(null);
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
     setLabel(selectedItem.label);
@@ -49,8 +49,9 @@ export const AutocompleteModalField = ({
     if (!suggester) return;
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
-      if (data) setLabel(data.label);
-      else setLabel(placeholder);
+      if (data) {
+        setLabel(data.label);
+      }
     })();
   }, [value]);
 
@@ -70,7 +71,7 @@ export const AutocompleteModalField = ({
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
-        textColor={theme.colors.TEXT_SUPER_DARK}
+        textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
         buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
