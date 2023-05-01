@@ -55,12 +55,12 @@ export const TemplateView = () => {
   );
 
   const onDeleteTemplate = useCallback(async () => {
-    await api.put(`${TEMPLATE_ENDPOINT}/${editingTemplate.id}`, {
+    await api.put(`${TEMPLATE_ENDPOINT}/${editingTemplate?.id}`, {
       visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
     });
     refreshTable();
     setEditingTemplate(null);
-  }, [api, refreshTable, editingTemplate.id]);
+  }, [api, refreshTable, editingTemplate?.id]);
 
   return (
     <PageContainer>
