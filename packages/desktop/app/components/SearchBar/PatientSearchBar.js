@@ -30,7 +30,7 @@ export const PatientSearchBar = React.memo(
         staticValues={{ displayIdExact: true }}
         hiddenFields={
           <>
-            <LocalisedField useShortLabel component={SearchField} name="displayId" keepLetterCase />
+            <LocalisedField useShortLabel component={SearchField} name="displayId" />
             <LocalisedField
               name="clinicianId"
               defaultLabel="Clinician"
