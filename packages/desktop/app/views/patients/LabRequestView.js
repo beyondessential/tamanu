@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -88,6 +89,7 @@ const Menu = ({ setModal, status, disabled }) => {
 
 export const LabRequestView = () => {
   const query = useUrlSearchParams();
+  const { ability } = useAuth();
   const [modalId, setModalId] = useState(query.get('modal'));
   const [modalOpen, setModalOpen] = useState(false);
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
@@ -120,9 +122,14 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const isReadOnly = HIDDEN_STATUSES.includes(labRequest.status);
+  const canWriteLabRequest = ability.can('write', 'LabRequest');
+  const canWriteLabTest = ability.can('write', 'LabTest');
+
+  const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
+  const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
+  const areLabTestsReadOnly = !canWriteLabTest || isHidden;
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
-  const displayStatus = isReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
+  const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
 
@@ -131,27 +138,27 @@ export const LabRequestView = () => {
       <Heading2 gutterBottom>Labs</Heading2>
       <LabRequestCard
         labRequest={labRequest}
-        isReadOnly={isReadOnly}
+        isReadOnly={areLabRequestsReadOnly}
         actions={
           <Box display="flex" alignItems="center">
             <OutlinedButton
-              disabled={isReadOnly}
+              disabled={isHidden}
               onClick={() => {
                 handleChangeModalId(MODAL_IDS.PRINT);
               }}
             >
               Print request
             </OutlinedButton>
-            <Menu setModal={handleChangeModalId} status={labRequest.status} disabled={isReadOnly} />
+            <Menu setModal={handleChangeModalId} status={labRequest.status} disabled={isHidden} />
           </Box>
         }
       />
-      <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={isReadOnly} />
+      <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
       <TileContainer>
         <Tile
           Icon={() => <img src={TestCategoryIcon} alt="test category" />}
           text="Test Category"
-          main={labRequest.category?.name}
+          main={labRequest.category?.name || '-'}
         />
         <Tile
           Icon={Timelapse}
@@ -162,7 +169,7 @@ export const LabRequestView = () => {
             </TileTag>
           }
           actions={{
-            ...(!isReadOnly && {
+            ...(!areLabRequestsReadOnly && {
               'Change status': () => {
                 handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
               },
@@ -175,7 +182,7 @@ export const LabRequestView = () => {
         <Tile
           Icon={() => <img src={BeakerIcon} alt="beaker" />}
           text="Sample collected"
-          isReadOnly={isReadOnly}
+          isReadOnly={areLabRequestsReadOnly}
           main={
             <>
               <DateDisplay date={labRequest.sampleTime} showTime />
@@ -198,8 +205,8 @@ export const LabRequestView = () => {
         <Tile
           Icon={Business}
           text="Laboratory"
-          main={(labRequest.laboratory || {}).name || 'Unknown'}
-          isReadOnly={isReadOnly}
+          main={labRequest.laboratory?.name || '-'}
+          isReadOnly={areLabRequestsReadOnly}
           actions={{
             'Change laboratory': () => {
               handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY);
@@ -209,8 +216,8 @@ export const LabRequestView = () => {
         <Tile
           Icon={AssignmentLate}
           text="Priority"
-          main={(labRequest.priority || {}).name || 'Unknown'}
-          isReadOnly={isReadOnly}
+          main={labRequest.priority?.name || '-'}
+          isReadOnly={areLabRequestsReadOnly}
           actions={{
             'Change priority': () => {
               handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY);
@@ -220,7 +227,11 @@ export const LabRequestView = () => {
       </TileContainer>
       <Rule />
 
-      <LabRequestResultsTable labRequest={labRequest} patient={patient} isReadOnly={isReadOnly} />
+      <LabRequestResultsTable
+        labRequest={labRequest}
+        patient={patient}
+        isReadOnly={areLabTestsReadOnly}
+      />
       {modalId && (
         <ActiveModal
           labRequest={labRequest}
