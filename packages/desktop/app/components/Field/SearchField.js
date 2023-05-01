@@ -21,7 +21,7 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-export const SearchField = props => {
+export const SearchField = ({ label, keepLetterCase = false, ...props }) => {
   return (
     <StyledTextField
       InputProps={{
@@ -31,7 +31,7 @@ export const SearchField = props => {
           </Icon>
         ),
       }}
-      placeholder={props?.label ? `Search ${props?.label.toLowerCase()}` : ''}
+      placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
       {...props}
     />
   );
