@@ -87,6 +87,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     disease,
     givenElsewhere,
     notGivenReason,
+    encounter,
   } = vaccineRecord;
 
   const routine = !vaccineName;
@@ -102,7 +103,10 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     area: { label: 'Area', value: location?.locationGroup?.name || '-' },
     location: { label: 'Location', value: location?.name || '-' },
     department: { label: 'Department', value: department?.name || '-' },
-    facility: { label: 'Facility', value: location?.facility.name || '-' },
+    facility: {
+      label: 'Facility',
+      value: location?.facility.name || encounter.location.facility.name || '-',
+    },
     givenBy: { label: 'Given by', value: givenBy || '-' },
     supervisingClinician: { label: 'Supervising clincian', value: givenBy || '-' },
     recordedBy: { label: 'Recorded by', value: recorder?.displayName || '-' },
