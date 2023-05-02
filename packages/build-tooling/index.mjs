@@ -1,11 +1,8 @@
+import nodeExternals from 'webpack-node-externals';
 import NodemonPlugin from 'nodemon-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
-import nodeExternals from 'webpack-node-externals';
 
-// we assume a Node.js environment, desktop has its own config
-
-
-export default {
+export const NODE_WEBPACK_CONFIG = {
   entry: ['core-js/stable', './index.js'],
   externalsPresets: { node: true },
   externals: [nodeExternals({ modulesDir: '../../node_modules' }), nodeExternals()],
@@ -43,11 +40,11 @@ export default {
 };
 
 export function nodemon(options) {
-  const nodemon = new NodemonPlugin({
+  const nm = new NodemonPlugin({
     delay: 500,
     watch: ['./dist', '../shared'],
     ...options,
   });
-  nodemon.isWebpackWatching = true;
-  return nodemon;
+  nm.isWebpackWatching = true;
+  return nm;
 }

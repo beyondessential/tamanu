@@ -44,6 +44,7 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/build-tooling",
       "packages/csca",
       "packages/scripts",
       "packages/qr-tester",
@@ -69,7 +70,6 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "nodemon": "^2.0.19",
-    "nodemon-webpack-plugin": "^4.8.1",
     "prettier": "^1.17.1",
     "yarn": "^1.22.18"
   },
