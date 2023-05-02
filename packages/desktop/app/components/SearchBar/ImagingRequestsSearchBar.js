@@ -58,8 +58,6 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
     value: key,
   }));
 
-  console.log('SEARCH BAR PARAMS: ', searchParameters);
-
   return (
     <CustomisableSearchBar
       showExpandButton

@@ -30,76 +30,71 @@ const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 const getCompletedDate = ({ results }) => <DateDisplay date={results[0].completedAt} />;
 
-export const ImagingRequestsTable = React.memo(
-  ({ encounterId, statusFilterTable, status = '' }) => {
-    const dispatch = useDispatch();
-    const params = useParams();
-    const { loadEncounter } = useEncounter();
-    const { getLocalisation } = useLocalisation();
-    const imagingTypes = getLocalisation('imagingTypes') || {};
-    const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
-    const { searchParameters } = useImagingRequests(
-      completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
-    );
+export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) => {
+  const dispatch = useDispatch();
+  const params = useParams();
+  const { loadEncounter } = useEncounter();
+  const { getLocalisation } = useLocalisation();
+  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+  const { searchParameters } = useImagingRequests(
+    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
+  );
 
-    console.log(status, IMAGING_REQUEST_STATUS_TYPES.COMPLETED)
-    console.log('TABLE PARAMS: ', searchParameters);
+  const encounterColumns = [
+    { key: 'displayId', title: 'Request ID', sortable: false },
+    {
+      key: 'imagingType',
+      title: 'Type',
+      accessor: getImagingRequestType(imagingTypes),
+    },
+    { key: 'requestedDate', title: 'Date & time', accessor: getDate },
+    { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
+    // TODO: Fix sorting for completed time
+    status && {
+      key: 'results[0].completedAt',
+      title: 'Completed',
+      accessor: getCompletedDate,
+    },
+    { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
+  ];
 
-    const encounterColumns = [
-      { key: 'displayId', title: 'Request ID', sortable: false },
-      {
-        key: 'imagingType',
-        title: 'Type',
-        accessor: getImagingRequestType(imagingTypes),
-      },
-      { key: 'requestedDate', title: 'Date & time', accessor: getDate },
-      { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
-      // TODO: Fix sorting for completed time
-      statusFilterTable && {
-        key: 'results[0].completedAt',
-        title: 'Completed',
-        accessor: getCompletedDate,
-      },
-      { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
-    ];
+  const globalColumns = [
+    // TODO: Fix sorting for nhn
+    { key: 'encounter.patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
+    { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
+    ...encounterColumns,
+  ];
 
-    const globalColumns = [
-      // TODO: Fix sorting for nhn
-      { key: 'encounter.patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
-      { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
-      ...encounterColumns,
-    ];
+  const selectImagingRequest = useCallback(
+    async imagingRequest => {
+      const { encounter } = imagingRequest;
+      const patientId = params.patientId || encounter.patientId;
+      if (encounter) {
+        await loadEncounter(encounter.id);
+        await dispatch(reloadPatient(patientId));
+      }
+      await dispatch(reloadImagingRequest(imagingRequest.id));
+      const category = params.category || 'all';
+      dispatch(
+        push(
+          `/patients/${category}/${patientId}/encounter/${encounterId ||
+            encounter.id}/imaging-request/${imagingRequest.id}`,
+        ),
+      );
+    },
+    [loadEncounter, dispatch, params.patientId, params.category, encounterId],
+  );
 
-    const selectImagingRequest = useCallback(
-      async imagingRequest => {
-        const { encounter } = imagingRequest;
-        const patientId = params.patientId || encounter.patientId;
-        if (encounter) {
-          await loadEncounter(encounter.id);
-          await dispatch(reloadPatient(patientId));
-        }
-        await dispatch(reloadImagingRequest(imagingRequest.id));
-        const category = params.category || 'all';
-        dispatch(
-          push(
-            `/patients/${category}/${patientId}/encounter/${encounterId ||
-              encounter.id}/imaging-request/${imagingRequest.id}`,
-          ),
-        );
-      },
-      [loadEncounter, dispatch, params.patientId, params.category, encounterId],
-    );
-
-    return (
-      <SearchTable
-        endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
-        columns={encounterId ? encounterColumns : globalColumns}
-        noDataMessage="No imaging requests found"
-        onRowClick={selectImagingRequest}
-        fetchOptions={searchParameters}
-        elevated={false}
-        initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
-      />
-    );
-  },
-);
+  return (
+    <SearchTable
+      endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
+      columns={encounterId ? encounterColumns : globalColumns}
+      noDataMessage="No imaging requests found"
+      onRowClick={selectImagingRequest}
+      fetchOptions={searchParameters}
+      elevated={false}
+      initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+    />
+  );
+});
