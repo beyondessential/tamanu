@@ -7,9 +7,9 @@ import { fake } from 'shared/test-helpers';
 import { fakeUUID } from 'shared/utils/generateId';
 import { FHIR_DATETIME_PRECISION } from 'shared/constants';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { toDateTimeString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
-import { toDateTimeString } from '../../../../shared-src/src/utils/dateTime';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 

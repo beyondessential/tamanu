@@ -2,16 +2,16 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
 import { ForbiddenError } from 'shared/errors';
+import {
+  getCurrentDateTimeString,
+  toDateTimeString,
+} from 'shared/utils/dateTime';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { useApi } from '../../../api';
 import { TabPane } from '../components';
 import { Button, ContentPane, TableButtonRow } from '../../../components';
-import {
-  getCurrentDateTimeString,
-  toDateTimeString,
-} from '../../../../../shared-src/src/utils/dateTime';
 
 const MODAL_STATES = {
   CLOSED: 'closed',

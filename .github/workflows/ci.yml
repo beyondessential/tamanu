@@ -33,7 +33,7 @@ jobs:
         package:
           - lan
           - meta-server
-          - shared-src
+          - "@tamanu/shared"
           - sync-server
 
     name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
@@ -74,7 +74,7 @@ jobs:
           - desktop
           - lan
           - meta-server
-          - shared-src
+          - "@tamanu/shared"
           - sync-server
 
     name: Lint ${{ matrix.package }} node=${{ matrix.node }}
