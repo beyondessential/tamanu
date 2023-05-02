@@ -3,7 +3,7 @@ import config from 'config';
 
 import { COLORS } from './color';
 
-// defensive destructure to allow for testing shared-src directly
+// defensive destructure to allow for testing shared directly
 const { consoleLevel } = config?.log || {};
 
 // additional parameters to log.info etc will be serialised and logged using this formatter

@@ -8,7 +8,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "build-shared": "yarn workspace shared run build && yarn install --frozen-lockfile",
+    "build-shared": "yarn workspace @tamanu/shared run build",
     "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
     "test": "yarn run build-shared && node scripts/test-all.mjs",
     "test-coverage": "yarn run test --coverage",
@@ -24,7 +24,7 @@
     "lan-migrate": "yarn run build-shared && TAMANU_ARGS=\"migrate up\" yarn run lan-start-dev",
     "lan-migrate-down": "yarn run build-shared && TAMANU_ARGS=\"migrate down\" yarn run lan-start-dev",
     "server-migrate-create": "node scripts/create_server_migration.mjs",
-    "shared-test": "yarn run build-shared && yarn workspace shared-src run test",
+    "shared-test": "yarn run build-shared && yarn workspace @tamanu/shared run test",
     "sync-test": "yarn run build-shared && yarn workspace sync-server run test",
     "sync-shell": "yarn run build-shared && yarn workspace sync-server run shell",
     "sync-start-dev": "yarn run build-shared && yarn run watch-shared-and sync-server start-dev",

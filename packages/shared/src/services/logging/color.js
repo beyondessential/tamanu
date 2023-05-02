@@ -1,7 +1,7 @@
 /*
 // import chalk from 'chalk';
 
-// defensive destructure to allow for testing shared-src directly
+// defensive destructure to allow for testing shared directly
 const {
   color,
 } = config?.log || {};
