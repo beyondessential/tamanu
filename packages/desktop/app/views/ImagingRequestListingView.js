@@ -10,7 +10,7 @@ import {
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 import { useImagingRequests } from '../contexts/ImagingRequests';
 
-export const ImagingRequestListingView = React.memo(({ status }) => {
+export const ImagingRequestListingView = React.memo(({ status = '' }) => {
   const { searchParameters, setSearchParameters } = useImagingRequests();
 
   const tableTitle = status
@@ -23,15 +23,8 @@ export const ImagingRequestListingView = React.memo(({ status }) => {
       <TopBar title={tableTitle} />
       <ContentPane>
         <SearchTableTitle>Imaging request search</SearchTableTitle>
-        <ImagingRequestsSearchBar
-          searchParameters={searchParameters}
-          setSearchParameters={setSearchParameters}
-          status={status}
-        />
-        <ImagingRequestsTable
-          searchParameters={{ ...searchParameters, ...statusFilter }}
-          status={status}
-        />
+        <ImagingRequestsSearchBar status={status} />
+        <ImagingRequestsTable status={status} />
       </ContentPane>
     </PageContainer>
   );

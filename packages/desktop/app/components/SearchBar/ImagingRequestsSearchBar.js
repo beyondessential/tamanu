@@ -52,6 +52,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
     searchParameters,
     setSearchParameters,
   } = useAdvancedFields(ADVANCED_FIELDS, completedStatus);
+  const statusFilter = status ? { status } : {};
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,
@@ -65,7 +66,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
       setIsExpanded={setShowAdvancedFields}
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={searchParameters}
+      initialValues={{ ...searchParameters, ...statusFilter }}
       staticValues={{ displayIdExact: true }}
       hiddenFields={
         status && (

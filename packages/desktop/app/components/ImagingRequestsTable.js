@@ -40,6 +40,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
   const { searchParameters } = useImagingRequests(
     completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
   );
+  const statusFilter = status ? { status } : {};
 
   const encounterColumns = [
     { key: 'displayId', title: 'Request ID', sortable: false },
@@ -92,7 +93,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"
       onRowClick={selectImagingRequest}
-      fetchOptions={searchParameters}
+      fetchOptions={{ ...searchParameters, ...statusFilter }}
       elevated={false}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
     />
