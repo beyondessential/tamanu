@@ -79,15 +79,9 @@ export function fromImagingRequests(models, table, id) {
       return {
         include: [
           {
-            model: Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: LocationGroup,
-                as: 'locationGroup',
-                where: { id },
-              },
-            ],
+            model: LocationGroup,
+            as: 'locationGroup',
+            where: { id },
           },
         ],
       };
