@@ -56,6 +56,7 @@ async function getPatientVaccines(models, patient) {
 export const makeCovidVaccineCertificate = async (
   patient,
   printedBy,
+  printedDate,
   models,
   uvci,
   qrData = null,
@@ -72,6 +73,7 @@ export const makeCovidVaccineCertificate = async (
     <CovidVaccineCertificate
       patient={patientData}
       printedBy={printedBy}
+      printedDate={printedDate}
       uvci={uvci}
       vaccinations={certifiableVaccines}
       signingSrc={signingImage}
