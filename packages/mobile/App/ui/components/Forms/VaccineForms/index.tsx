@@ -1,7 +1,9 @@
 import React, { FC, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { NavigationProp } from '@react-navigation/native';
 
+import { authUserSelector } from '~/ui/helpers/selectors';
 import { RowView } from '/styled/common';
 import { ScrollView } from 'react-native';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
@@ -64,6 +66,8 @@ export const VaccineForm = ({
   navigation,
 }: VaccineFormProps): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
+  const user = useSelector(authUserSelector);
+
   const consentSchema = status === VaccineStatus.GIVEN
     ? Yup.boolean()
       .oneOf([true])
@@ -81,7 +85,7 @@ export const VaccineForm = ({
         departmentId: Yup.string().required('Required'),
         consent: consentSchema,
       })}
-      initialValues={createInitialValues({ ...initialValues, status })}
+      initialValues={createInitialValues({ ...initialValues, status, recorderId: user.id })}
     >
       {(): JSX.Element => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>

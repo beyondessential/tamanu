@@ -47,7 +47,7 @@ const columns = [
   },
   {
     key: 'batch',
-    title: 'Batch Number',
+    title: 'Batch number',
     accessor: ({ batch }) => batch,
   },
 ];
@@ -64,6 +64,7 @@ export const CovidVaccineCertificate = ({
   uvci,
   getLocalisation,
   extraPatientFields,
+  printedDate,
 }) => {
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
@@ -83,7 +84,7 @@ export const CovidVaccineCertificate = ({
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
-        <H3>Vaccination Certification</H3>
+        <H3>Vaccination Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
@@ -101,7 +102,7 @@ export const CovidVaccineCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
+              <P>Printing date: {getDisplayDate(printedDate)}</P>
             </Col>
           </Row>
         </Box>

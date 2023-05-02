@@ -72,6 +72,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
+        const printedDate = notification.get('createdAt');
 
         const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];
@@ -135,7 +136,14 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeCovidVaccineCertificate(patient, printedBy, models, uvci, qrData);
+            pdf = await makeCovidVaccineCertificate(
+              patient,
+              printedBy,
+              printedDate,
+              models,
+              uvci,
+              qrData,
+            );
             break;
           }
 
