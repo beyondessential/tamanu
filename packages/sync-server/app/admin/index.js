@@ -70,7 +70,6 @@ adminRoutes.post(
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
-
 adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);

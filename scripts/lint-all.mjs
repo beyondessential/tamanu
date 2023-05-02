@@ -6,8 +6,17 @@ doWithAllPackages((name, pkg) => {
     console.log(`Skipping ${name} as it doesn't have a lint script...`);
     return;
   }
+  
+  console.log(`Linting ${name}...`, process.argv);
 
-  console.log(`Linting ${name}...`);
+  // Some packages require special handling for lint --fix
+  if (process.argv.includes('--fix') && pkg?.scripts?.['lint:fix']) {
+    execFileSync('yarn', ['workspace', pkg.name, 'run', 'lint:fix', ...process.argv.slice(2).filter(arg => arg !== '--fix')], {
+      stdio: 'inherit',
+    });
+    return;
+  }
+
   execFileSync('yarn', ['workspace', pkg.name, 'run', 'lint', ...process.argv.slice(2)], {
     stdio: 'inherit',
   });

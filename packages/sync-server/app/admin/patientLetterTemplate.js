@@ -12,14 +12,19 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
   const conflictingRecords = await req.models.PatientLetterTemplate.count({
     where: { name, id: { [Op.ne]: id } },
   });
-  
-  if(conflictingRecords){
+
+  if (conflictingRecords) {
     throw new ValidationError('Template name must be unique');
   }
 
   next();
 });
 
-patientLetterTemplateRoutes.get('/$', simpleGetList('PatientLetterTemplate', null, { additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT }}));
+patientLetterTemplateRoutes.get(
+  '/$',
+  simpleGetList('PatientLetterTemplate', null, {
+    additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+  }),
+);
 patientLetterTemplateRoutes.post('/$', checkUniqueName, simplePost('PatientLetterTemplate'));
 patientLetterTemplateRoutes.post('/$', checkUniqueName, simplePut('PatientLetterTemplate'));

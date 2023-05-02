@@ -10,9 +10,6 @@ import {
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
-import { uploadAttachment } from '../../utils/uploadAttachment';
-import { notePageListHandler } from '../../routeHandlers';
-
 import {
   simpleGet,
   simpleGetHasOne,
@@ -22,6 +19,9 @@ import {
   runPaginatedQuery,
   paginatedGetList,
 } from 'shared/utils/crudHelpers';
+import { uploadAttachment } from '../../utils/uploadAttachment';
+import { notePageListHandler } from '../../routeHandlers';
+
 import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();

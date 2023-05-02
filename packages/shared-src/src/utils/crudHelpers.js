@@ -8,10 +8,11 @@ import { renameObjectKeys } from './renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
 // action (for eg different relation reads on an encounter all check encounter.read)
-export const permissionCheckingRouter = (_action, _subject) => {
+export const permissionCheckingRouter = (action, subject) => {
   const router = express.Router();
 
-  router.use((_req, _res, next) => {
+  router.use((req, res, next) => {
+    req.checkPermission(action, subject);
     next();
   });
 
@@ -24,10 +25,12 @@ export const findRouteObject = async (req, modelName) => {
   // check the user can read this model type before searching for it
   // (otherwise, they can see if they get a "not permitted" or a
   // "not found" to snoop for objects)
+  req.checkPermission('read', modelName);
   const object = await model.findByPk(params.id, {
     include: model.getFullReferenceAssociations(),
   });
   if (!object) throw new NotFoundError();
+  req.checkPermission('read', object);
   return object;
 };
 
@@ -42,6 +45,7 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}) =>
     const { models, params } = req;
     const model = models[modelName];
     const { additionalFilters = {} } = options;
+    req.checkPermission('read', modelName);
     const object = await model.findOne({
       where: { [foreignKey]: params.id, ...additionalFilters },
       include: model.getFullReferenceAssociations(),
@@ -54,8 +58,10 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}) =>
 export const simplePut = modelName =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
+    req.checkPermission('read', modelName);
     const object = await models[modelName].findByPk(params.id);
     if (!object) throw new NotFoundError();
+    req.checkPermission('write', object);
     await object.update(req.body);
     res.send(object);
   });
@@ -63,6 +69,7 @@ export const simplePut = modelName =>
 export const simplePost = modelName =>
   asyncHandler(async (req, res) => {
     const { models } = req;
+    req.checkPermission('create', modelName);
     const object = await models[modelName].create(req.body);
     res.send(object);
   });
