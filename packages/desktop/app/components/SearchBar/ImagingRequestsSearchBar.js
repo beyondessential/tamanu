@@ -61,7 +61,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
 
   return (
     <CustomisableSearchBar
-      showExpandButton
+      showExpandButton={!!status}
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       title="Search imaging requests"
