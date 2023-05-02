@@ -12,7 +12,7 @@ export const NODE_WEBPACK_CONFIG = {
         test: /\.m?js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
+          loader: new URL('./node_modules/babel-loader', import.meta.url).pathname,
           options: {
             cacheDirectory: true,
             rootMode: 'upward',
