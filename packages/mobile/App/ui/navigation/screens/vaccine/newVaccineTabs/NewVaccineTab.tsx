@@ -65,8 +65,8 @@ export const NewVaccineTabComponent = ({
         selectedPatient.id,
         user.id,
         {
-          departmentId,
-          locationId,
+          department: departmentId,
+          location: locationId,
         },
       );
 
@@ -78,6 +78,8 @@ export const NewVaccineTabComponent = ({
         recorder: recorderId,
         encounter: vaccineEncounter.id,
         notGivenReasonId,
+        department: departmentId,
+        location: locationId,
       };
 
       // If id exists then it means user is updating an existing vaccine record
