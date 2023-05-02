@@ -14,6 +14,7 @@ import {
 import { binaryOptions } from '../../constants';
 import { foreignKey } from '../../utils/validation';
 import { useApi } from '../../api';
+import { useLocalisation } from '../../contexts/Localisation';
 
 export const screen1ValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
@@ -52,11 +53,23 @@ const OPTIONS = {
 
 const useLabRequestFormTypeOptions = setFieldValue => {
   const api = useApi();
+  const { getLocalisation } = useLocalisation();
+  const featureFlags = getLocalisation('features') || {};
+
   const { data, isSuccess } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
   const arePanels = data?.length > 0;
-  const options = arePanels ? [OPTIONS.PANEL, OPTIONS.INDIVIDUAL] : [OPTIONS.INDIVIDUAL];
+  const onlyPanels = featureFlags.onlyAllowLabPanels;
+  // const options = arePanels ? [OPTIONS.PANEL, OPTIONS.INDIVIDUAL] : [OPTIONS.INDIVIDUAL];
+  const options = [];
+  if (arePanels) {
+    options.push(OPTIONS.PANEL);
+  }
+  if (!onlyPanels) {
+    options.push(OPTIONS.INDIVIDUAL);
+  }
+
   const defaultOption = options.length > 0 ? options[0].value : undefined;
 
   useEffect(() => {
