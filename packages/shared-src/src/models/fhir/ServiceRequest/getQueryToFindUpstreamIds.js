@@ -22,7 +22,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             where: { id },
           },
         ],
@@ -106,7 +105,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             include: [
               {
                 model: ReferenceData,
@@ -122,7 +120,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             include: [
               {
                 model: ReferenceData,
