@@ -187,7 +187,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
           case VACCINATION_CERTIFICATE:
             template = 'vaccineCertificateEmail';
-            pdf = await makeVaccineCertificate(patient, printedBy, models);
+            pdf = await makeVaccineCertificate(patient, printedBy, printedDate, models);
             break;
 
           default:
