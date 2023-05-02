@@ -13,7 +13,7 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json yarn.lock .yarnrc ./
+COPY package.json yarn.lock .yarnrc common.* babel.config.js license scripts/docker-build-server.sh ./
 
 
 # Build the shared sources only
