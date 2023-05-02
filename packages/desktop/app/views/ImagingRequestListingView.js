@@ -8,15 +8,11 @@ import {
   SearchTableTitle,
 } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
-import { useImagingRequests } from '../contexts/ImagingRequests';
 
 export const ImagingRequestListingView = React.memo(({ status = '' }) => {
-  const { searchParameters, setSearchParameters } = useImagingRequests();
-
   const tableTitle = status
     ? `${IMAGING_REQUEST_STATUS_CONFIG[status].label} imaging requests`
     : 'Imaging requests';
-  const statusFilter = status ? { status } : {};
 
   return (
     <PageContainer>
