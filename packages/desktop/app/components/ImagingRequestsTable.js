@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -12,6 +12,7 @@ import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
+import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
@@ -30,12 +31,19 @@ const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 const getCompletedDate = ({ results }) => <DateDisplay date={results[0].completedAt} />;
 
 export const ImagingRequestsTable = React.memo(
-  ({ encounterId, searchParameters, statusFilterTable }) => {
+  ({ encounterId, statusFilterTable, status = '' }) => {
     const dispatch = useDispatch();
     const params = useParams();
     const { loadEncounter } = useEncounter();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
+    const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+    const { searchParameters } = useImagingRequests(
+      completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
+    );
+
+    console.log(status, IMAGING_REQUEST_STATUS_TYPES.COMPLETED)
+    console.log('TABLE PARAMS: ', searchParameters);
 
     const encounterColumns = [
       { key: 'displayId', title: 'Request ID', sortable: false },

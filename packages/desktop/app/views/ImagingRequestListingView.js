@@ -31,6 +31,7 @@ export const ImagingRequestListingView = React.memo(({ status }) => {
         <ImagingRequestsTable
           searchParameters={{ ...searchParameters, ...statusFilter }}
           statusFilterTable={!!status}
+          status={status}
         />
       </ContentPane>
     </PageContainer>
