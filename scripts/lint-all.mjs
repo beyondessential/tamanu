@@ -7,7 +7,7 @@ doWithAllPackages((name, pkg) => {
     return;
   }
   
-  console.log(`Linting ${name}...`, process.argv);
+  console.log(`Linting ${name}...`);
 
   // Some packages require special handling for lint --fix
   if (process.argv.includes('--fix') && pkg?.scripts?.['lint:fix']) {
