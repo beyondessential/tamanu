@@ -6,6 +6,11 @@ export const NODE_WEBPACK_CONFIG = {
   entry: ['core-js/stable', './index.js'],
   externalsPresets: { node: true },
   externals: [nodeExternals({ modulesDir: '../../node_modules' }), nodeExternals()],
+  resolve: {
+    alias: {
+      shared: '@tamanu/shared',
+    },
+  },
   module: {
     rules: [
       {
