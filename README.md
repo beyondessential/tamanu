@@ -29,7 +29,8 @@ First, clone the repo via git:
 $ git clone git@github.com:beyondessential/tamanu.git
 ```
 
-For M1 users, please install python version 2.7.18, it is required by some legacy dependencies:
+For MacBook ARM64 users, some dependencies cannot be compiled, it is recommended to switch to X86_64 for python v3. If insist, please install python v2:
+
 ```bash
 $ brew install pyenv
 $ pyenv install --list
@@ -39,7 +40,6 @@ $ pyenv global 2.7.18
 
 Put eval "$(pyenv init --path)" in ~/.zprofile (or ~/.bash_profile or ~/.zshrc)
 ```
-
 
 Install dependencies with yarn:
 

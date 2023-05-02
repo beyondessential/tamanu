@@ -9,14 +9,14 @@
   },
   "db": {
     "name": "",
-    "verbose": true,
+    "verbose": false,
     "username": "",
     "password": "",
     "port": "5432",
     "migrateOnStartup": true
   },
   "log": {
-    "consoleLevel": "debug"
+    "consoleLevel": null
   },
-  "serverFacilityId": "ref/facility/a"
+  "serverFacilityId": "facility-BaHealthCentre"
 }
