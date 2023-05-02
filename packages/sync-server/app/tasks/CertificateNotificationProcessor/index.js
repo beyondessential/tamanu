@@ -136,7 +136,14 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeCovidVaccineCertificate(patient, printedBy, models, uvci, qrData);
+            pdf = await makeCovidVaccineCertificate(
+              patient,
+              printedBy,
+              printedDate,
+              models,
+              uvci,
+              qrData,
+            );
             break;
           }
 
