@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
+import { DeleteAdministeredVaccineModal } from '../../../components/DeleteAdministeredVaccineModal';
 import { VaccineModal } from '../../../components/VaccineModal';
 import {
   CovidVaccineCertificateModal,
@@ -26,12 +27,18 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isViewAdministeredModalOpen, setIsViewAdministeredModalOpen] = useState(false);
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
+  const [isDeleteAdministeredModalOpen, setIsDeleteAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
 
-  // const onOpenEditModal = useCallback(async row => {
-  //   setIsEditAdministeredModalOpen(true);
-  //   setVaccineData(row);
-  // }, []);
+  const handleOpenDeleteModal = useCallback(async row => {
+    setIsDeleteAdministeredModalOpen(true);
+    setVaccineData(row);
+  }, []);
+
+  const handleOpenEditModal = useCallback(async row => {
+    setIsEditAdministeredModalOpen(true);
+    setVaccineData(row);
+  }, []);
 
   const handleOpenViewModal = useCallback(async row => {
     setIsViewAdministeredModalOpen(true);
@@ -61,6 +68,12 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
         vaccineRecord={vaccineData}
         onClose={() => setIsEditAdministeredModalOpen(false)}
       />
+      <DeleteAdministeredVaccineModal
+        open={isDeleteAdministeredModalOpen}
+        patientId={patient.id}
+        vaccineRecord={vaccineData}
+        onClose={() => setIsDeleteAdministeredModalOpen(false)}
+      />
       <ContentPane>
         <TableButtonRow variant="small">
           {certifiable && (
@@ -77,13 +90,18 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             variant="outlined"
             disabled={!vaccinations.length}
           >
-            View certificate
+            Vaccine certificate
           </Button>
           <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
             Record vaccine
           </Button>
         </TableButtonRow>
-        <ImmunisationsTable patient={patient} onItemClick={id => handleOpenViewModal(id)} />
+        <ImmunisationsTable
+          patient={patient}
+          onItemClick={id => handleOpenViewModal(id)}
+          onItemEditClick={id => handleOpenEditModal(id)}
+          onItemDeleteClick={id => handleOpenDeleteModal(id)}
+        />
       </ContentPane>
       <CovidVaccineCertificateModal
         open={isCovidCertificateModalOpen}

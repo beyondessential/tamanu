@@ -10,13 +10,6 @@ import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 
 const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => {
-  const administeredBy =
-    typeof administeredVaccine.encounter !== 'string'
-      ? typeof administeredVaccine.encounter.examiner !== 'string'
-        ? administeredVaccine.encounter.examiner.displayName
-        : undefined
-      : undefined ?? 'Unknown';
-
   const location =
     typeof administeredVaccine.encounter !== 'string'
       ? typeof administeredVaccine.encounter.location !== 'string'
@@ -42,7 +35,7 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => {
       <Separator />
       <ModalField label="Injection site" value={administeredVaccine.injectionSite || 'Unknown'} />
       <Separator />
-      <ModalField label="Administered By" value={administeredBy} />
+      <ModalField label="Administered By" value={administeredVaccine.givenBy || 'Unknown'} />
       <Separator />
       <ModalField label="Location" value={location} />
     </StyledView>

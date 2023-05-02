@@ -44,6 +44,7 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
   circumstanceIds: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required('At least 1 circumstance is required'),
+    otherwise: yup.string().nullable(),
   }),
 };
 
@@ -51,6 +52,7 @@ export const VaccineGivenForm = ({
   vaccineLabel,
   vaccineOptions,
   administeredOptions,
+  editMode = false,
   submitForm,
   category,
   scheduleOptions,
@@ -62,43 +64,45 @@ export const VaccineGivenForm = ({
 }) => {
   return (
     <TwoTwoGrid>
-      <CategoryField
-        category={category}
-        setCategory={setCategory}
-        setVaccineLabel={setVaccineLabel}
-        onChange={(_e, value) => {
-          const newValues = { ...values };
-          if (value !== VACCINE_CATEGORIES.OTHER) {
-            delete newValues.vaccineName;
-            delete newValues.vaccineBrand;
-            delete newValues.disease;
-          } else {
-            delete newValues.scheduledVaccineId;
-          }
+      {!editMode && (
+        <>
+          <CategoryField
+            category={category}
+            setCategory={setCategory}
+            setVaccineLabel={setVaccineLabel}
+            onChange={(_e, value) => {
+              const newValues = { ...values };
+              if (value !== VACCINE_CATEGORIES.OTHER) {
+                delete newValues.vaccineName;
+                delete newValues.vaccineBrand;
+                delete newValues.disease;
+              } else {
+                delete newValues.scheduledVaccineId;
+              }
 
-          setValues(newValues);
-        }}
-      />
-      <FullWidthCol>
-        <Field
-          name="givenElsewhere"
-          label="Given elsewhere"
-          component={CheckField}
-          onChange={(_e, value) => {
-            const newValues = { ...values };
-            delete newValues.givenBy;
-
-            if (!value) {
-              delete newValues.circumstanceIds;
-              newValues.date = getCurrentDateTimeString();
-            } else {
-              delete newValues.date;
-            }
-
-            setValues(newValues);
-          }}
-        />
-      </FullWidthCol>
+              setValues(newValues);
+            }}
+          />
+          <FullWidthCol>
+            <Field
+              name="givenElsewhere"
+              label="Given elsewhere"
+              component={CheckField}
+              onChange={(_e, value) => {
+                const newValues = { ...values };
+                delete newValues.givenBy;
+                if (!value) {
+                  delete newValues.circumstanceIds;
+                  newValues.date = getCurrentDateTimeString();
+                } else {
+                  delete newValues.date;
+                }
+                setValues(newValues);
+              }}
+            />
+          </FullWidthCol>
+        </>
+      )}
       {values.givenElsewhere && (
         <>
           <FullWidthCol>
@@ -116,23 +120,25 @@ export const VaccineGivenForm = ({
       )}
       {category === VACCINE_CATEGORIES.OTHER ? (
         <>
-          <VaccineNameField />
+          {!editMode && <VaccineNameField />}
           <BatchField />
           <VaccineBrandField />
           <DiseaseField />
         </>
       ) : (
         <>
-          <VaccineLabelField
-            vaccineLabel={vaccineLabel}
-            vaccineOptions={vaccineOptions}
-            setVaccineLabel={setVaccineLabel}
-          />
+          {!editMode && (
+            <VaccineLabelField
+              vaccineLabel={vaccineLabel}
+              vaccineOptions={vaccineOptions}
+              setVaccineLabel={setVaccineLabel}
+            />
+          )}
           <BatchField />
         </>
       )}
 
-      {administeredOptions.length || scheduleOptions.length ? (
+      {!editMode && (administeredOptions.length || scheduleOptions.length) ? (
         <AdministeredVaccineScheduleField
           administeredOptions={administeredOptions}
           scheduleOptions={scheduleOptions}
@@ -140,6 +146,7 @@ export const VaccineGivenForm = ({
       ) : null}
 
       <VaccineDateField label="Date given" required={!values.givenElsewhere} />
+
       <InjectionSiteField />
 
       {!values.givenElsewhere ? (
@@ -157,7 +164,7 @@ export const VaccineGivenForm = ({
 
       {values.givenElsewhere && <StyledDivider />}
 
-      <RecordedByField />
+      {!editMode && <RecordedByField />}
 
       <StyledDivider />
 
@@ -175,6 +182,7 @@ export const VaccineGivenForm = ({
         onConfirm={submitForm}
         category={category}
         scheduleOptions={scheduleOptions}
+        editMode={editMode}
         onCancel={onCancel}
       />
     </TwoTwoGrid>
