@@ -8,7 +8,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "build-shared": "yarn workspace shared-src run build && yarn install --frozen-lockfile",
+    "build-shared": "yarn workspace shared run build && yarn install --frozen-lockfile",
     "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
     "test": "yarn run build-shared && node scripts/test-all.mjs",
     "test-coverage": "yarn run test --coverage",
@@ -52,8 +52,7 @@
       "packages/lan",
       "packages/sync-server",
       "packages/meta-server",
-      "packages/shared",
-      "packages/shared-src"
+      "packages/shared"
     ],
     "nohoist": [
       "**/webpack",
