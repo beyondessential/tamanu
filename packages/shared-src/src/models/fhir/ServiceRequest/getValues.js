@@ -75,11 +75,7 @@ async function getValuesFromImagingRequest(upstream, models) {
       }),
     ],
     priority: validatePriority(upstream.priority),
-    code: imagingCode(upstream)
-      ? new FhirCodeableConcept({
-          text: imagingCode(upstream),
-        })
-      : null,
+    code: imagingCode(upstream),
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
@@ -166,17 +162,24 @@ async function getValuesFromLabRequest(upstream) {
 }
 
 function imagingCode(upstream) {
+  let imagingCodeValue;
   for (const { id } of upstream.areas) {
     if (id === 'ctScan') {
-      return 'CT Scan';
+      imagingCodeValue = 'CT Scan';
+      break;
     }
 
     if (id.startsWith('xRay')) {
-      return 'X-Ray';
+      imagingCodeValue = 'X-Ray';
+      break;
     }
   }
 
-  return null;
+  if (!imagingCodeValue) throw new Exception('Unrecognized code for service request.');
+
+  return new FhirCodeableConcept({
+    text: imagingCodeValue,
+  });
 }
 
 function validatePriority(priority) {
