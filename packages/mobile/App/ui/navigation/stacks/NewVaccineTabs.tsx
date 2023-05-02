@@ -89,7 +89,7 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
       },
       {
         key: VaccineStatus.NOT_GIVEN,
-        title: 'Not given ',
+        title: 'Not given',
         vaccine: route.params.vaccine,
         color: theme.colors.PRIMARY_MAIN,
         icon: Icons.NotGivenIcon,
