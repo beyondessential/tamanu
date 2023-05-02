@@ -51,9 +51,8 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
     },
     { key: 'requestedDate', title: 'Date & time', accessor: getDate },
     { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
-    // TODO: Fix sorting for completed time
     status && {
-      key: 'results[0].completedAt',
+      key: 'results.completedAt',
       title: 'Completed',
       accessor: getCompletedDate,
     },
