@@ -24,6 +24,7 @@ const StyledFormControl = styled(FormControl)`
 const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...props} />)`
   .react-select__control {
     padding-right: 8px;
+    ${props => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
     &:hover {
       border: 1px solid ${Colors.primary};
     }
@@ -203,6 +204,7 @@ export const MultiselectInput = ({
         <StyledSelect
           value={selected}
           isMulti
+          $borderColor={props.error ? Colors.alert : null}
           onChange={handleChange}
           options={options}
           menuPlacement="auto"
