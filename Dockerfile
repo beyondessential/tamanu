@@ -2,8 +2,14 @@
 ### - the CodeShip containers, at Dockerfile.codeship and Dockerfile.deploy
 ### - the development containers, at packages/*/docker/Dockerfile
 
-## Build the base system and image setup
+## Base images
+# The general concept is to build in build-base, then copy into a slimmer run-base
 FROM node:16-alpine AS base
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json yarn.lock .yarnrc common.* babel.config.js license scripts/docker-build-server.sh ./
+
+FROM base AS build-base
 RUN apk add --no-cache \
     --virtual .build-deps \
     make \
@@ -13,51 +19,65 @@ RUN apk add --no-cache \
     bash \
     jq
 
-WORKDIR /app
-ENV NODE_ENV=production
-COPY package.json yarn.lock .yarnrc common.* babel.config.js license scripts/docker-build-server.sh ./
+FROM base AS run-base
+# set the runtime options
+ENTRYPOINT ["node", "dist/app.bundle.js"]
+CMD ["serve"]
+
+
+## Build the shared packages and get their dependencies
+FROM build-base as shared
+COPY packages/build-tooling/ packages/build-tooling/
+COPY packages/shared/ packages/shared/
+RUN ./docker-build-server.sh
 
 
 ## Build the central server
-FROM base as central
+FROM build-base as build-central
 # this first one is commented to explain, the next two are the same so compacted
+
+# copy the shared packages and their deps (+ build tooling)
+COPY --from=shared /app/packages/ packages/
+
+# copy sources only for the target server
+COPY packages/sync-server/ packages/sync-server/
+
+# do the build
+RUN ./docker-build-server.sh sync-server
+
+# restart from a fresh base without the build tools
+FROM run-base as central
 
 # this label makes it possible to build and tag all images in one step
 LABEL tamanu.product=central
 
-# copy sources
-COPY packages/build-tooling/ packages/build-tooling/
-COPY packages/shared/ packages/shared/
-COPY packages/sync-server/ packages/sync-server/
+# copy the built packages and their deps
+COPY --from=build-central /app/packages/ packages/
+COPY --from=build-central /app/node_modules/ node_modules/
 
-# do the actual build
-RUN ./docker-build-server.sh sync-server && rm ./docker-build-server.sh
-
-# set the runtime
+# set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/sync-server
-ENTRYPOINT ["node", "dist/app.bundle.js"]
-CMD ["serve"]
 
 
 ## Build the facility server
-FROM base as facility
-LABEL tamanu.product=facility
-COPY packages/build-tooling/ packages/build-tooling/
-COPY packages/shared/ packages/shared/
+FROM build-base as build-facility
+COPY --from=shared /app/packages/ packages/
 COPY packages/lan/ packages/lan/
-RUN ./docker-build-server.sh lan && rm ./docker-build-server.sh
+RUN ./docker-build-server.sh lan
+FROM run-base as facility
+LABEL tamanu.product=facility
+COPY --from=build-facility /app/packages/ packages/
+COPY --from=build-facility /app/node_modules/ node_modules/
 WORKDIR /app/packages/lan
-ENTRYPOINT ["node", "dist/app.bundle.js"]
-CMD ["serve"]
 
 
 ## Build the meta server
-FROM base as meta
-LABEL tamanu.product=meta
-COPY packages/build-tooling/ packages/build-tooling/
-COPY packages/shared/ packages/shared/
+FROM build-base as build-meta
+COPY --from=shared /app/packages/ packages/
 COPY packages/meta-server/ packages/meta-server/
-RUN ./docker-build-server.sh meta-server && rm ./docker-build-server.sh
+RUN ./docker-build-server.sh meta-server
+FROM run-base as meta
+LABEL tamanu.product=meta
+COPY --from=build-meta /app/packages/ packages/
+COPY --from=build-meta /app/node_modules/ node_modules/
 WORKDIR /app/packages/meta-server
-ENTRYPOINT ["node", "dist/app.bundle.js"]
-CMD ["serve"]
