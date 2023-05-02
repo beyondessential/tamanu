@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { VACCINE_CATEGORIES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
+import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
   CategoryField,
@@ -35,15 +36,15 @@ export const VACCINE_GIVEN_INITIAL_VALUES = {
 };
 
 export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
-  consent: yup.bool().oneOf([true], 'Consent is required'),
+  consent: yup.bool().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
-    then: yup.string().required('Country is required'),
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   }),
   // will be converted into array of string pre submitting
   circumstanceIds: yup.string().when('givenElsewhere', {
     is: true,
-    then: yup.string().required('At least 1 circumstance is required'),
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
 };

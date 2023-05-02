@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { VACCINE_RECORDING_TYPES, VACCINE_CATEGORIES, SETTING_KEYS } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
+import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { Form } from '../components/Field';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -19,37 +20,26 @@ import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 
-const NEW_ADMINISTERED_VACCINE_VALIDATION_FIELDS = {
-  vaccineName: yup.string().when('category', {
-    is: VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
-  }),
-  scheduledVaccineId: yup.string().when('category', {
-    is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(),
-  }),
-};
-
 export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   date: yup.string().when('givenElsewhere', {
     is: false,
-    then: yup.string().required('Date is required'),
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   }),
   locationId: yup.string().when('givenElsewhere', {
     is: false,
-    then: yup.string().required('Location is required'),
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   }),
   departmentId: yup.string().when('givenElsewhere', {
     is: false,
-    then: yup.string().required('Department is required'),
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   }),
   vaccineName: yup.string().when('category', {
     is: VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required('Vaccine name is required'),
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   }),
   scheduledVaccineId: yup.string().when('category', {
     is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required('Scheduled vaccine is required'),
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   }),
 });
 
@@ -128,6 +118,7 @@ export const VaccineForm = ({
   return (
     <Form
       onSubmit={data => onSubmit({ ...data, category })}
+      showInlineErrorsOnly
       initialValues={
         !editMode
           ? {
@@ -150,7 +141,6 @@ export const VaccineForm = ({
             }
       }
       validationSchema={BASE_VACCINE_SCHEME_VALIDATION.shape({
-        ...(!editMode && NEW_ADMINISTERED_VACCINE_VALIDATION_FIELDS),
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
           VACCINE_GIVEN_VALIDATION_SCHEMA),
       })}
