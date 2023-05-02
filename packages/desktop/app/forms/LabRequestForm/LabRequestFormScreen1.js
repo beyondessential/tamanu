@@ -61,7 +61,6 @@ const useLabRequestFormTypeOptions = setFieldValue => {
   );
   const arePanels = data?.length > 0;
   const onlyPanels = featureFlags.onlyAllowLabPanels;
-  // const options = arePanels ? [OPTIONS.PANEL, OPTIONS.INDIVIDUAL] : [OPTIONS.INDIVIDUAL];
   const options = [];
   if (arePanels) {
     options.push(OPTIONS.PANEL);
