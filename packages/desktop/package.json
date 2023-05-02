@@ -200,6 +200,7 @@
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@tamanu/shared": "*",
     "@tanstack/react-query": "^4.0.10",
     "@types/react-autosuggest": "^9.3.7",
     "await-to-js": "^2.0.1",
@@ -258,6 +259,9 @@
     "typeface-roboto": "^0.0.54",
     "xlsx": "^0.14.0",
     "yup": "^0.27.0"
+  },
+  "imports": {
+    "shared": "@tamanu/shared"
   },
   "devEngines": {
     "node": ">=7.x <11.0",
