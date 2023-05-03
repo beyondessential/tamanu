@@ -7,7 +7,7 @@
 FROM node:16-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json yarn.lock .yarnrc common.* babel.config.js license scripts/docker-build-server.sh ./
+COPY package.json license ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -18,6 +18,7 @@ RUN apk add --no-cache \
     python3 \
     bash \
     jq
+COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
 
 FROM base AS run-base
 # set the runtime options
