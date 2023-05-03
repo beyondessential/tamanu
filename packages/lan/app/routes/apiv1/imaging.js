@@ -386,6 +386,7 @@ globalImagingRequests.get(
     const results = {
       association: 'results',
       where: resultFilters,
+      required: false,
     };
 
     // Query database
