@@ -162,23 +162,15 @@ async function getValuesFromLabRequest(upstream) {
 }
 
 function imagingCode(upstream) {
-  let imagingCodeValue;
-  for (const { id } of upstream.areas) {
-    if (id === 'ctScan') {
-      imagingCodeValue = 'CT Scan';
-      break;
-    }
+  const { imagingTypes } = config.localisation.data;
+  if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
-    if (id.startsWith('xRay')) {
-      imagingCodeValue = 'X-Ray';
-      break;
-    }
-  }
-
-  if (!imagingCodeValue) throw new Exception('Unrecognized code for service request.');
+  const { imagingType } = upstream;
+  const { label } = imagingTypes[imagingType];
+  if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
   return new FhirCodeableConcept({
-    text: imagingCodeValue,
+    text: label,
   });
 }
 
