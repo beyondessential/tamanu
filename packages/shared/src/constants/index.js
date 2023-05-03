@@ -1,3 +1,4 @@
+export * from './auth';
 export * from './births';
 export * from './comms';
 export * from './datetimes';

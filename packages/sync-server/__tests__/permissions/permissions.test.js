@@ -4,7 +4,7 @@ import {
   queryPermissionsForRoles,
   getAbilityForUser,
 } from 'shared/permissions/rolesToPermissions';
-import { permissionCache } from 'shared/permissions/rolesToPermissions/cache';
+import { permissionCache } from 'shared/permissions/cache';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
