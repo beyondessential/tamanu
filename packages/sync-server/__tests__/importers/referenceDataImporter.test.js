@@ -55,6 +55,7 @@ describe('Data definition import', () => {
       'ReferenceData/labSampleSite': { created: 18, updated: 0, errored: 0 },
       'ReferenceData/village': { created: 13, updated: 0, errored: 0 },
       'ReferenceData/procedureType': { created: 10, updated: 0, errored: 0 },
+      'ReferenceData/specimenType': { created: 17, updated: 0, errored: 0 },
       User: { created: 10, updated: 0, errored: 0 },
       Facility: { created: 10, updated: 0, errored: 0 },
       ScheduledVaccine: { created: 1, updated: 0, errored: 0 },
