@@ -1,8 +1,8 @@
 import config from 'config';
 import { Sequelize, Op } from 'sequelize';
 
-import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
-import { InvalidOperationError } from 'shared/errors';
+import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '../constants';
+import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';

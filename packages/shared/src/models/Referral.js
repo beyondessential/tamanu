@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 
 export class Referral extends Model {

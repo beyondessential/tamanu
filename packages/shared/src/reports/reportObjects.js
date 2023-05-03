@@ -1,4 +1,4 @@
-import { REPORT_DEFINITIONS } from 'shared/reports';
+import { REPORT_DEFINITIONS } from './reportDefinitions';
 
 // The keys are the report IDs, values are objects instances of reports
 export const REPORT_OBJECTS = {};

@@ -1,4 +1,4 @@
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from 'shared/constants/fhir';
+import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../../constants/fhir';
 
 export const searchParameters = {
   patient: {

@@ -1,5 +1,5 @@
 import { addDays, endOfDay, startOfDay, parseISO } from 'date-fns';
-import { toDateTimeString, format } from 'shared/utils/dateTime';
+import { toDateTimeString, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [

@@ -1,6 +1,6 @@
 import { Sequelize, ValidationError } from 'sequelize';
-import { InvalidOperationError } from 'shared/errors';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
+import { InvalidOperationError } from '../errors';
+import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
 import { Model } from './Model';
 
 export class ReferenceData extends Model {

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 

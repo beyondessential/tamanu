@@ -1,5 +1,5 @@
 import * as sequelize from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '../constants';
 
 const { Op, Utils, Sequelize } = sequelize;
 

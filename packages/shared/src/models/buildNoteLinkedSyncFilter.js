@@ -1,6 +1,6 @@
 import { snake } from 'case';
 import { Utils } from 'sequelize';
-import { NOTE_RECORD_TYPES, NOTE_RECORD_TYPE_VALUES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, NOTE_RECORD_TYPE_VALUES } from '../constants';
 
 const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 

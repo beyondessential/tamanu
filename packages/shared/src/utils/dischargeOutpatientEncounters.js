@@ -1,9 +1,9 @@
 import { endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateString } from 'shared/utils/dateTime';
-import { log } from 'shared/services/logging';
-import { sleepAsync } from 'shared/utils';
+import { getCurrentDateString } from './dateTime';
+import { log } from '../services/logging';
+import { sleepAsync } from './sleepAsync';
 
 export const getDischargeOutPatientEncountersWhereClause = () => {
   const today = getCurrentDateString();

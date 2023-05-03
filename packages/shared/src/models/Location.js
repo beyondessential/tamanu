@@ -3,8 +3,8 @@ import {
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
-} from 'shared/constants';
-import { InvalidOperationError } from 'shared/errors';
+} from '../constants';
+import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
 export class Location extends Model {

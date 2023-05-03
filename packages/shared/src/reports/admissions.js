@@ -1,16 +1,16 @@
 import { Op } from 'sequelize';
-import { Location } from 'shared/models/Location';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
+import upperFirst from 'lodash/upperFirst';
+
+import { Location } from '../models/Location';
 import {
   ENCOUNTER_TYPES,
   DIAGNOSIS_CERTAINTY,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
-import upperFirst from 'lodash/upperFirst';
-import { ageInYears } from 'shared/utils/dateTime';
+} from '../constants';
+import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
-import { toDateTimeString, format } from '../utils/dateTime';
 
 const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },

@@ -1,5 +1,5 @@
-import { FhirCodeableConcept, FhirCoding, FhirExtension } from 'shared/services/fhirTypes';
-import { withConfig } from 'shared/utils/withConfig';
+import { FhirCodeableConcept, FhirCoding, FhirExtension } from '../../services/fhirTypes';
+import { withConfig } from '../../utils/withConfig';
 
 function getEthnicity(ethnicityId) {
   switch (ethnicityId) {

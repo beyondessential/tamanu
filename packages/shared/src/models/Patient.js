@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from 'shared/utils';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from '../constants';
+import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '../utils';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';

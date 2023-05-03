@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
-import { InvalidOperationError } from 'shared/errors';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
 export class Department extends Model {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getDisplayDate } from 'shared/utils/patientCertificates/getDisplayDate';
+import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { Box, Logo } from '../patientCertificates/Layout';
 import { H1, H3 } from '../patientCertificates/Typography';
 import { Divider } from './Divider';
