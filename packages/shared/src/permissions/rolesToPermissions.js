@@ -1,12 +1,12 @@
 import config from 'config';
-import { isEmpty } from 'lodash';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
 import { Permission } from '../models';
+import { permissionCache } from './cache';
 
 //---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
 // have been migrated to database version.
-import * as roles from 'shared/roles'; // eslint-disable-line import/order
+import * as roles from '../roles'; // eslint-disable-line import/order
 
 function getHardcodedPermissions(roleIds) {
   const permissions = roles[roleIds];
@@ -16,17 +16,6 @@ function getHardcodedPermissions(roleIds) {
   return permissions;
 }
 //---------------------------------------------------------
-
-let permissionCache = {};
-
-export function resetPermissionCache() {
-  permissionCache = {};
-}
-
-// helper for testing
-export function isPermissionCacheEmpty() {
-  return isEmpty(permissionCache);
-}
 
 const commaSplit = s =>
   s
@@ -58,11 +47,11 @@ export async function queryPermissionsForRoles(roleString) {
 let { useHardcodedPermissions } = config.auth;
 export function setHardcodedPermissionsUseForTestsOnly(val) {
   useHardcodedPermissions = Boolean(val);
-  resetPermissionCache();
+  permissionCache.reset();
 }
 export function unsetUseHardcodedPermissionsUseForTestsOnly() {
   useHardcodedPermissions = config.auth.useHardcodedPermissions;
-  resetPermissionCache();
+  permissionCache.reset();
 }
 
 export async function getPermissionsForRoles(roleString) {
@@ -70,7 +59,7 @@ export async function getPermissionsForRoles(roleString) {
     return getHardcodedPermissions(roleString);
   }
 
-  const cached = permissionCache[roleString];
+  const cached = permissionCache.get(roleString);
   if (cached) {
     return cached;
   }
@@ -79,7 +68,7 @@ export async function getPermissionsForRoles(roleString) {
   // so that quick consecutive requests can benefit from it
   const permissions = queryPermissionsForRoles(roleString);
 
-  permissionCache[roleString] = permissions;
+  permissionCache.set(roleString, permissions);
   return permissions;
 }
 
