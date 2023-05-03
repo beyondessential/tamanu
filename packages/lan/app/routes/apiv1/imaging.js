@@ -361,6 +361,7 @@ globalImagingRequests.get(
     const patient = {
       association: 'patient',
       where: patientFilters,
+      attributes: ['displayId', 'firstName', 'lastName', 'id'],
     };
 
     const locationWhere = {
@@ -379,6 +380,7 @@ globalImagingRequests.get(
       association: 'encounter',
       where: encounterFilters,
       include: [patient, location],
+      attributes: ['id', 'departmentId'],
       required: true,
     };
     const results = {
@@ -405,6 +407,7 @@ globalImagingRequests.get(
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
+      subQuery: false,
     });
 
     // Extract and normalize data calling a base model method
