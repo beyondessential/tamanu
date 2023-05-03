@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { resetPermissionCache } from 'shared/permissions/rolesToPermissions';
+import { SYNC_DIRECTIONS } from '../constants';
+import { permissionCache } from '../permissions/cache';
 import { Model } from './Model';
 
 export class Permission extends Model {
@@ -23,16 +23,16 @@ export class Permission extends Model {
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         hooks: {
           afterSave() {
-            resetPermissionCache();
+            permissionCache.reset();
           },
           afterBulkCreate() {
-            resetPermissionCache();
+            permissionCache.reset();
           },
           afterBulkUpdate() {
-            resetPermissionCache();
+            permissionCache.reset();
           },
           afterBulkDestroy() {
-            resetPermissionCache();
+            permissionCache.reset();
           },
         },
         // creating partial indexes as objectId can be null
