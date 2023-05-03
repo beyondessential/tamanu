@@ -8,8 +8,10 @@ export const ImagingRoutes = React.memo(({ match }) => (
   <div>
     <Switch>
       <Route
-        path={`${match.path}/all`}
-        render={props => <ImagingRequestListingView {...props} />}
+        path={`${match.path}/active`}
+        render={props => (
+          <ImagingRequestListingView {...props} status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
+        )}
       />
       <Route
         path={`${match.path}/completed`}
@@ -17,7 +19,7 @@ export const ImagingRoutes = React.memo(({ match }) => (
           <ImagingRequestListingView {...props} status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
         )}
       />
-      <Redirect to={`${match.path}/all`} />
+      <Redirect to={`${match.path}/active`} />
     </Switch>
   </div>
 ));

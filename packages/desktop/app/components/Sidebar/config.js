@@ -89,8 +89,8 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'imaging' },
     children: [
       {
-        label: 'Requests',
-        path: '/imaging-requests/all',
+        label: 'Active requests',
+        path: '/imaging-requests/active',
         ability: { action: 'read' },
       },
       {
