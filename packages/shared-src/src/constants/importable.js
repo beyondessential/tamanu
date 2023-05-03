@@ -53,6 +53,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'scheduledVaccine',
   'secondaryIdType',
   'settlement',
+  'specimenType',
   'stressTestImagingArea',
   'subdivision',
   'triageReason',
@@ -108,6 +109,7 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
+  SPECIMEN_TYPE: 'specimenType',
   ...IMAGING_AREA_TYPES,
 };
 
