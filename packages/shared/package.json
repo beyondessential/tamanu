@@ -5,6 +5,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./constants/*": "./dist/constants/*.js",
+    "./demoData/*": "./dist/demoData/*.js",
     "./errors": "./dist/errors.js",
     "./models/*": "./dist/models/*.js",
     "./permissions/*": "./dist/permissions/*.js",
@@ -12,7 +13,7 @@
     "./services/logging/*": "./dist/services/logging/*.js",
     "./sync/*": "./dist/sync/*.js",
     "./tasks/*": "./dist/tasks/*.js",
-    "./test-helpers/fake": "./dist/test-helpers/fake.js",
+    "./test-helpers/*": "./dist/test-helpers/*.js",
     "./utils/fhir": "./dist/utils/fhir/index.js",
     "./utils/handoverNotes": "./dist/utils/handoverNotes/index.js",
     "./utils/patientCertificates": "./dist/utils/patientCertificates/index.js",
