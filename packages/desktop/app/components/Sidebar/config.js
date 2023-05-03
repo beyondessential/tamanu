@@ -107,6 +107,11 @@ export const FACILITY_MENU_ITEMS = [
         path: '/lab-requests/all',
         ability: { action: 'read' },
       },
+      {
+        label: 'Published',
+        path: '/lab-requests/published',
+        ability: { action: 'read' },
+      },
     ],
   },
   {
