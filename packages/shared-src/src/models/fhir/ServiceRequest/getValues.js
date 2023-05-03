@@ -166,7 +166,7 @@ function imagingCode(upstream) {
   if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
   const { imagingType } = upstream;
-  const { label } = imagingTypes[imagingType];
+  const { label } = imagingTypes[imagingType] || {};
   if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
   return new FhirCodeableConcept({
