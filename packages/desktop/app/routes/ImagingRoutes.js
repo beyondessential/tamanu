@@ -10,7 +10,7 @@ export const ImagingRoutes = React.memo(({ match }) => (
       <Route
         path={`${match.path}/active`}
         render={props => (
-          <ImagingRequestListingView {...props} status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
+          <ImagingRequestListingView {...props} status={IMAGING_REQUEST_STATUS_TYPES.PENDING} />
         )}
       />
       <Route

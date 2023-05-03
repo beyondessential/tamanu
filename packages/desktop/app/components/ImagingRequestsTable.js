@@ -36,10 +36,15 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
-  const { searchParameters } = useImagingRequests(
-    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
-  );
+  let searchMemoryKey;
+  if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
+  }
+  if (status === IMAGING_REQUEST_STATUS_TYPES.PENDING) {
+    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE;
+  }
+  const { searchParameters } = useImagingRequests(searchMemoryKey);
+
   const statusFilter = status ? { status } : {};
 
   const encounterColumns = [

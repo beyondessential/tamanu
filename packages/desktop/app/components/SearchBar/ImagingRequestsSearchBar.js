@@ -24,10 +24,8 @@ const FacilityCheckbox = styled.div`
 
 const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt'];
 
-const useAdvancedFields = (advancedFields, completedStatus) => {
-  const { searchParameters, setSearchParameters } = useImagingRequests(
-    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
-  );
+const useAdvancedFields = (advancedFields, searchMemoryKey) => {
+  const { searchParameters, setSearchParameters } = useImagingRequests(searchMemoryKey);
 
   // If one of the advanced fields is filled in when landing on the screen,
   // show the advanced fields section
@@ -45,13 +43,21 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
   const areaSuggester = useSuggester('locationGroup') || [];
   const departmentSuggester = useSuggester('department') || [];
   const requesterSuggester = useSuggester('practitioner') || [];
-  const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+
+  let searchMemoryKey;
+  if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
+  }
+  if (status === IMAGING_REQUEST_STATUS_TYPES.PENDING) {
+    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE;
+  }
+
   const {
     showAdvancedFields,
     setShowAdvancedFields,
     searchParameters,
     setSearchParameters,
-  } = useAdvancedFields(ADVANCED_FIELDS, completedStatus);
+  } = useAdvancedFields(ADVANCED_FIELDS, searchMemoryKey);
   const statusFilter = status ? { status } : {};
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({

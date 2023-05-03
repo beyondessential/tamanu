@@ -4,6 +4,7 @@ const ImagingRequestsContext = createContext({});
 
 export const IMAGING_REQUEST_SEARCH_KEYS = {
   ALL: 'ImagingRequestListingView',
+  ACTIVE: 'ActiveImagingRequestListingView',
   COMPLETED: 'CompletedImagingRequestListingView',
 };
 
@@ -31,6 +32,7 @@ export const useImagingRequests = (key = IMAGING_REQUEST_SEARCH_KEYS.ALL) => {
 export const ImagingRequestsProvider = ({ children }) => {
   const [searchParameters, setSearchParameters] = useState({
     [IMAGING_REQUEST_SEARCH_KEYS.ALL]: {},
+    [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
     [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
   });
 
