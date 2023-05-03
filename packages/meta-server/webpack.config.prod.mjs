@@ -1,6 +1,6 @@
-import { NODE_WEBPACK_CONFIG } from '@tamanu/build-tooling';
+import { NODE_WEBPACK_CONFIG_BABEL } from '@tamanu/build-tooling';
 
 export default {
-  ...NODE_WEBPACK_CONFIG,
+  ...NODE_WEBPACK_CONFIG_BABEL,
   mode: 'production',
 };
