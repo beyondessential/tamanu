@@ -20,6 +20,12 @@ yarn install --non-interactive --frozen-lockfile
 if [ -z "$package" ]; then
   yarn workspace @tamanu/shared build
 else
+  # clear out the tests and files not useful for production
+  rm -rf packages/*/__tests__ || true
+  rm -rf packages/*/jest.* || true
+  rm -rf packages/*/docker || true
+  rm -rf packages/*/coverage || true
+
   yarn workspace "$package" build
 fi
 
@@ -31,8 +37,11 @@ fi
 if ! [ -z "$package" ]; then
   # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
-  rm -rf packages/**/node_modules/@tamanu/build-tooling
   rm -rf packages/build-tooling
+  rm -rf packages/**/node_modules/@tamanu/build-tooling
+
+  # clear out the build configs
+  rm -rf packages/*/*.config.* || true
 
   # restore the top level package.json
   mv package.json{.orig,}
