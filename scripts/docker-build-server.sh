@@ -23,17 +23,21 @@ else
   yarn workspace "$package" build
 fi
 
-# restore the top level package.json
-mv package.json{.orig,}
-
-# clear out the build-tooling when building a server package
-# otherwise we assume we're building the shared stage, and want to keep these
+# clean up when building a server package
+#
+# otherwise we assume we're building the shared stage, and we either want to
+# keep some of these, or we don't care to clean up as the multi-staging will
+# take care of skipping the cruft anyway
 if ! [ -z "$package" ]; then
+  # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
   rm -rf packages/**/node_modules/@tamanu/build-tooling
   rm -rf packages/build-tooling
-fi
 
-# cleanup
-yarn cache clean
-rm $0
+  # restore the top level package.json
+  mv package.json{.orig,}
+
+  # cleanup
+  yarn cache clean
+  rm $0
+fi
