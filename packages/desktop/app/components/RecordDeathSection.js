@@ -21,6 +21,11 @@ const TypographyLink = styled(Typography)`
   margin-top: auto;
 `;
 
+const Content = styled.p`
+  text-align: left;
+  margin-bottom: 2rem;
+`;
+
 export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
   const api = useApi();
   const dispatch = useDispatch();
@@ -41,6 +46,12 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
 
   const isPatientDead = Boolean(patient.dateOfDeath);
   const actionText = isPatientDead ? 'Revert death record' : 'Record death';
+  const customContent = (
+    <Content>
+      Are you sure you want to revert the patient death record? This will not reopen any previously
+      closed encounters.
+    </Content>
+  );
 
   return (
     <>
@@ -50,7 +61,7 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
       <ConfirmModal
         open={isRevertModalOpen}
         title="Revert patient death"
-        subText="Are you sure you want to revert the patient death record? This will not reopen any previously closed encounters."
+        customContent={customContent}
         onConfirm={revertDeath}
         onCancel={closeRevertModal}
       />
