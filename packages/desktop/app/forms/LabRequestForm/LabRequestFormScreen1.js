@@ -54,18 +54,17 @@ const OPTIONS = {
 const useLabRequestFormTypeOptions = setFieldValue => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const featureFlags = getLocalisation('features') || {};
+  const { onlyAllowLabPanels } = getLocalisation('features') || {};
 
   const { data, isSuccess } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
   const arePanels = data?.length > 0;
-  const onlyPanels = featureFlags.onlyAllowLabPanels;
   const options = [];
   if (arePanels) {
     options.push(OPTIONS.PANEL);
   }
-  if (!onlyPanels) {
+  if (!onlyAllowLabPanels) {
     options.push(OPTIONS.INDIVIDUAL);
   }
 
