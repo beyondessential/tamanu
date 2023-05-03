@@ -1,4 +1,4 @@
-import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
+import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from '../../../constants';
 import {
   FhirCodeableConcept,
   FhirCoding,

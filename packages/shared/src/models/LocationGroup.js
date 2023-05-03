@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { InvalidOperationError } from 'shared/errors';
+import { SYNC_DIRECTIONS } from '../constants';
+import { InvalidOperationError } from '../errors';
 import { VISIBILITY_STATUSES } from '../constants';
 import { Model } from './Model';
 

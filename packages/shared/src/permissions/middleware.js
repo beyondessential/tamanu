@@ -1,5 +1,5 @@
-import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
-import { getAbilityForUser, getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { ForbiddenError, BadAuthenticationError } from '../errors';
+import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly
 // (we could use casl's ForbiddenError.throwUnlessCan function except there's some

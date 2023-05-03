@@ -1,6 +1,6 @@
 import React from 'react';
-import { getDisplayDate } from 'shared/utils/patientCertificates/getDisplayDate';
-import { Divider } from 'shared/utils/handoverNotes/Divider';
+import { getDisplayDate } from '../patientCertificates/getDisplayDate';
+import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
 import { getName, getSex, getDOB } from './accessors';

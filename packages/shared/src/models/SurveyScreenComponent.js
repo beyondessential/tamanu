@@ -1,7 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { parseOrNull } from 'shared/utils/parse-or-null';
-import { log } from 'shared/services/logging';
+import { SYNC_DIRECTIONS } from '../constants';
+import { parseOrNull } from '../utils/parse-or-null';
+import { log } from '../services/logging';
 import { Model } from './Model';
 
 export class SurveyScreenComponent extends Model {

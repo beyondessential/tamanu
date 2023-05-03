@@ -1,13 +1,13 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from 'shared/errors';
+import { InvalidOperationError } from '../errors';
 import {
   SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
-import { getNotePageWithType } from 'shared/utils/notePages';
+} from '../constants';
+import { getNotePageWithType } from '../utils/notePages';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';

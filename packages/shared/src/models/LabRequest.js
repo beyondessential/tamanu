@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from 'shared/errors';
-import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { InvalidOperationError } from '../errors';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '../constants';
 import {
   COMMUNICATION_STATUSES,
   COMMUNICATION_STATUSES_VALUES,

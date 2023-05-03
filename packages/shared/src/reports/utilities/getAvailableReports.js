@@ -1,11 +1,12 @@
-import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from 'shared/constants';
-import * as reportUtils from 'shared/reports';
+import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from '../../constants';
+import { REPORT_DEFINITIONS } from '../reportDefinitions';
+import { getReportModule } from '../index';
 import { canRunStaticReport } from './canRunStaticReport';
 
 const getStaticReports = async (ability, models) => {
   const permittedReports = [];
-  for (const reportDef of reportUtils.REPORT_DEFINITIONS) {
-    const reportModule = await reportUtils.getReportModule(reportDef.id, models);
+  for (const reportDef of REPORT_DEFINITIONS) {
+    const reportModule = await getReportModule(reportDef.id, models);
     if (canRunStaticReport(ability, reportDef.id, reportModule.permission)) {
       permittedReports.push(reportDef);
     }

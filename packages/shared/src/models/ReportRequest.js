@@ -1,11 +1,7 @@
 import { Sequelize } from 'sequelize';
-import {
-  REPORT_REQUEST_STATUS_VALUES,
-  SYNC_DIRECTIONS,
-  REPORT_EXPORT_FORMATS,
-} from 'shared/constants';
-import { log } from 'shared/services/logging';
-import { InvalidOperationError } from 'shared/errors';
+import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS, REPORT_EXPORT_FORMATS } from '../constants';
+import { log } from '../services/logging';
+import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
 export class ReportRequest extends Model {

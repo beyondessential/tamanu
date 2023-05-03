@@ -6,8 +6,8 @@ import {
   ENCOUNTER_TYPE_VALUES,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
-} from 'shared/constants';
-import { InvalidOperationError } from 'shared/errors';
+} from '../constants';
+import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';

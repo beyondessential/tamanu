@@ -1,4 +1,4 @@
-import { log } from 'shared/services/logging';
+import { log } from '../services/logging';
 
 export const getResponseJsonSafely = async response => {
   try {

@@ -5,7 +5,7 @@ import {
   REPORT_STATUSES,
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
-} from 'shared/constants';
+} from '../constants';
 import { Model } from './Model';
 import { getQueryReplacementsFromParams } from '../utils/getQueryReplacementsFromParams';
 

@@ -1,7 +1,6 @@
 import config from 'config';
 
-import { FHIR_DIAGNOSTIC_REPORT_STATUS, LAB_REQUEST_STATUSES } from 'shared/constants';
-
+import { FHIR_DIAGNOSTIC_REPORT_STATUS, LAB_REQUEST_STATUSES } from '../../constants';
 import {
   FhirCodeableConcept,
   FhirCoding,

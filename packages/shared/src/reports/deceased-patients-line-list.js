@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { TIME_UNIT_OPTIONS } from 'shared/constants';
+import { TIME_UNIT_OPTIONS } from '../constants';
 import { generateReportFromQueryData } from './utilities';
 
 // Creates a string with the time unit that it was added

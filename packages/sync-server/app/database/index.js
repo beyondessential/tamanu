@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
+import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database.js';
 import { addHooks } from './hooks';
 
 let existingConnection = null;

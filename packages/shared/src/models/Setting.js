@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 
 /**

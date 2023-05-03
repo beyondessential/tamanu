@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { PATIENT_ISSUE_TYPES } from '../constants';
+import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';

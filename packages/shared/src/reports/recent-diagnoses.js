@@ -2,7 +2,7 @@
 
 import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { ageInYears, toDateTimeString } from 'shared/utils/dateTime';
+import { ageInYears, toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [

@@ -1,6 +1,6 @@
 import multiparty from 'multiparty';
 
-import { tmpdir } from 'shared/utils';
+import { tmpdir } from './tmpdir';
 
 async function getMultipartData(req) {
   const form = new multiparty.Form({ autoFiles: true, uploadDir: await tmpdir() });

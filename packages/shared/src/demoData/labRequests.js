@@ -1,5 +1,5 @@
-import { randomReferenceId } from 'shared/demoData/patients';
-import { fake } from 'shared/test-helpers/fake';
+import { randomReferenceId } from './patients';
+import { fake } from '../test-helpers/fake';
 
 export const randomLabRequest = async (models, overrides) => {
   const { LabTestType } = models;

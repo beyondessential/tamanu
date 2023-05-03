@@ -2,7 +2,7 @@
 
 import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { toDateTimeString, format } from 'shared/utils/dateTime';
+import { toDateTimeString, format } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const DATE_FORMAT = 'yyyy/MM/dd';

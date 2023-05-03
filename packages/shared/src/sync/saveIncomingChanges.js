@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
-import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
-import { log } from 'shared/services/logging/log';
+import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
+import { log } from '../services/logging/log';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';

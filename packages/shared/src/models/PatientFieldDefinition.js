@@ -4,7 +4,7 @@ import {
   VISIBILITY_STATUSES,
   VISIBILITY_STATUS_VALUES,
   SYNC_DIRECTIONS,
-} from 'shared/constants';
+} from '../constants';
 import { Model } from './Model';
 
 const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${JSON.stringify(

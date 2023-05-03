@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { parseOrNull } from 'shared/utils/parse-or-null';
+import { SYNC_DIRECTIONS } from '../constants';
+import { parseOrNull } from '../utils/parse-or-null';
 import { Model } from './Model';
 
 export class ProgramDataElement extends Model {

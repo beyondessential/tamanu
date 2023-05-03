@@ -8,9 +8,9 @@ import {
   parseISO,
   subDays,
 } from 'date-fns';
-import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
+import { differenceInMilliseconds, format } from '../../utils/dateTime';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
