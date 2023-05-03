@@ -19,7 +19,6 @@ package-lock.json
 *.log
 *.gz
 
-
 # Coveralls
 coverage
 
@@ -28,6 +27,5 @@ benchmarks/graphs
 
 release
 data
-config
 
 dist
