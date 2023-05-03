@@ -69,7 +69,14 @@ labRequest.get(
     } = req;
     req.checkPermission('list', 'LabRequest');
 
-    const { rowsPerPage = 10, page = 0, ...filterParams } = query;
+    const {
+      order = 'ASC',
+      orderBy = 'displayId',
+      rowsPerPage = 10,
+      page = 0,
+      ...filterParams
+    } = query;
+
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
@@ -109,6 +116,15 @@ labRequest.get(
         `location.facility_id = :facilityId`,
         () => ({ facilityId: config.serverFacilityId }),
       ),
+      makeFilter(
+        filterParams.publishedDate,
+        `lab_requests.published_date LIKE :publishedDate`,
+        ({ publishedDate }) => {
+          return {
+            publishedDate: `${publishedDate}%`,
+          };
+        },
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -131,7 +147,7 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-      ${whereClauses && `WHERE ${whereClauses}`}
+        ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
     const filterReplacements = filters
@@ -157,6 +173,22 @@ labRequest.get(
       return;
     }
 
+    const sortKeys = {
+      displayId: 'patient.display_id',
+      patientName: 'UPPER(patient.last_name)',
+      requestId: 'display_id',
+      testCategory: 'category.name',
+      labTestPanelName: 'lab_test_panel.id',
+      requestedDate: 'requested_date',
+      requestedBy: 'examiner.display_name',
+      priority: 'priority.name',
+      status: 'status',
+      publishedDate: 'published_date',
+    };
+
+    const sortKey = sortKeys[orderBy];
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
     const result = await req.db.query(
       `
         SELECT
@@ -177,6 +209,8 @@ labRequest.get(
           location.facility_id AS facility_id
         ${from}
 
+        ORDER BY ${sortKey} ${sortDirection}
+
         LIMIT :limit
         OFFSET :offset
       `,
@@ -185,6 +219,8 @@ labRequest.get(
           ...filterReplacements,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
+          sortKey,
+          sortDirection,
         },
         model: LabRequest,
         type: QueryTypes.SELECT,
@@ -193,7 +229,6 @@ labRequest.get(
     );
 
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-
     res.send({
       data: forResponse,
       count,

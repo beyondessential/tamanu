@@ -19,6 +19,9 @@ export const getLaboratory = ({ laboratoryName, laboratory }) =>
   laboratoryName || laboratory?.name || 'Unknown';
 
 export const getCompletedDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
+export const getPublishedDate = ({ publishedDate }) => (
+  <DateDisplay date={publishedDate} customTooltipFormat="HH:mm a" />
+);
 export const getMethod = ({ labTestMethod }) => labTestMethod?.name || 'Unknown';
 
 export const getRequestedBy = ({ requestedBy }) =>
