@@ -56,6 +56,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'triageReason',
   'ultrasoundImagingArea',
   'user',
+  'vaccine',
   'vascularStudyImagingArea',
   'village',
   'xRayImagingArea',
@@ -103,6 +104,7 @@ export const REFERENCE_TYPES = {
   REFERRAL_SOURCE: 'referralSource',
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
+  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   ...IMAGING_AREA_TYPES,
 };
 
