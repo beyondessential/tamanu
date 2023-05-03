@@ -8,8 +8,11 @@ package="${1:-}"
 # save the original package.jsons
 cp package.json{,.orig}
 
-# let build-tooling be installed in prod mode
+# let build-tooling be installed in production mode
 jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json.orig > package.json
+
+# put cache in packages/ so it's carried between stages
+yarn config set cache-folder /app/packages/.yarn-cache
 
 # install dependencies
 yarn install --non-interactive --frozen-lockfile
@@ -48,5 +51,7 @@ if ! [ -z "$package" ]; then
 
   # cleanup
   yarn cache clean
+  yarn config delete cache-folder
+  rm -rf packages/.yarn-cache || true
   rm $0
 fi
