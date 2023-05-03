@@ -1,10 +1,3 @@
-module.exports = {
-  transform: {
-    '^.+\\.js$': '<rootDir>/jest.babel.js',
-  },
-  testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
-  collectCoverageFrom: ['app/**/*.js'],
+const { BABEL } = require('../../common.jest.config');
 
-  // workaround for memory leaks
-  workerIdleMemoryLimit: '512MB',
-};
+module.exports = BABEL;
