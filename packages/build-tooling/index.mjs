@@ -2,7 +2,7 @@ import nodeExternals from 'webpack-node-externals';
 import NodemonPlugin from 'nodemon-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 
-export const NODE_WEBPACK_CONFIG = {
+const NODE_WEBPACK_CONFIG = {
   entry: ['core-js/stable', './index.js'],
   externalsPresets: { node: true },
   externals: [nodeExternals({ modulesDir: '../../node_modules' }), nodeExternals()],
@@ -10,21 +10,6 @@ export const NODE_WEBPACK_CONFIG = {
     alias: {
       shared: '@tamanu/shared',
     },
-  },
-  module: {
-    rules: [
-      {
-        test: /\.m?js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: new URL('./node_modules/babel-loader', import.meta.url).pathname,
-          options: {
-            cacheDirectory: true,
-            rootMode: 'upward',
-          },
-        },
-      },
-    ],
   },
   optimization: {
     minimize: true,
@@ -41,6 +26,44 @@ export const NODE_WEBPACK_CONFIG = {
   output: {
     clean: true,
     filename: 'app.bundle.js',
+  },
+};
+
+export const NODE_WEBPACK_CONFIG_BABEL = {
+  ...NODE_WEBPACK_CONFIG,
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: new URL('./node_modules/babel-loader', import.meta.url).pathname,
+          options: {
+            cacheDirectory: true,
+            rootMode: 'upward',
+          },
+        },
+      },
+      ...(NODE_WEBPACK_CONFIG.module?.rules ?? []),
+    ],
+    ...(NODE_WEBPACK_CONFIG.module ?? {}),
+  },
+};
+
+export const NODE_WEBPACK_CONFIG_SWC = {
+  ...NODE_WEBPACK_CONFIG,
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: new URL('./node_modules/swc-loader', import.meta.url).pathname,
+        },
+      },
+      ...(NODE_WEBPACK_CONFIG.module?.rules ?? []),
+    ],
+    ...(NODE_WEBPACK_CONFIG.module ?? {}),
   },
 };
 
