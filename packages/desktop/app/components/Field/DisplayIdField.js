@@ -29,8 +29,9 @@ const CheckField = ({ field }) => (
   </Tooltip>
 );
 
-export const DisplayIdField = () => (
+export const DisplayIdField = props => (
   <FieldContainer
+    {...props}
     name="displayId"
     className="display-field"
     InputProps={{
