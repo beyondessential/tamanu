@@ -347,7 +347,7 @@ describe('PatientVaccine', () => {
       expect(encounter.endDate).toBeDefined();
     });
 
-    it('Should not generate current date as vaccine date if no date is provided', async () => {
+    it('Should not have current date as default', async () => {
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_STATUS.GIVEN,
         scheduledVaccineId: scheduled1.id,
