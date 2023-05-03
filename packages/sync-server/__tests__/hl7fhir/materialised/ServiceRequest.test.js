@@ -104,6 +104,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -207,6 +208,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: null,
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -250,6 +252,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -369,6 +372,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -488,6 +492,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
