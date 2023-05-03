@@ -5,13 +5,12 @@ import http from 'http';
 import 'jest-expect-message';
 import * as jestExtendedMatchers from 'jest-extended';
 
-import { COMMUNICATION_STATUSES } from 'shared/constants';
+import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from 'shared/constants';
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 
 jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 jest.mock('../app/utils/getFreeDiskSpace');
