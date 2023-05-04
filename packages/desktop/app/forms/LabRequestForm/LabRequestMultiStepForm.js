@@ -20,6 +20,7 @@ export const LabRequestMultiStepForm = ({
   departmentSuggester,
   encounter,
   onCancel,
+  onChangeStep,
   onSubmit,
   editedObject,
 }) => {
@@ -28,6 +29,7 @@ export const LabRequestMultiStepForm = ({
   return (
     <MultiStepForm
       onCancel={onCancel}
+      onChangeStep={onChangeStep}
       onSubmit={onSubmit}
       isSubmitting={isSubmitting}
       initialValues={{

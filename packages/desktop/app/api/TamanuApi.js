@@ -268,6 +268,12 @@ export class TamanuApi {
     return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
   }
 
+  async download(endpoint, query) {
+    const response = await this.fetch(endpoint, query, { returnResponse: true });
+    const blob = await response.blob();
+    return blob;
+  }
+
   async postWithFileUpload(endpoint, filePath, body, options = {}) {
     const fileData = await promises.readFile(filePath);
     const blob = new Blob([fileData]);

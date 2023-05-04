@@ -8,6 +8,12 @@ export class FhirReference extends FhirBaseType {
   static SCHEMA() {
     return yup
       .object({
+        // on ancestor: Element
+        id: yup
+          .string()
+          .nullable()
+          .default(null),
+
         reference: yup
           .string()
           .nullable()
