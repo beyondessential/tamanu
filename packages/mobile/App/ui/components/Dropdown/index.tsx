@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
-import { StyledView } from '/styled/common';
+import { StyledView, StyledText } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
@@ -20,7 +20,8 @@ export interface DropdownProps extends BaseInputProps {
   onChange?: (items: string) => void;
   multiselect?: boolean;
   label?: string;
-  placeholderText?: string;
+  searchPlaceholderText?: string;
+  selectPlaceholderText?: string;
   value?: string | string[];
   // Note the disabled prop is only known to work with
   // - single
@@ -32,6 +33,7 @@ const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
   DEFAULT: {
     styleDropdownMenuSubsection: {
       paddingLeft: 12,
+      borderRadius: 5,
     },
   },
   ERROR: {
@@ -41,7 +43,7 @@ const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
     },
     styleDropdownMenuSubsection: {
       paddingLeft: 12,
-      borderRadius: 3,
+      borderRadius: 5,
       borderColor: theme.colors.ERROR,
       borderWidth: 1,
     },
@@ -53,6 +55,7 @@ const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
       borderWidth: 0.5,
       borderColor: theme.colors.DISABLED_GREY,
       paddingLeft: 12,
+      borderRadius: 5,
     },
   },
 };
@@ -68,11 +71,13 @@ export const Dropdown = React.memo(
     options,
     onChange,
     multiselect = false,
-    label = 'Select Items',
-    placeholderText = 'Search Items...',
+    label = 'Select',
+    searchPlaceholderText = 'Search Items...',
+    selectPlaceholderText,
     value = [],
     error,
     disabled,
+    required = false,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
     const componentRef = useRef(null);
@@ -85,10 +90,18 @@ export const Dropdown = React.memo(
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
     return (
-      <StyledView
-        width="100%"
-        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
-      >
+      <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
+        {!!label && (
+          <StyledText
+            fontSize={14}
+            fontWeight={600}
+            marginBottom={2}
+            color={theme.colors.TEXT_SUPER_DARK}
+          >
+            {label}
+            {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+          </StyledText>
+        )}
         <MultiSelect
           single={!multiselect}
           items={options}
@@ -97,22 +110,36 @@ export const Dropdown = React.memo(
           ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
-          selectText={label}
-          searchInputPlaceholderText={filterable ? placeholderText : label}
+          selectText={selectPlaceholderText || label}
+          searchInputPlaceholderText={filterable ? searchPlaceholderText : label}
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
           tagTextColor={theme.colors.PRIMARY_MAIN}
+          textColor={value?.length ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
           selectedItemTextColor={theme.colors.PRIMARY_MAIN}
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
           itemTextColor="#000"
           searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
-          styleMainWrapper={{ zIndex: 999 }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
+          styleMainWrapper={{ zIndex: 999 }}
           styleDropdownMenu={{
             height: screenPercentageToDP(6.8, Orientation.Height),
             marginBottom: 0,
+            borderRadius: 5,
+          }}
+          styleSelectorContainer={{
+            borderRadius: 5,
+            backgroundColor: 'white',
+            borderColor: theme.colors.PRIMARY_MAIN,
+            padding: 5,
+            borderWidth: 1,
+          }}
+          styleRowList={{
+            borderRadius: 5,
+            backgroundColor: 'white',
+            padding: 5,
           }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
@@ -135,12 +162,10 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const results = await models.ReferenceData.getSelectOptionsForType(
-        referenceDataType,
-      );
+      const results = await models.ReferenceData.getSelectOptionsForType(referenceDataType);
       setOptions(results);
     })();
   }, []);
 
-  return <Dropdown {...props} options={options}/>;
+  return <Dropdown {...props} options={options} />;
 };
