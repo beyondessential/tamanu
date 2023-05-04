@@ -39,7 +39,7 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
     }
   }, [vaccineData.status]);
   return (
-    <StyledView width="80.29%">
+    <StyledView>
       <VaccineCardHeader
         name={vaccineData.name}
         code={vaccineData.code}

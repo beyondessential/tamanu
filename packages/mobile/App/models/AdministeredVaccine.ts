@@ -29,6 +29,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true, default: true })
   consent: boolean;
 
+  @Column({ nullable: true })
+  consentGivenBy?: string;
+
   @Column()
   date: string;
 
@@ -91,7 +94,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
       .leftJoinAndSelect('encounter.location', 'location')
+      .leftJoinAndSelect('encounter.department', 'department')
       .leftJoinAndSelect('encounter.examiner', 'examiner')
+      .leftJoinAndSelect('location.locationGroup', 'locationGroup')
       .leftJoinAndSelect('administered_vaccine.notGivenReason', 'notGivenReason')
       .leftJoinAndSelect('administered_vaccine.scheduledVaccine', 'scheduledVaccine')
       .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')

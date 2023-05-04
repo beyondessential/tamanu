@@ -54,12 +54,10 @@ export const NewVaccineTabComponent = ({
         scheduledVaccine,
         encounter,
         notGivenReasonId,
+        departmentId,
+        locationId,
         ...otherValues
       } = values;
-      const facilityId = await readConfig('facilityId', '');
-      const { departmentId, locationId } =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
-
       const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
