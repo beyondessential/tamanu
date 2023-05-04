@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { useSuggester } from '../../api';
-import handoverNotes from '../../assets/images/handover_notes.svg';
 import { Colors, locationAvailabilityOptions } from '../../constants';
+import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
+import { AutocompleteField, LocalisedField, SelectField } from '../Field';
+import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -20,10 +21,6 @@ const HandoverNotesButton = styled(Button)`
   }
 `;
 
-const HandoverNotesIcon = styled.img`
-  margin-right: 5px;
-`;
-
 const EmptyGridItem = styled.div``;
 
 export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }) => {
@@ -31,31 +28,56 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
     baseQueryParameters: { filterByFacility: true },
   });
 
+  const [handoverNotesModalShown, setHandoverNotesModalShown] = useState(false);
+
+  const handleHandoverNotesButtonClick = useCallback(() => setHandoverNotesModalShown(true), [
+    setHandoverNotesModalShown,
+  ]);
+
+  const handleHandoverNotesModalClose = useCallback(() => setHandoverNotesModalShown(false), [
+    setHandoverNotesModalShown,
+  ]);
+
   return (
-    <CustomisableSearchBar
-      title="Search Locations"
-      onSearch={onSearch}
-      initialValues={searchParameters}
-    >
-      <HandoverNotesButton type="button">
-        <HandoverNotesIcon src={handoverNotes} />
-        Handover notes
-      </HandoverNotesButton>
-      <EmptyGridItem />
-      <LocalisedField
-        name="area"
-        defaultLabel="Area"
-        component={AutocompleteField}
-        size="small"
-        suggester={locationGroupSuggester}
+    <>
+      <CustomisableSearchBar
+        title="Search Locations"
+        onSearch={onSearch}
+        initialValues={searchParameters}
+      >
+        <HandoverNotesButton
+          disabled={!searchParameters?.area}
+          startIcon={
+            <HandoverNotesIcon color={searchParameters?.area ? Colors.primary : Colors.softText} />
+          }
+          onClick={handleHandoverNotesButtonClick}
+        >
+          Handover notes
+        </HandoverNotesButton>
+        <EmptyGridItem />
+        <LocalisedField
+          name="area"
+          defaultLabel="Area"
+          component={AutocompleteField}
+          size="small"
+          suggester={locationGroupSuggester}
+        />
+        <LocalisedField
+          name="status"
+          defaultLabel="Status"
+          size="small"
+          component={SelectField}
+          options={locationAvailabilityOptions}
+        />
+      </CustomisableSearchBar>
+      <HandoverNotesModal
+        open={handoverNotesModalShown}
+        onClose={handleHandoverNotesModalClose}
+        printable
+        width="md"
+        keepMounted
+        area={searchParameters?.area}
       />
-      <LocalisedField
-        name="status"
-        defaultLabel="Status"
-        size="small"
-        component={SelectField}
-        options={locationAvailabilityOptions}
-      />
-    </CustomisableSearchBar>
+    </>
   );
 });

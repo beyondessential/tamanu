@@ -124,6 +124,7 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
@@ -167,6 +168,15 @@ labRequest.get(
         `location.facility_id = :facilityId`,
         () => ({ facilityId: config.serverFacilityId }),
       ),
+      makeFilter(
+        filterParams.publishedDate,
+        `lab_requests.published_date LIKE :publishedDate`,
+        ({ publishedDate }) => {
+          return {
+            publishedDate: `${publishedDate}%`,
+          };
+        },
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -195,7 +205,7 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-      ${whereClauses && `WHERE ${whereClauses}`}
+        ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
     const filterReplacements = filters
@@ -231,6 +241,7 @@ labRequest.get(
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
       status: 'status',
+      publishedDate: 'published_date',
     };
 
     const sortKey = sortKeys[orderBy];
@@ -276,7 +287,6 @@ labRequest.get(
     );
 
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-
     res.send({
       data: forResponse,
       count,

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useContext } from 'react';
 
 export const ElectronContext = React.createContext();
@@ -11,7 +12,6 @@ export const DummyElectronProvider = ({ children }) => (
     value={{
       // filesystem
       showOpenDialog: async (...args) => {
-        // eslint-disable-next-line no-console
         console.log('Show open dialog', ...args);
         return {
           canceled: false,
@@ -19,18 +19,19 @@ export const DummyElectronProvider = ({ children }) => (
         };
       },
       showSaveDialog: async (...args) => {
-        // eslint-disable-next-line no-console
         console.log('Show save dialog', ...args);
         return {
           canceled: false,
           filePath: 'dummyFile.txt',
         };
       },
-      // eslint-disable-next-line no-console
       openPath: path => console.log('Opening path', path),
+      readFile: path => {
+        console.log('Reading contents of', path);
+        return path;
+      },
 
       // print
-      // eslint-disable-next-line no-console
       printPage: (options = {}) => console.log('Printing page', options),
     }}
   >

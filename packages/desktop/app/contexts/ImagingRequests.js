@@ -8,6 +8,7 @@ export const IMAGING_REQUEST_SEARCH_KEYS = {
   COMPLETED: 'CompletedImagingRequestListingView',
 };
 
+// This key is used to store seperate search parameters for the different kinds of imaging request tables
 export const useImagingRequests = (key = IMAGING_REQUEST_SEARCH_KEYS.ALL) => {
   const {
     searchParameters: allSearchParameters,
