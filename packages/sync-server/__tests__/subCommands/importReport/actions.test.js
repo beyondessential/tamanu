@@ -65,7 +65,7 @@ jest.mock('../../../app/database', () => ({
     },
     sequelize: {
       query: jest.fn().mockResolvedValue([]),
-    }
+    },
   }),
 }));
 
