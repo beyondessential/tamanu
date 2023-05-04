@@ -202,7 +202,6 @@ patientVaccineRoutes.post(
 
       return req.models.AdministeredVaccine.create({
         ...vaccineData,
-        date: vaccineData.date || currentDate,
         encounterId,
       });
     });

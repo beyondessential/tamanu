@@ -350,5 +350,20 @@ describe('PatientVaccine', () => {
       expect(encounter.startDate).toBeDefined();
       expect(encounter.endDate).toBeDefined();
     });
+
+    it('Should not have current date as default', async () => {
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_STATUS.GIVEN,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        givenBy: 'Clinician',
+        givenElsewhere: true,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+      expect(vaccine.date).toBe(null);
+    });
   });
 });
