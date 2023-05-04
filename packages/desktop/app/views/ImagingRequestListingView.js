@@ -9,9 +9,9 @@ import {
 } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 
-export const ImagingRequestListingView = React.memo(({ status = '' }) => {
+export const ImagingRequestListingView = React.memo(({ memoryKey, status = '' }) => {
   const tableTitle = status
-    ? `${IMAGING_REQUEST_STATUS_CONFIG[status].label} imaging requests`
+    ? `${memoryKey} imaging requests`
     : 'Imaging requests';
 
   return (
@@ -19,8 +19,8 @@ export const ImagingRequestListingView = React.memo(({ status = '' }) => {
       <TopBar title={tableTitle} />
       <ContentPane>
         <SearchTableTitle>Imaging request search</SearchTableTitle>
-        <ImagingRequestsSearchBar status={status} />
-        <ImagingRequestsTable status={status} />
+        <ImagingRequestsSearchBar memoryKey={memoryKey} status={status} />
+        <ImagingRequestsTable memoryKey={memoryKey} status={status} />
       </ContentPane>
     </PageContainer>
   );

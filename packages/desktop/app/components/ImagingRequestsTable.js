@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { Op } from 'sequelize';
 import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -13,6 +14,7 @@ import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
 import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
+
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
@@ -28,24 +30,24 @@ const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
-const getCompletedDate = ({ results }) => <DateDisplay date={results[0].completedAt} />;
+const getCompletedDate = ({ results }) => <DateDisplay date={results[0]?.completedAt} />;
 
-export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) => {
+export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status = '' }) => {
   const dispatch = useDispatch();
   const params = useParams();
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  let searchMemoryKey;
-  if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
-    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
-  }
-  if (status === IMAGING_REQUEST_STATUS_TYPES.PENDING) {
-    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE;
-  }
-  const { searchParameters } = useImagingRequests(searchMemoryKey);
+  // let searchMemoryKey;
+  // if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+  //   searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
+  // }
+  // if (status === IMAGING_REQUEST_STATUS_TYPES.PENDING) {
+  //   searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE;
+  // }
+  const { searchParameters } = useImagingRequests(memoryKey);
 
-  const statusFilter = status ? { status } : {};
+  const statusFilter = status.length > 0 ? { status: { [Op.or]: status } } : {};
 
   const encounterColumns = [
     { key: 'displayId', title: 'Request ID', sortable: false },

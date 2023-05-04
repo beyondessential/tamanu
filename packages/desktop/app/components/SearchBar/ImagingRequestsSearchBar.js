@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Op } from 'sequelize';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+
 import {
   DateField,
   LocalisedField,
@@ -36,7 +38,7 @@ const useAdvancedFields = (advancedFields, searchMemoryKey) => {
   return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
 };
 
-export const ImagingRequestsSearchBar = ({ status = '' }) => {
+export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
@@ -44,21 +46,23 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
   const departmentSuggester = useSuggester('department') || [];
   const requesterSuggester = useSuggester('practitioner') || [];
 
-  let searchMemoryKey;
-  if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
-    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
-  }
-  if (status === IMAGING_REQUEST_STATUS_TYPES.PENDING) {
-    searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE;
-  }
+  // let searchMemoryKey;
+  // if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+  //   searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
+  // }
+  // if (status === IMAGING_REQUEST_STATUS_TYPES.PENDING) {
+  //   searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE;
+  // }
 
   const {
     showAdvancedFields,
     setShowAdvancedFields,
     searchParameters,
     setSearchParameters,
-  } = useAdvancedFields(ADVANCED_FIELDS, searchMemoryKey);
-  const statusFilter = status ? { status } : {};
+  } = useAdvancedFields(ADVANCED_FIELDS, memoryKey);
+  const statusFilter = status.length > 0 ? { status: { [Op.or]: status } } : {};
+
+  console.log({ ...searchParameters, ...statusFilter })
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,
