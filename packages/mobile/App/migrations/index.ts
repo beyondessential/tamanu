@@ -19,6 +19,7 @@ import { addLabSampleSiteIdToLabRequest1677723905000 } from './1677723905000-add
 import { addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000 } from './1678061990000-addNotGivenReasonIdColumnToAdministeredVaccineTable';
 import { addLabTestPanelTables1678397398000 } from './1678397398000-addLabTestPanelTables';
 import { addSettingTable1678400759000 } from './1678400759000-addSettingTable';
+import { addConsentGivenByToAdministeredVaccine1682923186000 } from './1682923186000-addConsentGivenByToAdministeredVaccine';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -41,4 +42,5 @@ export const migrationList = [
   addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
   addLabTestPanelTables1678397398000,
   addSettingTable1678400759000,
+  addConsentGivenByToAdministeredVaccine1682923186000,
 ];

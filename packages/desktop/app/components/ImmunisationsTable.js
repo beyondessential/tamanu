@@ -95,6 +95,7 @@ export const ImmunisationsTable = React.memo(
           title: 'Action',
           accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
           sortable: false,
+          isExportable: false,
         },
       ],
       [onItemClick, onItemEditClick, onItemDeleteClick],
