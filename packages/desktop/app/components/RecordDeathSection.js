@@ -8,6 +8,7 @@ import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
+import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from './Modal';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -21,21 +22,28 @@ const TypographyLink = styled(Typography)`
   margin-top: auto;
 `;
 
+const marginBottom = 58;
+const marginTop = marginBottom - MODAL_PADDING_TOP_AND_BOTTOM;
+const marginLeftAndRight = 80 - MODAL_PADDING_LEFT_AND_RIGHT;
 const Content = styled.p`
   text-align: left;
-  margin-bottom: 2rem;
+  margin: ${marginTop}px ${marginLeftAndRight}px ${marginBottom}px;
+  font-size: 14px;
+  line-height: 18px;
 `;
 
 const ComponentDivider = styled(Divider)`
-  margin: 56px 0 30px 0px;
+  margin: 0 -${MODAL_PADDING_LEFT_AND_RIGHT}px 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
 const customContent = (
-  <Content>
-    Are you sure you want to revert the patient death record? This will not reopen any previously
-    closed encounters.
+  <div>
+    <Content>
+      Are you sure you want to revert the patient death record? This will not reopen any previously
+      closed encounters.
+    </Content>
     <ComponentDivider />
-  </Content>
+  </div>
 );
 
 export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
