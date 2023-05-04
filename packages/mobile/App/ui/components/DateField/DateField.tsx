@@ -74,7 +74,7 @@ export const DateField = React.memo(
     mode = 'date',
     disabled = false,
     required = false,
-    placeholder = 'dd/mm/yyy',
+    placeholder = 'dd/mm/yyyy',
   }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
