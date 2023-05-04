@@ -33,6 +33,7 @@ import { LabRequestChangePriorityModal } from './components/LabRequestChangePrio
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -52,6 +53,7 @@ const MODAL_IDS = {
   CHANGE_STATUS: 'changeStatus',
   VIEW_STATUS_LOG: 'viewStatusLog',
   RECORD_SAMPLE: 'recordSample',
+  SAMPLE_DETAILS: 'sampleDetails',
   PRINT: 'print',
   LABEL_PRINT: 'labelPrint',
   CHANGE_LABORATORY: 'changeLaboratory',
@@ -63,6 +65,7 @@ const MODALS = {
   [MODAL_IDS.CHANGE_STATUS]: LabRequestChangeStatusModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
+  [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.PRINT]: LabRequestPrintModal,
   [MODAL_IDS.LABEL_PRINT]: ({ labRequest, ...props }) => (
     <LabRequestPrintLabelModal {...props} labRequests={[labRequest]} />
@@ -183,6 +186,7 @@ export const LabRequestView = () => {
           Icon={() => <img src={BeakerIcon} alt="beaker" />}
           text="Sample collected"
           isReadOnly={areLabRequestsReadOnly}
+          onClick={() => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS)}
           main={
             <>
               <DateDisplay date={labRequest.sampleTime} showTime />
