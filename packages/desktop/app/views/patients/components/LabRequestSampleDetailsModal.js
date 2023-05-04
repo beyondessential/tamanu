@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
-import { Button, Modal  } from '../../../components';
+import { Button, Modal } from '../../../components';
 import { LabRequestSampleDetailsCard } from './LabRequestSampleDetailsCard';
-
 
 export const LabRequestSampleDetailsModal = ({ open, onClose, labRequest }) => {
   return (

@@ -3,7 +3,12 @@
 import { addDays, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers';
-import { FHIR_DATETIME_PRECISION, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import {
+  FHIR_DATETIME_PRECISION,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
@@ -95,7 +100,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a service request by materialised ID', async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, NoteItem, NotePage } = ctx.store.models;
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
@@ -106,6 +111,31 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           requestedDate: '2022-03-04 15:30:00',
         }),
       );
+      const [np1, np2] = await NotePage.bulkCreate([
+        fake(NotePage, {
+          date: '2022-03-05',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+        }),
+        fake(NotePage, {
+          date: '2022-03-06',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+        }),
+      ]);
+      await NoteItem.bulkCreate([
+        fake(NoteItem, { notePageId: np1.id, content: 'Suspected adenoma' }),
+        fake(NoteItem, { notePageId: np1.id, content: 'Patient may need mobility assistance' }),
+        fake(NoteItem, {
+          notePageId: np2.id,
+          content: 'Patient may have shrapnel in leg - need to confirm beforehand',
+        }),
+      ]);
+
       await ir.setAreas([resources.area1.id, resources.area2.id]);
       await ir.reload();
       const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
@@ -186,6 +216,18 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         locationCode: [
           {
             text: resources.facility.name,
+          },
+        ],
+        note: [
+          {
+            time: formatFhirDate('2022-03-05'),
+            text: `Suspected adenoma
+
+Patient may need mobility assistance`,
+          },
+          {
+            time: formatFhirDate('2022-03-06'),
+            text: 'Patient may have shrapnel in leg - need to confirm beforehand',
           },
         ],
       });

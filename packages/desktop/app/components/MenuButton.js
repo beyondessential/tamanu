@@ -38,20 +38,23 @@ const List = styled(MenuList)`
 `;
 
 export const MenuButton = React.memo(
-  ({ actions, className, iconDirection, iconColor, disabled = false }) => {
+  ({ actions, className, iconDirection, iconColor, disabled = false, stopPropagation = false }) => {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef(null);
 
     const handleClick = (event, action) => {
+      if (stopPropagation) event.stopPropagation();
       setOpen(false);
       action(event);
     };
 
-    const handleToggle = () => {
+    const handleToggle = event => {
+      if (stopPropagation) event.stopPropagation();
       setOpen(prevOpen => !prevOpen);
     };
 
     const handleClose = event => {
+      if (stopPropagation) event.stopPropagation();
       if (anchorRef.current && anchorRef.current.contains(event.target)) {
         return;
       }
