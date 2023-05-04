@@ -5,10 +5,6 @@ export function fromImagingRequests(models, table, id) {
     ImagingRequest,
     ImagingRequestArea,
     ImagingAreaExternalCode,
-    Encounter,
-    Facility,
-    Location,
-    LocationGroup,
     ReferenceData,
     User,
   } = models;
@@ -23,60 +19,6 @@ export function fromImagingRequests(models, table, id) {
             model: ImagingRequestArea,
             as: 'areas',
             where: { id },
-          },
-        ],
-      };
-    case Facility.tableName:
-      return {
-        include: [
-          {
-            model: Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: Location,
-                as: 'location',
-                include: [
-                  {
-                    model: Facility,
-                    as: 'facility',
-                    where: { id },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-    case Location.tableName:
-      return {
-        include: [
-          {
-            model: Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: Location,
-                as: 'location',
-                where: { id },
-              },
-            ],
-          },
-        ],
-      };
-    case LocationGroup.tableName:
-      return {
-        include: [
-          {
-            model: Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: LocationGroup,
-                as: 'locationGroup',
-                where: { id },
-              },
-            ],
           },
         ],
       };
@@ -213,7 +155,7 @@ export function fromLabRequests(models, table, id) {
 }
 
 function fromBoth(models, table, id) {
-  const { NotePage, NoteItem, Encounter, Patient } = models;
+  const { NotePage, NoteItem, Encounter, Patient, Facility, Location, LocationGroup } = models;
 
   switch (table) {
     case NotePage.tableName:
@@ -262,6 +204,60 @@ function fromBoth(models, table, id) {
               {
                 model: Patient,
                 as: 'patient',
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+    case Facility.tableName:
+      return {
+        include: [
+          {
+            model: Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: Location,
+                as: 'location',
+                include: [
+                  {
+                    model: Facility,
+                    as: 'facility',
+                    where: { id },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+    case Location.tableName:
+      return {
+        include: [
+          {
+            model: Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: Location,
+                as: 'location',
+                where: { id },
+              },
+            ],
+          },
+        ],
+      };
+    case LocationGroup.tableName:
+      return {
+        include: [
+          {
+            model: Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: LocationGroup,
+                as: 'locationGroup',
                 where: { id },
               },
             ],
