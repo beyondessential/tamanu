@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSuggester } from '../api';
-import { Field, AutocompleteField, Form } from './Field';
+import { AutocompleteInput } from './Field';
 import { Colors } from '../constants';
 import { Heading3 } from './Typography';
 
@@ -21,46 +21,56 @@ const Fields = styled.div`
   }
 `;
 
-export const ResultsSearchBar = React.memo(({ setSearchParameters, patientId }) => {
-  const panelSuggester = useSuggester('patientLabTestPanelTypes', {
-    baseQueryParameters: { patientId },
-  });
-  const categorySuggester = useSuggester('patientLabTestCategories', {
-    baseQueryParameters: { patientId },
-  });
+const StyledAutoCompleteInput = styled(AutocompleteInput)`
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
 
-  return (
-    <Container>
-      <Heading3 mb={2}>Lab results</Heading3>
-      <Form
-        onSubmit={() => {}}
-        render={({ setFieldValue }) => (
-          <>
-            <Fields>
-              <Field
-                name="category"
-                label="Test category"
-                suggester={categorySuggester}
-                component={AutocompleteField}
-                onChange={event => {
-                  setFieldValue('panel', null); // Clear other search field
-                  setSearchParameters({ categoryId: event.target.value, panelId: null });
-                }}
-              />
-              <Field
-                name="panel"
-                label="Test panel"
-                suggester={panelSuggester}
-                component={AutocompleteField}
-                onChange={event => {
-                  setFieldValue('category', null); // Clear other search field
-                  setSearchParameters({ categoryId: null, panelId: event.target.value });
-                }}
-              />
-            </Fields>
-          </>
-        )}
-      />
-    </Container>
-  );
-});
+  .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+
+  .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+`;
+
+export const ResultsSearchBar = React.memo(
+  ({ setSearchParameters, searchParameters, patientId, disabled }) => {
+    const panelSuggester = useSuggester('patientLabTestPanelTypes', {
+      baseQueryParameters: { patientId },
+    });
+    const categorySuggester = useSuggester('patientLabTestCategories', {
+      baseQueryParameters: { patientId },
+    });
+    return (
+      <Container>
+        <Heading3 mb={2}>Lab results</Heading3>
+        <Fields>
+          <StyledAutoCompleteInput
+            name="category"
+            label="Test category"
+            disabled={disabled}
+            suggester={categorySuggester}
+            value={searchParameters.categoryId}
+            onChange={event => {
+              const categoryId = event.target.value;
+              setSearchParameters(categoryId ? { categoryId } : {});
+            }}
+          />
+          <StyledAutoCompleteInput
+            name="panel"
+            label="Test panel"
+            disabled={disabled}
+            value={searchParameters.panelId}
+            suggester={panelSuggester}
+            onChange={event => {
+              const panelId = event.target.value;
+              setSearchParameters(panelId ? { panelId } : {});
+            }}
+          />
+        </Fields>
+      </Container>
+    );
+  },
+);

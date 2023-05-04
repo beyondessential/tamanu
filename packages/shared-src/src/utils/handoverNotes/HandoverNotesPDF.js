@@ -4,10 +4,19 @@ import { styles, Box } from '../patientCertificates/Layout';
 import { HandoverHeaderSection } from './HandoverHeaderSection';
 import { HandoverPatient } from './HandoverPatient';
 
-export const HandoverNotesPDF = ({ handoverNotes = [], area, logoSrc, getLocalisation }) => (
+export const HandoverNotesPDF = ({
+  handoverNotes = [],
+  locationGroupName,
+  logoSrc,
+  getLocalisation,
+}) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      <HandoverHeaderSection area={area} getLocalisation={getLocalisation} logoSrc={logoSrc} />
+      <HandoverHeaderSection
+        locationGroupName={locationGroupName}
+        getLocalisation={getLocalisation}
+        logoSrc={logoSrc}
+      />
       <Box mb={0}>
         {handoverNotes.map(({ patient, diagnosis, notes, location, createdAt }) => (
           <HandoverPatient
