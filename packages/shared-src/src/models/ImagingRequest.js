@@ -7,7 +7,7 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
-import { getNoteWithType } from 'shared/utils/notePages';
+import { getNotePageWithType } from 'shared/utils/notePages';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -85,7 +85,7 @@ export class ImagingRequest extends Model {
         include: [{ association: 'noteItems' }],
       }));
     const extractWithType = async type => {
-      const notePage = getNoteWithType(notePages, type);
+      const notePage = getNotePageWithType(notePages, type);
       if (!notePage) {
         return '';
       }

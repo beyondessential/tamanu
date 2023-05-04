@@ -56,6 +56,16 @@ export function getQueryOptions(models) {
           },
         ],
       },
+      {
+        model: NotePage,
+        as: 'notePages',
+        include: [
+          {
+            model: NoteItem,
+            as: 'noteItems',
+          },
+        ],
+      },
     ],
   };
 

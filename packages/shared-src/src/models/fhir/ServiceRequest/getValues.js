@@ -1,6 +1,7 @@
 import config from 'config';
 
 import { latestDateTime } from '../../../utils/dateTime';
+import { getNotePagesWithType } from '../../../utils/notePages';
 import {
   FhirAnnotation,
   FhirCodeableConcept,
@@ -14,6 +15,7 @@ import {
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
 } from '../../../constants';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
@@ -105,6 +107,7 @@ async function getValuesFromImagingRequest(upstream, models) {
       display: upstream.requestedBy.displayName,
     }),
     locationCode: locationCode(upstream),
+    note: imagingAnnotations(upstream),
   };
 }
 
@@ -294,4 +297,15 @@ function labAnnotations(upstream) {
       text: notePage.noteItems.map(noteItem => noteItem.content).join('\n\n'),
     });
   });
+}
+
+function imagingAnnotations(upstream) {
+  // See EPI-451: imaging requests can embed notes about the area to image
+  return getNotePagesWithType(upstream.notePages, NOTE_TYPES.OTHER).map(
+    np =>
+      new FhirAnnotation({
+        time: formatFhirDate(np.date),
+        text: np.noteItems.map(ni => ni.content).join('\n\n'),
+      }),
+  );
 }
