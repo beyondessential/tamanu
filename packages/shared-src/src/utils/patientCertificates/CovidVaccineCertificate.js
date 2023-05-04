@@ -85,7 +85,7 @@ export const CovidVaccineCertificate = ({
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
-        <H3>Vaccination Certificate</H3>
+        <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}

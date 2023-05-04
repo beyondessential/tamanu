@@ -44,7 +44,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
 
   return (
     <Modal
-      title="Vaccination Certificate"
+      title="COVID-19 Vaccine Certificate"
       open={open}
       onClose={onClose}
       width="md"
