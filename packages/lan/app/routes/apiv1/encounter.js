@@ -40,12 +40,22 @@ encounter.put(
     req.checkPermission('write', encounterObject);
 
     await db.transaction(async () => {
+      const data = req.body;
+
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
         if (!req.body.discharge.dischargerId) {
           // Only automatic discharges can have a null discharger ID
           throw new InvalidParameterError('A discharge must have a discharger.');
         }
+        const discharger = await models.User.findByPk(req.body.discharge.dischargerId);
+        if (!discharger) {
+          throw new InvalidParameterError(
+            `Discharger with id ${req.body.discharge.dischargerId} not found.`,
+          );
+        }
+        const systemNote = `Patient discharged by ${discharger.displayName}.`;
+        data.systemNote = systemNote;
 
         // Update medications that were marked for discharge and ensure
         // only isDischarge, quantity and repeats fields are edited
@@ -63,7 +73,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await encounterObject.update(req.body, user);
+      await encounterObject.update(data, user);
     });
 
     res.send(encounterObject);
