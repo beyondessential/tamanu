@@ -157,6 +157,10 @@ describe('PatientDeath', () => {
     const discharge = await encounter.getDischarge();
     expect(discharge).toBeTruthy();
     expect(discharge.dischargerId).toEqual(clinicianId);
+
+    const notePages = await encounter.getNotePages();
+    const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
+    expect(noteItems[0].content).toEqual('Automatically discharged');
   });
 
   it('should return no death data for alive patient', async () => {
