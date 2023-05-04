@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback } from 'react';
-import { StatusBar } from 'react-native';
 import { RouteProp, NavigationProp } from '@react-navigation/native';
-import { FullView, CenterView } from '/styled/common';
+
+import { FullView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
 import { theme } from '/styled/theme';
@@ -36,17 +36,14 @@ export const VaccineModalScreen = ({
   }, [vaccine]);
 
   return (
-    <FullView background={theme.colors.MAIN_SUPER_DARK}>
-      <StatusBar barStyle="light-content" />
-      <CenterView flex={1}>
-        {vaccine && (
-          <VaccineCard
-            onCloseModal={onNavigateBack}
-            onEditDetails={onNavigateToEditDetails}
-            vaccineData={vaccine}
-          />
-        )}
-      </CenterView>
+    <FullView background={theme.colors.WHITE}>
+      {vaccine && (
+        <VaccineCard
+          onCloseModal={onNavigateBack}
+          onEditDetails={onNavigateToEditDetails}
+          vaccineData={vaccine}
+        />
+      )}
     </FullView>
   );
 };

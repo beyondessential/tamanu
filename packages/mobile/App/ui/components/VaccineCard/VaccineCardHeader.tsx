@@ -71,19 +71,12 @@ export const VaccineCardHeader = ({
           {name}
         </StyledText>
         <StyledText
-          color={theme.colors.SECONDARY_MAIN}
+          color={theme.colors.WHITE}
           fontSize={screenPercentageToDP(1.944, Orientation.Height)}
         >
           {code}
         </StyledText>
       </StyledView>
-      <StyledText
-        fontWeight={500}
-        color={theme.colors.WHITE}
-        fontSize={screenPercentageToDP(1.822, Orientation.Height)}
-      >
-        {schedule}
-      </StyledText>
     </RowView>
   </StyledView>
 );
