@@ -1,7 +1,8 @@
-
 class AuditLogItem {
   userId = '';
+
   data = {};
+
   permissionChecks = [];
 
   shouldDiscard() {
@@ -13,10 +14,10 @@ class AuditLogItem {
 
     // TODO: persist somewhere
 
-    console.log("AUDIT", { 
+    console.log('AUDIT', {
       userId: this.userId,
       data: this.data,
-      perms: this.permissionChecks
+      perms: this.permissionChecks,
     });
   }
 
