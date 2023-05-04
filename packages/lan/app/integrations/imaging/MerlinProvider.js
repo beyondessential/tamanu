@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-import { Provider } from './provider';
+import { Provider } from './Provider';
 
 export class MerlinProvider extends Provider {
   async getUrlForResult(result) {

@@ -1,4 +1,4 @@
-import { Provider } from './provider';
+import { Provider } from './Provider';
 
 export class TestProvider extends Provider {
   getUrlForResult(result) {
