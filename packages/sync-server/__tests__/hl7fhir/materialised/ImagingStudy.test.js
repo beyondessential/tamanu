@@ -281,6 +281,10 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         };
         const response = await app.post(PATH).send(body);
 
+        // This was failing intermittently, apparently we have to
+        // seize control to let the FhirWriteLog create itself the second time
+        await new Promise(resolve => setTimeout(() => resolve(), 1));
+
         // assert
         expect(response.status).not.toBe(201);
         const flog = await FhirWriteLog.findOne({
