@@ -1,5 +1,10 @@
 import config from 'config';
-import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import {
+  IMAGING_TYPES,
+  NOTE_RECORD_TYPES,
+  NOTE_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+} from 'shared/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
@@ -370,7 +375,7 @@ describe('Imaging requests', () => {
 
   describe('Filtering by allFacilities', () => {
     const otherFacilityId = 'kerang';
-    const makeRequestAtFacility = async facilityId => {
+    const makeRequestAtFacility = async (facilityId, status) => {
       const testLocation = await models.Location.create({
         ...fake(models.Location),
         facilityId,
@@ -383,6 +388,7 @@ describe('Imaging requests', () => {
       await models.ImagingRequest.create({
         encounterId: testEncounter.id,
         imagingType: IMAGING_TYPES.CT_SCAN,
+        status,
         requestedById: app.user.id,
       });
     };
@@ -391,10 +397,10 @@ describe('Imaging requests', () => {
       await models.ImagingRequest.truncate({ cascade: true });
       await makeRequestAtFacility(config.serverFacilityId);
       await makeRequestAtFacility(config.serverFacilityId);
-      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
       await makeRequestAtFacility(otherFacilityId);
       await makeRequestAtFacility(otherFacilityId);
-      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
     });
 
     it('should omit external requests when allFacilities is false', async () => {
@@ -418,6 +424,16 @@ describe('Imaging requests', () => {
         ir => ir.encounter.location.facilityId === otherFacilityId,
       );
       expect(hasOtherFacility).toBe(true);
+    });
+
+    it('Completed tab should only show completed imaging requests', async () => {
+      const result = await app.get(
+        `/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}`,
+      );
+      expect(result).toHaveSucceeded();
+      result.body.data.forEach(ir => {
+        expect(ir.status).toBe(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+      });
     });
   });
 });
