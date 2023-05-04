@@ -9,6 +9,7 @@
     "./errors": "./dist/errors.js",
     "./models/*": "./dist/models/*.js",
     "./permissions/*": "./dist/permissions/*.js",
+    "./reports/utilities/*": "./dist/reports/utilities/*.js",
     "./services/database": "./dist/services/database.js",
     "./services/logging/*": "./dist/services/logging/*.js",
     "./sync/*": "./dist/sync/*.js",
