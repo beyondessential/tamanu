@@ -127,6 +127,16 @@ export class LabRequest extends Model {
       as: 'laboratory',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'specimenTypeId',
+      as: 'specimenType',
+    });
+
+    this.hasMany(models.User, {
+      foreignKey: 'collectedById',
+      as: 'collectedBy',
+    });
+
     this.belongsTo(models.LabTestPanelRequest, {
       foreignKey: 'labTestPanelRequestId',
       as: 'labTestPanelRequest',
