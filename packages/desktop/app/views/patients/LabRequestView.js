@@ -125,8 +125,8 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const canWriteLabRequest = ability.can('write', 'LabRequest');
-  const canWriteLabTest = ability.can('write', 'LabTest');
+  const canWriteLabRequest = ability?.can('write', 'LabRequest');
+  const canWriteLabTest = ability?.can('write', 'LabTest');
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
@@ -186,7 +186,6 @@ export const LabRequestView = () => {
           Icon={() => <img src={BeakerIcon} alt="beaker" />}
           text="Sample collected"
           isReadOnly={areLabRequestsReadOnly}
-          onClick={() => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS)}
           main={
             <>
               <DateDisplay date={labRequest.sampleTime} showTime />
@@ -199,6 +198,9 @@ export const LabRequestView = () => {
             </>
           }
           actions={{
+            'View details': () => {
+              handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS);
+            },
             [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
               ? 'Record sample'
               : 'Edit']: () => {
