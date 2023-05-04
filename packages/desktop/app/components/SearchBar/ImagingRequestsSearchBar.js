@@ -10,6 +10,7 @@ import {
   DynamicSelectField,
   Field,
   CheckField,
+  SearchField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -95,10 +96,10 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
         )
       }
     >
-      <LocalisedField name="displayId" />
-      <LocalisedField name="firstName" />
-      <LocalisedField name="lastName" />
-      <LocalisedField name="requestId" defaultLabel="Request ID" />
+      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField name="firstName" component={SearchField} />
+      <LocalisedField name="lastName" component={SearchField} />
+      <LocalisedField name="requestId" component={SearchField} defaultLabel="Request ID" />
       {!status && (
         <LocalisedField
           name="status"
