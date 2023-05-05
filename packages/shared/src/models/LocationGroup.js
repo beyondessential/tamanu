@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
 import { InvalidOperationError } from '../errors';
-import { VISIBILITY_STATUSES } from '../constants';
 import { Model } from './Model';
 
 export class LocationGroup extends Model {
