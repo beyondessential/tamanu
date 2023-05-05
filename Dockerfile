@@ -49,7 +49,7 @@ RUN ./docker-build-server.sh sync-server
 # restart from a fresh base without the build tools
 FROM run-base as central
 
-# this label makes it possible to build and tag all images in one step
+# this label makes it possible to discover what an image is without relying on tags
 LABEL tamanu.product=central
 
 # copy the built packages and their deps
