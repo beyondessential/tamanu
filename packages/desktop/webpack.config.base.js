@@ -69,7 +69,8 @@ export default {
     extensions: ['.js', '.jsx', '.json'],
     modules: [path.join(__dirname, 'app'), 'node_modules'],
     alias: {
-      Shared: path.resolve(__dirname, '../shared/'),
+      Shared: '@tamanu/shared',
+      shared: '@tamanu/shared',
     },
   },
 
