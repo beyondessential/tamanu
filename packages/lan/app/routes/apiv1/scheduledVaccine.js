@@ -12,7 +12,10 @@ scheduledVaccine.get(
       query: { category },
     } = req;
 
-    const where = category ? { category } : undefined;
+    const where = {
+      visibilityStatus: 'current',
+      ...(category && { category }),
+    };
     const scheduledVaccines = await ScheduledVaccine.findAll({ where });
     const results = scheduledVaccines.map(sv => sv.dataValues);
 

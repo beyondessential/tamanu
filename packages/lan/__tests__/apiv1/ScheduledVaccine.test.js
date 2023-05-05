@@ -6,6 +6,7 @@ describe('Scheduled Vaccine', () => {
   let app = null;
   let scheduledVaccine1 = null;
   let scheduledVaccine2 = null;
+  let historicalVisibilityVaccine = null;
   let ctx;
 
   beforeAll(async () => {
@@ -19,6 +20,7 @@ describe('Scheduled Vaccine', () => {
         category: 'Category1',
         label: 'Label1',
         schedule: 'Schedule1',
+        visibilityStatus: 'current',
       }),
     );
     scheduledVaccine2 = await models.ScheduledVaccine.create(
@@ -26,6 +28,15 @@ describe('Scheduled Vaccine', () => {
         category: 'Category2',
         label: 'Label2',
         schedule: 'Schedule2',
+        visibilityStatus: 'current',
+      }),
+    );
+    historicalVisibilityVaccine = await models.ScheduledVaccine.create(
+      await createScheduledVaccine(models, {
+        category: 'Category3',
+        label: 'Label3',
+        schedule: 'Schedule3',
+        visibilityStatus: 'historical',
       }),
     );
   });
@@ -35,6 +46,12 @@ describe('Scheduled Vaccine', () => {
     const noPermsApp = await baseApp.asRole('base');
     const result = await noPermsApp.get(`/v1/scheduledVaccine`, {});
     expect(result).toBeForbidden();
+  });
+
+  it('should only return vaccines with visibilityStatus = current', async () => {
+    const result = await app.get(`/v1/scheduledVaccine`, {});
+    expect(result).toHaveSucceeded();
+    expect(result.body.length).toBe(2);
   });
 
   describe('returns data based on query parameters', () => {
