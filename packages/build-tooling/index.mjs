@@ -70,7 +70,7 @@ export const NODE_WEBPACK_CONFIG_SWC = {
 export function nodemon(options) {
   const nm = new NodemonPlugin({
     delay: 500,
-    watch: ['./dist', '../shared'],
+    watch: ['./dist', '../shared/dist'],
     ...options,
   });
   nm.isWebpackWatching = true;
