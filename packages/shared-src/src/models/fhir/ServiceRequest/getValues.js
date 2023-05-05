@@ -77,11 +77,7 @@ async function getValuesFromImagingRequest(upstream, models) {
       }),
     ],
     priority: validatePriority(upstream.priority),
-    code: imagingCode(upstream)
-      ? new FhirCodeableConcept({
-          text: imagingCode(upstream),
-        })
-      : null,
+    code: imagingCode(upstream),
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
@@ -169,17 +165,16 @@ async function getValuesFromLabRequest(upstream) {
 }
 
 function imagingCode(upstream) {
-  for (const { id } of upstream.areas) {
-    if (id === 'ctScan') {
-      return 'CT Scan';
-    }
+  const { imagingTypes } = config.localisation.data;
+  if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
-    if (id.startsWith('xRay')) {
-      return 'X-Ray';
-    }
-  }
+  const { imagingType } = upstream;
+  const { label } = imagingTypes[imagingType] || {};
+  if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
-  return null;
+  return new FhirCodeableConcept({
+    text: label,
+  });
 }
 
 function validatePriority(priority) {
