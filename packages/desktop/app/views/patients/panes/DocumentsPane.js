@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
-import { ForbiddenError } from 'shared/errors';
-import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import { ForbiddenError } from '@tamanu/shared/errors';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';

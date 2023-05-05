@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { isAfter } from 'date-fns';
 
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/shared/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
