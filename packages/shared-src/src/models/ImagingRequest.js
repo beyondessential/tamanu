@@ -142,6 +142,11 @@ export class ImagingRequest extends Model {
       foreignKey: 'imagingRequestId',
     });
 
+    // Used to be able to explicitly include these (hence no alias)
+    this.hasMany(models.ImagingRequestArea, {
+      foreignKey: 'imagingRequestId',
+    });
+
     this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
       as: 'notePages',

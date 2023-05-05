@@ -21,7 +21,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             where: { id },
           },
         ],
@@ -68,15 +67,9 @@ export function fromImagingRequests(models, table, id) {
       return {
         include: [
           {
-            model: Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: LocationGroup,
-                as: 'locationGroup',
-                where: { id },
-              },
-            ],
+            model: LocationGroup,
+            as: 'locationGroup',
+            where: { id },
           },
         ],
       };
@@ -85,7 +78,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             include: [
               {
                 model: ReferenceData,
@@ -101,7 +93,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             include: [
               {
                 model: ReferenceData,
