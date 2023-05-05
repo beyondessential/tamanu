@@ -113,9 +113,7 @@ jobs:
         node-version: ${{ matrix.node }}
         cache: yarn
     - run: yarn
-      shell: bash
     - run: yarn build-shared
-      shell: bash
     - run: yarn workspace desktop run verify-storybook
 
   migrations:
