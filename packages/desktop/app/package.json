@@ -9,8 +9,5 @@
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
-  "license": "SEE LICENSE IN license",
-  "imports": {
-    "shared": "@tamanu/shared"
-  }
+  "license": "SEE LICENSE IN license"
 }
