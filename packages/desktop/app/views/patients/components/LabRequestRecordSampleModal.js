@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import styled from 'styled-components';
 import {
   ConfirmCancelRow,
   FormGrid,
@@ -10,18 +10,75 @@ import {
   Form,
   Field,
   DateTimeField,
+  AutocompleteField,
+  FormSeparatorLine,
 } from '../../../components';
+import { Colors } from '../../../constants';
+import { useSuggester } from '../../../api';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup.date().required(),
   labSampleSiteId: yup.string(),
 });
 
+const StyledModal = styled(Modal)`
+  .MuiPaper-root {
+    max-width: 1000px;
+  }
+`;
+
+const StyledDateTimeField = styled(DateTimeField)`
+  .MuiInputBase-root {
+    width: 241px;
+  }
+`;
+
+const StyledFormSeperatorLine = styled(FormSeparatorLine)`
+  margin: 28px 0;
+  width: calc(100% + 64px);
+  margin-left: -32px;
+`;
+
+const StyledField = styled(Field)`
+  .label-field {
+    margin-bottom: 31px;
+  }
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+  .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+  .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+    border-color: ${Colors.softOutline};
+  }
+`;
+
+const FieldContainer = styled.div`
+  position: relative;
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-radius: 5px;
+  padding: 18px;
+`;
+
+const HorizontalLine = styled.div`
+  height: 1px;
+  background-color: ${Colors.outline};
+  position: absolute;
+  top: 61px;
+  left: 0;
+  right: 0;
+`;
+
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
+    const practitionerSuggester = useSuggester('practitioner');
+    const specimenTypeSuggester = useSuggester('specimenType');
 
     const updateSample = async formValues => {
+      console.log(formValues)
       await updateLabReq({
         ...formValues,
         // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
@@ -35,38 +92,61 @@ export const LabRequestRecordSampleModal = React.memo(
 
     return (
       <>
-        <Modal
+        <StyledModal
           open={open}
           onClose={onClose}
-          title={sampleNotCollected ? 'Record sample' : 'Edit sample date and time'}
+          title={sampleNotCollected ? 'Record sample details' : 'Edit sample date and time'}
         >
           <Form
             onSubmit={updateSample}
             validationSchema={validationSchema}
             showInlineErrorsOnly
             initialValues={{
-              sampleTime: labRequest.sampleTime || getCurrentDateTimeString(),
+              sampleTime: labRequest.sampleTime,
               labSampleSiteId: labRequest.labSampleSiteId,
+              specimenType: labRequest.specimenTypeId,
+              collectedById: labRequest.collectedById,
             }}
-            render={({ submitForm }) => (
-              <FormGrid columns={1}>
-                <Field
-                  name="sampleTime"
-                  label="Sample date & time"
-                  required
-                  component={DateTimeField}
-                />
-                <Field
-                  name="labSampleSiteId"
-                  label="Site"
-                  component={SuggesterSelectField}
-                  endpoint="labSampleSite"
-                />
+            render={({ submitForm, values }) => (
+              <>
+                <FieldContainer>
+                  <HorizontalLine />
+                  <FormGrid columns={4}>
+                    <StyledField
+                      name="sampleTime"
+                      label="Data & time collected"
+                      required
+                      component={StyledDateTimeField}
+                    />
+                    <StyledField
+                      name="collectedById"
+                      label="Collected by"
+                      suggester={practitionerSuggester}
+                      disabled={!values.sampleTime}
+                      component={AutocompleteField}
+                    />
+                    <StyledField
+                      name="specimenTypeId"
+                      label="Specimen type"
+                      component={AutocompleteField}
+                      suggester={specimenTypeSuggester}
+                      disabled={!values.sampleTime}
+                    />
+                    <StyledField
+                      name="labSampleSiteId"
+                      label="Site"
+                      disabled={!values.sampleTime}
+                      component={SuggesterSelectField}
+                      endpoint="labSampleSite"
+                    />
+                  </FormGrid>
+                </FieldContainer>
+                <StyledFormSeperatorLine />
                 <ConfirmCancelRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
-              </FormGrid>
+              </>
             )}
           />
-        </Modal>
+        </StyledModal>
       </>
     );
   },
