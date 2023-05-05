@@ -16,12 +16,27 @@ describe('Audit log', () => {
 
   it('should leave an access record', async () => {
     const result = await app.post('/v1/allergy').send({
-//      allergyId: await randomReferenceId(models, 'allergy'),
-//      patientId: patient.id,
-//      practitionerId: await randomUser(models),
+      // TODO: fake allergy?
+      // TODO: weird that this validates honestly
     });
     expect(result).toHaveSucceeded();
     expect(result.body.recordedDate).toBeTruthy();
+
+    // TODO check persisted audit log entries
   });
 
+  it('should leave an access record with permission details', async () => {
+    const result = await baseApp.post('/v1/allergy').send({});
+    expect(result).toBeForbidden();
+
+    // TODO check persisted audit log entries
+  });
+
+  it('should not resolve an audit log entry twice', async () => {
+    // TODO test for this but it's definitely happening currently
+  });
+
+  it('should discard an audit log when appropriate', async () => {
+    // TODO
+  });
 });
