@@ -131,7 +131,6 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
-          required
         />
       )}
       <TextInput
