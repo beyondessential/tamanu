@@ -38,6 +38,10 @@ const CellErrorMessage = styled.div`
   cursor: pointer;
 `;
 
+const TransparentExpandMore = styled(ExpandMore)`
+  opacity: 50% !important;
+`;
+
 const CellError = React.memo(({ error }) => {
   const showMessage = useCallback(() => {
     // eslint-disable-next-line no-console
@@ -240,10 +244,10 @@ class TableComponent extends React.Component {
 
       const headerElement = sortable ? (
         <TableSortLabel
-          active={orderBy === key}
-          direction={order}
+          active
+          direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
-          IconComponent={ExpandMore}
+          IconComponent={orderBy === key ? ExpandMore : TransparentExpandMore}
         >
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
