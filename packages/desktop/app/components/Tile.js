@@ -52,9 +52,7 @@ export const Tile = React.memo(({ Icon, main, text, isReadOnly, actions, ...prop
   <Container {...props}>
     <Header>
       <Icon color="primary" />
-      {actions && !isReadOnly && (
-        <StyledMenuButton actions={actions} iconDirection="horizontal" stopPropagation />
-      )}
+      {actions && !isReadOnly && <StyledMenuButton actions={actions} iconDirection="horizontal" />}
     </Header>
     <Text>{text}</Text>
     <Main>{main}</Main>

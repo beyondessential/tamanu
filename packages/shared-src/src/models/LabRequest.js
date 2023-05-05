@@ -97,6 +97,12 @@ export class LabRequest extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'collectedById',
+      as: 'collectedBy',
+    });
+
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
@@ -130,11 +136,6 @@ export class LabRequest extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'specimenTypeId',
       as: 'specimenType',
-    });
-
-    this.hasMany(models.User, {
-      foreignKey: 'collectedById',
-      as: 'collectedBy',
     });
 
     this.belongsTo(models.LabTestPanelRequest, {
