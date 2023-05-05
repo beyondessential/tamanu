@@ -11,6 +11,7 @@
     "./permissions/*": "./dist/permissions/*.js",
     "./reports/utilities/*": "./dist/reports/utilities/*.js",
     "./services/database": "./dist/services/database.js",
+    "./services/fhirTypes/*": "./dist/services/fhirTypes/*.js",
     "./services/logging/*": "./dist/services/logging/*.js",
     "./sync/*": "./dist/sync/*.js",
     "./tasks/*": "./dist/tasks/*.js",
