@@ -23,6 +23,10 @@ const FacilityCheckbox = styled.div`
   margin-top: 20px;
 `;
 
+const Spacer = styled.div`
+  width: 100%;
+`;
+
 const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt'];
 
 const useAdvancedFields = (advancedFields, completedStatus) => {
@@ -62,7 +66,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
 
   return (
     <CustomisableSearchBar
-      showExpandButton={!!status}
+      showExpandButton
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       title="Search imaging requests"
@@ -70,30 +74,35 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
       initialValues={{ ...searchParameters, ...statusFilter }}
       staticValues={{ displayIdExact: true }}
       hiddenFields={
-        status && (
-          <>
-            <LocalisedField
-              name="locationGroupId"
-              defaultLabel="Area"
-              component={AutocompleteField}
-              suggester={areaSuggester}
-              size="small"
-            />
-            <LocalisedField
-              name="departmentId"
-              defaultLabel="Department"
-              component={AutocompleteField}
-              suggester={departmentSuggester}
-              size="small"
-            />
-            <LocalisedField
-              name="completedAt"
-              defaultLabel="Completed"
-              saveDateAsString
-              component={DateField}
-            />
-          </>
-        )
+        <>
+          {status && (
+            <>
+              <LocalisedField
+                name="locationGroupId"
+                defaultLabel="Area"
+                component={AutocompleteField}
+                suggester={areaSuggester}
+                size="small"
+              />
+              <LocalisedField
+                name="departmentId"
+                defaultLabel="Department"
+                component={AutocompleteField}
+                suggester={departmentSuggester}
+                size="small"
+              />
+              <LocalisedField
+                name="completedAt"
+                defaultLabel="Completed"
+                saveDateAsString
+                component={DateField}
+              />
+            </>
+          )}
+          <FacilityCheckbox>
+            <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+          </FacilityCheckbox>
+        </>
       }
     >
       <LocalisedField name="displayId" component={SearchField} />
@@ -101,14 +110,17 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField name="requestId" component={SearchField} defaultLabel="Request ID" />
       {!status && (
-        <LocalisedField
-          name="status"
-          defaultLabel="Status"
-          component={SelectField}
-          options={IMAGING_REQUEST_STATUS_OPTIONS}
-          size="small"
-        />
+        <>
+          <LocalisedField
+            name="status"
+            defaultLabel="Status"
+            component={SelectField}
+            options={IMAGING_REQUEST_STATUS_OPTIONS}
+            size="small"
+          />
+        </>
       )}
+      {status && <Spacer />}
       <LocalisedField
         name="imagingType"
         defaultLabel="Type"
@@ -145,9 +157,6 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
           size="small"
         />
       )}
-      <FacilityCheckbox>
-        <Field name="allFacilities" label="Include all facilities" component={CheckField} />
-      </FacilityCheckbox>
     </CustomisableSearchBar>
   );
 };
