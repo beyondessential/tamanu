@@ -47,9 +47,9 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
-  const areaSuggester = useSuggester('locationGroup') || [];
-  const departmentSuggester = useSuggester('department') || [];
-  const requesterSuggester = useSuggester('practitioner') || [];
+  const areaSuggester = useSuggester('locationGroup');
+  const departmentSuggester = useSuggester('department');
+  const requesterSuggester = useSuggester('practitioner');
   const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
   const {
     showAdvancedFields,
