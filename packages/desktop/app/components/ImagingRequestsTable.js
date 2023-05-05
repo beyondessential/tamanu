@@ -49,7 +49,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
       title: 'Type',
       accessor: getImagingRequestType(imagingTypes),
     },
-    { key: 'requestedDate', title: 'Date & time', accessor: getDate },
+    { key: 'requestedDate', title: 'Requested at time', accessor: getDate },
     { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
     status && {
       key: 'results.completedAt',
