@@ -12,7 +12,8 @@ export const SuggesterSelectField = React.memo(
 
     useEffect(() => {
       // If a value is set, fetch the record to display it's name
-      if (field.value) {
+      // Also, prevent fetching a multi-value that has multiple values i.e: string format "value1, value2, etc."
+      if (field.value && typeof field.value === 'string' && field.value.split(',').length === 1) {
         api
           .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(field.value)}`)
           .then(({ id, name }) => {
