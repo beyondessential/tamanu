@@ -422,6 +422,7 @@ const rootLocalisationSchema = yup
           })
           .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
+        onlyAllowLabPanels: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

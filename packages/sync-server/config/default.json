@@ -627,7 +627,8 @@
           "warningPromptDuration": 30,
           "refreshInterval": 150
         },
-        "fhirNewZealandEthnicity": false
+        "fhirNewZealandEthnicity": false,
+        "onlyAllowLabPanels": false
       },
       "templates": {
         "letterhead": {
