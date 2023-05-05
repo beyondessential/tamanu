@@ -1,3 +1,3 @@
-const { BABEL } = require('../../common.jest.config');
+const { SWC } = require('../../common.jest.config');
 
-module.exports = BABEL;
+module.exports = SWC;
