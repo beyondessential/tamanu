@@ -60,4 +60,9 @@ export const searchParameters = {
     path: [['active']],
     tokenType: FHIR_SEARCH_TOKEN_TYPES.BOOLEAN,
   },
+  link: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['link', '[]', 'other']],
+    referenceTypes: ['Patient'],
+  },
 };
