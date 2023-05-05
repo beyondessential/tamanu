@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { diagnosisCertaintyOptions } from '../constants';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
 import {
   TopBar,
   PageContainer,

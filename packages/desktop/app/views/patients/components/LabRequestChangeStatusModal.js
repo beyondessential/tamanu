@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
 import * as yup from 'yup';
 import {
   ConfirmCancelRow,
