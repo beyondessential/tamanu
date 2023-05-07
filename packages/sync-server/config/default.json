@@ -629,7 +629,8 @@
           "refreshInterval": 150
         },
         "fhirNewZealandEthnicity": false,
-        "onlyAllowLabPanels": false
+        "onlyAllowLabPanels": false,
+        "displayProcedureCodesInDischargeSummary": true
       },
       "templates": {
         "letterhead": {
