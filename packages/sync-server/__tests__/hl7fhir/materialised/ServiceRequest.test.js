@@ -3,7 +3,12 @@
 import { addDays, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers';
-import { FHIR_DATETIME_PRECISION, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import {
+  FHIR_DATETIME_PRECISION,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
@@ -95,7 +100,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a service request by materialised ID', async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, NoteItem, NotePage } = ctx.store.models;
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
@@ -104,8 +109,34 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
+      const [np1, np2] = await NotePage.bulkCreate([
+        fake(NotePage, {
+          date: '2022-03-05',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+        }),
+        fake(NotePage, {
+          date: '2022-03-06',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+        }),
+      ]);
+      await NoteItem.bulkCreate([
+        fake(NoteItem, { notePageId: np1.id, content: 'Suspected adenoma' }),
+        fake(NoteItem, { notePageId: np1.id, content: 'Patient may need mobility assistance' }),
+        fake(NoteItem, {
+          notePageId: np2.id,
+          content: 'Patient may have shrapnel in leg - need to confirm beforehand',
+        }),
+      ]);
+
       await ir.setAreas([resources.area1.id, resources.area2.id]);
       await ir.reload();
       const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
@@ -188,6 +219,18 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             text: resources.facility.name,
           },
         ],
+        note: [
+          {
+            time: formatFhirDate('2022-03-05'),
+            text: `Suspected adenoma
+
+Patient may need mobility assistance`,
+          },
+          {
+            time: formatFhirDate('2022-03-06'),
+            text: 'Patient may have shrapnel in leg - need to confirm beforehand',
+          },
+        ],
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(ir.updatedAt)));
       expect(response).toHaveSucceeded();
@@ -207,6 +250,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: null,
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -250,6 +294,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -369,6 +414,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -488,6 +534,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -796,6 +843,45 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
 
       expect(response.body.total).toBe(0);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.pat.id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient with targetType (match)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.pat.id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient with targetType (no match)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(2);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
       expect(response).toHaveSucceeded();
     });
   });
