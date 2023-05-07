@@ -40,7 +40,7 @@ encounter.put(
     req.checkPermission('write', encounterObject);
 
     await db.transaction(async () => {
-      const data = req.body;
+      let systemNote;
 
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
@@ -54,8 +54,7 @@ encounter.put(
             `Discharger with id ${req.body.discharge.dischargerId} not found.`,
           );
         }
-        const systemNote = `Patient discharged by ${discharger.displayName}.`;
-        data.systemNote = systemNote;
+        systemNote = `Patient discharged by ${discharger.displayName}.`;
 
         // Update medications that were marked for discharge and ensure
         // only isDischarge, quantity and repeats fields are edited
@@ -73,7 +72,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await encounterObject.update(data, user);
+      await encounterObject.update({ ...req.body, systemNote }, user);
     });
 
     res.send(encounterObject);
