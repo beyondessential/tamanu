@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { Heading3, BodyText } from '../../components/Typography';
 import {
   AutocompleteField,
   DateTimeField,
@@ -14,6 +14,7 @@ import {
 import { binaryOptions } from '../../constants';
 import { foreignKey } from '../../utils/validation';
 import { useApi } from '../../api';
+import { useLocalisation } from '../../contexts/Localisation';
 
 export const screen1ValidationSchema = yup.object().shape({
   requestedById: foreignKey('Requesting clinician is required'),
@@ -40,7 +41,7 @@ export const screen1ValidationSchema = yup.object().shape({
 const OPTIONS = {
   INDIVIDUAL: {
     label: 'Individual',
-    description: 'Select any individual or range of individual test types',
+    description: 'Select an individual or multiple individual tests',
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
@@ -48,15 +49,30 @@ const OPTIONS = {
     description: 'Select from a list of test panels',
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
+  SUPERSET: {
+    label: 'Superset',
+    description: 'Select from a list of supersets',
+    value: LAB_REQUEST_FORM_TYPES.SUPERSET,
+  },
 };
 
 const useLabRequestFormTypeOptions = setFieldValue => {
   const api = useApi();
+  const { getLocalisation } = useLocalisation();
+  const { onlyAllowLabPanels } = getLocalisation('features') || {};
+
   const { data, isSuccess } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
   const arePanels = data?.length > 0;
-  const options = arePanels ? [OPTIONS.PANEL, OPTIONS.INDIVIDUAL] : [OPTIONS.INDIVIDUAL];
+  const options = [];
+  if (arePanels) {
+    options.push(OPTIONS.PANEL);
+  }
+  if (!onlyAllowLabPanels) {
+    options.push(OPTIONS.INDIVIDUAL);
+  }
+
   const defaultOption = options.length > 0 ? options[0].value : undefined;
 
   useEffect(() => {
@@ -69,28 +85,20 @@ const useLabRequestFormTypeOptions = setFieldValue => {
 };
 
 export const LabRequestFormScreen1 = ({
-  values,
   setFieldValue,
-  handleChange,
   practitionerSuggester,
   departmentSuggester,
 }) => {
   const { options } = useLabRequestFormTypeOptions(setFieldValue);
 
-  const handleToggleSampleCollected = event => {
-    handleChange(event);
-    const isSampleCollected = event.target.value === 'yes';
-    if (isSampleCollected) {
-      setFieldValue('sampleTime', getCurrentDateString());
-      setFieldValue('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
-    } else {
-      setFieldValue('sampleTime', null);
-      setFieldValue('status', LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
-    }
-  };
-
   return (
     <>
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Heading3 mb="12px">Creating a new lab request</Heading3>
+        <BodyText mb="28px" color="textTertiary">
+          Please complete the details below and select the lab request type
+        </BodyText>
+      </div>
       <Field
         name="requestedById"
         label="Requesting clinician"
@@ -117,34 +125,6 @@ export const LabRequestFormScreen1 = ({
         component={SuggesterSelectField}
         endpoint="labTestPriority"
       />
-      <FormSeparatorLine />
-      <div style={{ gridColumn: '1 / -1' }}>
-        <Field
-          name="specimenAttached"
-          label="Sample collected"
-          required
-          component={RadioField}
-          onChange={handleToggleSampleCollected}
-          options={binaryOptions}
-        />
-      </div>
-      {values.specimenAttached === 'yes' && (
-        <>
-          <Field
-            name="sampleTime"
-            label="Sample date & time"
-            required
-            component={DateTimeField}
-            saveDateAsString
-          />
-          <Field
-            name="labSampleSiteId"
-            label="Site"
-            component={SuggesterSelectField}
-            endpoint="labSampleSite"
-          />
-        </>
-      )}
       <FormSeparatorLine />
       <div style={{ gridColumn: '1 / -1' }}>
         <Field

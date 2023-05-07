@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { fake, fakeReferenceData, showError } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
+import { sleepAsync } from 'shared/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
 
@@ -126,7 +127,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               reference: `/ServiceRequest/${mat.id}`,
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is an okay note' }, { text: 'This is another note' }],
         };
         const response = await app.post(PATH).send(body);
 
@@ -137,7 +138,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           where: { externalCode: 'ACCESSION' },
         });
         expect(ires).toBeTruthy();
-        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+        expect(ires.description).toEqual('This is an okay note\n\nThis is another note');
       }));
 
     it('creates a result from an ImagingStudy with upstream Display ID', () =>
@@ -178,7 +179,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               },
             },
           ],
-          note: [{ text: 'This is a note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a bad note' }, { text: 'This is another note' }],
         });
 
         // assert
@@ -188,7 +189,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           where: { externalCode: 'ACCESSION' },
         });
         expect(ires).toBeTruthy();
-        expect(ires.description).toEqual('This is a note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a bad note\n\nThis is another note');
       }));
 
     it('creates a result from an ImagingStudy with upstream UUID', () =>
@@ -277,9 +278,13 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               },
             },
           ],
-          note: [{ text: 'This is a bad note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
         };
         const response = await app.post(PATH).send(body);
+
+        // This was failing intermittently, apparently we have to
+        // seize control to let the FhirWriteLog create itself the second time
+        await sleepAsync(1);
 
         // assert
         expect(response.status).not.toBe(201);
@@ -333,14 +338,14 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               reference: `ServiceRequest/${mat.id}`,
             },
           ],
-          note: [{ text: 'This is a good note' }, { text: 'This is another note' }],
+          note: [{ text: 'This is a fine note' }, { text: 'This is another note' }],
         });
 
         // assert
         expect(response).toHaveSucceeded();
         expect(response.status).toBe(201);
         await ires.reload();
-        expect(ires.description).toEqual('This is a good note\n\nThis is another note');
+        expect(ires.description).toEqual('This is a fine note\n\nThis is another note');
       }));
 
     describe('errors', () => {

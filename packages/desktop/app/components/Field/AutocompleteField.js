@@ -98,7 +98,7 @@ const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
 `;
 
-class BaseAutocomplete extends Component {
+export class AutocompleteInput extends Component {
   constructor() {
     super();
     this.anchorEl = React.createRef();
@@ -331,6 +331,7 @@ class BaseAutocomplete extends Component {
       infoTooltip,
       disabled,
       size,
+      className,
       error,
       helperText,
       placeholder = 'Search...',
@@ -349,6 +350,7 @@ class BaseAutocomplete extends Component {
           renderSuggestion={this.renderSuggestion}
           renderInputComponent={this.renderInputComponent}
           inputProps={{
+            className,
             label,
             required,
             disabled,
@@ -370,7 +372,7 @@ class BaseAutocomplete extends Component {
   }
 }
 
-BaseAutocomplete.propTypes = {
+AutocompleteInput.propTypes = {
   label: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
@@ -394,7 +396,7 @@ BaseAutocomplete.propTypes = {
   autofill: PropTypes.bool,
 };
 
-BaseAutocomplete.defaultProps = {
+AutocompleteInput.defaultProps = {
   label: '',
   required: false,
   error: false,
@@ -407,11 +409,6 @@ BaseAutocomplete.defaultProps = {
   suggester: null,
   autofill: false,
 };
-
-export const AutocompleteInput = styled(BaseAutocomplete)`
-  height: 250px;
-  flex-grow: 1;
-`;
 
 export const AutocompleteField = ({ field, ...props }) => (
   <AutocompleteInput

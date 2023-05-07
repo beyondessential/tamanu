@@ -19,6 +19,7 @@ export class LabTestPanel extends Model {
           type: Sequelize.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
+        externalCode: Sequelize.TEXT,
       },
       {
         ...options,
@@ -31,11 +32,6 @@ export class LabTestPanel extends Model {
     this.belongsToMany(models.LabTestType, {
       through: models.LabTestPanelLabTestTypes,
       as: 'labTestTypes',
-      foreignKey: 'labTestPanelId',
-    });
-
-    this.hasOne(models.LabTestPanelExternalCode, {
-      as: 'labTestPanelExternalCode',
       foreignKey: 'labTestPanelId',
     });
   }

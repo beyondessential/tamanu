@@ -1,8 +1,15 @@
 import React from 'react';
+import styled from 'styled-components';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
-import { DateField, LocalisedField, SelectField } from '../Field';
+import { DateField, LocalisedField, SelectField, Field, CheckField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
+
+const FacilityCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+`;
 
 export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
@@ -18,7 +25,8 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
     <CustomisableSearchBar
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={{ displayIdExact: true, ...searchParameters }}
+      initialValues={searchParameters}
+      staticValues={{ displayIdExact: true }}
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
@@ -54,6 +62,9 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
         saveDateAsString
         component={DateField}
       />
+      <FacilityCheckbox>
+        <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+      </FacilityCheckbox>
     </CustomisableSearchBar>
   );
 };

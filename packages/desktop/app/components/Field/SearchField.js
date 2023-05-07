@@ -31,7 +31,8 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-export const SearchField = props => {
+export const SearchField = ({ keepLetterCase = false, ...props }) => {
+  const { label } = props;
   const {
     field: { value },
   } = props;
@@ -59,7 +60,7 @@ export const SearchField = props => {
           </StyledIconButton>
         ),
       }}
-      placeholder={props?.label ? `Search ${props?.label.toLowerCase()}` : ''}
+      placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
       {...props}
       value={searchValue}
     />

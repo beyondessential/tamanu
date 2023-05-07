@@ -43,7 +43,6 @@ const PrintButton = ({ imagingRequest, patient }) => {
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
   const api = useApi();
-
   const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
     imagingRequest.encounterId,
   );
@@ -131,7 +130,6 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
-          required
         />
       )}
       <TextInput
@@ -202,15 +200,20 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
       <FormGrid columns={2}>
         <Field
           label="Completed by"
-          name="newResultCompletedBy"
+          name="newResult.completedById"
           placeholder="Search"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field label="Completed" name="newResultDate" saveDateAsString component={DateTimeField} />
+        <Field
+          label="Completed"
+          name="newResult.completedAt"
+          saveDateAsString
+          component={DateTimeField}
+        />
         <Field
           label="Result description"
-          name="newResultDescription"
+          name="newResult.description"
           placeholder="Result description..."
           multiline
           component={TextField}
@@ -236,21 +239,19 @@ const ImagingRequestInfoPane = React.memo(
             'status',
             'completedById',
             'locationGroupId',
-            'newResultCompletedBy',
-            'newResultDate',
-            'newResultDescription',
+            'newResult',
           );
           onSubmit(updateValues);
         }}
         enableReinitialize // Updates form to reflect changes in initialValues
         initialValues={{
           ...imagingRequest,
-          newResultCompletedBy: null,
-          newResultDate: getCurrentDateTimeString(),
-          newResultDescription: '',
+          newResult: {
+            completedAt: getCurrentDateTimeString(),
+          },
         }}
       >
-        {({ values, dirty, handleChange }) => {
+        {({ values }) => {
           return (
             <Form>
               <ImagingRequestSection
@@ -264,19 +265,13 @@ const ImagingRequestInfoPane = React.memo(
               {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
                 <ImagingResultsSection
                   {...{
-                    dirty,
                     values,
-                    handleChange,
                     practitionerSuggester,
                   }}
                 />
               )}
               <ButtonRow style={{ marginTop: 20 }}>
-                {!isCancelled && (
-                  <Button disabled={!dirty} type="submit">
-                    Save
-                  </Button>
-                )}
+                {!isCancelled && <Button type="submit">Save</Button>}
               </ButtonRow>
             </Form>
           );

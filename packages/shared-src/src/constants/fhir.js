@@ -222,3 +222,35 @@ export const FHIR_DIAGNOSTIC_REPORT_STATUS = {
   ENTERED_IN_ERROR: 'entered-in-error',
   UNKNOWN: 'unknown',
 };
+
+export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
+  IMP: 'inpatient encounter',
+  AMB: 'ambulatory encounter',
+  OBSENC: 'observation encounter',
+  EMER: 'emergency',
+  HH: 'home health',
+  VR: 'virtual',
+};
+
+export const FHIR_ENCOUNTER_CLASS_CODE = Object.fromEntries(
+  Object.keys(FHIR_ENCOUNTER_CLASS_DISPLAY).map(k => [k, k]),
+);
+
+export const FHIR_ENCOUNTER_STATUS = {
+  PLANNED: 'planned',
+  IN_PROGRESS: 'in-progress',
+  ON_HOLD: 'on-hold',
+  DISCHARGED: 'discharged',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  DISCONTINUED: 'discontinued',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
+
+export const FHIR_ENCOUNTER_LOCATION_STATUS = {
+  PLANNED: 'planned',
+  ACTIVE: 'active',
+  RESERVED: 'reserved',
+  COMPLETED: 'completed',
+};
