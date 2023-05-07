@@ -103,7 +103,7 @@ export const CovidVaccineCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {format(parseISO(printedDate), 'dd/MM/yyyy')}</P>
+              <P>Printing date: {getDisplayDate(printedDate)}</P>
             </Col>
           </Row>
         </Box>
