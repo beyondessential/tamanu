@@ -60,6 +60,12 @@ export function getQueryOptions(models) {
       {
         model: LocationGroup,
         as: 'locationGroup',
+        include: [
+          {
+            model: Facility,
+            as: 'facility',
+          },
+        ],
       },
       {
         model: NotePage,
