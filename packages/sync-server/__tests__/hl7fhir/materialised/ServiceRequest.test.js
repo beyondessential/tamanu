@@ -109,6 +109,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
       const [np1, np2] = await NotePage.bulkCreate([
@@ -249,6 +250,7 @@ Patient may need mobility assistance`,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: null,
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -292,6 +294,7 @@ Patient may need mobility assistance`,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -411,6 +414,7 @@ Patient may need mobility assistance`,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -530,6 +534,7 @@ Patient may need mobility assistance`,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -838,6 +843,45 @@ Patient may need mobility assistance`,
       );
 
       expect(response.body.total).toBe(0);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.pat.id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient with targetType (match)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.pat.id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient with targetType (no match)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(2);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
       expect(response).toHaveSucceeded();
     });
   });
