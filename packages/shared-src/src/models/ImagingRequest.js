@@ -3,7 +3,7 @@ import { InvalidOperationError } from 'shared/errors';
 import {
   SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
-  IMAGING_TYPES,
+  IMAGING_TYPES_VALUES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
@@ -15,7 +15,6 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
-const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
 
 export class ImagingRequest extends Model {
   static init(options) {
@@ -34,7 +33,7 @@ export class ImagingRequest extends Model {
         },
 
         imagingType: {
-          type: Sequelize.ENUM(ALL_IMAGING_TYPES),
+          type: Sequelize.ENUM(IMAGING_TYPES_VALUES),
           allowNull: false,
         },
         reasonForCancellation: {
@@ -139,6 +138,11 @@ export class ImagingRequest extends Model {
     this.belongsToMany(models.ReferenceData, {
       through: models.ImagingRequestArea,
       as: 'areas',
+      foreignKey: 'imagingRequestId',
+    });
+
+    // Used to be able to explicitly include these (hence no alias)
+    this.hasMany(models.ImagingRequestArea, {
       foreignKey: 'imagingRequestId',
     });
 

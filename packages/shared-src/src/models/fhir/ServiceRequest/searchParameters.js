@@ -27,4 +27,9 @@ export const searchParameters = {
     type: FHIR_SEARCH_PARAMETERS.STRING,
     path: [['status']],
   },
+  subject: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['subject']],
+    referenceTypes: ['Patient'],
+  },
 };
