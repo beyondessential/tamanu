@@ -48,7 +48,10 @@ const combinationsToIgnore = [
   ['lab_requests', 'imaging_requests'],
   ['lab_requests', 'imaging_request_areas'],
   ['lab_requests', 'imaging_area_external_codes'],
-  ['lab_requests', 'reference_data'], // needed for ImagingRequestArea.area
+  ['lab_requests', 'facilities'],
+  ['lab_requests', 'locations'],
+  ['lab_requests', 'location_groups'],
+  ['lab_requests', 'reference_data'],
 
   ['imaging_requests', 'lab_requests'],
   ['imaging_requests', 'lab_tests'],
