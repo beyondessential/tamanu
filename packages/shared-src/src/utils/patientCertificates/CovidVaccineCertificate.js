@@ -2,7 +2,6 @@ import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 
 import { generateUVCI } from 'shared/utils/uvci';
-import { format, parseISO } from 'date-fns';
 
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
