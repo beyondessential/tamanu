@@ -630,7 +630,8 @@
         },
         "fhirNewZealandEthnicity": false,
         "onlyAllowLabPanels": false,
-        "displayProcedureCodesInDischargeSummary": true
+        "displayProcedureCodesInDischargeSummary": true,
+        "displayIcd10CodesInDischargeSummary": false
       },
       "templates": {
         "letterhead": {
