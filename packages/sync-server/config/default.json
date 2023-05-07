@@ -628,7 +628,8 @@
           "warningPromptDuration": 30,
           "refreshInterval": 150
         },
-        "fhirNewZealandEthnicity": false
+        "fhirNewZealandEthnicity": false,
+        "displayProcedureCodesInDischargeSummary": true
       },
       "templates": {
         "letterhead": {
