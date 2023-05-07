@@ -62,6 +62,14 @@ const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
   },
 });
 
+const dateFilter = (fieldName, operator, value) => {
+  return {
+    [fieldName]: {
+      [operator]: toDateString(new Date(value)),
+    },
+  };
+};
+
 export const imagingRequest = express.Router();
 
 imagingRequest.get(
@@ -308,11 +316,7 @@ globalImagingRequests.get(
       {
         key: 'completedAt',
         operator: Op.startsWith,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateString(new Date(value)),
-          },
-        }),
+        mapFn: dateFilter,
       },
     ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
