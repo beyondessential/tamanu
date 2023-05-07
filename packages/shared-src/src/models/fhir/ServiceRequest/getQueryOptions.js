@@ -3,6 +3,7 @@ export function getQueryOptions(models) {
     Encounter,
     Facility,
     Location,
+    LocationGroup,
     Patient,
     ReferenceData,
     User,
@@ -55,6 +56,10 @@ export function getQueryOptions(models) {
             as: 'facility',
           },
         ],
+      },
+      {
+        model: LocationGroup,
+        as: 'locationGroup',
       },
       {
         model: NotePage,
