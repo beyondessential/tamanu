@@ -36,6 +36,7 @@ const ControlLabel = styled(FormControlLabel)`
   padding: 12px 20px;
   border: 1px solid
     ${props => (props.selected ? props.theme.border.selected : props.theme.border.default)};
+  ${props => (props.$color ? `border-color: ${props.$color}` : '')};
   justify-content: center;
   background: ${props =>
     props.selected ? props.theme.background.selected : props.theme.background.default};
@@ -101,15 +102,17 @@ export const RadioInput = ({
   helperText,
   fullWidth,
   style,
+  error,
   ...props
 }) => (
-  <OuterLabelFieldWrapper label={label} {...props} style={style}>
-    <StyledFormControl {...props}>
+  <OuterLabelFieldWrapper label={label} error={error} {...props} style={style}>
+    <StyledFormControl error={error} {...props}>
       <StyledRadioGroup
         length={options.length}
         aria-label={name}
         name={name}
         value={value || ''}
+        error={error}
         {...props}
       >
         {options.map(option => (
@@ -118,6 +121,7 @@ export const RadioInput = ({
             <ControlLabel
               key={option.value}
               labelPlacement={option.description ? 'start' : 'end'}
+              $color={error ? Colors.alert : null}
               control={<Radio value={option.value} selected={value === option.value} />}
               label={
                 option.description ? (
