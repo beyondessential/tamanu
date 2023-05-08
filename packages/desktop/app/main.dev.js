@@ -52,6 +52,8 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
+  // Check if there's already an instance of the app running. If there is, we can quit this one, and
+  // the other will receive a 'second-instance' event telling it to focus its window (see below)
   const isFirstInstance = app.requestSingleInstanceLock();
   if (!isFirstInstance) {
     app.quit();
