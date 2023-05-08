@@ -129,6 +129,14 @@ const StyledTableFooter = styled(TableFooter)`
   }
 `;
 
+const ActiveSortIcon = styled(ExpandMore)`
+  color: ${Colors.darkestText} !important;
+`;
+
+const InactiveSortIcon = styled(ActiveSortIcon)`
+  opacity: 50% !important;
+`;
+
 const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
@@ -243,7 +251,7 @@ class TableComponent extends React.Component {
           active
           direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
-          IconComponent={ExpandMore}
+          IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
         >
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
