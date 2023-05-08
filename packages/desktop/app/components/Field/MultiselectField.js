@@ -147,6 +147,14 @@ const MultiValueRemove = props => (
   </components.MultiValueRemove>
 );
 
+const getValues = value => {
+  if (!value?.length) {
+    return null;
+  }
+
+  return Array.isArray(value) ? value : value.split(', ');
+};
+
 export const MultiselectInput = ({
   options,
   value,
@@ -162,7 +170,8 @@ export const MultiselectInput = ({
   ...props
 }) => {
   // If value is already set, keep that value, otherwise attempt to load any initial values
-  const values = value ? value.split(', ') : initialValues[name]?.split(', ') || [];
+  const values = getValues(value) || getValues(initialValues[name]) || [];
+
   const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
   const [selected, setSelected] = useState(initialSelectedOptions);
@@ -176,7 +185,7 @@ export const MultiselectInput = ({
   );
 
   useEffect(() => {
-    const newValues = value ? value.split(', ') : [];
+    const newValues = getValues(value) || [];
     const newOptions = options.filter(option => newValues.includes(option.value));
     setSelected(newOptions);
   }, [value, options]);
