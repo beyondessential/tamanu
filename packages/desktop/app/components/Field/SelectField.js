@@ -83,10 +83,6 @@ const ClearIndicator = ({ innerProps }) => {
   );
 };
 
-const DropdownIndicator = props => {
-  return <StyledChevronIcon {...props} />;
-};
-
 export const SelectInput = ({
   options,
   value,
@@ -102,11 +98,11 @@ export const SelectInput = ({
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      if (changedOption) {
-        onChange({ target: { value: changedOption.value, name } });
+      if (!changedOption) {
+        onChange({ target: { value: '', name } });
         return;
       }
-      onChange({ target: { value: '', name } });
+      onChange({ target: { value: changedOption.value, name } });
     },
     [onChange, name],
   );
@@ -200,7 +196,7 @@ export const SelectInput = ({
           placeholder="Select"
           isClearable={value !== ''}
           isSearchable={false}
-          components={{ Option, SingleValue, ClearIndicator, DropdownIndicator }}
+          components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
