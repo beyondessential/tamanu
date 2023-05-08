@@ -19,6 +19,7 @@ const DEFAULT_LABEL_THEME = {
 const StyledFormControl = styled(FormControl)`
   display: flex;
   flex-direction: column;
+  margin-top: 2px;
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`

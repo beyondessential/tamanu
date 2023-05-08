@@ -95,7 +95,7 @@ const DiagnosticInfo = ({ date: rawDate }) => {
 
 // Tooltip that shows the long date or full diagnostic date info if the shift key is held down
 // before mousing over the date display
-const DateTooltip = ({ date, children }) => {
+const DateTooltip = ({ date, children, customTooltipFormat }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
@@ -111,7 +111,8 @@ const DateTooltip = ({ date, children }) => {
     setDebug(false);
   };
 
-  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : formatLong(date);
+  const dateTooltip = customTooltipFormat ? format(date, customTooltipFormat) : formatLong(date);
+  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : dateTooltip;
 
   return (
     <Tooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
@@ -127,6 +128,7 @@ export const DateDisplay = React.memo(
     showTime = false,
     showExplicitDate = false,
     shortYear = false,
+    customTooltipFormat,
   }) => {
     const dateObj = parseDate(dateValue);
 
@@ -149,7 +151,7 @@ export const DateDisplay = React.memo(
     }
 
     return (
-      <DateTooltip date={dateObj}>
+      <DateTooltip date={dateObj} customTooltipFormat={customTooltipFormat}>
         <span>{parts.join(' ')}</span>
       </DateTooltip>
     );

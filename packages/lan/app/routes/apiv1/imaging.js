@@ -12,7 +12,7 @@ import {
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
-import { getNoteWithType } from 'shared/utils/notePages';
+import { getNotePageWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
@@ -77,6 +77,7 @@ imagingRequest.get(
     const records = await ReferenceData.findAll({
       where: {
         type: Object.values(IMAGING_AREA_TYPES),
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
     // Key areas by imagingType
@@ -162,8 +163,8 @@ imagingRequest.put(
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
-    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     const notes = {
       note: '',

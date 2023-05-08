@@ -74,7 +74,7 @@ export class Form extends React.PureComponent {
     getValues,
     setStatus,
     ...rest
-  }) => async (event, submissionParameters) => {
+  }) => async (event, submissionParameters, componentsToValidate) => {
     event.preventDefault();
     event.persist();
 
@@ -86,7 +86,6 @@ export class Form extends React.PureComponent {
     if (isSubmitting) {
       return null;
     }
-
     setSubmitting(true);
     const values = { ...getValues(), ...submissionParameters };
 
@@ -97,8 +96,14 @@ export class Form extends React.PureComponent {
     // @see https://github.com/jaredpalmer/formik/issues/1209
     const { isCanceled, ...formErrors } = await validateForm(values);
 
-    if (Object.keys(formErrors).length > 0) {
-      this.setErrors(formErrors);
+    const validFormErrors = componentsToValidate
+      ? Object.keys(formErrors || {}).filter(problematicComponent =>
+          componentsToValidate.has(problematicComponent),
+        )
+      : formErrors;
+
+    if (Object.keys(validFormErrors).length > 0) {
+      this.setErrors(validFormErrors);
       // Set submitting false before throwing the error so that the form is reset
       // for future form submissions
       setSubmitting(false);

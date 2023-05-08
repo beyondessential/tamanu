@@ -2,30 +2,9 @@ import React, { memo, useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { TabDisplay } from '../../../components/TabDisplay';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { AdminViewContainer } from './AdminViewContainer';
 import { ImporterView } from './ImporterView';
 import { ExporterView } from './ExporterView';
-
-const OuterContainer = styled.div`
-  position: relative;
-  background-color: white;
-  height: 100%;
-`;
-
-const ContentContainer = styled.div`
-  height: 100%;
-`;
-
-const LoadingContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  z-index: 9999;
-`;
-
-const Title = styled.h1`
-  padding: 20px;
-  margin: 0px;
-`;
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
@@ -84,22 +63,14 @@ export const ImportExportView = memo(
     );
 
     return (
-      <OuterContainer>
-        {isLoading && (
-          <LoadingContainer>
-            <LoadingIndicator />
-          </LoadingContainer>
-        )}
-        <ContentContainer>
-          <Title>{title}</Title>
-          <StyledTabDisplay
-            tabs={tabs}
-            currentTab={currentTab}
-            onTabSelect={setCurrentTab}
-            scrollable={false}
-          />
-        </ContentContainer>
-      </OuterContainer>
+      <AdminViewContainer title={title} showLoadingIndicator={isLoading}>
+        <StyledTabDisplay
+          tabs={tabs}
+          currentTab={currentTab}
+          onTabSelect={setCurrentTab}
+          scrollable={false}
+        />
+      </AdminViewContainer>
     );
   },
 );

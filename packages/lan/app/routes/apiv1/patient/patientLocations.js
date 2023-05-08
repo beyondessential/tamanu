@@ -58,11 +58,17 @@ patientLocations.get(
         SELECT
           (SUM(EXTRACT(epoch from age(end_date::date, start_date::date)) / 86400) / COUNT(1))::float as alos
         FROM encounters
+        LEFT JOIN locations
+        ON encounters.location_id = locations.id
         WHERE end_date::date > now() - '30 days'::interval
         AND encounters.encounter_type = 'admission'
+        AND locations.facility_id = $facilityId
       `,
       {
         type: QueryTypes.SELECT,
+        bind: {
+          facilityId: config.serverFacilityId,
+        },
       },
     );
 
@@ -85,7 +91,7 @@ patientLocations.get(
           (
           SELECT
             encounters.patient_id as id,
-            COUNT(id)
+            COUNT(encounters.patient_id)
           FROM encounters
           LEFT JOIN (
             SELECT
@@ -97,16 +103,22 @@ patientLocations.get(
           ) previous_encounters
           ON encounters.patient_id = previous_encounters.patient_id
           AND encounters.start_date::date > previous_encounters.end_date::date - '30 days'::interval
+          LEFT JOIN locations
+          ON locations.id = encounters.location_id
           WHERE encounters.end_date IS NULL
           AND encounters.encounter_type = 'admission'
           AND previous_encounters.encounter_type = 'admission'
           AND previous_encounter_id IS NOT NULL
+          AND locations.facility_id = $facilityId
           GROUP BY encounters.patient_id
           ORDER BY encounters.patient_id
           ) readmitted_patients
       `,
       {
         type: QueryTypes.SELECT,
+        bind: {
+          facilityId: config.serverFacilityId,
+        },
       },
     );
 
