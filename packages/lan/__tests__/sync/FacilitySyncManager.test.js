@@ -5,6 +5,7 @@ import config from 'config';
 
 import { createDummyPatient } from 'shared/demoData/patients';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
+import { __testOnlyCalls, __testOnlyEnableSpy } from '../../app/sync/pushOutgoingChanges';
 
 import { createTestContext } from '../utilities';
 
@@ -58,38 +59,16 @@ describe('FacilitySyncManager', () => {
       ctx = await createTestContext();
       models = ctx.models;
       sequelize = ctx.sequelize;
+      __testOnlyEnableSpy();
     });
     afterAll(() => ctx.close());
 
-    // FIXME: this test doesn't work because the mock/spy of pushOutgoingChanges doesn't work
-    it.skip('will not start snapshotting until all transactions started under the old sync tick have committed', async () => {
+    it('will not start snapshotting until all transactions started under the old sync tick have committed', async () => {
       // It is possible for a transaction to be in flight when a sync starts, having created or
       // updated at least one record within it, but not yet committed/rolled back. If the sync
       // session starts at this moment, and progresses through to begin snapshotting before the
       // transaction completes, that create or update will have been recorded with the old sync
       // tick, but will not be included in the snapshot.
-
-      // mock out external push/pull functions
-      const pushSpy = jest.fn();
-      jest.mock('../../app/sync/pushOutgoingChanges', () => {
-        const originalModule = jest.requireActual('../../app/sync/pushOutgoingChanges');
-        return {
-          __esModule: true,
-          ...originalModule,
-          pushOutgoingChanges: pushSpy,
-        };
-      });
-      jest.mock('../../app/sync/pullIncomingChanges', () => {
-        const originalModule = jest.requireActual('../../app/sync/pullIncomingChanges');
-        return {
-          __esModule: true,
-          ...originalModule,
-          pullIncomingChanges: jest.fn().mockImplementation(async () => ({
-            totalPulled: 0,
-            pullUntil: 0,
-          })),
-        };
-      });
 
       const currentSyncTick = '6';
       const newSyncTick = '8';
@@ -153,9 +132,8 @@ describe('FacilitySyncManager', () => {
 
       // check that the snapshot included _both_ patient records (the changes get passed as an
       // argument to pushOutgoingChanges, which we spy on)
-      console.log(pushSpy.mock.calls);
       expect(
-        pushSpy.mock.calls[0][2]
+        __testOnlyCalls[0].changes
           .filter(c => c.recordType === 'patients')
           .map(c => c.recordId)
           .sort(),
