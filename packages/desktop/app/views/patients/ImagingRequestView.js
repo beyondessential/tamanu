@@ -34,6 +34,7 @@ import { ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
+import { useEncounterData } from '../../api/queries';
 
 const PrintButton = ({ imagingRequest, patient }) => {
   const api = useApi();
@@ -43,10 +44,10 @@ const PrintButton = ({ imagingRequest, patient }) => {
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
 
-  const { data: encounter, isLoading: isEncounterLoading } = useQuery(
-    ['encounter', imagingRequest.encounterId],
-    () => api.get(`encounter/${encodeURIComponent(imagingRequest.encounterId)}`),
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
+    imagingRequest.encounterId,
   );
+
   const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
     ['additionalData', patient.id],
     () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
@@ -76,7 +77,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
           <LoadingIndicator />
         ) : (
           <ImagingRequestPrintout
-            imagingRequest={imagingRequest}
+            imagingRequest={[imagingRequest]}
             patient={patient}
             village={village}
             additionalData={additionalData}

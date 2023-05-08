@@ -30,9 +30,17 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
           <LogoV1Icon />
         </CenterView>
         <CenterView>
-          <StyledView height={19} marginTop={screenPercentageToDP(12.32, Orientation.Height)}>
+          <StyledView
+            height={screenPercentageToDP(2.9, Orientation.Height)}
+            marginTop={screenPercentageToDP(12.32, Orientation.Height)}
+          >
             {signedOutFromInactivity && (
-              <StyledText color={theme.colors.ALERT}>Signed out from inactivity</StyledText>
+              <StyledText
+                fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
+                color={theme.colors.MAIN_SUPER_DARK}
+              >
+                You have been logged out due to inactivity.
+              </StyledText>
             )}
           </StyledView>
         </CenterView>

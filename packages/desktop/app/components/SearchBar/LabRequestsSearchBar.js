@@ -32,7 +32,7 @@ const useAdvancedFields = (advancedFields, publishedStatus) => {
   return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
 };
 
-const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'laboratory', 'priority'];
+const ADVANCED_FIELDS = ['locationGroupId', 'laboratory', 'priority'];
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -49,11 +49,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
     setSearchParameters,
   } = useAdvancedFields(ADVANCED_FIELDS, publishedStatus);
   const locationGroupSuggester = useSuggester('locationGroup');
-  const departmentSuggester = useSuggester('department', {
-    baseQueryParameters: {
-      filterByFacility: true,
-    },
-  });
 
   return (
     <CustomisableSearchBar
@@ -70,13 +65,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             label="Area"
             component={AutocompleteField}
             suggester={locationGroupSuggester}
-            size="small"
-          />
-          <Field
-            name="departmentId"
-            label="Department"
-            component={AutocompleteField}
-            suggester={departmentSuggester}
             size="small"
           />
           {publishedStatus ? (
