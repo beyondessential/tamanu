@@ -25,17 +25,11 @@ describe('Scheduled Vaccine', () => {
     );
     scheduledVaccine2 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
-        category: 'Category2',
-        label: 'Label2',
-        schedule: 'Schedule2',
         visibilityStatus: 'current',
       }),
     );
     historicalVisibilityVaccine = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
-        category: 'Category3',
-        label: 'Label3',
-        schedule: 'Schedule3',
         visibilityStatus: 'historical',
       }),
     );
