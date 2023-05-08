@@ -240,8 +240,8 @@ class TableComponent extends React.Component {
 
       const headerElement = sortable ? (
         <TableSortLabel
-          active={orderBy === key}
-          direction={order}
+          active
+          direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
           IconComponent={ExpandMore}
         >
