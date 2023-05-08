@@ -14,7 +14,7 @@ import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
 
-import {findCountryLocales} from 'iso-lang-codes'
+import { findCountryLocales } from 'iso-lang-codes';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -52,6 +52,12 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
+  const isFirstInstance = app.requestSingleInstanceLock();
+  if (!isFirstInstance) {
+    app.quit();
+    return;
+  }
+
   mainWindow = new BrowserWindow({
     show: false,
     // width: 1024,
@@ -67,7 +73,7 @@ app.on('ready', async () => {
 
   // The most accurate method of getting locale in electron is getLocaleCountryCode
   // which unlike getLocale is determined by native os settings
-  const osLocales = findCountryLocales(app.getLocaleCountryCode())
+  const osLocales = findCountryLocales(app.getLocaleCountryCode());
   global.osLocales = osLocales;
 
   const htmlLocation =
@@ -108,6 +114,18 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+});
+
+app.on('second-instance', () => {
+  // This is called when a second instance of the app is attempted to be run (i.e., when it calls
+  // requestSingleInstanceLock and fails)
+  // Focus the existing mainWindow, that other instance will take care of quitting itself (see above)
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    mainWindow.focus();
+  }
 });
 
 // if (isDebug) {
