@@ -33,7 +33,7 @@ COPY packages/shared/ packages/shared/
 RUN ./docker-build-server.sh
 
 
-## Build the central server
+## Build the target server
 FROM build-base as build-server
 ARG PACKAGE_PATH
 

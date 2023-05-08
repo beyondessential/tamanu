@@ -3,7 +3,14 @@
 ### This expects to be run in the production docker build in /Dockerfile.
 
 set -euxo pipefail
+shopt -s extglob
 package="${1:-}"
+
+is_building_server() {
+  # we use a function instead of a variable as we're relying on the exit value
+  # -z = true if the string is empty
+  test -z "$package"
+}
 
 # save the original package.jsons
 cp package.json{,.orig}
@@ -20,7 +27,7 @@ yarn install --non-interactive --frozen-lockfile
 # if we're building a server package, the shared stage will bring in the builds,
 # so we don't need to build shared here, and in the shared stage we don't build
 # the server packages, hence this neat branching logic here
-if [ -z "$package" ]; then
+if is_building_server; then
   yarn workspace @tamanu/shared build
 else
   # clear out the tests and files not useful for production
@@ -37,7 +44,7 @@ fi
 # otherwise we assume we're building the shared stage, and we either want to
 # keep some of these, or we don't care to clean up as the multi-staging will
 # take care of skipping the cruft anyway
-if ! [ -z "$package" ]; then
+if ! is_building_server; then
   # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
   rm -rf packages/build-tooling
