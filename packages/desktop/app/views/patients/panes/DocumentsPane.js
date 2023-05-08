@@ -4,6 +4,7 @@ import { lookup as lookupMimeType } from 'mime-types';
 import { ForbiddenError } from 'shared/errors';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
+import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { useApi } from '../../../api';
 import { TabPane } from '../components';
@@ -134,6 +135,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           canInvokeDocumentAction={canInvokeDocumentAction}
         />
       </PaneWrapper>
+      <PatientLetterModal
+        open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
+        onClose={handleClose}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+      />
       <DocumentModal
         open={DOCUMENT_MODAL_STATES.includes(modalStatus)}
         onClose={handleClose}
