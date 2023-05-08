@@ -608,6 +608,10 @@
           "shortLabel": "Discharge disposition",
           "longLabel": "Discharge disposition",
           "hidden": true
+        },
+        "clinician": {
+          "shortLabel": "Clinician",
+          "longLabel": "Clinician"
         }
       },
       "features": {
