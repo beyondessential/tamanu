@@ -7,7 +7,7 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { useApi } from '../../../api';
 import { TabPane } from '../components';
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
 import {
   getCurrentDateTimeString,
   toDateTimeString,
@@ -16,9 +16,16 @@ import {
 const MODAL_STATES = {
   CLOSED: 'closed',
   DOCUMENT_OPEN: 'document',
+  PATIENT_LETTER_OPEN: 'patient_letter',
   ALERT_NO_INTERNET_OPEN: 'alert_no_internet',
   ALERT_NO_SPACE_OPEN: 'alert_no_space',
 };
+
+const DOCUMENT_MODAL_STATES = [
+  MODAL_STATES.DOCUMENT_OPEN,
+  MODAL_STATES.ALERT_NO_INTERNET_OPEN,
+  MODAL_STATES.ALERT_NO_SPACE_OPEN,
+];
 
 // Checking connection is done in two places for documents (uploading, downloading).
 // TODO: implement more robust solution since navigator.onLine isn't completely
@@ -117,6 +124,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
+          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>Patient letter</OutlinedButton>
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable
@@ -127,7 +135,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         />
       </PaneWrapper>
       <DocumentModal
-        open={modalStatus !== MODAL_STATES.CLOSED}
+        open={DOCUMENT_MODAL_STATES.includes(modalStatus)}
         onClose={handleClose}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
