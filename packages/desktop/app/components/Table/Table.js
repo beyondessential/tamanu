@@ -134,7 +134,7 @@ const ActiveSortIcon = styled(ExpandMore)`
 `;
 
 const InactiveSortIcon = styled(ActiveSortIcon)`
-  opacity: 50% !important;
+  color: ${Colors.midText} !important;
 `;
 
 const HeaderContainer = React.memo(({ children, numeric }) => (
