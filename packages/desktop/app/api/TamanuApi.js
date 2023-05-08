@@ -42,7 +42,7 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(e.message);
-    const { type } = await safeGetStoredJSON(SERVER);
+    const type = (await safeGetStoredJSON(SERVER))?.type || SERVER_TYPES.LAN;
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
       throw new Error(
