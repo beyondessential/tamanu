@@ -258,6 +258,6 @@ patientVaccineRoutes.get(
       offset: page * rowsPerPage,
     });
 
-    res.send({ count: results.length, data: results });
+    res.send({ count: results.count, data: results.data });
   }),
 );
