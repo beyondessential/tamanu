@@ -194,6 +194,45 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   );
 });
 
+const PaginatorWrapper = styled.td``;
+
+const PageContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
+`;
+
+const PageNumber = styled.button`
+  border: 1px black solid;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
+  cursor: pointer;
+`;
+
+const Paginator = React.memo(onPageChange => {
+  return (
+    <PaginatorWrapper>
+      <PageContainer>
+        <button onClick={onPageChange} type="button">
+          left
+        </button>
+        <PageNumber>1</PageNumber>
+        <PageNumber>2</PageNumber>
+        <PageNumber>3</PageNumber>
+        <button onClick={onPageChange(2)} type="button">
+          right
+        </button>
+      </PageContainer>
+    </PaginatorWrapper>
+  );
+});
+
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
     <StyledTableCell colSpan={colSpan} align="center">
@@ -309,6 +348,7 @@ class TableComponent extends React.Component {
   renderPaginator() {
     const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
+      // <Paginator
       <TablePagination
         rowsPerPageOptions={rowsPerPageOptions}
         colSpan={columns.length}
