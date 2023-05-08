@@ -107,6 +107,11 @@ export const FACILITY_MENU_ITEMS = [
         path: '/lab-requests/all',
         ability: { action: 'read' },
       },
+      {
+        label: 'Published',
+        path: '/lab-requests/published',
+        ability: { action: 'read' },
+      },
     ],
   },
   {
@@ -156,9 +161,9 @@ export const FACILITY_MENU_ITEMS = [
 
 export const SYNC_MENU_ITEMS = [
   {
-    key: 'refdata',
+    key: 'referenceData',
     label: 'Reference data',
-    path: '/admin/refdata',
+    path: '/admin/referenceData',
   },
   {
     key: 'permissions',

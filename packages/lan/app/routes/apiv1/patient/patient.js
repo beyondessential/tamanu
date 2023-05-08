@@ -338,6 +338,8 @@ patientRoute.get(
           ON patients.id = recent_encounter_by_patient.patient_id
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+        LEFT JOIN users AS clinician 
+          ON clinician.id = encounters.examiner_id  
         LEFT JOIN departments AS department
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
@@ -402,6 +404,7 @@ patientRoute.get(
         patients.*,
         encounters.id AS encounter_id,
         encounters.encounter_type,
+        clinician.display_name as clinician,
         department.id AS department_id,
         department.name AS department_name,
         location.id AS location_id,

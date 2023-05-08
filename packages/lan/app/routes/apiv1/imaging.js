@@ -12,8 +12,8 @@ import {
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
-import { getNoteWithType } from 'shared/utils/notePages';
 import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
+import { getNotePageWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
@@ -163,8 +163,8 @@ imagingRequest.put(
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
-    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     const notes = {
       note: '',

@@ -617,6 +617,7 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
+        "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
         "patientPlannedMove": false,
@@ -627,7 +628,9 @@
           "warningPromptDuration": 30,
           "refreshInterval": 150
         },
-        "fhirNewZealandEthnicity": false
+        "fhirNewZealandEthnicity": false,
+        "onlyAllowLabPanels": false,
+        "displayProcedureCodesInDischargeSummary": true
       },
       "templates": {
         "letterhead": {
