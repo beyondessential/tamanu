@@ -12,17 +12,17 @@ const BASE = {
 };
 
 const BABEL = {
+  ...BASE,
   transform: {
     '^.+\\.js$': '<rootDir>/jest.babel.js',
   },
-  ...BASE,
 };
 
 const SWC = {
+  ...BASE,
   transform: {
     '^.+\\.js$': ['@swc/jest'],
   },
-  ...BASE,
 };
 
 module.exports = { BABEL, SWC };
