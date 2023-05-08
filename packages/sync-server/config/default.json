@@ -629,7 +629,9 @@
           "refreshInterval": 150
         },
         "fhirNewZealandEthnicity": false,
-        "onlyAllowLabPanels": false
+        "onlyAllowLabPanels": false,
+        "displayProcedureCodesInDischargeSummary": true,
+        "displayIcd10CodesInDischargeSummary": true
       },
       "templates": {
         "letterhead": {

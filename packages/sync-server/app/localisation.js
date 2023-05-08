@@ -424,6 +424,8 @@ const rootLocalisationSchema = yup
           .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
         onlyAllowLabPanels: yup.boolean().required(),
+        displayProcedureCodesInDischargeSummary: yup.boolean().required(),
+        displayIcd10CodesInDischargeSummary: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
