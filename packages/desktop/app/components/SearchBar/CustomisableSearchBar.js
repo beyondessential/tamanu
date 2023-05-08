@@ -126,6 +126,7 @@ export const CustomisableSearchBar = ({
         </Container>
       )}
       initialValues={initialValues}
+      enableReinitialize
     />
   );
 };
