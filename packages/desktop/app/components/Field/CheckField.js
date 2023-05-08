@@ -26,10 +26,10 @@ const ControlLabel = styled(FormControlLabel)`
     line-height: 18px;
   }
   i.fa-check-square {
-    color: ${Colors.primary};
+    color: ${props => props.$color || Colors.primary};
   }
   i.fa-square {
-    color: ${Colors.softText};
+    color: ${props => props.$color || Colors.softText};
   }
 `;
 
@@ -47,6 +47,7 @@ export const CheckInput = React.memo(
         control={<ControlCheck value={value} {...props} />}
         style={style}
         label={label}
+        $color={error ? Colors.alert : null}
       />
       {helperText && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>

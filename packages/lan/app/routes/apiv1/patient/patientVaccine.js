@@ -10,7 +10,7 @@ import {
   SETTING_KEYS,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -149,7 +149,7 @@ patientVaccineRoutes.post(
       locationId = locationId || vaccinationDefaults.locationId;
     }
 
-    const currentDate = getCurrentDateTimeString();
+    const currentDate = getCurrentDateString();
 
     const newAdministeredVaccine = await db.transaction(async () => {
       let encounterId;
