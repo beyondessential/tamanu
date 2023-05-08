@@ -6,7 +6,7 @@ doWithAllPackages((name, pkg) => {
     console.log(`Skipping ${name} as it doesn't have a lint script...`);
     return;
   }
-  
+
   console.log(`Linting ${name}...`);
 
   // Some packages require special handling for lint --fix

@@ -20,7 +20,7 @@ export const ModalActionRow = props => (
 
 export const StyledButtonRow = styled(ButtonRow)`
   border-top: 1px solid ${Colors.outline};
-  padding: 30px ${MODAL_PADDING}px 0 ${MODAL_PADDING}px;
+  padding: 30px ${MODAL_PADDING_LEFT_AND_RIGHT}px 0 ${MODAL_PADDING_LEFT_AND_RIGHT}px;
   grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
