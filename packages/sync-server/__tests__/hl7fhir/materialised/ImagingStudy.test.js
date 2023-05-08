@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { fake, fakeReferenceData, showError } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
+import { sleepAsync } from 'shared/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
 
@@ -280,6 +281,10 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
         };
         const response = await app.post(PATH).send(body);
+
+        // This was failing intermittently, apparently we have to
+        // seize control to let the FhirWriteLog create itself the second time
+        await sleepAsync(1);
 
         // assert
         expect(response.status).not.toBe(201);

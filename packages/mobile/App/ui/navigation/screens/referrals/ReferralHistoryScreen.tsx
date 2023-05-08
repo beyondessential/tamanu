@@ -2,7 +2,6 @@ import React, { ReactElement, ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
 import { List } from 'react-native-paper';
-import { format } from 'date-fns';
 
 import { FieldTypes } from '../../../helpers/fields';
 import { formatStringDate } from '../../../helpers/date';
@@ -16,6 +15,7 @@ import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
 import { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../../store/ducks/patient';
 import { theme } from '../../../styled/theme';
+import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
 
 export const ReferralHistoryScreen = (): ReactElement => {
   const { selectedPatient } = useSelector(
@@ -42,10 +42,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
           return (
             <List.Accordion
               key={`${survey.id}-${startTime}`}
-              title={`${survey.name} (${formatStringDate(
-                startTime,
-                DateFormats.DDMMYY,
-              )})`}
+              title={`${survey.name} (${formatStringDate(startTime, DateFormats.DDMMYY)})`}
               left={(props): ReactElement => <List.Icon {...props} icon="clipboard-plus-outline" />}
             >
               {answers.map(answer => (
@@ -54,6 +51,23 @@ export const ReferralHistoryScreen = (): ReactElement => {
                   title={answer.dataElement.defaultText}
                   description={(): ReactNode => {
                     const { dataElement, body } = answer;
+                    if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
+                      const [autocompleteAnswer, answerError] = useBackendEffect(
+                        async ({ models }): Promise<string | null> =>
+                          getAutocompleteDisplayAnswer(models, dataElement.id, body),
+                        [body],
+                      );
+
+                      if (answerError) {
+                        return (
+                          <StyledText color={theme.colors.ERROR}>Error: {answerError}</StyledText>
+                        );
+                      }
+
+                      return (
+                        <StyledText color={theme.colors.TEXT_DARK}>{autocompleteAnswer}</StyledText>
+                      );
+                    }
                     const [programResponse, programResponseError] = useBackendEffect(
                       async ({ models }): Promise<ISurveyResponse> => {
                         if (dataElement.type !== FieldTypes.SURVEY_LINK) {

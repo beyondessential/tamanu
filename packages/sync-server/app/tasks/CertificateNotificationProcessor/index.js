@@ -72,7 +72,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
-        const printedDate = notification.get('createdAt');
+        const printedDate = notification.get('printedDate');
 
         const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];

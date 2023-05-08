@@ -5,9 +5,8 @@ import { ImportExportView } from './components/ImportExportView';
 export const ReferenceDataAdminView = () => (
   <ImportExportView
     title="Reference data"
-    endpoint="refData"
+    endpoint="referenceData"
     dataTypes={GENERAL_IMPORTABLE_DATA_TYPES}
     dataTypesSelectable
-    disableExport
   />
 );

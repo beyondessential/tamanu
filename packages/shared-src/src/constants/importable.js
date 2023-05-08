@@ -53,11 +53,13 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'scheduledVaccine',
   'secondaryIdType',
   'settlement',
+  'specimenType',
   'stressTestImagingArea',
   'subdivision',
   'triageReason',
   'ultrasoundImagingArea',
   'user',
+  'vaccine',
   'vascularStudyImagingArea',
   'village',
   'xRayImagingArea',
@@ -108,6 +110,8 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
+  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
+  SPECIMEN_TYPE: 'specimenType',
   ...IMAGING_AREA_TYPES,
 };
 
@@ -125,3 +129,15 @@ export const HIDDEN_VISIBILITY_STATUSES = [
   VISIBILITY_STATUSES.HISTORICAL,
   VISIBILITY_STATUSES.MERGED,
 ];
+
+export const ASSET_NAMES = {
+  LETTERHEAD_LOGO: 'letterhead-logo',
+  VACCINE_CERTIFICATE_WATERMARK: 'vaccine-certificate-watermark',
+  CERTIFICATE_BOTTOM_HALF_IMG: 'certificate-bottom-half-img',
+  DEATH_CERTIFICATE_BOTTOM_HALF_IMG: 'death-certificate-bottom-half-img',
+};
+
+export const ASSET_MIME_TYPES = {
+  png: 'image/png',
+  svg: 'image/svg',
+};
