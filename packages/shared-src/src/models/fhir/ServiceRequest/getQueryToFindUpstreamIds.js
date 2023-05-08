@@ -9,7 +9,6 @@ export function fromImagingRequests(models, table, id) {
     Facility,
     Location,
     LocationGroup,
-    Patient,
     ReferenceData,
     User,
   } = models;
@@ -22,17 +21,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
-            where: { id },
-          },
-        ],
-      };
-    case Encounter.tableName:
-      return {
-        include: [
-          {
-            model: Encounter,
-            as: 'encounter',
             where: { id },
           },
         ],
@@ -79,31 +67,9 @@ export function fromImagingRequests(models, table, id) {
       return {
         include: [
           {
-            model: Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: LocationGroup,
-                as: 'locationGroup',
-                where: { id },
-              },
-            ],
-          },
-        ],
-      };
-    case Patient.tableName:
-      return {
-        include: [
-          {
-            model: Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: Patient,
-                as: 'patient',
-                where: { id },
-              },
-            ],
+            model: LocationGroup,
+            as: 'locationGroup',
+            where: { id },
           },
         ],
       };
@@ -112,7 +78,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             include: [
               {
                 model: ReferenceData,
@@ -128,7 +93,6 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
-            as: 'areas',
             include: [
               {
                 model: ReferenceData,
@@ -162,23 +126,12 @@ export function fromImagingRequests(models, table, id) {
         },
       };
     default:
-      return null;
+      return fromBoth(models, table, id);
   }
 }
 
 export function fromLabRequests(models, table, id) {
-  const {
-    LabRequest,
-    LabTest,
-    LabTestType,
-    LabTestPanelRequest,
-    LabTestPanel,
-    NotePage,
-    NoteItem,
-    Encounter,
-    Patient,
-    User,
-  } = models;
+  const { LabRequest, LabTest, LabTestType, LabTestPanelRequest, LabTestPanel, User } = models;
 
   switch (table) {
     case LabRequest.tableName:
@@ -235,6 +188,25 @@ export function fromLabRequests(models, table, id) {
           },
         ],
       };
+    case User.tableName:
+      return {
+        include: [
+          {
+            model: User,
+            as: 'requestedBy',
+            where: { id },
+          },
+        ],
+      };
+    default:
+      return fromBoth(models, table, id);
+  }
+}
+
+function fromBoth(models, table, id) {
+  const { NotePage, NoteItem, Encounter, Patient } = models;
+
+  switch (table) {
     case NotePage.tableName:
       return {
         include: [
@@ -284,16 +256,6 @@ export function fromLabRequests(models, table, id) {
                 where: { id },
               },
             ],
-          },
-        ],
-      };
-    case User.tableName:
-      return {
-        include: [
-          {
-            model: User,
-            as: 'requestedBy',
-            where: { id },
           },
         ],
       };

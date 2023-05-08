@@ -4,6 +4,7 @@ export const searchParameters = {
   patient: {
     type: FHIR_SEARCH_PARAMETERS.REFERENCE,
     path: [['patient']],
+    referenceTypes: ['Patient'],
   },
   'vaccine-code': {
     type: FHIR_SEARCH_PARAMETERS.TOKEN,
