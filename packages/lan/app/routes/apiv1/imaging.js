@@ -391,7 +391,7 @@ globalImagingRequests.get(
     const results = {
       association: 'results',
       where: resultFilters,
-      required: false,
+      required: query.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
     };
 
     // Query database
