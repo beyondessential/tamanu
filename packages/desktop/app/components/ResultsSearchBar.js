@@ -6,6 +6,7 @@ import { Colors } from '../constants';
 import { Heading3 } from './Typography';
 
 const Container = styled.div`
+  position: sticky;
   padding: 24px 30px 30px;
   border-radius: 3px 3px 0 0;
   background-color: #ffffff;

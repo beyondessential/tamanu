@@ -8,8 +8,6 @@ import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTest
 import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
-
 const NoResultContainer = styled.div`
   padding: 30px;
   background: ${Colors.white};
@@ -40,15 +38,9 @@ const NoResultsMessage = () => (
 );
 
 export const PatientResultsPane = React.memo(({ patient }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
   const [searchParameters, setSearchParameters] = useState({});
 
-  const { data, isLoading } = usePatientLabTestResults(patient.id, {
-    page,
-    rowsPerPage,
-    ...searchParameters,
-  });
+  const { data, isLoading } = usePatientLabTestResults(patient.id, searchParameters);
 
   const dirty = Object.keys(searchParameters).length > 0;
   const isInitialLoad = isLoading && !dirty;
@@ -72,10 +64,6 @@ export const PatientResultsPane = React.memo(({ patient }) => {
             labTests={data?.data}
             count={data?.count}
             isLoading={isLoading}
-            rowsPerPage={rowsPerPage}
-            setRowsPerPage={setRowsPerPage}
-            page={page}
-            setPage={setPage}
           />
         )}
       </ContentPane>
