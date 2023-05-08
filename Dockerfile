@@ -34,51 +34,26 @@ RUN ./docker-build-server.sh
 
 
 ## Build the central server
-FROM build-base as build-central
-# this first one is commented to explain, the next two are the same so compacted
+FROM build-base as build-server
+ARG PACKAGE_PATH
 
 # copy the shared packages and their deps (+ build tooling)
 COPY --from=shared /app/packages/ packages/
 
 # copy sources only for the target server
-COPY packages/sync-server/ packages/sync-server/
+COPY packages/${PACKAGE_PATH}/ packages/${PACKAGE_PATH}/
 
 # do the build
-RUN ./docker-build-server.sh sync-server
+RUN ./docker-build-server.sh ${PACKAGE_PATH}
 
 # restart from a fresh base without the build tools
-FROM run-base as central
-
-# this label makes it possible to discover what an image is without relying on tags
-LABEL tamanu.product=central
+FROM run-base as server
+ARG PACKAGE_PATH
+# FROM resets the ARGs, so we need to redeclare it
 
 # copy the built packages and their deps
-COPY --from=build-central /app/packages/ packages/
-COPY --from=build-central /app/node_modules/ node_modules/
+COPY --from=build-server /app/packages/ packages/
+COPY --from=build-server /app/node_modules/ node_modules/
 
 # set the working directory, which is where the entrypoint will run
-WORKDIR /app/packages/sync-server
-
-
-## Build the facility server
-FROM build-base as build-facility
-COPY --from=shared /app/packages/ packages/
-COPY packages/lan/ packages/lan/
-RUN ./docker-build-server.sh lan
-FROM run-base as facility
-LABEL tamanu.product=facility
-COPY --from=build-facility /app/packages/ packages/
-COPY --from=build-facility /app/node_modules/ node_modules/
-WORKDIR /app/packages/lan
-
-
-## Build the meta server
-FROM build-base as build-meta
-COPY --from=shared /app/packages/ packages/
-COPY packages/meta-server/ packages/meta-server/
-RUN ./docker-build-server.sh meta-server
-FROM run-base as meta
-LABEL tamanu.product=meta
-COPY --from=build-meta /app/packages/ packages/
-COPY --from=build-meta /app/node_modules/ node_modules/
-WORKDIR /app/packages/meta-server
+WORKDIR /app/packages/${PACKAGE_PATH}
