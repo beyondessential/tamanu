@@ -30,6 +30,8 @@ let mainWindow = null;
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const branch = process.env.CI_BRANCH || 'local';
+const isRelease = branch.startsWith('release-desktop-') || ['main', 'master'].includes(branch);
 
 if (isProduction) {
   sourceMapSupport.install();
@@ -52,12 +54,14 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
-  // Check if there's already an instance of the app running. If there is, we can quit this one, and
-  // the other will receive a 'second-instance' event telling it to focus its window (see below)
-  const isFirstInstance = app.requestSingleInstanceLock();
-  if (!isFirstInstance) {
-    app.quit();
-    return;
+  if (isRelease) {
+    // Check if there's already an instance of the app running. If there is, we can quit this one, and
+    // the other will receive a 'second-instance' event telling it to focus its window (see below)
+    const isFirstInstance = app.requestSingleInstanceLock();
+    if (!isFirstInstance) {
+      app.quit();
+      return;
+    }
   }
 
   mainWindow = new BrowserWindow({
