@@ -89,13 +89,23 @@ const DiagnosesList = ({ diagnoses }) => {
 };
 
 const ProceduresList = ({ procedures }) => {
+  const { getLocalisation } = useLocalisation();
+
   if (!procedures || procedures.length === 0) {
     return <span>N/A</span>;
   }
 
+  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
+
   return procedures.map(procedure => (
     <li>
-      {procedure.procedureType.name} (<Label>CPT Code: </Label> {procedure.procedureType.code})
+      {procedure.procedureType.name}
+      {displayProcedureCodes && (
+        <span>
+          {' '}
+          (<Label>CPT Code: </Label> {procedure.procedureType.code})
+        </span>
+      )}
     </li>
   ));
 };
