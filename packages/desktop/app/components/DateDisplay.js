@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { remote } from 'electron';
-import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
 import { parseDate } from 'shared/utils/dateTime';
 import { Typography, Box } from '@material-ui/core';
 import styled from 'styled-components';
+import { ThemedTooltip } from './Tooltip';
 
 import { Colors } from '../constants';
 
@@ -115,9 +115,14 @@ const DateTooltip = ({ date, children, customTooltipFormat }) => {
   const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : dateTooltip;
 
   return (
-    <Tooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+    <ThemedTooltip
+      open={tooltipOpen}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      title={tooltipTitle}
+    >
       {children}
-    </Tooltip>
+    </ThemedTooltip>
   );
 };
 
