@@ -39,18 +39,21 @@ const hasInternetConnection = () => {
 };
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
+  const isFromEncounter = !!encounter?.id;
+
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
   const api = useApi();
-  const endpoint = encounter
+  const endpoint = isFromEncounter
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
   // Allows to check internet connection and set error modal from child components
   const canInvokeDocumentAction = useCallback(() => {
     if (!hasInternetConnection) {
+      console.log('get picked up by the linter - call the function above')
       setModalStatus(MODAL_STATES.ALERT_NO_INTERNET_OPEN);
       return false;
     }
@@ -117,7 +120,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     };
   }, [isSubmitting]);
 
-  const isFromEncounter = !!encounter?.id;
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
 
   return (
@@ -125,7 +127,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
-          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>Patient letter</OutlinedButton>
+          {!isFromEncounter && <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>Patient letter</OutlinedButton>}
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable
@@ -140,6 +142,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         onClose={handleClose}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
+        patient={patient}
       />
       <DocumentModal
         open={DOCUMENT_MODAL_STATES.includes(modalStatus)}
