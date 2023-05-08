@@ -1,6 +1,6 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared-src/src/constants/statuses';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
 
 import { ImagingRequestListingView } from '../views/ImagingRequestListingView';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared-src/src/constants/statuses';
+import { IMAGING_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants/statuses';
 import {
   TopBar,
   PageContainer,
