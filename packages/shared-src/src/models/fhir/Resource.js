@@ -1,5 +1,5 @@
 import { snakeCase } from 'lodash';
-import { Sequelize, Utils, QueryTypes } from 'sequelize';
+import { Sequelize, Utils, DataTypes, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import {
@@ -19,22 +19,22 @@ export class FhirResource extends Model {
     super.init(
       {
         id: {
-          type: Sequelize.UUID,
+          type: DataTypes.UUID,
           allowNull: false,
           default: Sequelize.fn('uuid_generate_v4'),
           primaryKey: true,
         },
         versionId: {
-          type: Sequelize.UUID,
+          type: DataTypes.UUID,
           allowNull: false,
           default: Sequelize.fn('uuid_generate_v4'),
         },
         upstreamId: {
-          type: this.UPSTREAM_UUID ? Sequelize.UUID : Sequelize.STRING,
+          type: this.UPSTREAM_UUID ? DataTypes.UUID : DataTypes.STRING,
           allowNull: false,
         },
         lastUpdated: {
-          type: Sequelize.DATE,
+          type: DataTypes.TIMESTAMP,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
