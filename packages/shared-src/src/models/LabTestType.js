@@ -51,7 +51,6 @@ export class LabTestType extends Model {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
-        externalCode: Sequelize.TEXT,
       },
       {
         ...options,
