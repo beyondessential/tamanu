@@ -143,7 +143,7 @@ export class Patient extends Model {
       });
     }
 
-    const results = await models.AdministeredVaccine.findAll({
+    const { count, rows } = await models.AdministeredVaccine.findAndCountAll({
       order: [['date', 'DESC']],
       ...optRest,
       include,
@@ -156,7 +156,7 @@ export class Patient extends Model {
       },
     });
 
-    const data = results.map(x => x.get({ plain: true }));
+    const data = rows.map(x => x.get({ plain: true }));
 
     for (const record of data) {
       if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
@@ -164,7 +164,7 @@ export class Patient extends Model {
       }
     }
 
-    return data;
+    return { count, data };
   }
 
   async getCovidClearanceLabTests(queryOptions) {

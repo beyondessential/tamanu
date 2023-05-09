@@ -41,7 +41,7 @@ async function renderPdf(element, fileName) {
 }
 
 async function getPatientVaccines(models, patient) {
-  const vaccines = await patient.getAdministeredVaccines({
+  const { data: vaccines } = await patient.getAdministeredVaccines({
     order: [['date', 'ASC']],
     includeNotGiven: false,
   });
