@@ -20,8 +20,9 @@ import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -128,6 +129,10 @@ const StyledTableFooter = styled(TableFooter)`
   }
 `;
 
+const HeaderContainer = React.memo(({ children, numeric }) => (
+  <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
+));
+
 const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   <StyledTableRow onClick={onClick} $rowStyle={rowStyle}>
     {children}
@@ -227,31 +232,39 @@ class TableComponent extends React.Component {
       titleData,
       headerOnChange,
     } = this.props;
-    const getContent = (key, sortable, title, titleAccessor) => {
+    const getContent = (key, sortable, title, titleAccessor, tooltip) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
 
-      return sortable ? (
+      const headerElement = sortable ? (
         <TableSortLabel
-          active={orderBy === key}
-          direction={order}
+          active
+          direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
           IconComponent={ExpandMore}
         >
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
-        displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key
+        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
+      );
+
+      return tooltip ? (
+        <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip>
+      ) : (
+        headerElement
       );
     };
 
-    return columns.map(({ key, title, numeric, noTitle, titleAccessor, sortable = true }) => (
-      <StyledTableCell key={key} align={numeric ? 'right' : 'left'}>
-        {getContent(key, sortable, title, titleAccessor, noTitle)}
-      </StyledTableCell>
-    ));
+    return columns.map(
+      ({ key, title, numeric, noTitle, titleAccessor, sortable = true, tooltip }) => (
+        <HeaderContainer key={key} numeric={numeric}>
+          {getContent(key, sortable, title, titleAccessor, tooltip, noTitle)}
+        </HeaderContainer>
+      ),
+    );
   }
 
   renderBodyContent() {

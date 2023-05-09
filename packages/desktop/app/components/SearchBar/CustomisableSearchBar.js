@@ -71,6 +71,7 @@ export const CustomisableSearchBar = ({
   isExpanded,
   setIsExpanded,
   initialValues = {},
+  staticValues = {},
   hiddenFields,
 }) => {
   const switchExpandValue = useCallback(() => {
@@ -79,10 +80,14 @@ export const CustomisableSearchBar = ({
     });
   }, [setIsExpanded]);
 
+  const handleSubmit = values => {
+    onSearch({ ...values, ...staticValues });
+  };
+
   return (
     <Form
-      onSubmit={onSearch}
-      render={({ clearForm }) => (
+      onSubmit={handleSubmit}
+      render={({ clearForm, values }) => (
         <Container>
           <CustomisableSearchBarGrid>
             {children}
@@ -101,13 +106,23 @@ export const CustomisableSearchBar = ({
                 </IconButton>
               )}
               <SearchButton type="submit">Search</SearchButton>
-              <ClearButton onClick={clearForm}>Clear</ClearButton>
+              <ClearButton
+                onClick={() => {
+                  // Cant check for dirty as form is reinitialized with persisted values
+                  if (Object.keys(values).length === 0) return;
+                  clearForm();
+                  onSearch({});
+                }}
+              >
+                Clear
+              </ClearButton>
             </ActionsContainer>
           </CustomisableSearchBarGrid>
           {isExpanded && <CustomisableSearchBarGrid>{hiddenFields}</CustomisableSearchBarGrid>}
         </Container>
       )}
       initialValues={initialValues}
+      enableReinitialize
     />
   );
 };

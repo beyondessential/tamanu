@@ -50,7 +50,7 @@ patientVaccineRoutes.get(
             e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = :givenStatus
         ${whereClause}
         GROUP BY sv.id
-        ORDER BY max(sv.label), max(sv.schedule);
+        ORDER BY sv.index, max(sv.label), max(sv.schedule);
       `,
       {
         replacements: {
@@ -128,7 +128,13 @@ patientVaccineRoutes.post(
           examinerId: req.body.recorderId,
           departmentId: req.body.departmentId,
         });
-        await newEncounter.update({ endDate: req.body.date });
+        await newEncounter.update({
+          endDate: req.body.date,
+          systemNote: 'Automatically discharged',
+          discharge: {
+            note: 'Automatically discharged after giving vaccine',
+          },
+        });
         encounterId = newEncounter.get('id');
       }
 

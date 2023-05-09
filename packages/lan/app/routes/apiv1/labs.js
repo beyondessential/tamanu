@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
@@ -123,6 +124,7 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
@@ -161,6 +163,20 @@ labRequest.get(
           requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
         }),
       ),
+      makeFilter(
+        !JSON.parse(filterParams.allFacilities || false),
+        `location.facility_id = :facilityId`,
+        () => ({ facilityId: config.serverFacilityId }),
+      ),
+      makeFilter(
+        filterParams.publishedDate,
+        `lab_requests.published_date LIKE :publishedDate`,
+        ({ publishedDate }) => {
+          return {
+            publishedDate: `${publishedDate}%`,
+          };
+        },
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -170,7 +186,7 @@ labRequest.get(
         LEFT JOIN encounters AS encounter
           ON (encounter.id = lab_requests.encounter_id)
         LEFT JOIN locations AS location
-          ON encounter.location_id = location.id
+          ON (encounter.location_id = location.id)
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
         LEFT JOIN reference_data AS priority
@@ -189,7 +205,7 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-      ${whereClauses && `WHERE ${whereClauses}`}
+        ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
     const filterReplacements = filters
@@ -220,11 +236,12 @@ labRequest.get(
       patientName: 'UPPER(patient.last_name)',
       requestId: 'display_id',
       testCategory: 'category.name',
-      labRequestPanelId: 'lab_test_panel.id',
+      labTestPanelName: 'lab_test_panel.id',
       requestedDate: 'requested_date',
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
       status: 'status',
+      publishedDate: 'published_date',
     };
 
     const sortKey = sortKeys[orderBy];
@@ -247,7 +264,8 @@ labRequest.get(
           priority.name AS priority_name,
           lab_test_panel.name as lab_test_panel_name,
           laboratory.id AS laboratory_id,
-          laboratory.name AS laboratory_name
+          laboratory.name AS laboratory_name,
+          location.facility_id AS facility_id
         ${from}
         
         ORDER BY ${sortKey} ${sortDirection}
@@ -269,7 +287,6 @@ labRequest.get(
     );
 
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-
     res.send({
       data: forResponse,
       count,
