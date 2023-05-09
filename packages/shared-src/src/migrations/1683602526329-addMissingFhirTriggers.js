@@ -12,7 +12,8 @@ const TABLES_FOR_REFRESH = [
 export async function up(query) {
   for (const table of TABLES_FOR_VERSIONING) {
     await query.sequelize.query(`
-      CREATE TRIGGER versioning BEFORE UPDATE ON fhir.${table}
+      CREATE TRIGGER versioning
+      BEFORE UPDATE ON fhir.${table}
       FOR EACH ROW EXECUTE FUNCTION fhir.trigger_versioning()
     `);
   }
