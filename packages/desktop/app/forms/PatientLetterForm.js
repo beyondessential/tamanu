@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import * as yup from 'yup';
+import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useQuery } from '@tanstack/react-query'
 
@@ -10,14 +11,23 @@ import { foreignKey } from '../utils/validation';
 import { Form, Field, TextField, MultilineTextField, SelectField, DateField, AutocompleteField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
+import { OutlinedButton, Button } from '../components';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { ModalButtonRow } from '../components/ModalActionRow';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
 );
 
+const FinaliseAndPrintButton = styled(OutlinedButton)`
+  margin-left: 0px !important;
+`;
 
-const DumbPatientLetterForm = ({ submitForm, setFieldValue }) => {
+const Gap = styled.div`
+  margin-left: auto !important;
+`;
+
+const DumbPatientLetterForm = ({ isSubmitting, submitForm, onCancel, setFieldValue }) => {
   const [templateId, setTemplateId] = useState(null);
   const [templateLoading, setTemplateLoading] = useState(null);
 
@@ -42,11 +52,6 @@ const DumbPatientLetterForm = ({ submitForm, setFieldValue }) => {
     }, 
     [templateId],
   );
-
-  
-  // console.log('templateLoading', templateLoading);
-  // console.log('templateId', templateId);
-  // console.log('patientLetterTemplateId', template);
 
   return (
     <>
@@ -78,7 +83,12 @@ const DumbPatientLetterForm = ({ submitForm, setFieldValue }) => {
         <Field name="title" label="Letter title" component={TextField} disabled={templateLoading} />
         <Field name="body" label="Note" component={TallMultilineTextField} disabled={templateLoading} />
       </FormGrid>
-      <ConfirmCancelRow confirmText="Finalise" onConfirm={submitForm} onCancel={onCancel} />
+      <ModalButtonRow>
+        <FinaliseAndPrintButton onClick={e => submitForm(e, {submissionType: 'FinaliseAndPrint'})}>Finalise & Print</FinaliseAndPrintButton>
+        <Gap />
+        <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+        <Button onClick={e => submitForm(e, {submissionType: 'Finalise'})}>Finalise</Button>
+      </ModalButtonRow>
     </>
   );
 };

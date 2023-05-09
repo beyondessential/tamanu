@@ -13,6 +13,7 @@ import {
   getCurrentDateTimeString,
   toDateTimeString,
 } from '../../../../../shared-src/src/utils/dateTime';
+import { FlashOnTwoTone } from '@material-ui/icons';
 
 const MODAL_STATES = {
   CLOSED: 'closed',
@@ -39,6 +40,10 @@ const hasInternetConnection = () => {
 };
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
+  // const dispatch = useDispatch();
+  // const { navigateToImagingRequest } = usePatientNavigation();
+  // const { loadEncounter } = useEncounter();
+  const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState(false );
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
@@ -47,6 +52,25 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const endpoint = encounter
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
+
+
+  // Transition to print page as soon as we have the generated id
+  // useEffect(() => {
+  //   (async () => {
+  //     if (awaitingPrintRedirect && requestId) {
+  //       await dispatch(reloadImagingRequest(requestId));
+  //       navigateToImagingRequest(requestId, 'print');
+  //     }
+  //   })();
+  // }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);
+
+  const handlePatientLetterSubmit = useCallback(async ({ submissionType, ...data }) => {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log('Submitted!', submissionType, data);
+      setModalStatus(MODAL_STATES.CLOSED);
+    },
+    [setModalStatus]
+  );
 
   // Allows to check internet connection and set error modal from child components
   const canInvokeDocumentAction = useCallback(() => {
@@ -139,7 +163,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <PatientLetterModal
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
         onClose={handleClose}
-        onSubmit={handleSubmit}
+        onSubmit={handlePatientLetterSubmit}
         isSubmitting={isSubmitting}
         patient={patient}
       />
