@@ -81,20 +81,20 @@ locationGroup.get(
         LEFT JOIN encounter_diagnoses ON encounters.id = encounter_diagnoses.encounter_id
         LEFT JOIN (
           SELECT encounter_id, 
-          string_agg(
+          STRING_AGG(
             reference_data.name || 
             ' (' || 
             CASE 
-               WHEN encounter_diagnoses.certainty = 'suspected' then 'For investigation'
-              WHEN encounter_diagnoses.certainty = 'error' then 'Recorded by error'
-              else INITCAP(encounter_diagnoses.certainty)
+              WHEN encounter_diagnoses.certainty = 'suspected' THEN 'For investigation'
+              WHEN encounter_diagnoses.certainty = 'error' THEN 'Recorded by error'
+              ELSE INITCAP(encounter_diagnoses.certainty)
             END||
             ')', 
           ', ') as name 
-          from encounter_diagnoses 
-            LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
-              group by encounter_id
-            ) AS diagnosis on encounters.id = diagnosis.encounter_id
+          FROM encounter_diagnoses 
+          LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
+            GROUP BY encounter_id
+          ) AS diagnosis on encounters.id = diagnosis.encounter_id
 		    LEFT JOIN (
 		      SELECT record_id, MAX(date) AS date
 		      FROM note_pages
