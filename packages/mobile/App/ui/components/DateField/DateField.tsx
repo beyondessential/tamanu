@@ -145,7 +145,7 @@ export const DateField = React.memo(
                 <IconComponent
                   height={screenPercentageToDP(2.4, Orientation.Height)}
                   width={screenPercentageToDP(2.4, Orientation.Height)}
-                  fill={error ? theme.colors.ERROR : theme.colors.PRIMARY_MAIN}
+                  fill={theme.colors.PRIMARY_MAIN}
                 />
               </StyledView>
             </InputContainer>
