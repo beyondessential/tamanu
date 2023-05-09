@@ -12,7 +12,7 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
     height={screenPercentageToDP(20.04, Orientation.Height)}
     background={theme.colors.WHITE}
   >
-    <RowField label="Date" value={formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)} />
+    <RowField label="Date recorded" value={formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)} />
     <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.schedule} />
     <RowField label="Reason" value={administeredVaccine.notGivenReason?.name} />
     <RowField label="Area" value={administeredVaccine.encounter?.location?.locationGroup?.name} />
@@ -20,7 +20,7 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
     <RowField label="Department" value={administeredVaccine.encounter?.department?.name} />
     <RowField label="Supervising clinician" value={administeredVaccine.givenBy} />
     <RowField
-      label="Practitioner"
+      label="Recorded by"
       value={administeredVaccine.encounter.examiner.displayName}
     />
   </StyledView>

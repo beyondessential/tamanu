@@ -99,7 +99,6 @@ export const GivenByField = ({ label = 'Given by' }: LabelledFieldProps): JSX.El
     component={TextField}
     label={label}
     name="givenBy"
-    placeholder="Given by"
     labelFontSize="14"
   />
 );
