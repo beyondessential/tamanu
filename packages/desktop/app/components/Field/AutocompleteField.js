@@ -117,7 +117,7 @@ export class AutocompleteInput extends Component {
   }
 
   updateValue = async () => {
-    const { value, suggester } = this.props;
+    const { value, suggester, allowFreeText } = this.props;
 
     if (!suggester || value === undefined) {
       return;
@@ -136,7 +136,12 @@ export class AutocompleteInput extends Component {
         },
       });
     } else {
-      this.handleSuggestionChange({ value: null, label: '' });
+      if (allowFreeText && value) {
+        this.setState({ selectedOption: { value, tag: value } });
+        this.handleSuggestionChange({ value, label: value });
+      } else {
+        this.handleSuggestionChange({ value: null, label: '' });
+      }
     }
   };
 
@@ -307,6 +312,7 @@ export class AutocompleteInput extends Component {
       helperText,
       placeholder = 'Search...',
       inputRef,
+      allowFreeText,
     } = this.props;
 
     return (
