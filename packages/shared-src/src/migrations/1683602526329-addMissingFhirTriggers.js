@@ -8,6 +8,7 @@ const TABLES_FOR_REFRESH = [
   'note_pages',
   'note_items',
 ];
+
 export async function up(query) {
   for (const table of TABLES_FOR_VERSIONING) {
     await query.sequelize.query(`
