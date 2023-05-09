@@ -88,7 +88,7 @@ locationGroup.get(
               WHEN encounter_diagnoses.certainty = 'suspected' THEN 'For investigation'
               WHEN encounter_diagnoses.certainty = 'error' THEN 'Recorded by error'
               ELSE INITCAP(encounter_diagnoses.certainty)
-            END||
+            END ||
             ')', 
           ', ') as name 
           FROM encounter_diagnoses 
