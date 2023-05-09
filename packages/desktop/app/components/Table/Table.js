@@ -119,6 +119,7 @@ const StyledTable = styled(MaterialTable)`
 
 const StyledTableHead = styled(TableHead)`
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+  white-space: nowrap;
 `;
 
 const StyledTableFooter = styled(TableFooter)`
