@@ -209,7 +209,9 @@ export const fakeBool = () => sample([true, false]);
 
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
+  'TIMESTAMP WITHOUT TIME ZONE': fakeDate,
   DATETIME: fakeDate,
+  TIMESTAMP: fakeDate,
 
   // custom type used for datetime string storage
   date_time_string: fakeDateTimeString,
