@@ -23,6 +23,9 @@ import { Colors } from '../../constants';
 // has some unusual input handling (switching focus between day/month/year etc) that
 // a value change will interfere with.
 
+// Here I have made a data URL for the new calendar icon. The existing calander icon was a psuedo element
+// in the user agent shadow DOM. In order to add a new icon I had to make the psuedo element invisible
+// a new icon I had to make the psuedo element invisible and render a replacement on top using svg data url.
 const CustomIconTextInput = styled(TextInput)`
   input::-webkit-calendar-picker-indicator {
     color: rgba(0, 0, 0, 0);
