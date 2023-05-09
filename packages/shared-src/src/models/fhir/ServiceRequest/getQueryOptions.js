@@ -11,8 +11,6 @@ export function getQueryOptions(models) {
     LabRequest,
     LabTest,
     LabTestType,
-    LabTestPanelRequest,
-    LabTestPanel,
     NotePage,
     NoteItem,
   } = models;
@@ -103,16 +101,6 @@ export function getQueryOptions(models) {
           {
             model: LabTestType,
             as: 'labTestType',
-          },
-        ],
-      },
-      {
-        model: LabTestPanelRequest,
-        as: 'labTestPanelRequest',
-        include: [
-          {
-            model: LabTestPanel,
-            as: 'labTestPanel',
           },
         ],
       },

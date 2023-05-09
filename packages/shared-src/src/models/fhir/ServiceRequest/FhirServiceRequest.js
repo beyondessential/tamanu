@@ -54,8 +54,8 @@ export class FhirServiceRequest extends FhirResource {
       models.LabRequest,
       models.LabTest,
       models.LabTestType,
-      models.LabTestPanelRequest,
-      models.LabTestPanel,
+      // models.LabTestPanelRequest,
+      // models.LabTestPanel,
       models.NotePage,
       models.NoteItem,
     ];
