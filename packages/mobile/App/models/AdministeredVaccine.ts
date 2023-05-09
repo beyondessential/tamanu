@@ -26,13 +26,16 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ type: 'varchar', nullable: true })
   injectionSite?: InjectionSiteType;
 
+  @Column({ nullable: true, default: false })
+  givenElsewhere: boolean;
+
   @Column({ nullable: true, default: true })
   consent: boolean;
 
   @Column({ nullable: true })
   consentGivenBy?: string;
 
-  @Column()
+  @Column({ nullable: true })
   date: string;
 
   @Column({ nullable: true })
