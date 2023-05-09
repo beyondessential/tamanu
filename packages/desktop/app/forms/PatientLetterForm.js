@@ -13,6 +13,7 @@ import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { OutlinedButton, Button } from '../components';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { ModalButtonRow } from '../components/ModalActionRow';
 
 const TallMultilineTextField = props => (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { Box } from '@material-ui/core';
@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { Modal, ModalLoader } from './Modal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
 // import { PatientLetterForm } from '../forms/PatientLetterForm';
@@ -82,12 +83,37 @@ const PatientDetails = ({ patient }) => (
   </Card>
 );
 
-export const PatientLetterModal = React.memo(({ open, onClose, patient, onSubmit, isSubmitting, isError }) => {
+const LoadingContainer = styled.div`
+  position: absolute;
+  width: 100%;
+  z-index: 9999;
+`;
+
+export const PatientLetterModal = React.memo(({ open, onClose, patient, onSubmit: paneOnSubmit, isError }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = useCallback(async (...args) => {
+    setIsSubmitting(true);
+    await paneOnSubmit(...args);
+    setIsSubmitting(false);
+  },
+  [setIsSubmitting]
+)
+
   return (
-    <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
-      <PatientDetails patient={patient} />
-      <PatientLetterForm onSubmit={onSubmit} onCancel={onClose}/>
-    </Modal>
+    <>
+      <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
+        {isSubmitting ? (
+            <ModalLoader loadingText="Please wait while we create your patient letter"/>
+        ) : (
+          <>
+            <PatientDetails patient={patient} />
+            <PatientLetterForm onSubmit={onSubmit} onCancel={onClose}/>
+          </>
+        )
+      }
+      </Modal>
+    </>
   );
 });
 
