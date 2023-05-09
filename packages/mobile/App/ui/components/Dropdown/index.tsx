@@ -79,7 +79,13 @@ export const Dropdown = React.memo(
     disabled,
     required = false,
   }: DropdownProps) => {
-    const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
+    const [selectedItems, setSelectedItems] = useState(() => {
+      if (!value) {
+        return [];
+      }
+
+      return Array.isArray(value) ? value : [value];
+    });
     const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
       items => {
@@ -133,13 +139,22 @@ export const Dropdown = React.memo(
             borderRadius: 5,
             backgroundColor: 'white',
             borderColor: theme.colors.PRIMARY_MAIN,
-            padding: 5,
-            borderWidth: 1,
           }}
           styleRowList={{
             borderRadius: 5,
             backgroundColor: 'white',
             padding: 5,
+          }}
+          styleInputGroup={{
+            borderWidth: 1,
+            borderRadius: 6,
+            backgroundColor: 'white',
+            borderColor: theme.colors.PRIMARY_MAIN,
+          }}
+          styleItemsContainer={{
+            borderWidth: 1,
+            borderRadius: 5,
+            borderColor: theme.colors.PRIMARY_MAIN,
           }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
