@@ -16,7 +16,11 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   >
     <RowField
       label="Date given"
-      value={formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)}
+      value={
+        administeredVaccine.date
+          ? formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)
+          : null
+      }
     />
     <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.schedule} />
     <RowField label="Batch No." value={administeredVaccine.batch} />
@@ -24,7 +28,10 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
     <RowField label="Area" value={administeredVaccine.encounter?.location?.locationGroup?.name} />
     <RowField label="Location" value={administeredVaccine.encounter?.location?.name} />
     <RowField label="Department" value={administeredVaccine.encounter?.department?.name} />
-    <RowField label="Given by" value={administeredVaccine.givenBy} />
+    <RowField
+      label={administeredVaccine.givenElsewhere ? 'Country' : 'Given by'}
+      value={administeredVaccine.givenBy}
+    />
     <RowField label="Recorded by" value={administeredVaccine.encounter?.examiner.displayName} />
   </StyledView>
 );
