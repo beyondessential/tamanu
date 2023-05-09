@@ -156,7 +156,7 @@ export const DateDisplay = React.memo(
     }
 
     return (
-      <DateTooltip date={dateObj} customTooltipFormat={customTooltipFormat}>
+      <DateTooltip date={dateObj} customTooltipFormat={dateObj ? customTooltipFormat : null}>
         <span>{parts.join(' ')}</span>
       </DateTooltip>
     );
