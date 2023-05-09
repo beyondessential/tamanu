@@ -13,7 +13,6 @@ import {
   getCurrentDateTimeString,
   toDateTimeString,
 } from '../../../../../shared-src/src/utils/dateTime';
-import { FlashOnTwoTone } from '@material-ui/icons';
 
 const MODAL_STATES = {
   CLOSED: 'closed',
@@ -45,7 +44,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   // const { loadEncounter } = useEncounter();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState(false );
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
   const api = useApi();
@@ -83,13 +81,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     return true;
   }, []);
 
-  const handleClose = useCallback(() => {
-    // Prevent user from navigating away if we're submitting a document
-    if (!isSubmitting) {
-      setModalStatus(MODAL_STATES.CLOSED);
-    }
-  }, [isSubmitting]);
-
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
       // Modal error will be set and shouldn't try to submit
@@ -97,7 +88,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         return;
       }
 
-      setIsSubmitting(true);
       try {
         // Read and inject document creation date and type to metadata sent
         const { birthtime } = await asyncFs.stat(file);
@@ -108,7 +98,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           documentCreatedAt: toDateTimeString(birthtime),
           documentUploadedAt: getCurrentDateTimeString(),
         });
-        handleClose();
+        setModalStatus(MODAL_STATES.CLOSED);
         setRefreshCount(refreshCount + 1);
       } catch (error) {
         // Assume that if submission fails is because of lack of storage
@@ -117,30 +107,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         } else {
           setModalStatus(MODAL_STATES.ALERT_NO_SPACE_OPEN);
         }
-      } finally {
-        setIsSubmitting(false);
       }
     },
-    [refreshCount, api, endpoint, handleClose, canInvokeDocumentAction],
+    [refreshCount, api, endpoint, canInvokeDocumentAction],
   );
-
-  useEffect(() => {
-    function handleBeforeUnload(event) {
-      if (isSubmitting) {
-        // According to the electron docs, using event.returnValue is
-        // is recommended rather than just returning a value.
-        // https://www.electronjs.org/docs/latest/api/browser-window#event-close
-        // eslint-disable-next-line no-param-reassign
-        event.returnValue = false;
-      }
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [isSubmitting]);
 
   const isFromEncounter = !!encounter?.id;
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
@@ -162,16 +132,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       </PaneWrapper>
       <PatientLetterModal
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
-        onClose={handleClose}
+        onClose={() => setModalStatus(MODAL_STATES.CLOSED)}
         onSubmit={handlePatientLetterSubmit}
-        isSubmitting={isSubmitting}
         patient={patient}
       />
       <DocumentModal
         open={DOCUMENT_MODAL_STATES.includes(modalStatus)}
-        onClose={handleClose}
+        onClose={() => setModalStatus(MODAL_STATES.CLOSED)}
         onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
         isError={
           modalStatus === MODAL_STATES.ALERT_NO_INTERNET_OPEN ||
           modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN

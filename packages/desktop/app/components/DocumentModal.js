@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
@@ -28,9 +28,45 @@ const Message = styled(Typography)`
   margin-bottom: 30px;
 `;
 
-export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting, isError }) => {
+export const DocumentModal = React.memo(({ open, onClose, onSubmit: paneOnSubmit, isError }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = useCallback(async (...args) => {
+      setIsSubmitting(true);
+      await paneOnSubmit(...args);
+      setIsSubmitting(false);
+    },
+    [setIsSubmitting]
+  )
+
+  const handleClose = useCallback(() => {
+    // Prevent user from navigating away if we're submitting a document
+    if (!isSubmitting) {
+      onClose();
+    }
+  }, [isSubmitting]);
+
+  useEffect(() => {
+    function handleBeforeUnload(event) {
+      if (isSubmitting) {
+        // According to the electron docs, using event.returnValue is
+        // is recommended rather than just returning a value.
+        // https://www.electronjs.org/docs/latest/api/browser-window#event-close
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = false;
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSubmitting]);
+
+
   let ModalBody = (
-    <DocumentForm actionText="Add" onSubmit={onSubmit} onCancel={onClose} editedObject={document} />
+    <DocumentForm actionText="Add" onSubmit={onSubmit} onCancel={handleClose} editedObject={document} />
   );
 
   if (isSubmitting) {
@@ -46,13 +82,13 @@ export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting
             your system administrator.
           </Message>
         </MessageContainer>
-        <ConfirmCancelRow cancelText="Close" onCancel={onClose} />
+        <ConfirmCancelRow cancelText="Close" onCancel={handleClose} />
       </div>
     );
   }
 
   return (
-    <Modal width="md" title="Add document" open={open} onClose={onClose}>
+    <Modal width="md" title="Add document" open={open} onClose={handleClose}>
       {ModalBody}
     </Modal>
   );
