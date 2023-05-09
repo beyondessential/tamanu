@@ -222,7 +222,7 @@ patientVaccineRoutes.get(
       : {};
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const { orderBy = 'date', order = 'ASC', ...rest } = req.query;
+    const { orderBy = 'date', order = 'ASC', rowsPerPage = null, page = 0, ...rest } = req.query;
     // Here we create two custom columns with names that can be referenced by the key
     // in the column object for the DataFetchingTable. These are used for sorting the table.
     const customSortingColumns = {
@@ -254,9 +254,10 @@ patientVaccineRoutes.get(
       ...customSortingColumns,
       order: [[...orderBy.split('.'), order]],
       where,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
     });
 
-    // TODO: enable pagination for this endpoint
-    res.send({ count: results.length, data: results });
+    res.send({ count: results.count, data: results.data });
   }),
 );
