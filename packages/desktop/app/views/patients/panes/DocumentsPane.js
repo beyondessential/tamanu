@@ -39,14 +39,12 @@ const hasInternetConnection = () => {
 };
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
-  const isFromEncounter = !!encounter?.id;
-
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
   const api = useApi();
-  const endpoint = isFromEncounter
+  const endpoint = encounter
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
@@ -120,6 +118,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     };
   }, [isSubmitting]);
 
+  const isFromEncounter = !!encounter?.id;
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
 
   return (
@@ -127,7 +126,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
-          {!isFromEncounter && <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>Patient letter</OutlinedButton>}
+          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>Patient letter</OutlinedButton>
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable

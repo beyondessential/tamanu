@@ -83,8 +83,6 @@ const PatientDetails = ({ patient }) => (
 );
 
 export const PatientLetterModal = React.memo(({ open, onClose, patient, onSubmit, isSubmitting, isError }) => {
-
-
   return (
     <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
       <PatientDetails patient={patient} />
