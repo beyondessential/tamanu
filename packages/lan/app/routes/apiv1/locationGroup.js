@@ -69,9 +69,9 @@ locationGroup.get(
        patients.last_name,
        patients.date_of_birth,
        patients.sex,
-       encounters.start_date,
-       string_agg(reference_data.name, ', ') AS diagnosis,
-       string_agg(note_items.content, ', ') AS notes,
+       encounters.start_date as arrival_date,
+       diagnosis.name as diagnosis,
+       note_items.content AS notes,
        note_pages.created_at
         FROM locations
         INNER JOIN location_groups ON locations.location_group_id = location_groups.id
@@ -79,10 +79,30 @@ locationGroup.get(
           AND encounters.end_date IS NULL
         INNER JOIN patients ON encounters.patient_id = patients.id
         LEFT JOIN encounter_diagnoses ON encounters.id = encounter_diagnoses.encounter_id
-        LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
-        LEFT JOIN note_pages ON encounters.id = note_pages.record_id
-          AND note_pages.record_type = 'Encounter'
-          AND note_pages.note_type = 'handover'
+        LEFT JOIN (
+          SELECT encounter_id, 
+          string_agg(
+            reference_data.name || 
+            ' (' || 
+            CASE 
+               WHEN encounter_diagnoses.certainty = 'suspected' then 'For investigation'
+              WHEN encounter_diagnoses.certainty = 'error' then 'Recorded by error'
+              else INITCAP(encounter_diagnoses.certainty)
+            END||
+            ')', 
+          ', ') as name 
+          from encounter_diagnoses 
+            LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
+              group by encounter_id
+            ) AS diagnosis on encounters.id = diagnosis.encounter_id
+		    LEFT JOIN (
+		      SELECT record_id, MAX(date) AS date
+		      FROM note_pages
+		      WHERE record_type = 'Encounter' AND note_type = 'handover'
+		      GROUP BY record_id
+		    ) AS max_note_pages ON encounters.id = max_note_pages.record_id
+		    LEFT JOIN note_pages ON max_note_pages.record_id = note_pages.record_id
+		      AND max_note_pages.date = note_pages.date
         LEFT JOIN note_items ON note_items.note_page_id = note_pages.id
         WHERE location_groups.id = :id and locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
@@ -94,7 +114,9 @@ locationGroup.get(
           patients.date_of_birth,
           patients.sex,
           encounters.start_date,
-          note_pages.created_at
+          note_items.content,
+          note_pages.created_at,
+          diagnosis.name
       `,
       {
         replacements: {
@@ -107,6 +129,7 @@ locationGroup.get(
 
     const data = result.map(item => ({
       location: item.location,
+      arrivalDate: item.arrival_date,
       patient: {
         displayId: item.display_id,
         firstName: item.first_name,
