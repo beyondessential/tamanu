@@ -28,6 +28,10 @@ export async function up(query) {
 }
 
 export async function down(query) {
+  for (const table of TABLES_FOR_VERSIONING) {
+    await query.sequelize.query(`DROP TRIGGER IF EXISTS versioning ON fhir.${table}`);
+  }
+
   for (const table of TABLES_FOR_REFRESH) {
     await query.sequelize.query(`DROP TRIGGER IF EXISTS fhir_refresh ON ${table}`);
   }
