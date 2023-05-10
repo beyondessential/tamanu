@@ -149,6 +149,7 @@ export const GivenByCountryField = () => {
       component={AutocompleteField}
       suggester={countrySuggester}
       required
+      allowFreeTextForExistingValue
     />
   );
 };

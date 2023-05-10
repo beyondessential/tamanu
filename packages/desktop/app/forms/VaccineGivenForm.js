@@ -40,6 +40,7 @@ export const VACCINE_GIVEN_VALIDATION_SCHEMA = {
   givenBy: yup.string().when('givenElsewhere', {
     is: true,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
   }),
   // will be converted into array of string pre submitting
   circumstanceIds: yup.string().when('givenElsewhere', {
