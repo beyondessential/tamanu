@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
+
 import { StyledView, StyledText } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
@@ -137,18 +138,18 @@ export const Dropdown = React.memo(
           }}
           styleSelectorContainer={{
             borderRadius: 5,
-            backgroundColor: 'white',
+            backgroundColor: theme.colors.WHITE,
             borderColor: theme.colors.PRIMARY_MAIN,
           }}
           styleRowList={{
             borderRadius: 5,
-            backgroundColor: 'white',
+            backgroundColor: theme.colors.WHITE,
             padding: 5,
           }}
           styleInputGroup={{
             borderWidth: 1,
             borderRadius: 6,
-            backgroundColor: 'white',
+            backgroundColor: theme.colors.WHITE,
             borderColor: theme.colors.PRIMARY_MAIN,
           }}
           styleItemsContainer={{
