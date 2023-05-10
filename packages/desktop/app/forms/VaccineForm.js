@@ -82,7 +82,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const [vaccineOptions, setVaccineOptions] = useState([]);
-  const [category, setCategory] = useState(null);
+  const [category, setCategory] = useState(VACCINE_CATEGORIES.ROUTINE);
   const [vaccineLabel, setVaccineLabel] = useState();
 
   const {
@@ -155,6 +155,7 @@ export const VaccineForm = ({
       initialValues={
         !editMode
           ? {
+              category: VACCINE_CATEGORIES.ROUTINE,
               date: getCurrentDateTimeString(),
               locationGroupId: !currentEncounter
                 ? vaccinationDefaults.data?.locationGroupId
@@ -177,11 +178,12 @@ export const VaccineForm = ({
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
           VACCINE_GIVEN_VALIDATION_SCHEMA),
       })}
-      render={({ submitForm, resetForm, values, setValues }) => (
+      render={({ submitForm, resetForm, setErrors, values, setValues }) => (
         <VaccineFormComponent
           vaccineRecordingType={vaccineRecordingType}
           submitForm={submitForm}
           resetForm={resetForm}
+          setErrors={setErrors}
           editMode={editMode}
           values={values}
           setValues={setValues}
@@ -204,6 +206,7 @@ const VaccineFormComponent = ({
   vaccineRecordingType,
   submitForm,
   resetForm,
+  setErrors,
   values,
   setValues,
   patientId,
@@ -222,13 +225,15 @@ const VaccineFormComponent = ({
   return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
     <VaccineGivenForm
       {...props}
+      resetForm={resetForm}
+      setErrors={setErrors}
       submitForm={submitForm}
       values={values}
       patientId={patientId}
       setValues={setValues}
     />
   ) : (
-    <VaccineNotGivenForm {...props} submitForm={submitForm} />
+    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />
   );
 };
 
