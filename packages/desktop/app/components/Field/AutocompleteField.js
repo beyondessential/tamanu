@@ -103,7 +103,8 @@ export class AutocompleteInput extends Component {
   }
 
   async componentDidMount() {
-    await this.updateValue();
+    const { allowFreeTextEdit } = this.props;
+    await this.updateValue(allowFreeTextEdit);
   }
 
   async componentDidUpdate(prevProps) {
@@ -116,8 +117,8 @@ export class AutocompleteInput extends Component {
     }
   }
 
-  updateValue = async () => {
-    const { value, suggester, allowFreeText } = this.props;
+  updateValue = async (allowFreeTextEdit = false) => {
+    const { value, suggester } = this.props;
 
     if (!suggester || value === undefined) {
       return;
@@ -127,15 +128,19 @@ export class AutocompleteInput extends Component {
       this.attemptAutoFill();
       return;
     }
-    const currentOption = await suggester.fetchCurrentOption(value);
-    if (currentOption) {
-      this.setState({
-        selectedOption: {
-          value: currentOption.label,
-          tag: currentOption.tag,
-        },
-      });
-    } else if (allowFreeText && value) {
+
+    if (!allowFreeTextEdit) {
+      const currentOption = await suggester.fetchCurrentOption(value);
+
+      if (currentOption) {
+        this.setState({
+          selectedOption: {
+            value: currentOption.label,
+            tag: currentOption.tag,
+          },
+        });
+      }
+    } else if (allowFreeTextEdit && value) {
       this.setState({ selectedOption: { value, tag: value } });
       this.handleSuggestionChange({ value, label: value });
     } else {
