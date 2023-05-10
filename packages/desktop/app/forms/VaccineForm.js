@@ -20,7 +20,7 @@ import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 
-const EDIT_MODE_BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
+const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   date: yup.string().when('givenElsewhere', {
     is: false,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
@@ -38,7 +38,7 @@ const EDIT_MODE_BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   }),
 });
 
-export const BASE_VACCINE_SCHEME_VALIDATION = EDIT_MODE_BASE_VACCINE_SCHEME_VALIDATION.shape({
+export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATION.shape({
   category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   vaccineLabel: yup.string().when('category', {
     is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
@@ -145,8 +145,8 @@ export const VaccineForm = ({
   }
 
   const baseSchemeValidation = editMode
-    ? EDIT_MODE_BASE_VACCINE_SCHEME_VALIDATION
-    : BASE_VACCINE_SCHEME_VALIDATION;
+    ? BASE_VACCINE_SCHEME_VALIDATION
+    : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
 
   return (
     <Form

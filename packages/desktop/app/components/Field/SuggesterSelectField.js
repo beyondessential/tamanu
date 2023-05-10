@@ -11,40 +11,6 @@ export const SuggesterSelectField = React.memo(
     const [options, setOptions] = useState(initialOptions);
 
     useEffect(() => {
-      // If a value is set, fetch the record to display it's name
-      if (field.value) {
-        let values;
-        if (isMulti) {
-          values = Array.isArray(field.value) ? field.value : field.value.split(',');
-        } else {
-          values = [field.value];
-        }
-
-        for (const value of values) {
-          api
-            .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(value)}`)
-            .then(({ id, name }) => {
-              setOptions(currentOptions =>
-                unionBy(
-                  currentOptions,
-                  [
-                    {
-                      value: id,
-                      label: name,
-                    },
-                  ],
-                  'value',
-                ),
-              );
-            });
-        }
-      }
-
-      // Only do the fetch when the component first mounts
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
       api
         .get(`suggestions/${encodeURIComponent(endpoint)}/all`, { filterByFacility })
         .then(resultData => {
