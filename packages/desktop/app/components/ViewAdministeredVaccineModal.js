@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
@@ -6,6 +6,7 @@ import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from 'shared/constants';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
+import { useSuggester } from '../api';
 
 import { DateDisplay } from './DateDisplay';
 
@@ -70,8 +71,6 @@ const ErrorMessage = () => {
 };
 
 export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
-  if (!vaccineRecord) return null;
-
   const {
     status,
     injectionSite,
@@ -88,10 +87,33 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     givenElsewhere,
     notGivenReason,
     encounter,
+    circumstanceIds,
   } = vaccineRecord;
 
   const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
+
+  const vaccineCircumstanceSuggester = useSuggester('vaccineCircumstance');
+  const [vaccineCircumstances, setVaccineCircumstances] = useState();
+
+  useEffect(() => {
+    // to avoid unnecessary API calls, these are the conditions that will show circumstance
+    if (!editMode && givenElsewhere && circumstanceIds) {
+      const vaccineCircumstancePromises = [];
+      for (const circumstanceId of (Array.isArray(circumstanceIds)
+        ? circumstanceIds
+        : String(circumstanceIds)?.split(',')) || []) {
+        vaccineCircumstancePromises.push(
+          vaccineCircumstanceSuggester.fetchCurrentOption(circumstanceId),
+        );
+      }
+      Promise.all(vaccineCircumstancePromises).then(circumstances => {
+        setVaccineCircumstances(circumstances?.map(circumstance => circumstance?.label));
+      });
+    }
+  }, [vaccineCircumstanceSuggester, circumstanceIds, editMode, givenElsewhere]);
+
+  if (!vaccineRecord) return null;
 
   const fieldObjects = {
     vaccine: { label: 'Vaccine', value: vaccineLabel || '-' },
@@ -119,7 +141,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     country: { label: 'Country', value: givenBy || '-' },
     reason: { label: 'Reason', value: notGivenReason?.name || '-' },
-    // circumstance: { label: 'Circumstance', value: 'TODOTODOTODO' },
+    circumstance: { label: 'Circumstance', value: vaccineCircumstances?.join(', ') || '-' },
   };
 
   const modalVersions = [
@@ -153,7 +175,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       name: 'routineOverseas',
       condition: routine && !notGiven && givenElsewhere,
       fields: [
-        ...(editMode ? [] : [[fieldObjects.status]]),
+        ...(editMode ? [] : [[fieldObjects.circumstance, fieldObjects.status]]),
         [
           fieldObjects.vaccine,
           fieldObjects.schedule,
@@ -200,7 +222,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       name: 'otherOverseas',
       condition: !routine && !notGiven && givenElsewhere,
       fields: [
-        ...(editMode ? [] : [[fieldObjects.status]]),
+        ...(editMode ? [] : [[fieldObjects.circumstance, fieldObjects.status]]),
         [
           fieldObjects.vaccineName,
           ...(editMode
