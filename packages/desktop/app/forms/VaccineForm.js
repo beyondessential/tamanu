@@ -25,26 +25,32 @@ export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
   vaccineLabel: yup.string().when('category', {
     is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
   }),
   date: yup.string().when('givenElsewhere', {
     is: false,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
   }),
   locationId: yup.string().when('givenElsewhere', {
     is: false,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
   }),
   departmentId: yup.string().when('givenElsewhere', {
     is: false,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
   }),
   vaccineName: yup.string().when('category', {
     is: VACCINE_CATEGORIES.OTHER,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
   }),
   scheduledVaccineId: yup.string().when('category', {
     is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
   }),
 });
 
