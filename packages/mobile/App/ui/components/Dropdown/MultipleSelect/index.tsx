@@ -425,6 +425,7 @@ export class MultiSelect extends Component {
                 name="check"
                 style={{
                   fontSize: 20,
+                  marginRight: -5,
                   color: selectedItemIconColor,
                 }}
               />
@@ -595,6 +596,7 @@ export class MultiSelect extends Component {
       disabled,
     } = this.props;
     const { searchTerm, selector } = this.state;
+    const selectedLabel = this._getSelectLabel();
     return (
       <View
         style={[
@@ -618,8 +620,10 @@ export class MultiSelect extends Component {
                 autoFocus
                 onChangeText={this._onChangeInput}
                 onSubmitEditing={this._addItem}
-                placeholder={searchInputPlaceholderText}
-                placeholderTextColor={colorPack.placeholderTextColor}
+                placeholder={selectedLabel || searchInputPlaceholderText}
+                placeholderTextColor={
+                  selectedLabel ? colorPack.textPrimary : colorPack.placeholderTextColor
+                }
                 underlineColorAndroid="transparent"
                 style={[searchInputStyle, { flex: 1 }]}
                 value={searchTerm}
@@ -643,7 +647,7 @@ export class MultiSelect extends Component {
                   size={20}
                   onPress={this._clearSelectorCallback}
                   color={colorPack.placeholderTextColor}
-                  style={[styles.indicator, styleIndicator && styleIndicator]}
+                  style={[{ marginRight: 10 }, styles.indicator, styleIndicator && styleIndicator]}
                 />
               )}
             </View>
@@ -724,7 +728,11 @@ export class MultiSelect extends Component {
 
                     <Icon
                       name="chevron-down"
-                      style={[styles.indicator, styleIndicator && styleIndicator]}
+                      style={[
+                        { marginRight: -7 },
+                        styles.indicator,
+                        styleIndicator && styleIndicator,
+                      ]}
                     />
                   </View>
                 </TouchableWithoutFeedback>
