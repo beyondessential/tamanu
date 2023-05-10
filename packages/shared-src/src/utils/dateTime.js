@@ -138,7 +138,7 @@ export function compareDateStrings(key = 'desc') {
   if (key.toLowerCase() === 'desc') {
     return (a, b) => parseISO(b.date) - parseISO(a.date);
   }
-  return null;
+  return 0;
 }
 
 /*
