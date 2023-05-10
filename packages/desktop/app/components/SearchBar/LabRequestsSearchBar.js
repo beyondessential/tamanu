@@ -68,7 +68,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             size="small"
           />
           {publishedStatus ? (
-            <Field name="publishedDate" label="Published" saveDateAsString component={DateField} />
+            <Field name="publishedDate" label="Completed" saveDateAsString component={DateField} />
           ) : (
             <>
               <LocalisedField
