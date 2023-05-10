@@ -131,7 +131,7 @@ export function latestDateTime(...args) {
   return times[0];
 }
 
-export function compareByDateString(key = 'desc') {
+export function compareDateStrings(key = 'desc') {
   if (key.toLowerCase() === 'asc') {
     return (a, b) => parseISO(a.date) - parseISO(b.date);
   }

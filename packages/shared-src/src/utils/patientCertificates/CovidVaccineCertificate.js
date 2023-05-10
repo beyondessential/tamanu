@@ -10,7 +10,7 @@ import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
-import { compareByDateString } from '../dateTime';
+import { compareDateStrings } from '../dateTime';
 
 const columns = [
   {
@@ -75,7 +75,7 @@ export const CovidVaccineCertificate = ({
   const uvciFormat = getLocalisation('previewUvciFormat');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
-  const vaxes = vaccinations.filter(v => v.certifiable).sort(compareByDateString('desc'));
+  const vaxes = vaccinations.filter(v => v.certifiable).sort(compareDateStrings('desc'));
   const actualUvci = vaccinations.length
     ? uvci || generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode })
     : null;
