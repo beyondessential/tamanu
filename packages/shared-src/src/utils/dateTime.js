@@ -132,13 +132,11 @@ export function latestDateTime(...args) {
 }
 
 export function compareDateStrings(key = 'desc') {
-  if (key.toLowerCase() === 'asc') {
-    return (a, b) => parseISO(a.date) - parseISO(b.date);
-  }
-  if (key.toLowerCase() === 'desc') {
-    return (a, b) => parseISO(b.date) - parseISO(a.date);
-  }
-  return null;
+  return (a, b) => {
+    if (key.toLowerCase() === 'asc') return parseISO(a.date) - parseISO(b.date);
+    if (key.toLowerCase() === 'desc') return parseISO(b.date) - parseISO(a.date);
+    return 0;
+  };
 }
 
 /*
