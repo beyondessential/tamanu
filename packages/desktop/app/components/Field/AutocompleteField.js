@@ -135,13 +135,11 @@ export class AutocompleteInput extends Component {
           tag: currentOption.tag,
         },
       });
+    } else if (allowFreeText && value) {
+      this.setState({ selectedOption: { value, tag: value } });
+      this.handleSuggestionChange({ value, label: value });
     } else {
-      if (allowFreeText && value) {
-        this.setState({ selectedOption: { value, tag: value } });
-        this.handleSuggestionChange({ value, label: value });
-      } else {
-        this.handleSuggestionChange({ value: null, label: '' });
-      }
+      this.handleSuggestionChange({ value: null, label: '' });
     }
   };
 
@@ -312,7 +310,6 @@ export class AutocompleteInput extends Component {
       helperText,
       placeholder = 'Search...',
       inputRef,
-      allowFreeText,
     } = this.props;
 
     return (
