@@ -124,6 +124,7 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
@@ -169,11 +170,20 @@ labRequest.get(
       ),
 
       makeFilter(
-        JSON.parse(filterParams.excludePublished || false),
-        `lab_requests.status != :published`,
-        () => ({
-          [LAB_REQUEST_STATUSES.PUBLISHED]: LAB_REQUEST_STATUSES.PUBLISHED,
+        JSON.parse(filterParams.excludeStatus || false),
+        `lab_requests.status != :excludeStatus`,
+        ({ excludeStatus }) => ({
+          excludeStatus,
         }),
+      ),
+      makeFilter(
+        filterParams.publishedDate,
+        `lab_requests.published_date LIKE :publishedDate`,
+        ({ publishedDate }) => {
+          return {
+            publishedDate: `${publishedDate}%`,
+          };
+        },
       ),
     ].filter(f => f);
 
@@ -203,7 +213,7 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-      ${whereClauses && `WHERE ${whereClauses}`}
+        ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
     const filterReplacements = filters
@@ -239,6 +249,7 @@ labRequest.get(
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
       status: 'status',
+      publishedDate: 'published_date',
     };
 
     const sortKey = sortKeys[orderBy];
@@ -284,7 +295,6 @@ labRequest.get(
     );
 
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-
     res.send({
       data: forResponse,
       count,

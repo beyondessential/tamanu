@@ -3,6 +3,7 @@ export { FhirAnnotation } from './annotation';
 export { FhirCoding } from './coding';
 export { FhirCodeableConcept } from './codeableConcept';
 export { FhirContactPoint } from './contactPoint';
+export { FhirEncounterLocation } from './encounterLocation';
 export { FhirExtension } from './extension';
 export { FhirHumanName } from './humanName';
 export { FhirIdentifier } from './identifier';

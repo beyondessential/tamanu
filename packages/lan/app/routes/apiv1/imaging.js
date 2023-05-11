@@ -11,8 +11,8 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { toDateTimeString } from 'shared/utils/dateTime';
-import { getNoteWithType } from 'shared/utils/notePages';
+import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
+import { getNotePageWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
@@ -62,6 +62,14 @@ const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
   },
 });
 
+const dateFilter = (fieldName, operator, value) => {
+  return {
+    [fieldName]: {
+      [operator]: toDateString(new Date(value)),
+    },
+  };
+};
+
 export const imagingRequest = express.Router();
 
 imagingRequest.get(
@@ -77,6 +85,7 @@ imagingRequest.get(
     const records = await ReferenceData.findAll({
       where: {
         type: Object.values(IMAGING_AREA_TYPES),
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
     // Key areas by imagingType
@@ -162,8 +171,8 @@ imagingRequest.put(
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
-    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     const notes = {
       note: '',
@@ -299,6 +308,17 @@ globalImagingRequests.get(
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
     ]);
+
+    const encounterFilters = mapQueryFilters(filterParams, [
+      { key: 'departmentId', operator: Op.eq },
+    ]);
+    const resultFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'completedAt',
+        operator: Op.startsWith,
+        mapFn: dateFilter,
+      },
+    ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
@@ -306,10 +326,9 @@ globalImagingRequests.get(
         mapFn: caseInsensitiveStartsWithFilter,
       },
       { key: 'imagingType', operator: Op.eq },
-
       { key: 'status', operator: Op.eq },
-
       { key: 'priority', operator: Op.eq },
+      { key: 'locationGroupId', operator: Op.eq },
       {
         key: 'requestedDateFrom',
         alias: 'requestedDate',
@@ -330,6 +349,7 @@ globalImagingRequests.get(
           },
         }),
       },
+      { key: 'requestedById', operator: Op.eq },
     ]);
 
     // Associations to include on query
@@ -346,6 +366,7 @@ globalImagingRequests.get(
     const patient = {
       association: 'patient',
       where: patientFilters,
+      attributes: ['displayId', 'firstName', 'lastName', 'id'],
     };
 
     const locationWhere = {
@@ -362,8 +383,15 @@ globalImagingRequests.get(
 
     const encounter = {
       association: 'encounter',
+      where: encounterFilters,
       include: [patient, location],
+      attributes: ['id', 'departmentId'],
       required: true,
+    };
+    const results = {
+      association: 'results',
+      where: resultFilters,
+      required: query.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
     };
 
     // Query database
@@ -380,11 +408,12 @@ globalImagingRequests.get(
           },
         },
       },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      include: [requestedBy, encounter, areas],
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+      include: [requestedBy, encounter, areas, results],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
+      subQuery: false,
     });
 
     // Extract and normalize data calling a base model method

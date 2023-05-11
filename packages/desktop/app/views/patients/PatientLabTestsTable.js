@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { usePatientLabTestResults } from '../../api/queries/usePatientLabTestResults';
 import { Table } from '../../components/Table';
 import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
@@ -15,7 +14,9 @@ const COLUMNS = {
 
 const StyledTable = styled(Table)`
   table {
+    table-layout: fixed;
     position: relative;
+    width: initial;
 
     thead tr th:nth-child(1),
     tbody tr td:nth-child(1),
@@ -53,6 +54,30 @@ const StyledTable = styled(Table)`
       border-right: 2px solid ${Colors.outline};
     }
 
+    tfoot tr td:nth-child(1) {
+      position: sticky;
+      left: 0;
+    }
+
+    tfoot tr td:nth-child(2) {
+      position: sticky;
+      right: 0;
+    }
+
+    tfoot {
+      inset-inline-end: 0;
+    }
+
+    thead tr th:nth-child(n + 4),
+    tbody tr td:nth-child(n + 4) {
+      width: 120px;
+    }
+
+    thead tr th:last-child,
+    tbody tr td:last-child {
+      width: 100%;
+    }
+
     thead tr th {
       color: ${props => props.theme.palette.text.secondary};
       background: ${Colors.background};
@@ -73,118 +98,109 @@ const StyledTable = styled(Table)`
   }
 `;
 
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
-
 const CategoryCell = styled.div`
   font-weight: 500;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
 const StyledButton = styled(Button)`
-  position: absolute;
-  padding: 0;
   text-transform: none;
   font-weight: 400;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-radius: 0;
+  border-radius: 10px;
+  padding: 8px 4px;
+  & > span > div {
+    margin: -8px -4px;
+  }
 `;
 
-export const PatientLabTestsTable = React.memo(({ patient, searchParameters }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-  const { data, isLoading } = usePatientLabTestResults(patient.id, {
-    page,
-    rowsPerPage,
-    ...searchParameters,
-  });
-  const [modalLabTestId, setModalLabTestId] = useState();
-  const [modalOpen, setModalOpen] = useState(false);
-  const openModal = id => {
-    if (id) {
-      setModalLabTestId(id);
-      setModalOpen(true);
-    }
-  };
+export const PatientLabTestsTable = React.memo(
+  ({ patient, setRowsPerPage, setPage, page, rowsPerPage, labTests = [], count, isLoading }) => {
+    const [modalLabTestId, setModalLabTestId] = useState();
+    const [modalOpen, setModalOpen] = useState(false);
+    const openModal = id => {
+      if (id) {
+        setModalLabTestId(id);
+        setModalOpen(true);
+      }
+    };
 
-  const allDates = isLoading
-    ? []
-    : Object.keys(Object.assign({}, ...data?.data.map(x => x.results)));
-  const columns = [
-    {
-      key: 'testCategory.id',
-      title: 'Test category',
-      accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
-    },
-    {
-      key: 'testType',
-      title: 'Test type',
-      accessor: row => (
-        <CategoryCell>
-          {row.testType}
-          <br />
-          {row.unit ? `(${row.unit})` : null}
-        </CategoryCell>
-      ),
-    },
-    {
-      key: 'normalRange',
-      title: 'Normal range',
-      accessor: row => {
-        const range = row.normalRanges[patient?.sex];
-        const value = !range.min ? '-' : `${range.min}-${range.max}`;
-        return <CategoryCell>{value}</CategoryCell>;
+    const allDates = isLoading
+      ? []
+      : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
+    const columns = [
+      {
+        key: 'testCategory.id',
+        title: 'Test category',
+        accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
       },
-    },
-    ...allDates
-      .sort((a, b) => b.localeCompare(a))
-      .map(date => ({
-        title: <DateHeadCell value={date} />,
-        sortable: false,
-        key: date,
+      {
+        key: 'testType',
+        title: 'Test type',
+        accessor: row => (
+          <CategoryCell>
+            {row.testType}
+            <br />
+            {row.unit ? `(${row.unit})` : null}
+          </CategoryCell>
+        ),
+      },
+      {
+        key: 'normalRange',
+        title: 'Normal range',
         accessor: row => {
-          const normalRange = row.normalRanges[patient?.sex];
-          const cellData = row.results[date];
-          if (cellData) {
-            return (
-              <StyledButton onClick={() => openModal(cellData.id)}>
-                <RangeValidatedCell
-                  value={cellData.result}
-                  config={{ unit: row.unit }}
-                  validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-                />
-              </StyledButton>
-            );
-          }
-
-          return '-';
+          const range = row.normalRanges[patient?.sex];
+          const value = !range.min ? '-' : `${range.min}-${range.max}`;
+          return <CategoryCell>{value}</CategoryCell>;
         },
-      })),
-  ];
+      },
+      ...allDates
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: <DateHeadCell value={date} />,
+          sortable: false,
+          key: date,
+          accessor: row => {
+            const normalRange = row.normalRanges[patient?.sex];
+            const cellData = row.results[date];
+            if (cellData) {
+              return (
+                <StyledButton onClick={() => openModal(cellData.id)}>
+                  <RangeValidatedCell
+                    value={cellData.result}
+                    config={{ unit: row.unit }}
+                    validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                  />
+                </StyledButton>
+              );
+            }
 
-  return (
-    <>
-      <StyledTable
-        elevated={false}
-        columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onChangeRowsPerPage={setRowsPerPage}
-        onChangePage={setPage}
-        count={data?.count}
-        allowExport
-        exportName="PatientResults"
-      />
-      <LabTestResultModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        labTestId={modalLabTestId}
-      />
-    </>
-  );
-});
+            return <StyledButton disabled>-</StyledButton>;
+          },
+        })),
+    ];
+
+    return (
+      <>
+        <StyledTable
+          elevated={false}
+          columns={columns}
+          data={labTests}
+          isLoading={isLoading}
+          noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onChangeRowsPerPage={setRowsPerPage}
+          onChangePage={setPage}
+          count={count}
+          allowExport
+          exportName="PatientResults"
+        />
+        <LabTestResultModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          labTestId={modalLabTestId}
+        />
+      </>
+    );
+  },
+);

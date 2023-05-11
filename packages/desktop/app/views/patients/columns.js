@@ -76,6 +76,12 @@ export const status = {
     dod ? <strong>Deceased</strong> : getPatientStatus(encounterType),
 };
 
+export const clinician = {
+  key: 'clinician',
+  title: 'Clinician',
+  sortable: false,
+};
+
 export const vaccinationStatus = {
   key: 'vaccinationStatus',
   title: 'Vaccine status',

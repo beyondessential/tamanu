@@ -1,6 +1,7 @@
 import config from 'config';
 
 import { latestDateTime } from '../../../utils/dateTime';
+import { getNotePagesWithType } from '../../../utils/notePages';
 import {
   FhirAnnotation,
   FhirCodeableConcept,
@@ -14,6 +15,7 @@ import {
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
 } from '../../../constants';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
@@ -75,11 +77,7 @@ async function getValuesFromImagingRequest(upstream, models) {
       }),
     ],
     priority: validatePriority(upstream.priority),
-    code: imagingCode(upstream)
-      ? new FhirCodeableConcept({
-          text: imagingCode(upstream),
-        })
-      : null,
+    code: imagingCode(upstream),
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
@@ -105,6 +103,7 @@ async function getValuesFromImagingRequest(upstream, models) {
       display: upstream.requestedBy.displayName,
     }),
     locationCode: locationCode(upstream),
+    note: imagingAnnotations(upstream),
   };
 }
 
@@ -166,17 +165,16 @@ async function getValuesFromLabRequest(upstream) {
 }
 
 function imagingCode(upstream) {
-  for (const { id } of upstream.areas) {
-    if (id === 'ctScan') {
-      return 'CT Scan';
-    }
+  const { imagingTypes } = config.localisation.data;
+  if (!imagingTypes) throw new Exception('No imaging types specified in localisation.');
 
-    if (id.startsWith('xRay')) {
-      return 'X-Ray';
-    }
-  }
+  const { imagingType } = upstream;
+  const { label } = imagingTypes[imagingType] || {};
+  if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
-  return null;
+  return new FhirCodeableConcept({
+    text: label,
+  });
 }
 
 function validatePriority(priority) {
@@ -241,7 +239,9 @@ function statusFromLabRequest(upstream) {
 }
 
 function labCode(upstream) {
-  const { externalCode, name } = upstream?.labTestPanelRequest?.labTestPanel;
+  const { labTestPanelRequest } = upstream;
+  if (!labTestPanelRequest) throw new Error('No lab test panel request specified.');
+  const { externalCode, name } = labTestPanelRequest.labTestPanel;
   if (!externalCode) throw new Error('No external code specified for this lab test panel.');
 
   return new FhirCodeableConcept({
@@ -268,7 +268,9 @@ function labContained(upstream) {
 
 function labOrderDetails(upstream) {
   return upstream.tests.map(test => {
-    const { externalCode, name } = test?.labTestType;
+    if (!test) throw new Exception('Received a null test');
+
+    const { externalCode, name } = test.labTestType;
     if (!externalCode) throw new Error('No external code specified for this lab test type.');
 
     return new FhirCodeableConcept({
@@ -290,4 +292,15 @@ function labAnnotations(upstream) {
       text: notePage.noteItems.map(noteItem => noteItem.content).join('\n\n'),
     });
   });
+}
+
+function imagingAnnotations(upstream) {
+  // See EPI-451: imaging requests can embed notes about the area to image
+  return getNotePagesWithType(upstream.notePages, NOTE_TYPES.OTHER).map(
+    np =>
+      new FhirAnnotation({
+        time: formatFhirDate(np.date),
+        text: np.noteItems.map(ni => ni.content).join('\n\n'),
+      }),
+  );
 }
