@@ -90,7 +90,7 @@ locationGroup.get(
               ELSE INITCAP(encounter_diagnoses.certainty)
             END ||
             ')', 
-          ', ') as name 
+          ', ') AS name 
           FROM encounter_diagnoses 
           LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
             GROUP BY encounter_id
