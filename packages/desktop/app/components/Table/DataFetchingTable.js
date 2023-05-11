@@ -14,6 +14,7 @@ export const DataFetchingTable = memo(
     initialSort = DEFAULT_SORT,
     refreshCount = 0,
     onDataFetched,
+    allRows = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -53,11 +54,13 @@ export const DataFetchingTable = memo(
             endpoint,
             {
               page,
-              rowsPerPage,
+              ...(!allRows ? { rowsPerPage } : {}),
               ...sorting,
               ...fetchOptions,
             },
-            { showUnknownErrorToast: false },
+            {
+              showUnknownErrorToast: false,
+            },
           );
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
@@ -90,6 +93,7 @@ export const DataFetchingTable = memo(
       transformRow,
       onDataFetched,
       updateFetchState,
+      allRows,
     ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
