@@ -111,11 +111,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
     setDebug(false);
   };
 
-  let dateTooltip = formatLong(date);
-
-  if (timeOnlyTooltip) {
-    dateTooltip = formatTime(date);
-  }
+  const dateTooltip = timeOnlyTooltip ? formatTime(date) : formatLong(date);
 
   const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : dateTooltip;
 
