@@ -249,10 +249,23 @@ patientVaccineRoutes.get(
       },
     };
 
+    let orderWithNulls = order;
+    if (orderBy === 'date') {
+      orderWithNulls = order.toLowerCase() === 'asc' ? 'ASC NULLS FIRST' : 'DESC NULLS LAST';
+    }
+
     const results = await patient.getAdministeredVaccines({
       ...rest,
       ...customSortingColumns,
-      order: [[...orderBy.split('.'), order]],
+      order: [
+        [
+          ...orderBy.split('.'),
+          // We want the date for vaccine listing to behave a little differently to standard SQL sorting for dates. When
+          // Sorting from oldest to newest we want the null values to show at the start of the list, and when sorting
+          // from newest to oldest we want the null values to show at the end of the list
+          orderWithNulls,
+        ],
+      ],
       where,
       limit: rowsPerPage,
       offset: page * rowsPerPage,
