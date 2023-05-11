@@ -1,12 +1,7 @@
 import React from 'react';
 import { theme } from '/styled/theme';
 import * as Icons from '../Icons';
-import {
-  StyledView,
-  RowView,
-  StyledTouchableOpacity,
-  StyledText,
-} from '/styled/common';
+import { StyledView, RowView, StyledTouchableOpacity, StyledText } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export interface CardHeaderProps {
@@ -36,9 +31,7 @@ export const VaccineCardHeader = ({
         paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
         onPress={onCloseModal}
       >
-        <Icons.CrossIcon
-          size={screenPercentageToDP(2.18, Orientation.Height)}
-        />
+        <Icons.CrossIcon size={screenPercentageToDP(2.18, Orientation.Height)} />
       </StyledTouchableOpacity>
       <StyledTouchableOpacity
         onPress={onEditDetails}
@@ -68,13 +61,13 @@ export const VaccineCardHeader = ({
           color={theme.colors.WHITE}
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
         >
-          {name}
+          {code}
         </StyledText>
         <StyledText
           color={theme.colors.WHITE}
           fontSize={screenPercentageToDP(1.944, Orientation.Height)}
         >
-          {code}
+          {name}
         </StyledText>
       </StyledView>
     </RowView>
