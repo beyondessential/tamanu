@@ -249,10 +249,13 @@ patientVaccineRoutes.get(
       },
     };
 
-    const orderWithNulls = orderBy === 'date'
-      ? (order.toLowerCase() === 'asc' ? 'ASC NULLS FIRST' : 'DESC NULLS LAST')
-      : order;
-      
+    const orderWithNulls =
+      orderBy === 'date'
+        ? order.toLowerCase() === 'asc'
+          ? 'ASC NULLS FIRST'
+          : 'DESC NULLS LAST'
+        : order;
+
     const results = await patient.getAdministeredVaccines({
       ...rest,
       ...customSortingColumns,
