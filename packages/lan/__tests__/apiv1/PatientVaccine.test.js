@@ -10,6 +10,7 @@ import {
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
+import { date } from 'yup';
 
 describe('PatientVaccine', () => {
   let ctx;
@@ -361,5 +362,55 @@ describe('PatientVaccine', () => {
       const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
       expect(vaccine.date).toBe(null);
     });
+  });
+
+  describe('Administered vaccines table', () => {
+
+    let readPatient = null;
+    let vaccineOld;
+    let vaccineNew;
+    let vaccineNull;
+
+    beforeAll(async () => {
+      readPatient = await models.Patient.create(await createDummyPatient(models));
+      vaccineNew = await recordAdministeredVaccine(readPatient, scheduled1, {
+        date: '2023-01-01'
+      });
+      vaccineOld = await recordAdministeredVaccine(readPatient, scheduled2, {
+        date: '2010-01-01'
+      });
+      vaccineNull = await recordAdministeredVaccine(readPatient, scheduled3, {
+        date: null,
+      });
+    });
+
+    it('Should return the vaccines for a patient', async () => {
+      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines`)
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(3);
+    });
+
+    it('Should sort null dates as though they are old', async () => {
+      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(3);
+
+      const ids = result.body.data.map(x => x.id);
+      expect(ids[0]).toEqual(vaccineNull.id);
+      expect(ids[1]).toEqual(vaccineOld.id);
+      expect(ids[2]).toEqual(vaccineNew.id);
+    });
+
+    it('Should sort null dates as though they are old (descending)', async () => {
+      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date&order=desc`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(3);
+
+      const ids = result.body.data.map(x => x.id);
+      expect(ids[0]).toEqual(vaccineNew.id);
+      expect(ids[1]).toEqual(vaccineOld.id);
+      expect(ids[2]).toEqual(vaccineNull.id);
+    });
+
   });
 });
