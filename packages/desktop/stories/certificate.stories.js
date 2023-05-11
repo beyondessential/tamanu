@@ -229,4 +229,3 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
     </PDFViewer>
   );
 });
-
