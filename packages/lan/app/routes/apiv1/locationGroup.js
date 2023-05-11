@@ -94,7 +94,7 @@ locationGroup.get(
           FROM encounter_diagnoses 
           LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
             GROUP BY encounter_id
-          ) AS diagnosis on encounters.id = diagnosis.encounter_id
+          ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN (
 		      SELECT record_id, MAX(date) AS date
 		      FROM note_pages
