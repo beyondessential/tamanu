@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { IconButton } from '@material-ui/core';
+import { ClearIcon } from '../Icons/ClearIcon';
+import { ChevronIcon } from '../Icons/ChevronIcon';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -28,6 +31,20 @@ const SelectTag = styled(FormFieldTag)`
 
 const OptionTag = styled(FormFieldTag)`
   right: 20px;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+`;
+
+const StyledClearIcon = styled(ClearIcon)`
+  cursor: pointer;
+  color: ${Colors.darkText};
+`;
+
+const StyledChevronIcon = styled(ChevronIcon)`
+  margin-left: 4px;
+  margin-right: 20px;
 `;
 
 const Option = ({ children, ...props }) => {
@@ -58,6 +75,14 @@ const SingleValue = ({ children, ...props }) => {
   );
 };
 
+const ClearIndicator = ({ innerProps }) => {
+  return (
+    <StyledIconButton {...innerProps}>
+      <StyledClearIcon />
+    </StyledIconButton>
+  );
+};
+
 export const SelectInput = ({
   options,
   value,
@@ -73,6 +98,10 @@ export const SelectInput = ({
 }) => {
   const handleChange = useCallback(
     changedOption => {
+      if (!changedOption) {
+        onChange({ target: { value: '', name } });
+        return;
+      }
       onChange({ target: { value: changedOption.value, name } });
     },
     [onChange, name],
@@ -96,7 +125,6 @@ export const SelectInput = ({
     },
     dropdownIndicator: provided => ({
       ...provided,
-      color: Colors.midText,
       padding: '4px 16px 6px 6px',
     }),
     placeholder: provided => ({ ...provided, color: Colors.softText }),
@@ -160,13 +188,15 @@ export const SelectInput = ({
         <Select
           value={selectedOption}
           onChange={handleChange}
-          options={options}
+          options={options.filter(option => option.value !== '')}
           menuPlacement="auto"
           menuPosition="fixed"
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          components={{ Option, SingleValue }}
+          isClearable={value !== ''}
+          isSearchable={false}
+          components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
