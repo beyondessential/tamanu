@@ -27,11 +27,9 @@ const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || '
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getDate = ({ requestedDate }) => (
-  <DateDisplay date={requestedDate} customTooltipFormat="h:mm aaaaa'm'" />
-);
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
 const getCompletedDate = ({ results }) => (
-  <DateDisplay date={results[0]?.completedAt} customTooltipFormat="h:mm aaaaa'm'" />
+  <DateDisplay date={results[0]?.completedAt} timeOnlyTooltip />
 );
 
 export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) => {
