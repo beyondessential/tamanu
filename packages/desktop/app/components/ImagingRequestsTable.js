@@ -28,8 +28,10 @@ const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || '
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
-const getCompletedDate = ({ results }) => <DateDisplay date={results[0].completedAt} />;
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
+const getCompletedDate = ({ results }) => (
+  <DateDisplay date={results[0]?.completedAt} timeOnlyTooltip />
+);
 
 export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) => {
   const dispatch = useDispatch();
@@ -73,7 +75,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
   const selectImagingRequest = useCallback(
     async imagingRequest => {
       const { encounter } = imagingRequest;
-      const patientId = params.patientId || encounter.patientId;
+      const patientId = params.patientId || encounter.patient.id;
       if (encounter) {
         await loadEncounter(encounter.id);
         await dispatch(reloadPatient(patientId));
