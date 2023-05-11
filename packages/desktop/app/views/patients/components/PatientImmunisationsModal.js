@@ -9,6 +9,6 @@ export const PatientImmunisationsModal = React.memo(({ open, patient, onClose, .
     onClose={onClose}
     {...props}
   >
-    <ImmunisationsTable patient={patient} />
+    <ImmunisationsTable patient={patient} viewOnly />
   </Modal>
 ));
