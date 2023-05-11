@@ -13,7 +13,7 @@ import { NoteItem } from './NoteItem';
 
 @Entity('notePage')
 export class NotePage extends BaseModel implements INotePage {
-  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ type: 'varchar', nullable: false })
   noteType: NoteType;

@@ -49,6 +49,9 @@ export class LabRequest extends Model {
             return generateDisplayId();
           },
         },
+        publishedDate: dateTimeType('publishedDate', {
+          allowNull: true,
+        }),
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
