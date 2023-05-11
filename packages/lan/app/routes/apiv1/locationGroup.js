@@ -69,8 +69,8 @@ locationGroup.get(
        patients.last_name,
        patients.date_of_birth,
        patients.sex,
-       encounters.start_date as arrival_date,
-       diagnosis.name as diagnosis,
+       encounters.start_date AS arrival_date,
+       diagnosis.name AS diagnosis,
        note_items.content AS notes,
        note_pages.created_at
         FROM locations
