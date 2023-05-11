@@ -47,7 +47,7 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
   },
 ];
 
-export const CategoryField = ({ setCategory, setVaccineLabel }) => (
+export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
   <FullWidthCol>
     <Field
       name="category"
@@ -57,6 +57,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel }) => (
       onChange={e => {
         setCategory(e.target.value);
         setVaccineLabel(null);
+        resetForm();
       }}
       required
     />

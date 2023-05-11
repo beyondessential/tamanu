@@ -10,26 +10,39 @@ export const SuggesterSelectField = React.memo(
     const api = useApi();
     const [options, setOptions] = useState(initialOptions);
 
+    // We need this hook to fetch the label of the current value beside the other useEffect hooks to fetch all of the options.
+    // This is because the 2nd useEffect hooks will only fetch options available in the current facility,
+    // and the current value may belong to a different facility.
     useEffect(() => {
       // If a value is set, fetch the record to display it's name
       if (field.value) {
-        api
-          .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(field.value)}`)
-          .then(({ id, name }) => {
-            setOptions(currentOptions =>
-              unionBy(
-                currentOptions,
-                [
-                  {
-                    value: id,
-                    label: name,
-                  },
-                ],
-                'value',
-              ),
-            );
-          });
+        let values;
+        if (isMulti) {
+          values = Array.isArray(field.value) ? field.value : field.value.split(',');
+        } else {
+          values = [field.value];
+        }
+
+        for (const value of values) {
+          api
+            .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(value)}`)
+            .then(({ id, name }) => {
+              setOptions(currentOptions =>
+                unionBy(
+                  currentOptions,
+                  [
+                    {
+                      value: id,
+                      label: name,
+                    },
+                  ],
+                  'value',
+                ),
+              );
+            });
+        }
       }
+
       // Only do the fetch when the component first mounts
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

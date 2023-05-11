@@ -55,7 +55,9 @@ export const VaccineGivenForm = ({
   vaccineOptions,
   administeredOptions,
   editMode = false,
+  resetForm,
   submitForm,
+  setErrors,
   category,
   scheduleOptions,
   onCancel,
@@ -72,25 +74,15 @@ export const VaccineGivenForm = ({
             category={category}
             setCategory={setCategory}
             setVaccineLabel={setVaccineLabel}
-            onChange={(_e, value) => {
-              const newValues = { ...values };
-              if (value !== VACCINE_CATEGORIES.OTHER) {
-                delete newValues.vaccineName;
-                delete newValues.vaccineBrand;
-                delete newValues.disease;
-              } else {
-                delete newValues.scheduledVaccineId;
-              }
-
-              setValues(newValues);
-            }}
+            resetForm={resetForm}
           />
           <FullWidthCol>
             <Field
               name="givenElsewhere"
-              label="Given elsewhere"
+              label="Given elsewhere (e.g overseas)"
               component={CheckField}
               onChange={(_e, value) => {
+                setErrors({});
                 const newValues = { ...values };
                 delete newValues.givenBy;
                 if (!value) {

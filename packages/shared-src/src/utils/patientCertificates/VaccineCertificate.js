@@ -42,7 +42,8 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }, getLocalisation) => getDisplayDate(date, undefined, getLocalisation),
+    accessor: ({ date }, getLocalisation) =>
+      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
   },
   {
     key: 'batch',
