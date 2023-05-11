@@ -66,8 +66,13 @@ const SurveyFlow = ({ patient, currentUser }) => {
       if (programId === selectedProgramId) {
         return;
       }
-
       setSelectedProgramId(programId);
+
+      if (!programId) {
+        setSurveys(null);
+        return;
+      }
+
       const { data } = await api.get(`program/${programId}/surveys`);
       setSurveys(
         data
