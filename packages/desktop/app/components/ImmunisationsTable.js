@@ -113,6 +113,7 @@ export const ImmunisationsTable = React.memo(
         columns={COLUMNS}
         optionRow={viewOnly ? null : notGivenCheckBox}
         noDataMessage="No vaccinations found"
+        {...(viewOnly ? { allowExport: false, page: null, rowsPerPage: null } : {})}
       />
     );
   },
