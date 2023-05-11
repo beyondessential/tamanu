@@ -259,7 +259,7 @@ patientVaccineRoutes.get(
           // Sorting from oldest to newest we want the null values to show at the start of the list, and when sorting
           // from newest to oldest we want the null values to show at the end of the list
           orderBy === 'date'
-            ? `${order} NULLS ${order.toLowerCase() === 'asc' ? 'FIRST' : 'LAST'}`
+            ? order.toLowerCase() === 'asc' ? 'ASC NULLS FIRST' : 'DESC NULLS LAST'
             : order,
         ],
       ],
