@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 
 import { VACCINATION_CERTIFICATE } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils/patientCertificates';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -33,7 +34,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
-        createdAt: new Date(),
+        createdAt: getCurrentDateString(),
       });
     },
     [api, patient.id, printedBy],
@@ -60,7 +61,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           logoSrc={logo}
           signingSrc={footerImg}
           printedBy={printedBy}
-          printedDate={new Date()}
+          printedDate={getCurrentDateString()}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>
