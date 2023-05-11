@@ -20,7 +20,25 @@ import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 
-export const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
+const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
+  date: yup.string().when('givenElsewhere', {
+    is: false,
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
+  }),
+  locationId: yup.string().when('givenElsewhere', {
+    is: false,
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
+  }),
+  departmentId: yup.string().when('givenElsewhere', {
+    is: false,
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
+  }),
+});
+
+export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATION.shape({
   category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   vaccineLabel: yup.string().when('category', {
     is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
@@ -64,7 +82,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const [vaccineOptions, setVaccineOptions] = useState([]);
-  const [category, setCategory] = useState(null);
+  const [category, setCategory] = useState(VACCINE_CATEGORIES.ROUTINE);
   const [vaccineLabel, setVaccineLabel] = useState();
 
   const {
@@ -126,6 +144,10 @@ export const VaccineForm = ({
     );
   }
 
+  const baseSchemeValidation = editMode
+    ? BASE_VACCINE_SCHEME_VALIDATION
+    : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
+
   return (
     <Form
       onSubmit={data => onSubmit({ ...data, category })}
@@ -133,6 +155,7 @@ export const VaccineForm = ({
       initialValues={
         !editMode
           ? {
+              category: VACCINE_CATEGORIES.ROUTINE,
               date: getCurrentDateTimeString(),
               locationGroupId: !currentEncounter
                 ? vaccinationDefaults.data?.locationGroupId
@@ -151,15 +174,16 @@ export const VaccineForm = ({
               ...currentVaccineRecordValues,
             }
       }
-      validationSchema={BASE_VACCINE_SCHEME_VALIDATION.shape({
+      validationSchema={baseSchemeValidation.shape({
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
           VACCINE_GIVEN_VALIDATION_SCHEMA),
       })}
-      render={({ submitForm, resetForm, values, setValues }) => (
+      render={({ submitForm, resetForm, setErrors, values, setValues }) => (
         <VaccineFormComponent
           vaccineRecordingType={vaccineRecordingType}
           submitForm={submitForm}
           resetForm={resetForm}
+          setErrors={setErrors}
           editMode={editMode}
           values={values}
           setValues={setValues}
@@ -182,6 +206,7 @@ const VaccineFormComponent = ({
   vaccineRecordingType,
   submitForm,
   resetForm,
+  setErrors,
   values,
   setValues,
   patientId,
@@ -200,13 +225,15 @@ const VaccineFormComponent = ({
   return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
     <VaccineGivenForm
       {...props}
+      resetForm={resetForm}
+      setErrors={setErrors}
       submitForm={submitForm}
       values={values}
       patientId={patientId}
       setValues={setValues}
     />
   ) : (
-    <VaccineNotGivenForm {...props} submitForm={submitForm} />
+    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />
   );
 };
 

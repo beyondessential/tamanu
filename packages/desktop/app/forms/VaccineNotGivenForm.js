@@ -25,6 +25,7 @@ export const VaccineNotGivenForm = ({
   vaccineOptions,
   administeredOptions,
   editMode = false,
+  resetForm,
   submitForm,
   category,
   scheduleOptions,
@@ -38,6 +39,7 @@ export const VaccineNotGivenForm = ({
         category={category}
         setCategory={setCategory}
         setVaccineLabel={setVaccineLabel}
+        resetForm={resetForm}
       />
     )}
     {category === VACCINE_CATEGORIES.OTHER ? (
