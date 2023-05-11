@@ -27,7 +27,7 @@ const Spacer = styled.div`
   width: 100%;
 `;
 
-const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt'];
+const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt', 'allFacilities'];
 
 const useAdvancedFields = (advancedFields, completedStatus) => {
   const { searchParameters, setSearchParameters } = useImagingRequests(
