@@ -47,7 +47,8 @@ locationGroup.get(
 locationGroup.get(
   '/:id/handoverNotes',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Location');
+    checkHandoverNotesPermissions(req);
+
     if (!config.serverFacilityId) {
       res.send({});
       return;
@@ -144,3 +145,11 @@ locationGroup.get(
     res.send({ locationGroup: group, data });
   }),
 );
+
+function checkHandoverNotesPermissions(req) {
+  req.checkPermission('list', 'Patient');
+  req.checkPermission('read', 'LocationGroup');
+  req.checkPermission('read', 'Location');
+  req.checkPermission('read', 'Encounter');
+  req.checkPermission('read', 'EncounterNote');
+}
