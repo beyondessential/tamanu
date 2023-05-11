@@ -38,3 +38,19 @@ export async function createAllergy(models) {
     name: 'Wheat',
   });
 }
+
+export async function createPermission(models, { verb, noun, objectId, roleId }) {
+  await models.Permission.create({
+    verb,
+    noun,
+    objectId,
+    roleId,
+  });
+}
+
+export async function createRole(models, { id, name }) {
+  await models.Role.create({
+    id,
+    name,
+  });
+}

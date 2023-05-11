@@ -7,6 +7,8 @@ import {
   createAllergy,
   createDiagnosis,
   createPatientFieldDefCategory,
+  createPermission,
+  createRole,
 } from './referenceDataUtils';
 
 describe('Reference data exporter', () => {
@@ -76,9 +78,9 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name'],
-            ['icd10-M79-7', 'M79.7', 'Myofibrosis'],
-            ['icd10-S79-9', 'S79.9', 'Thigh injury'],
+            ['id', 'code', 'name', 'visibilityStatus'],
+            ['icd10-M79-7', 'M79.7', 'Myofibrosis', 'current'],
+            ['icd10-S79-9', 'S79.9', 'Thigh injury', 'current'],
           ],
           name: 'Diagnosis',
         },
@@ -109,9 +111,9 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name'],
-            ['allergy-Sesame', 'Sesame', 'Sesame'],
-            ['allergy-Wheat', 'Wheat', 'Wheat'],
+            ['id', 'code', 'name', 'visibilityStatus'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
           ],
           name: 'Allergy',
         },
@@ -128,17 +130,17 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name'],
-            ['allergy-Sesame', 'Sesame', 'Sesame'],
-            ['allergy-Wheat', 'Wheat', 'Wheat'],
+            ['id', 'code', 'name', 'visibilityStatus'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
           ],
           name: 'Allergy',
         },
         {
           data: [
-            ['id', 'code', 'name'],
-            ['icd10-M79-7', 'M79.7', 'Myofibrosis'],
-            ['icd10-S79-9', 'S79.9', 'Thigh injury'],
+            ['id', 'code', 'name', 'visibilityStatus'],
+            ['icd10-M79-7', 'M79.7', 'Myofibrosis', 'current'],
+            ['icd10-S79-9', 'S79.9', 'Thigh injury', 'current'],
           ],
           name: 'Diagnosis',
         },
@@ -166,6 +168,7 @@ describe('Reference data exporter', () => {
               'dateOfDeath',
               'sex',
               'email',
+              'visibilityStatus',
               'villageId',
               'mergedIntoId',
             ],
@@ -180,6 +183,7 @@ describe('Reference data exporter', () => {
               patient.dateOfDeath,
               patient.sex,
               patient.email,
+              patient.visibilityStatus,
               patient.villageId,
               patient.mergedIntoId,
             ],
@@ -216,6 +220,7 @@ describe('Reference data exporter', () => {
               'dateOfDeath',
               'sex',
               'email',
+              'visibilityStatus',
               'villageId',
               'mergedIntoId',
             ],
@@ -230,6 +235,7 @@ describe('Reference data exporter', () => {
               patient.dateOfDeath,
               patient.sex,
               patient.email,
+              patient.visibilityStatus,
               patient.villageId,
               patient.mergedIntoId,
             ],
@@ -238,17 +244,17 @@ describe('Reference data exporter', () => {
         },
         {
           data: [
-            ['id', 'code', 'name'],
-            ['allergy-Sesame', 'Sesame', 'Sesame'],
-            ['allergy-Wheat', 'Wheat', 'Wheat'],
+            ['id', 'code', 'name', 'visibilityStatus'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
           ],
           name: 'Allergy',
         },
         {
           data: [
-            ['id', 'code', 'name'],
-            ['icd10-M79-7', 'M79.7', 'Myofibrosis'],
-            ['icd10-S79-9', 'S79.9', 'Thigh injury'],
+            ['id', 'code', 'name', 'visibilityStatus'],
+            ['icd10-M79-7', 'M79.7', 'Myofibrosis', 'current'],
+            ['icd10-S79-9', 'S79.9', 'Thigh injury', 'current'],
           ],
           name: 'Diagnosis',
         },
@@ -260,5 +266,123 @@ describe('Reference data exporter', () => {
   it('Should throw an error when passing an wrong data type', async () => {
     await createPatientFieldDefCategory(models);
     await expect(referenceDataExporter(models, { 1: 'wrongDataType' })).rejects.toThrow();
+  });
+});
+
+describe('Permission and Roles exporter', () => {
+  const writeExcelFileSpy = jest.spyOn(excelUtils, 'writeExcelFile').mockReturnValue({});
+  let ctx;
+  let models;
+
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    models = ctx.store.models;
+  });
+
+  afterAll(() => ctx.close());
+
+  afterEach(async () => {
+    const { Permission, Role } = ctx.store.models;
+    jest.clearAllMocks();
+    await Permission.destroy({ where: {}, force: true });
+    await Role.destroy({ where: {}, force: true });
+  });
+
+  it('Should export a file with no data if there is no permission and roles', async () => {
+    await referenceDataExporter(models, { 1: 'permission', 2: 'role' });
+    expect(writeExcelFileSpy).toBeCalledWith(
+      [
+        {
+          data: [],
+          name: 'Permission',
+        },
+        {
+          data: [],
+          name: 'Role',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should export permissions with one aditional column for admin Role', async () => {
+    await createRole(models, { id: 'admin', name: 'Admin' });
+    await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
+    await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'admin' });
+    await createPermission(models, { verb: 'list', noun: 'Patient', roleId: 'admin' });
+    await createPermission(models, {
+      verb: 'read',
+      noun: 'Report',
+      objectId: 'new-patients',
+      roleId: 'admin',
+    });
+
+    await referenceDataExporter(models, { 1: 'permission', 2: 'role' });
+    expect(writeExcelFileSpy).toBeCalledWith(
+      [
+        {
+          data: [
+            ['verb', 'noun', 'objectId', 'admin'],
+            ['list', 'User', null, 'y'],
+            ['list', 'ReferenceData', null, 'y'],
+            ['list', 'Patient', null, 'y'],
+            ['read', 'Report', 'new-patients', 'y'],
+          ],
+          name: 'Permission',
+        },
+        {
+          data: [
+            ['id', 'name'],
+            ['admin', 'Admin'],
+          ],
+          name: 'Role',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should export permissions with two aditional columns for admin/reception Role', async () => {
+    await createRole(models, { id: 'admin', name: 'Admin' });
+    await createRole(models, { id: 'reception', name: 'Reception' });
+    await createPermission(models, { verb: 'list', noun: 'User', roleId: 'reception' });
+    await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'reception' });
+
+    await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
+    await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'admin' });
+    await createPermission(models, { verb: 'write', noun: 'User', roleId: 'admin' });
+    await createPermission(models, { verb: 'write', noun: 'ReferenceData', roleId: 'admin' });
+    await createPermission(models, {
+      verb: 'read',
+      noun: 'Report',
+      objectId: 'new-patients',
+      roleId: 'admin',
+    });
+
+    await referenceDataExporter(models, { 1: 'permission', 2: 'role' });
+    expect(writeExcelFileSpy).toBeCalledWith(
+      [
+        {
+          data: [
+            ['verb', 'noun', 'objectId', 'reception', 'admin'],
+            ['list', 'User', null, 'y', 'y'],
+            ['list', 'ReferenceData', null, 'y', 'y'],
+            ['write', 'User', null, '', 'y'],
+            ['write', 'ReferenceData', null, '', 'y'],
+            ['read', 'Report', 'new-patients', '', 'y'],
+          ],
+          name: 'Permission',
+        },
+        {
+          data: [
+            ['id', 'name'],
+            ['admin', 'Admin'],
+            ['reception', 'Reception'],
+          ],
+          name: 'Role',
+        },
+      ],
+      '',
+    );
   });
 });
