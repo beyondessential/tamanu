@@ -6,14 +6,10 @@ import { useParams } from 'react-router-dom';
 import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
-
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-
 import { CancelModal } from '../../components/CancelModal';
-import { IMAGING_REQUEST_STATUS_OPTIONS, Colors } from '../../constants';
-import { useCertificate } from '../../utils/useCertificate';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -30,60 +26,27 @@ import {
   TextField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-import { ImagingRequestPrintout } from '../../components/PatientPrinting';
+import { useEncounterData } from '../../api/queries';
+import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
-import { useEncounterData } from '../../api/queries';
 
-const PrintButton = ({ imagingRequest, patient }) => {
-  const api = useApi();
+const PrintButton = ({ imagingRequest }) => {
   const { modal } = useParams();
-  const certificate = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
 
-  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
-    imagingRequest.encounterId,
-  );
-
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
-    ['additionalData', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
-  );
-  const isVillageEnabled = !!patient?.villageId;
-  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
-    ['village', patient.villageId],
-    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
-    {
-      enabled: isVillageEnabled,
-    },
-  );
-  const isLoading =
-    isEncounterLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
+  const { data: encounter, isLoading } = useEncounterData(imagingRequest.encounterId);
 
   return (
     <>
-      <Modal
-        title="Imaging Request"
-        open={isModalOpen}
-        onClose={closeModal}
-        width="md"
-        color={Colors.white}
-        printable
-      >
+      <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
         {isLoading ? (
           <LoadingIndicator />
         ) : (
-          <ImagingRequestPrintout
-            imagingRequest={[imagingRequest]}
-            patient={patient}
-            village={village}
-            additionalData={additionalData}
-            encounter={encounter}
-            certificate={certificate}
-          />
+          <ImagingRequestPrintout encounter={encounter} imagingRequests={[imagingRequest]} />
         )}
       </Modal>
       <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
@@ -132,6 +95,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
+          required
         />
       )}
       <TextInput
@@ -202,20 +166,15 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
       <FormGrid columns={2}>
         <Field
           label="Completed by"
-          name="newResult.completedById"
+          name="newResultCompletedBy"
           placeholder="Search"
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field
-          label="Completed"
-          name="newResult.completedAt"
-          saveDateAsString
-          component={DateTimeField}
-        />
+        <Field label="Completed" name="newResultDate" saveDateAsString component={DateTimeField} />
         <Field
           label="Result description"
-          name="newResult.description"
+          name="newResultDescription"
           placeholder="Result description..."
           multiline
           component={TextField}
@@ -241,19 +200,21 @@ const ImagingRequestInfoPane = React.memo(
             'status',
             'completedById',
             'locationGroupId',
-            'newResult',
+            'newResultCompletedBy',
+            'newResultDate',
+            'newResultDescription',
           );
           onSubmit(updateValues);
         }}
         enableReinitialize // Updates form to reflect changes in initialValues
         initialValues={{
           ...imagingRequest,
-          newResult: {
-            completedAt: getCurrentDateTimeString(),
-          },
+          newResultCompletedBy: null,
+          newResultDate: getCurrentDateTimeString(),
+          newResultDescription: '',
         }}
       >
-        {({ values }) => {
+        {({ values, dirty, handleChange }) => {
           return (
             <Form>
               <ImagingRequestSection
@@ -267,13 +228,19 @@ const ImagingRequestInfoPane = React.memo(
               {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
                 <ImagingResultsSection
                   {...{
+                    dirty,
                     values,
+                    handleChange,
                     practitionerSuggester,
                   }}
                 />
               )}
               <ButtonRow style={{ marginTop: 20 }}>
-                {!isCancelled && <Button type="submit">Save</Button>}
+                {!isCancelled && (
+                  <Button disabled={!dirty} type="submit">
+                    Save
+                  </Button>
+                )}
               </ButtonRow>
             </Form>
           );
