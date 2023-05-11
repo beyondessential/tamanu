@@ -5,7 +5,7 @@ import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { SearchTable } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
-  getRequestedBy,
+  getStatus,
   getPatientName,
   getPatientDisplayId,
   getRequestType,
@@ -30,15 +30,22 @@ export const LabRequestsTable = React.memo(
           title: 'Patient',
           accessor: getPatientName,
           maxWidth: 200,
+          sortable: false,
         },
-        { key: 'requestId', title: 'Test ID', accessor: getRequestId },
-        { key: 'testCategory', title: 'Test category', accessor: getRequestType },
+        { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
         { key: 'labTestPanelName', title: 'Panel' },
+        { key: 'testCategory', title: 'Test category', accessor: getRequestType },
         { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
-        { key: 'requestedBy', title: 'Requested by', accessor: getRequestedBy },
         publishedStatus
-          ? { key: 'publishedDate', title: 'Published', accessor: getPublishedDate }
+          ? { key: 'publishedDate', title: 'Completed', accessor: getPublishedDate }
           : { key: 'priority', title: 'Priority', accessor: getPriority },
+        {
+          key: 'status',
+          title: 'Status',
+          accessor: getStatus,
+          maxWidth: 200,
+          sortable: !publishedStatus,
+        },
       ];
     }, [publishedStatus]);
     const dispatch = useDispatch();
