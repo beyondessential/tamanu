@@ -4,9 +4,12 @@ import { Referral } from './Referral';
 import { IUser } from '~/types';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { LabRequest } from './LabRequest';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('user')
 export class User extends BaseModel implements IUser {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Index()
   @Column({ unique: true })
   email: string;

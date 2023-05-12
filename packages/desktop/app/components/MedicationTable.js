@@ -6,14 +6,15 @@ import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
-import { ENCOUNTER_TAB_NAMES } from '../views/patients/encounterTabNames';
+import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
+import { getFullLocationName } from '../utils/location';
 
 const getMedicationName = ({ medication }) => medication.name;
 
 const MEDICATION_COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-  { key: 'medication.name', title: 'Drug', accessor: getMedicationName },
+  { key: 'medication.name', title: 'Drug', accessor: getMedicationName, sortable: false },
   { key: 'prescription', title: 'Prescription' },
   { key: 'route', title: 'Route' },
   {
@@ -21,7 +22,12 @@ const MEDICATION_COLUMNS = [
     title: 'End Date',
     accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
   },
-  { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' },
+  {
+    key: 'prescriber',
+    title: 'Prescriber',
+    accessor: data => data?.prescriber?.displayName ?? '',
+    sortable: false,
+  },
 ];
 
 const FULL_LISTING_COLUMNS = [
@@ -40,7 +46,7 @@ const FULL_LISTING_COLUMNS = [
   {
     key: 'location',
     title: 'Location',
-    accessor: ({ encounter }) => encounter.location.name,
+    accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },
   ...MEDICATION_COLUMNS,

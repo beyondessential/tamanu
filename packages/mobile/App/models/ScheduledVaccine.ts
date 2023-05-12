@@ -4,9 +4,12 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { IScheduledVaccine } from '~/types';
 import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('scheduled_vaccine')
 export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column({ nullable: true })
   index?: number;
 
@@ -35,5 +38,4 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
 
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
-
 }

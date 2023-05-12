@@ -5,7 +5,7 @@ const prehashed12345Password = '$2b$10$HViO/gGVnhXT/pKmWoleBe6kRIiN0vXnNKGvgdRq5
 const buildUser = u => ({
   ...u,
   displayName: u.name,
-  email: `${u._id}@xyz.com`,
+  email: `${u.id}@xyz.com`,
   password: prehashed12345Password,
 });
 export const USERS = splitIds(`

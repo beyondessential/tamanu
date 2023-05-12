@@ -71,6 +71,5 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // the identifier with the values provided
     const queryInterface = this.sequelize.getQueryInterface();
     await queryInterface.bulkUpdate('encounter_medications', values, identifier);
-    log.info('MedicationDiscontinuer finished running');
   }
 }

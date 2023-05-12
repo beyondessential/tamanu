@@ -16,18 +16,33 @@ export enum SurveyTypes {
   Programs = 'programs',
   Referral = 'referral',
   Obsolete = 'obsolete',
+  Vitals = 'vitals',
 }
+
+export type SurveyScreenValidationCriteria = {
+  min?: number;
+  max?: number;
+  mandatory?: boolean;
+  normalRange?: { min: number; max: number };
+};
+
+export type SurveyScreenConfig = {
+  rounding?: number;
+  column?: string;
+  source?: string;
+  scope?: string;
+  writeToPatient?: {
+    fieldType: string;
+  }
+};
 
 export interface ISurveyScreenComponent {
   id: ID;
-
   required: boolean;
-
   survey?: ISurvey;
   surveyId?: string;
   dataElement?: IProgramDataElement;
   dataElementId?: string;
-
   screenIndex?: number;
   componentIndex?: number;
   text?: string;
@@ -38,9 +53,16 @@ export interface ISurveyScreenComponent {
   options?: string;
   calculation?: string;
   source?: string;
-
-  getConfigObject();
+  getConfigObject: () => SurveyScreenConfig;
+  getValidationCriteriaObject: () => SurveyScreenValidationCriteria;
   getOptions();
+}
+
+export interface IVitalsSurvey {
+  id: ID;
+  name: string;
+  components: ISurveyScreenComponent[];
+  dateComponent: ISurveyScreenComponent;
 }
 
 export enum DataElementType {

@@ -1,5 +1,5 @@
 import { EmailService } from './services/EmailService';
-import { initDatabase } from './database';
+import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 
 export class ApplicationContext {
@@ -9,10 +9,30 @@ export class ApplicationContext {
 
   integrations = null;
 
+  closeHooks = [];
+
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
+    this.closePromise = new Promise(resolve => {
+      this.onClose(resolve);
+    });
     await initIntegrations(this);
     return this;
+  }
+
+  onClose(hook) {
+    this.closeHooks.push(hook);
+  }
+
+  close = async () => {
+    for (const hook of this.closeHooks) {
+      await hook();
+    }
+    await closeDatabase();
+  };
+
+  async waitForClose() {
+    return this.closePromise;
   }
 }

@@ -89,12 +89,10 @@ describe('importReport actions', () => {
     });
     it('calls the correct functions and creates version', async () => {
       const readFileSpy = jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData());
-      const explainAnalyzeQuerySpy = jest
-        .spyOn(importUtils, 'explainAnalyzeQuery')
-        .mockResolvedValue();
+      const verifyQuerySpy = jest.spyOn(importUtils, 'verifyQuery').mockResolvedValue();
       await createVersion('/path', mockDefinition, mockVersions, mockStore, true);
       expect(readFileSpy).toHaveBeenCalledWith('/path');
-      expect(explainAnalyzeQuerySpy).toHaveBeenCalledWith(
+      expect(verifyQuerySpy).toHaveBeenCalledWith(
         'test-query',
         [{ name: 'test', parameterField: 'TestField' }],
         mockStore,
@@ -118,7 +116,7 @@ describe('importReport actions', () => {
     });
     it('calls the correct functions and updates version when versionNumber supplied', async () => {
       jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData(1));
-      jest.spyOn(importUtils, 'explainAnalyzeQuery').mockResolvedValue();
+      jest.spyOn(importUtils, 'verifyQuery').mockResolvedValue();
       await createVersion('/path', mockDefinition, [{ versionNumber: 1 }], mockStore);
       expect(log.warn).nthCalledWith(1, `Version 1 already exists, ${OVERWRITING_TEXT}`);
       expect(mockStore.models.ReportDefinitionVersion.upsert).toBeCalledWith({
@@ -134,7 +132,7 @@ describe('importReport actions', () => {
     });
     it('throws error when versionNumber is invalid', async () => {
       jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData(3));
-      jest.spyOn(importUtils, 'explainAnalyzeQuery').mockResolvedValue();
+      jest.spyOn(importUtils, 'verifyQuery').mockResolvedValue();
       expect(
         createVersion('/path', mockDefinition, [{ versionNumber: 1 }], mockStore),
       ).rejects.toThrow(getVersionError({ versionNumber: 3 }));

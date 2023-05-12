@@ -1,8 +1,10 @@
 import { DataTypes } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildNoteItemLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 
 export class NoteItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -28,6 +30,7 @@ export class NoteItem extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveContent() {
             if (!this.content) {
@@ -55,4 +58,6 @@ export class NoteItem extends Model {
       as: 'onBehalfOf',
     });
   }
+
+  static buildSyncFilter = buildNoteItemLinkedSyncFilter;
 }

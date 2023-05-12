@@ -81,7 +81,5 @@ export class DeceasedPatientDischarger extends ScheduledTask {
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
-
-    log.info('DeceasedPatientDischarger finished running');
   }
 }

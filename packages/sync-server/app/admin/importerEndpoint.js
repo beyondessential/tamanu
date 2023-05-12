@@ -7,6 +7,7 @@ import { Sequelize } from 'sequelize';
 
 import { getUploadedData } from 'shared/utils/getUploadedData';
 import { log } from 'shared/services/logging/log';
+import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 
 import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';
@@ -43,7 +44,19 @@ export async function importerTransaction({
         // strongest level to be sure to read/write good data
         isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
       },
-      async () => {
+      async transaction => {
+        // acquire a lock on the sync time row in the local system facts table, so that all imported
+        // changes have the same updated_at_sync_tick, and no sync pull snapshot can start while this
+        // import is still in progress
+        // the pull snapshot starts by updating the current time, so this locks that out while the
+        // import transaction happens, to avoid the snapshot missing records that get saved during
+        // this import, but aren't visible in the db to be snapshot until the transaction commits,
+        // so would otherwise be completely skipped over by that sync client
+        await models.LocalSystemFact.findAll({
+          where: { key: CURRENT_SYNC_TIME_KEY },
+          lock: transaction.LOCK.UPDATE,
+        });
+
         try {
           await importer({ errors, models, stats, file, whitelist });
         } catch (err) {

@@ -25,7 +25,7 @@ function createSuggesterRoute(
   searchColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}`,
+    `/${endpoint}$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -40,14 +40,15 @@ function createSuggesterRoute(
       const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
         where,
-        order: [positionQuery, searchColumn],
+        order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
         },
         limit: defaultLimit,
       });
 
-      res.send(results.map(mapper));
+      // Allow for async mapping functions (currently only used by location suggester)
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -64,21 +65,30 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
       req.checkPermission('read', record);
-      res.send(mapper(record));
+      res.send(await mapper(record));
     }),
   );
 }
 
-function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = defaultMapper) {
+function createAllRecordsSuggesterRoute(
+  endpoint,
+  modelName,
+  baseWhere,
+  mapper = defaultMapper,
+  orderColumn = 'name',
+) {
   suggestions.get(
-    `/${endpoint}/all`,
+    `/${endpoint}/all$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
-      const { models } = req;
+      const { models, query } = req;
+
       const model = models[modelName];
       const results = await model.findAll({
-        where,
-        limit: defaultLimit,
+        where: query.filterByFacility
+          ? { ...baseWhere, facilityId: config.serverFacilityId }
+          : baseWhere,
+        order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
       const listing = results.map(mapper);
@@ -102,19 +112,24 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-REFERENCE_TYPE_VALUES.map(typeName =>
+REFERENCE_TYPE_VALUES.forEach(typeName => {
   createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  }),
-);
+  });
 
-REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(typeName, 'ReferenceData', search => ({
     name: { [Op.iLike]: search },
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  })),
+  }));
+});
+
+createAllRecordsSuggesterRoute(
+  'labTestType',
+  'LabTestType',
+  VISIBILITY_CRITERIA,
+  ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 );
 
 const DEFAULT_WHERE_BUILDER = search => ({
@@ -127,6 +142,7 @@ const filterByFacilityWhereBuilder = (search, query) => {
   if (!query.filterByFacility) {
     return baseWhere;
   }
+
   return {
     ...baseWhere,
     facilityId: config.serverFacilityId,
@@ -144,8 +160,54 @@ const createNameSuggester = (
   }));
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
-createNameSuggester('location', 'Location', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
+
+// Calculate the availability of the location before passing on to the front end
+createSuggester(
+  'location',
+  'Location',
+  // Allow filtering by parent location group
+  (search, query) => {
+    const baseWhere = filterByFacilityWhereBuilder(search, query);
+
+    const { q, filterByFacility, ...filters } = query;
+
+    if (!query.parentId) {
+      return { ...baseWhere, ...filters };
+    }
+
+    return {
+      ...baseWhere,
+      parentId: query.parentId,
+    };
+  },
+  async location => {
+    const availability = await location.getAvailability();
+    const { name, code, id, maxOccupancy, facilityId } = location;
+
+    const lg = await location.getLocationGroup();
+    const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+    return {
+      name,
+      code,
+      maxOccupancy,
+      id,
+      availability,
+      facilityId,
+      ...(locationGroup && { locationGroup }),
+    };
+  },
+  'name',
+);
+
+createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
+
+createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
+
+// Location groups filtered by facility. Used in the survey form autocomplete
+createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
+  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+);
 
 createSuggester(
   'survey',

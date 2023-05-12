@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES } from 'shared/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
@@ -8,7 +9,7 @@ import { DropdownButton } from './DropdownButton';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi } from '../api';
+import { useApi, isErrorUnknownAllow404s } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
@@ -22,6 +23,8 @@ const ACTION_MODAL_STATES = {
 const ActionDropdown = React.memo(({ row, refreshTable }) => {
   const [modalStatus, setModalStatus] = useState(ACTION_MODAL_STATES.CLOSED);
   const { loadEncounter } = useEncounter();
+  const patient = useSelector(state => state.patient);
+
   const api = useApi();
 
   // Modal callbacks
@@ -71,6 +74,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
       <EncounterModal
         open={modalStatus === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
         onClose={onCloseModal}
+        patient={patient}
         referral={row}
       />
       <ConfirmModal
@@ -110,10 +114,14 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
       }
 
       try {
-        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
+        const user = await api.get(
+          `user/${encodeURIComponent(referralByAnswer.body)}`,
+          {},
+          { isErrorUnknown: isErrorUnknownAllow404s },
+        );
         setName(user.displayName);
       } catch (e) {
-        if (e.message === '404') {
+        if (e.message === 'Facility server error response: 404') {
           setName(referralByAnswer.body);
         } else {
           setName('Unknown');
@@ -125,12 +133,8 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   return name;
 };
 
-const getDate = ({ surveyResponse }) => {
-  const dataElementId = surveyResponse.survey.components.find(
-    x => x.dataElement.type === 'SubmissionDate',
-  )?.dataElement.id;
-  const submissionDate = surveyResponse.answers.find(x => x.dataElementId === dataElementId)?.body;
-  return <DateDisplay date={submissionDate || surveyResponse.endTime} />;
+const getDate = ({ surveyResponse: { submissionDate } }) => {
+  return <DateDisplay date={submissionDate} />;
 };
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
@@ -141,10 +145,15 @@ const getActions = ({ refreshTable, ...row }) => (
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
-  { key: 'department', title: 'Referral type', accessor: getReferralType },
+  { key: 'referralType', title: 'Referral type', accessor: getReferralType },
   { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
   { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
+  {
+    key: 'actions',
+    title: 'Actions',
+    accessor: getActions,
+    dontCallRowInput: true,
+  },
 ];
 
 export const ReferralTable = React.memo(({ patientId }) => {
@@ -160,6 +169,10 @@ export const ReferralTable = React.memo(({ patientId }) => {
       <DataFetchingTable
         columns={columns}
         endpoint={`patient/${patientId}/referrals`}
+        initialSort={{
+          orderBy: 'date',
+          order: 'asc',
+        }}
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
         allowExport={false}

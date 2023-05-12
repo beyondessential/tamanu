@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
+import { ForbiddenError } from 'shared/errors';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
@@ -73,7 +74,11 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         setRefreshCount(refreshCount + 1);
       } catch (error) {
         // Assume that if submission fails is because of lack of storage
-        setModalStatus(MODAL_STATES.ALERT_NO_SPACE_OPEN);
+        if (error instanceof ForbiddenError) {
+          throw error; // allow error to be caught by error boundary
+        } else {
+          setModalStatus(MODAL_STATES.ALERT_NO_SPACE_OPEN);
+        }
       } finally {
         setIsSubmitting(false);
       }

@@ -25,16 +25,13 @@ export const prepareToastMessage = msg => {
   );
 };
 
-export const initClient = () => {
-  const clientId = localStorage.getItem('clientId');
-  if (!clientId) {
-    localStorage.setItem('clientId', shortid.generate());
+export const getDeviceId = () => {
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    deviceId = `desktop-${shortid.generate()}`;
+    localStorage.setItem('deviceId', deviceId);
   }
-};
-
-export const getClient = () => {
-  initClient();
-  return localStorage.getItem('clientId');
+  return deviceId;
 };
 
 export const notify = (message, props) => {

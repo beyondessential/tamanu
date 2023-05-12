@@ -57,12 +57,16 @@ export const DataFetchingTable = memo(
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
-          const { data, count } = await api.get(endpoint, {
-            page,
-            rowsPerPage,
-            ...sorting,
-            ...fetchOptions,
-          });
+          const { data, count } = await api.get(
+            endpoint,
+            {
+              page,
+              rowsPerPage,
+              ...sorting,
+              ...fetchOptions,
+            },
+            { showUnknownErrorToast: false },
+          );
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
             ...DEFAULT_FETCH_STATE,

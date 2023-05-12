@@ -8,22 +8,28 @@ import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
+  LAB_REQUEST_STATUSES,
 } from '../constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
-  FhirIdentifier,
-  FhirPeriod,
   FhirAddress,
-  FhirCoding,
+  FhirAnnotation,
   FhirCodeableConcept,
+  FhirCoding,
   FhirContactPoint,
   FhirHumanName,
+  FhirIdentifier,
   FhirPatientLink,
+  FhirPeriod,
   FhirReference,
+  FhirExtension,
+  FhirImmunizationPerformer,
+  FhirImmunizationProtocolApplied,
 } from '../services/fhirTypes';
 
 const chance = new Chance();
@@ -195,16 +201,19 @@ export function fakeEncounterMedication(prefix = 'test-') {
   };
 }
 
-const fakeDate = () => new Date(random(0, Date.now()));
-const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
-const fakeDateTimeString = () => toDateTimeString(fakeDate());
-const fakeDateString = () => toDateString(fakeDate());
-const fakeInt = () => random(0, 10);
-const fakeFloat = () => Math.random() * 1000;
-const fakeBool = () => sample([true, false]);
+export const fakeDate = () => new Date(random(0, Date.now()));
+export const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+export const fakeDateTimeString = () => toDateTimeString(fakeDate());
+export const fakeDateString = () => toDateString(fakeDate());
+export const fakeInt = () => random(0, 10);
+export const fakeFloat = () => Math.random() * 1000;
+export const fakeBool = () => sample([true, false]);
+
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
+  'TIMESTAMP WITHOUT TIME ZONE': fakeDate,
   DATETIME: fakeDate,
+  TIMESTAMP: fakeDate,
 
   // custom type used for datetime string storage
   date_time_string: fakeDateTimeString,
@@ -228,27 +237,22 @@ const FIELD_HANDLERS = {
   ENUM: (model, { type }) => sample(type.values),
   UUID: () => fakeUUID(),
 
-  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
-  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
   FHIR_ADDRESS: (...args) => FhirAddress.fake(...args),
-  FHIR_CODING: (...args) => FhirCoding.fake(...args),
+  FHIR_ANNOTATION: (...args) => FhirAnnotation.fake(...args),
   FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
+  FHIR_CODING: (...args) => FhirCoding.fake(...args),
   FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
   FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
+  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
   FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
+  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
   FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
+  FHIR_EXTENSION: (...args) => FhirExtension.fake(...args),
+  FHIR_IMMUNIZATION_PERFORMER: (...args) => FhirImmunizationPerformer.fake(...args),
+  FHIR_IMMUNIZATION_PROTOCOL_APPLIED: (...args) => FhirImmunizationProtocolApplied.fake(...args),
 };
 
-const IGNORED_FIELDS = [
-  'createdAt',
-  'updatedAt',
-  'deletedAt',
-  'pushedAt',
-  'pulledAt',
-  'markedForPush',
-  'markedForSync',
-  'isPushing',
-];
+const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
 
 const MODEL_SPECIFIC_OVERRIDES = {
   Facility: () => ({
@@ -258,11 +262,23 @@ const MODEL_SPECIFIC_OVERRIDES = {
     cityTown: chance.city(),
     division: chance.province({ full: true }),
     type: chance.pickone(['hospital', 'clinic']),
-    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
-  ImagingRequest: () => ({
-    status: chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES)),
-  }),
+  ImagingRequest: () => {
+    const status = chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES));
+    const isCancelled = status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    return {
+      status,
+      reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
+    };
+  },
+  LabRequest: () => {
+    const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
+    const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
+    return {
+      status,
+      reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
+    };
+  },
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     let nameGender;
@@ -278,40 +294,52 @@ const MODEL_SPECIFIC_OVERRIDES = {
       culturalName: chance.first({ gender: nameGender }),
       dateOfDeath: null,
       email: chance.email(),
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
   },
-  PatientAdditionalData: () => ({
-    placeOfBirth: chance.city(),
-    bloodType: chance.pickone(['O', 'A', 'B', 'AB']) + chance.pickone(['+', '-']),
-    primaryContactNumber: chance.phone(),
-    secondaryContactNumber: chance.phone(),
-    maritalStatus: chance.pickone([
-      'Single',
-      'Married',
-      'Widowed',
-      'Divorced',
-      'Separated',
-      'De Facto',
-    ]),
-    cityTown: chance.city(),
-    streetVillage: chance.street(),
-    educationalLevel: chance.pickone([
-      'None',
-      'Primary',
-      'High School',
-      'Bachelors',
-      'Masters',
-      'PhD.',
-    ]),
-    socialMedia: `@${chance.word()}`,
-    title: chance.prefix(),
-    birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
-    drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
-    passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
-    emergencyContactName: chance.name(),
-    emergencyContactNumber: chance.phone(),
-  }),
+  PatientAdditionalData: ({ id, patientId }) => {
+    const commonId = id || patientId || fakeUUID();
+    return {
+      id: commonId,
+      patientId: commonId,
+      placeOfBirth: chance.city(),
+      bloodType: chance.pickone(['O', 'A', 'B', 'AB']) + chance.pickone(['+', '-']),
+      primaryContactNumber: chance.phone(),
+      secondaryContactNumber: chance.phone(),
+      maritalStatus: chance.pickone([
+        'Single',
+        'Married',
+        'Widowed',
+        'Divorced',
+        'Separated',
+        'De Facto',
+      ]),
+      cityTown: chance.city(),
+      streetVillage: chance.street(),
+      educationalLevel: chance.pickone([
+        'None',
+        'Primary',
+        'High School',
+        'Bachelors',
+        'Masters',
+        'PhD.',
+      ]),
+      socialMedia: `@${chance.word()}`,
+      title: chance.prefix(),
+      birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
+      drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
+      passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
+      emergencyContactName: chance.name(),
+      emergencyContactNumber: chance.phone(),
+      updatedAtByField: {},
+    };
+  },
+  PatientFacility: ({ patientId = fakeUUID(), facilityId = fakeUUID() }) => {
+    return {
+      id: `${patientId};${facilityId}`,
+      patientId,
+      facilityId,
+    };
+  },
   PatientDeathData: () => {
     const options = ['yes', 'no', 'unknown', null];
     return {
@@ -338,9 +366,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
     // It will be fixed properly as part of EPI-160
     id: undefined,
+    noteType: chance.pickone(NOTE_TYPE_VALUES),
   }),
   NoteItem: () => ({
     id: undefined,
+  }),
+  Location: () => ({
+    maxOccupancy: 1,
   }),
 };
 
@@ -348,7 +380,7 @@ export const fake = (model, passedOverrides = {}) => {
   const id = fakeUUID();
   const record = {};
   const modelOverridesFn = MODEL_SPECIFIC_OVERRIDES[model.name];
-  const modelOverrides = modelOverridesFn ? modelOverridesFn() : {};
+  const modelOverrides = modelOverridesFn ? modelOverridesFn(passedOverrides) : {};
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
@@ -371,6 +403,10 @@ export const fake = (model, passedOverrides = {}) => {
 
     if (fieldName === 'id') {
       return fakeUUID();
+    }
+
+    if (fieldName === 'visibilityStatus') {
+      return VISIBILITY_STATUSES.CURRENT;
     }
 
     if (FIELD_HANDLERS[type]) {

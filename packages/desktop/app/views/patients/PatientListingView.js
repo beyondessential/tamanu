@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
 
@@ -23,10 +24,10 @@ import {
   sex,
   dateOfBirth,
   status,
-  location,
   department,
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
+import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -42,15 +43,27 @@ const LISTING_COLUMNS = [
   status,
 ];
 
+const locationGroup = {
+  key: 'locationGroupName',
+  title: 'Area',
+  accessor: LocationGroupCell,
+};
+
+const location = {
+  key: 'locationName',
+  title: 'Location',
+  minWidth: 100,
+  accessor: LocationCell,
+};
+
 const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, dateOfBirth]
   .map(column => ({
     ...column,
     sortable: false,
-  }))
-  // the above columns are not sortable due to backend query
+  })) // the above columns are not sortable due to backend query
   // https://github.com/beyondessential/tamanu/pull/2029#issuecomment-1090981599
   // location and department should be sortable
-  .concat([location, department]);
+  .concat([locationGroup, location, department]);
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
@@ -130,7 +143,7 @@ export const PatientListingView = ({ onViewPatient }) => {
         <PatientTable
           onViewPatient={onViewPatient}
           fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={searchParameters}
+          searchParameters={{ isAllPatientsListing: true, ...searchParameters }}
           columns={LISTING_COLUMNS}
         />
       </ContentPane>
@@ -139,13 +152,15 @@ export const PatientListingView = ({ onViewPatient }) => {
 };
 
 export const AdmittedPatientsView = () => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.AdmittedPatientsView,
+  );
   const { facility } = useAuth();
 
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
@@ -158,13 +173,15 @@ export const AdmittedPatientsView = () => {
 };
 
 export const OutpatientsView = () => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.OutpatientsView,
+  );
   const { facility } = useAuth();
 
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
           fetchOptions={{ outpatient: 1 }}

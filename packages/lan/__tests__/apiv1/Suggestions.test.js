@@ -1,7 +1,12 @@
-import { SURVEY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
-import { splitIds, buildDiagnosis } from 'shared/demoData';
-import { createDummyPatient } from 'shared/demoData/patients';
-
+import { SURVEY_TYPES, VISIBILITY_STATUSES, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import {
+  splitIds,
+  buildDiagnosis,
+  createDummyPatient,
+  createDummyEncounter,
+  randomRecords,
+} from 'shared/demoData';
+import { findOneOrCreate } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -23,31 +28,35 @@ describe('Suggestions', () => {
     let searchPatient;
 
     beforeAll(async () => {
-      searchPatient = await models.Patient.create(await createDummyPatient(models, {
-        firstName: 'Test',
-        lastName: 'Appear',
-        displayId: 'abcabc123123',
-      }));
-      await models.Patient.create(await createDummyPatient(models, {
-        firstName: 'Negative',
-        lastName: 'Negative',
-        displayId: 'negative',
-      }));
+      searchPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Test',
+          lastName: 'Appear',
+          displayId: 'abcabc123123',
+        }),
+      );
+      await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Negative',
+          lastName: 'Negative',
+          displayId: 'negative',
+        }),
+      );
     });
-    
+
     it('should get a patient by first name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      expect(body).toHaveLength(1)
+      expect(body).toHaveLength(1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
     });
 
     it('should get a patient by last name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Appear' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -56,7 +65,7 @@ describe('Suggestions', () => {
     it('should get a patient by combined first and last name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test Appear' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -65,7 +74,7 @@ describe('Suggestions', () => {
     it('should get a patient by displayId', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'abcabc123123' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -74,6 +83,135 @@ describe('Suggestions', () => {
     it('should not get patients without permission', async () => {
       const result = await baseApp.get('/v1/suggestions/patient').query({ q: 'anything' });
       expect(result).toBeForbidden();
+    });
+  });
+
+  // Locations suggester has specialised functionality for determining location availability
+  describe('Locations', () => {
+    let occupiedLocation;
+    let reservedLocation;
+    let unrestrictedLocation;
+
+    beforeAll(async () => {
+      [occupiedLocation, reservedLocation, unrestrictedLocation] = await randomRecords(
+        models,
+        'Location',
+        3,
+      );
+
+      await unrestrictedLocation.update({ maxOccupancy: null });
+
+      // An encounter requires a patient
+      const patient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Lauren',
+          lastName: 'Ipsum',
+          displayId: 'lorem',
+        }),
+      );
+      // mark one location as occupied, and one as reserved
+      await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: occupiedLocation.id,
+          plannedLocationId: reservedLocation.id,
+          endDate: null,
+        }),
+      );
+      // mark unrestricted location as occupied
+      await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: unrestrictedLocation.id,
+          plannedLocationId: null,
+          endDate: null,
+        }),
+      );
+    });
+
+    afterAll(async () => {
+      await unrestrictedLocation.update({ maxOccupancy: 1 });
+    });
+
+    it('should calculate location availability and return it with suggestion list', async () => {
+      const result = await userApp.get('/v1/suggestions/location');
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+
+      const occupiedResult = body.find(x => x.id === occupiedLocation.id);
+      expect(occupiedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.OCCUPIED);
+
+      const reservedResult = body.find(x => x.id === reservedLocation.id);
+      expect(reservedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.RESERVED);
+
+      const unrestrictedResult = body.find(x => x.id === unrestrictedLocation.id);
+      expect(unrestrictedResult).toHaveProperty(
+        'availability',
+        LOCATION_AVAILABILITY_STATUS.AVAILABLE,
+      );
+
+      const otherResults = body.filter(
+        x => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
+      );
+      for (const location of otherResults) {
+        expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
+      }
+    });
+
+    it('should filter locations by location group', async () => {
+      await models.Location.truncate({ cascade: true });
+
+      const locationGroup = await findOneOrCreate(models, models.LocationGroup, {
+        id: 'test-area',
+        name: 'Test Area',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 1',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 2',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 3',
+        visibilityStatus: 'current',
+      });
+      const result = await userApp.get('/v1/suggestions/location');
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(3);
+
+      const filteredResult = await userApp.get(
+        '/v1/suggestions/location?locationGroupId=test-area',
+      );
+      expect(filteredResult).toHaveSucceeded();
+      expect(filteredResult?.body?.length).toEqual(2);
+    });
+
+    it('should return facilityId with suggestion list', async () => {
+      await models.Location.truncate({ cascade: true });
+      const facility = await models.Facility.create({
+        id: 'test-facility',
+        code: 'test-facility',
+        name: 'Test Facility',
+      });
+      const locationGroup = await findOneOrCreate(models, models.LocationGroup, {
+        id: 'test-area',
+        name: 'Test Area',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 1',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+        facilityId: facility.id,
+      });
+      const result = await userApp.get('/v1/suggestions/location');
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(1);
+      expect(result.body[0].facilityId).toEqual(facility.id);
     });
   });
 
@@ -246,8 +384,22 @@ describe('Suggestions', () => {
     const { body } = result;
 
     const idArray = body.map(({ id }) => id);
-    expect(idArray).toContain(visible.id); 
-    expect(idArray).not.toContain(invisible.id); 
+    expect(idArray).toContain(visible.id);
+    expect(idArray).not.toContain(invisible.id);
   });
-    
+
+  it('Should get all suggestions on the /all endpoint', async () => {
+    await models.ReferenceData.truncate({ cascade: true });
+    const dummyRecords = (new Array(30)).fill(0).map((_, i) => ({
+      id: `diag-${i}`,
+      type: 'icd10',
+      name: `Diag ${i}`,
+      code: `diag-${i}`,
+    }));
+
+    await models.ReferenceData.bulkCreate(dummyRecords);
+    const result = await userApp.get('/v1/suggestions/icd10/all');
+    expect(result).toHaveSucceeded();
+    expect(result.body).toHaveLength(30);
+  });
 });

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { useQuery } from '@tanstack/react-query';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
@@ -38,7 +39,7 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
-function filterTestTypes(testTypes, { labTestCategoryId }) {
+function filterTestTypes(testTypes, labTestCategoryId) {
   return labTestCategoryId
     ? testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
     : [];
@@ -88,28 +89,23 @@ export const LabRequestForm = ({
   generateDisplayId,
 }) => {
   const api = useApi();
-  const [testTypes, setTestTypes] = useState([]);
 
-  useEffect(() => {
-    (async () => {
-      const labTestTypesData = (await api.get(`labTest/options`)).data;
-
-      setTestTypes(labTestTypesData);
-    })();
-  }, [api]);
+  const { data: testTypes } = useQuery(['labTestTypes'], () =>
+    api.get('suggestions/labTestType/all'),
+  );
 
   const renderForm = ({ values, submitForm }) => {
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const filteredTestTypes = filterTestTypes(testTypes, values);
+    const filteredTestTypes = filterTestTypes(testTypes || [], values.labTestCategoryId);
 
     return (
       <FormGrid>
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
         <Field
           name="requestedDate"
-          label="Order date"
+          label="Request date"
           required
           component={DateTimeField}
           saveDateAsString

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { WebRemote } from '../../sync';
+import { CentralServerConnection } from '../../sync';
 
 export const changePassword = express.Router();
 
@@ -10,10 +10,10 @@ changePassword.post(
     // no permission needed
     req.flagPermissionChecked();
 
-    const { models } = req;
+    const { models, deviceId } = req;
 
-    const remote = new WebRemote();
-    const response = await remote.forwardRequest(req, 'changePassword');
+    const centralServer = new CentralServerConnection({ deviceId });
+    const response = await centralServer.forwardRequest(req, 'changePassword');
 
     // If sync server successful, update password on lan server too
     await updatePasswordOnLanServer(models, req.body);
