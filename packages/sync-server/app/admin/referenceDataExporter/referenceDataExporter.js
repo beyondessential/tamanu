@@ -1,6 +1,7 @@
 import { REFERENCE_TYPE_VALUES } from 'shared/constants';
 import { startCase } from 'lodash';
 import { writeExcelFile } from './excelUtils';
+import { LabTestPanelsConfig } from './customQueryConfig/LabTestPanelsConfig';
 
 const METADATA_COLUMNS = [
   'createdAt',
@@ -18,6 +19,10 @@ const HIDDEN_COLUMNS_PER_MODEL_NAME = {
   ReferenceData: ['type'],
 };
 
+const CUSTOM_MODEL_QUERY_CONFIG = {
+  LabTestPanel: LabTestPanelsConfig,
+};
+
 const getTabName = dataType => {
   return CUSTOM_TAB_NAME[dataType] || startCase(dataType);
 };
@@ -32,6 +37,13 @@ const dataTypeToModelNameAndWhere = dataType => {
   return { modelName: dataType.charAt(0).toUpperCase() + dataType.slice(1), where: {} };
 };
 
+const customModelQueryConfig = (modelName, models) => {
+  const customModelConfig = CUSTOM_MODEL_QUERY_CONFIG[modelName];
+  if (customModelConfig) {
+    return customModelConfig(models);
+  }
+  return {};
+};
 function isDate(dateString) {
   const regEx = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateString || (dateString instanceof String && !dateString.match(regEx))) return false; // Invalid format
@@ -77,11 +89,11 @@ async function getPermissions(models) {
 
 async function buildSheetDataForDataType(models, dataType) {
   const { modelName, where } = dataTypeToModelNameAndWhere(dataType);
-
+  console.log({ modelName, models });
   const isPermissionModel = isPermission(modelName);
   const data = isPermissionModel
     ? await getPermissions(models)
-    : await models[modelName].findAll({ where });
+    : await models[modelName].findAll({ where, ...customModelQueryConfig(modelName, models) });
   if (!data || data.length === 0) {
     return [];
   }
