@@ -15,9 +15,14 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 
-export class OngoingConditionForm extends React.PureComponent {
-  renderForm = ({ submitForm, values }) => {
-    const { editedObject, onCancel, practitionerSuggester, icd10Suggester } = this.props;
+export const OngoingConditionForm = ({
+  onSubmit,
+  editedObject,
+  onCancel,
+  practitionerSuggester,
+  icd10Suggester,
+}) => {
+  const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
     const buttonText = editedObject ? 'Save' : 'Add';
     return (
@@ -68,8 +73,7 @@ export class OngoingConditionForm extends React.PureComponent {
     );
   };
 
-  onSubmit = data => {
-    const { onSubmit } = this.props;
+  const onDataSubmit = data => {
     if (data.resolved) {
       onSubmit(data);
       return;
@@ -80,33 +84,30 @@ export class OngoingConditionForm extends React.PureComponent {
     onSubmit(rest);
   };
 
-  render() {
-    const { editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={this.onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          recordedDate: getCurrentDateTimeString(),
-          resolutionDate: getCurrentDateTimeString(),
-          resolved: false,
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          conditionId: foreignKey('Condition is a required field'),
-          recordedDate: yup.date(),
-          examinerId: yup.string(),
-          note: yup.string(),
+  return (
+    <Form
+      onSubmit={onDataSubmit}
+      render={RenderForm}
+      initialValues={{
+        recordedDate: getCurrentDateTimeString(),
+        resolutionDate: getCurrentDateTimeString(),
+        resolved: false,
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        conditionId: foreignKey('Condition is a required field'),
+        recordedDate: yup.date(),
+        examinerId: yup.string(),
+        note: yup.string(),
 
-          resolved: yup.boolean(),
-          resolutionDate: yup.date(),
-          resolutionPractitionerId: yup.string(),
-          resolutionNote: yup.string(),
-        })}
-      />
-    );
-  }
-}
+        resolved: yup.boolean(),
+        resolutionDate: yup.date(),
+        resolutionPractitionerId: yup.string(),
+        resolutionNote: yup.string(),
+      })}
+    />
+  );
+};
 
 OngoingConditionForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
