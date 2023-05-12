@@ -184,6 +184,8 @@ const medicationColumns = [
 const EncounterOverview = ({
   encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
@@ -191,7 +193,7 @@ const EncounterOverview = ({
     <>
       <DateTimeInput label="Admission date" value={startDate} disabled />
       <TextInput
-        label="Supervising clinician"
+        label={`Supervising ${clinicianText.toLowerCase()}`}
         value={examiner ? examiner.displayName : '-'}
         disabled
       />

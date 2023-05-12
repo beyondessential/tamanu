@@ -3,7 +3,12 @@ import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
-import { DateDisplay, Button, ButtonWithPermissionCheck } from '../../../components';
+import {
+  DateDisplay,
+  Button,
+  ButtonWithPermissionCheck,
+  useLocalisedText,
+} from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
@@ -159,6 +164,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
     api.get(`patient/${patient.id}/currentEncounter`),
   );
@@ -220,7 +226,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <ContentText>{patientStatus}</ContentText>
         </ContentItem>
         <ContentItem>
-          <ContentLabel>Supervising clinician:</ContentLabel>
+          <ContentLabel>{`Supervising ${clinicianText.toLowerCase()}:`}</ContentLabel>
           <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
         <ContentItem>

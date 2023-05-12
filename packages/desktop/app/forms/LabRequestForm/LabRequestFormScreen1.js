@@ -10,6 +10,7 @@ import {
   FormSeparatorLine,
   RadioField,
   SuggesterSelectField,
+  useLocalisedText,
 } from '../../components';
 import { binaryOptions } from '../../constants';
 import { foreignKey } from '../../utils/validation';
@@ -90,6 +91,7 @@ export const LabRequestFormScreen1 = ({
   departmentSuggester,
 }) => {
   const { options } = useLabRequestFormTypeOptions(setFieldValue);
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   return (
     <>
@@ -101,7 +103,7 @@ export const LabRequestFormScreen1 = ({
       </div>
       <Field
         name="requestedById"
-        label="Requesting clinician"
+        label={`Requesting ${clinicianText.toLowerCase()}}`}
         required
         component={AutocompleteField}
         suggester={practitionerSuggester}

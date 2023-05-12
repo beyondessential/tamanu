@@ -17,6 +17,7 @@ import {
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
+import { useLocalisedText } from '../../LocalisedText';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -300,6 +301,7 @@ export const EncounterRecord = React.memo(
     pad,
     medications,
   }) => {
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
@@ -337,10 +339,10 @@ export const EncounterRecord = React.memo(
         <RowContainer>
           <div>
             <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
-            <DisplayValue name="Supervising clinician" size="10px">
+            <DisplayValue name={`Supervising ${clinicianText}`} size="10px">
               {examiner.displayName}
             </DisplayValue>
-            <DisplayValue name="Discharging clinician" size="10px">
+            <DisplayValue name={`Discharging ${clinicianText}`} size="10px">
               {discharge?.discharger.displayName}
             </DisplayValue>
             <DisplayValue name="Reason for encounter" size="10px">

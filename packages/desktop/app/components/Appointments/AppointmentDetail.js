@@ -19,6 +19,7 @@ import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
 import { EncounterModal } from '../EncounterModal';
+import { LocalisedText } from '../LocalisedText';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -296,7 +297,9 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         />
       </FirstRow>
       <Section>
-        <Heading>Clinician</Heading>
+        <Heading>
+          <LocalisedText path="fields.clinician.shortLabel" />
+        </Heading>
         {clinician.displayName}
       </Section>
       <PatientInfo patient={patient} />

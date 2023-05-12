@@ -12,6 +12,7 @@ import {
   Table,
   useSelectableColumn,
   OutlinedButton,
+  useLocalisedText,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotes } from '../../../api/queries';
@@ -120,6 +121,7 @@ export const LabRequestSummaryPane = React.memo(
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
     });
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
     // All the lab requests were made in a batch and have the same details
     const {
@@ -139,7 +141,10 @@ export const LabRequestSummaryPane = React.memo(
         <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
         <Card mb={4}>
           <Column>
-            <CardItem label="Requesting clinician" value={requestedBy?.displayName} />
+            <CardItem
+              label={`Requesting ${clinicianText.toLowerCase()}`}
+              value={requestedBy?.displayName}
+            />
             <CardItem label="Department" value={department?.name} />
             <CardItem label="Sample taken" value={<DateDisplay date={sampleTime} showTime />} />
           </Column>
