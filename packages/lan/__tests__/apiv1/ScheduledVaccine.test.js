@@ -1,4 +1,5 @@
 import { createScheduledVaccine } from 'shared/demoData/vaccines';
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
 describe('Scheduled Vaccine', () => {
@@ -20,7 +21,7 @@ describe('Scheduled Vaccine', () => {
         category: 'Category1',
         label: 'Label1',
         schedule: 'Schedule1',
-        visibilityStatus: 'current',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
     scheduledVaccine2 = await models.ScheduledVaccine.create(
@@ -28,7 +29,7 @@ describe('Scheduled Vaccine', () => {
         category: 'Category2',
         label: 'Label2',
         schedule: 'Schedule2',
-        visibilityStatus: 'current',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
     historicalVisibilityVaccine = await models.ScheduledVaccine.create(
@@ -36,7 +37,7 @@ describe('Scheduled Vaccine', () => {
         category: 'Category3',
         label: 'Label3',
         schedule: 'Schedule3',
-        visibilityStatus: 'historical',
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
       }),
     );
   });
@@ -44,7 +45,7 @@ describe('Scheduled Vaccine', () => {
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.get(`/v1/scheduledVaccine`, {});
+    const result = await noPermsApp.get(`/v1/scheduledVaccine`);
     expect(result).toBeForbidden();
   });
 

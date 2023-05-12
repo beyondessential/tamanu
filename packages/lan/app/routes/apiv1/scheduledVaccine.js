@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from 'shared/constants';
 
 export const scheduledVaccine = express.Router();
 
@@ -13,7 +14,7 @@ scheduledVaccine.get(
     } = req;
 
     const where = {
-      visibilityStatus: 'current',
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       ...(category && { category }),
     };
     const scheduledVaccines = await ScheduledVaccine.findAll({ where });
