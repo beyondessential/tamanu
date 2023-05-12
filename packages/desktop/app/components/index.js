@@ -10,6 +10,7 @@ export * from './FormGrid';
 export * from './FormTooltip';
 export * from './Layout';
 export * from './Modal';
+export * from './ModalActionRow';
 export * from './Notification';
 export * from './PageContainer';
 export * from './Paper';
