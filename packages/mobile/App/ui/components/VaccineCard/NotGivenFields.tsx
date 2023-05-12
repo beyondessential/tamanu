@@ -15,9 +15,9 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
     <RowField label="Date recorded" value={formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)} />
     <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.schedule} />
     <RowField label="Reason" value={administeredVaccine.notGivenReason?.name} />
-    <RowField label="Area" value={administeredVaccine.encounter?.location?.locationGroup?.name} />
-    <RowField label="Location" value={administeredVaccine.encounter?.location?.name} />
-    <RowField label="Department" value={administeredVaccine.encounter?.department?.name} />
+    <RowField label="Area" value={administeredVaccine.location?.locationGroup?.name} />
+    <RowField label="Location" value={administeredVaccine.location?.name} />
+    <RowField label="Department" value={administeredVaccine.department?.name} />
     <RowField label="Supervising clinician" value={administeredVaccine.givenBy} />
     <RowField
       label="Recorded by"

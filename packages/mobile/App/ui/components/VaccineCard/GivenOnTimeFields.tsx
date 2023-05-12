@@ -1,4 +1,6 @@
 import React, { FC } from 'react';
+import { View } from 'react-native';
+
 import { RowField } from './RowField';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -25,9 +27,14 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
     <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.schedule} />
     <RowField label="Batch No." value={administeredVaccine.batch} />
     <RowField label="Injection site" value={administeredVaccine.injectionSite} />
-    <RowField label="Area" value={administeredVaccine.encounter?.location?.locationGroup?.name} />
-    <RowField label="Location" value={administeredVaccine.encounter?.location?.name} />
-    <RowField label="Department" value={administeredVaccine.encounter?.department?.name} />
+    {!administeredVaccine.givenElsewhere ? (
+      <View>
+        <RowField label="Area" value={administeredVaccine.location?.locationGroup?.name} />
+        <RowField label="Location" value={administeredVaccine.location?.name} />
+        <RowField label="Department" value={administeredVaccine.department?.name} />
+      </View>
+    ) : null}
+
     <RowField
       label={administeredVaccine.givenElsewhere ? 'Country' : 'Given by'}
       value={administeredVaccine.givenBy}

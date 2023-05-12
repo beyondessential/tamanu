@@ -42,7 +42,7 @@ export const RowField: FC<RowFieldProps> = ({ label, value }: RowFieldProps) => 
     >
       <StyledText style={styles.labelText}>{label}</StyledText>
     </StyledView>
-    <StyledView width={screenPercentageToDP(48, Orientation.Width)}>
+    <StyledView width={screenPercentageToDP(42, Orientation.Width)}>
       <StyledText style={styles.valueText}>{value || '-'}</StyledText>
     </StyledView>
   </StyledView>
