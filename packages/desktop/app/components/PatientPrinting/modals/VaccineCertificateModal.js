@@ -22,7 +22,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   const { data: vaccineData } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
-    certificate: true,
+    invertNullDateOrdering: true,
     includeNotGiven: false,
   });
   const vaccinations = vaccineData?.data || [];

@@ -227,7 +227,7 @@ patientVaccineRoutes.get(
       order = 'ASC',
       rowsPerPage = null,
       page = 0,
-      certificate = false,
+      invertNullDateOrdering = false,
       ...rest
     } = req.query;
     // Here we create two custom columns with names that can be referenced by the key
@@ -257,7 +257,7 @@ patientVaccineRoutes.get(
     };
 
     let orderWithNulls = order;
-    if (orderBy === 'date' && !certificate) {
+    if (orderBy === 'date' && !invertNullDateOrdering) {
       orderWithNulls = order.toLowerCase() === 'asc' ? 'ASC NULLS FIRST' : 'DESC NULLS LAST';
     }
 
