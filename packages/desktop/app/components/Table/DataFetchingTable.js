@@ -14,7 +14,7 @@ export const DataFetchingTable = memo(
     initialSort = DEFAULT_SORT,
     refreshCount = 0,
     onDataFetched,
-    allRows = false,
+    disablePagination = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -54,7 +54,7 @@ export const DataFetchingTable = memo(
             endpoint,
             {
               page,
-              ...(!allRows ? { rowsPerPage } : {}),
+              ...(!disablePagination ? { rowsPerPage } : {}),
               ...sorting,
               ...fetchOptions,
             },
@@ -93,7 +93,7 @@ export const DataFetchingTable = memo(
       transformRow,
       onDataFetched,
       updateFetchState,
-      allRows,
+      disablePagination,
     ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
@@ -106,7 +106,7 @@ export const DataFetchingTable = memo(
         data={data}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}
-        page={page}
+        page={disablePagination ? null : page}
         count={count}
         onChangePage={setPage}
         onChangeRowsPerPage={setRowsPerPage}

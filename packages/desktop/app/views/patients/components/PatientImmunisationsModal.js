@@ -10,7 +10,7 @@ export const PatientImmunisationsModal = React.memo(({ open, patient, onClose, .
     disableHeaderCloseIcon
     {...props}
   >
-    <ImmunisationsTable patient={patient} viewOnly allRows />
+    <ImmunisationsTable patient={patient} viewOnly disablePagination />
     <ModalActionRow confirmText="Close" onConfirm={onClose} />
   </Modal>
 ));

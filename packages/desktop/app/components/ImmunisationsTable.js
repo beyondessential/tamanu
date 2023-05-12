@@ -72,7 +72,7 @@ const TableHeaderCheckbox = styled(CheckInput)`
 `;
 
 export const ImmunisationsTable = React.memo(
-  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, allRows }) => {
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {
     const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
     const notGivenCheckBox = (
@@ -112,8 +112,9 @@ export const ImmunisationsTable = React.memo(
         fetchOptions={{ includeNotGiven }}
         columns={COLUMNS}
         noDataMessage="No vaccinations found"
-        {...(viewOnly ? { allowExport: false, optionRow: null } : { optionRow: notGivenCheckBox })}
-        {...(allRows ? { page: null, allRows: true } : {})}
+        allowExport={!viewOnly}
+        optionRow={!viewOnly && notGivenCheckBox}
+        disablePagination={disablePagination}
       />
     );
   },
