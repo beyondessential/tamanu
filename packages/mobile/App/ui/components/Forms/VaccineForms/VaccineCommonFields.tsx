@@ -27,14 +27,18 @@ const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }
 
 interface LabelledFieldProps {
   label?: string;
+  required?: boolean;
 }
 
 interface NavigationFieldProps {
   navigation: NavigationProp<any>;
 }
 
-export const DateGivenField = ({ label = 'Date given' }: LabelledFieldProps): JSX.Element => (
-  <Field component={DateField} name="date" label={label} required />
+export const DateGivenField = ({
+  label = 'Date given',
+  required = true,
+}: LabelledFieldProps): JSX.Element => (
+  <Field component={DateField} name="date" label={label} required={required} />
 );
 
 export const BatchField = (): JSX.Element => (
@@ -95,12 +99,7 @@ export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Eleme
 };
 
 export const GivenByField = ({ label = 'Given by' }: LabelledFieldProps): JSX.Element => (
-  <Field
-    component={TextField}
-    label={label}
-    name="givenBy"
-    labelFontSize="14"
-  />
+  <Field component={TextField} label={label} name="givenBy" labelFontSize="14" />
 );
 
 export const RecordedByField = (): JSX.Element => (
