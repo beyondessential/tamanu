@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
@@ -11,6 +12,23 @@ import { Colors } from '../../../constants';
 
 import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsPrintoutModal';
 import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';
+
+const StyledTable = styled(Table)`
+  border: none;
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+  tbody tr td:first-child {
+    border-bottom: none;
+  }
+}`;
+
+const StyledLabelFieldWrapper = styled(OuterLabelFieldWrapper)`
+  .label-field {
+    margin-bottom: 15px;
+  }
+`;
 
 export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
@@ -52,8 +70,8 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
         onClose={() => setOpenPrintoutModal(false)}
       />
 
-      <OuterLabelFieldWrapper label="Select the imaging requests you would like to print">
-        <Table
+      <StyledLabelFieldWrapper label="Select the imaging requests you would like to print">
+        <StyledTable
           headerColor={Colors.white}
           columns={columns}
           data={imagingRequestsData || []}
@@ -63,7 +81,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
           noDataMessage="No imaging requests found"
           allowExport={false}
         />
-      </OuterLabelFieldWrapper>
+      </StyledLabelFieldWrapper>
       <ConfirmCancelRow
         cancelText="Close"
         confirmText="Print"
