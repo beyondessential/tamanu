@@ -222,7 +222,14 @@ patientVaccineRoutes.get(
       : {};
 
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const { orderBy = 'date', order = 'ASC', rowsPerPage = null, page = 0, ...rest } = req.query;
+    const {
+      orderBy = 'date',
+      order = 'ASC',
+      rowsPerPage = null,
+      page = 0,
+      certificate = false,
+      ...rest
+    } = req.query;
     // Here we create two custom columns with names that can be referenced by the key
     // in the column object for the DataFetchingTable. These are used for sorting the table.
     const customSortingColumns = {
@@ -250,7 +257,7 @@ patientVaccineRoutes.get(
     };
 
     let orderWithNulls = order;
-    if (orderBy === 'date') {
+    if (orderBy === 'date' && !certificate) {
       orderWithNulls = order.toLowerCase() === 'asc' ? 'ASC NULLS FIRST' : 'DESC NULLS LAST';
     }
 
