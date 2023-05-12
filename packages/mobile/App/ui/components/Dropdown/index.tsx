@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
+
 import { StyledView, StyledText } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
@@ -79,7 +80,13 @@ export const Dropdown = React.memo(
     disabled,
     required = false,
   }: DropdownProps) => {
-    const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
+    const [selectedItems, setSelectedItems] = useState(() => {
+      if (!value) {
+        return [];
+      }
+
+      return Array.isArray(value) ? value : [value];
+    });
     const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
       items => {
@@ -119,7 +126,8 @@ export const Dropdown = React.memo(
           textColor={value?.length ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
           selectedItemTextColor={theme.colors.PRIMARY_MAIN}
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
-          itemTextColor="#000"
+          itemTextColor={theme.colors.TEXT_SUPER_DARK}
+          itemFontSize={14}
           searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
@@ -131,15 +139,24 @@ export const Dropdown = React.memo(
           }}
           styleSelectorContainer={{
             borderRadius: 5,
-            backgroundColor: 'white',
+            backgroundColor: theme.colors.WHITE,
             borderColor: theme.colors.PRIMARY_MAIN,
-            padding: 5,
-            borderWidth: 1,
           }}
           styleRowList={{
             borderRadius: 5,
-            backgroundColor: 'white',
+            backgroundColor: theme.colors.WHITE,
             padding: 5,
+          }}
+          styleInputGroup={{
+            borderWidth: 1,
+            borderRadius: 6,
+            backgroundColor: theme.colors.WHITE,
+            borderColor: theme.colors.PRIMARY_MAIN,
+          }}
+          styleItemsContainer={{
+            borderWidth: 1,
+            borderRadius: 5,
+            borderColor: theme.colors.PRIMARY_MAIN,
           }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
