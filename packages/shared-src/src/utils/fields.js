@@ -153,7 +153,7 @@ export function getResultValue(components, originalValues) {
     return { result: 0, resultText: '' };
   }
 
-  const rawValue = values[component.dataElement.id];
+  const rawValue = values[component.dataElement.code];
 
   if (rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
     return { result: 0, resultText: component.detail || '' };
