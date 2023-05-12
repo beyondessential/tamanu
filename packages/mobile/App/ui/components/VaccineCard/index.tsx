@@ -40,7 +40,7 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<VaccineCardProps>>
       <VaccineCardHeader
         name={vaccineData.name}
         code={vaccineData.code}
-        schedule={vaccineData.administeredVaccine.scheduledVaccine.schedule}
+        status={vaccineData.status}
         onCloseModal={onCloseModal}
         onEditDetails={onEditDetails}
       />
