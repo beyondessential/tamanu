@@ -7,7 +7,7 @@ import { ReferenceDataExporter } from './referenceDataExporter';
 
 export const modelExporterFactory = (models, dataType) => {
   const referenceDataTypes = [...REFERENCE_TYPE_VALUES, 'diagnosis'];
-  console.log({ dataType });
+
   if (referenceDataTypes.includes(dataType)) {
     return new ReferenceDataExporter(models, dataType);
   }
