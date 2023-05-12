@@ -82,7 +82,9 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const [vaccineOptions, setVaccineOptions] = useState([]);
-  const [category, setCategory] = useState(currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE);
+  const [category, setCategory] = useState(
+    currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
+  );
   const [vaccineLabel, setVaccineLabel] = useState();
 
   const {
