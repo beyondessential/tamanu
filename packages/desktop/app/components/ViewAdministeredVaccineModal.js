@@ -99,15 +99,14 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   useEffect(() => {
     // to avoid unnecessary API calls, these are the conditions that will show circumstance
     if (!editMode && givenElsewhere && circumstanceIds) {
-      const vaccineCircumstancePromises = [];
-      for (const circumstanceId of (Array.isArray(circumstanceIds)
+      const circumstanceIdValues = Array.isArray(circumstanceIds)
         ? circumstanceIds
-        : String(circumstanceIds)?.split(',')) || []) {
-        vaccineCircumstancePromises.push(
+        : String(circumstanceIds)?.split(',') || [];
+      Promise.all(
+        circumstanceIdValues.map(circumstanceId =>
           vaccineCircumstanceSuggester.fetchCurrentOption(circumstanceId),
-        );
-      }
-      Promise.all(vaccineCircumstancePromises).then(circumstances => {
+        ),
+      ).then(circumstances => {
         setVaccineCircumstances(circumstances?.map(circumstance => circumstance?.label));
       });
     }
