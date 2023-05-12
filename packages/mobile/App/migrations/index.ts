@@ -17,7 +17,7 @@ import { addNoteTables1677554085000 } from './1677554085000-addNoteTables';
 import { addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000 } from './1678061990000-addNotGivenReasonIdColumnToAdministeredVaccineTable';
 import { addSettingTable1678400759000 } from './1678400759000-addSettingTable';
 import { addConsentGivenByToAdministeredVaccine1682923186000 } from './1682923186000-addConsentGivenByToAdministeredVaccine';
-import { addGivenElsewhereColumnToAdministeredVaccine1683596516000 } from './1683596516000-addGivenElsewhereColumnToAdministeredVaccine';
+import { addNewColumnsToAdministeredVaccine1683596516000 } from './1683596516000-addNewColumnsToAdministeredVaccine';
 import { changeDateColumnToNullableForAdministeredVaccine1683598923000 } from './1683598923000-changeDateColumnToNullableForAdministeredVaccine';
 
 export const migrationList = [
@@ -39,6 +39,6 @@ export const migrationList = [
   addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
   addSettingTable1678400759000,
   addConsentGivenByToAdministeredVaccine1682923186000,
-  addGivenElsewhereColumnToAdministeredVaccine1683596516000,
+  addNewColumnsToAdministeredVaccine1683596516000,
   changeDateColumnToNullableForAdministeredVaccine1683598923000,
 ];

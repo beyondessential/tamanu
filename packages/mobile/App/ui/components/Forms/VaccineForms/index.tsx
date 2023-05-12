@@ -57,6 +57,8 @@ const createInitialValues = (initialValues: VaccineFormValues): VaccineFormValue
   ...initialValues,
 });
 
+const REQUIRED_INLINE_ERROR_MESSAGE = 'Required';
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 export const VaccineForm = ({
   initialValues,
@@ -70,19 +72,35 @@ export const VaccineForm = ({
 
   const consentSchema = status === VaccineStatus.GIVEN
     ? Yup.boolean()
-      .oneOf([true])
-      .required('Required')
-    : Yup.boolean();
+      .oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
+      .required(REQUIRED_INLINE_ERROR_MESSAGE)
+    : undefined;
   return (
     <Form
       onSubmit={onSubmit}
       validationSchema={Yup.object().shape({
-        date: Yup.date()
-          .typeError('Required')
-          .required(),
-        locationGroupId: Yup.string().required('Required'),
-        locationId: Yup.string().required('Required'),
-        departmentId: Yup.string().required('Required'),
+        date: Yup.date().when('givenElsewhere', {
+          is: givenElsewhere => !givenElsewhere,
+          then: Yup.date()
+            .typeError(REQUIRED_INLINE_ERROR_MESSAGE)
+            .required(),
+          otherwise: Yup.date().nullable(),
+        }),
+        locationId: Yup.string().when('givenElsewhere', {
+          is: givenElsewhere => !givenElsewhere,
+          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+          otherwise: Yup.string().nullable(),
+        }),
+        locationGroupId: Yup.string().when('givenElsewhere', {
+          is: givenElsewhere => !givenElsewhere,
+          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+          otherwise: Yup.string().nullable(),
+        }),
+        departmentId: Yup.string().when('givenElsewhere', {
+          is: givenElsewhere => !givenElsewhere,
+          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+          otherwise: Yup.string().nullable(),
+        }),
         consent: consentSchema,
       })}
       initialValues={createInitialValues({ ...initialValues, status, recorderId: user.id })}

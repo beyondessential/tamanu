@@ -100,6 +100,8 @@ export const NewVaccineTabComponent = ({
       const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne(vaccineData);
 
       const notGivenReason = await models.ReferenceData.findOne({ id: notGivenReasonId });
+      const location = await models.Location.findOne(locationId, { relations: ['locationGroup'] });
+      const department = await models.Department.findOne(departmentId);
 
       if (values.administeredVaccine) {
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
@@ -110,6 +112,10 @@ export const NewVaccineTabComponent = ({
               encounter,
               scheduledVaccine,
               notGivenReason,
+              locationId,
+              departmentId,
+              location,
+              department,
             },
             status: updatedVaccine.status,
           },
