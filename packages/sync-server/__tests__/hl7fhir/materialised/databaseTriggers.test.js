@@ -42,16 +42,10 @@ expect.extend({
   },
 });
 
-// I hope that these can get deleted, but if for some reason
-// we don't want to add triggers to a specific table, this is it.
+// If for some reason we don't want to add triggers to a specific table
+// this would be the place to add them.
 const versioningTablesToIgnore = ['encounters'];
-const refreshTablesToIgnore = [
-  'discharges',
-  'lab_test_panel_requests',
-  'lab_test_panels',
-  'note_pages',
-  'note_items',
-];
+const refreshTablesToIgnore = ['discharges', 'lab_test_panel_requests', 'lab_test_panels'];
 
 describe('databaseTriggers', () => {
   let ctx;
