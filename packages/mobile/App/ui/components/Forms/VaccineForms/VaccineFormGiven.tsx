@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import { View } from 'react-native';
+import { useFormikContext } from 'formik';
 
 import { StyledView } from '/styled/common';
 import {
@@ -15,24 +16,31 @@ import {
 } from './VaccineCommonFields';
 import { VaccineFormProps } from './types';
 
-export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => (
-  <StyledView paddingTop={10}>
-    <DateGivenField />
+export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
+  const { values } = useFormikContext();
 
-    <BatchField />
+  return (
+    <StyledView paddingTop={10}>
+      <DateGivenField required={!values.givenElsewhere} />
 
-    <InjectionSiteField />
+      <BatchField />
 
-    <VaccineLocationField navigation={navigation} />
+      <InjectionSiteField />
 
-    <DepartmentField navigation={navigation} />
+      {!values.givenElsewhere ? (
+        <View>
+          <VaccineLocationField navigation={navigation} />
+          <DepartmentField navigation={navigation} />
+        </View>
+      ) : null}
 
-    <GivenByField />
+      <GivenByField />
 
-    <RecordedByField />
+      <RecordedByField />
 
-    <ConsentField />
+      <ConsentField />
 
-    <ConsentGivenByField />
-  </StyledView>
-);
+      <ConsentGivenByField />
+    </StyledView>
+  );
+};

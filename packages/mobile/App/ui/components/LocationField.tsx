@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 
@@ -34,12 +34,6 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
   });
 
   useEffect(() => {
-    const newValues = { ...values };
-    delete newValues.locationId;
-    setValues(newValues);
-  }, [values.locationGroupId]);
-
-  useEffect(() => {
     if (values.locationId && !values.locationGroupId) {
       (async (): Promise<void> => {
         const location = await models.Location.findOne(values.locationId);
@@ -48,6 +42,13 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
       })();
     }
   }, [values.locationId]);
+
+  const handleChangeLocationGroup = () => {
+    // reset location value when changing the parent location group
+    const newValues = { ...values };
+    delete newValues.locationId;
+    setValues(newValues);
+  };
 
   return (
     <StyledView>
@@ -60,6 +61,7 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
         label="Area"
         placeholder="Search..."
         required={required}
+        onChange={handleChangeLocationGroup}
       />
 
       <Field

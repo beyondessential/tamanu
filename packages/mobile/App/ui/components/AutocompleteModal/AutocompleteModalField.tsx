@@ -51,6 +51,8 @@ export const AutocompleteModalField = ({
       const data = await suggester.fetchCurrentOption(value);
       if (data) {
         setLabel(data.label);
+      } else {
+        setLabel(placeholder);
       }
     })();
   }, [value]);

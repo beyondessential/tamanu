@@ -72,7 +72,7 @@ const TableHeaderCheckbox = styled(CheckInput)`
 `;
 
 export const ImmunisationsTable = React.memo(
-  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick }) => {
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {
     const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
     const notGivenCheckBox = (
@@ -90,15 +90,19 @@ export const ImmunisationsTable = React.memo(
         { key: 'date', title: 'Date', accessor: getDate },
         { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
         { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
-        {
-          key: 'action',
-          title: 'Action',
-          accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
-          sortable: false,
-          isExportable: false,
-        },
+        ...(!viewOnly
+          ? [
+              {
+                key: 'action',
+                title: 'Action',
+                accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
+                sortable: false,
+                isExportable: false,
+              },
+            ]
+          : []),
       ],
-      [onItemClick, onItemEditClick, onItemDeleteClick],
+      [onItemClick, onItemEditClick, onItemDeleteClick, viewOnly],
     );
 
     return (
@@ -107,8 +111,10 @@ export const ImmunisationsTable = React.memo(
         initialSort={{ orderBy: 'date', order: 'desc' }}
         fetchOptions={{ includeNotGiven }}
         columns={COLUMNS}
-        optionRow={notGivenCheckBox}
         noDataMessage="No vaccinations found"
+        allowExport={!viewOnly}
+        optionRow={!viewOnly && notGivenCheckBox}
+        disablePagination={disablePagination}
       />
     );
   },
