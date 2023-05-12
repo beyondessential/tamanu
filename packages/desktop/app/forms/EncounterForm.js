@@ -16,6 +16,7 @@ import {
   SuggesterSelectField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
+  useLocalisedText,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
@@ -27,6 +28,7 @@ export const EncounterForm = React.memo(
       baseQueryParameters: { filterByFacility: true },
     });
     const referralSourceSuggester = useSuggester('referralSource');
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? 'Update encounter' : 'Confirm';
@@ -57,7 +59,7 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="examinerId"
-            label="Practitioner"
+            label={clinicianText}
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
@@ -109,7 +111,7 @@ export const EncounterForm = React.memo(
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey('Examiner is required'),
+          examinerId: foreignKey(`${clinicianText} is required`),
           locationId: foreignKey('Location is required'),
           departmentId: foreignKey('Department is required'),
           startDate: yup.date().required(),

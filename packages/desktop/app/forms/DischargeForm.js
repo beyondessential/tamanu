@@ -30,6 +30,7 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
+import { useLocalisedText } from '../components';
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -217,6 +218,7 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const [dischargeNotePages, setDischargeNotePages] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
@@ -260,7 +262,7 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label="Discharging physician"
+          label={clinicianText}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
@@ -310,7 +312,9 @@ export const DischargeForm = ({
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey('Discharging physician is a required field'),
+            dischargerId: foreignKey(
+              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
+            ),
           })
           .shape({
             dispositionId: getLocalisedSchema({
