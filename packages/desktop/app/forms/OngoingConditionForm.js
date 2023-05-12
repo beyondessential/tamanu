@@ -14,6 +14,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
+import { useLocalisedText } from '../components';
 
 export const OngoingConditionForm = ({
   onSubmit,
@@ -22,6 +23,8 @@ export const OngoingConditionForm = ({
   practitionerSuggester,
   icd10Suggester,
 }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
     const buttonText = editedObject ? 'Save' : 'Add';
@@ -44,7 +47,7 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="examinerId"
-          label="Doctor/nurse"
+          label={clinicianText}
           disabled={resolving}
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -61,7 +64,7 @@ export const OngoingConditionForm = ({
             />
             <Field
               name="resolutionPractitionerId"
-              label="Doctor/nurse confirming resolution"
+              label={`${clinicianText} confirming resolution`}
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
