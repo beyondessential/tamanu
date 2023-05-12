@@ -40,7 +40,7 @@ function compareData(dataType, expected, given) {
   return false;
 }
 
-export function checkVisibilityCriteria(component, allComponents, values) {
+function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
