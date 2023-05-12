@@ -10,9 +10,11 @@ import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
 import { NotesPagesSection } from './reusable/NotesPagesSection';
 import { Divider } from './reusable/Divider';
 import { DateFacilitySection } from './reusable/DateFacilitySection';
+import { useLocalisedText } from '../../LocalisedText';
 
 export const MultipleLabRequestsPrintout = React.memo(
   ({ patient, labRequests, encounter, village, additionalData, certificateData }) => {
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
     const { title, subTitle, logo } = certificateData;
     const idsAndNotePages = labRequests.map(lr => [lr.displayId, lr.notePages]);
     const columns = [
@@ -29,7 +31,7 @@ export const MultipleLabRequestsPrintout = React.memo(
       },
       {
         key: 'requestedBy',
-        title: 'Requesting clinician',
+        title: `Requesting ${clinicianText}`,
         accessor: ({ requestedBy }) => requestedBy?.displayName,
         widthProportion: 2,
       },
