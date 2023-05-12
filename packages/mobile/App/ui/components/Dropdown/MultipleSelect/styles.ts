@@ -47,6 +47,7 @@ export default {
   },
   removeIndicator: {
     fontSize: 20,
+    marginTop: 2,
     color: colorPack.placeholderTextColor,
   },
   selectedItem: {

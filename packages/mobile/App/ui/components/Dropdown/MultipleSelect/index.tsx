@@ -620,7 +620,7 @@ export class MultiSelect extends Component {
                 onSubmitEditing={this._addItem}
                 placeholder={selectedLabel || searchInputPlaceholderText}
                 placeholderTextColor={
-                  selectedLabel ? colorPack.textPrimary : colorPack.placeholderTextColor
+                  selectedLabel ? textColor : colorPack.placeholderTextColor
                 }
                 underlineColorAndroid="transparent"
                 style={[searchInputStyle, { flex: 1 }]}
