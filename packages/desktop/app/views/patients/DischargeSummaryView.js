@@ -8,7 +8,7 @@ import Box from '@material-ui/core/Box';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants';
 
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
-import { LocalisedText, localise, useLocalisedText } from '../../components/LocalisedText';
+import { LocalisedText, useLocalisedText } from '../../components/LocalisedText';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';

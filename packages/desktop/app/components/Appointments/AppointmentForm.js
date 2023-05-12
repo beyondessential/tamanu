@@ -93,7 +93,7 @@ export const AppointmentForm = props => {
               />
               <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
               <Field
-                label={localise('Clinician')}
+                label={clinicianText}
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}

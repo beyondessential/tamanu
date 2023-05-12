@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Typography, Toolbar } from '@material-ui/core';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
-import { localise, useLocalisedText } from './LocalisedText';
+import { useLocalisedText } from './LocalisedText';
 
 const TopBarHeading = styled(Typography)`
   flex-grow: 1;
@@ -143,7 +143,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => {
             </Value>
           </Cell>
           <Cell>
-            <Label>{localise(`Supervising ${clinicianText.toLowerCase()}:`)}</Label>
+            <Label>{`Supervising ${clinicianText.toLowerCase()}:`}</Label>
             <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
           </Cell>
         </div>
