@@ -10,4 +10,29 @@ export class AdministeredVaccineExporter extends DefaultDataExporter {
       return value ? 'y' : 'n';
     },
   };
+
+  async getData() {
+    const administeredVaccines = await this.models.AdministeredVaccine.findAll({
+      include: [
+        {
+          model: this.models.Encounter,
+          as: 'encounter',
+          attributes: ['locationId', 'departmentId', 'examinerId', 'patientId'],
+        },
+      ],
+    });
+    const data = administeredVaccines.map(({ dataValues: vaccine }) => {
+      const { encounter, ...otherProps } = vaccine;
+      return {
+        ...otherProps,
+        ...encounter.dataValues,
+      };
+    });
+
+    return data;
+  }
+
+  getHeadersFromData(data) {
+    return Object.keys(data[0]);
+  }
 }

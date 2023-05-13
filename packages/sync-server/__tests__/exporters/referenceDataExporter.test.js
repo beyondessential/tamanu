@@ -1,16 +1,19 @@
 import { REFERENCE_TYPES } from 'shared/constants';
 import { createDummyPatient } from 'shared/demoData/patients';
+import { parseDate } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
 import * as excelUtils from '../../app/admin/exporter/excelUtils';
 import {
+  createAdministedVaccine,
   createAllergy,
   createDiagnosis,
   createPatientFieldDefCategory,
   createPermission,
   createRole,
+  createVaccine,
+  createDataForEncounter,
 } from './referenceDataUtils';
-import { toCountryDateTimeString } from '../../../shared-src/src/utils/dateTime';
 
 describe('Reference data exporter', () => {
   const writeExcelFileSpy = jest.spyOn(excelUtils, 'writeExcelFile').mockReturnValue({});
@@ -25,11 +28,21 @@ describe('Reference data exporter', () => {
   afterAll(() => ctx.close());
 
   afterEach(async () => {
-    const { ReferenceData, Patient, PatientFieldDefinitionCategory } = ctx.store.models;
     jest.clearAllMocks();
-    await ReferenceData.destroy({ where: {}, force: true });
-    await Patient.destroy({ where: {}, force: true });
-    await PatientFieldDefinitionCategory.destroy({ where: {}, force: true });
+
+    const modelsToDestroy = [
+      'AdministeredVaccine',
+      'Encounter',
+      'ScheduledVaccine',
+      'ReferenceData',
+      'Patient',
+      'PatientFieldDefinitionCategory',
+      'Location',
+      'Department',
+    ];
+    for (const model of modelsToDestroy) {
+      await ctx.store.models[model].destroy({ where: {}, force: true });
+    }
   });
 
   it('Should export empty data if no data type selected', async () => {
@@ -180,7 +193,7 @@ describe('Reference data exporter', () => {
               patient.middleName,
               patient.lastName,
               patient.culturalName,
-              toCountryDateTimeString(patient.dateOfBirth),
+              parseDate(patient.dateOfBirth),
               patient.dateOfDeath,
               patient.sex,
               patient.email,
@@ -232,7 +245,7 @@ describe('Reference data exporter', () => {
               patient.middleName,
               patient.lastName,
               patient.culturalName,
-              toCountryDateTimeString(patient.dateOfBirth),
+              parseDate(patient.dateOfBirth),
               patient.dateOfDeath,
               patient.sex,
               patient.email,
@@ -258,6 +271,84 @@ describe('Reference data exporter', () => {
             ['icd10-S79-9', 'S79.9', 'Thigh injury', 'current'],
           ],
           name: 'Diagnosis',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should export Administered vaccine with encounter data', async () => {
+    await createDataForEncounter(models);
+    const vaccine = await createVaccine(models, { label: 'Covid', schedule: 'Dose 1' });
+    const { administeredVaccine, encounter } = await createAdministedVaccine(models, vaccine);
+    const {
+      administeredVaccine: administeredVaccine2,
+      encounter: encounter2,
+    } = await createAdministedVaccine(models, vaccine);
+
+    await exporter(models, {
+      1: 'administeredVaccine',
+    });
+    expect(writeExcelFileSpy).toBeCalledWith(
+      [
+        {
+          data: [
+            [
+              'id',
+              'batch',
+              'consent',
+              'status',
+              'reason',
+              'injectionSite',
+              'givenBy',
+              'date',
+              'encounterId',
+              'scheduledVaccineId',
+              'recorderId',
+              'locationId',
+              'departmentId',
+              'notGivenReasonId',
+              'examinerId',
+              'patientId',
+            ],
+            [
+              administeredVaccine.id,
+              administeredVaccine.batch,
+              'y',
+              administeredVaccine.status,
+              administeredVaccine.reason,
+              administeredVaccine.injectionSite,
+              administeredVaccine.givenBy,
+              parseDate(administeredVaccine.date),
+              administeredVaccine.encounterId,
+              administeredVaccine.scheduledVaccineId,
+              administeredVaccine.recorderId,
+              encounter.locationId,
+              encounter.departmentId,
+              administeredVaccine.notGivenReasonId,
+              encounter.examinerId,
+              encounter.patientId,
+            ],
+            [
+              administeredVaccine2.id,
+              administeredVaccine2.batch,
+              'y',
+              administeredVaccine2.status,
+              administeredVaccine2.reason,
+              administeredVaccine2.injectionSite,
+              administeredVaccine2.givenBy,
+              parseDate(administeredVaccine2.date),
+              administeredVaccine2.encounterId,
+              administeredVaccine2.scheduledVaccineId,
+              administeredVaccine2.recorderId,
+              encounter2.locationId,
+              encounter2.departmentId,
+              administeredVaccine2.notGivenReasonId,
+              encounter2.examinerId,
+              encounter2.patientId,
+            ],
+          ],
+          name: 'Administered Vaccine',
         },
       ],
       '',

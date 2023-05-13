@@ -48,7 +48,6 @@ export function administeredVaccineLoader(item) {
     ...data
   } = item;
   const date = excelDate ? getJsDateFromExcel(excelDate) : null;
-
   const startDate = date ? startOfDay(date) : null;
   const endDate = date ? endOfDay(date) : null;
 
