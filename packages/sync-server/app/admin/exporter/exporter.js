@@ -3,8 +3,8 @@ import { modelExporterFactory } from './modelExporters/factory';
 
 async function buildSheetDataForDataType(models, dataType) {
   const modelExporter = modelExporterFactory(models, dataType);
-  const data = await modelExporter.getData();
   const tabName = modelExporter.getTabName();
+  const data = await modelExporter.getData();
   if (!data || data.length === 0) {
     return { tabName, data: [] };
   }
