@@ -11,24 +11,23 @@ export class PermissionExporter extends ModelExporter {
       return acc;
     }, {});
 
-    const data = [];
-    permissions.forEach(permissionModel => {
-      const permission = permissionModel.dataValues;
-      const addedRow = data.find(p => p.verb === permission.verb && p.noun === permission.noun);
-      if (addedRow) {
-        addedRow[permission.roleId] = permission.deletedAt ? 'n' : 'y';
+    const data = {};
+    permissions.forEach(({ dataValues: permission }) => {
+      const key = `${permission.verb}#${permission.noun}`;
+      if (data[key]) {
+        data[key][permission.roleId] = permission.deletedAt ? 'n' : 'y';
       } else {
-        data.push({
+        data[key] = {
           verb: permission.verb,
           noun: permission.noun,
           objectId: permission.objectId,
           ...roles,
           [permission.roleId]: permission.deletedAt ? 'n' : 'y',
-        });
+        };
       }
     });
 
-    return data;
+    return Object.values(data);
   }
 
   getHeadersFromData(data) {
