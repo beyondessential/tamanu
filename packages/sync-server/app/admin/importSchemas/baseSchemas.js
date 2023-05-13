@@ -18,7 +18,7 @@ const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
 
 const fieldTypes = {
-  id: yup.string(),
+  id: yup.string().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
   code: yup
     .string()
     .matches(safeCodeRegex, 'code must not have spaces or punctuation other than -./'),
