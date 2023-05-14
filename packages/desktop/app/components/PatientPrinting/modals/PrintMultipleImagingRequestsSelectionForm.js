@@ -34,7 +34,7 @@ const StyledLabelFieldWrapper = styled(OuterLabelFieldWrapper)`
   padding: 25px 30px;
 `;
 
-const Rule = styled.div`
+export const Rule = styled.div`
   margin: 15px 0 30px 0;
   width: calc(100% + 64px);
   height: 1px;
