@@ -1,6 +1,7 @@
 import React from 'react';
 import { startCase } from 'lodash';
 
+import styled from 'styled-components';
 import { MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';
@@ -22,6 +23,11 @@ const ImagingType = ({ imagingType }) => {
   return getImagingRequestType(imagingTypes)({ imagingType });
 };
 
+const StyledDateTitle = styled.div`
+  width: 83px;
+  white-space: break-spaces;
+`;
+
 const COMMON_COLUMNS = [
   {
     key: COLUMN_KEYS.ID,
@@ -31,7 +37,7 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REQUESTED_DATE,
-    title: 'Requested date & time',
+    title: <StyledDateTitle>Request date & time</StyledDateTitle>,
     sortable: false,
     form: {
       accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} />,

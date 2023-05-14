@@ -15,12 +15,15 @@ import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';
 
 const StyledTable = styled(Table)`
   border: none;
-  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   tbody tr:last-child td {
     border-bottom: none;
   }
   tbody tr td:first-child {
     border-bottom: none;
+  }
+  thead tr th {
+    color: ${Colors.midText};
   }
 }`;
 
@@ -28,6 +31,16 @@ const StyledLabelFieldWrapper = styled(OuterLabelFieldWrapper)`
   .label-field {
     margin-bottom: 15px;
   }
+  padding: 25px 30px;
+`;
+
+const Rule = styled.div`
+  margin: 15px 0 30px 0;
+  width: calc(100% + 64px);
+  height: 1px;
+  background-color: ${Colors.outline};
+  position: relative;
+  left: -32px;
 `;
 
 export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
@@ -82,6 +95,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
           allowExport={false}
         />
       </StyledLabelFieldWrapper>
+      <Rule />
       <ConfirmCancelRow
         cancelText="Close"
         confirmText="Print"
