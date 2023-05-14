@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
@@ -23,11 +23,17 @@ export const SurveySelector = React.memo(({ onSelectSurvey, surveys, buttonText 
     onSelectSurvey(selectedSurveyId);
   }, [onSelectSurvey, selectedSurveyId]);
 
+  useEffect(() => {
+    if (!surveys) {
+      setSelectedSurveyId(null);
+    }
+  }, [surveys]);
+
   return (
     <>
       <SelectInput options={surveys} value={selectedSurveyId} onChange={onChangeSurvey} />
       <StyledButtonRow>
-        <Button onClick={onSubmit} disabled={!surveys} variant="contained" color="primary">
+        <Button onClick={onSubmit} disabled={!selectedSurveyId} variant="contained" color="primary">
           {buttonText}
         </Button>
       </StyledButtonRow>
