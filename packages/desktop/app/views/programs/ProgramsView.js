@@ -59,11 +59,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   const unsetSurvey = useCallback(() => {
     setSurvey(null);
-    setSelectedSurveyId(null);
   }, []);
 
   const clearProgram = useCallback(() => {
-    setSelectedProgramId(null);
+    setSelectedSurveyId(null);
     setSurveys(null);
   }, []);
 
