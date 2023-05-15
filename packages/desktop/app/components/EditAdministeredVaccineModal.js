@@ -21,7 +21,6 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const handleUpdateVaccine = useCallback(
     async data => {
       const newData = { ...data };
-      console.log('newData', newData);
       if (
         newData.status === VACCINE_RECORDING_TYPES.GIVEN &&
         newData.givenElsewhere &&
@@ -49,7 +48,6 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   return (
     <Modal title="Edit vaccine record" open={open} onClose={onClose}>
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
-      <Separator />
       <VaccineForm
         onSubmit={handleUpdateVaccine}
         onCancel={onClose}

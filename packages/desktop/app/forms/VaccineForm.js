@@ -144,7 +144,6 @@ export const VaccineForm = ({
     ? BASE_VACCINE_SCHEME_VALIDATION
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
 
-  console.log('vaccineRecordingType', vaccineRecordingType);
   return (
     <Form
       onSubmit={data => onSubmit({ ...data, category })}
