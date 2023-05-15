@@ -156,7 +156,7 @@ export const VaccineGivenForm = ({
 
       {values.givenElsewhere ? <GivenByCountryField /> : <GivenByField />}
 
-      {values.givenElsewhere && <StyledDivider />}
+      {values.givenElsewhere && !editMode && <StyledDivider />}
 
       {!editMode && <RecordedByField />}
 
@@ -171,6 +171,8 @@ export const VaccineGivenForm = ({
       />
 
       <ConsentGivenByField />
+
+      <StyledDivider />
 
       <ConfirmCancelRowField
         onConfirm={submitForm}
