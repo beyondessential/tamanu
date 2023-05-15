@@ -177,9 +177,8 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
         ...(editMode ? [] : [[fieldObjects.circumstance, fieldObjects.status]]),
         [
           fieldObjects.vaccine,
-          fieldObjects.schedule,
           ...(editMode
-            ? [fieldObjects.status, fieldObjects.recordedBy]
+            ? [fieldObjects.schedule, fieldObjects.status, fieldObjects.recordedBy]
             : [fieldObjects.batch, fieldObjects.dateGiven, fieldObjects.injectionSite]),
         ],
         ...(editMode
