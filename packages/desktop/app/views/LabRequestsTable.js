@@ -12,7 +12,7 @@ import {
   getPatientDisplayId,
   getRequestType,
   getPriority,
-  getDateTime,
+  getDateWithTimeTooltip,
   getRequestId,
   getPublishedDate,
 } from '../utils/lab';
@@ -35,7 +35,7 @@ export const LabRequestsTable = ({ status = '' }) => {
       },
       { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
       { key: 'testCategory', title: 'Test category', accessor: getRequestType },
-      { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
+      { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
       publishedStatus
         ? { key: 'publishedDate', title: 'Completed', accessor: getPublishedDate }
         : { key: 'priority', title: 'Priority', accessor: getPriority },
