@@ -23,6 +23,7 @@ const Container = styled.div`
 
 const DisplayField = styled.div`
   width: 50%;
+  padding-right: 15px;
   padding-bottom: 20px;
   color: ${Colors.darkestText};
   font-weight: 500;
