@@ -5,7 +5,7 @@ import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
-import { parseDateTime, formatDateTime } from 'shared/utils/fhir/datetime';
+import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
@@ -18,7 +18,7 @@ const COUNTRY_TIMEZONE = config?.countryTimeZone;
 function formatDate(date) {
   if (!date) return date;
   return formatInTimeZone(
-    parseISO(formatDateTime(date, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE)),
+    parseISO(formatFhirDate(date, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE)),
     '+00:00',
     "yyyy-MM-dd'T'HH:mm:ssXXX",
   ).replace(/Z$/, '+00:00');
