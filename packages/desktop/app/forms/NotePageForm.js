@@ -121,7 +121,7 @@ export const NotePageForm = ({
           label="Type"
           required
           component={SelectField}
-          options={getSelectableNoteTypes(noteTypeCountByType)}
+          options={isEmpty(notePage) ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
           disabled={!isEmpty(notePage)}
           formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
