@@ -392,8 +392,7 @@ globalImagingRequests.get(
       association: 'results',
       where: resultFilters,
       required:
-        query.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED &&
-        Object.getOwnPropertySymbols(resultFilters).length > 0,
+        query.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && !!filterParams.completedAt,
     };
 
     // Query database
