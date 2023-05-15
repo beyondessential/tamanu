@@ -1,7 +1,6 @@
 import React from 'react';
 import { startCase } from 'lodash';
 
-import styled from 'styled-components';
 import { MultilineDatetimeDisplay } from '../../DateDisplay';
 import { getImagingRequestType } from '../../../utils/getImagingRequestType';
 import { getAreaNote } from '../../../utils/areaNote';

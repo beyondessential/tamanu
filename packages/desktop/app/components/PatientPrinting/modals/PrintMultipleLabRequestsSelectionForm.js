@@ -3,45 +3,15 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
 import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
-import styled from 'styled-components';
-import { Table, useSelectableColumn } from '../../Table';
-import { OuterLabelFieldWrapper } from '../../Field';
+import { useSelectableColumn } from '../../Table';
+
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
-
-const StyledTable = styled(Table)`
-  border: none;
-  border-radius: 5px;
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-  tbody tr td:first-child {
-    border-bottom: none;
-  }
-  thead tr th {
-    color: ${Colors.midText};
-  }
-}`;
-
-const StyledLabelFieldWrapper = styled(OuterLabelFieldWrapper)`
-  .label-field {
-    margin-bottom: 15px;
-  }
-  padding: 25px 30px;
-`;
-
-export const Rule = styled.div`
-  margin: 15px 0 30px 0;
-  width: calc(100% + 64px);
-  height: 1px;
-  background-color: ${Colors.outline};
-  position: relative;
-  left: -32px;
-`;
+import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -120,20 +90,18 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
       />
-
-      <StyledLabelFieldWrapper label="Select the lab requests you would like to print">
-        <StyledTable
-          headerColor={Colors.white}
-          columns={[selectableColumn, ...COLUMNS]}
-          data={labRequestsData || []}
-          elevated={false}
-          isLoading={isLoading}
-          errorMessage={error?.message}
-          noDataMessage="No lab requests found"
-          allowExport={false}
-        />
-      </StyledLabelFieldWrapper>
-      <Rule />
+      <PrintMultipleSelectionTable
+        label="Select the lab requests you would like to print"
+        headerColor={Colors.white}
+        columns={[selectableColumn, ...COLUMNS]}
+        data={labRequestsData || []}
+        elevated={false}
+        isLoading={isLoading}
+        errorMessage={error?.message}
+        noDataMessage="No lab requests found"
+        allowExport={false}
+      />
+      <FormDivider />
       <ConfirmCancelRow
         cancelText="Close"
         confirmText="Print"
