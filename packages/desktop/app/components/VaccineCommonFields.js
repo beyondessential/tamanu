@@ -115,6 +115,7 @@ export const InjectionSiteField = () => (
 export const LocationField = () => (
   <Field
     name="locationId"
+    locationGroupName="locationGroupId"
     component={LocalisedLocationField}
     enableLocationStatus={false}
     required

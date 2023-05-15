@@ -15,7 +15,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: ${Colors.white};
-  margin: 0;
+  ${props => (props.$editMode ? 'margin-bottom: 20px;' : '')}
   position: relative;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -45,8 +45,8 @@ const FieldGroup = styled.div`
   padding-top: 20px;
 `;
 
-const FieldsViewer = ({ labelValueFieldGroups }) => (
-  <Container>
+const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
+  <Container $editMode={editMode}>
     {labelValueFieldGroups.map(fieldGroup => (
       <FieldGroup>
         {fieldGroup.map(({ label, value }) => (
@@ -294,7 +294,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
 
   return modalVersion ? (
-    <FieldsViewer labelValueFieldGroups={modalVersion.fields} />
+    <FieldsViewer labelValueFieldGroups={modalVersion.fields} editMode={editMode} />
   ) : (
     <ErrorMessage />
   );

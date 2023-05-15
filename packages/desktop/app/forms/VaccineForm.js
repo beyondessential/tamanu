@@ -20,19 +20,28 @@ import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 
+const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
+  (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
+  status === VACCINE_RECORDING_TYPES.NOT_GIVEN; // If NOT_GIVEN then do not care about givenElsewhere
+
 const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
-  date: yup.string().when('givenElsewhere', {
-    is: false,
+  date: yup.string().when(['status', 'givenElsewhere'], {
+    is: validateGivenElsewhereRequiredField,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
-  locationId: yup.string().when('givenElsewhere', {
-    is: false,
+  locationId: yup.string().when(['status', 'givenElsewhere'], {
+    is: validateGivenElsewhereRequiredField,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
-  departmentId: yup.string().when('givenElsewhere', {
-    is: false,
+  locationGroupId: yup.string().when(['status', 'givenElsewhere'], {
+    is: validateGivenElsewhereRequiredField,
+    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    otherwise: yup.string().nullable(),
+  }),
+  departmentId: yup.string().when(['status', 'givenElsewhere'], {
+    is: validateGivenElsewhereRequiredField,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
@@ -42,21 +51,6 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   vaccineLabel: yup.string().when('category', {
     is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-  date: yup.string().when('givenElsewhere', {
-    is: false,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-  locationId: yup.string().when('givenElsewhere', {
-    is: false,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-  departmentId: yup.string().when('givenElsewhere', {
-    is: false,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
@@ -150,6 +144,7 @@ export const VaccineForm = ({
     ? BASE_VACCINE_SCHEME_VALIDATION
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
 
+  console.log('vaccineRecordingType', vaccineRecordingType);
   return (
     <Form
       onSubmit={data => onSubmit({ ...data, category })}
@@ -157,6 +152,7 @@ export const VaccineForm = ({
       initialValues={
         !editMode
           ? {
+              status: vaccineRecordingType,
               category,
               date: getCurrentDateTimeString(),
               locationGroupId: !currentEncounter

@@ -21,6 +21,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const handleUpdateVaccine = useCallback(
     async data => {
       const newData = { ...data };
+      console.log('newData', newData);
       if (
         newData.status === VACCINE_RECORDING_TYPES.GIVEN &&
         newData.givenElsewhere &&

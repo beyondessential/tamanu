@@ -141,7 +141,7 @@ export class AutocompleteInput extends Component {
         });
       }
     } else if (allowFreeTextForExistingValue && value) {
-      this.setState({ selectedOption: { value, tag: value } });
+      this.setState({ selectedOption: { value, tag: null } });
       this.handleSuggestionChange({ value, label: value });
     } else {
       this.handleSuggestionChange({ value: null, label: '' });
