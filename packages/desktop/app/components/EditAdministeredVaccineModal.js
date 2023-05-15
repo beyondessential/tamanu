@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+
 import styled from 'styled-components';
 import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from 'shared/constants';
 import { useDispatch } from 'react-redux';
