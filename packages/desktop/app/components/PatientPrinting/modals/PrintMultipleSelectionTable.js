@@ -15,6 +15,9 @@ const StyledSelectionTable = styled(Table)`
   }
   thead tr th {
     color: ${Colors.midText};
+    span {
+      white-space: break-spaces;
+    }
   }
 `;
 
