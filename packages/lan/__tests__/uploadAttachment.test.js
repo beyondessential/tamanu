@@ -26,7 +26,7 @@ getUploadedData.mockImplementation(async req => {
 });
 
 describe('UploadAttachment', () => {
-  const mockReq = { name: 'hello world image', type: 'image/jpeg', deviceId: 'test-device-id' };
+  const mockReq = { name: 'hello world image', attachmentType: 'image/jpeg', type: 'JPEG', deviceId: 'test-device-id' };
 
   it('abort uploading file if its above permitted max file size', async () => {
     await expect(uploadAttachment(mockReq, 1000)).rejects.toThrow(InvalidParameterError);
@@ -79,7 +79,6 @@ describe('UploadAttachment', () => {
     const result = await uploadAttachment(mockReq);
     expect(result).toMatchObject({
       attachmentId: '111',
-      type: 'image/jpeg',
       metadata: { name: 'hello world image' },
     });
     expect(CentralServerConnection.mock.calls.length).toBe(2);
