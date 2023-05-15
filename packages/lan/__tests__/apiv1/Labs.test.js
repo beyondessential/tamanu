@@ -164,6 +164,7 @@ describe('Labs', () => {
         ...fake(models.LabRequest),
         encounterId: encounter.id,
         requestedById: app.user.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
       });
     };
 
