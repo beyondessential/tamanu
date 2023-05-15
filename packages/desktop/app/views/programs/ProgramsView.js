@@ -76,7 +76,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       setSelectedProgramId(programId);
 
       if (!programId) {
-        handleClearProgram();
+        clearProgram();
         return;
       }
 
@@ -87,7 +87,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
           .map(x => ({ value: x.id, label: x.name })),
       );
     },
-    [api, selectedProgramId, handleClearProgram],
+    [api, selectedProgramId, clearProgram],
   );
 
   const submitSurveyResponse = async data => {
