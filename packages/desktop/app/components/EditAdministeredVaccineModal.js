@@ -18,7 +18,8 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
       if (
         newData.status === VACCINE_RECORDING_TYPES.GIVEN &&
         newData.givenElsewhere &&
-        newData.givenBy
+        newData.givenBy &&
+        vaccineRecord.givenBy !== newData.givenBy
       ) {
         const givenByCountry = (await countrySuggester.fetchCurrentOption(newData.givenBy))?.label;
         newData.givenBy = givenByCountry;
