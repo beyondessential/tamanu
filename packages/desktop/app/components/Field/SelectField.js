@@ -34,7 +34,9 @@ const OptionTag = styled(FormFieldTag)`
 `;
 
 const StyledIconButton = styled(IconButton)`
-  padding: 0 5px;
+  padding: 5px;
+  position: absolute;
+  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
@@ -117,7 +119,7 @@ export const SelectInput = ({
         borderColor,
         boxShadow: 'none',
         borderRadius: '3px',
-        paddingTop: '12px',
+        paddingTop: '10px',
         paddingBottom: '8px',
         paddingLeft: '5px',
         fontSize,

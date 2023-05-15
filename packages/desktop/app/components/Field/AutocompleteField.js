@@ -92,6 +92,8 @@ const StyledExpandMore = styled(ChevronIcon)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
+  position: absolute;
+  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
