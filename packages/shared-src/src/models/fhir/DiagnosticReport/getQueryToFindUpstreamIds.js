@@ -78,7 +78,7 @@ export function fromLabTests(models, table, id) {
           [Op.or]: [
             { '$category.id$': id },
             { '$labTestMethod.id$': id },
-            { '$laboratory.id$': id },
+            { '$labRequest.laboratory.id$': id },
           ],
         },
       };
