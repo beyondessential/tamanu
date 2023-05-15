@@ -6,7 +6,7 @@ import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
 import { Button } from '../Button';
-import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
+import { DOCUMENT_TYPES, PDF_DOCUMENT_TYPES } from '../../constants';
 
 const DownloadButton = ({ onClick }) => {
   return (
@@ -22,10 +22,10 @@ const Subtitle = styled(Typography)`
 `;
 
 const Preview = ({ documentType, attachmentId, ...props }) => {
-  if (documentType === SUPPORTED_DOCUMENT_TYPES.PDF) {
+  if (PDF_DOCUMENT_TYPES.includes(documentType)) {
     return <PDFPreview attachmentId={attachmentId} {...props} />;
   }
-  if (documentType === SUPPORTED_DOCUMENT_TYPES.JPEG) {
+  if (documentType === DOCUMENT_TYPES.RAW_JPEG) {
     return <PhotoPreview attachmentId={attachmentId} />;
   }
   return `Preview is not supported for document type ${documentType}`;
@@ -49,7 +49,7 @@ export const DocumentPreviewModal = ({
         <div>
           {title}
           <Subtitle>
-            {documentType === SUPPORTED_DOCUMENT_TYPES.PDF
+            {PDF_DOCUMENT_TYPES.includes(documentType)
               ? `Page ${scrollPage} of ${pageCount}`
               : null}
           </Subtitle>

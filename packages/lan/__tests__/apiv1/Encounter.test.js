@@ -1083,13 +1083,13 @@ describe('Encounter', () => {
         // Mock function gets called inside api route
         uploadAttachment.mockImplementationOnce(req => ({
           metadata: { ...req.body },
-          type: 'application/pdf',
           attachmentId: '123456789',
         }));
 
         const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
           name: 'test document',
-          type: 'application/pdf',
+          attachmentType: 'application/pdf',
+          type: 'patient_letter',
           documentOwner: 'someone',
           note: 'some note',
         });

@@ -31,29 +31,29 @@ describe('PatientDocumentMetadata', () => {
     // two different encounters for that patient and one without patient nor encounter.
     const metadataOne = {
       name: 'one',
-      type: 'application/pdf',
+      type: 'PDF',
       attachmentId: 'fake-id-1',
       patientId: patient.id,
     };
     const metadataTwo = {
       name: 'two',
-      type: 'application/pdf',
+      type: 'PDF',
       attachmentId: 'fake-id-2',
       patientId: patient.id,
     };
     const metadataThree = {
       name: 'three',
-      type: 'application/pdf',
+      type: 'PDF',
       attachmentId: 'fake-id-3',
       encounterId: encounterOne.id,
     };
     const metadataFour = {
       name: 'four',
-      type: 'application/pdf',
+      type: 'PDF',
       attachmentId: 'fake-id-4',
       encounterId: encounterTwo.id,
     };
-    const metadataFive = { name: 'five', type: 'application/pdf', attachmentId: 'fake-id-5' };
+    const metadataFive = { name: 'five', type: 'PDF', attachmentId: 'fake-id-5' };
 
     await Promise.all([
       models.DocumentMetadata.create(metadataOne),
@@ -80,13 +80,13 @@ describe('PatientDocumentMetadata', () => {
 
     const metadataOne = await models.DocumentMetadata.create({
       name: 'A',
-      type: 'application/pdf',
+      type: 'PDF',
       attachmentId: 'fake-id-1',
       patientId: patient.id,
     });
     const metadataTwo = await models.DocumentMetadata.create({
       name: 'B',
-      type: 'image/jpeg',
+      type: 'JPEG',
       attachmentId: 'fake-id-2',
       encounterId: encounter.id,
     });
@@ -112,7 +112,7 @@ describe('PatientDocumentMetadata', () => {
     for (let i = 0; i < 12; i++) {
       documents.push({
         name: String(i),
-        type: 'application/pdf',
+        type: 'PDF',
         attachmentId: `fake-id-${i}`,
         patientId: patient.id,
       });
@@ -130,9 +130,9 @@ describe('PatientDocumentMetadata', () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
 
     await models.DocumentMetadata.bulkCreate([
-      { name: 'A', type: 'application/pdf', attachmentId: 'fake-id-1', patientId: patient.id },
-      { name: 'B', type: 'application/pdf', attachmentId: 'fake-id-2', patientId: patient.id },
-      { name: 'C', type: 'image/jpeg', attachmentId: 'fake-id-3', patientId: patient.id },
+      { name: 'A', type: 'PDF', attachmentId: 'fake-id-1', patientId: patient.id },
+      { name: 'B', type: 'PDF', attachmentId: 'fake-id-2', patientId: patient.id },
+      { name: 'C', type: 'JPEG', attachmentId: 'fake-id-3', patientId: patient.id },
     ]);
 
     const result = await app.get(`/v1/patient/${patient.id}/documentMetadata?type=pdf`);
@@ -146,21 +146,21 @@ describe('PatientDocumentMetadata', () => {
     await models.DocumentMetadata.bulkCreate([
       {
         name: 'A',
-        type: 'application/pdf',
+        type: 'PDF',
         documentOwner: 'ownerA',
         attachmentId: 'fake-id-1',
         patientId: patient.id,
       },
       {
         name: 'B',
-        type: 'image/jpeg',
+        type: 'JPEG',
         documentOwner: 'ownerA',
         attachmentId: 'fake-id-2',
         patientId: patient.id,
       },
       {
         name: 'C',
-        type: 'image/jpeg',
+        type: 'JPEG',
         documentOwner: 'ownerB',
         attachmentId: 'fake-id-3',
         patientId: patient.id,
@@ -180,21 +180,21 @@ describe('PatientDocumentMetadata', () => {
     await models.DocumentMetadata.bulkCreate([
       {
         name: 'A',
-        type: 'application/pdf',
+        type: 'PDF',
         departmentId: department.id,
         attachmentId: 'fake-id-1',
         patientId: patient.id,
       },
       {
         name: 'B',
-        type: 'application/pdf',
+        type: 'PDF',
         departmentId: department.id,
         attachmentId: 'fake-id-2',
         patientId: patient.id,
       },
       {
         name: 'C',
-        type: 'image/jpeg',
+        type: 'JPEG',
         attachmentId: 'fake-id-3',
         patientId: patient.id,
       },
@@ -215,7 +215,7 @@ describe('PatientDocumentMetadata', () => {
     await models.DocumentMetadata.bulkCreate([
       {
         name: 'A',
-        type: 'application/pdf',
+        type: 'PDF',
         documentOwner: 'ownerA',
         departmentId: department.id,
         attachmentId: 'fake-id-1',
@@ -223,7 +223,7 @@ describe('PatientDocumentMetadata', () => {
       },
       {
         name: 'B',
-        type: 'application/pdf',
+        type: 'PDF',
         documentOwner: 'ownerB',
         departmentId: department.id,
         attachmentId: 'fake-id-2',
@@ -231,14 +231,14 @@ describe('PatientDocumentMetadata', () => {
       },
       {
         name: 'C',
-        type: 'application/pdf',
+        type: 'PDF',
         documentOwner: 'ownerB',
         attachmentId: 'fake-id-3',
         patientId: patient.id,
       },
       {
         name: 'D',
-        type: 'image/jpeg',
+        type: 'JPEG',
         documentOwner: 'ownerB',
         attachmentId: 'fake-id-4',
         patientId: patient.id,
@@ -267,13 +267,13 @@ describe('PatientDocumentMetadata', () => {
     // Mock function gets called inside api route
     uploadAttachment.mockImplementationOnce(req => ({
       metadata: { ...req.body },
-      type: 'application/pdf',
       attachmentId: '123456789',
     }));
 
     const result = await app.post(`/v1/patient/${patient.id}/documentMetadata`).send({
       name: 'test document',
-      type: 'application/pdf',
+      type: 'PDF',
+      attachmentType: 'application/pdf',
       documentOwner: 'someone',
       note: 'some note',
     });

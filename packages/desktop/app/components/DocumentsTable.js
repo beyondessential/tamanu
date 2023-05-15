@@ -63,11 +63,7 @@ const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView 
   );
 });
 
-const getType = ({ type }) => {
-  const fileExtension = extension(type);
-  if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
-  return 'Unknown';
-};
+const getType = ({ type }) => type ?? 'Unknown';
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
@@ -115,17 +111,17 @@ export const DocumentsTable = React.memo(
         // Suggest a filename that matches the document name
         const path = await showSaveDialog({ defaultPath: row.name });
         if (path.canceled) return;
-
-        // If the extension is unknown, save it without extension
-        const fileExtension = extension(row.type);
-        const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
-
+        
         try {
           // Give feedback to user that download is starting
           notify('Your download has started, please wait.', { type: 'info' });
 
           // Download attachment (*currently the API only supports base64 responses)
-          const { data } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
+          const { data, type } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
+          
+          // If the extension is unknown, save it without extension
+          const fileExtension = extension(type);
+          const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
           // Create file and open it
           await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
@@ -194,7 +190,7 @@ export const DocumentsTable = React.memo(
           open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.VIEW}
           title={selectedDocument?.name}
           attachmentId={selectedDocument?.attachmentId}
-          documentType={getType({ type: selectedDocument?.type })}
+          documentType={selectedDocument?.type}
           onClose={onClose}
           onDownload={() => onDownload(selectedDocument)}
         />

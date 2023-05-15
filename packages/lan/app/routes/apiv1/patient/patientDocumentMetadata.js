@@ -102,12 +102,11 @@ patientDocumentMetadataRoutes.post(
     }
 
     // Create file on the sync server
-    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const { attachmentId, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
     const documentMetadataObject = await models.DocumentMetadata.create({
       ...metadata,
       attachmentId,
-      type,
       patientId: params.id,
     });
 

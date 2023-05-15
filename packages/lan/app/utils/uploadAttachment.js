@@ -12,7 +12,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
 
   // Read request and extract file, stats and metadata
   const { deviceId } = req;
-  const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
+  const { file, deleteFileAfterImport, attachmentType, ...metadata } = await getUploadedData(req);
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
@@ -30,7 +30,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
   const syncResponse = await centralServer.fetch('attachment', {
     method: 'POST',
     body: {
-      type,
+      type: attachmentType,
       size,
       data: fileData,
     },
@@ -44,7 +44,6 @@ export const uploadAttachment = async (req, maxFileSize) => {
   // Send parsed metadata along with the new created attachment id
   return {
     attachmentId: syncResponse.attachmentId,
-    type,
     metadata,
   };
 };

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { promises as asyncFs } from 'fs';
-import { lookup as lookupMimeType } from 'mime-types';
+import { extension, lookup as lookupMimeType } from 'mime-types';
 import { ForbiddenError } from 'shared/errors';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
@@ -27,6 +27,12 @@ const DOCUMENT_MODAL_STATES = [
   MODAL_STATES.ALERT_NO_INTERNET_OPEN,
   MODAL_STATES.ALERT_NO_SPACE_OPEN,
 ];
+
+const getType = (attachmentType) => {
+  const fileExtension = extension(attachmentType);
+  if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
+  return 'Unknown';
+};
 
 // Checking connection is done in two places for documents (uploading, downloading).
 // TODO: implement more robust solution since navigator.onLine isn't completely
@@ -91,10 +97,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       try {
         // Read and inject document creation date and type to metadata sent
         const { birthtime } = await asyncFs.stat(file);
-        const type = lookupMimeType(file);
+        const attachmentType = lookupMimeType(file);
         await api.postWithFileUpload(endpoint, file, {
           ...data,
-          type,
+          attachmentType,
+          // TODO: Remove hack
+          type: getType(attachmentType),
           documentCreatedAt: toDateTimeString(birthtime),
           documentUploadedAt: getCurrentDateTimeString(),
         });
