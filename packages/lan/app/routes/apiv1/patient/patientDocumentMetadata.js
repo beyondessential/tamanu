@@ -92,7 +92,7 @@ patientDocumentMetadataRoutes.post(
     // TODO: Figure out permissions with Attachment and DocumentMetadata.
     // Presumably, they should be the same as they depend on each other.
     // After it has been figured out, modify the POST /documentMetadata route
-    // inside encounter.js
+    // inside encounter.js and also /createPatientLetter.
     req.checkPermission('write', 'DocumentMetadata');
 
     // Make sure the specified patient exists
