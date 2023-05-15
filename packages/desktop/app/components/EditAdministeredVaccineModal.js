@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import styled from 'styled-components';
+
 import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from 'shared/constants';
 import { useDispatch } from 'react-redux';
 import { Modal } from './Modal';
@@ -7,11 +7,6 @@ import { useApi, useSuggester } from '../api';
 import { reloadPatient } from '../store/patient';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 import { VaccineForm } from '../forms/VaccineForm';
-
-const Separator = styled.div`
-  height: 20px;
-  width: 100%;
-`;
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
