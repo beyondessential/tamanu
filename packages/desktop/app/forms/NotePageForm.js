@@ -92,6 +92,8 @@ export const NotePageForm = ({
   const { currentUser } = useAuth();
   const { getLocalisation } = useLocalisation();
 
+  const creatingNewNotePage = isEmpty(notePage);
+
   const lastNoteItemRef = useCallback(node => {
     if (node !== null) {
       node.scrollIntoView({ behavior: 'smooth' });
@@ -100,7 +102,7 @@ export const NotePageForm = ({
 
   const renderForm = ({ submitForm }) => (
     <>
-      {!isEmpty(notePage) && (
+      {!creatingNewNotePage && (
         <>
           <StyledFormGrid columns={1}>
             <NoteItemList
@@ -121,8 +123,8 @@ export const NotePageForm = ({
           label="Type"
           required
           component={SelectField}
-          options={isEmpty(notePage) ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
-          disabled={!isEmpty(notePage)}
+          options={creatingNewNotePage ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
+          disabled={!creatingNewNotePage}
           formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field
