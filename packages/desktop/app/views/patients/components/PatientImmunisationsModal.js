@@ -4,7 +4,7 @@ import { ImmunisationsTable, Modal, ModalActionRow } from '../../../components';
 
 export const PatientImmunisationsModal = React.memo(({ open, patient, onClose, ...props }) => (
   <Modal
-    title={`${patient.firstName} ${patient.lastName} Immunisation History`}
+    title={`${patient.firstName} ${patient.lastName} | Immunisation history`}
     open={open}
     onClose={onClose}
     disableHeaderCloseIcon

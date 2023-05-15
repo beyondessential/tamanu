@@ -15,7 +15,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: ${Colors.white};
-  margin: 0;
+  ${props => (props.$editMode ? 'margin-bottom: 20px;' : '')}
   position: relative;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -23,9 +23,14 @@ const Container = styled.div`
 
 const DisplayField = styled.div`
   width: 50%;
+  padding-right: 15px;
   padding-bottom: 20px;
   color: ${Colors.darkestText};
   font-weight: 500;
+  &:nth-child(2n) {
+    ${props => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
+    ${props => (props.$editMode ? `padding-left: 15px;` : '')}
+  }
 `;
 
 const Label = styled.div`
@@ -40,16 +45,17 @@ const FieldGroup = styled.div`
   border-bottom: 1px solid ${Colors.outline};
   &:last-of-type {
     border-bottom: none;
+    padding-bottom: 20px;
   }
   padding-top: 20px;
 `;
 
-const FieldsViewer = ({ labelValueFieldGroups }) => (
-  <Container>
+const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
+  <Container $editMode={editMode}>
     {labelValueFieldGroups.map(fieldGroup => (
       <FieldGroup>
         {fieldGroup.map(({ label, value }) => (
-          <DisplayField>
+          <DisplayField $editMode={editMode}>
             <Label>{label}</Label>
             {value}
           </DisplayField>
@@ -177,9 +183,8 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
         ...(editMode ? [] : [[fieldObjects.circumstance, fieldObjects.status]]),
         [
           fieldObjects.vaccine,
-          fieldObjects.schedule,
           ...(editMode
-            ? [fieldObjects.status, fieldObjects.recordedBy]
+            ? [fieldObjects.schedule, fieldObjects.status, fieldObjects.recordedBy]
             : [fieldObjects.batch, fieldObjects.dateGiven, fieldObjects.injectionSite]),
         ],
         ...(editMode
@@ -293,7 +298,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const modalVersion = modalVersions.find(modalType => modalType.condition === true);
 
   return modalVersion ? (
-    <FieldsViewer labelValueFieldGroups={modalVersion.fields} />
+    <FieldsViewer labelValueFieldGroups={modalVersion.fields} editMode={editMode} />
   ) : (
     <ErrorMessage />
   );

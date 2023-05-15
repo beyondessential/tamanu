@@ -88,6 +88,8 @@ export const VaccineNotGivenForm = ({
 
     {!editMode && <RecordedByField />}
 
+    <StyledDivider />
+
     <ConfirmCancelRowField
       onConfirm={submitForm}
       category={category}
