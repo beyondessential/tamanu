@@ -10,7 +10,6 @@ import {
 } from 'shared/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
-import { AdministeredVaccineSchedule } from './AdministeredVaccineSchedule';
 import {
   Field,
   TextField,
