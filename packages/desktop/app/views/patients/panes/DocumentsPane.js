@@ -33,10 +33,18 @@ const DOCUMENT_ACTIONS = {
   VIEW: 'view',
 };
 
+const EXTENSION_TO_DOCUMENT_TYPE = {
+  PDF: DOCUMENT_TYPES.RAW_PDF,
+  JPEG: DOCUMENT_TYPES.RAW_JPEG,
+};
+
 const getType = attachmentType => {
-  const fileExtension = extension(attachmentType);
-  if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
-  return 'Unknown';
+  const fileExtension = extension(attachmentType)?.toUpperCase();
+  if (typeof fileExtension !== 'string') {
+    throw new Error('Unsupported file type');
+  };
+
+  return EXTENSION_TO_DOCUMENT_TYPE[fileExtension] ?? fileExtension;
 };
 
 // Checking connection is done in two places for documents (uploading, downloading).
@@ -59,19 +67,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [documentAction, setDocumentAction] = useState(null);
 
-
   const api = useApi();
   const endpoint = encounter
-    ? `encounter/${encounter.id}/documentMetadata`
-    : `patient/${patient.id}/documentMetadata`;
+    ? `encounter/${encounter.id}`
+    : `patient/${patient.id}`;
 
   const handlePatientLetterSubmit = useCallback(
     async ({ submissionType, ...data }) => {
-      const endpoint2 = encounter?.id
-        ? `encounter/${encounter.id}/createPatientLetter`
-        : `patient/${patient.id}/createPatientLetter`;
-
-      const document = await api.post(endpoint2, {
+      const document = await api.post(`${endpoint}/createPatientLetter`, {
         patientLetterData: {
           todo: 'TODO',
         },
@@ -97,7 +100,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         throw new Error('Unrecognised submission type')
       }
     },
-    [setModalStatus, api, encounter?.id, patient?.id, setRefreshCount, setSelectedDocument],
+    [setModalStatus, api, endpoint, setRefreshCount, setSelectedDocument, setDocumentAction],
   );
 
   // Allows to check internet connection and set error modal from child components
@@ -122,10 +125,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         // Read and inject document creation date and type to metadata sent
         const { birthtime } = await asyncFs.stat(file);
         const attachmentType = lookupMimeType(file);
-        await api.postWithFileUpload(endpoint, file, {
+        await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
           ...data,
           attachmentType,
-          // TODO: Remove hack
           type: getType(attachmentType),
           documentCreatedAt: toDateTimeString(birthtime),
           documentUploadedAt: getCurrentDateTimeString(),
