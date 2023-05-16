@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -95,7 +95,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"
       onRowClick={selectImagingRequest}
-      fetchOptions={{ ...searchParameters, ...statusFilter }}
+      fetchOptions={{ ...statusFilter, ...searchParameters }}
       elevated={false}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
     />

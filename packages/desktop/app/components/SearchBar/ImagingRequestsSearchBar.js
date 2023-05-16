@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -68,14 +69,14 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
       setIsExpanded={setShowAdvancedFields}
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={{ ...searchParameters, ...statusFilter }}
+      initialValues={{ ...statusFilter, ...searchParameters }}
       staticValues={{ displayIdExact: true }}
       hiddenFields={
         <>
           {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
             <>
               <LocalisedField
-                name="requestedBy"
+                name="requestedById"
                 defaultLabel="Requested by"
                 saveDateAsString
                 component={AutocompleteField}
@@ -122,7 +123,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
           name="status"
           defaultLabel="Status"
           component={SelectField}
-          options={IMAGING_REQUEST_STATUS_OPTIONS}
+          options={IMAGING_REQUEST_STATUS_OPTIONS.filter(
+            ({ value }) => value !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          )}
           size="small"
         />
       )}
