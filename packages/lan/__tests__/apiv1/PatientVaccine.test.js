@@ -44,6 +44,16 @@ describe('PatientVaccine', () => {
     );
   };
 
+  const createNewScheduledVaccine = async (category, label, schedule) => {
+    return models.ScheduledVaccine.create(
+      await createScheduledVaccine(models, {
+        category,
+        label,
+        schedule,
+      }),
+    );
+  };
+
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
@@ -62,44 +72,35 @@ describe('PatientVaccine', () => {
 
     // set up reference data
     // create 3 scheduled vaccines, 2 routine and 1 campaign and 2 catch up
-    scheduled1 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.ROUTINE,
-        label: 'vaccine 1',
-        schedule: 'Dose 1',
-      }),
+    scheduled1 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.ROUTINE,
+      'vaccine 1 routine',
+      'Dose 1',
     );
-    scheduled2 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.ROUTINE,
-        label: 'vaccine 1',
-        schedule: 'Dose 2',
-      }),
+    scheduled2 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.ROUTINE,
+      'vaccine 1 routine',
+      'Dose 2',
     );
-    scheduled3 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.CAMPAIGN }),
+    scheduled3 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CAMPAIGN,
+      'vaccine 1 campaign',
+      'Dose 1',
     );
-
-    scheduled4 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.CATCHUP,
-        label: 'vaccine 1 catchup',
-        schedule: 'Dose 1',
-      }),
+    scheduled4 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CATCHUP,
+      'vaccine 1 catchup',
+      'Dose 1',
     );
-    scheduled5 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.CATCHUP,
-        label: 'vaccine 1 catchup',
-        schedule: 'Dose 2',
-      }),
+    scheduled5 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CATCHUP,
+      'vaccine 1 catchup',
+      'Dose 2',
     );
-    scheduled6 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.CATCHUP,
-        label: 'vaccine 2 catchup',
-        schedule: 'Dose 1',
-      }),
+    scheduled6 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CATCHUP,
+      'vaccine 2 catchup',
+      'Dose 1',
     );
 
     const locationGroup = await models.LocationGroup.create({
