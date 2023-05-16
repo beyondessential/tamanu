@@ -63,7 +63,7 @@ export const ReportsAdminView = () => {
           <ReportsImportView />
         </TabContainer>
       ),
-    }
+    },
   ];
 
   return (

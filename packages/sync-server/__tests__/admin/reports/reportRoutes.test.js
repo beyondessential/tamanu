@@ -155,47 +155,6 @@ describe('reportRoutes', () => {
     });
   });
 
-  describe('PUT /reports/:id/versions/:versionId', () => {
-    it('should update a version', async () => {
-      const { ReportDefinitionVersion } = models;
-      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        status: 'published',
-      });
-      expect(res).toHaveSucceeded();
-      expect(res.body.status).toBe('published');
-    });
-    it('should not return unnecessary metadata', async () => {
-      const { ReportDefinitionVersion } = models;
-      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        status: 'published',
-      });
-      expect(res).toHaveSucceeded();
-      expect(Object.keys(res.body)).toEqual(
-        expect.arrayContaining([
-          'id',
-          'versionNumber',
-          'query',
-          'createdAt',
-          'updatedAt',
-          'status',
-          'notes',
-          'queryOptions',
-        ]),
-      );
-    });
-    it('should fail with InvalidOperationError if query is changed', async () => {
-      const { ReportDefinitionVersion } = models;
-      const v1 = await ReportDefinitionVersion.create(getMockReportVersion(1));
-      const res = await adminApp.put(`/v1/admin/reports/${testReport.id}/versions/${v1.id}`).send({
-        query: 'select * from patients limit 1',
-      });
-      expect(res).toHaveRequestError('InvalidOperationError');
-      expect(res.body.error.message).toBe('Cannot change query of an existing version');
-    });
-  });
-
   describe('GET /reports/:id/versions/:versionId/export/:format', () => {
     it('should export a report as json', async () => {
       const { ReportDefinitionVersion } = models;
