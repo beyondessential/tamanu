@@ -35,11 +35,6 @@ const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
-  locationGroupId: yup.string().when(['status', 'givenElsewhere'], {
-    is: validateGivenElsewhereRequiredField,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
   departmentId: yup.string().when(['status', 'givenElsewhere'], {
     is: validateGivenElsewhereRequiredField,
     then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
