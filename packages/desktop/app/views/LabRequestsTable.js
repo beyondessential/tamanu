@@ -10,7 +10,7 @@ import {
   getPatientDisplayId,
   getRequestType,
   getPriority,
-  getDateTime,
+  getDateWithTimeTooltip,
   getRequestId,
   getPublishedDate,
 } from '../utils/lab';
@@ -35,7 +35,7 @@ export const LabRequestsTable = React.memo(
         { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
         { key: 'labTestPanelName', title: 'Panel' },
         { key: 'testCategory', title: 'Test category', accessor: getRequestType },
-        { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
+        { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
         publishedStatus
           ? { key: 'publishedDate', title: 'Completed', accessor: getPublishedDate }
           : { key: 'priority', title: 'Priority', accessor: getPriority },
