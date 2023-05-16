@@ -1,8 +1,14 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { promises as asyncFs } from 'fs';
+import { extension, lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
+import { ForbiddenError } from 'shared/errors';
 import { DOCUMENT_TYPES } from 'shared/constants';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+
+import { useApi } from '../api';
 import { Modal, ModalLoader } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
 import { ConfirmCancelRow } from './ButtonRow';
@@ -38,23 +44,24 @@ const getType = attachmentType => {
   const fileExtension = extension(attachmentType)?.toUpperCase();
   if (typeof fileExtension !== 'string') {
     throw new Error('Unsupported file type');
-  };
+  }
 
   return EXTENSION_TO_DOCUMENT_TYPE[fileExtension] ?? fileExtension;
 };
 
-export const DocumentModal = React.memo(({ open, onClose, endpoint }) => {
+export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
   const [error, setError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const api = useApi();
+
   const handleClose = useCallback(() => {
-    setError(true);
+    setError(false);
     // Prevent user from navigating away if we're submitting a document
     if (!isSubmitting) {
       onClose();
     }
-  }, [isSubmitting, onClose]);
-  
+  }, [isSubmitting, onClose, setError]);
+
   const onSubmit = useCallback(
     async ({ file, ...data }) => {
       if (!navigator.onLine) {
@@ -67,7 +74,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint }) => {
       // Read and inject document creation date and type to metadata sent
       const { birthtime } = await asyncFs.stat(file);
       const attachmentType = lookupMimeType(file);
-      
+
       try {
         await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
           ...data,
@@ -76,10 +83,10 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint }) => {
           documentCreatedAt: toDateTimeString(birthtime),
           documentUploadedAt: getCurrentDateTimeString(),
         });
-      } catch (error) {
+      } catch (e) {
         // Assume that if submission fails is because of lack of storage
-        if (error instanceof ForbiddenError) {
-          throw error; // allow error to be caught by error boundary
+        if (e instanceof ForbiddenError) {
+          throw e; // allow error to be caught by error boundary
         } else {
           setError(true);
           setIsSubmitting(false);
@@ -91,7 +98,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint }) => {
       refreshTable();
       setIsSubmitting(false);
     },
-    [setIsSubmitting, refreshTable, api, endpoin],
+    [setIsSubmitting, handleClose, refreshTable, api, endpoint],
   );
 
   useEffect(() => {
@@ -146,14 +153,14 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint }) => {
   );
 });
 
-DocumentModal.propTypes = {
-  open: PropTypes.bool,
-  onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  isError: PropTypes.bool,
-};
+// DocumentModal.propTypes = {
+//   open: PropTypes.bool,
+//   onClose: PropTypes.func.isRequired,
+//   onSubmit: PropTypes.func.isRequired,
+//   isError: PropTypes.bool,
+// };
 
-DocumentModal.defaultProps = {
-  open: false,
-  isError: false,
-};
+// DocumentModal.defaultProps = {
+//   open: false,
+//   isError: false,
+// };

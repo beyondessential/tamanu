@@ -49,21 +49,16 @@ const getUploadedDate = ({ documentUploadedAt }) =>
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint,
-    searchParameters,
-    refreshCount,
-    selectedDocument,
-    setSelectedDocument }) => {
+  ({ endpoint, searchParameters, refreshCount, selectedDocument, setSelectedDocument }) => {
     const { showSaveDialog, openPath } = useElectron();
     // TODO: Show error message
-    const [errorMessage, setErrorMessage]= useState();
+    const [errorMessage, setErrorMessage] = useState();
     const api = useApi();
 
     // Confirm delete modal will be open/close if it has a document ID
     const onClose = useCallback(() => {
       setSelectedDocument(null);
-    }, []);
-
+    }, [setSelectedDocument]);
 
     const onDownload = useCallback(
       async row => {
@@ -118,11 +113,7 @@ export const DocumentsTable = React.memo(
           key: 'actions',
           title: 'Actions',
           accessor: row => (
-            <ActionButtons
-              row={row}
-              onDownload={onDownload}
-              onClickView={setSelectedDocument}
-            />
+            <ActionButtons row={row} onDownload={onDownload} onClickView={setSelectedDocument} />
           ),
           dontCallRowInput: true,
           sortable: false,

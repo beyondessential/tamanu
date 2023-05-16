@@ -1,16 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { promises as asyncFs } from 'fs';
-import { extension, lookup as lookupMimeType } from 'mime-types';
-
-import { ForbiddenError } from 'shared/errors';
-import { DOCUMENT_TYPES } from 'shared/constants';
-import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
-import { useApi } from '../../../api';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
 
@@ -29,16 +22,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [selectedDocument, setSelectedDocument] = useState(null);
 
-  const endpoint = encounter
-    ? `encounter/${encounter.id}`
-    : `patient/${patient.id}`;
+  const endpoint = encounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
 
-  console.log('patient', patient); 
+  console.log('patient', patient);
 
   const isFromEncounter = !!encounter?.id;
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
 
-  const refreshTable = useCallback(() => setRefreshCount(count => count + 1));
+  const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
 
   return (
     <>

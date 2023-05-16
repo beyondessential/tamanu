@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { Box } from '@material-ui/core';
 
 import { DOCUMENT_TYPES } from 'shared/constants';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { useApi } from '../api';
 import { Modal, ModalLoader } from './Modal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
 // import { PatientLetterForm } from '../forms/PatientLetterForm';
@@ -73,6 +75,7 @@ const PatientDetails = ({ patient }) => (
 export const PatientLetterModal = React.memo(
   ({ open, onClose, endpoint, refreshTable, patient, setSelectedDocument }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const api = useApi();
 
     const onSubmit = useCallback(
       async ({ submissionType, ...data }) => {
@@ -93,20 +96,16 @@ export const PatientLetterModal = React.memo(
         setIsSubmitting(false);
 
         if (submissionType === 'Finalise') {
-          setModalStatus(MODAL_STATES.CLOSED);
-          return;
-        }
-        else if (submissionType === 'FinaliseAndPrint'){
-          setModalStatus(MODAL_STATES.CLOSED);
+          onClose();
+        } else if (submissionType === 'FinaliseAndPrint') {
+          onClose();
           setSelectedDocument(document);
-          return;
-        }
-        else {
-          setModalStatus(MODAL_STATES.CLOSED);
-          console.error('Unrecognised submission type')
+        } else {
+          onClose();
+          console.error('Unrecognised submission type');
         }
       },
-      [setModalStatus, api, endpoint, refreshTable, setSelectedDocument],
+      [onClose, api, endpoint, refreshTable, setSelectedDocument],
     );
 
     return (
@@ -126,12 +125,12 @@ export const PatientLetterModal = React.memo(
   },
 );
 
-PatientLetterModal.propTypes = {
-  open: PropTypes.bool,
-  onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-};
+// PatientLetterModal.propTypes = {
+//   open: PropTypes.bool,
+//   onClose: PropTypes.func.isRequired,
+//   onSubmit: PropTypes.func.isRequired,
+// };
 
-PatientLetterModal.defaultProps = {
-  open: false,
-};
+// PatientLetterModal.defaultProps = {
+//   open: false,
+// };
