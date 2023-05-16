@@ -95,11 +95,15 @@ const DumbPatientLetterForm = ({ isSubmitting, submitForm, onCancel, setFieldVal
 };
 
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject }) => {
+  const { currentUser } = useAuth();
+
   return (
     <Form
       onSubmit={onSubmit}
       render={props => <DumbPatientLetterForm onCancel={onCancel} {...props} />}
       initialValues={{
+        date: getCurrentDateString(),
+        clinicianId: currentUser.id,
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
