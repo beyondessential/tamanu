@@ -11,6 +11,7 @@ import { get } from 'lodash';
 import config from 'config';
 
 import { styles, Col, Box, Row, Watermark } from 'shared/utils/patientCertificates/Layout';
+import { H3, P } from 'shared/utils/patientCertificates/Typography';
 import { log } from 'shared/services/logging';
 import { tmpdir, VaccineCertificate, getPatientSurveyResponseAnswer } from 'shared/utils';
 import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
@@ -18,7 +19,7 @@ import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCerti
 const TestPDF = () => (
   <Document>
     <Page size="A4" style={styles.page}>
-      hi
+      <H3>Patient Letter</H3>
     </Page>
   </Document>
 );
