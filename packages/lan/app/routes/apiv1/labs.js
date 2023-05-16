@@ -128,10 +128,10 @@ labRequest.get(
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
-        [LAB_REQUEST_STATUSES.DELETED]: LAB_REQUEST_STATUSES.DELETED,
+        deleted: LAB_REQUEST_STATUSES.DELETED,
       })),
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
-        [LAB_REQUEST_STATUSES.CANCELLED]: LAB_REQUEST_STATUSES.CANCELLED,
+        cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -176,6 +176,13 @@ labRequest.get(
             publishedDate: `${publishedDate}%`,
           };
         },
+      ),
+      makeFilter(
+        filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
+        `lab_requests.status != :published`,
+        () => ({
+          published: LAB_REQUEST_STATUSES.PUBLISHED,
+        }),
       ),
     ].filter(f => f);
 
