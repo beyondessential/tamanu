@@ -152,6 +152,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
           defaultLabel="Priority"
           component={SelectField}
           options={imagingPriorities}
+          size="small"
         />
       )}
       {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
