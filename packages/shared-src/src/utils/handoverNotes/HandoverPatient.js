@@ -3,8 +3,7 @@ import { getDisplayDate } from 'shared/utils/patientCertificates/getDisplayDate'
 import { Divider } from 'shared/utils/handoverNotes/Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
-import { getDOB } from '../patientCertificates/accessors';
-import { getName, getSex } from './accessors';
+import { getName, getSex, getDOB } from './accessors';
 
 const PATIENT_FIELDS = [
   { key: 'name', label: 'Patient Name', accessor: getName },
@@ -52,7 +51,11 @@ export const HandoverPatient = ({
               return <ValueDisplay key={key} width="33%" title={label} value={value} />;
             })}
             <ValueDisplay width="33%" title="Location" value={location} />
-            <ValueDisplay width="33%" title="Arrival date" value={getDisplayDate(arrivalDate)} />
+            <ValueDisplay
+              width="33%"
+              title="Arrival date"
+              value={getDisplayDate(arrivalDate, 'dd/MM/yyyy')}
+            />
           </Row>
           {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
           {notes && (

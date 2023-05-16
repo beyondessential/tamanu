@@ -7,12 +7,12 @@ import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest, LabRequestSearchParamKeys } from '../contexts/LabRequest';
 import {
-  getRequestedBy,
+  getStatus,
   getPatientName,
   getPatientDisplayId,
   getRequestType,
   getPriority,
-  getDateTime,
+  getDateWithTimeTooltip,
   getRequestId,
   getPublishedDate,
 } from '../utils/lab';
@@ -31,15 +31,22 @@ export const LabRequestsTable = ({ status = '' }) => {
         title: 'Patient',
         accessor: getPatientName,
         maxWidth: 200,
+        sortable: false,
       },
-      { key: 'requestId', title: 'Test ID', accessor: getRequestId },
-      { key: 'testCategory', title: 'Test category', accessor: getRequestType },
+      { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
       { key: 'labTestPanelName', title: 'Panel' },
-      { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
-      { key: 'requestedBy', title: 'Requested by', accessor: getRequestedBy },
+      { key: 'testCategory', title: 'Test category', accessor: getRequestType },
+      { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
       publishedStatus
-        ? { key: 'publishedDate', title: 'Published', accessor: getPublishedDate }
+        ? { key: 'publishedDate', title: 'Completed', accessor: getPublishedDate }
         : { key: 'priority', title: 'Priority', accessor: getPriority },
+      {
+        key: 'status',
+        title: 'Status',
+        accessor: getStatus,
+        maxWidth: 200,
+        sortable: !publishedStatus,
+      },
     ];
   }, [publishedStatus]);
   const dispatch = useDispatch();

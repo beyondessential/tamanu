@@ -3,9 +3,9 @@ import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
-import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import ExpandLess from '@material-ui/icons/ExpandLess';
+import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
+import { ChevronIcon } from '../Icons/ChevronIcon';
+import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -55,9 +55,9 @@ const SuggestionsList = styled(Paper)`
 `;
 
 const Icon = styled(InputAdornment)`
+  margin-left: 0;
   .MuiSvgIcon-root {
-    color: ${Colors.softText};
-    font-size: 20px;
+    color: ${Colors.darkText};
   }
 `;
 
@@ -76,18 +76,28 @@ const Item = styled(MenuItem)`
 `;
 
 const iconStyle = css`
-  &.MuiSvgIcon-root {
-    color: ${Colors.midText};
-    font-size: 24px;
-  }
+  color: ${Colors.darkText};
+  margin-left: 6px;
+  margin-right: 8px;
 `;
 
-const StyledExpandLess = styled(ExpandLess)`
+const StyledExpandLess = styled(ChevronIcon)`
+  ${iconStyle}
+  transform: rotate(180deg);
+`;
+
+const StyledExpandMore = styled(ChevronIcon)`
   ${iconStyle}
 `;
 
-const StyledExpandMore = styled(ExpandMore)`
-  ${iconStyle}
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+  position: absolute;
+  right: 35px;
+`;
+
+const StyledClearIcon = styled(ClearIcon)`
+  cursor: pointer;
 `;
 
 export class AutocompleteInput extends Component {
@@ -164,15 +174,25 @@ export class AutocompleteInput extends Component {
       return;
     }
 
-    const suggestions = suggester
+    const searchSuggestions = suggester
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
+    const genericSuggestions = suggester ? await suggester.fetchSuggestions('') : options;
+
     if (value === '') {
-      if (await this.attemptAutoFill({ suggestions })) return;
+      if (await this.attemptAutoFill({ searchSuggestions })) return;
     }
 
-    this.setState({ suggestions });
+    // This will show the full suggestions list (or at least the first page) if the user
+    // has either just clicked the input or if the input does not match a value from list
+    this.setState({
+      suggestions:
+        reason === 'input-focused' &&
+        searchSuggestions.find(x => x.label.toLowerCase() === value.toLowerCase())
+          ? genericSuggestions
+          : searchSuggestions,
+    });
   };
 
   attemptAutoFill = async (overrides = { suggestions: null }) => {
@@ -212,6 +232,12 @@ export class AutocompleteInput extends Component {
         return { selectedOption: { value: newSuggestion.label, tag: newSuggestion.tag } };
       });
     }
+  };
+
+  handleClearValue = () => {
+    const { onChange, name } = this.props;
+    this.setState({ selectedOption: { value: '', tag: null } });
+    onChange({ target: { value: undefined, name } });
   };
 
   clearOptions = () => {
@@ -280,6 +306,11 @@ export class AutocompleteInput extends Component {
                   <SelectTag $background={tag.background} $color={tag.color}>
                     {tag.label}
                   </SelectTag>
+                )}
+                {value && (
+                  <StyledIconButton onClick={this.handleClearValue}>
+                    <StyledClearIcon />
+                  </StyledIconButton>
                 )}
                 <Icon
                   position="end"
