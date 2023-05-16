@@ -120,16 +120,21 @@ patientDocumentMetadataRoutes.post(
 patientDocumentMetadataRoutes.post('/:id/createPatientLetter', asyncHandler(async (req, res) => {
   req.checkPermission('create', 'DocumentMetadata');
   const { models, params } = req;
+  const { patientLetterData, clinicianId, ...documentMetadata } = req.body;
 
   // Make sure the specified patient exists
   const patient = await models.Patient.findByPk(params.id);
   if (!patient) {
-    throw new NotFoundError();
+    throw new NotFoundError('Patient not found');
+  }
+  
+  const documentOwner = await models.User.findByPk(clinicianId);
+  if (!documentOwner) {
+    throw new NotFoundError('Clinician not found');
   }
   
   
   // Create attachment
-  const { patientLetterData, ...documentMetadata } = req.body;
   const { filePath } = await makePatientLetter({ patientId: patient.id, ...patientLetterData });
 
   const { size } = fs.statSync(filePath);
@@ -145,8 +150,10 @@ patientDocumentMetadataRoutes.post('/:id/createPatientLetter', asyncHandler(asyn
     }),
   );
 
+
   const documentMetadataObject = await models.DocumentMetadata.create({
     ...documentMetadata,
+    documentOwner: documentOwner.displayName,
     attachmentId,
     patientId: params.id,
   });
