@@ -71,36 +71,41 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
       initialValues={{ ...searchParameters, ...statusFilter }}
       staticValues={{ displayIdExact: true }}
       hiddenFields={
-        memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
-          <>
-            <LocalisedField
-              name="locationGroupId"
-              defaultLabel="Area"
-              component={AutocompleteField}
-              suggester={areaSuggester}
-              size="small"
-            />
-            <LocalisedField
-              name="departmentId"
-              defaultLabel="Department"
-              component={AutocompleteField}
-              suggester={departmentSuggester}
-              size="small"
-            />
-            <LocalisedField
-              name="completedAt"
-              defaultLabel="Completed"
-              saveDateAsString
-              component={DateField}
-            />
-          </>
-        )
+        <>
+          {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+            <>
+              <LocalisedField
+                name="locationGroupId"
+                defaultLabel="Area"
+                component={AutocompleteField}
+                suggester={areaSuggester}
+                size="small"
+              />
+              <LocalisedField
+                name="departmentId"
+                defaultLabel="Department"
+                component={AutocompleteField}
+                suggester={departmentSuggester}
+                size="small"
+              />
+              <LocalisedField
+                name="completedAt"
+                defaultLabel="Completed"
+                saveDateAsString
+                component={DateField}
+              />
+            </>
+          )}
+          <FacilityCheckbox>
+            <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+          </FacilityCheckbox>
+        </>
       }
     >
       <LocalisedField name="displayId" component={SearchField} />
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
-      <LocalisedField name="requestId" defaultLabel="Request ID" />
+      <LocalisedField name="requestId" defaultLabel="Request ID" component={SearchField} />
       {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
         <LocalisedField
           name="status"
@@ -110,6 +115,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
           size="small"
         />
       )}
+      {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && <Spacer />}
       <LocalisedField
         name="imagingType"
         defaultLabel="Type"
@@ -146,9 +152,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
           size="small"
         />
       )}
-      <FacilityCheckbox>
-        <Field name="allFacilities" label="Include all facilities" component={CheckField} />
-      </FacilityCheckbox>
     </CustomisableSearchBar>
   );
 };
