@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import styled from 'styled-components';
 import {
-  ConfirmCancelRow,
   FormGrid,
   Modal,
   SuggesterSelectField,
@@ -11,10 +10,10 @@ import {
   Field,
   DateTimeField,
   AutocompleteField,
-  FormSeparatorLine,
 } from '../../../components';
 import { Colors } from '../../../constants';
 import { useSuggester } from '../../../api';
+import { ModalActionRow } from '../../../components/ModalActionRow';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup.date().required(),
@@ -31,12 +30,6 @@ const StyledDateTimeField = styled(DateTimeField)`
   .MuiInputBase-root {
     width: 241px;
   }
-`;
-
-const StyledFormSeperatorLine = styled(FormSeparatorLine)`
-  margin: 28px 0;
-  width: calc(100% + 64px);
-  margin-left: -32px;
 `;
 
 const StyledField = styled(Field)`
@@ -60,6 +53,7 @@ const FieldContainer = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 18px;
+  margin-bottom: 28px;
 `;
 
 const HorizontalLine = styled.div`
@@ -78,7 +72,6 @@ export const LabRequestRecordSampleModal = React.memo(
     const specimenTypeSuggester = useSuggester('specimenType');
 
     const updateSample = async formValues => {
-      console.log(formValues)
       await updateLabReq({
         ...formValues,
         // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
@@ -141,8 +134,7 @@ export const LabRequestRecordSampleModal = React.memo(
                     />
                   </FormGrid>
                 </FieldContainer>
-                <StyledFormSeperatorLine />
-                <ConfirmCancelRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
+                <ModalActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
               </>
             )}
           />

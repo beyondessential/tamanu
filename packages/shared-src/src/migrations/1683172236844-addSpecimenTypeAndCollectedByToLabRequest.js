@@ -12,7 +12,7 @@ export async function up(query) {
   await query.addColumn('lab_requests', 'collected_by_id', {
     type: DataTypes.STRING,
     references: {
-      model: 'patients',
+      model: 'users',
       key: 'id',
     },
     allowNull: true,

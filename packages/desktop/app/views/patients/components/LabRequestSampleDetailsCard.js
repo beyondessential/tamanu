@@ -8,6 +8,8 @@ export const LabRequestSampleDetailsCard = ({ labRequest }) => (
       label="Sample date & time"
       value={<DateDisplay date={labRequest.sampleTime} showTime />}
     />
-    <InfoCardItem label="Site" value={labRequest.labSampleSite?.name || '-'} />
+    <InfoCardItem label="Collected by" value={labRequest.collectedBy?.displayName || '-'} />
+    <InfoCardItem label="Specimen type" value={labRequest.specimenType?.name || '-'} />
+    <InfoCardItem label="Site" value={labRequest.site?.name || '-'} />
   </InfoCard>
 );

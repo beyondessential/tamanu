@@ -43,16 +43,11 @@ const Main = styled.div`
   line-height: 18px;
 `;
 
-const StyledMenuButton = styled(MenuButton)`
-  position: relative;
-  z-index: 10;
-`;
-
 export const Tile = React.memo(({ Icon, main, text, isReadOnly, actions, ...props }) => (
   <Container {...props}>
     <Header>
       <Icon color="primary" />
-      {actions && !isReadOnly && <StyledMenuButton actions={actions} iconDirection="horizontal" />}
+      {actions && !isReadOnly && <MenuButton actions={actions} iconDirection="horizontal" />}
     </Header>
     <Text>{text}</Text>
     <Main>{main}</Main>
