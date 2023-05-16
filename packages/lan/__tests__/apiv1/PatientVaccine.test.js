@@ -10,7 +10,6 @@ import {
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
-import { date } from 'yup';
 
 describe('PatientVaccine', () => {
   let ctx;
@@ -18,11 +17,13 @@ describe('PatientVaccine', () => {
   let app = null;
   let baseApp = null;
 
+  let patient = null;
   let scheduled1 = null;
   let scheduled2 = null;
   let scheduled3 = null;
-
-  let patient = null;
+  let scheduled4 = null;
+  let scheduled5 = null;
+  let scheduled6 = null;
   let clinician = null;
   let location = null;
   let department = null;
@@ -39,6 +40,16 @@ describe('PatientVaccine', () => {
         scheduledVaccineId: vaccine.id,
         encounterId: encounter.id,
         ...overrides,
+      }),
+    );
+  };
+
+  const createNewScheduledVaccine = async (category, label, schedule) => {
+    return models.ScheduledVaccine.create(
+      await createScheduledVaccine(models, {
+        category,
+        label,
+        schedule,
       }),
     );
   };
@@ -62,23 +73,36 @@ describe('PatientVaccine', () => {
     await models.AdministeredVaccine.truncate({ cascade: true });
 
     // set up reference data
-    // create 3 scheduled vaccines, 2 routine and 1 campaign
-    scheduled1 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.ROUTINE,
-        label: 'vaccine 1',
-        schedule: 'Dose 1',
-      }),
+    // create 3 scheduled vaccines, 2 routine and 1 campaign and 2 catch up
+    scheduled1 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.ROUTINE,
+      'vaccine 1 routine',
+      'Dose 1',
     );
-    scheduled2 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, {
-        category: VACCINE_CATEGORIES.ROUTINE,
-        label: 'vaccine 1',
-        schedule: 'Dose 2',
-      }),
+    scheduled2 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.ROUTINE,
+      'vaccine 1 routine',
+      'Dose 2',
     );
-    scheduled3 = await models.ScheduledVaccine.create(
-      await createScheduledVaccine(models, { category: VACCINE_CATEGORIES.CAMPAIGN }),
+    scheduled3 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CAMPAIGN,
+      'vaccine 1 campaign',
+      'Dose 1',
+    );
+    scheduled4 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CATCHUP,
+      'vaccine 1 catchup',
+      'Dose 1',
+    );
+    scheduled5 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CATCHUP,
+      'vaccine 1 catchup',
+      'Dose 2',
+    );
+    scheduled6 = await createNewScheduledVaccine(
+      VACCINE_CATEGORIES.CATCHUP,
+      'vaccine 2 catchup',
+      'Dose 1',
     );
 
     const locationGroup = await models.LocationGroup.create({
@@ -104,33 +128,31 @@ describe('PatientVaccine', () => {
     await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
     await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
 
-    givenVaccine1 = await models.AdministeredVaccine.create(
-      await createAdministeredVaccine(models, {
-        scheduledVaccineId: scheduled2.id,
-        encounterId: encounter.id,
-        status: VACCINE_STATUS.GIVEN,
-      }),
-    );
-
-    notGivenVaccine1 = await models.AdministeredVaccine.create(
-      await createAdministeredVaccine(models, {
-        scheduledVaccineId: scheduled2.id,
-        encounterId: encounter.id,
-        status: VACCINE_STATUS.NOT_GIVEN,
-      }),
-    );
-
-    await models.AdministeredVaccine.create(
-      await createAdministeredVaccine(models, {
-        scheduledVaccineId: scheduled2.id,
-        encounterId: encounter.id,
-        status: VACCINE_STATUS.UNKNOWN,
-      }),
-    );
-
     // set up clinical data
-    patient = await models.Patient.create(await createDummyPatient(models));
-    await recordAdministeredVaccine(patient, scheduled2);
+
+    givenVaccine1 = await recordAdministeredVaccine(patient, scheduled2, {
+      status: VACCINE_STATUS.GIVEN,
+    });
+
+    notGivenVaccine1 = await recordAdministeredVaccine(patient, scheduled2, {
+      status: VACCINE_STATUS.NOT_GIVEN,
+    });
+
+    await recordAdministeredVaccine(patient, scheduled2, {
+      status: VACCINE_STATUS.UNKNOWN,
+    });
+
+    await recordAdministeredVaccine(patient, scheduled4, {
+      status: VACCINE_STATUS.GIVEN,
+    });
+
+    await recordAdministeredVaccine(patient, scheduled5, {
+      status: VACCINE_STATUS.GIVEN,
+    });
+
+    await recordAdministeredVaccine(patient, scheduled6, {
+      status: VACCINE_STATUS.NOT_GIVEN,
+    });
   });
 
   afterAll(() => ctx.close());
@@ -142,10 +164,10 @@ describe('PatientVaccine', () => {
   });
 
   describe('Scheduled vaccines', () => {
-    it('should get a list of scheduled vaccines', async () => {
+    it('should only return vaccines with some that have not been administered', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/scheduledVaccines`);
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveLength(2);
+      expect(result.body).toHaveLength(3);
     });
 
     it('should get a list of scheduled vaccines based on category', async () => {
@@ -184,6 +206,18 @@ describe('PatientVaccine', () => {
         { administered: false, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
       ]);
     });
+
+    it('should only return vaccines with some that have not been administered for a category', async () => {
+      // just create a new patient with no vaccinations
+      const result = await app.get(
+        `/v1/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.CATCHUP}`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(1);
+      expect(result.body[0].schedules).toEqual([
+        { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled6.id },
+      ]);
+    });
   });
 
   describe('Administered vaccines', () => {
@@ -198,8 +232,7 @@ describe('PatientVaccine', () => {
     it('Should get administered vaccines', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(1);
-      expect(result.body.data[0].status).toEqual(VACCINE_STATUS.GIVEN);
+      expect(result.body.count).toEqual(5); // there are 5 recorded given vaccines in beforeAll
     });
 
     it('Should include not given vaccines', async () => {
@@ -313,12 +346,12 @@ describe('PatientVaccine', () => {
     });
 
     it('Should update corresponding NOT_GIVEN vaccine to HISTORICAL when recording GIVEN vaccine', async () => {
-      patient = await models.Patient.create(await createDummyPatient(models));
-      const notGivenVaccine = await recordAdministeredVaccine(patient, scheduled1, {
+      const freshPatient = await models.Patient.create(await createDummyPatient(models));
+      const notGivenVaccine = await recordAdministeredVaccine(freshPatient, scheduled1, {
         status: VACCINE_STATUS.NOT_GIVEN,
       });
 
-      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+      const result = await app.post(`/v1/patient/${freshPatient.id}/administeredVaccine`).send({
         status: VACCINE_STATUS.GIVEN,
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
@@ -369,7 +402,6 @@ describe('PatientVaccine', () => {
   });
 
   describe('Administered vaccines table', () => {
-
     let readPatient = null;
     let vaccineOld;
     let vaccineNew;
@@ -378,10 +410,10 @@ describe('PatientVaccine', () => {
     beforeAll(async () => {
       readPatient = await models.Patient.create(await createDummyPatient(models));
       vaccineNew = await recordAdministeredVaccine(readPatient, scheduled1, {
-        date: '2023-01-01'
+        date: '2023-01-01',
       });
       vaccineOld = await recordAdministeredVaccine(readPatient, scheduled2, {
-        date: '2010-01-01'
+        date: '2010-01-01',
       });
       vaccineNull = await recordAdministeredVaccine(readPatient, scheduled3, {
         date: null,
@@ -389,13 +421,15 @@ describe('PatientVaccine', () => {
     });
 
     it('Should return the vaccines for a patient', async () => {
-      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines`)
+      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);
     });
 
     it('Should sort null dates as though they are old', async () => {
-      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date`);
+      const result = await app.get(
+        `/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date`,
+      );
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);
 
@@ -406,7 +440,9 @@ describe('PatientVaccine', () => {
     });
 
     it('Should sort null dates as though they are old (descending)', async () => {
-      const result = await app.get(`/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date&order=desc`);
+      const result = await app.get(
+        `/v1/patient/${readPatient.id}/administeredVaccines?orderBy=date&order=desc`,
+      );
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(3);
 
@@ -415,6 +451,5 @@ describe('PatientVaccine', () => {
       expect(ids[1]).toEqual(vaccineOld.id);
       expect(ids[2]).toEqual(vaccineNull.id);
     });
-
   });
 });

@@ -90,7 +90,18 @@ export const RadioInput = ({
               key={option.value}
               labelPlacement={option.description ? 'start' : 'end'}
               $color={error ? Colors.alert : null}
-              control={<Radio value={option.value} selected={value === option.value} />}
+              control={
+                <Radio
+                  value={option.value}
+                  selected={value === option.value}
+                  {...(option.icon
+                    ? {
+                        icon: option.icon,
+                      }
+                    : {})}
+                  disabled={option.disabled}
+                />
+              }
               label={option.label}
               value={option.value}
               $fullWidth={fullWidth}
