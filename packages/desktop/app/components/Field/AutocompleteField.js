@@ -92,6 +92,8 @@ const StyledExpandMore = styled(ChevronIcon)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
+  position: absolute;
+  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
@@ -227,7 +229,7 @@ export class AutocompleteInput extends Component {
   handleClearValue = () => {
     const { onChange, name } = this.props;
     this.setState({ selectedOption: { value: '', tag: null } });
-    onChange({ target: { value: '', name } });
+    onChange({ target: { value: undefined, name } });
   };
 
   clearOptions = () => {
