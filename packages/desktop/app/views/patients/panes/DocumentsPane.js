@@ -29,6 +29,11 @@ const DOCUMENT_MODAL_STATES = [
   MODAL_STATES.ALERT_NO_SPACE_OPEN,
 ];
 
+const DOCUMENT_ACTIONS = {
+  DELETE: 'delete',
+  VIEW: 'view',
+};
+
 const getType = attachmentType => {
   const fileExtension = extension(attachmentType);
   if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
@@ -52,6 +57,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [documentAction, setDocumentAction] = useState(null);
+
+
   const api = useApi();
   const endpoint = encounter
     ? `encounter/${encounter.id}/documentMetadata`
@@ -63,20 +72,33 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         ? `encounter/${encounter.id}/createPatientLetter`
         : `patient/${patient.id}/createPatientLetter`;
 
-      api.post(endpoint2, {
+      const document = await api.post(endpoint2, {
         patientLetterData: {
           todo: 'TODO',
         },
         type: DOCUMENT_TYPES.PATIENT_LETTER,
         name: data.title,
-        documentOwner: data.clinicianId,
+        clinicianId: data.clinicianId,
         documentCreatedAt: getCurrentDateTimeString(),
         documentUploadedAt: getCurrentDateTimeString(),
       });
+      setRefreshCount(count => count + 1);
       console.log('Submitted!', submissionType, data);
-      setModalStatus(MODAL_STATES.CLOSED);
+      if (submissionType === 'Finalise'){
+        setModalStatus(MODAL_STATES.CLOSED);
+        return;
+      }
+      else if (submissionType === 'FinaliseAndPrint'){
+        setModalStatus(MODAL_STATES.CLOSED);
+        setSelectedDocument(document);
+        setDocumentAction(DOCUMENT_ACTIONS.VIEW);
+      return;
+      }
+      else {
+        throw new Error('Unrecognised submission type')
+      }
     },
-    [setModalStatus, api, encounter?.id, patient?.id],
+    [setModalStatus, api, encounter?.id, patient?.id, setRefreshCount, setSelectedDocument],
   );
 
   // Allows to check internet connection and set error modal from child components
@@ -141,6 +163,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           searchParameters={searchParameters}
           refreshCount={refreshCount}
           canInvokeDocumentAction={canInvokeDocumentAction}
+          selectedDocument={selectedDocument}
+          setSelectedDocument={setSelectedDocument}
+          documentAction={documentAction}
+          setDocumentAction={setDocumentAction}
         />
       </PaneWrapper>
       <PatientLetterModal

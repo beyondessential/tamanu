@@ -69,13 +69,19 @@ const getUploadedDate = ({ documentUploadedAt }) =>
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint, searchParameters, refreshCount, canInvokeDocumentAction, elevated }) => {
+  ({ endpoint,
+    searchParameters,
+    refreshCount,
+    canInvokeDocumentAction,
+    elevated,
+    selectedDocument,
+    setSelectedDocument,
+    documentAction,
+    setDocumentAction }) => {
     const { showSaveDialog, openPath } = useElectron();
     const api = useApi();
 
     // Confirm delete modal will be open/close if it has a document ID
-    const [selectedDocument, setSelectedDocument] = useState(null);
-    const [documentAction, setDocumentAction] = useState(null);
     const onClose = useCallback(() => {
       setSelectedDocument(null);
       setDocumentAction(null);
