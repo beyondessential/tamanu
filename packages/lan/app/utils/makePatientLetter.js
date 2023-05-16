@@ -25,10 +25,10 @@ const TestPDF = () => (
 );
 
 
-export const makePatientLetter = async ({ patientId, ...data}) => {
+export const makePatientLetter = async ({ id, ...data}) => {
   const folder = await tmpdir();
   // TODO: add millies to filename (or just uuid)?
-  const fileName = `patient-letter-${patientId}.pdf`;
+  const fileName = `patient-letter-${id}.pdf`;
   const filePath = path.join(folder, fileName);
 
 

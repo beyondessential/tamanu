@@ -135,7 +135,7 @@ patientDocumentMetadataRoutes.post('/:id/createPatientLetter', asyncHandler(asyn
   
   
   // Create attachment
-  const { filePath } = await makePatientLetter({ patientId: patient.id, ...patientLetterData });
+  const { filePath } = await makePatientLetter({ id: patient.id, ...patientLetterData });
 
   const { size } = fs.statSync(filePath);
   const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
