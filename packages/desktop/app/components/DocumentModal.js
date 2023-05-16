@@ -28,24 +28,70 @@ const Message = styled(Typography)`
   margin-bottom: 30px;
 `;
 
-export const DocumentModal = React.memo(({ open, onClose, onSubmit: paneOnSubmit, isError }) => {
+const EXTENSION_TO_DOCUMENT_TYPE = {
+  PDF: DOCUMENT_TYPES.RAW_PDF,
+  JPEG: DOCUMENT_TYPES.RAW_JPEG,
+};
+
+const getType = attachmentType => {
+  const fileExtension = extension(attachmentType)?.toUpperCase();
+  if (typeof fileExtension !== 'string') {
+    throw new Error('Unsupported file type');
+  };
+
+  return EXTENSION_TO_DOCUMENT_TYPE[fileExtension] ?? fileExtension;
+};
+
+export const DocumentModal = React.memo(({ open, onClose }) => {
+  const [error, setError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const onSubmit = useCallback(
-    async (...args) => {
-      setIsSubmitting(true);
-      await paneOnSubmit(...args);
-      setIsSubmitting(false);
-    },
-    [setIsSubmitting, paneOnSubmit],
-  );
-
+  
   const handleClose = useCallback(() => {
+    setError(true);
     // Prevent user from navigating away if we're submitting a document
     if (!isSubmitting) {
       onClose();
     }
   }, [isSubmitting, onClose]);
+  
+  const onSubmit = useCallback(
+    async ({ file, ...data }) => {
+      if (!navigator.onLine) {
+        setError(true);
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      // Read and inject document creation date and type to metadata sent
+      const { birthtime } = await asyncFs.stat(file);
+      const attachmentType = lookupMimeType(file);
+      
+      try {
+        await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
+          ...data,
+          attachmentType,
+          type: getType(attachmentType),
+          documentCreatedAt: toDateTimeString(birthtime),
+          documentUploadedAt: getCurrentDateTimeString(),
+        });
+      } catch (error) {
+        // Assume that if submission fails is because of lack of storage
+        if (error instanceof ForbiddenError) {
+          throw error; // allow error to be caught by error boundary
+        } else {
+          setError(true);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      handleClose();
+      setRefreshCount(refreshCount + 1);
+      setIsSubmitting(false);
+    },
+    [setIsSubmitting, refreshCount, api, endpoint, canInvokeDocumentAction],
+  );
 
   useEffect(() => {
     function handleBeforeUnload(event) {
@@ -76,7 +122,7 @@ export const DocumentModal = React.memo(({ open, onClose, onSubmit: paneOnSubmit
 
   if (isSubmitting) {
     ModalBody = <ModalLoader loadingText="Please wait while we upload your document" />;
-  } else if (isError) {
+  } else if (error) {
     ModalBody = (
       <div>
         <MessageContainer>

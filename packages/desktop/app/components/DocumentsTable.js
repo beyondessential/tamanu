@@ -37,31 +37,16 @@ const StyledIconButton = styled(IconButton)`
   padding-right: 10px;
 `;
 
-// eslint-disable-next-line no-unused-vars
-const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView }) => {
-  // Currently delete and attach to care plan aren't built, so we'll hide them
-  /*
-    {
-      label: 'Delete',
-      onClick: () => onClickDelete(row.id),
-    },
-    {
-      label: 'Attach to care plan',
-      onClick: () => console.log('clicked attach to care plan'),
-    },
-    */
-
-  return (
-    <ActionsContainer>
-      <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
-        View
-      </Action>
-      <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
-        <GetAppIcon fontSize="small" />
-      </StyledIconButton>
-    </ActionsContainer>
-  );
-});
+const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
+  <ActionsContainer>
+    <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
+      View
+    </Action>
+    <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
+      <GetAppIcon fontSize="small" />
+    </StyledIconButton>
+  </ActionsContainer>
+));
 
 const getType = ({ type }) => type ?? 'Unknown';
 const getUploadedDate = ({ documentUploadedAt }) =>
@@ -72,13 +57,12 @@ export const DocumentsTable = React.memo(
   ({ endpoint,
     searchParameters,
     refreshCount,
-    canInvokeDocumentAction,
     elevated,
     selectedDocument,
-    setSelectedDocument,
-    documentAction,
-    setDocumentAction }) => {
+    setSelectedDocument }) => {
     const { showSaveDialog, openPath } = useElectron();
+    // TODO: Show error message
+    const [errorMessage, setErrorMessage]= useState();
     const api = useApi();
 
     // Confirm delete modal will be open/close if it has a document ID
@@ -87,30 +71,16 @@ export const DocumentsTable = React.memo(
       setDocumentAction(null);
     }, []);
 
-    // Deletes selected document on confirmation (TBD)
-    const onConfirmDelete = useCallback(() => {
-      // Only perform deletion if there is internet connection
-      if (canInvokeDocumentAction()) {
-        console.log('Delete document TBD', selectedDocument); // eslint-disable-line no-console
-      }
-
-      // Close modal either way
-      onClose();
-    }, [selectedDocument, onClose, canInvokeDocumentAction]);
-
-    // Callbacks invoked inside getActions
-    const onClickDelete = useCallback(row => {
-      setSelectedDocument(row);
-      setDocumentAction(DOCUMENT_ACTIONS.DELETE);
-    }, []);
     const onClickView = useCallback(row => {
       setSelectedDocument(row);
-      setDocumentAction(DOCUMENT_ACTIONS.VIEW);
     }, []);
+
     const onDownload = useCallback(
       async row => {
-        // Modal error will be set and shouldn't continue download
-        if (!canInvokeDocumentAction()) {
+        if (!navigator.onLine) {
+          setErrorMessage(
+            'You do not currently have an internet connection. Documents require live internet to download.',
+          );
           return;
         }
 

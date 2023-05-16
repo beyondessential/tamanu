@@ -73,6 +73,37 @@ export const PatientLetterModal = React.memo(
   ({ open, onClose, patient, onSubmit: paneOnSubmit }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const handlePatientLetterSubmit = useCallback(
+      async ({ submissionType, ...data }) => {
+        const document = await api.post(`${endpoint}/createPatientLetter`, {
+          patientLetterData: {
+            todo: 'TODO',
+          },
+          type: DOCUMENT_TYPES.PATIENT_LETTER,
+          name: data.title,
+          clinicianId: data.clinicianId,
+          documentCreatedAt: getCurrentDateTimeString(),
+          documentUploadedAt: getCurrentDateTimeString(),
+        });
+        setRefreshCount(count => count + 1);
+        console.log('Submitted!', submissionType, data);
+        if (submissionType === 'Finalise'){
+          setModalStatus(MODAL_STATES.CLOSED);
+          return;
+        }
+        else if (submissionType === 'FinaliseAndPrint'){
+          setModalStatus(MODAL_STATES.CLOSED);
+          setSelectedDocument(document);
+          setDocumentAction(DOCUMENT_ACTIONS.VIEW);
+          return;
+        }
+        else {
+          throw new Error('Unrecognised submission type')
+        }
+      },
+      [setModalStatus, api, endpoint, setRefreshCount, setSelectedDocument, setDocumentAction],
+    );
+
     const onSubmit = useCallback(
       async (...args) => {
         setIsSubmitting(true);
