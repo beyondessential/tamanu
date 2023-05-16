@@ -200,7 +200,7 @@ const VaccineFormComponent = ({
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
     resetForm();
     if (!editMode) {
-      setCategory(null);
+      setCategory(VACCINE_CATEGORIES.ROUTINE);
     }
     setVaccineLabel(null);
     // we strictly only want to reset the form values when vaccineRecordingType is changed
