@@ -117,6 +117,7 @@ export const RadioInput = ({
     if (validOptions.length === 1) {
       onChange({ target: { value: validOptions[0].value, name } });
     }
+    // only trigger when options are changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options]);
   return (
