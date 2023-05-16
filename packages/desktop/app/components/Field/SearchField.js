@@ -34,7 +34,7 @@ const StyledClearIcon = styled(ClearIcon)`
 export const SearchField = ({ keepLetterCase = false, ...props }) => {
   const {
     field: { value, name },
-    form: { setFieldValue },
+    form: { setFieldValue } = {},
     label,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
@@ -45,7 +45,9 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
 
   const clearSearch = () => {
     setSearchValue('');
-    setFieldValue(name, '');
+    if (setFieldValue) {
+      setFieldValue(name, '');
+    }
   };
 
   return (
