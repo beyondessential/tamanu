@@ -14,11 +14,6 @@ import { useApi } from '../api';
 import { notify, notifySuccess, notifyError } from '../utils';
 import { DocumentPreviewModal } from './DocumentPreview';
 
-const DOCUMENT_ACTIONS = {
-  DELETE: 'delete',
-  VIEW: 'view',
-};
-
 const ActionsContainer = styled.div`
   display: flex;
 `;
@@ -57,7 +52,6 @@ export const DocumentsTable = React.memo(
   ({ endpoint,
     searchParameters,
     refreshCount,
-    elevated,
     selectedDocument,
     setSelectedDocument }) => {
     const { showSaveDialog, openPath } = useElectron();
@@ -68,12 +62,8 @@ export const DocumentsTable = React.memo(
     // Confirm delete modal will be open/close if it has a document ID
     const onClose = useCallback(() => {
       setSelectedDocument(null);
-      setDocumentAction(null);
     }, []);
 
-    const onClickView = useCallback(row => {
-      setSelectedDocument(row);
-    }, []);
 
     const onDownload = useCallback(
       async row => {
@@ -107,7 +97,7 @@ export const DocumentsTable = React.memo(
           notifyError(error.message);
         }
       },
-      [api, openPath, showSaveDialog, canInvokeDocumentAction],
+      [api, openPath, showSaveDialog],
     );
 
     // Define columns inside component to pass callbacks to getActions
@@ -131,15 +121,14 @@ export const DocumentsTable = React.memo(
             <ActionButtons
               row={row}
               onDownload={onDownload}
-              onClickDelete={onClickDelete}
-              onClickView={onClickView}
+              onClickView={setSelectedDocument}
             />
           ),
           dontCallRowInput: true,
           sortable: false,
         },
       ],
-      [onDownload, onClickDelete, onClickView],
+      [onDownload, setSelectedDocument],
     );
 
     return (
@@ -151,9 +140,9 @@ export const DocumentsTable = React.memo(
           fetchOptions={searchParameters}
           refreshCount={refreshCount}
           allowExport={false}
-          elevated={elevated}
+          elevated={false}
         />
-        <ConfirmModal
+        {/* <ConfirmModal
           open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.DELETE}
           title="Delete document"
           text="WARNING: This action is irreversible!"
@@ -161,9 +150,9 @@ export const DocumentsTable = React.memo(
           onConfirm={onConfirmDelete}
           onCancel={onClose}
           ConfirmButton={DeleteButton}
-        />
+        /> */}
         <DocumentPreviewModal
-          open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.VIEW}
+          open={selectedDocument !== null}
           title={selectedDocument?.name}
           attachmentId={selectedDocument?.attachmentId}
           documentType={selectedDocument?.type}

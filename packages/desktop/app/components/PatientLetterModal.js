@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { Box } from '@material-ui/core';
 
+import { DOCUMENT_TYPES } from 'shared/constants';
 import { Modal, ModalLoader } from './Modal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
 // import { PatientLetterForm } from '../forms/PatientLetterForm';
@@ -70,11 +71,13 @@ const PatientDetails = ({ patient }) => (
 );
 
 export const PatientLetterModal = React.memo(
-  ({ open, onClose, patient, onSubmit: paneOnSubmit }) => {
+  ({ open, onClose, endpoint, refreshTable, patient, setSelectedDocument }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handlePatientLetterSubmit = useCallback(
+    const onSubmit = useCallback(
       async ({ submissionType, ...data }) => {
+        setIsSubmitting(true);
+
         const document = await api.post(`${endpoint}/createPatientLetter`, {
           patientLetterData: {
             todo: 'TODO',
@@ -85,32 +88,25 @@ export const PatientLetterModal = React.memo(
           documentCreatedAt: getCurrentDateTimeString(),
           documentUploadedAt: getCurrentDateTimeString(),
         });
-        setRefreshCount(count => count + 1);
+        refreshTable();
         console.log('Submitted!', submissionType, data);
-        if (submissionType === 'Finalise'){
+        setIsSubmitting(false);
+
+        if (submissionType === 'Finalise') {
           setModalStatus(MODAL_STATES.CLOSED);
           return;
         }
         else if (submissionType === 'FinaliseAndPrint'){
           setModalStatus(MODAL_STATES.CLOSED);
           setSelectedDocument(document);
-          setDocumentAction(DOCUMENT_ACTIONS.VIEW);
           return;
         }
         else {
-          throw new Error('Unrecognised submission type')
+          setModalStatus(MODAL_STATES.CLOSED);
+          console.error('Unrecognised submission type')
         }
       },
-      [setModalStatus, api, endpoint, setRefreshCount, setSelectedDocument, setDocumentAction],
-    );
-
-    const onSubmit = useCallback(
-      async (...args) => {
-        setIsSubmitting(true);
-        await paneOnSubmit(...args);
-        setIsSubmitting(false);
-      },
-      [setIsSubmitting, paneOnSubmit],
+      [setModalStatus, api, endpoint, refreshTable, setSelectedDocument],
     );
 
     return (

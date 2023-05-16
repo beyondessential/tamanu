@@ -2,6 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
+import { DOCUMENT_TYPES } from 'shared/constants';
 import { Modal, ModalLoader } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
 import { ConfirmCancelRow } from './ButtonRow';
@@ -42,7 +43,7 @@ const getType = attachmentType => {
   return EXTENSION_TO_DOCUMENT_TYPE[fileExtension] ?? fileExtension;
 };
 
-export const DocumentModal = React.memo(({ open, onClose }) => {
+export const DocumentModal = React.memo(({ open, onClose, endpoint }) => {
   const [error, setError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -87,10 +88,10 @@ export const DocumentModal = React.memo(({ open, onClose }) => {
       }
 
       handleClose();
-      setRefreshCount(refreshCount + 1);
+      refreshTable();
       setIsSubmitting(false);
     },
-    [setIsSubmitting, refreshCount, api, endpoint, canInvokeDocumentAction],
+    [setIsSubmitting, refreshTable, api, endpoin],
   );
 
   useEffect(() => {

@@ -20,11 +20,6 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
-const DOCUMENT_ACTIONS = {
-  DELETE: 'delete',
-  VIEW: 'view',
-};
-
 // TODO: implement more robust solution since navigator.onLine isn't completely
 // reliable and might give false positives
 
@@ -33,15 +28,17 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
   const [selectedDocument, setSelectedDocument] = useState(null);
-  const [documentAction, setDocumentAction] = useState(null);
 
-  const api = useApi();
   const endpoint = encounter
     ? `encounter/${encounter.id}`
     : `patient/${patient.id}`;
 
+  console.log('patient', patient); 
+
   const isFromEncounter = !!encounter?.id;
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
+
+  const refreshTable = useCallback(() => setRefreshCount(count => count + 1));
 
   return (
     <>
@@ -54,23 +51,26 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable
-          endpoint={endpoint}
+          endpoint={`${endpoint}/documentMetadata`}
           searchParameters={searchParameters}
           refreshCount={refreshCount}
           selectedDocument={selectedDocument}
           setSelectedDocument={setSelectedDocument}
-          documentAction={documentAction}
-          setDocumentAction={setDocumentAction}
         />
       </PaneWrapper>
       <PatientLetterModal
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
         onClose={() => setModalStatus(MODAL_STATES.CLOSED)}
+        endpoint={endpoint}
+        refreshTable={refreshTable}
+        setSelectedDocument={setSelectedDocument}
         patient={patient}
       />
       <DocumentModal
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={() => setModalStatus(MODAL_STATES.CLOSED)}
+        endpoint={endpoint}
+        refreshTable={refreshTable}
       />
     </>
   );
