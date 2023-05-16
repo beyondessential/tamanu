@@ -1,6 +1,6 @@
 import { ModelExporter } from './modelExporter';
 
-const CUSTOM_TAB_NAME = {
+const CUSTOM_TAB_NAMES = {
   patientFieldDefinitionCategory: 'Patient Field Def Category',
 };
 
@@ -13,6 +13,6 @@ export class DefaultDataExporter extends ModelExporter {
   }
 
   customTabName() {
-    return CUSTOM_TAB_NAME[this.dataType];
+    return CUSTOM_TAB_NAMES[this.dataType];
   }
 }

@@ -1,8 +1,8 @@
 import { writeExcelFile } from './excelUtils';
-import { modelExporterFactory } from './modelExporters/factory';
+import { createModelExporter } from './modelExporters/createModelExporter';
 
 async function buildSheetDataForDataType(models, dataType) {
-  const modelExporter = modelExporterFactory(models, dataType);
+  const modelExporter = createModelExporter(models, dataType);
   const tabName = modelExporter.getTabName();
   const data = await modelExporter.getData();
   if (!data || data.length === 0) {

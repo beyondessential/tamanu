@@ -93,7 +93,7 @@ export async function createVaccine(models, { label, schedule }) {
   return vaccine;
 }
 
-export async function createAdministedVaccine(models, vaccine) {
+export async function createAdministeredVaccineData(models, vaccine) {
   const patient = await models.Patient.create(await createDummyPatient());
 
   const encounter = await models.Encounter.create(

@@ -5,7 +5,7 @@ import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
 import * as excelUtils from '../../app/admin/exporter/excelUtils';
 import {
-  createAdministedVaccine,
+  createAdministeredVaccineData,
   createAllergy,
   createDiagnosis,
   createPatientFieldDefCategory,
@@ -280,11 +280,11 @@ describe('Reference data exporter', () => {
   it('Should export Administered vaccine with encounter data', async () => {
     await createDataForEncounter(models);
     const vaccine = await createVaccine(models, { label: 'Covid', schedule: 'Dose 1' });
-    const { administeredVaccine, encounter } = await createAdministedVaccine(models, vaccine);
+    const { administeredVaccine, encounter } = await createAdministeredVaccineData(models, vaccine);
     const {
       administeredVaccine: administeredVaccine2,
       encounter: encounter2,
-    } = await createAdministedVaccine(models, vaccine);
+    } = await createAdministeredVaccineData(models, vaccine);
 
     await exporter(models, {
       1: 'administeredVaccine',
