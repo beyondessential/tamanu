@@ -40,8 +40,6 @@ const DateDisplay = styled.span`
 `;
 
 const CalendarContainer = styled.div`
-  margin-left: calc(25px + 3.5rem);
-  margin-right: 25px;
   overflow: auto;
 `;
 
