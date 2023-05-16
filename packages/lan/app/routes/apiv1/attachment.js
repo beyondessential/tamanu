@@ -12,7 +12,7 @@ attachment.get(
     const { query, params, deviceId } = req;
     const { base64 } = query;
     const { id } = params;
-    const attachment = await Attachment.findByPk(params.id);
+    const attachment = await req.models.Attachment.findByPk(params.id);
 
     if (attachment) {
       if (base64 === 'true') {

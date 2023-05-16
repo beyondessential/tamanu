@@ -5,6 +5,8 @@ import { DOCUMENT_SIZE_LIMIT } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
+import { makePatientLetter } from '../../../utils/makePatientLetter'
+import { getUploadedData } from 'shared/utils/getUploadedData';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -113,3 +115,40 @@ patientDocumentMetadataRoutes.post(
     res.send(documentMetadataObject);
   }),
 );
+
+patientDocumentMetadataRoutes.post('/:id/createPatientLetter', asyncHandler(async (req, res) => {
+  req.checkPermission('create', 'DocumentMetadata');
+  const { models, params } = req;
+
+  // Make sure the specified patient exists
+  const patient = await models.Patient.findByPk(params.id);
+  if (!patient) {
+    throw new NotFoundError();
+  }
+  
+  
+  // Create attachment
+  const { patientLetterData, ...documentMetadata } = req.body;
+  const { filePath } = await makePatientLetter(patientLetterData);
+
+  const { size } = fs.statSync(filePath);
+  const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
+  fs.unlink(file, () => null);
+
+  const { id: attachmentId } = await models.Attachment.create(
+    models.Attachment.sanitizeForFacilityServer({
+      // TODO: Maybe don't hardcode this?
+      type: 'application/pdf',
+      size,
+      data: fileData,
+    }),
+  );
+
+  const documentMetadataObject = await models.DocumentMetadata.create({
+    ...documentMetadata,
+    attachmentId,
+    patientId: params.id,
+  });
+
+  res.send(documentMetadataObject);
+}));
