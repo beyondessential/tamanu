@@ -41,6 +41,8 @@ const EXTENSION_TO_DOCUMENT_TYPE = {
 };
 
 const getType = attachmentType => {
+  // Note that this may not be the actual extension of the file uploaded.
+  // Instead, its the default extension for the mime-type of the file uploaded.
   const fileExtension = extension(attachmentType)?.toUpperCase();
   if (typeof fileExtension !== 'string') {
     throw new Error('Unsupported file type');
