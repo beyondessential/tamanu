@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import fs, { promises as asyncFs } from 'fs';
 import { Op } from 'sequelize';
 import { DOCUMENT_SIZE_LIMIT } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -129,11 +130,11 @@ patientDocumentMetadataRoutes.post('/:id/createPatientLetter', asyncHandler(asyn
   
   // Create attachment
   const { patientLetterData, ...documentMetadata } = req.body;
-  const { filePath } = await makePatientLetter(patientLetterData);
+  const { filePath } = await makePatientLetter({ patientId: patient.id, ...patientLetterData });
 
   const { size } = fs.statSync(filePath);
   const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
-  fs.unlink(file, () => null);
+  fs.unlink(filePath, () => null);
 
   const { id: attachmentId } = await models.Attachment.create(
     models.Attachment.sanitizeForFacilityServer({

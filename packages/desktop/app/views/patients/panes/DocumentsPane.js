@@ -13,6 +13,7 @@ import {
   getCurrentDateTimeString,
   toDateTimeString,
 } from '../../../../../shared-src/src/utils/dateTime';
+import { DOCUMENT_TYPES } from '../../../constants';
 
 const MODAL_STATES = {
   CLOSED: 'closed',
@@ -69,7 +70,20 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   // }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);
 
   const handlePatientLetterSubmit = useCallback(async ({ submissionType, ...data }) => {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const endpoint2 = encounter
+        ? `encounter/${encounter.id}/createPatientLetter`
+        : `patient/${patient.id}/createPatientLetter`;
+      
+      api.post(endpoint2, {
+        patientLetterData: {
+          todo: 'TODO',
+        },
+        type: DOCUMENT_TYPES.PATIENT_LETTER,
+        name: data.title,
+        documentOwner: data.clinicianId,
+        documentCreatedAt: getCurrentDateTimeString(),
+        documentUploadedAt: getCurrentDateTimeString(),
+      })
       console.log('Submitted!', submissionType, data);
       setModalStatus(MODAL_STATES.CLOSED);
     },

@@ -12,15 +12,15 @@ attachment.get(
     const { query, params, deviceId } = req;
     const { base64 } = query;
     const { id } = params;
-    const attachment = await req.models.Attachment.findByPk(params.id);
+    const localAttachment = await req.models.Attachment.findByPk(params.id);
 
-    if (attachment) {
+    if (localAttachment) {
       if (base64 === 'true') {
-        res.send({ data: Buffer.from(attachment.data).toString('base64'), type: attachment.type });
+        res.send({ data: Buffer.from(localAttachment.data).toString('base64'), type: localAttachment.type });
       } else {
-        res.setHeader('Content-Type', attachment.type);
-        res.setHeader('Content-Length', attachment.size);
-        res.send(Buffer.from(attachment.data));
+        res.setHeader('Content-Type', localAttachment.type);
+        res.setHeader('Content-Length', localAttachment.size);
+        res.send(Buffer.from(localAttachment.data));
       }
       return;
     }
