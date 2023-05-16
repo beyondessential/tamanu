@@ -36,9 +36,9 @@ function connect_postgres {
     PG_PORT="${PORT:-5433}"
 
     # retrieve details from AWS
-    ENDPOINT="$(aws rds describe-db-instances | jq -r '.DBInstances[] | select((.TagList[] | select(.Key == "elasticbeanstalk:environment-name")).Value == "'"$ENVIRONMENT"'") | .Endpoint.Address')"
-    prlog "db endpoint: $ENDPOINT"
     NODE_CONFIG="$(eb printenv "$ENVIRONMENT" | grep NODE_CONFIG | sed -e 's/.*NODE_CONFIG = //')"
+    ENDPOINT="$(echo "$NODE_CONFIG" | jq -r '.db.host')"
+    prlog "db endpoint: $ENDPOINT"
     PG_NAME="$(echo "$NODE_CONFIG" | jq -r '.db.name')"
     prlog "name: $PG_NAME"
     PG_USERNAME="$(echo "$NODE_CONFIG" | jq -r '.db.username')"
