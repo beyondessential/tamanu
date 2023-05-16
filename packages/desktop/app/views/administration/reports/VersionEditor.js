@@ -83,21 +83,19 @@ const VersionInfo = ({ name, version }) => (
   </VersionInfoCard>
 );
 
-const Error = ({ errorMessage, isCreate }) => (
+const VersionError = ({ errorMessage }) => (
   <div>
-    <b>{isCreate ? 'Create' : 'Update'} version failed</b>
+    <b>Create version failed</b>
     <ErrorMessage>{errorMessage}</ErrorMessage>
   </div>
 );
 
-const SaveButton = ({ isValid, dirty, mutatesQuery, onClick, children, submitting }) => {
+const SaveButton = ({ isValid, dirty, onClick, children, submitting }) => {
   let errorTooltipText;
   if (!dirty) {
     errorTooltipText = 'No changes to json';
   } else if (!isValid) {
     errorTooltipText = 'Please fix any errors before saving.';
-  } else if (mutatesQuery) {
-    errorTooltipText = 'A version cannot be saved with changes to the query or query options.';
   }
   return (
     <Tooltip
@@ -131,7 +129,6 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
   const { name } = report;
   const { currentUser } = useAuth();
   const [isValid, setIsValid] = useState(true);
-  const [mutatesQuery, setMutatesQuery] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [value, setValue] = useState(editableData);
   const [submitting, setSubmitting] = useState(false);
@@ -143,14 +140,9 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
       setDirty(true);
     }
     setIsValid(ajv.validate(schema, json));
-    setMutatesQuery(
-      editableData.query !== json.query ||
-        JSON.stringify(editableData.queryOptions) !== JSON.stringify(json.queryOptions),
-    );
   };
 
   const handleReset = () => {
-    setMutatesQuery(false);
     setDirty(false);
     setValue(null);
     // This has has to be deferred to reload jsoneditor window properly
@@ -159,19 +151,18 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
 
   const handleSave = async saveAsNewVersion => {
     try {
+      const nextVersionNumber = versionNumber + 1;
       setSubmitting(true);
-      const versionNum = saveAsNewVersion ? report.versionCount + 1 : versionNumber;
       const payload = {
         ...value,
-        ...(saveAsNewVersion && { versionNumber: versionNum, userId: currentUser.id }),
+        versionNumber: nextVersionNumber,
+        userId: currentUser.id,
       };
       await onSave(payload, saveAsNewVersion);
-      toast.success(
-        `Successfully ${saveAsNewVersion ? 'created new' : 'updated'} version ${versionNum}`,
-      );
+      toast.success(`Successfully created new version ${nextVersionNumber}`);
       setDirty(false);
     } catch (err) {
-      toast.error(<Error isCreate={saveAsNewVersion} errorMessage={err.message} />);
+      toast.error(<VersionError errorMessage={err.message} />);
     } finally {
       setSubmitting(false);
     }
@@ -188,15 +179,6 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
         </Button>
       </ButtonContainer>
       <ButtonContainer>
-        <SaveButton
-          onClick={() => handleSave()}
-          submitting={submitting}
-          dirty={dirty}
-          isValid={isValid}
-          mutatesQuery={mutatesQuery}
-        >
-          Save
-        </SaveButton>
         <SaveButton
           submitting={submitting}
           onClick={() => handleSave(true)}
