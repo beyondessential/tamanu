@@ -2,25 +2,12 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { Box } from '@material-ui/core';
-import { useQuery } from '@tanstack/react-query'
-import { Typography } from '@material-ui/core';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { LoadingIndicator } from '../components/LoadingIndicator';
 import { Modal, ModalLoader } from './Modal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
 // import { PatientLetterForm } from '../forms/PatientLetterForm';
 import { Colors, SEX_VALUE_INDEX } from '../constants';
-import { ConfirmCancelRow } from './ButtonRow';
-import {
-  Button,
-  BodyText,
-  FormSeparatorLine,
-  DateDisplay,
-  Table,
-  useSelectableColumn,
-  OutlinedButton,
-} from '../components';
+import { DateDisplay } from '.';
 
 const Card = styled(Box)`
   background: white;
@@ -68,7 +55,6 @@ const CardItem = ({ label, value, ...props }) => (
   </CardCell>
 );
 
-
 const PatientDetails = ({ patient }) => (
   <Card mb={4}>
     <Column>
@@ -77,56 +63,48 @@ const PatientDetails = ({ patient }) => (
       <CardItem label="Last name" value={patient?.lastName} />
     </Column>
     <Column>
-      <CardItem label="DOB" value={<DateDisplay date={patient?.dateOfBirth} />}/>
+      <CardItem label="DOB" value={<DateDisplay date={patient?.dateOfBirth} />} />
       <CardItem label="Sex" value={SEX_VALUE_INDEX[patient?.sex]?.label} />
     </Column>
   </Card>
 );
 
-const LoadingContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  z-index: 9999;
-`;
+export const PatientLetterModal = React.memo(
+  ({ open, onClose, patient, onSubmit: paneOnSubmit }) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-export const PatientLetterModal = React.memo(({ open, onClose, patient, onSubmit: paneOnSubmit, isError }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const onSubmit = useCallback(
+      async (...args) => {
+        setIsSubmitting(true);
+        await paneOnSubmit(...args);
+        setIsSubmitting(false);
+      },
+      [setIsSubmitting, paneOnSubmit],
+    );
 
-  const onSubmit = useCallback(async (...args) => {
-    setIsSubmitting(true);
-    await paneOnSubmit(...args);
-    setIsSubmitting(false);
+    return (
+      <>
+        <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
+          {isSubmitting ? (
+            <ModalLoader loadingText="Please wait while we create your patient letter" />
+          ) : (
+            <>
+              <PatientDetails patient={patient} />
+              <PatientLetterForm onSubmit={onSubmit} onCancel={onClose} />
+            </>
+          )}
+        </Modal>
+      </>
+    );
   },
-  [setIsSubmitting]
-)
-
-  return (
-    <>
-      <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
-        {isSubmitting ? (
-            <ModalLoader loadingText="Please wait while we create your patient letter"/>
-        ) : (
-          <>
-            <PatientDetails patient={patient} />
-            <PatientLetterForm onSubmit={onSubmit} onCancel={onClose}/>
-          </>
-        )
-      }
-      </Modal>
-    </>
-  );
-});
+);
 
 PatientLetterModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  isSubmitting: PropTypes.bool,
-  isError: PropTypes.bool,
 };
 
 PatientLetterModal.defaultProps = {
   open: false,
-  isSubmitting: false,
-  isError: false,
 };

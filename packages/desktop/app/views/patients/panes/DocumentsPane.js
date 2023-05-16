@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { promises as asyncFs } from 'fs';
 import { extension, lookup as lookupMimeType } from 'mime-types';
 import { ForbiddenError } from 'shared/errors';
@@ -29,7 +29,7 @@ const DOCUMENT_MODAL_STATES = [
   MODAL_STATES.ALERT_NO_SPACE_OPEN,
 ];
 
-const getType = (attachmentType) => {
+const getType = attachmentType => {
   const fileExtension = extension(attachmentType);
   if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
   return 'Unknown';
@@ -49,7 +49,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   // const dispatch = useDispatch();
   // const { navigateToImagingRequest } = usePatientNavigation();
   // const { loadEncounter } = useEncounter();
-  const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState(false );
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
@@ -58,22 +57,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
-
-  // Transition to print page as soon as we have the generated id
-  // useEffect(() => {
-  //   (async () => {
-  //     if (awaitingPrintRedirect && requestId) {
-  //       await dispatch(reloadImagingRequest(requestId));
-  //       navigateToImagingRequest(requestId, 'print');
-  //     }
-  //   })();
-  // }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);
-
-  const handlePatientLetterSubmit = useCallback(async ({ submissionType, ...data }) => {
-      const endpoint2 = encounter
+  const handlePatientLetterSubmit = useCallback(
+    async ({ submissionType, ...data }) => {
+      const endpoint2 = encounter?.id
         ? `encounter/${encounter.id}/createPatientLetter`
         : `patient/${patient.id}/createPatientLetter`;
-      
+
       api.post(endpoint2, {
         patientLetterData: {
           todo: 'TODO',
@@ -83,17 +72,17 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         documentOwner: data.clinicianId,
         documentCreatedAt: getCurrentDateTimeString(),
         documentUploadedAt: getCurrentDateTimeString(),
-      })
+      });
       console.log('Submitted!', submissionType, data);
       setModalStatus(MODAL_STATES.CLOSED);
     },
-    [setModalStatus]
+    [setModalStatus, api, encounter?.id, patient?.id],
   );
 
   // Allows to check internet connection and set error modal from child components
   const canInvokeDocumentAction = useCallback(() => {
     if (!hasInternetConnection) {
-      console.log('get picked up by the linter - call the function above')
+      console.log('get picked up by the linter - call the function above');
       setModalStatus(MODAL_STATES.ALERT_NO_INTERNET_OPEN);
       return false;
     }
@@ -142,7 +131,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
-          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>Patient letter</OutlinedButton>
+          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
+            Patient letter
+          </OutlinedButton>
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable

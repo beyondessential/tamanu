@@ -1,22 +1,21 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { useFormik } from 'formik';
-import { useQuery } from '@tanstack/react-query'
 
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { AutocompleteInput } from '../components/Field/AutocompleteField';
-import { Suggester } from '../utils/suggester';
-import { foreignKey } from '../utils/validation';
-import { Form, Field, TextField, MultilineTextField, SelectField, DateField, AutocompleteField } from '../components/Field';
-import { FileChooserField } from '../components/Field/FileChooserField';
+import {
+  Form,
+  Field,
+  TextField,
+  MultilineTextField,
+  DateField,
+  AutocompleteField,
+} from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { OutlinedButton, Button } from '../components';
-import { ConfirmCancelRow } from '../components/ButtonRow';
-import { LoadingIndicator } from '../components/LoadingIndicator';
 import { ModalButtonRow } from '../components/ModalActionRow';
 
 const TallMultilineTextField = props => (
@@ -31,7 +30,7 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
-const DumbPatientLetterForm = ({ isSubmitting, submitForm, onCancel, setFieldValue }) => {
+const DumbPatientLetterForm = ({ submitForm, onCancel, setFieldValue }) => {
   const [templateId, setTemplateId] = useState(null);
   const [templateLoading, setTemplateLoading] = useState(null);
 
@@ -40,22 +39,20 @@ const DumbPatientLetterForm = ({ isSubmitting, submitForm, onCancel, setFieldVal
   const patientLetterTemplateSuggester = useSuggester('patientLetterTemplate');
 
   useEffect(() => {
-      const updateValues = async () => {
-        const template = await api.get(`patientLetterTemplate/${templateId}`);
-        if (template) {
-          setFieldValue('title', template.title);
-          setFieldValue('body', template.body);
-        }
-        setTemplateLoading(false);
+    const updateValues = async () => {
+      const template = await api.get(`patientLetterTemplate/${templateId}`);
+      if (template) {
+        setFieldValue('title', template.title);
+        setFieldValue('body', template.body);
       }
+      setTemplateLoading(false);
+    };
 
-      if(templateId) {
-        setTemplateLoading(true);
-        updateValues();
-      }
-    }, 
-    [templateId],
-  );
+    if (templateId) {
+      setTemplateLoading(true);
+      updateValues();
+    }
+  }, [templateId, api, setFieldValue]);
 
   return (
     <>
@@ -67,13 +64,7 @@ const DumbPatientLetterForm = ({ isSubmitting, submitForm, onCancel, setFieldVal
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field
-          name="date"
-          label="Date"
-          required
-          component={DateField}
-          saveDateAsString
-        />
+        <Field name="date" label="Date" required component={DateField} saveDateAsString />
       </FormGrid>
       <FormGrid columns={1}>
         <Field
@@ -82,16 +73,25 @@ const DumbPatientLetterForm = ({ isSubmitting, submitForm, onCancel, setFieldVal
           suggester={patientLetterTemplateSuggester}
           required
           component={AutocompleteField}
-          onChange={event => console.log(event.target.value) || setTemplateId(event.target.value)}
+          onChange={e => setTemplateId(e.target.value)}
         />
         <Field name="title" label="Letter title" component={TextField} disabled={templateLoading} />
-        <Field name="body" label="Note" component={TallMultilineTextField} disabled={templateLoading} />
+        <Field
+          name="body"
+          label="Note"
+          component={TallMultilineTextField}
+          disabled={templateLoading}
+        />
       </FormGrid>
       <ModalButtonRow>
-        <FinaliseAndPrintButton onClick={e => submitForm(e, {submissionType: 'FinaliseAndPrint'})}>Finalise & Print</FinaliseAndPrintButton>
+        <FinaliseAndPrintButton
+          onClick={e => submitForm(e, { submissionType: 'FinaliseAndPrint' })}
+        >
+          Finalise & Print
+        </FinaliseAndPrintButton>
         <Gap />
         <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-        <Button onClick={e => submitForm(e, {submissionType: 'Finalise'})}>Finalise</Button>
+        <Button onClick={e => submitForm(e, { submissionType: 'Finalise' })}>Finalise</Button>
       </ModalButtonRow>
     </>
   );
@@ -109,8 +109,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject }) => {
         clinicianId: currentUser.id,
         ...editedObject,
       }}
-      validationSchema={yup.object().shape({
-      })}
+      validationSchema={yup.object().shape({})}
     />
   );
 };

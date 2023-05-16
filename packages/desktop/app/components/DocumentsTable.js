@@ -111,14 +111,14 @@ export const DocumentsTable = React.memo(
         // Suggest a filename that matches the document name
         const path = await showSaveDialog({ defaultPath: row.name });
         if (path.canceled) return;
-        
+
         try {
           // Give feedback to user that download is starting
           notify('Your download has started, please wait.', { type: 'info' });
 
           // Download attachment (*currently the API only supports base64 responses)
           const { data, type } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
-          
+
           // If the extension is unknown, save it without extension
           const fileExtension = extension(type);
           const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;

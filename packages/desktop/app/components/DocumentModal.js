@@ -31,20 +31,21 @@ const Message = styled(Typography)`
 export const DocumentModal = React.memo(({ open, onClose, onSubmit: paneOnSubmit, isError }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = useCallback(async (...args) => {
+  const onSubmit = useCallback(
+    async (...args) => {
       setIsSubmitting(true);
       await paneOnSubmit(...args);
       setIsSubmitting(false);
     },
-    [setIsSubmitting]
-  )
+    [setIsSubmitting, paneOnSubmit],
+  );
 
   const handleClose = useCallback(() => {
     // Prevent user from navigating away if we're submitting a document
     if (!isSubmitting) {
       onClose();
     }
-  }, [isSubmitting]);
+  }, [isSubmitting, onClose]);
 
   useEffect(() => {
     function handleBeforeUnload(event) {
@@ -64,9 +65,13 @@ export const DocumentModal = React.memo(({ open, onClose, onSubmit: paneOnSubmit
     };
   }, [isSubmitting]);
 
-
   let ModalBody = (
-    <DocumentForm actionText="Add" onSubmit={onSubmit} onCancel={handleClose} editedObject={document} />
+    <DocumentForm
+      actionText="Add"
+      onSubmit={onSubmit}
+      onCancel={handleClose}
+      editedObject={document}
+    />
   );
 
   if (isSubmitting) {
@@ -98,12 +103,10 @@ DocumentModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  isSubmitting: PropTypes.bool,
   isError: PropTypes.bool,
 };
 
 DocumentModal.defaultProps = {
   open: false,
-  isSubmitting: false,
   isError: false,
 };

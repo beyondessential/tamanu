@@ -18,7 +18,6 @@ export const ModalActionRow = props => (
   </FullWidthRow>
 );
 
-
 export const StyledButtonRow = styled(ButtonRow)`
   border-top: 1px solid ${Colors.outline};
   padding: 30px ${MODAL_PADDING_LEFT_AND_RIGHT}px 0 ${MODAL_PADDING_LEFT_AND_RIGHT}px;
