@@ -8,8 +8,7 @@ import { IconButton } from '@material-ui/core';
 import { DOCUMENT_TYPE_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { DeleteButton, Button } from './Button';
-import { ConfirmModal } from './ConfirmModal';
+import { Button } from './Button';
 import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
 import { notify, notifySuccess, notifyError } from '../utils';
@@ -52,10 +51,8 @@ const getDepartmentName = ({ department }) => department?.name || '';
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, selectedDocument, setSelectedDocument }) => {
     const { showSaveDialog, openPath } = useElectron();
-    // TODO: Show error message
-    const [errorMessage, setErrorMessage] = useState();
     const api = useApi();
-
+    
     // Confirm delete modal will be open/close if it has a document ID
     const onClose = useCallback(() => {
       setSelectedDocument(null);
@@ -64,7 +61,8 @@ export const DocumentsTable = React.memo(
     const onDownload = useCallback(
       async row => {
         if (!navigator.onLine) {
-          setErrorMessage(
+          // TODO: Ask about error flow
+          throw new Error(
             'You do not currently have an internet connection. Documents require live internet to download.',
           );
           return;

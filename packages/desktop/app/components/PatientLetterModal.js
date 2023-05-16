@@ -92,17 +92,13 @@ export const PatientLetterModal = React.memo(
           documentUploadedAt: getCurrentDateTimeString(),
         });
         refreshTable();
-        console.log('Submitted!', submissionType, data);
         setIsSubmitting(false);
 
-        if (submissionType === 'Finalise') {
-          onClose();
-        } else if (submissionType === 'FinaliseAndPrint') {
+        if (submissionType === 'FinaliseAndPrint') {
           onClose();
           setSelectedDocument(document);
         } else {
           onClose();
-          console.error('Unrecognised submission type');
         }
       },
       [onClose, api, endpoint, refreshTable, setSelectedDocument],

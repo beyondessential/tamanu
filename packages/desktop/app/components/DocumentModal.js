@@ -155,14 +155,13 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
   );
 });
 
-// DocumentModal.propTypes = {
-//   open: PropTypes.bool,
-//   onClose: PropTypes.func.isRequired,
-//   onSubmit: PropTypes.func.isRequired,
-//   isError: PropTypes.bool,
-// };
+DocumentModal.propTypes = {
+  open: PropTypes.bool,
+  onClose: PropTypes.func.isRequired,
+  endpoint: PropTypes.string,
+  refreshTable: PropTypes.func,
+};
 
-// DocumentModal.defaultProps = {
-//   open: false,
-//   isError: false,
-// };
+DocumentModal.defaultProps = {
+  open: false,
+};

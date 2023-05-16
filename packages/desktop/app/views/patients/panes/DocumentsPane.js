@@ -24,8 +24,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const endpoint = encounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
 
-  console.log('patient', patient);
-
   const isFromEncounter = !!encounter?.id;
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
 
