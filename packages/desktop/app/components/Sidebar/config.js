@@ -98,6 +98,11 @@ export const FACILITY_MENU_ITEMS = [
         path: '/imaging-requests/completed',
         ability: { action: 'read' },
       },
+      {
+        label: 'Completed',
+        path: '/imaging-requests/completed',
+        ability: { action: 'read' },
+      },
     ],
   },
   {

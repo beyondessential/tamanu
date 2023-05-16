@@ -12,7 +12,7 @@ import {
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
-import { getNoteWithType } from 'shared/utils/notePages';
+import { getNotePageWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
@@ -61,6 +61,14 @@ const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
     [Op.iLike]: `${value}%`,
   },
 });
+
+const dateFilter = (fieldName, operator, value) => {
+  return {
+    [fieldName]: {
+      [operator]: toDateString(new Date(value)),
+    },
+  };
+};
 
 export const imagingRequest = express.Router();
 
@@ -163,8 +171,8 @@ imagingRequest.put(
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
-    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     const notes = {
       note: '',
@@ -308,11 +316,7 @@ globalImagingRequests.get(
       {
         key: 'completedAt',
         operator: Op.startsWith,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateString(new Date(value)),
-          },
-        }),
+        mapFn: dateFilter,
       },
     ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
@@ -387,7 +391,8 @@ globalImagingRequests.get(
     const results = {
       association: 'results',
       where: resultFilters,
-      required: false,
+      required:
+        query.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && !!filterParams.completedAt,
     };
 
     // Query database

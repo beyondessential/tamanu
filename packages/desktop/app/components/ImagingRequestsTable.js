@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -27,10 +27,12 @@ const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || '
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
-const getCompletedDate = ({ results }) => <DateDisplay date={results[0]?.completedAt} />;
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
+const getCompletedDate = ({ results }) => (
+  <DateDisplay date={results[0]?.completedAt} timeOnlyTooltip />
+);
 
-export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
+export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = '' }) => {
   const dispatch = useDispatch();
   const params = useParams();
   const { loadEncounter } = useEncounter();
@@ -49,11 +51,15 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     },
     { key: 'requestedDate', title: 'Date & time', accessor: getDate },
     { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
-    memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && {
-      key: 'results.completedAt',
-      title: 'Completed',
-      accessor: getCompletedDate,
-    },
+    ...(memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED
+      ? [
+          {
+            key: 'results.completedAt',
+            title: 'Completed',
+            accessor: getCompletedDate,
+          },
+        ]
+      : []),
     { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
   ];
 
@@ -66,7 +72,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const selectImagingRequest = useCallback(
     async imagingRequest => {
       const { encounter } = imagingRequest;
-      const patientId = params.patientId || encounter.patientId;
+      const patientId = params.patientId || encounter.patient.id;
       if (encounter) {
         await loadEncounter(encounter.id);
         await dispatch(reloadPatient(patientId));

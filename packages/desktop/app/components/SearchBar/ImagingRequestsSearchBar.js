@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Op } from 'sequelize';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
-
 import {
   DateField,
   LocalisedField,
@@ -12,6 +9,7 @@ import {
   DynamicSelectField,
   Field,
   CheckField,
+  SearchField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -24,7 +22,11 @@ const FacilityCheckbox = styled.div`
   margin-top: 20px;
 `;
 
-const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt'];
+const Spacer = styled.div`
+  width: 100%;
+`;
+
+const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt', 'allFacilities'];
 
 const useAdvancedFields = (advancedFields, searchMemoryKey) => {
   const { searchParameters, setSearchParameters } = useImagingRequests(searchMemoryKey);
@@ -95,9 +97,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
         )
       }
     >
-      <LocalisedField name="displayId" />
-      <LocalisedField name="firstName" />
-      <LocalisedField name="lastName" />
+      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField name="firstName" component={SearchField} />
+      <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField name="requestId" defaultLabel="Request ID" />
       {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
         <LocalisedField

@@ -31,7 +31,6 @@ jobs:
           # - '12'
           - '14'
         package:
-          - desktop
           - lan
           - meta-server
           - shared-src

@@ -1,4 +1,5 @@
 import React from 'react';
+import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared-src/src/constants/statuses';
 import {
   TopBar,
   PageContainer,
@@ -10,7 +11,6 @@ import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 import { IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
 
 export const ImagingRequestListingView = React.memo(({ memoryKey, statuses = [] }) => {
-  // const tableTitle = status ? `${memoryKey} imaging requests` : 'Imaging requests';
   const tableTitle =
     memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED
       ? 'Completed imaging requests'
