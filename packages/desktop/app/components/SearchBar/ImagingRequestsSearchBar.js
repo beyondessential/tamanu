@@ -38,7 +38,7 @@ const useAdvancedFields = (advancedFields, searchMemoryKey) => {
   return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
 };
 
-export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
+export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
@@ -46,23 +46,13 @@ export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
   const departmentSuggester = useSuggester('department') || [];
   const requesterSuggester = useSuggester('practitioner') || [];
 
-  // let searchMemoryKey;
-  // if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
-  //   searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
-  // }
-  // if (status === IMAGING_REQUEST_STATUS_TYPES.PENDING) {
-  //   searchMemoryKey = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE;
-  // }
-
   const {
     showAdvancedFields,
     setShowAdvancedFields,
     searchParameters,
     setSearchParameters,
   } = useAdvancedFields(ADVANCED_FIELDS, memoryKey);
-  const statusFilter = status.length > 0 ? { status: { [Op.or]: status } } : {};
-
-  console.log({ ...searchParameters, ...statusFilter })
+  const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,
@@ -71,7 +61,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
 
   return (
     <CustomisableSearchBar
-      showExpandButton={!!status}
+      showExpandButton
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       title="Search imaging requests"
@@ -79,7 +69,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
       initialValues={{ ...searchParameters, ...statusFilter }}
       staticValues={{ displayIdExact: true }}
       hiddenFields={
-        status && (
+        memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
           <>
             <LocalisedField
               name="locationGroupId"
@@ -109,7 +99,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
       <LocalisedField name="requestId" defaultLabel="Request ID" />
-      {!status && (
+      {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
         <LocalisedField
           name="status"
           defaultLabel="Status"
@@ -137,7 +127,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
         saveDateAsString
         component={DateField}
       />
-      {!status && (
+      {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
         <LocalisedField
           name="priority"
           defaultLabel="Priority"
@@ -145,7 +135,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, status = '' }) => {
           options={imagingPriorities}
         />
       )}
-      {status && (
+      {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
         <LocalisedField
           name="requestedById"
           defaultLabel="Requested by"

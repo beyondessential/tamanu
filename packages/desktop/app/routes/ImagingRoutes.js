@@ -14,7 +14,7 @@ export const ImagingRoutes = React.memo(({ match }) => (
           <ImagingRequestListingView
             {...props}
             memoryKey={IMAGING_REQUEST_SEARCH_KEYS.ACTIVE}
-            status={[
+            statuses={[
               IMAGING_REQUEST_STATUS_TYPES.PENDING,
               IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
             ]}
@@ -27,7 +27,7 @@ export const ImagingRoutes = React.memo(({ match }) => (
           <ImagingRequestListingView
             {...props}
             memoryKey={IMAGING_REQUEST_SEARCH_KEYS.COMPLETED}
-            status={[IMAGING_REQUEST_STATUS_TYPES.COMPLETED]}
+            statuses={[IMAGING_REQUEST_STATUS_TYPES.COMPLETED]}
           />
         )}
       />

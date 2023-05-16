@@ -322,7 +322,7 @@ globalImagingRequests.get(
         mapFn: caseInsensitiveStartsWithFilter,
       },
       { key: 'imagingType', operator: Op.eq },
-      { key: 'status', operator: Op.eq },
+      { key: 'status', operator: Op.in },
       { key: 'priority', operator: Op.eq },
       { key: 'locationGroupId', operator: Op.eq },
       {
