@@ -1,4 +1,4 @@
-import { ModelExporter } from './modelExporter';
+import { ModelExporter } from './ModelExporter';
 
 const CUSTOM_DATA_TYPE_NAMES = {
   diagnosis: 'icd10',

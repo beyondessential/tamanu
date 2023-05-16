@@ -1,4 +1,4 @@
-import { ModelExporter } from './modelExporter';
+import { ModelExporter } from './ModelExporter';
 
 export class PermissionExporter extends ModelExporter {
   async getData() {

@@ -1,4 +1,4 @@
-import { ModelExporter } from './modelExporter';
+import { ModelExporter } from './ModelExporter';
 
 const CUSTOM_TAB_NAMES = {
   patientFieldDefinitionCategory: 'Patient Field Def Category',

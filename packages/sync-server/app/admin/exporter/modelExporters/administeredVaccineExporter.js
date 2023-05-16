@@ -1,5 +1,5 @@
 import { parseDate } from 'shared/utils/dateTime';
-import { DefaultDataExporter } from './defaultDataExporter';
+import { DefaultDataExporter } from './DefaultDataExporter';
 
 export class AdministeredVaccineExporter extends DefaultDataExporter {
   customCellFormatter = {
