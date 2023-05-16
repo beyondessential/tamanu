@@ -15,7 +15,6 @@ import {
   VACCINE_GIVEN_VALIDATION_SCHEMA,
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
-import { findVaccinesByAdministeredStatus } from '../utils/findVaccinesByAdministeredStatus';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
@@ -90,13 +89,6 @@ export const VaccineForm = ({
   const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
     vaccineLabel,
     vaccineOptions,
-  ]);
-  const administeredOptions = useMemo(
-    () => findVaccinesByAdministeredStatus(selectedVaccine, true),
-    [selectedVaccine],
-  );
-  const scheduleOptions = useMemo(() => findVaccinesByAdministeredStatus(selectedVaccine, false), [
-    selectedVaccine,
   ]);
 
   const { currentUser } = useAuth();
@@ -184,8 +176,7 @@ export const VaccineForm = ({
           category={category}
           setCategory={setCategory}
           setVaccineLabel={setVaccineLabel}
-          administeredOptions={administeredOptions}
-          scheduleOptions={scheduleOptions}
+          schedules={selectedVaccine?.schedules}
           onCancel={onCancel}
           currentUser={currentUser}
         />
@@ -209,7 +200,7 @@ const VaccineFormComponent = ({
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
     resetForm();
     if (!editMode) {
-      setCategory(null);
+      setCategory(VACCINE_CATEGORIES.ROUTINE);
     }
     setVaccineLabel(null);
     // we strictly only want to reset the form values when vaccineRecordingType is changed

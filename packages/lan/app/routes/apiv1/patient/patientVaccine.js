@@ -88,7 +88,12 @@ patientVaccineRoutes.get(
         });
         return allVaccines;
       }, {});
-    res.send(Object.values(vaccines));
+
+    // Exclude vaccines that already have all the schedules administered for the patient
+    const availableVaccines = Object.values(vaccines).filter(v =>
+      v.schedules.some(s => !s.administered),
+    );
+    res.send(availableVaccines);
   }),
 );
 
