@@ -72,22 +72,33 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
       staticValues={{ displayIdExact: true }}
       hiddenFields={
         <>
-          {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+          {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
             <>
               <LocalisedField
-                name="locationGroupId"
-                defaultLabel="Area"
+                name="requestedBy"
+                defaultLabel="Requested by"
+                saveDateAsString
                 component={AutocompleteField}
-                suggester={areaSuggester}
-                size="small"
+                suggester={requesterSuggester}
               />
-              <LocalisedField
-                name="departmentId"
-                defaultLabel="Department"
-                component={AutocompleteField}
-                suggester={departmentSuggester}
-                size="small"
-              />
+            </>
+          )}
+          <LocalisedField
+            name="locationGroupId"
+            defaultLabel="Area"
+            component={AutocompleteField}
+            suggester={areaSuggester}
+            size="small"
+          />
+          <LocalisedField
+            name="departmentId"
+            defaultLabel="Department"
+            component={AutocompleteField}
+            suggester={departmentSuggester}
+            size="small"
+          />
+          {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+            <>
               <LocalisedField
                 name="completedAt"
                 defaultLabel="Completed"
