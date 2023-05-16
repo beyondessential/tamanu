@@ -1,0 +1,5 @@
+export const DOCUMENT_TYPES = {
+  PATIENT_LETTER: 'PATIENT_LETTER',
+  RAW_PDF: 'RAW_PDF',
+  RAW_JPEG: 'RAW_JPEG',
+};

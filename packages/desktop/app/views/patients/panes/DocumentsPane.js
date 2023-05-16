@@ -1,7 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { promises as asyncFs } from 'fs';
 import { extension, lookup as lookupMimeType } from 'mime-types';
+
 import { ForbiddenError } from 'shared/errors';
+import { DOCUMENT_TYPES } from 'shared/constants';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
@@ -9,11 +13,6 @@ import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { useApi } from '../../../api';
 import { TabPane } from '../components';
 import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
-import {
-  getCurrentDateTimeString,
-  toDateTimeString,
-} from '../../../../../shared-src/src/utils/dateTime';
-import { DOCUMENT_TYPES } from '../../../constants';
 
 const MODAL_STATES = {
   CLOSED: 'closed',
@@ -92,7 +91,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         setModalStatus(MODAL_STATES.CLOSED);
         setSelectedDocument(document);
         setDocumentAction(DOCUMENT_ACTIONS.VIEW);
-      return;
+        return;
       }
       else {
         throw new Error('Unrecognised submission type')
