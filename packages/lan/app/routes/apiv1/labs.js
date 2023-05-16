@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
@@ -123,13 +124,14 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
-        [LAB_REQUEST_STATUSES.DELETED]: LAB_REQUEST_STATUSES.DELETED,
+        deleted: LAB_REQUEST_STATUSES.DELETED,
       })),
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
-        [LAB_REQUEST_STATUSES.CANCELLED]: LAB_REQUEST_STATUSES.CANCELLED,
+        cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -146,6 +148,7 @@ labRequest.get(
       makeSimpleTextFilter('requestedById', 'lab_requests.requested_by_id'),
       makeSimpleTextFilter('departmentId', 'encounter.department_id'),
       makeSimpleTextFilter('locationGroupId', 'location.location_group_id'),
+      makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
       makeFilter(
         filterParams.requestedDateFrom,
         `lab_requests.requested_date >= :requestedDateFrom`,
@@ -160,6 +163,27 @@ labRequest.get(
           requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
         }),
       ),
+      makeFilter(
+        !JSON.parse(filterParams.allFacilities || false),
+        `location.facility_id = :facilityId`,
+        () => ({ facilityId: config.serverFacilityId }),
+      ),
+      makeFilter(
+        filterParams.publishedDate,
+        `lab_requests.published_date LIKE :publishedDate`,
+        ({ publishedDate }) => {
+          return {
+            publishedDate: `${publishedDate}%`,
+          };
+        },
+      ),
+      makeFilter(
+        filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
+        `lab_requests.status != :published`,
+        () => ({
+          published: LAB_REQUEST_STATUSES.PUBLISHED,
+        }),
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -169,7 +193,7 @@ labRequest.get(
         LEFT JOIN encounters AS encounter
           ON (encounter.id = lab_requests.encounter_id)
         LEFT JOIN locations AS location
-          ON encounter.location_id = location.id
+          ON (encounter.location_id = location.id)
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
         LEFT JOIN reference_data AS priority
@@ -178,13 +202,17 @@ labRequest.get(
           ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
         LEFT JOIN reference_data AS site
           ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
+        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
+          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
+        LEFT JOIN lab_test_panels AS lab_test_panel
+          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-      ${whereClauses && `WHERE ${whereClauses}`}
+        ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
     const filterReplacements = filters
@@ -215,10 +243,12 @@ labRequest.get(
       patientName: 'UPPER(patient.last_name)',
       requestId: 'display_id',
       testCategory: 'category.name',
+      labTestPanelName: 'lab_test_panel.id',
       requestedDate: 'requested_date',
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
       status: 'status',
+      publishedDate: 'published_date',
     };
 
     const sortKey = sortKeys[orderBy];
@@ -239,8 +269,10 @@ labRequest.get(
           category.name AS category_name,
           priority.id AS priority_id,
           priority.name AS priority_name,
+          lab_test_panel.name as lab_test_panel_name,
           laboratory.id AS laboratory_id,
-          laboratory.name AS laboratory_name
+          laboratory.name AS laboratory_name,
+          location.facility_id AS facility_id
         ${from}
         
         ORDER BY ${sortKey} ${sortDirection}
@@ -262,7 +294,6 @@ labRequest.get(
     );
 
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-
     res.send({
       data: forResponse,
       count,
@@ -319,6 +350,26 @@ labRequest.use(labRelations);
 export const labTest = express.Router();
 
 labTest.put('/:id', simplePut('LabTest'));
+
+labTest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const labTestId = params.id;
+
+    req.checkPermission('read', 'LabTest');
+
+    const response = await models.LabTest.findByPk(labTestId, {
+      include: [
+        { model: models.LabRequest, as: 'labRequest' },
+        { model: models.LabTestType, as: 'labTestType' },
+        { model: models.ReferenceData, as: 'labTestMethod' },
+      ],
+    });
+
+    res.send(response);
+  }),
+);
 
 export const labTestType = express.Router();
 labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));

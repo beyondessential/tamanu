@@ -109,6 +109,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
                 label="Email"
                 blurOnSubmit={false}
                 returnKeyType="next"
+                labelColor={theme.colors.WHITE}
                 onSubmitEditing={(): void => {
                   passwordRef.current.focus();
                 }}
@@ -120,6 +121,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
               autoCapitalize="none"
               component={TextField}
               label="Password"
+              labelColor={theme.colors.WHITE}
               secure
               onSubmitEditing={handleSubmit}
             />

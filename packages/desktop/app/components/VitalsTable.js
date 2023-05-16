@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { VitalsTableCell, VitalsTableHeadCell, VitalsTableMeasureCell } from './VitalsTableCell';
+import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 
@@ -15,7 +15,7 @@ const StyledTable = styled(Table)`
       left: 0;
       position: sticky;
       z-index: 1;
-      border-right: 1px solid ${Colors.outline};
+      border-right: 2px solid ${Colors.outline};
     }
     thead tr th:first-child {
       background: ${Colors.background};
@@ -42,23 +42,19 @@ export const VitalsTable = React.memo(() => {
       title: 'Measure',
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
-        <VitalsTableMeasureCell
-          value={value}
-          config={config}
-          validationCriteria={validationCriteria}
-        />
+        <RangeTooltipCell value={value} config={config} validationCriteria={validationCriteria} />
       ),
     },
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
-        title: <VitalsTableHeadCell value={date} />,
+        title: <DateHeadCell value={date} />,
         sortable: false,
         key: date,
         accessor: cells => {
           const { value, config, validationCriteria } = cells[date];
           return (
-            <VitalsTableCell
+            <RangeValidatedCell
               value={value}
               config={config}
               validationCriteria={validationCriteria}

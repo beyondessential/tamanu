@@ -77,7 +77,10 @@ export const SurveyScreen = ({
 
     // Only include visible elements
     const pageErrors = Object.keys(formErrors).filter(x =>
-      components.map(c => c.dataElementId).includes(x),
+      components
+        .filter(c => checkVisibility(c, values, components))
+        .map(c => c.dataElementId)
+        .includes(x),
     );
 
     if (pageErrors.length === 0) {

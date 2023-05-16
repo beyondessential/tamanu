@@ -1,9 +1,14 @@
 /* eslint-disable no-unused-expressions */
 
-import { addDays, format, formatRFC7231 } from 'date-fns';
+import { addDays, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import {
+  FHIR_DATETIME_PRECISION,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
@@ -95,7 +100,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a service request by materialised ID', async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, NoteItem, NotePage } = ctx.store.models;
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
@@ -104,8 +109,34 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
+      const [np1, np2] = await NotePage.bulkCreate([
+        fake(NotePage, {
+          date: '2022-03-05',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+        }),
+        fake(NotePage, {
+          date: '2022-03-06',
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: ImagingRequest.name,
+          recordId: ir.id,
+        }),
+      ]);
+      await NoteItem.bulkCreate([
+        fake(NoteItem, { notePageId: np1.id, content: 'Suspected adenoma' }),
+        fake(NoteItem, { notePageId: np1.id, content: 'Patient may need mobility assistance' }),
+        fake(NoteItem, {
+          notePageId: np2.id,
+          content: 'Patient may have shrapnel in leg - need to confirm beforehand',
+        }),
+      ]);
+
       await ir.setAreas([resources.area1.id, resources.area2.id]);
       await ir.reload();
       const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
@@ -188,6 +219,18 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             text: resources.facility.name,
           },
         ],
+        note: [
+          {
+            time: formatFhirDate('2022-03-05'),
+            text: `Suspected adenoma
+
+Patient may need mobility assistance`,
+          },
+          {
+            time: formatFhirDate('2022-03-06'),
+            text: 'Patient may have shrapnel in leg - need to confirm beforehand',
+          },
+        ],
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(ir.updatedAt)));
       expect(response).toHaveSucceeded();
@@ -207,6 +250,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: null,
           requestedDate: '2022-03-04 15:30:00',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -250,6 +294,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -369,6 +414,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
           requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
         }),
       );
       await ir.setAreas([resources.area1.id, resources.area2.id]);
@@ -392,7 +438,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: formatFhirDate(ir.updatedAt),
         },
         type: 'searchset',
         total: 1,
@@ -408,7 +454,127 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                lastUpdated: formatFhirDate(ir.updatedAt),
+              },
+              identifier: [
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+                  value: ir.id,
+                },
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+                  value: ir.displayId,
+                },
+              ],
+              status: 'completed',
+              intent: 'order',
+              category: [
+                {
+                  coding: [
+                    {
+                      system: 'http://snomed.info/sct',
+                      code: '363679005',
+                    },
+                  ],
+                },
+              ],
+              priority: 'routine',
+              code: {
+                text: 'X-Ray',
+              },
+              orderDetail: [
+                {
+                  text: resources.extCode1.description,
+                  coding: [
+                    {
+                      code: resources.extCode1.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+                {
+                  text: resources.extCode2.description,
+                  coding: [
+                    {
+                      code: resources.extCode2.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+              ],
+              subject: {
+                reference: `Patient/${resources.pat.id}`,
+                type: 'Patient',
+                display: `${resources.patient.firstName} ${resources.patient.lastName}`,
+              },
+              occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
+              requester: {
+                display: resources.practitioner.displayName,
+              },
+              locationCode: [
+                {
+                  text: resources.facility.name,
+                },
+              ],
+            },
+          },
+        ],
+      });
+      expect(response).toHaveSucceeded();
+    });
+
+    it('searches a single service request by Tamanu Display ID', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: encounter.id,
+          locationGroupId: resources.locationGroup.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: 'routine',
+          requestedDate: '2023-11-12 13:14:15',
+          imagingType: 'xRay',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const id = encodeURIComponent(
+        `http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html|${ir.displayId}`,
+      );
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
+
+      // act
+      const response = await app.get(path);
+      response.body?.entry?.[0]?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.entry?.[0]?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'Bundle',
+        id: expect.any(String),
+        timestamp: expect.any(String),
+        meta: {
+          lastUpdated: formatFhirDate(ir.updatedAt),
+        },
+        type: 'searchset',
+        total: 1,
+        link: [
+          {
+            relation: 'self',
+            url: expect.stringContaining(path),
+          },
+        ],
+        entry: [
+          {
+            resource: {
+              resourceType: 'ServiceRequest',
+              id: expect.any(String),
+              meta: {
+                lastUpdated: formatFhirDate(ir.updatedAt),
               },
               identifier: [
                 {
@@ -609,9 +775,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by lastUpdated=gt with a date', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${format(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
           addDays(new Date(), 7),
-          'yyyy-MM-dd',
+          FHIR_DATETIME_PRECISION.DAYS,
         )}`,
       );
 
@@ -623,7 +789,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('filters by lastUpdated=gt with a datetime', async () => {
       const response = await app.get(
         `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
-          format(addDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          formatFhirDate(addDays(new Date(), 7)),
         )}`,
       );
 
@@ -677,6 +843,45 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
 
       expect(response.body.total).toBe(0);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.pat.id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient with targetType (match)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Patient`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(resources.pat.id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes subject patient with targetType (no match)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Patient:subject:Practitioner`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(2);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
       expect(response).toHaveSucceeded();
     });
   });

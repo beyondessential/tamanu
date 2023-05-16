@@ -7,14 +7,14 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
-import { autoUpdater } from 'electron-updater';
-import { app, BrowserWindow } from 'electron';
+import { NsisUpdater } from 'electron-updater';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
 
-import {findCountryLocales} from 'iso-lang-codes'
+import { findCountryLocales } from 'iso-lang-codes';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -25,8 +25,6 @@ import electronDebug from 'electron-debug';
 
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
-
-const UPDATE_CHECK_INTERVAL = 60 * 60 * 1000; // check for updates every hour
 
 let mainWindow = null;
 
@@ -54,6 +52,19 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
+  // testers can run multiple instances of the app mode by passing the --multi-window flag
+  const singleInstanceOnly = !process.argv.includes('--multi-window');
+
+  // Check if there's already an instance of the app running. If there is, we can quit this one, and
+  // the other will receive a 'second-instance' event telling it to focus its window (see below)
+  if (singleInstanceOnly) {
+    const isFirstInstance = app.requestSingleInstanceLock();
+    if (!isFirstInstance && !multiWindow) {
+      app.quit();
+      return;
+    }
+  }
+
   mainWindow = new BrowserWindow({
     show: false,
     // width: 1024,
@@ -69,7 +80,7 @@ app.on('ready', async () => {
 
   // The most accurate method of getting locale in electron is getLocaleCountryCode
   // which unlike getLocale is determined by native os settings
-  const osLocales = findCountryLocales(app.getLocaleCountryCode())
+  const osLocales = findCountryLocales(app.getLocaleCountryCode());
   global.osLocales = osLocales;
 
   const htmlLocation =
@@ -78,16 +89,17 @@ app.on('ready', async () => {
       : `file://${__dirname}/app.html`;
   mainWindow.loadURL(htmlLocation);
 
-  mainWindow.on('ready-to-show', () => {
+  ipcMain.handle('update-available', (_event, host) => {
+    const autoUpdater = new NsisUpdater({
+      provider: 'generic',
+      url: `${host}/upgrade`,
+    });
     const notificationDetails = {
       title: 'A new update is ready to install',
       body: `To update to {version}, please close {appName} and wait for 30 seconds before re-opening.`,
     };
+
     autoUpdater.checkForUpdatesAndNotify(notificationDetails);
-    setInterval(
-      () => autoUpdater.checkForUpdatesAndNotify(notificationDetails),
-      UPDATE_CHECK_INTERVAL,
-    );
   });
 
   // @TODO: Use 'ready-to-show' event
@@ -109,6 +121,18 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+});
+
+app.on('second-instance', () => {
+  // This is called when a second instance of the app is attempted to be run (i.e., when it calls
+  // requestSingleInstanceLock and fails)
+  // Focus the existing mainWindow, that other instance will take care of quitting itself (see above)
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    mainWindow.focus();
+  }
 });
 
 // if (isDebug) {

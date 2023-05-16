@@ -55,10 +55,6 @@ const ActionsContainer = styled(Box)`
   margin-left: 8px;
 `;
 
-const ExpandButton = styled(IconButton)`
-  padding: 6px 14px;
-`;
-
 const SearchButton = styled(Button)`
   margin-right: 20px;
   margin-left: 6px;
@@ -75,6 +71,7 @@ export const CustomisableSearchBar = ({
   isExpanded,
   setIsExpanded,
   initialValues = {},
+  staticValues = {},
   hiddenFields,
 }) => {
   const switchExpandValue = useCallback(() => {
@@ -83,16 +80,20 @@ export const CustomisableSearchBar = ({
     });
   }, [setIsExpanded]);
 
+  const handleSubmit = values => {
+    onSearch({ ...values, ...staticValues });
+  };
+
   return (
     <Form
-      onSubmit={onSearch}
-      render={({ clearForm }) => (
+      onSubmit={handleSubmit}
+      render={({ clearForm, values }) => (
         <Container>
           <CustomisableSearchBarGrid>
             {children}
             <ActionsContainer>
               {showExpandButton && (
-                <ExpandButton
+                <IconButton
                   onClick={() => {
                     switchExpandValue();
                   }}
@@ -102,16 +103,26 @@ export const CustomisableSearchBar = ({
                     src={isExpanded ? doubleUp : doubleDown}
                     alt={`${isExpanded ? 'hide' : 'show'} advanced filters`}
                   />
-                </ExpandButton>
+                </IconButton>
               )}
               <SearchButton type="submit">Search</SearchButton>
-              <ClearButton onClick={clearForm}>Clear</ClearButton>
+              <ClearButton
+                onClick={() => {
+                  // Cant check for dirty as form is reinitialized with persisted values
+                  if (Object.keys(values).length === 0) return;
+                  clearForm();
+                  onSearch({});
+                }}
+              >
+                Clear
+              </ClearButton>
             </ActionsContainer>
           </CustomisableSearchBarGrid>
           {isExpanded && <CustomisableSearchBarGrid>{hiddenFields}</CustomisableSearchBarGrid>}
         </Container>
       )}
       initialValues={initialValues}
+      enableReinitialize
     />
   );
 };

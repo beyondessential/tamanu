@@ -28,12 +28,17 @@ const Wrapper = styled.div`
   height: 359px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
+  background: white;
 `;
 
 const LabelText = styled(BodyText)`
   color: ${({ theme }) => theme.palette.text.secondary};
   margin-bottom: 10px;
   font-weight: 500;
+`;
+
+const TextTypeLabel = styled(LabelText)`
+  margin: 4px 0px;
 `;
 
 const SelectorTable = styled.div`
@@ -78,6 +83,7 @@ const ClearAllButton = styled(TextButton)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 400;
+  text-transform: none;
   text-decoration: underline;
   color: ${({ theme }) => theme.palette.primary.main};
   &:hover {
@@ -144,6 +150,7 @@ export const TestSelectorInput = ({
   value,
   requestFormType,
   labTestPanelId,
+  onClearPanel,
   isLoading,
   onChange,
   required,
@@ -163,6 +170,7 @@ export const TestSelectorInput = ({
   const handleClear = () => {
     setTestFilters(values => ({ ...values, labTestPanelId: '' }));
     handleChange([]);
+    onClearPanel();
   };
 
   const handleChangeTestFilters = event =>
@@ -217,6 +225,9 @@ export const TestSelectorInput = ({
             />
           )}
           <FormSeparatorLine />
+          {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
+            <TextTypeLabel>Test type</TextTypeLabel>
+          )}
           <Box display="flex" alignItems="center">
             <SelectableTestItem
               name="selectAll"

@@ -65,4 +65,5 @@ export const LAB_TEST_RESULT_TYPES = {
 export const LAB_REQUEST_FORM_TYPES = {
   PANEL: 'panel',
   INDIVIDUAL: 'individual',
+  SUPERSET: 'superset',
 };

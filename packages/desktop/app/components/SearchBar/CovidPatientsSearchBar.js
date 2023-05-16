@@ -6,11 +6,12 @@ import { SearchBarCheckField } from './SearchBarCheckField';
 
 export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
   const villageSuggester = useSuggester('village');
+
   return (
     <CustomisableSearchBar
       title="Search for Patients"
       onSearch={onSearch}
-      initialValues={{ displayIdExact: true }}
+      staticValues={{ displayIdExact: true }}
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />

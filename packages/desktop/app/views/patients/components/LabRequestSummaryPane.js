@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
@@ -13,6 +14,7 @@ import {
   OutlinedButton,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { useLabRequestNotes } from '../../../api/queries';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -83,18 +85,22 @@ const CardItem = ({ label, value, ...props }) => (
   </CardCell>
 );
 
-const COLUMNS = [
+const getColumns = type => [
   {
     key: 'displayId',
     title: 'Test ID',
     sortable: false,
   },
-  {
-    key: 'panelId',
-    title: 'Panel',
-    sortable: false,
-    accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
-  },
+  ...(type === LAB_REQUEST_FORM_TYPES.PANEL
+    ? [
+        {
+          key: 'panelId',
+          title: 'Panel',
+          sortable: false,
+          accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
+        },
+      ]
+    : []),
   {
     key: 'labTestCategory',
     title: 'Category',
@@ -108,65 +114,84 @@ const MODALS = {
   LABEL_PRINT: 'labelPrint',
 };
 
-export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClose }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
-    columnKey: 'selected',
-  });
+export const LabRequestSummaryPane = React.memo(
+  ({ encounter, labRequests, requestFormType, onClose }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
+      columnKey: 'selected',
+    });
 
-  // All the lab requests were made in a batch and have the same details
-  const { sampleTime, requestedDate, requestedBy, department, priority, site } = labRequests[0];
+    // All the lab requests were made in a batch and have the same details
+    const {
+      id,
+      sampleTime,
+      requestedDate,
+      requestedBy,
+      department,
+      priority,
+      site,
+    } = labRequests[0];
 
-  return (
-    <Container>
-      <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
-      <Card mb={4}>
-        <Column>
-          <CardItem label="Requesting clinician" value={requestedBy?.displayName} />
-          <CardItem label="Department" value={department?.name} />
-          <CardItem label="Sample taken" value={<DateDisplay date={sampleTime} showTime />} />
-        </Column>
-        <BorderColumn>
-          <CardItem
-            label="Request date & time"
-            value={<DateDisplay date={requestedDate} showTime />}
+    const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(id);
+
+    return (
+      <Container>
+        <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
+        <Card mb={4}>
+          <Column>
+            <CardItem label="Requesting clinician" value={requestedBy?.displayName} />
+            <CardItem label="Department" value={department?.name} />
+            <CardItem label="Sample taken" value={<DateDisplay date={sampleTime} showTime />} />
+          </Column>
+          <BorderColumn>
+            <CardItem
+              label="Request date & time"
+              value={<DateDisplay date={requestedDate} showTime />}
+            />
+            <CardItem label="Priority" value={priority?.name} />
+            <CardItem label="Site" value={site?.name} />
+          </BorderColumn>
+        </Card>
+        <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
+        <CardTable
+          headerColor={Colors.white}
+          columns={[selectableColumn, ...getColumns(requestFormType)]}
+          data={labRequests}
+          elevated={false}
+          noDataMessage="No lab requests found"
+          allowExport={false}
+        />
+        <Actions>
+          <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.LABEL_PRINT)}>
+            Print label
+          </OutlinedButton>
+          <LabRequestPrintLabelModal
+            labRequests={selectedRows}
+            open={isOpen === MODALS.LABEL_PRINT}
+            onClose={() => setIsOpen(false)}
           />
-          <CardItem label="Priority" value={priority?.name} />
-          <CardItem label="Site" value={site?.name} />
-        </BorderColumn>
-      </Card>
-      <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
-      <CardTable
-        headerColor={Colors.white}
-        columns={[selectableColumn, ...COLUMNS]}
-        data={labRequests}
-        elevated={false}
-        noDataMessage="No lab requests found"
-        allowExport={false}
-      />
-      <Actions>
-        <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.LABEL_PRINT)}>
-          Print label
-        </OutlinedButton>
-        <LabRequestPrintLabelModal
-          labRequests={selectedRows}
-          open={isOpen === MODALS.LABEL_PRINT}
-          onClose={() => setIsOpen(false)}
-        />
-        <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.PRINT)}>
-          Print request
-        </OutlinedButton>
-        <MultipleLabRequestsPrintoutModal
-          encounter={encounter}
-          labRequests={selectedRows}
-          open={isOpen === MODALS.PRINT}
-          onClose={() => setIsOpen(false)}
-        />
-      </Actions>
-      <FormSeparatorLine />
-      <Box display="flex" justifyContent="flex-end" pt={3}>
-        <Button onClick={onClose}>Close</Button>
-      </Box>
-    </Container>
-  );
-});
+          <OutlinedButton
+            disabled={areNotesLoading}
+            size="small"
+            onClick={() => setIsOpen(MODALS.PRINT)}
+          >
+            Print request
+          </OutlinedButton>
+          <MultipleLabRequestsPrintoutModal
+            encounter={encounter}
+            labRequests={selectedRows.map(row => ({
+              ...row,
+              notePages,
+            }))}
+            open={isOpen === MODALS.PRINT}
+            onClose={() => setIsOpen(false)}
+          />
+        </Actions>
+        <FormSeparatorLine />
+        <Box display="flex" justifyContent="flex-end" pt={3}>
+          <Button onClick={onClose}>Close</Button>
+        </Box>
+      </Container>
+    );
+  },
+);

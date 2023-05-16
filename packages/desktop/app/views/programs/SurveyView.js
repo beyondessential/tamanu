@@ -51,7 +51,8 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
       // 3. Set visible values in form state
       setValues(visibleValues);
-      submitForm(event);
+      // The third parameter makes sure only visibleFields are validated against
+      submitForm(event, null, visibleFields);
     };
 
     return (
