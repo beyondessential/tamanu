@@ -103,13 +103,13 @@ export const RadioInput = ({
   fullWidth,
   style,
   error,
-  autofill = false,
+  autofillSingleAvailableOption = false,
   ...props
 }) => {
   const { onChange } = props;
 
   useEffect(() => {
-    if (!autofill) {
+    if (!autofillSingleAvailableOption) {
       return;
     }
 
