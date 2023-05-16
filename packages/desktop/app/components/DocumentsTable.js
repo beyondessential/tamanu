@@ -2,9 +2,10 @@ import React, { useCallback, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 import { promises as asyncFs } from 'fs';
-
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { IconButton } from '@material-ui/core';
+
+import { DOCUMENT_TYPE_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DeleteButton, Button } from './Button';
@@ -43,7 +44,7 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   </ActionsContainer>
 ));
 
-const getType = ({ type }) => type ?? 'Unknown';
+const getType = ({ type }) => DOCUMENT_TYPE_LABELS[type] ?? 'Unknown';
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
