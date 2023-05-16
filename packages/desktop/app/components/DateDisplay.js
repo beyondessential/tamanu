@@ -15,7 +15,7 @@ const Text = styled(Typography)`
 `;
 
 const SoftText = styled(Text)`
-  color: ${Colors.softText};
+  color: ${Colors.midText};
 `;
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
