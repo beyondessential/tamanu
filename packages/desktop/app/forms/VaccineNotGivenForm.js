@@ -28,7 +28,7 @@ export const VaccineNotGivenForm = ({
   resetForm,
   submitForm,
   category,
-  scheduleOptions,
+  schedules,
   onCancel,
   setCategory,
   setVaccineLabel,
@@ -61,11 +61,8 @@ export const VaccineNotGivenForm = ({
       )
     )}
 
-    {!editMode && (administeredOptions.length || scheduleOptions.length) ? (
-      <AdministeredVaccineScheduleField
-        administeredOptions={administeredOptions}
-        scheduleOptions={scheduleOptions}
-      />
+    {!editMode && schedules?.length ? (
+      <AdministeredVaccineScheduleField schedules={schedules} />
     ) : null}
 
     <Field
@@ -90,13 +87,7 @@ export const VaccineNotGivenForm = ({
 
     <StyledDivider />
 
-    <ConfirmCancelRowField
-      onConfirm={submitForm}
-      category={category}
-      scheduleOptions={scheduleOptions}
-      editMode={editMode}
-      onCancel={onCancel}
-    />
+    <ConfirmCancelRowField onConfirm={submitForm} editMode={editMode} onCancel={onCancel} />
   </TwoTwoGrid>
 );
 
@@ -106,7 +97,7 @@ VaccineNotGivenForm.propTypes = {
   administeredOptions: PropTypes.array.isRequired,
   submitForm: PropTypes.func.isRequired,
   category: PropTypes.string.isRequired,
-  scheduleOptions: PropTypes.array.isRequired,
+  schedules: PropTypes.array.isRequired,
   onCancel: PropTypes.func.isRequired,
   setCategory: PropTypes.func.isRequired,
   setVaccineLabel: PropTypes.func.isRequired,

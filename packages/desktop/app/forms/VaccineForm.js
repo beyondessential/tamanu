@@ -91,13 +91,6 @@ export const VaccineForm = ({
     vaccineLabel,
     vaccineOptions,
   ]);
-  const administeredOptions = useMemo(
-    () => findVaccinesByAdministeredStatus(selectedVaccine, true),
-    [selectedVaccine],
-  );
-  const scheduleOptions = useMemo(() => findVaccinesByAdministeredStatus(selectedVaccine, false), [
-    selectedVaccine,
-  ]);
 
   const { currentUser } = useAuth();
 
@@ -184,8 +177,7 @@ export const VaccineForm = ({
           category={category}
           setCategory={setCategory}
           setVaccineLabel={setVaccineLabel}
-          administeredOptions={administeredOptions}
-          scheduleOptions={scheduleOptions}
+          schedules={selectedVaccine?.schedules}
           onCancel={onCancel}
           currentUser={currentUser}
         />

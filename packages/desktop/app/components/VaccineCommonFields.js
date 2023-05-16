@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
+import { CheckCircleRounded } from '@material-ui/icons';
 
 import {
   INJECTION_SITE_OPTIONS,
@@ -23,6 +24,7 @@ import {
 import { ConfirmCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
+import { Colors } from '../constants';
 
 export const FullWidthCol = styled.div`
   grid-column: 1/-1;
@@ -84,16 +86,6 @@ export const AdministeredOptionsField = ({ administeredOptions }) => (
       <AdministeredVaccineSchedule option={option} />
     ))}
   </div>
-);
-
-export const ScheduledOptionsField = ({ scheduleOptions }) => (
-  <Field
-    name="scheduledVaccineId"
-    label="Available schedule"
-    component={RadioField}
-    options={scheduleOptions}
-    required
-  />
 );
 
 export const VaccineDateField = ({ label, required = true }) => (
@@ -186,27 +178,33 @@ export const ConsentGivenByField = () => (
   <Field name="consentGivenBy" label="Consent given by" component={TextField} />
 );
 
-export const AdministeredVaccineScheduleField = ({ administeredOptions, scheduleOptions }) => (
-  <FullWidthCol>
-    {administeredOptions.length > 0 && (
-      <div>
-        <OuterLabelFieldWrapper label="Administered schedule" />
-        {administeredOptions.map(option => (
-          <AdministeredVaccineSchedule option={option} />
-        ))}
-      </div>
-    )}
-    {scheduleOptions.length > 0 && (
-      <Field
-        name="scheduledVaccineId"
-        label="Available schedule"
-        component={RadioField}
-        options={scheduleOptions}
-        required
-      />
-    )}
-  </FullWidthCol>
-);
+export const AdministeredVaccineScheduleField = ({ schedules }) => {
+  const [scheduleOptions, setScheduledOptions] = useState([]);
+  useEffect(() => {
+    const options =
+      schedules?.map(s => ({
+        value: s.scheduledVaccineId,
+        label: s.schedule,
+        icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
+        disabled: s.administered,
+      })) || [];
+    setScheduledOptions(options);
+  }, [schedules]);
+
+  return (
+    scheduleOptions.length > 0 && (
+      <FullWidthCol>
+        <Field
+          name="scheduledVaccineId"
+          label="Schedule"
+          component={RadioField}
+          options={scheduleOptions}
+          required
+        />
+      </FullWidthCol>
+    )
+  );
+};
 
 export const VaccineNameField = () => (
   <Field name="vaccineName" label="Vaccine name" component={TextField} required />
