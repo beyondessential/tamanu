@@ -4,7 +4,6 @@ import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { ReportsExportView } from './ReportsExportView';
-import { ReportsImportView } from './ReportsImportView';
 import { ReportsEditorView } from './ReportsEditorView';
 
 const OuterContainer = styled.div`
@@ -51,16 +50,6 @@ export const ReportsAdminView = () => {
       render: () => (
         <TabContainer>
           <ReportsExportView />
-        </TabContainer>
-      ),
-    },
-    {
-      label: 'Import',
-      key: REPORT_TABS.IMPORT,
-      icon: 'fa fa-file-import',
-      render: () => (
-        <TabContainer>
-          <ReportsImportView />
         </TabContainer>
       ),
     },

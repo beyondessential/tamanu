@@ -31,6 +31,9 @@ export const DummyElectronProvider = ({ children }) => (
         return path;
       },
 
+      // eslint-disable-next-line no-console
+      showItemInFolder: path => console.log('Showing item in folder', path),
+
       // print
       printPage: (options = {}) => console.log('Printing page', options),
     }}
