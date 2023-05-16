@@ -114,7 +114,6 @@ export const RadioInput = ({
     }
 
     const validOptions = options.filter(o => !o.disabled);
-    console.log('validOptions', validOptions);
     if (validOptions.length === 1) {
       onChange({ target: { value: validOptions[0].value, name } });
     }
