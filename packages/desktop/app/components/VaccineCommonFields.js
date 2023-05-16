@@ -79,15 +79,6 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
 
 export const BatchField = () => <Field name="batch" label="Batch" component={TextField} />;
 
-export const AdministeredOptionsField = ({ administeredOptions }) => (
-  <div>
-    <OuterLabelFieldWrapper label="Administered schedule" />
-    {administeredOptions.map(option => (
-      <AdministeredVaccineSchedule option={option} />
-    ))}
-  </div>
-);
-
 export const VaccineDateField = ({ label, required = true }) => (
   <Field name="date" label={label} component={DateField} required={required} saveDateAsString />
 );

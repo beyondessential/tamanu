@@ -23,7 +23,6 @@ import { Field, SuggesterSelectField } from '../components/Field';
 export const VaccineNotGivenForm = ({
   vaccineLabel,
   vaccineOptions,
-  administeredOptions,
   editMode = false,
   resetForm,
   submitForm,
@@ -94,7 +93,6 @@ export const VaccineNotGivenForm = ({
 VaccineNotGivenForm.propTypes = {
   vaccineLabel: PropTypes.string.isRequired,
   vaccineOptions: PropTypes.array.isRequired,
-  administeredOptions: PropTypes.array.isRequired,
   submitForm: PropTypes.func.isRequired,
   category: PropTypes.string.isRequired,
   schedules: PropTypes.array.isRequired,
