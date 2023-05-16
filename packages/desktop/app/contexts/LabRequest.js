@@ -15,12 +15,15 @@ export const LabRequestProvider = ({ children }) => {
 
   const api = useApi();
 
-  const loadLabRequest = async labRequestId => {
-    setIsLoading(true);
-    const data = await api.get(`labRequest/${labRequestId}`);
-    setLabRequest({ ...data });
-    setIsLoading(false);
-  };
+  const loadLabRequest = useCallback(
+    async labRequestId => {
+      setIsLoading(true);
+      const data = await api.get(`labRequest/${labRequestId}`);
+      setLabRequest({ ...data });
+      setIsLoading(false);
+    },
+    [api],
+  );
 
   const updateLabRequest = async (labRequestId, data) => {
     const update = { ...data };

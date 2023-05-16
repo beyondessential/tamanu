@@ -3,8 +3,6 @@ import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { DataFetchingTable } from '../components';
 import { reloadPatient } from '../store/patient';
-import { useEncounter } from '../contexts/Encounter';
-import { useLabRequest } from '../contexts/LabRequest';
 import {
   getRequestedBy,
   getPatientName,
@@ -35,10 +33,8 @@ const columns = [
   { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },
 ];
 
-export const LabRequestsTable = () => {
+export const LabRequestsTable = ({ loadEncounter, loadLabRequest, searchParameters }) => {
   const dispatch = useDispatch();
-  const { loadEncounter } = useEncounter();
-  const { loadLabRequest, searchParameters } = useLabRequest();
 
   const selectLab = async lab => {
     await loadEncounter(lab.encounterId);
