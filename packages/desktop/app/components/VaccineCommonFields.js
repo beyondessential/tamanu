@@ -190,6 +190,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
           component={RadioField}
           options={scheduleOptions}
           required
+          autofill
         />
       </FullWidthCol>
     )

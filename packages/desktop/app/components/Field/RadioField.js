@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Radio from '@material-ui/core/Radio';
@@ -103,66 +103,83 @@ export const RadioInput = ({
   fullWidth,
   style,
   error,
+  autofill = false,
   ...props
-}) => (
-  <OuterLabelFieldWrapper label={label} error={error} {...props} style={style}>
-    <StyledFormControl error={error} {...props}>
-      <StyledRadioGroup
-        length={options.length}
-        aria-label={name}
-        name={name}
-        value={value || ''}
-        error={error}
-        {...props}
-      >
-        {options.map(option => (
-          <>
-            {option.leftOptionalElement ? option.leftOptionalElement : null}
-            <ControlLabel
-              key={option.value}
-              labelPlacement={option.description ? 'start' : 'end'}
-              $color={error ? Colors.alert : null}
-              control={
-                <Radio
-                  value={option.value}
-                  selected={value === option.value}
-                  {...(option.icon
+}) => {
+  const { onChange } = props;
+
+  useEffect(() => {
+    if (!autofill) {
+      return;
+    }
+
+    const validOptions = options.filter(o => !o.disabled);
+    console.log('validOptions', validOptions);
+    if (validOptions.length === 1) {
+      onChange({ target: { value: validOptions[0].value, name } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options]);
+  return (
+    <OuterLabelFieldWrapper label={label} error={error} {...props} style={style}>
+      <StyledFormControl error={error} {...props}>
+        <StyledRadioGroup
+          length={options.length}
+          aria-label={name}
+          name={name}
+          value={value || ''}
+          error={error}
+          {...props}
+        >
+          {options.map(option => (
+            <>
+              {option.leftOptionalElement ? option.leftOptionalElement : null}
+              <ControlLabel
+                key={option.value}
+                labelPlacement={option.description ? 'start' : 'end'}
+                $color={error ? Colors.alert : null}
+                control={
+                  <Radio
+                    value={option.value}
+                    selected={value === option.value}
+                    {...(option.icon
+                      ? {
+                          icon: option.icon,
+                        }
+                      : {})}
+                    disabled={option.disabled}
+                  />
+                }
+                label={
+                  option.description ? (
+                    <LabelWithDescription label={option.label} description={option.description} />
+                  ) : (
+                    option.label
+                  )
+                }
+                value={option.value}
+                $fullWidth={fullWidth}
+                selected={value === option.value}
+                style={option.style}
+                theme={
+                  option.color
                     ? {
-                        icon: option.icon,
+                        color: { default: Colors.midText, selected: option.color },
+                        background: { default: Colors.white, selected: `${option.color}11` },
+                        border: { default: option.color, selected: option.color },
+                        text: { default: Colors.darkText, selected: Colors.darkestText },
                       }
-                    : {})}
-                  disabled={option.disabled}
-                />
-              }
-              label={
-                option.description ? (
-                  <LabelWithDescription label={option.label} description={option.description} />
-                ) : (
-                  option.label
-                )
-              }
-              value={option.value}
-              $fullWidth={fullWidth}
-              selected={value === option.value}
-              style={option.style}
-              theme={
-                option.color
-                  ? {
-                      color: { default: Colors.midText, selected: option.color },
-                      background: { default: Colors.white, selected: `${option.color}11` },
-                      border: { default: option.color, selected: option.color },
-                      text: { default: Colors.darkText, selected: Colors.darkestText },
-                    }
-                  : DEFAULT_LABEL_THEME
-              }
-            />
-          </>
-        ))}
-      </StyledRadioGroup>
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
-    </StyledFormControl>
-  </OuterLabelFieldWrapper>
-);
+                    : DEFAULT_LABEL_THEME
+                }
+              />
+            </>
+          ))}
+        </StyledRadioGroup>
+        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+      </StyledFormControl>
+    </OuterLabelFieldWrapper>
+  );
+};
 
 RadioInput.propTypes = {
   name: PropTypes.string.isRequired,
