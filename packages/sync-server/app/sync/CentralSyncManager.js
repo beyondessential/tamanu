@@ -63,7 +63,7 @@ export class CentralSyncManager {
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
     const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
-    return { tick: tock - 1, tock, previousTick: tock - 3, previousTock: tock - 2 };
+    return { tick: tock - 1, tock };
   }
 
   async startSession(userId, deviceId) {
@@ -203,9 +203,18 @@ export class CentralSyncManager {
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
       // process is ongoing, will have a later updated_at_sync_tick)
-      const { tick, previousTock } = await this.tickTockGlobalClock();
-      // wait for any transactions that were in progress using the previous central server "tock"
-      await waitForPendingEditsUsingSyncTick(sequelize, previousTock);
+      const { tick } = await this.tickTockGlobalClock();
+
+      // wait for any in-flight transactions using a tick within the range we are syncing here, so
+      // that we don't miss any changes that are in progress
+      const ticksInRange = [];
+      for (let i = since; i < tick; i++) {
+        ticksInRange.push(i);
+      }
+      await Promise.all(
+        ticksInRange.map(async t => waitForPendingEditsUsingSyncTick(sequelize, t)),
+      );
+
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },
