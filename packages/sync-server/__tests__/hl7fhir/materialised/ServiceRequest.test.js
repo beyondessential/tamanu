@@ -1,11 +1,13 @@
+/* eslint-disable no-unused-expressions */
+
 import { addDays, format, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
-
-import { createTestContext } from '../../utilities';
 import { fakeUUID } from 'shared/utils/generateId';
 import { dateTimeStringIntoCountryTimezone } from 'shared/utils/dateTime';
+
+import { createTestContext } from '../../utilities';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -116,6 +118,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       // normalise for comparison
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
       // assert
       expect(response.body).toMatchObject({
@@ -126,8 +129,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         },
         identifier: [
           {
-            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
             value: ir.id,
+          },
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+            value: ir.displayId,
           },
         ],
         status: 'completed',
@@ -169,7 +176,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         subject: {
           reference: `Patient/${resources.pat.id}`,
           type: 'Patient',
-          display: resources.patient.displayId,
+          display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
         occurrenceDateTime: format(
           dateTimeStringIntoCountryTimezone('2022-03-04 15:30:00'),
@@ -210,6 +217,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       // act
       const response = await app.get(path);
+      response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
       // assert
       expect(response.body).toMatchObject({
@@ -217,8 +225,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         id: expect.any(String),
         identifier: [
           {
-            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
             value: ir.id,
+          },
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+            value: ir.displayId,
           },
         ],
         priority: 'routine',
@@ -226,7 +238,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it('searches a single service request by Tamanu ID', async () => {
+    it('searches a single service request by Tamanu UUID', async () => {
       // arrange
       const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
       const ir = await ImagingRequest.create(
@@ -245,12 +257,14 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await FhirServiceRequest.resolveUpstreams();
 
       const id = encodeURIComponent(
-        `http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html|${ir.id}`,
+        `http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html|${ir.id}`,
       );
       const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
 
       // act
       const response = await app.get(path);
+      response.body?.entry?.[0]?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.entry?.[0]?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
 
       // assert
       expect(response.body).toMatchObject({
@@ -278,8 +292,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               },
               identifier: [
                 {
-                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
                   value: ir.id,
+                },
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+                  value: ir.displayId,
                 },
               ],
               status: 'completed',
@@ -321,7 +339,129 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               subject: {
                 reference: `Patient/${resources.pat.id}`,
                 type: 'Patient',
-                display: resources.patient.displayId,
+                display: `${resources.patient.firstName} ${resources.patient.lastName}`,
+              },
+              occurrenceDateTime: format(
+                dateTimeStringIntoCountryTimezone('2023-11-12 13:14:15'),
+                "yyyy-MM-dd'T'HH:mm:ssXXX",
+              ),
+              requester: {
+                display: resources.practitioner.displayName,
+              },
+              locationCode: [
+                {
+                  text: resources.facility.name,
+                },
+              ],
+            },
+          },
+        ],
+      });
+      expect(response).toHaveSucceeded();
+    });
+
+    it('searches a single service request by Tamanu Display ID', async () => {
+      // arrange
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: encounter.id,
+          locationGroupId: resources.locationGroup.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: 'routine',
+          requestedDate: '2023-11-12 13:14:15',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
+      await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const id = encodeURIComponent(
+        `http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html|${ir.displayId}`,
+      );
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${id}`;
+
+      // act
+      const response = await app.get(path);
+      response.body?.entry?.[0]?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.entry?.[0]?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'Bundle',
+        id: expect.any(String),
+        timestamp: expect.any(String),
+        meta: {
+          lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+        },
+        type: 'searchset',
+        total: 1,
+        link: [
+          {
+            relation: 'self',
+            url: expect.stringContaining(path),
+          },
+        ],
+        entry: [
+          {
+            resource: {
+              resourceType: 'ServiceRequest',
+              id: expect.any(String),
+              meta: {
+                lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+              },
+              identifier: [
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+                  value: ir.id,
+                },
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+                  value: ir.displayId,
+                },
+              ],
+              status: 'completed',
+              intent: 'order',
+              category: [
+                {
+                  coding: [
+                    {
+                      system: 'http://snomed.info/sct',
+                      code: '363679005',
+                    },
+                  ],
+                },
+              ],
+              priority: 'routine',
+              code: {
+                text: 'X-Ray',
+              },
+              orderDetail: [
+                {
+                  text: resources.extCode1.description,
+                  coding: [
+                    {
+                      code: resources.extCode1.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+                {
+                  text: resources.extCode2.description,
+                  coding: [
+                    {
+                      code: resources.extCode2.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+              ],
+              subject: {
+                reference: `Patient/${resources.pat.id}`,
+                type: 'Patient',
+                display: `${resources.patient.firstName} ${resources.patient.lastName}`,
               },
               occurrenceDateTime: format(
                 dateTimeStringIntoCountryTimezone('2023-11-12 13:14:15'),
@@ -344,7 +484,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   });
 
   describe('search', () => {
-    let encounter, irs;
+    let encounter;
+    let irs;
     beforeAll(async () => {
       const {
         Encounter,

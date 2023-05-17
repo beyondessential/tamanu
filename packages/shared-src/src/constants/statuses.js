@@ -2,20 +2,48 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
   IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  DELETED: 'deleted',
+  ENTERED_IN_ERROR: 'entered_in_error',
 };
 
-export const IMAGING_REQUEST_STATUS_LABELS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
-  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
+export const IMAGING_REQUEST_STATUS_CONFIG = {
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: {
+    label: 'Pending',
+    color: '#CB6100',
+    background: '#FAF0E6',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: {
+    label: 'Completed',
+    color: '#19934E',
+    background: '#DEF0EE',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: {
+    label: 'In progress',
+    color: '#4101C9;',
+    background: '#ECE6FA',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: {
+    label: 'Cancelled',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.DELETED]: {
+    label: 'Deleted',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
+  [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
+    label: 'Entered in error',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
+  unknown: {
+    label: 'Unknown',
+    color: '#444444;',
+    background: '#EDEDED',
+  },
 };
-
-export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(
-  s => ({
-    label: IMAGING_REQUEST_STATUS_LABELS[s],
-    value: s,
-  }),
-);
 
 export const APPOINTMENT_TYPES = {
   STANDARD: 'Standard',

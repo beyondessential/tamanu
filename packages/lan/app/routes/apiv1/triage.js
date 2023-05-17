@@ -99,7 +99,9 @@ triage.get(
           patients.*,
           location.name AS location_name,
           location_group.name AS location_group_name,
-          complaint.name AS chief_complaint
+          complaint.name AS chief_complaint,
+          planned_location_group.name AS planned_location_group_name,
+          planned_location.name AS planned_location_name
         FROM triages
           LEFT JOIN encounters
            ON (encounters.id = triages.encounter_id)
@@ -110,8 +112,12 @@ triage.get(
           LEFT JOIN location_groups AS location_group
             ON (location_group.id = location.location_group_id)
           LEFT JOIN reference_data AS complaint
-           ON (triages.chief_complaint_id = complaint.id)
-        WHERE true
+            ON (triages.chief_complaint_id = complaint.id)
+          LEFT JOIN locations AS planned_location
+            ON (planned_location.id = encounters.planned_location_id)
+          LEFT JOIN location_groups AS planned_location_group
+            ON (planned_location.location_group_id = planned_location_group.id)
+          WHERE true
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
           AND encounters.encounter_type IN (:triageEncounterTypes)
@@ -132,7 +138,6 @@ triage.get(
         },
       },
     );
-
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
 
     res.send({

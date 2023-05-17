@@ -12,6 +12,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
+  LAB_REQUEST_STATUSES,
 } from '../constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
@@ -210,7 +211,9 @@ export const fakeBool = () => sample([true, false]);
 
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
+  'TIMESTAMP WITHOUT TIME ZONE': fakeDate,
   DATETIME: fakeDate,
+  TIMESTAMP: fakeDate,
 
   // custom type used for datetime string storage
   date_time_string: fakeDateTimeString,
@@ -260,9 +263,22 @@ const MODEL_SPECIFIC_OVERRIDES = {
     division: chance.province({ full: true }),
     type: chance.pickone(['hospital', 'clinic']),
   }),
-  ImagingRequest: () => ({
-    status: chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES)),
-  }),
+  ImagingRequest: () => {
+    const status = chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES));
+    const isCancelled = status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+    return {
+      status,
+      reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
+    };
+  },
+  LabRequest: () => {
+    const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
+    const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
+    return {
+      status,
+      reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
+    };
+  },
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     let nameGender;

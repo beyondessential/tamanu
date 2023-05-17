@@ -1,14 +1,11 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-
 import FormLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-
 import MuiButton from '@material-ui/core/Button';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
-
 import { Colors } from '../../constants';
 
 const ControlLabel = styled(FormLabel)`
@@ -24,6 +21,18 @@ const ControlLabel = styled(FormLabel)`
     letter-spacing: 0;
     margin-bottom: 5px;
   }
+`;
+
+const StyledFormHelperText = styled(FormHelperText)`
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  margin: 4px 2px 2px;
+`;
+
+const RequiredLabel = styled.span`
+  color: ${Colors.alert};
+  padding-left: 3px;
 `;
 
 const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) => {
@@ -53,19 +62,24 @@ const NullableBooleanControl = React.memo(({ value, onChange, disabled, name }) 
 });
 
 export const NullableBooleanInput = React.memo(
-  ({ label, helperText, className, style, error, ...props }) => (
-    <FormControl style={style} error={error} className={className}>
+  ({ label, helperText, className, style, error, required, inputRef, ...props }) => (
+    <FormControl style={style} error={error} className={className} ref={inputRef}>
       <ControlLabel
         labelPlacement="top"
         control={<NullableBooleanControl {...props} />}
-        label={label}
+        label={
+          <div>
+            {label}
+            {required && <RequiredLabel>*</RequiredLabel>}
+          </div>
+        }
       />
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+      {helperText && <StyledFormHelperText>{helperText}</StyledFormHelperText>}
     </FormControl>
   ),
 );
 
-export const NullableBooleanField = React.memo(({ field, error, ...props }) => (
+export const NullableBooleanField = React.memo(({ field, ...props }) => (
   <NullableBooleanInput
     name={field.name}
     value={field.value}

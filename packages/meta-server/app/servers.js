@@ -16,7 +16,6 @@ const servers = [
   // live servers
   { name: 'Aspen Medical Fiji', type: 'live', host: 'https://syncba.aspenmedical.com.fj' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
-  { name: 'Fiji MDA', type: 'live', host: 'https://sync-mda.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
@@ -39,6 +38,16 @@ const servers = [
   { name: 'Demo (Solomons)', type: 'demo', host: 'https://sync-demo.tamanu-solomons.org' },
   { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-tonga-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
+
+  // test servers
+  { name: 'Test (Aspen)', type: 'demo', host: 'https://central-aspen-clone.tamanu.io' },
+  { name: 'Test (Fiji)', type: 'demo', host: 'http://central-clone.tamanu-fiji.org' },
+  { name: 'Test (Kiribati)', type: 'demo', host: 'https://central-clone.tamanu-kiribati.org' },
+  { name: 'Test (Nauru)', type: 'demo', host: 'https://central-clone.tamanu-nauru.org' },
+  { name: 'Test (Palau)', type: 'demo', host: 'https://central-clone.tamanu-palau.org' },
+  { name: 'Test (Samoa)', type: 'demo', host: 'https://central-samoa-clone.tamanu.io' },
+  { name: 'Test (Tonga)', type: 'demo', host: 'https://clone-central-tonga.tamanu.io' },
+  { name: 'Test (Tuvalu)', type: 'demo', host: 'https://clone-sync.tamanu-tuvalu.org' },
 
   // development servers
   { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },

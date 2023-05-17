@@ -8,6 +8,7 @@ import {
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
@@ -31,7 +32,7 @@ encounter.post('/$', simplePost('Encounter'));
 encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { db, models, params } = req;
+    const { db, models, user, params } = req;
     const { referralId, id } = params;
     req.checkPermission('read', 'Encounter');
     const object = await models.Encounter.findByPk(id);
@@ -62,7 +63,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await object.update(req.body);
+      await object.update(req.body, user);
     });
 
     res.send(object);
@@ -126,7 +127,7 @@ encounterRelations.get(
   getLabRequestList('encounterId', {
     additionalFilters: {
       status: {
-        [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+        [Op.notIn]: [LAB_REQUEST_STATUSES.DELETED, LAB_REQUEST_STATUSES.ENTERED_IN_ERROR],
       },
     },
   }),
@@ -136,7 +137,63 @@ encounterRelations.get(
   '/:id/documentMetadata',
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
-encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
+encounterRelations.get(
+  '/:id/imagingRequests',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { ImagingRequest } = models;
+    const { id: encounterId } = params;
+    const {
+      order = 'ASC',
+      orderBy = 'createdAt',
+      rowsPerPage,
+      page,
+      includeNotePages: includeNotePagesStr = 'false',
+      status,
+    } = query;
+    const includeNotePages = includeNotePagesStr === 'true';
+
+    req.checkPermission('list', 'ImagingRequest');
+
+    const associations = ImagingRequest.getListReferenceAssociations(models) || [];
+
+    const baseQueryOptions = {
+      where: {
+        encounterId,
+        status: status || {
+          [Op.and]: [
+            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
+            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR },
+          ],
+        },
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      include: associations,
+    };
+
+    const count = await ImagingRequest.count({
+      ...baseQueryOptions,
+    });
+
+    const objects = await ImagingRequest.findAll({
+      ...baseQueryOptions,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = await Promise.all(
+      objects.map(async ir => {
+        return {
+          ...ir.forResponse(),
+          ...(includeNotePages ? await ir.extractNotes() : undefined),
+          areas: ir.areas.map(a => a.forResponse()),
+        };
+      }),
+    );
+
+    res.send({ count, data });
+  }),
+);
 
 encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 
@@ -201,7 +258,7 @@ encounterRelations.get(
         SELECT
           survey_responses.*,
           surveys.name as survey_name,
-          programs.name as program_name, 
+          programs.name as program_name,
           COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by
         FROM
           survey_responses
@@ -237,7 +294,6 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { db, params, query } = req;
     req.checkPermission('list', 'Vitals');
-    req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
     const { order = 'DESC' } = query;
     // The LIMIT and OFFSET occur in an unusual place in this query
@@ -306,7 +362,7 @@ encounterRelations.get(
             response.encounter_id = :encounterId
             ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
-        GROUP BY answer.data_element_id 
+        GROUP BY answer.data_element_id
         `,
       {
         replacements: {

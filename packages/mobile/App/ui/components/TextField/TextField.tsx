@@ -2,21 +2,22 @@ import React, { useCallback, useState, useRef, useMemo } from 'react';
 import {
   KeyboardType,
   StyleSheet,
-  Platform,
   ReturnKeyTypeOptions,
+  TextInput,
 } from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 export interface RefObject<T> {
   readonly current: T | null;
 }
 
 export interface TextFieldProps extends BaseInputProps {
   value: string;
-  onChange: (text: any) => void;
+  onChange: (text: string) => void;
   isOpen?: boolean;
   keyboardType?: KeyboardType;
   placeholder?: '' | string;
@@ -32,7 +33,7 @@ export interface TextFieldProps extends BaseInputProps {
   onBlur?: () => void;
   charLimit?: number;
   blurOnSubmit?: boolean;
-  inputRef?: RefObject<any>;
+  inputRef?: RefObject<TextInput>;
   onSubmitEditing?: () => void;
 }
 
@@ -86,7 +87,6 @@ export const TextField = React.memo(
     const inputMarginTop = useMemo(() => {
       if (multiline) return 0;
       if (!label) return screenPercentageToDP(0.8, Orientation.Height);
-      if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
       return screenPercentageToDP(1.5, Orientation.Height);
     }, []);
 
@@ -97,17 +97,14 @@ export const TextField = React.memo(
             ? screenPercentageToDP('13.36', Orientation.Height)
             : screenPercentageToDP('6.68', Orientation.Height)
         }
+        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
         width="100%"
       >
         <InputContainer
           disabled={disabled}
           hasValue={value && value.length > 0}
           error={error}
-          paddingLeft={
-            Platform.OS === 'ios'
-              ? screenPercentageToDP(2.0, Orientation.Width)
-              : screenPercentageToDP(1.5, Orientation.Width)
-          }
+          paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
         >
           {!multiline && label && (
             <TextFieldLabel
@@ -145,6 +142,11 @@ export const TextField = React.memo(
             onSubmitEditing={onSubmitEditing}
           />
         </InputContainer>
+        {error && (
+          <TextFieldErrorMessage>
+            {error}
+          </TextFieldErrorMessage>
+        )}
       </StyledView>
     );
   },
