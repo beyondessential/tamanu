@@ -76,6 +76,7 @@ const ModalTitle = styled(DialogTitle)`
 const VerticalCenteredText = styled.span`
   display: flex;
   align-items: center;
+  padding: 12px 0;
 `;
 
 const StyledButton = styled(Button)`

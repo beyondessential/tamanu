@@ -3,8 +3,8 @@ import { Document, Page } from '@react-pdf/renderer';
 import { replaceInTemplate } from '../replaceInTemplate';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
-import { LetterheadSection } from './LetterheadSection';
-import { PatientDetailsSection } from './PatientDetailsSection';
+import { CovidLetterheadSection } from './CovidLetterheadSection';
+import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import {
@@ -92,10 +92,10 @@ export const CovidLabCertificate = ({
   <Document>
     <Page size="A4" style={styles.page}>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
-      <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+      <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
       <Box mb={0}>
         <H3>{CertificateTitle[certType] || ''}</H3>
-        <PatientDetailsSection
+        <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
