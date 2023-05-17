@@ -6,15 +6,15 @@ import { P } from '../patientCertificates/Typography';
 import { getName, getSex, getDOB } from './accessors';
 
 const PATIENT_FIELDS = [
-  { key: 'name', label: 'Patient Name', accessor: getName, widthPercentage: 40 },
-  { key: 'displayId', label: 'Patient ID', widthPercentage: 40 },
+  { key: 'name', label: 'Patient Name', accessor: getName, percentageWidth: 40 },
+  { key: 'displayId', label: 'Patient ID', percentageWidth: 40 },
   {
     key: 'dateOfBirth',
     label: 'DOB',
     accessor: getDOB,
-    widthPercentage: 20,
+    percentageWidth: 20,
   },
-  { key: 'sex', label: 'Sex', accessor: getSex, widthPercentage: 40 },
+  { key: 'sex', label: 'Sex', accessor: getSex, percentageWidth: 40 },
 ];
 
 const ValueDisplay = ({ width, title, value }) => (
@@ -46,14 +46,14 @@ export const HandoverPatient = ({
         <Col style={{ width: '100%' }}>
           <Row>
             {detailsToDisplay.map(
-              ({ key, label: defaultLabel, accessor, widthPercentage = 33 }) => {
+              ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
                 const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
                 const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
 
                 return (
                   <ValueDisplay
                     key={key}
-                    width={`${widthPercentage}%`}
+                    width={`${percentageWidth}%`}
                     title={label}
                     value={value}
                   />
