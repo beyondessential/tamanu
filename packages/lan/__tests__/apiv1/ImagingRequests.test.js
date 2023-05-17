@@ -450,11 +450,58 @@ describe('Imaging requests', () => {
       );
       expect(hasOtherFacility).toBe(true);
     });
+  });
+
+  describe('Tabs should show the correct status imaging requests', () => {
+    const makeRequestWithStatus = async status => {
+      const testLocation = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: config.serverFacilityId,
+      });
+      const testEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: testLocation.id,
+        patientId: patient.id,
+      });
+      await models.ImagingRequest.create({
+        encounterId: testEncounter.id,
+        imagingType: IMAGING_TYPES.CT_SCAN,
+        status,
+        requestedById: app.user.id,
+      });
+    };
+
+    beforeAll(async () => {
+      await models.ImagingRequest.truncate({ cascade: true });
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.PENDING);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.PENDING);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.PENDING);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+      await makeRequestWithStatus(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+    });
+
+    it('Active tab should only show completed and in progress imaging requests', async () => {
+      const validStatuses = [
+        IMAGING_REQUEST_STATUS_TYPES.PENDING,
+        IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
+      ];
+      const statusQuery = validStatuses.join('&status=');
+      const result = await app.get(`/v1/imagingRequest?status=${statusQuery}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toBe(6);
+      result.body.data.forEach(ir => {
+        expect(validStatuses).toContain(ir.status);
+      });
+    });
 
     it('Completed tab should only show completed imaging requests', async () => {
-      const result = await app.get(
-        `/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}`,
-      );
+      const validStatuses = [IMAGING_REQUEST_STATUS_TYPES.COMPLETED];
+      const statusQuery = validStatuses.join('&status=');
+      const result = await app.get(`/v1/imagingRequest?status=${statusQuery}`);
       expect(result).toHaveSucceeded();
       result.body.data.forEach(ir => {
         expect(ir.status).toBe(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
