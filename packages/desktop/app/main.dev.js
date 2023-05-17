@@ -52,12 +52,17 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
+  // testers can run multiple instances of the app mode by passing the --multi-window flag
+  const singleInstanceOnly = !process.argv.includes('--multi-window');
+
   // Check if there's already an instance of the app running. If there is, we can quit this one, and
   // the other will receive a 'second-instance' event telling it to focus its window (see below)
-  const isFirstInstance = app.requestSingleInstanceLock();
-  if (!isFirstInstance) {
-    app.quit();
-    return;
+  if (singleInstanceOnly) {
+    const isFirstInstance = app.requestSingleInstanceLock();
+    if (!isFirstInstance && !multiWindow) {
+      app.quit();
+      return;
+    }
   }
 
   mainWindow = new BrowserWindow({
