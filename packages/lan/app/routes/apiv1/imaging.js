@@ -396,11 +396,11 @@ globalImagingRequests.get(
       attributes: ['id', 'departmentId'],
       required: true,
     };
+
     const results = {
       association: 'results',
       where: resultFilters,
-      required:
-        query.status[0] === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && !!filterParams.completedAt,
+      required: !!filterParams.completedAt,
     };
 
     // Query database
