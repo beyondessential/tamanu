@@ -17,7 +17,6 @@ describe('PatientVaccine', () => {
   let app = null;
   let baseApp = null;
 
-  let patient = null;
   let scheduled1 = null;
   let scheduled2 = null;
   let scheduled3 = null;
@@ -30,6 +29,7 @@ describe('PatientVaccine', () => {
   let facility = null;
   let givenVaccine1 = null;
   let notGivenVaccine1 = null;
+  let patient = null;
 
   const recordAdministeredVaccine = async (patientObject, vaccine, overrides) => {
     const encounter = await models.Encounter.create(
@@ -59,7 +59,6 @@ describe('PatientVaccine', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-
     clinician = await models.User.create(fake(models.User));
     [facility] = await models.Facility.upsert({
       id: config.serverFacilityId,
@@ -67,7 +66,6 @@ describe('PatientVaccine', () => {
       code: config.serverFacilityId,
     });
     patient = await models.Patient.create(await createDummyPatient(models));
-    patient2 = await models.Patient.create(await createDummyPatient(models));
 
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
