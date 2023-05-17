@@ -442,3 +442,5 @@ export const SUPPORTED_DOCUMENT_TYPES = {
   PDF: 'PDF',
   JPEG: 'JPEG',
 };
+
+export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
