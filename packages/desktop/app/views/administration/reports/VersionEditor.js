@@ -163,7 +163,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
     setTimeout(() => setValue(editableData), 0);
   };
 
-  const handleSave = async saveAsNewVersion => {
+  const handleSave = async () => {
     try {
       const nextVersionNumber = versionNumber + 1;
       setSubmitting(true);
@@ -172,7 +172,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
         versionNumber: nextVersionNumber,
         userId: currentUser.id,
       };
-      await onSave(payload, saveAsNewVersion);
+      await onSave(payload);
       toast.success(`Successfully created new version ${nextVersionNumber}`);
       setDirty(false);
     } catch (err) {

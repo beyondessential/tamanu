@@ -39,17 +39,13 @@ export const ReportsEditorView = () => {
 
   const handleBack = () => setVersion(null);
 
-  const handleSave = async (data, newVersion) => {
-    const result = newVersion
-      ? await api.post(`admin/reports/${report.id}/versions`, data)
-      : await api.put(`admin/reports/${report.id}/versions/${version.id}`, data);
+  const handleSave = async data => {
+    const result = await api.post(`admin/reports/${report.id}/versions`, data);
     setVersion({
       ...result,
-      createdBy: newVersion
-        ? {
-            displayName: currentUser.displayName,
-          }
-        : version.createdBy,
+      createdBy: {
+        displayName: currentUser.displayName,
+      },
     });
     queryClient.invalidateQueries(['reportVersions', report?.id]);
     queryClient.invalidateQueries(['reportList']);
