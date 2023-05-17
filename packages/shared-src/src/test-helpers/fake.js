@@ -497,18 +497,18 @@ export const fake = (model, passedOverrides = {}) => {
       return VISIBILITY_STATUSES.CURRENT;
     }
 
+    if (type instanceof DataTypes.ARRAY && type.type) {
+      return Array(random(0, 3))
+        .fill(0)
+        .map(() => fakeField(name, { ...attribute, type: type.type }));
+    }
+
     if (FIELD_HANDLERS[type]) {
       return FIELD_HANDLERS[type](model, attribute, id);
     }
 
     if (type.type && FIELD_HANDLERS[type.type]) {
       return FIELD_HANDLERS[type.type](model, attribute, id);
-    }
-
-    if (type instanceof DataTypes.ARRAY && type.options.type) {
-      return Array(random(0, 3))
-        .fill(0)
-        .map(() => fakeField(name, { ...attribute, type: type.options.type }));
     }
 
     if (type instanceof DataTypes.STRING && type.options.length) {

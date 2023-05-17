@@ -1,5 +1,5 @@
-import React from 'react';
-import { Formik } from 'formik';
+import React, { useEffect } from 'react';
+import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
@@ -17,6 +17,21 @@ const FormErrors = ({ errors }) => {
       <ErrorMessage error={error} />
     </Typography>
   ));
+};
+
+const ScrollToError = () => {
+  const formik = useFormikContext();
+  const submitting = formik?.isSubmitting;
+
+  useEffect(() => {
+    const el = document.querySelector('.Mui-error, [data-error]');
+    const element = el?.parentElement ?? el;
+
+    if (element) {
+      element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }, [submitting]);
+  return null;
 };
 
 export class Form extends React.PureComponent {
@@ -143,16 +158,19 @@ export class Form extends React.PureComponent {
     const { render, style } = this.props;
 
     return (
-      <form style={style} onSubmit={submitForm} noValidate>
-        {render({
-          ...formProps,
-          setValues,
-          isValid,
-          isSubmitting,
-          submitForm,
-          clearForm: () => formProps.resetForm({}),
-        })}
-      </form>
+      <>
+        <form style={style} onSubmit={submitForm} noValidate>
+          {render({
+            ...formProps,
+            setValues,
+            isValid,
+            isSubmitting,
+            submitForm,
+            clearForm: () => formProps.resetForm({}),
+          })}
+        </form>
+        <ScrollToError />
+      </>
     );
   };
 

@@ -9,7 +9,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import {
   HistoryPane,
-  ImmunisationsPane,
+  VaccinesPane,
   PatientMedicationPane,
   DocumentsPane,
   PatientProgramsPane,
@@ -73,10 +73,10 @@ const TABS = [
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Immunisation',
-    key: PATIENT_TABS.IMMUNISATION,
+    label: 'Vaccines',
+    key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
-    render: props => <ImmunisationsPane {...props} />,
+    render: props => <VaccinesPane {...props} />,
   },
   {
     label: 'Medication',

@@ -1,9 +1,4 @@
-import React, {
-  PropsWithChildren,
-  FunctionComponent,
-  useMemo,
-  FC,
-} from 'react';
+import React, { PropsWithChildren, FunctionComponent, useMemo, FC } from 'react';
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
 import { IAdministeredVaccine } from '~/types';
@@ -25,9 +20,11 @@ interface VaccineCardProps {
   onEditDetails: () => void;
 }
 
-export const VaccineCard: FunctionComponent<PropsWithChildren<
-  VaccineCardProps
->> = ({ vaccineData, onCloseModal, onEditDetails }: VaccineCardProps) => {
+export const VaccineCard: FunctionComponent<PropsWithChildren<VaccineCardProps>> = ({
+  vaccineData,
+  onCloseModal,
+  onEditDetails,
+}: VaccineCardProps) => {
   const Fields: FC<VaccineDataProps> = useMemo(() => {
     switch (vaccineData.status) {
       case VaccineStatus.NOT_GIVEN:
@@ -39,11 +36,11 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
     }
   }, [vaccineData.status]);
   return (
-    <StyledView width="80.29%">
+    <StyledView>
       <VaccineCardHeader
         name={vaccineData.name}
         code={vaccineData.code}
-        schedule={vaccineData.administeredVaccine.scheduledVaccine.schedule}
+        status={vaccineData.status}
         onCloseModal={onCloseModal}
         onEditDetails={onEditDetails}
       />
