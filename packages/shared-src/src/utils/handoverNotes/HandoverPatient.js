@@ -6,15 +6,15 @@ import { P } from '../patientCertificates/Typography';
 import { getName, getSex, getDOB } from './accessors';
 
 const PATIENT_FIELDS = [
-  { key: 'name', label: 'Patient Name', accessor: getName, width: 40 },
-  { key: 'displayId', label: 'Patient ID', width: 40 },
+  { key: 'name', label: 'Patient Name', accessor: getName, widthPercentage: 40 },
+  { key: 'displayId', label: 'Patient ID', widthPercentage: 40 },
   {
     key: 'dateOfBirth',
     label: 'DOB',
     accessor: getDOB,
-    width: 20,
+    widthPercentage: 20,
   },
-  { key: 'sex', label: 'Sex', accessor: getSex, width: 40 },
+  { key: 'sex', label: 'Sex', accessor: getSex, widthPercentage: 40 },
 ];
 
 const ValueDisplay = ({ width, title, value }) => (
@@ -45,12 +45,21 @@ export const HandoverPatient = ({
       <Row style={{ width: '100%', marginBottom: 40 }}>
         <Col style={{ width: '100%' }}>
           <Row>
-            {detailsToDisplay.map(({ key, label: defaultLabel, accessor, width = 33 }) => {
-              const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-              const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
+            {detailsToDisplay.map(
+              ({ key, label: defaultLabel, accessor, widthPercentage = 33 }) => {
+                const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+                const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
 
-              return <ValueDisplay key={key} width={`${width}%`} title={label} value={value} />;
-            })}
+                return (
+                  <ValueDisplay
+                    key={key}
+                    width={`${widthPercentage}%`}
+                    title={label}
+                    value={value}
+                  />
+                );
+              },
+            )}
             <ValueDisplay width="40%" title="Location" value={location} />
             <ValueDisplay
               width="20%"
