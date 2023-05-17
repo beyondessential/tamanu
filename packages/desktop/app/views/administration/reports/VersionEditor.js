@@ -5,9 +5,10 @@ import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
 import { Button, CardItem, OutlinedButton, formatShort, formatTime } from '../../../components';
-import { schema, schemaRefs, templates } from './schema';
+import { schema, templates } from './schema';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
+import { ErrorBoundary } from '../../../components/ErrorBoundary';
 
 const ajv = new Ajv({ allErrors: true });
 
@@ -62,6 +63,15 @@ const CardDivider = styled.div`
   border-left: 1px solid ${Colors.softOutline};
 `;
 
+const ErrorCard = styled.div`
+  background: #ffebee;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 1px -1px, rgba(0, 0, 0, 0.14) 0px 1px 1px 0px,
+    rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
+  border-radius: 5px;
+  padding: 32px 30px;
+  margin-bottom: 20px;
+`;
+
 const VersionInfo = ({ name, version }) => (
   <VersionInfoCard>
     <CardHeader>
@@ -88,6 +98,12 @@ const VersionError = ({ errorMessage }) => (
     <b>Create version failed</b>
     <ErrorMessage>{errorMessage}</ErrorMessage>
   </div>
+);
+
+const LoadError = ({ error }) => (
+  <ErrorCard>
+    Editor failed to load report with error: <b>{error.message}</b>
+  </ErrorCard>
 );
 
 const SaveButton = ({ isValid, dirty, onClick, children, submitting }) => {
@@ -136,9 +152,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
   // Handle change is debounced by jsoneditor-react
   const handleChange = json => {
     setValue(json);
-    if (!dirty) {
-      setDirty(true);
-    }
+    setDirty(JSON.stringify(json) !== JSON.stringify(editableData));
     setIsValid(ajv.validate(schema, json));
   };
 
@@ -174,7 +188,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
         <Button variant="outlined" onClick={onBack}>
           Back
         </Button>
-        <Button variant="outlined" onClick={handleReset}>
+        <Button variant="outlined" onClick={handleReset} disabled={!dirty}>
           Reset
         </Button>
       </ButtonContainer>
@@ -191,16 +205,17 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
       <DetailList>
         <VersionInfo name={name} version={version} />
         {value && (
-          <JsonEditor
-            schema={schema}
-            schemaRefs={schemaRefs}
-            ajv={ajv}
-            value={value}
-            onChange={handleChange}
-            allowSchemaSuggestions
-            mainMenuBar={false}
-            templates={templates}
-          />
+          <ErrorBoundary errorKey={version.id} ErrorComponent={LoadError}>
+            <JsonEditor
+              schema={schema}
+              ajv={ajv}
+              value={value}
+              onChange={handleChange}
+              allowSchemaSuggestions
+              mainMenuBar={false}
+              templates={templates}
+            />
+          </ErrorBoundary>
         )}
       </DetailList>
     </EditorContainer>
