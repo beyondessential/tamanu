@@ -132,16 +132,6 @@ export const DateField = React.memo(
               borderRadius={5}
               borderColor={error ? theme.colors.ERROR : theme.colors.DEFAULT_OFF}
             >
-              {label && (
-                <TextFieldLabel
-                  error={error}
-                  focus={disabled ? false : isDatePickerVisible}
-                  onFocus={showDatePicker}
-                  isValueEmpty={value !== null}
-                >
-                  {`${label}${required ? '*' : ''}`}
-                </TextFieldLabel>
-              )}
               <StyledText
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}
                 color={formattedValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT}
