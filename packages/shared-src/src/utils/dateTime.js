@@ -131,6 +131,14 @@ export function latestDateTime(...args) {
   return times[0];
 }
 
+export function compareDateStrings(key = 'desc') {
+  return (a, b) => {
+    if (key.toLowerCase() === 'asc') return parseISO(a.date) - parseISO(b.date);
+    if (key.toLowerCase() === 'desc') return parseISO(b.date) - parseISO(a.date);
+    return 0;
+  };
+}
+
 /*
  * date-fns wrappers
  * Wrapper functions around date-fns functions that parse date_string and date_time_string types

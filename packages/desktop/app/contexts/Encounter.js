@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { useApi } from '../api';
 
 /*
@@ -42,24 +42,27 @@ export const EncounterProvider = ({ children }) => {
   };
 
   // get encounter data from the sync server and save it to state.
-  const loadEncounter = async encounterId => {
-    setIsLoadingEncounter(true);
-    const data = await api.get(`encounter/${encounterId}`);
-    const { data: diagnoses } = await getDataOrDefaultOnError(
-      () => api.get(`encounter/${encounterId}/diagnoses`),
-      { data: [] },
-    );
-    const { data: procedures } = await getDataOrDefaultOnError(
-      () => api.get(`encounter/${encounterId}/procedures`),
-      { data: [] },
-    );
-    const { data: medications } = await getDataOrDefaultOnError(
-      () => api.get(`encounter/${encounterId}/medications`),
-      { data: [] },
-    );
-    setEncounterData({ ...data, diagnoses, procedures, medications });
-    setIsLoadingEncounter(false);
-  };
+  const loadEncounter = useCallback(
+    async encounterId => {
+      setIsLoadingEncounter(true);
+      const data = await api.get(`encounter/${encounterId}`);
+      const { data: diagnoses } = await getDataOrDefaultOnError(
+        () => api.get(`encounter/${encounterId}/diagnoses`),
+        { data: [] },
+      );
+      const { data: procedures } = await getDataOrDefaultOnError(
+        () => api.get(`encounter/${encounterId}/procedures`),
+        { data: [] },
+      );
+      const { data: medications } = await getDataOrDefaultOnError(
+        () => api.get(`encounter/${encounterId}/medications`),
+        { data: [] },
+      );
+      setEncounterData({ ...data, diagnoses, procedures, medications });
+      setIsLoadingEncounter(false);
+    },
+    [api],
+  );
 
   // write, fetch and set encounter.
   const writeAndViewEncounter = async (encounterId, data) => {
