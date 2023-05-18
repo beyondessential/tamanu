@@ -22,7 +22,13 @@ const LeftContainer = styled.div`
 `;
 
 const RightContainer = styled.div`
-  overflow: hidden;
+  position: relative;
+`;
+
+const TopBar = styled(TopBarBase)`
+  position: sticky;
+  top: 0;
+  height: ${TOP_BAR_HEIGHT}px;
 `;
 
 const DateHeader = styled.div`
@@ -41,6 +47,8 @@ const DateDisplay = styled.span`
 
 const CalendarContainer = styled.div`
   overflow: auto;
+  width: 100%;
+  position: absolute;
 `;
 
 const Section = styled.div`
@@ -124,7 +132,7 @@ export const AppointmentsCalendar = () => {
     <PageContainer>
       <TwoColumnDisplay>
         <LeftContainer>
-          <TopBar title="Calendar" />
+          <TopBarBase title="Calendar" />
           <Section>
             <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
             <FilterSwitch>
