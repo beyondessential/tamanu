@@ -28,7 +28,7 @@ export const readJSON = async path => {
   });
 };
 
-export async function verifyQuery(query, paramDefinitions = [], store) {
+export async function verifyQuery(query, paramDefinitions, store) {
   try {
     // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
     await store.sequelize.query(`EXPLAIN ${query}`, {

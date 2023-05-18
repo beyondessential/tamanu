@@ -331,11 +331,25 @@ describe('reportRoutes', () => {
     describe('verifyQuery', () => {
       it('should return true if query is valid', async () => {
         const query = 'select * from patients limit 1';
-        expect(verifyQuery({ query }, ctx.store)).resolves.not.toThrow();
+        expect(verifyQuery(query, [], ctx.store)).resolves.not.toThrow();
+      });
+      it('should return true if query is valid with paramDefinition', async () => {
+        const query = 'select * from patients where id = :test limit 1';
+        expect(
+          verifyQuery(
+            query,
+            [
+              {
+                name: 'test',
+              },
+            ],
+            ctx.store,
+          ),
+        ).resolves.not.toThrow();
       });
       it('should return false if query is invalid', async () => {
         const query = 'some random non sql query';
-        expect(verifyQuery({ query }, ctx.store)).rejects.toThrow();
+        expect(verifyQuery(query, [], ctx.store)).rejects.toThrow();
       });
     });
   });
