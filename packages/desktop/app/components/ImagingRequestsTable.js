@@ -60,7 +60,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
           },
         ]
       : []),
-    { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
+    { key: 'status', title: 'Status', accessor: getStatus },
   ];
 
   const globalColumns = [
