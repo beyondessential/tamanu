@@ -32,7 +32,7 @@ const getCompletedDate = ({ results }) => (
   <DateDisplay date={results[0]?.completedAt} timeOnlyTooltip />
 );
 
-export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = '' }) => {
+export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
   const params = useParams();
   const { loadEncounter } = useEncounter();
