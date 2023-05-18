@@ -1,4 +1,5 @@
 import express from 'express';
+import ms from 'ms';
 
 import { ForbiddenError, NotFoundError } from 'shared/errors';
 import { constructPermission } from 'shared/permissions/middleware';
@@ -13,6 +14,7 @@ import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
 import { assetRoutes } from './asset';
 
+const IMPORT_AND_EXPORT_TIMEOUT = '5m';
 export const adminRoutes = express.Router();
 
 // Only construct permissions for the admin stack for now.
@@ -58,12 +60,21 @@ adminRoutes.get(
   }),
 );
 
-adminRoutes.post('/import/referenceData', createDataImporterEndpoint(referenceDataImporter));
+adminRoutes.post(
+  '/import/referenceData',
+  setConnectionTimeout(IMPORT_AND_EXPORT_TIMEOUT),
+  createDataImporterEndpoint(referenceDataImporter),
+);
 
-adminRoutes.post('/import/program', createDataImporterEndpoint(programImporter));
+adminRoutes.post(
+  '/import/program',
+  setConnectionTimeout(IMPORT_AND_EXPORT_TIMEOUT),
+  createDataImporterEndpoint(programImporter),
+);
 
 adminRoutes.get(
   '/export/referenceData',
+  setConnectionTimeout(IMPORT_AND_EXPORT_TIMEOUT),
   asyncHandler(async (req, res) => {
     const { store, query } = req;
     const filename = await exporter(store.models, query.includedDataTypes);
@@ -74,3 +85,12 @@ adminRoutes.get(
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
 adminRoutes.use('/asset', assetRoutes);
+
+function setConnectionTimeout(time) {
+  const timeout = typeof time === 'string' ? ms(time) : Number(time);
+  const timeoutMiddleware = (req, res, next) => {
+    res.connection.setTimeout(timeout);
+    next();
+  };
+  return timeoutMiddleware;
+}
