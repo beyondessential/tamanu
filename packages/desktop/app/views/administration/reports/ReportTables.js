@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { REPORT_STATUSES } from 'shared/constants';
 import { formatShort, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
@@ -16,6 +17,18 @@ const STATUS_CONFIG = {
   },
 };
 
+const StyledTable = styled(Table)`
+  max-height: 650px;
+  table {
+    thead tr th {
+      position: sticky;
+      top: 0;
+      background-color: ${Colors.offWhite};
+      z-index: 1;
+    }
+  }
+`;
+
 const ReportStatusTag = ({ status }) => {
   const { background, color } = STATUS_CONFIG[status];
   return (
@@ -26,7 +39,7 @@ const ReportStatusTag = ({ status }) => {
 };
 
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => (
-  <Table
+  <StyledTable
     onRowClick={onRowClick}
     rowStyle={({ id }) => ({
       backgroundColor: selected === id ? Colors.veryLightBlue : Colors.white,
@@ -61,7 +74,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
 ));
 
 export const VersionTable = React.memo(({ data, onRowClick, loading, error }) => (
-  <Table
+  <StyledTable
     allowExport={false}
     onRowClick={onRowClick}
     columns={[

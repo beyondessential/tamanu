@@ -9,7 +9,7 @@ import { ReportsImportView } from './ReportsImportView';
 
 const OuterContainer = styled.div`
   position: relative;
-  background-color: ${Colors.white};
+  background-color: ${Colors.background};
   min-height: 100%;
 `;
 

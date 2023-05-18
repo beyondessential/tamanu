@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
-import { Button, CardItem, OutlinedButton, formatShort, formatTime } from '../../../components';
+import { Button, CardItem, formatShort, formatTime } from '../../../components';
 import { schema, templates } from './schema';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
@@ -18,7 +18,6 @@ const EditorContainer = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-  display: flex;
   align-items: center;
   margin-bottom: 20px;
   > :first-child {
@@ -72,6 +71,10 @@ const ErrorCard = styled.div`
   margin-bottom: 20px;
 `;
 
+const StyledButton = styled(Button)`
+  background: ${Colors.white};
+`;
+
 const VersionInfo = ({ name, version }) => (
   <VersionInfoCard>
     <CardHeader>
@@ -121,12 +124,16 @@ const SaveButton = ({ isValid, dirty, onClick, children, submitting }) => {
       arrow
     >
       <div>
-        <OutlinedButton onClick={onClick} disabled={!!errorTooltipText || submitting}>
+        <StyledButton
+          variant="outlined"
+          onClick={onClick}
+          disabled={!!errorTooltipText || submitting}
+        >
           <Box display="flex" alignItems="center">
             {children}
             {submitting && <InlineProgress size={12} />}
           </Box>
-        </OutlinedButton>
+        </StyledButton>
       </div>
     </Tooltip>
   );
@@ -185,12 +192,12 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
   return (
     <EditorContainer>
       <ButtonContainer>
-        <Button variant="outlined" onClick={onBack}>
+        <StyledButton variant="outlined" onClick={onBack}>
           Back
-        </Button>
-        <Button variant="outlined" onClick={handleReset} disabled={!dirty}>
+        </StyledButton>
+        <StyledButton variant="outlined" onClick={handleReset} disabled={!dirty}>
           Reset
-        </Button>
+        </StyledButton>
       </ButtonContainer>
       <ButtonContainer>
         <SaveButton
