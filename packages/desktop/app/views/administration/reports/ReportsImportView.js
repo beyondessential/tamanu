@@ -18,6 +18,7 @@ import {
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { useAuth } from '../../../contexts/Auth';
 import { ReportSelectField } from './ReportsSelectFields';
+import { Colors } from '../../../constants';
 
 const InnerContainer = styled.div`
   padding: 20px;
@@ -26,6 +27,10 @@ const InnerContainer = styled.div`
 
 const FormContainer = styled(FormGrid)`
   margin-bottom: 30px;
+`;
+
+const StyledButton = styled(OutlinedButton)`
+  background: ${Colors.white};
 `;
 
 const schema = yup.object().shape({
@@ -40,8 +45,7 @@ const ImportFeedback = ({ name, feedback, dryRun }) => (
       {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition: <b>{name}</b>
     </BodyText>
     <BodyText>
-      {feedback.method ? 'Created new' : 'Updated existing'} version:{' '}
-      <b>{feedback.versionNumber}</b>
+      created new version: <b>{feedback.versionNumber}</b>
     </BodyText>
   </Alert>
 );
@@ -80,9 +84,9 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
         />
         <Field label="Dry Run" name="dryRun" component={CheckField} />
       </FormContainer>
-      <OutlinedButton type="submit" isSubmitting={isSubmitting}>
+      <StyledButton type="submit" isSubmitting={isSubmitting}>
         Import
-      </OutlinedButton>
+      </StyledButton>
       {feedback && <ImportFeedback name={values.name} dryRun={values.dryRun} feedback={feedback} />}
     </InnerContainer>
   );

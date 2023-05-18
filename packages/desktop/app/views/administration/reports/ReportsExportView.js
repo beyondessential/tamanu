@@ -8,9 +8,11 @@ import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../comp
 import { useApi } from '../../../api';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { useElectron } from '../../../contexts/Electron';
+import { Colors } from '../../../constants';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
+  background-color: ${Colors.white};
 `;
 const InnerContainer = styled.div`
   padding: 20px;

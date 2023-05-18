@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
 import SaveAsIcon from '@material-ui/icons/SaveAltSharp';
-import { Button, CardItem, formatShort, formatTime } from '../../../components';
+import { OutlinedButton, CardItem, formatShort, formatTime } from '../../../components';
 import { schema, templates } from './schema';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
@@ -19,6 +19,7 @@ const EditorContainer = styled.div`
 `;
 
 const ButtonContainer = styled.div`
+  display: flex;
   align-items: center;
   margin-bottom: 20px;
   > :first-child {
@@ -72,8 +73,12 @@ const ErrorCard = styled.div`
   margin-bottom: 20px;
 `;
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(OutlinedButton)`
   background: ${Colors.white};
+
+  &.Mui-disabled {
+    border-color: ${Colors.outline};
+  }
 `;
 
 const SaveIcon = styled(SaveAsIcon)`
@@ -129,11 +134,7 @@ const SaveButton = ({ isValid, dirty, onClick, children, submitting }) => {
       arrow
     >
       <div>
-        <StyledButton
-          variant="outlined"
-          onClick={onClick}
-          disabled={!!errorTooltipText || submitting}
-        >
+        <StyledButton onClick={onClick} disabled={!!errorTooltipText || submitting}>
           <Box display="flex" alignItems="center">
             {children}
             {submitting && <InlineProgress size={12} />}
@@ -197,10 +198,8 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
   return (
     <EditorContainer>
       <ButtonContainer>
-        <StyledButton variant="outlined" onClick={onBack}>
-          Back
-        </StyledButton>
-        <StyledButton variant="outlined" onClick={handleReset} disabled={!dirty}>
+        <StyledButton onClick={onBack}>Back</StyledButton>
+        <StyledButton onClick={handleReset} disabled={!dirty}>
           Reset
         </StyledButton>
       </ButtonContainer>
@@ -212,7 +211,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
           isValid={isValid}
         >
           <SaveIcon />
-          Save as new version
+          Save new version
         </SaveButton>
       </ButtonContainer>
       <DetailList>
