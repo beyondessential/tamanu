@@ -71,6 +71,7 @@ reportsRouter.post(
     const { store, params, body } = req;
     const {
       models: { ReportDefinitionVersion },
+      sequelize,
     } = store;
     const { reportId } = params;
 
@@ -78,18 +79,26 @@ reportsRouter.post(
       throw new InvalidOperationError('Cannot create a report with a version number');
 
     await verifyQuery(body.query, body.queryOptions.parameters, store);
-    const latestVersion = await ReportDefinitionVersion.findOne({
-      where: { reportDefinitionId: reportId },
-      attributes: ['versionNumber'],
-      order: [['versionNumber', 'DESC']],
-    });
-    const nextVersionNumber = (latestVersion?.versionNumber || 0) + 1;
-    const version = await ReportDefinitionVersion.create({
-      ...body,
-      versionNumber: nextVersionNumber,
-      reportDefinitionId: reportId,
-    });
-    res.send(version);
+    await sequelize.transaction(
+      {
+        // Prevents race condition when determining the next version number
+        isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+      },
+      async () => {
+        const latestVersion = await ReportDefinitionVersion.findOne({
+          where: { reportDefinitionId: reportId },
+          attributes: ['versionNumber'],
+          order: [['versionNumber', 'DESC']],
+        });
+        const nextVersionNumber = (latestVersion?.versionNumber || 0) + 1;
+        const version = await ReportDefinitionVersion.create({
+          ...body,
+          versionNumber: nextVersionNumber,
+          reportDefinitionId: reportId,
+        });
+        res.send(version);
+      },
+    );
   }),
 );
 
@@ -156,6 +165,7 @@ reportsRouter.post(
     try {
       await sequelize.transaction(
         {
+          // Prevents race condition when determining the next version number
           isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
         },
         async () => {

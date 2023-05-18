@@ -33,6 +33,12 @@ const StyledButton = styled(OutlinedButton)`
   background: ${Colors.white};
 `;
 
+const StyledFileChooserField = styled(FileChooserField)`
+  .MuiButton-outlinedPrimary {
+    background: ${Colors.white};
+  }
+`;
+
 const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   file: yup.string().required('Report JSON is a required field'),
@@ -79,7 +85,7 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
         <Field
           label="Report JSON"
           name="file"
-          component={FileChooserField}
+          component={StyledFileChooserField}
           filters={[{ name: 'JSON (.json)', extensions: ['json'] }]}
         />
         <Field label="Dry Run" name="dryRun" component={CheckField} />

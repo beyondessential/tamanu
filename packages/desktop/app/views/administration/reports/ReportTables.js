@@ -18,7 +18,7 @@ const STATUS_CONFIG = {
 };
 
 const StyledTable = styled(Table)`
-  max-height: 650px;
+  max-height: 500px;
   table {
     thead tr th {
       position: sticky;
@@ -84,8 +84,8 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
         minWidth: 200,
       },
       {
-        title: 'Last updated',
-        key: 'updatedAt',
+        title: 'Created time',
+        key: 'createdAt',
         minWidth: 300,
         accessor: ({ updatedAt }) => `${formatShort(updatedAt)} ${formatTime(updatedAt)}`,
       },
