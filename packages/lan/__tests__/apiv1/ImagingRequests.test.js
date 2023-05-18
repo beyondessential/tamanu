@@ -429,7 +429,7 @@ describe('Imaging requests', () => {
     });
 
     it('should omit external requests when allFacilities is false', async () => {
-      const result = await app.get(`/v1/imagingRequest?allFacilities=false`);
+      const result = await app.get(`/v1/imagingRequest`);
       expect(result).toHaveSucceeded();
       result.body.data.forEach(ir => {
         expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
@@ -503,6 +503,7 @@ describe('Imaging requests', () => {
       const statusQuery = validStatuses.join('&status=');
       const result = await app.get(`/v1/imagingRequest?status=${statusQuery}`);
       expect(result).toHaveSucceeded();
+      expect(result.body.count).toBe(3);
       result.body.data.forEach(ir => {
         expect(ir.status).toBe(IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
       });
