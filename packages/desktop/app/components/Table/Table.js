@@ -16,7 +16,7 @@ import {
   TableFooter,
   TablePagination,
 } from '@material-ui/core';
-import { ExpandMore } from '@material-ui/icons';
+import { ExpandMore, ChevronLeft, ChevronRight } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -200,10 +200,15 @@ const PageContainer = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+  float: right;
+  margin-right: 50px;
+  svg,
+  button {
+    cursor: pointer;
+  }
 `;
 
 const PageNumber = styled.button`
-  border: 1px black solid;
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -212,26 +217,52 @@ const PageNumber = styled.button`
   align-items: center;
   justify-content: center;
   margin: 0 2px;
-  cursor: pointer;
+  background: ${props => (props.active ? Colors.primary : 'none')};
+  color: ${props => (props.active ? Colors.white : Colors.darkText)};
+  border: ${props => (props.active ? `none` : `1px ${Colors.outline} solid`)};
 `;
 
-const Paginator = React.memo(onPageChange => {
-  return (
-    <PaginatorWrapper>
-      <PageContainer>
-        <button onClick={onPageChange} type="button">
-          left
-        </button>
-        <PageNumber>1</PageNumber>
-        <PageNumber>2</PageNumber>
-        <PageNumber>3</PageNumber>
-        <button onClick={onPageChange(2)} type="button">
-          right
-        </button>
-      </PageContainer>
-    </PaginatorWrapper>
-  );
-});
+const PageNumberDivider = styled.span`
+  width: 30px;
+  text-align: center;
+`;
+
+const Paginator = React.memo(
+  ({
+    page,
+    colSpan,
+    count,
+    rowsPerPage,
+    onPageChange,
+    onRowsPerPageChange,
+    rowsPerPageOptions,
+  }) => {
+    const numberOfPages = Math.ceil(count / rowsPerPage);
+    const pageNumberButtons = Array.from({ length: numberOfPages }, (_, i) => {
+      if (i <= 2 || i === numberOfPages - 1) {
+        return (
+          <PageNumber onClick={() => onPageChange(i)} active={i === page}>
+            {i + 1}
+          </PageNumber>
+        );
+      }
+      if (i === 3) {
+        return <PageNumberDivider>...</PageNumberDivider>;
+      }
+      return null;
+    });
+
+    return (
+      <PaginatorWrapper colSpan={colSpan}>
+        <PageContainer>
+          {page > 0 && <ChevronLeft onClick={() => onPageChange(page - 1)} />}
+          {pageNumberButtons}
+          {page < numberOfPages - 1 && <ChevronRight onClick={() => onPageChange(page + 1)} />}
+        </PageContainer>
+      </PaginatorWrapper>
+    );
+  },
+);
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
@@ -346,17 +377,27 @@ class TableComponent extends React.Component {
   }
 
   renderPaginator() {
-    const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
+    const {
+      columns,
+      page,
+      count,
+      rowsPerPage,
+      rowsPerPageOptions,
+      onChangePage,
+      onChangeRowsPerPage,
+    } = this.props;
     return (
-      // <Paginator
-      <TablePagination
+      <Paginator
+        // <TablePagination
         rowsPerPageOptions={rowsPerPageOptions}
         colSpan={columns.length}
         page={page}
         count={count}
         rowsPerPage={rowsPerPage}
-        onPageChange={this.handleChangePage}
-        onRowsPerPageChange={this.handleChangeRowsPerPage}
+        // onPageChange={this.handleChangePage}
+        // onRowsPerPageChange={this.handleChangeRowsPerPage}
+        onPageChange={onChangePage}
+        onRowsPerPageChange={onChangeRowsPerPage}
       />
     );
   }
