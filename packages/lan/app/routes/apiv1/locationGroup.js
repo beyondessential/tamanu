@@ -87,14 +87,14 @@ locationGroup.get(
             ' (' || 
             CASE 
               WHEN encounter_diagnoses.certainty = 'suspected' THEN 'For investigation'
-              WHEN encounter_diagnoses.certainty = 'error' THEN 'Recorded by error'
               ELSE INITCAP(encounter_diagnoses.certainty)
             END ||
             ')', 
           ', ') AS name 
           FROM encounter_diagnoses 
           LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
-            GROUP BY encounter_id
+          WHERE encounter_diagnoses.certainty NOT IN ('disproven', 'error') 
+          GROUP BY encounter_id
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN (
 		      SELECT record_id, MAX(date) AS date
