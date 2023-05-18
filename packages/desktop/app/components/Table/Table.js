@@ -15,6 +15,8 @@ import {
   TableRow,
   TableFooter,
   TablePagination,
+  Select,
+  MenuItem,
 } from '@material-ui/core';
 import { ExpandMore, ChevronLeft, ChevronRight } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
@@ -220,6 +222,9 @@ const PageNumber = styled.button`
   background: ${props => (props.active ? Colors.primary : 'none')};
   color: ${props => (props.active ? Colors.white : Colors.darkText)};
   border: ${props => (props.active ? `none` : `1px ${Colors.outline} solid`)};
+  &:hover {
+    background: ${props => (props.active ? Colors.primary : Colors.outline)};
+  }
 `;
 
 const PageNumberDivider = styled.span`
@@ -227,6 +232,7 @@ const PageNumberDivider = styled.span`
   text-align: center;
 `;
 
+// TODO: SMH THIS ALREADY EXISTS AS AN MUI COMPONENT
 const Paginator = React.memo(
   ({
     page,
@@ -239,14 +245,15 @@ const Paginator = React.memo(
   }) => {
     const numberOfPages = Math.ceil(count / rowsPerPage);
     const pageNumberButtons = Array.from({ length: numberOfPages }, (_, i) => {
-      if (i <= 2 || i === numberOfPages - 1) {
+      // TODO: THIS LOGIC MAY REQUIRE A BIT OF SHIFFLING AROUND TO MATCH THE EXPECTED BEHAVIOUR
+      if (i === 0 || i === numberOfPages - 1 || (i <= page + 1 && i >= page - 1)) {
         return (
           <PageNumber onClick={() => onPageChange(i)} active={i === page}>
             {i + 1}
           </PageNumber>
         );
       }
-      if (i === 3) {
+      if (i === page + 2 || i === page - 2) {
         return <PageNumberDivider>...</PageNumberDivider>;
       }
       return null;
@@ -255,6 +262,12 @@ const Paginator = React.memo(
     return (
       <PaginatorWrapper colSpan={colSpan}>
         <PageContainer>
+          {/* TODO: GET THIS SELECT WORKING PROPERLY */}
+          <Select label="Rows per page" value={rowsPerPageOptions[0]}>
+            {rowsPerPageOptions.map(option => (
+              <MenuItem value={option}>{option}</MenuItem>
+            ))}
+          </Select>
           {page > 0 && <ChevronLeft onClick={() => onPageChange(page - 1)} />}
           {pageNumberButtons}
           {page < numberOfPages - 1 && <ChevronRight onClick={() => onPageChange(page + 1)} />}
