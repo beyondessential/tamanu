@@ -82,32 +82,6 @@ reportsRouter.post(
   }),
 );
 
-reportsRouter.put(
-  '/:reportId/versions/:versionId',
-  asyncHandler(async (req, res) => {
-    const { store, params, body } = req;
-    const {
-      models: { ReportDefinitionVersion },
-    } = store;
-    const { reportId, versionId } = params;
-    const existingVersion = await ReportDefinitionVersion.findOne({
-      where: { id: versionId, reportDefinitionId: reportId },
-    });
-    if (!existingVersion) {
-      throw new NotFoundError(`No version found with id ${versionId}`);
-    }
-    const queryMutated =
-      (body.query && body.query !== existingVersion.query) ||
-      (body.queryOptions &&
-        JSON.stringify(body.queryOptions) !== JSON.stringify(existingVersion.queryOptions));
-    if (queryMutated) {
-      throw new InvalidOperationError('Cannot change query of an existing version');
-    }
-    const version = await existingVersion.update(body);
-    res.send(version);
-  }),
-);
-
 reportsRouter.get(
   '/:reportId/versions/:versionId/export/:format',
   asyncHandler(async (req, res) => {
@@ -178,27 +152,30 @@ reportsRouter.post(
             where: {
               name,
             },
+            include: [
+              {
+                model: ReportDefinitionVersion,
+                as: 'versions',
+                attributes: ['versionNumber'],
+                order: [['versionNumber', 'DESC']],
+                limit: 1,
+              },
+            ],
           });
 
-          feedback.createdDefinition = createdDefinition;
+          const versionNumber = createdDefinition
+            ? 1
+            : (definition.versions?.[0]?.versionNumber || 0) + 1;
 
-          if (!createdDefinition) {
-            const latestVersion = await ReportDefinitionVersion.findOne({
-              where: { reportDefinitionId: definition.id },
-              order: [['versionNumber', 'DESC']],
-            });
-            versionData.versionNumber = (latestVersion?.versionNumber || 0) + 1;
-          }
-
-          const versionNumber = versionData.versionNumber || 1;
-          feedback.versionNumber = versionNumber;
-
-          await ReportDefinitionVersion.upsert({
+          await ReportDefinitionVersion.create({
             ...versionData,
             userId,
             versionNumber,
             reportDefinitionId: definition.id,
           });
+
+          feedback.createdDefinition = createdDefinition;
+          feedback.versionNumber = versionNumber;
 
           if (dryRun) {
             throw new DryRun();

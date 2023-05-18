@@ -96,12 +96,6 @@ const VersionInfo = ({ name, version }) => (
       label="Created"
       value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}`}
     />
-    {version.createdAt !== version.updatedAt && (
-      <CardItem
-        label="Updated"
-        value={`${formatShort(version.updatedAt)} ${formatTime(version.updatedAt)}`}
-      />
-    )}
     <CardItem label="Created by" value={version.createdBy?.displayName} />
   </VersionInfoCard>
 );
