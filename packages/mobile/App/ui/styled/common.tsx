@@ -141,7 +141,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${({
     borderLeftWidth,
   }): string | number => `border-left-width: ${borderLeftWidth}` || 0};
-  ${({ borderBottomWidth }): string | number => `border-left-width: ${borderBottomWidth}` || 0};
+  ${({ borderBottomWidth }): string | number => `border-bottom-width: ${borderBottomWidth}` || 0};
   ${boxShadow}
   ${zIndex}
   ${justifyContent}
