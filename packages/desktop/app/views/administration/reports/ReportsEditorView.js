@@ -49,6 +49,7 @@ export const ReportsEditorView = () => {
     });
     queryClient.invalidateQueries(['reportVersions', report?.id]);
     queryClient.invalidateQueries(['reportList']);
+    return result;
   };
 
   return (

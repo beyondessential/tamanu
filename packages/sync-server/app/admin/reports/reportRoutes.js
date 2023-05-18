@@ -73,9 +73,20 @@ reportsRouter.post(
       models: { ReportDefinitionVersion },
     } = store;
     const { reportId } = params;
+
+    if (body.versionNumber)
+      throw new InvalidOperationError('Cannot create a report with a version number');
+
     await verifyQuery(body.query, body.queryOptions.parameters, store);
+    const latestVersion = await ReportDefinitionVersion.findOne({
+      where: { reportDefinitionId: reportId },
+      attributes: ['versionNumber'],
+      order: [['versionNumber', 'DESC']],
+    });
+    const nextVersionNumber = (latestVersion?.versionNumber || 0) + 1;
     const version = await ReportDefinitionVersion.create({
       ...body,
+      versionNumber: nextVersionNumber,
       reportDefinitionId: reportId,
     });
     res.send(version);

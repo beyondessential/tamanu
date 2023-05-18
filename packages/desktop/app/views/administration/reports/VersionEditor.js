@@ -172,15 +172,12 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
 
   const handleSave = async () => {
     try {
-      const nextVersionNumber = versionNumber + 1;
       setSubmitting(true);
-      const payload = {
+      const res = await onSave({
         ...value,
-        versionNumber: nextVersionNumber,
         userId: currentUser.id,
-      };
-      await onSave(payload);
-      toast.success(`Successfully created new version ${nextVersionNumber}`);
+      });
+      toast.success(`Successfully created new version ${res.versionNumber}`);
       setDirty(false);
     } catch (err) {
       toast.error(<VersionError errorMessage={err.message} />);
