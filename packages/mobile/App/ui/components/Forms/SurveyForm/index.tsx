@@ -32,6 +32,7 @@ export const SurveyForm = ({
     components,
     formValues,
   ]);
+  
   const submitVisibleValues = useCallback(
     (values: any) => {
       // 1. get a list of visible fields
@@ -71,7 +72,12 @@ export const SurveyForm = ({
             .filter(([key, value]) => values[key] !== value)
             .map(([key, value]) => setFieldValue(key, value, false));
 
-          setFormValues(calculatedValues);
+          // set parent formValues variable to the values here
+          setFormValues({
+            ...values,
+            ...calculatedValues,
+          });
+
         }, [values]);
         return <FormFields components={components} note={note} patient={patient} />;
       }}
