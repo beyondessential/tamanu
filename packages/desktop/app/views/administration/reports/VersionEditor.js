@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
+import SaveAsIcon from '@material-ui/icons/SaveAltSharp';
 import { Button, CardItem, formatShort, formatTime } from '../../../components';
 import { schema, templates } from './schema';
 import { useAuth } from '../../../contexts/Auth';
@@ -73,6 +74,10 @@ const ErrorCard = styled.div`
 
 const StyledButton = styled(Button)`
   background: ${Colors.white};
+`;
+
+const SaveIcon = styled(SaveAsIcon)`
+  margin-right: 10px;
 `;
 
 const VersionInfo = ({ name, version }) => (
@@ -206,6 +211,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
           dirty={dirty}
           isValid={isValid}
         >
+          <SaveIcon />
           Save as new version
         </SaveButton>
       </ButtonContainer>
