@@ -33,9 +33,20 @@ export const useLocalisedSchema = () => {
       const hidden = getLocalisation(`${path}.hidden`);
       const label = getLocalisation(`${path}.longLabel`) || path;
       const required = getLocalisation(`${path}.required`) || false;
+      const pattern = getLocalisation(`${path}.pattern`) || null;
+      const regex = pattern ? new RegExp(pattern) : null;
 
       if (hidden) {
         return yup.string().nullable();
+      }
+      if (required && regex) {
+        return yup
+          .string()
+          .required(`${label} is a required field`)
+          .matches(regex, `Invalid ${label}`);
+      }
+      if (regex) {
+        return yup.string().matches(regex, `Invalid ${label}`);
       }
       if (required) {
         return yup.string().required(`${label} is a required field`);
