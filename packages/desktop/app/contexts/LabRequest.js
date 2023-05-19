@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState } from 'react';
+import React, { useContext, createContext, useState, useCallback } from 'react';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
