@@ -41,6 +41,15 @@ const StyledButton = styled(MuiButton)`
     height: auto;
     margin-right: 10px;
   }
+
+  &.MuiButton-sizeSmall {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  &.MuiButton-outlinedPrimary {
+    border-color: ${props => props.theme.palette.primary.main};
+  }
 `;
 
 export const Button = ({ children, isSubmitting, disabled, hasPermission = true, ...props }) => {
@@ -178,12 +187,6 @@ export const UpdateButton = props => (
 export const NewButton = ({ children, ...props }) => (
   <Button variant="outlined" {...props}>
     {children}
-  </Button>
-);
-
-export const ViewButton = props => (
-  <Button variant="contained" color="primary" {...props}>
-    View
   </Button>
 );
 

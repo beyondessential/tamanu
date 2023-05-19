@@ -1,7 +1,4 @@
 {
-  "sync": {
-    "allowUntil": true
-  },
   "db": {
     "sqlitePath": "/tmp/tamanu-shared-src-tests.db",
     "testMode": true,

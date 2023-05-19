@@ -1,12 +1,41 @@
-import { Entity, Column, RelationId, ManyToOne, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
-import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
+import {
+  Entity,
+  Column,
+  RelationId,
+  ManyToOne,
+  PrimaryColumn,
+  BeforeInsert,
+  BeforeUpdate,
+  AfterLoad,
+} from 'typeorm/browser';
+import { snakeCase, isEqual, isEmpty } from 'lodash';
+import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
+import { SYNC_DIRECTIONS } from './types';
+import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
+import { Database } from '~/infra/db';
+import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
 
+const METADATA_FIELDS = [
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+  'updatedAtByField',
+];
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
-  @ManyToOne(() => Patient, (patient) => patient.additionalData)
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  @PrimaryColumn()
+  id: string;
+
+  @ManyToOne(
+    () => Patient,
+    patient => patient.additionalData,
+  )
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
@@ -116,40 +145,73 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @IdRelation()
   countryOfBirthId?: string | null;
 
-  @Column({ default: false })
-  markedForSync: boolean;
+  @Column({ nullable: true })
+  updatedAtByField: string;
 
-  static shouldExport = true;
+  @BeforeInsert()
+  async assignIdAsPatientId(): Promise<void> {
+    this.id = this.patient;
+  }
 
   @BeforeInsert()
   @BeforeUpdate()
-  async markPatient() {
-    // Adding or editing additional data should mark the patient for sync
-    const parent = await this.findParent(Patient, 'patient');
-    if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
+  async setUpdatedAtByField(): Promise<void> {
+    const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
+    const includedColumns = extractIncludedColumns(PatientAdditionalData, METADATA_FIELDS);
+    let newUpdatedAtByField = {};
+    const oldPatientAdditionalData = await PatientAdditionalData.findOne({
+      id: this.id,
+    });
+
+    // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
+    // e.g. from a central record syncing down to this device
+    if (!oldPatientAdditionalData) {
+      includedColumns.forEach(camelCaseKey => {
+        if (this[snakeCase(camelCaseKey)] !== undefined) {
+          newUpdatedAtByField[snakeCase(camelCaseKey)] = syncTick;
+        }
+      });
+    } else if (
+      !this.updatedAtByField ||
+      this.updatedAtByField === oldPatientAdditionalData.updatedAtByField
+    ) {
+      // retain the old sync ticks from previous updatedAtByField
+      newUpdatedAtByField = JSON.parse(oldPatientAdditionalData.updatedAtByField);
+      includedColumns.forEach(camelCaseKey => {
+        const snakeCaseKey = snakeCase(camelCaseKey);
+        // when saving relation id for instance, typeorm requires saving using
+        // relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
+        const relationKey = camelCaseKey.slice(-2) === 'Id' ? camelCaseKey.slice(0, -2) : null;
+        const oldValue = oldPatientAdditionalData[camelCaseKey];
+        // if this is a relation key, the value may be in form of ( { id: 'abc' } ),
+        // or it may be just the id
+        const currentValue = relationKey
+          ? this[relationKey]?.id || this[relationKey]
+          : this[camelCaseKey];
+
+        if (oldValue !== currentValue) {
+          newUpdatedAtByField[snakeCaseKey] = syncTick;
+        }
+      });
+    }
+
+    if (!isEmpty(newUpdatedAtByField)) {
+      this.updatedAtByField = JSON.stringify(newUpdatedAtByField);
     }
   }
 
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
-    const patientId = opts.channel.match(/^patient\/(.*)\/additionalData$/)[1];
-    if (!patientId) {
-      throw new Error(`Could not extract patientId from ${opts.channel}`);
-    }
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
+  }
 
-    const records = await this.findMarkedForUploadQuery(opts)
-      .andWhere('patientId = :patientId', { patientId })
-      .getMany();
-
-    return records as BaseModel[];
+  static getTableNameForSync(): string {
+    return 'patient_additional_data';
   }
 
   static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
     // use a query builder instead of find, as apparently there's some
-    // misbehaviour around how typeorm traverses this relation 
+    // misbehaviour around how typeorm traverses this relation
     return await PatientAdditionalData.getRepository()
       .createQueryBuilder('patient_additional_data')
       .where('patient_additional_data.patientId = :patientId', { patientId })
@@ -172,5 +234,37 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   static async updateForPatient(patientId: string, values: Partial<PatientAdditionalData>) {
     const additionalData = await PatientAdditionalData.getOrCreateForPatient(patientId);
     await PatientAdditionalData.updateValues(additionalData.id, values);
+  }
+
+  static sanitizeRecordDataForPush(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+
+      // Convert updatedAtByField to JSON because central server expects it to be JSON
+      if (row.data.updatedAtByField) {
+        sanitizedRow.data.updatedAtByField = JSON.parse(sanitizedRow.data.updatedAtByField);
+      }
+
+      return sanitizedRow;
+    });
+  }
+
+  static sanitizePulledRecordData(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+
+      // Convert updatedAtByField to JSON STRING
+      // because updatedAtByField's type is string in mobile
+      // (Sqlite does not support JSON type)
+      if (row.data.updatedAtByField) {
+        sanitizedRow.data.updatedAtByField = JSON.stringify(sanitizedRow.data.updatedAtByField);
+      }
+
+      return sanitizedRow;
+    });
   }
 }

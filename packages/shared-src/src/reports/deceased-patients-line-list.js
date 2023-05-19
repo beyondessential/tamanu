@@ -25,6 +25,7 @@ const FIELDS = [
   'Nationality',
   'Place of Death',
   'Department',
+  'Area',
   'Location',
   'Date and time of death',
   'Attending clinician',
@@ -116,6 +117,11 @@ select distinct on (p.date_of_death, p.id)
     then loc.name
     else null
     end as "Location",
+  case
+    when pdd.facility_id is not null
+    then locationGroup.name
+    else null
+  end as "Area",
   to_char(p.date_of_death::timestamp, 'dd/mm/yyyy HH12:MI AM') as "Date and time of death",
   u.display_name as "Attending clinician",
   rd4.name as "Cause of death",
@@ -159,6 +165,7 @@ from
   left join encounters e on e.patient_id = p.id
   left join departments department on department.id = e.department_id
   left join locations loc on loc.id = e.location_id
+  left join location_groups locationGroup on loc.location_group_id = locationGroup.id
   left join users u ON u.id = pdd.clinician_id
   left join reference_data rd4 on rd4.id=pdd.primary_cause_condition_id
   left join reference_data rd5 on rd5.id=pdd.antecedent_cause1_condition_id

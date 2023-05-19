@@ -18,7 +18,7 @@ const FIELDS = [
   'Appointment type',
   'Appointment status',
   'Clinician',
-  'Location',
+  'Area',
 ];
 
 const reportColumnTemplate = FIELDS.map(field =>
@@ -53,14 +53,14 @@ select
 	a."type" "Appointment type",
 	a.status "Appointment status",
 	u.display_name "Clinician",
-	l.name "Location"
+  coalesce(lg.name, 'Unknown') "Area"
 from appointments a
 join patients p on p.id = a.patient_id
 left join reference_data vil on vil.id = p.village_id
 left join billing_type bt on bt.patient_id = p.id
 left join users u on u.id = a.clinician_id
-left join locations l on l.id = a.location_id
-where case when :location_id is not null then l.id = :location_id else true end 
+left join location_groups lg on lg.id = a.location_group_id
+where case when :location_group_id is not null then lg.id = :location_group_id else true end 
 and case when :from_date is not null then a.start_time::date >= :from_date::date else true end
 and case when :to_date is not null then a.start_time::date <= :to_date::date else true end
 and case when :appointment_status is not null then a.status = :appointment_status else true end
@@ -69,7 +69,7 @@ order by a.start_time;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { appointmentStatus, location, clinician } = parameters;
+  const { appointmentStatus, locationGroup, clinician } = parameters;
 
   // Only default if both date parameters are blank
   let { fromDate, toDate } = parameters;
@@ -88,7 +88,7 @@ const getData = async (sequelize, parameters) => {
       from_date: fromDate ?? null,
       to_date: toDate ?? null,
       appointment_status: appointmentStatus ?? null,
-      location_id: location ?? null,
+      location_group_id: locationGroup ?? null,
       clinician_id: clinician ?? null,
     },
   });

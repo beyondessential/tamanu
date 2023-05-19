@@ -1,12 +1,10 @@
 {
   "name": "tamanuapp",
-  "version": "1.22.43",
+  "version": "1.25.59",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
-    "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'",
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleRelease && cd ..",
-    "ios": "npx react-native run-ios",
     "start": "rnstl --silent && react-native start",
     "test": "jest",
     "test:coverage": "yarn test --coverage",
@@ -14,8 +12,8 @@
     "test:integration": "yarn test --watch -c jest-integration-config.js",
     "test:commit": "yarn test --findRelatedTests",
     "test:watch": "yarn test --watchAll",
-    "e2e:build": "detox build --configuration ios.sim.debug",
-    "test:e2e": "detox test --configuration ios.sim.debug",
+    "e2e:build": "detox build",
+    "test:e2e": "detox test",
     "lint": "eslint --fix .",
     "typecheck": "tsc --project tsconfig.json",
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
@@ -42,7 +40,6 @@
     "@testing-library/react-native": "^9.0.0",
     "async-mutex": "^0.3.2",
     "chance": "^1.1.4",
-    "convert": "^4.7.0",
     "date-fns": "^2.7.0",
     "formik": "^2.1.2",
     "lodash": "^4.17.20",
@@ -146,16 +143,6 @@
     "uuid": "^8.3.2"
   },
   "detox": {
-    "configurations": {
-      "ios.sim.debug": {
-        "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/tamanuapp.app",
-        "build": "xcodebuild -workspace ios/tamanuapp.xcworkspace -scheme tamanuapp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build",
-        "type": "ios.simulator",
-        "device": {
-          "type": "iPhone 11"
-        }
-      }
-    },
     "test-runner": "jest"
   },
   "config": {

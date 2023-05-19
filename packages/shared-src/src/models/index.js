@@ -1,5 +1,5 @@
 export * from './User';
-export * from './ChannelSyncPullCursor';
+export * from './UserRecentlyViewedPatient';
 export * from './LocalSystemFact';
 
 export * from './Patient';
@@ -10,6 +10,7 @@ export * from './PatientIssue';
 export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 export * from './PatientSecondaryId';
+export * from './PatientFacility';
 
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
@@ -18,6 +19,7 @@ export * from './PatientFieldValue';
 export * from './PatientDeathData';
 export * from './PatientBirthData';
 export * from './ContributingDeathCause';
+export * from './DeathRevertLog';
 
 export * from './Encounter';
 export * from './Discharge';
@@ -34,7 +36,9 @@ export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './ImagingRequest';
-export * from './ImagingRequestAreas';
+export * from './ImagingRequestArea';
+export * from './ImagingAreaExternalCode';
+export * from './ImagingResult';
 
 export * from './Program';
 export * from './Survey';
@@ -59,6 +63,7 @@ export * from './PatientCommunication';
 export * from './Facility';
 export * from './Department';
 export * from './Location';
+export * from './LocationGroup';
 export * from './UserFacility';
 export * from './Attachment';
 export * from './UserLocalisationCache';
@@ -67,6 +72,7 @@ export * from './Appointment';
 export * from './DocumentMetadata';
 
 export * from './OneTimeLogin';
+export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
 
@@ -79,7 +85,11 @@ export * from './InvoicePriceChangeType';
 export * from './Signer';
 
 export * from './CertificateNotification';
+
 export * from './NotePage';
 export * from './NoteItem';
 
+export * from './SyncSession';
+
 export * from './fhir';
+export * from './FhirMaterialiseJob';

@@ -42,6 +42,10 @@ globalMedicationRequests.get('/$', (req, res, next) =>
                 model: req.models.Facility,
                 as: 'facility',
               },
+              {
+                model: req.models.LocationGroup,
+                as: 'locationGroup',
+              },
             ],
           },
         ],

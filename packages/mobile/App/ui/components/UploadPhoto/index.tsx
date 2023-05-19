@@ -84,7 +84,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
   const [imagePath, setImagePath] = useState(null);
-  const { models, syncSource } = useBackend();
+  const { models, centralServer } = useBackend();
 
   const removeAttachment = useCallback(async (value, imagePath) => {
     if (value) {
@@ -133,7 +133,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     });
 
     // Make sure the sync server has enough space to store a new attachment
-    const { canUploadAttachment } = await syncSource.get('health/canUploadAttachment', {});
+    const { canUploadAttachment } = await centralServer.get('health/canUploadAttachment', {});
 
     if (!canUploadAttachment) {
       Popup.show({

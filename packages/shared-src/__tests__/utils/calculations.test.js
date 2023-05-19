@@ -27,32 +27,49 @@ function makeDummySurvey(components) {
 describe('Survey calculations', () => {
   describe('CalculatedField', () => {
     it('should run a trivial calculation', () => {
-      const survey = makeDummySurvey([{ code: 'TEST', type: 'Calculated', calculation: '1' }]);
+      const survey = makeDummySurvey([
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: '1' },
+      ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(1);
     });
 
     it('should run a simple calculation', () => {
-      const survey = makeDummySurvey([{ code: 'TEST', type: 'Calculated', calculation: '1 + 1' }]);
+      const survey = makeDummySurvey([
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: '1 + 1' },
+      ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(2);
     });
 
     it('should run several calculations', () => {
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: '3 * 5' },
-        { code: 'TEST_2', type: 'Calculated', calculation: '100 - 1' },
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: '3 * 5' },
+        { code: 'TEST_2', type: 'CalculatedQuestion', calculation: '100 - 1' },
       ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(15);
       expect(calculations.TEST_2).toEqual(99);
     });
 
+    it('should round the value to the configured number of decimal places', () => {
+      const survey = makeDummySurvey([
+        {
+          code: 'TEST',
+          type: 'CalculatedQuestion',
+          calculation: '13 / 3',
+          config: '{ "rounding": 1 }',
+        },
+      ]);
+      const calculations = runCalculations(survey, {});
+      expect(calculations.TEST).toEqual(4.3);
+    });
+
     it('should use substitutions', () => {
       const survey = makeDummySurvey([
         { code: 'TEST_1' },
         { code: 'TEST_2' },
-        { code: 'TEST', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: 'TEST_1 + TEST_2' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 24,
@@ -65,8 +82,8 @@ describe('Survey calculations', () => {
       const survey = makeDummySurvey([
         { code: 'TEST_1' },
         { code: 'TEST_2' },
-        { code: 'TEST_BEFORE', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
-        { code: 'TEST_AFTER', type: 'Calculated', calculation: 'TEST_BEFORE + 2000' },
+        { code: 'TEST_BEFORE', type: 'CalculatedQuestion', calculation: 'TEST_1 + TEST_2' },
+        { code: 'TEST_AFTER', type: 'CalculatedQuestion', calculation: 'TEST_BEFORE + 2000' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 24,
@@ -78,9 +95,9 @@ describe('Survey calculations', () => {
     it('should register errored calculations as undefined', () => {
       const survey = makeDummySurvey([
         { code: 'TEST_1' },
-        { code: 'TEST_WORKS', type: 'Calculated', calculation: 'TEST_1 * 3' },
-        { code: 'TEST_BROKEN', type: 'Calculated', calculation: 'TEST_NONEXISTENT' },
-        { code: 'TEST_BROKEN_2', type: 'Calculated', calculation: '1 + + / * 4' },
+        { code: 'TEST_WORKS', type: 'CalculatedQuestion', calculation: 'TEST_1 * 3' },
+        { code: 'TEST_BROKEN', type: 'CalculatedQuestion', calculation: 'TEST_NONEXISTENT' },
+        { code: 'TEST_BROKEN_2', type: 'CalculatedQuestion', calculation: '1 + + / * 4' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 5,

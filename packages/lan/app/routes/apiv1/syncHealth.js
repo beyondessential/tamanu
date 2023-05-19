@@ -1,14 +1,15 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { WebRemote } from '../../sync/WebRemote';
+import { CentralServerConnection } from '../../sync/CentralServerConnection';
 
 export const syncHealth = express.Router();
 
 syncHealth.get(
   '/$',
   asyncHandler(async (req, res) => {
+    const { deviceId } = req;
     req.flagPermissionChecked();
-    const remote = new WebRemote();
+    const centralServer = new CentralServerConnection({ deviceId });
 
     // The desktop client and lan server should still work without
     // a connected sync server, we just want to notify the user they aren't
@@ -16,7 +17,7 @@ syncHealth.get(
     try {
       // This request will fail if the sync servers `versionCompatibility`
       // middleware check fails. We don't need the response, only the error message.
-      await remote.whoami();
+      await centralServer.whoami();
 
       res.send({ healthy: true });
     } catch (error) {

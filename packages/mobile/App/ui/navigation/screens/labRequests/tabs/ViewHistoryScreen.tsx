@@ -16,6 +16,7 @@ import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 
 const SyncStatusindicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -29,6 +30,7 @@ const SyncStatusindicator = ({ synced }): JSX.Element => (
 );
 interface LabRequestRowProps {
   labRequest: ILabRequest;
+  synced: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -41,7 +43,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
+const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element => {
   let date: string;
   try {
     date = formatDate(parseISO(labRequest.requestedDate), DateFormats.DAY_MONTH_YEAR_SHORT);
@@ -88,9 +90,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
         </StyledText>
       </StyledView>
       <StyledView width={screenPercentageToDP(35, Orientation.Width)}>
-        <SyncStatusindicator
-          synced={!labRequest.markedForUpload || !labRequest.encounter.markedForUpload}
-        />
+        <SyncStatusindicator synced={synced} />
       </StyledView>
     </StyledView>
   );
@@ -102,6 +102,11 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
     [selectedPatient],
   );
 
+  const [lastSuccessfulPushTick] = useBackendEffect(
+    ({ models }) => getSyncTick(models, LAST_SUCCESSFUL_PUSH),
+    [],
+  );
+
   useEffect(() => {
     if (!data) return;
     if (data.length === 0) {
@@ -110,11 +115,13 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
-  if (!data) return <LoadingScreen />;
+  if (!data || !lastSuccessfulPushTick) return <LoadingScreen />;
 
-  const rows = data.map(labRequest => (
-    <LabRequestRow key={labRequest.id} labRequest={labRequest} />
-  ));
+  const rows = data.map(labRequest => {
+    const synced = labRequest.updatedAtSyncTick <= lastSuccessfulPushTick;
+
+    return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} />;
+  });
 
   return (
     <>

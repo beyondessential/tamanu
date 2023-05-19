@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { Modal } from './Modal';
 import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
 
-export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose }) => {
+export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, newType }) => {
   const { writeAndViewEncounter } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
   const changeEncounterType = useCallback(
@@ -26,6 +26,7 @@ export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose }
         onSubmit={changeEncounterType}
         onCancel={onClose}
         encounter={encounter}
+        initialNewType={newType}
       />
     </Modal>
   );

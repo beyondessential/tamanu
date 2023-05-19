@@ -3,11 +3,18 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
+    "secret": "secret",
+    "refreshToken": {
+      "secret": "refreshSecret"
+    },
     "reportNoUserError": true,
     "useHardcodedPermissions": false
   },
   "log": {
     "consoleLevel": "warn"
+  },
+  "cors": {
+    "allowedOrigin": "https://fake-place-xxx-yyy.com"
   },
   "localisation": {
     "data": {
@@ -23,7 +30,9 @@
     "fijiVrs": {
       "enabled": true,
       "host": "http://localhost:8080",
-      "expectAccessToken": ["test-access-token"]
+      "expectAccessToken": [
+        "test-access-token"
+      ]
     },
     "fijiVps": {
       "enabled": true
@@ -43,6 +52,10 @@
     },
     "fhir": {
       "enabled": true
+    },
+    "omniLab": {
+      "enabled": true,
+      "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
     }
   },
   "disk": {
@@ -52,8 +65,13 @@
   },
   "notifications": {
     "certificates": {
-      "labTestCategoryIds": ["labTestCategory-COVID"]
+      "labTestCategoryIds": [
+        "labTestCategory-COVID"
+      ]
     }
+  },
+  "validateQuestionConfigs": {
+    "enabled": true
   },
   "countryTimeZone": "Pacific/Auckland"
 }

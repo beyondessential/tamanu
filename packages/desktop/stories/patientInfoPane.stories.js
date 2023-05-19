@@ -2,15 +2,45 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 
-import { createDummyPatient } from 'shared/demoData';
 import { PatientInfoPane } from '../app/components/PatientInfoPane';
+import { MockedApi } from './utils/mockedApi';
 
-const patient = createDummyPatient();
+const endpoints = {
+  'patient/:id/conditions': () => {
+    return {
+      data: [{ condition: { name: 'Condition 1' } }, { condition: { name: 'Condition 2' } }],
+    };
+  },
+  'patient/:id/allergies': () => {
+    return {
+      data: [{ allergy: { name: 'Allergy 1' } }, { allergy: { name: 'Allergy 2' } }],
+    };
+  },
+  'patient/:id/familyHistory': () => {
+    return {
+      data: [{ relationship: 'Brother', diagnosis: { name: 'Diagnosis 1' } }],
+    };
+  },
+  'patient/:id/issues': () => {
+    return {
+      data: [{ note: 'Issue 1' }, { note: 'Issue 2' }],
+    };
+  },
+  'patient/:id/carePlans': () => {
+    return {
+      data: [{ carePlan: { name: 'Care Plan 1' } }, { carePlan: { name: 'Care Plan 2' } }],
+    };
+  },
+};
 
 const Container = styled.div`
   width: 330px;
 `;
 
 storiesOf('PatientInfoPane', module)
-  .addDecorator(story => <Container>{story()}</Container>)
-  .add('Basic Example', () => <PatientInfoPane patient={patient} />);
+  .addDecorator(story => (
+    <Container>
+      <MockedApi endpoints={endpoints}>{story()}</MockedApi>
+    </Container>
+  ))
+  .add('Basic Example', () => <PatientInfoPane />);

@@ -28,7 +28,7 @@ export class Facility extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [
           { unique: true, fields: ['code'] },
           { unique: true, fields: ['name'] },
@@ -53,6 +53,11 @@ export class Facility extends Model {
 
     this.belongsToMany(models.User, {
       through: 'UserFacility',
+    });
+
+    this.belongsToMany(models.Patient, {
+      through: 'PatientFacility',
+      as: 'markedForSyncPatients',
     });
   }
 }

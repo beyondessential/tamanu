@@ -1,6 +1,6 @@
 import { chunk } from 'lodash';
 
-export const formatDateForQuery = (date: Date): number => (date.valueOf() / 1000);
+export const formatDateForQuery = (date: Date): number => date.valueOf() / 1000;
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
 // see https://www.sqlite.org/limits.html for more
@@ -9,7 +9,14 @@ type RowLike = {
   [key: string]: any;
 };
 export function chunkRows<T extends RowLike>(rows: T[]): T[][] {
-  const maxColumnsPerRow = rows.reduce((max, r) => Math.max(Object.keys(r).length, max), 0);
+  let maxColumnsPerRow = 0;
+  rows.forEach(r => {
+    const propertiesCount = Object.keys(r).length;
+    if (propertiesCount > maxColumnsPerRow) {
+      maxColumnsPerRow = propertiesCount;
+    }
+  });
+
   const rowsPerChunk = Math.floor(SQLITE_MAX_PARAMETERS / maxColumnsPerRow);
   return chunk(rows, rowsPerChunk);
 }

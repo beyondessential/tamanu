@@ -1,17 +1,18 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { WebRemote } from '../../sync';
+import { CentralServerConnection } from '../../sync';
 
 export const resetPassword = express.Router();
 
 resetPassword.post(
   '/$',
   asyncHandler(async (req, res) => {
+    const { deviceId } = req;
     // no permission needed
     req.flagPermissionChecked();
 
-    const remote = new WebRemote();
-    const response = await remote.forwardRequest(req, 'resetPassword');
+    const centralServer = new CentralServerConnection({ deviceId });
+    const response = await centralServer.forwardRequest(req, 'resetPassword');
 
     res.send(response);
   }),

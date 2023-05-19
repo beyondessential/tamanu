@@ -20,7 +20,6 @@ import {
   AutocompleteInput,
   NullableBooleanInput,
   TimeWithUnitInput,
-  TemperatureInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 
@@ -105,17 +104,68 @@ addStories('TimeWithUnitInput', props => (
   />
 ));
 
-addStories('TemperatureInput', props => {
-  const [formValue, setFormValue] = React.useState(0);
-  const onChange = newValue => {
-    setFormValue(newValue);
-  };
+const TAGS = {
+  primary: {
+    label: 'Available',
+    color: '#326699',
+    background: '#EBF0F5',
+  },
+  secondary: {
+    label: 'Occupied',
+    color: '#F17F16;',
+    background: '#F4EEE8',
+  },
+  tertiary: {
+    label: 'Reserved',
+    color: '#F76853',
+    background: '#FFF0EE',
+  },
+};
+
+const TAGGED_FRUITS = [
+  { value: 'apples', label: 'Apples', tag: TAGS.primary },
+  { value: 'oranges', label: 'Oranges', tag: TAGS.secondary },
+  { value: 'bananas', label: 'Bananas', tag: TAGS.primary },
+  { value: 'pomegranates', label: 'Pomegranates', tag: TAGS.tertiary },
+  { value: 'durian', label: 'Durian', tag: TAGS.primary },
+  { value: 'dragonfruit', label: 'Dragonfruit', tag: TAGS.secondary },
+  { value: 'tomatoes', label: 'Tomatoes', tag: TAGS.primary },
+  { value: 'cherries', label: 'Cherries', tag: TAGS.tertiary },
+];
+
+const dummyTaggedSuggester = {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return TAGGED_FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
+  },
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return TAGGED_FRUITS.find(x => x.value === value);
+  },
+};
+
+addStories('Dropdown with tags', props => {
   return (
     <Container>
-      <Box>
-        <TemperatureInput name="temperature" min={0} onChange={onChange} {...props} />
-        <Box m={3}>Form value: {formValue}</Box>
-      </Box>
+      <StoryControlWrapper
+        Component={SelectInput}
+        label="Simple Select"
+        options={TAGGED_FRUITS}
+        {...props}
+      />
+      <StoryControlWrapper
+        Component={AutocompleteInput}
+        label="Autocomplete"
+        options={TAGGED_FRUITS}
+        {...props}
+      />
+      <StoryControlWrapper
+        Component={AutocompleteInput}
+        label="Async Autocomplete"
+        options={TAGGED_FRUITS}
+        suggester={dummyTaggedSuggester}
+        {...props}
+      />
     </Container>
   );
 });
@@ -207,6 +257,15 @@ const dummySuggester = {
 addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
 ))
+  .add('Small', () => (
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      value="pomegranates"
+      label="Fruit"
+      size="small"
+      suggester={dummySuggester}
+    />
+  ))
   .add('Asynchronous options', () => (
     <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
   ))

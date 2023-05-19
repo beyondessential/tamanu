@@ -22,7 +22,7 @@ export class Survey extends Model {
       {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
   }
@@ -42,5 +42,19 @@ export class Survey extends Model {
     return this.findAll({
       where: { surveyType: SURVEY_TYPES.REFERRAL },
     });
+  }
+
+  static getVitalsSurvey() {
+    return this.findOne({
+      where: { surveyType: SURVEY_TYPES.VITALS },
+    });
+  }
+
+  static async getResponsePermissionCheck(id) {
+    const vitalsSurvey = await this.getVitalsSurvey();
+    if (vitalsSurvey && id === vitalsSurvey.id) {
+      return 'Vitals';
+    }
+    return 'SurveyResponse';
   }
 }

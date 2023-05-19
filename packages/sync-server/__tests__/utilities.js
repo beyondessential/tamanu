@@ -1,13 +1,17 @@
+import config from 'config';
 import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';
+import 'jest-expect-message';
+import * as jestExtendedMatchers from 'jest-extended';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
-
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
+import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
+import { JWT_TOKEN_TYPES } from '../../shared-src/src/constants/auth';
 
 jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 jest.mock('../app/utils/getFreeDiskSpace');
@@ -29,6 +33,8 @@ ${JSON.stringify(response.body.error, null, 2)}
 };
 
 export function extendExpect(expect) {
+  // Needs to be added explicitly because of the jest-expect-message import
+  expect.extend(jestExtendedMatchers);
   expect.extend({
     toBeForbidden(response) {
       const { statusCode } = response;
@@ -82,8 +88,10 @@ export function extendExpect(expect) {
 }
 
 class MockApplicationContext {
-  async init({ syncClientMode }) {
-    this.store = await initDatabase({ testMode: true, syncClientMode });
+  closeHooks = [];
+
+  async init() {
+    this.store = await initDatabase({ testMode: true });
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -95,17 +103,34 @@ class MockApplicationContext {
     await initIntegrations(this);
     return this;
   }
+
+  onClose(hook) {
+    this.closeHooks.push(hook);
+  }
+
+  close = async () => {
+    for (const hook of this.closeHooks) {
+      await hook();
+    }
+    await closeDatabase();
+  };
 }
 
-export async function createTestContext({ syncClientMode } = {}) {
-  const ctx = await new MockApplicationContext().init({ syncClientMode });
+export async function createTestContext() {
+  const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
-  const baseApp = supertest(appServer);
+  const baseApp = supertest.agent(appServer);
+  baseApp.set('X-Tamanu-Client', 'Tamanu Desktop');
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await getToken(user, '1d');
+    agent.set('X-Tamanu-Client', 'Tamanu Desktop');
+    const token = await getToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
+      expiresIn: '1d',
+      audience: JWT_TOKEN_TYPES.ACCESS,
+      issuer: config.canonicalHostName,
+    });
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
@@ -122,12 +147,10 @@ export async function createTestContext({ syncClientMode } = {}) {
     return baseApp.asUser(newUser);
   };
 
-  const close = async () => {
-    await new Promise(resolve => appServer.close(resolve));
-    await closeDatabase();
-  };
+  ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
+  ctx.baseApp = baseApp;
 
-  return { ...ctx, baseApp, close };
+  return ctx;
 }
 
 export async function withDate(fakeDate, fn) {
@@ -145,7 +168,7 @@ export async function withDate(fakeDate, fn) {
         return fakeDate.valueOf();
       }
     };
-    await fn();
+    return await fn();
   } finally {
     global.Date = OldDate;
   }

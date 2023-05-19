@@ -22,9 +22,8 @@ const Container = styled.div`
 `;
 
 const MainButton = styled(Button)`
-  flex: 1;
   border-radius: 3px;
-  text-transform: capitalize;
+  text-transform: none;
   font-size: 14px;
   line-height: 18px;
   padding: 8px 13px;

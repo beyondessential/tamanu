@@ -1,8 +1,15 @@
 import React from 'react';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from 'shared/constants';
-import { DateField, LocalisedField, SelectField } from '../Field';
+import styled from 'styled-components';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { DateField, LocalisedField, SelectField, Field, CheckField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
+
+const FacilityCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+`;
 
 export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
@@ -54,6 +61,9 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
         saveDateAsString
         component={DateField}
       />
+      <FacilityCheckbox>
+        <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+      </FacilityCheckbox>
     </CustomisableSearchBar>
   );
 };

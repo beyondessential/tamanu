@@ -43,8 +43,10 @@ const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilt
     } else if (field.name === 'dateOfBirth') {
       const date = format(field.value, 'yyyy-MM-dd');
       activeFilters.filters[field.name] = date;
-    } else {
+    } else if (['firstName', 'lastName'].includes(field.name)) {
       activeFilters.filters[field.name] = Like(`%${field.value}%`);
+    } else {
+      activeFilters.filters[field.name] = field.value; // use equal for any other filters
     }
   }
 
@@ -61,7 +63,6 @@ const applyActiveFilters = (
     order: {
       lastName: 'ASC',
       firstName: 'ASC',
-      markedForSync: 'DESC',
     },
     // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
     // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
