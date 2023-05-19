@@ -4,6 +4,7 @@ import { groupBy } from 'lodash';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
+import { TOP_BAR_HEIGHT } from '../TopBar';
 
 const Column = ({ header, appointments, onAppointmentUpdated }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
@@ -65,13 +66,11 @@ export const DailySchedule = ({
       };
     });
   return (
-    <>
       <Container>
         {columns.map(props => (
           <Column onAppointmentUpdated={onAppointmentUpdated} {...props} />
         ))}
       </Container>
-    </>
   );
 };
 
@@ -84,12 +83,14 @@ const Container = styled.div`
 
 const ColumnHeader = styled.div`
   border: 1px solid ${Colors.outline};
-  border-bottom: none;
   border-right: none;
   font-weight: bold;
   padding: 0.75em 1.5em;
   text-align: center;
-  background-color: ${Colors.background};
+  background-color: ${Colors.white};
+  position: sticky;
+  top: ${TOP_BAR_HEIGHT}px;
+  text-color: ${Colors.darkText};
   :nth-last-of-type(2) {
     border-right: 1px solid ${Colors.outline};
   }
