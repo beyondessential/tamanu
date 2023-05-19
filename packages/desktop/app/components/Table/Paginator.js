@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Pagination } from '@material-ui/lab';
 import { Select, MenuItem } from '@material-ui/core';
 import { Colors } from '../../constants';
+import { ChevronIcon } from '../Icons/ChevronIcon';
 
 const PaginatorWrapper = styled.td``;
 
@@ -19,6 +20,7 @@ const StyledPagination = styled(Pagination)`
       .MuiPaginationItem-page {
         border: 1px solid ${Colors.outline};
         font-size: 13px;
+        margin: 0 3px;
       }
       .MuiPaginationItem-page.Mui-selected {
         background: ${Colors.primary};
@@ -37,6 +39,7 @@ const StyledPagination = styled(Pagination)`
 
 const PageRecordCount = styled.span`
   margin-left: 20px;
+  margin-right: 5px;
   font-size: 13px;
 `;
 
@@ -44,14 +47,26 @@ const StyledSelectField = styled(Select)`
   border: 1px ${Colors.outline} solid;
   border-radius: 20px;
   width: 70px;
+  height: 32px;
   text-align: center;
   overflow: hidden;
   font-size: 13px;
+  .MuiSelect-select:focus {
+    background: none;
+  }
   &.MuiInput-underline:before,
   &.MuiInput-underline:after,
   &.MuiInput-underline:hover:before {
     border-bottom: none;
   }
+  .MuiSelect-icon {
+    top: initial;
+    right: 12px;
+  }
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+  font-size: 13px;
 `;
 
 export const Paginator = React.memo(
@@ -72,15 +87,22 @@ export const Paginator = React.memo(
             label="Rows per page"
             onChange={onRowsPerPageChange}
             value={rowsPerPage || rowsPerPageOptions[0]}
+            IconComponent={ChevronIcon}
           >
             {rowsPerPageOptions.map(option => (
-              <MenuItem value={option}>{option}</MenuItem>
+              <StyledMenuItem value={option}>{option}</StyledMenuItem>
             ))}
           </StyledSelectField>
           <PageRecordCount>
-            {page * rowsPerPage + 1}-{page * rowsPerPage + rowsPerPage} of {count}
+            {page * rowsPerPage + 1}-{(page + 1) * rowsPerPage} of {count}
           </PageRecordCount>
-          <StyledPagination count={numberOfPages} variant="outlined" onChange={onPageChange} />
+          <StyledPagination
+            size="small"
+            count={numberOfPages}
+            variant="outlined"
+            onChange={onPageChange}
+            boundaryCount={1}
+          />
         </FooterContent>
       </PaginatorWrapper>
     );
