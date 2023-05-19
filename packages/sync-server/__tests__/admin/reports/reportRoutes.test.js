@@ -119,13 +119,16 @@ describe('reportRoutes', () => {
   describe('POST /reports/:id/versions', () => {
     it('should create a new version', async () => {
       const { ReportDefinitionVersion } = models;
-      const newVersion = getMockReportVersion(1, 'select * from patients limit 1');
+      const { versionNumber, ...newVersion } = getMockReportVersion(
+        1,
+        'select * from patients limit 1',
+      );
       const res = await adminApp
         .post(`/v1/admin/reports/${testReport.id}/versions`)
         .send(newVersion);
       expect(res).toHaveSucceeded();
       expect(res.body.query).toBe('select * from patients limit 1');
-      expect(res.body.versionNumber).toBe(1);
+      expect(res.body.versionNumber).toBe(versionNumber);
       const versions = await ReportDefinitionVersion.findAll({
         where: {
           reportDefinitionId: testReport.id,
@@ -135,7 +138,10 @@ describe('reportRoutes', () => {
     });
 
     it('should not return unnecessary metadata', async () => {
-      const newVersion = getMockReportVersion(1, 'select * from patients limit 1');
+      const { versionNumber, ...newVersion } = getMockReportVersion(
+        1,
+        'select * from patients limit 1',
+      );
       const res = await adminApp
         .post(`/v1/admin/reports/${testReport.id}/versions`)
         .send(newVersion);
