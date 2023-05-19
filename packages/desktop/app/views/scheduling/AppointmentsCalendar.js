@@ -17,7 +17,7 @@ import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 
 const LeftContainer = styled.div`
-  min-height: 100vh;
+  min-height: 100%;
   border-right: 1px solid ${Colors.outline};
 `;
 
