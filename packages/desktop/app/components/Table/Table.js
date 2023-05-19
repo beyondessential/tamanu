@@ -3,7 +3,7 @@
  * Copyright (c) 2018-2022 Beyond Essential Systems Pty Ltd
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {
@@ -14,10 +14,7 @@ import {
   TableSortLabel,
   TableRow,
   TableFooter,
-  Select,
-  MenuItem,
 } from '@material-ui/core';
-import { Pagination } from '@material-ui/lab';
 import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
@@ -25,6 +22,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { Paginator } from './Paginator';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -195,86 +193,6 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
     displayValue
   );
 });
-
-const PaginatorWrapper = styled.td``;
-
-const FooterContent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-const StyledPagination = styled(Pagination)`
-  margin: 0 20px;
-  ul {
-    li {
-      .MuiPaginationItem-page {
-        border: 1px solid ${Colors.outline};
-      }
-      .MuiPaginationItem-page.Mui-selected {
-        background: ${Colors.primary};
-        border: none;
-        color: ${Colors.white};
-      }
-      &:first-child,
-      &:last-child {
-        .MuiPaginationItem-page {
-          border: none;
-        }
-      }
-    }
-  }
-`;
-
-const PageRecordCount = styled.span`
-  margin-left: 20px;
-`;
-
-const StyledSelectField = styled(Select)`
-  // border: 1px red solid;
-  border-radius: 20px;
-  width: 80px;
-  text-align: center;
-  overflow: hidden;
-  &.MuiInput-underline:before,
-  &.MuiInput-underline:after,
-  &.MuiInput-underline:hover:before {
-    border-bottom: none;
-  }
-`;
-
-const Paginator = React.memo(
-  ({
-    page,
-    colSpan,
-    count,
-    rowsPerPage,
-    onPageChange,
-    onRowsPerPageChange,
-    rowsPerPageOptions,
-  }) => {
-    const numberOfPages = Math.ceil(count / rowsPerPage);
-    return (
-      <PaginatorWrapper colSpan={colSpan}>
-        <FooterContent>
-          <StyledSelectField
-            label="Rows per page"
-            onChange={onRowsPerPageChange}
-            value={rowsPerPage || rowsPerPageOptions[0]}
-          >
-            {rowsPerPageOptions.map(option => (
-              <MenuItem value={option}>{option}</MenuItem>
-            ))}
-          </StyledSelectField>
-          <PageRecordCount>
-            {page * rowsPerPage + 1}-{page * rowsPerPage + rowsPerPage} of {count}
-          </PageRecordCount>
-          <StyledPagination count={numberOfPages} variant="outlined" onChange={onPageChange} />
-        </FooterContent>
-      </PaginatorWrapper>
-    );
-  },
-);
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
