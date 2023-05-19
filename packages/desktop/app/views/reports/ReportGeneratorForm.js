@@ -191,7 +191,9 @@ export const ReportGeneratorForm = () => {
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
-        reportId: Yup.string().required('Report id is required'),
+        reportId: Yup.string().required(
+          "Report id is required. A report must be selected in the dropdown; just entering a report name will not work. If you can't see a specific report, your user account may need additional permissions configured by an administrator.",
+        ),
         ...parameters.reduce(
           (schema, field) => ({
             ...schema,
