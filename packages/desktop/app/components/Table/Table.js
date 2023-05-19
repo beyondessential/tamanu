@@ -3,7 +3,7 @@
  * Copyright (c) 2018-2022 Beyond Essential Systems Pty Ltd
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {
@@ -14,11 +14,11 @@ import {
   TableSortLabel,
   TableRow,
   TableFooter,
-  TablePagination,
   Select,
   MenuItem,
 } from '@material-ui/core';
-import { ExpandMore, ChevronLeft, ChevronRight } from '@material-ui/icons';
+import { Pagination } from '@material-ui/lab';
+import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -198,41 +198,51 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
 
 const PaginatorWrapper = styled.td``;
 
-const PageContainer = styled.div`
+const FooterContent = styled.div`
   display: flex;
   align-items: center;
-  height: 100%;
-  float: right;
-  margin-right: 50px;
-  svg,
-  button {
-    cursor: pointer;
+  justify-content: flex-end;
+`;
+
+const StyledPagination = styled(Pagination)`
+  margin: 0 20px;
+  ul {
+    li {
+      .MuiPaginationItem-page {
+        border: 1px solid ${Colors.outline};
+      }
+      .MuiPaginationItem-page.Mui-selected {
+        background: ${Colors.primary};
+        border: none;
+        color: ${Colors.white};
+      }
+      &:first-child,
+      &:last-child {
+        .MuiPaginationItem-page {
+          border: none;
+        }
+      }
+    }
   }
 `;
 
-const PageNumber = styled.button`
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
+const PageRecordCount = styled.span`
+  margin-left: 20px;
+`;
+
+const StyledSelectField = styled(Select)`
+  // border: 1px red solid;
+  border-radius: 20px;
+  width: 80px;
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 2px;
-  background: ${props => (props.active ? Colors.primary : 'none')};
-  color: ${props => (props.active ? Colors.white : Colors.darkText)};
-  border: ${props => (props.active ? `none` : `1px ${Colors.outline} solid`)};
-  &:hover {
-    background: ${props => (props.active ? Colors.primary : Colors.outline)};
+  overflow: hidden;
+  &.MuiInput-underline:before,
+  &.MuiInput-underline:after,
+  &.MuiInput-underline:hover:before {
+    border-bottom: none;
   }
 `;
 
-const PageNumberDivider = styled.span`
-  width: 30px;
-  text-align: center;
-`;
-
-// TODO: SMH THIS ALREADY EXISTS AS AN MUI COMPONENT
 const Paginator = React.memo(
   ({
     page,
@@ -244,34 +254,23 @@ const Paginator = React.memo(
     rowsPerPageOptions,
   }) => {
     const numberOfPages = Math.ceil(count / rowsPerPage);
-    const pageNumberButtons = Array.from({ length: numberOfPages }, (_, i) => {
-      // TODO: THIS LOGIC MAY REQUIRE A BIT OF SHIFFLING AROUND TO MATCH THE EXPECTED BEHAVIOUR
-      if (i === 0 || i === numberOfPages - 1 || (i <= page + 1 && i >= page - 1)) {
-        return (
-          <PageNumber onClick={() => onPageChange(i)} active={i === page}>
-            {i + 1}
-          </PageNumber>
-        );
-      }
-      if (i === page + 2 || i === page - 2) {
-        return <PageNumberDivider>...</PageNumberDivider>;
-      }
-      return null;
-    });
-
     return (
       <PaginatorWrapper colSpan={colSpan}>
-        <PageContainer>
-          {/* TODO: GET THIS SELECT WORKING PROPERLY */}
-          <Select label="Rows per page" value={rowsPerPageOptions[0]}>
+        <FooterContent>
+          <StyledSelectField
+            label="Rows per page"
+            onChange={onRowsPerPageChange}
+            value={rowsPerPage || rowsPerPageOptions[0]}
+          >
             {rowsPerPageOptions.map(option => (
               <MenuItem value={option}>{option}</MenuItem>
             ))}
-          </Select>
-          {page > 0 && <ChevronLeft onClick={() => onPageChange(page - 1)} />}
-          {pageNumberButtons}
-          {page < numberOfPages - 1 && <ChevronRight onClick={() => onPageChange(page + 1)} />}
-        </PageContainer>
+          </StyledSelectField>
+          <PageRecordCount>
+            {page * rowsPerPage + 1}-{page * rowsPerPage + rowsPerPage} of {count}
+          </PageRecordCount>
+          <StyledPagination count={numberOfPages} variant="outlined" onChange={onPageChange} />
+        </FooterContent>
       </PaginatorWrapper>
     );
   },
@@ -296,7 +295,7 @@ class TableComponent extends React.Component {
 
   handleChangePage = (event, newPage) => {
     const { onChangePage } = this.props;
-    if (onChangePage) onChangePage(newPage);
+    if (onChangePage) onChangePage(newPage - 1);
   };
 
   handleChangeRowsPerPage = event => {
@@ -390,27 +389,16 @@ class TableComponent extends React.Component {
   }
 
   renderPaginator() {
-    const {
-      columns,
-      page,
-      count,
-      rowsPerPage,
-      rowsPerPageOptions,
-      onChangePage,
-      onChangeRowsPerPage,
-    } = this.props;
+    const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
       <Paginator
-        // <TablePagination
         rowsPerPageOptions={rowsPerPageOptions}
         colSpan={columns.length}
         page={page}
         count={count}
         rowsPerPage={rowsPerPage}
-        // onPageChange={this.handleChangePage}
-        // onRowsPerPageChange={this.handleChangeRowsPerPage}
-        onPageChange={onChangePage}
-        onRowsPerPageChange={onChangeRowsPerPage}
+        onPageChange={this.handleChangePage}
+        onRowsPerPageChange={this.handleChangeRowsPerPage}
       />
     );
   }
