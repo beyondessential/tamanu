@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -80,7 +80,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             size="small"
           />
           {publishedStatus ? (
-            <Field name="publishedDate" label="Published" saveDateAsString component={DateField} />
+            <Field name="publishedDate" label="Completed" saveDateAsString component={DateField} />
           ) : (
             <>
               <LocalisedField
@@ -150,7 +150,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             name="status"
             defaultLabel="Status"
             component={SelectField}
-            options={LAB_REQUEST_STATUS_OPTIONS}
+            options={LAB_REQUEST_STATUS_OPTIONS.filter(
+              option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
+            )}
             size="small"
           />
         )}
