@@ -106,6 +106,7 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
+  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   ...IMAGING_AREA_TYPES,
 };
 
