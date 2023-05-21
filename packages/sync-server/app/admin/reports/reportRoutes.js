@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from 'shared/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 import { DryRun } from '../errors';
 
@@ -51,6 +51,15 @@ reportsRouter.get(
         'status',
         'notes',
         'queryOptions',
+        [
+          store.sequelize.literal(`version_number = (
+            SELECT MAX(version_number)
+            FROM report_definition_versions AS rdv
+            WHERE rdv.report_definition_id = "ReportDefinitionVersion".report_definition_id
+            AND rdv.status = '${REPORT_STATUSES.PUBLISHED}'
+          )`),
+          'active',
+        ],
       ],
       order: [['versionNumber', 'DESC']],
       include: [

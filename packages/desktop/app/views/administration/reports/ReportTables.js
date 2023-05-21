@@ -12,8 +12,12 @@ const STATUS_CONFIG = {
     color: Colors.darkGrey,
   },
   [REPORT_STATUSES.PUBLISHED]: {
-    color: '#19934E',
+    color: Colors.green,
     background: '#DEF0EE',
+  },
+  active: {
+    color: Colors.white,
+    background: Colors.green,
   },
 };
 
@@ -79,7 +83,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
     onRowClick={onRowClick}
     columns={[
       {
-        title: 'Version number',
+        title: 'Version',
         key: 'versionNumber',
         minWidth: 200,
       },
@@ -92,7 +96,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
       {
         title: 'Status',
         key: 'status',
-        accessor: ({ status }) => <ReportStatusTag status={status} />,
+        accessor: ({ status, active }) => <ReportStatusTag status={active ? 'active' : status} />,
       },
     ]}
     data={data}
