@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -92,8 +93,6 @@ const StyledExpandMore = styled(ChevronIcon)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
-  position: absolute;
-  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
