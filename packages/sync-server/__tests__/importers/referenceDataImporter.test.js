@@ -10,7 +10,7 @@ import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
-import { referenceDataExporter } from '../../app/admin/referenceDataExporter/referenceDataExporter';
+import { exporter } from '../../app/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
 
 // the importer can take a little while
@@ -475,7 +475,7 @@ describe('Import from an exported file', () => {
     await models.Patient.create(patientData);
     await createDiagnosis(models);
     await createAllergy(models);
-    const fileName = await referenceDataExporter(
+    const fileName = await exporter(
       models,
       {
         1: 'patient',

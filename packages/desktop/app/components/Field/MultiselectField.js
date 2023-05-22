@@ -24,6 +24,7 @@ const StyledFormControl = styled(FormControl)`
 const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...props} />)`
   .react-select__control {
     padding-right: 8px;
+    ${props => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
     &:hover {
       border: 1px solid ${Colors.primary};
     }
@@ -146,6 +147,14 @@ const MultiValueRemove = props => (
   </components.MultiValueRemove>
 );
 
+const getValues = value => {
+  if (!value?.length) {
+    return null;
+  }
+
+  return Array.isArray(value) ? value : value.split(', ');
+};
+
 export const MultiselectInput = ({
   options,
   value,
@@ -161,7 +170,8 @@ export const MultiselectInput = ({
   ...props
 }) => {
   // If value is already set, keep that value, otherwise attempt to load any initial values
-  const values = value ? value.split(', ') : initialValues[name]?.split(', ') || [];
+  const values = getValues(value) || getValues(initialValues[name]) || [];
+
   const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
   const [selected, setSelected] = useState(initialSelectedOptions);
@@ -175,7 +185,7 @@ export const MultiselectInput = ({
   );
 
   useEffect(() => {
-    const newValues = value ? value.split(', ') : [];
+    const newValues = getValues(value) || [];
     const newOptions = options.filter(option => newValues.includes(option.value));
     setSelected(newOptions);
   }, [value, options]);
@@ -203,6 +213,7 @@ export const MultiselectInput = ({
         <StyledSelect
           value={selected}
           isMulti
+          $borderColor={props.error ? Colors.alert : null}
           onChange={handleChange}
           options={options}
           menuPlacement="auto"
