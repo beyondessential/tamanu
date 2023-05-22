@@ -39,7 +39,6 @@ import {
   SuggesterSelectField,
   TextField,
   TimeField,
-  useLocalisedSchema,
 } from '../components';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
@@ -383,12 +382,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   };
 
   const sexValues = useSexValues();
-  const { getLocalisation } = useLocalisation();
-  const { getLocalisedSchema } = useLocalisedSchema();
-  const canEditDisplayId = getLocalisation('features.editDisplayId');
-  const configValidation = {
-    ...(canEditDisplayId && { displayId: getLocalisedSchema({ name: 'displayId' }) }),
-  };
 
   const api = useApi();
   const {
@@ -443,7 +436,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         ),
       }}
       onSubmit={handleSubmit}
-      validationSchema={getPatientDetailsValidation(sexValues, configValidation)}
+      validationSchema={getPatientDetailsValidation(sexValues)}
     />
   );
 };
