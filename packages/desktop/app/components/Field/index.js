@@ -20,6 +20,7 @@ export * from './SearchField';
 // fancy fields
 export * from './ArrayField';
 export * from './AutocompleteField';
+export * from './DisplayIdField';
 export * from './DisplayIdSearchField';
 export * from './DOBFields';
 export * from './LocationField';
