@@ -77,7 +77,11 @@ export const simplePost = modelName =>
 export const getResourceList = async (req, modelName, foreignKey = '', options = {}) => {
   const { models, params, query } = req;
   const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
-  const { additionalFilters = {}, include = [] } = options;
+  const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
+  
+  if (skipPermissionCheck === false) {
+    req.checkPermission('list', modelName);
+  }
 
   const model = models[modelName];
   const associations = model.getListReferenceAssociations(models) || [];
@@ -117,12 +121,16 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
   });
 
 export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
-  const { additionalFilters = {}, include = [] } = options;
+  const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { page = 0, order = 'ASC', orderBy, rowsPerPage } = query;
     const offset = query.offset || page * rowsPerPage || 0;
+
+    if (skipPermissionCheck === false) {
+      req.checkPermission('list', modelName);
+    }
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
