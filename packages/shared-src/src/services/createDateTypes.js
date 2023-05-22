@@ -28,13 +28,20 @@ export function createDateTypes() {
     }
   }
 
+  // TIMESTAMP WITHOUT TIME ZONE
+  const TIMESTAMP = function TIMESTAMP() {};
+  util.inherits(TIMESTAMP, DataTypes.DATE);
+  TIMESTAMP.prototype.toSql = () => 'TIMESTAMP';
+
   // Set the type key
   DATETIMESTRING.prototype.key = 'date_time_string';
   DATESTRING.prototype.key = 'date_string';
+  TIMESTAMP.prototype.key = 'TIMESTAMP';
 
   // Make datatype able to be used directly without having to call `new` on it.
   DataTypes.DATETIMESTRING = Utils.classToInvokable(DATETIMESTRING);
   DataTypes.DATESTRING = Utils.classToInvokable(DATESTRING);
+  DataTypes.TIMESTAMP = Utils.classToInvokable(TIMESTAMP);
 
   // Map the datatype to the postgres type/domain name
   DataTypes.DATETIMESTRING.types.postgres = ['date_time_string'];

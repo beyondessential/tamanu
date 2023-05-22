@@ -7,6 +7,6 @@ export { NewTemplateForm } from './NewTemplateForm';
 export { NewUserForm } from './NewUserForm';
 export { OngoingConditionForm } from './OngoingConditionForm';
 export { PatientIssueForm } from './PatientIssueForm';
-export { ImmunisationForm } from './ImmunisationForm';
+export { VaccineGivenForm } from './VaccineGivenForm';
 export { PatientCarePlanForm } from './PatientCarePlanForm';
 export { VitalsForm } from './VitalsForm';

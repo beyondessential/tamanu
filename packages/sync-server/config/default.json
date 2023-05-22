@@ -630,7 +630,8 @@
         },
         "fhirNewZealandEthnicity": false,
         "onlyAllowLabPanels": false,
-        "displayProcedureCodesInDischargeSummary": true
+        "displayProcedureCodesInDischargeSummary": true,
+        "displayIcd10CodesInDischargeSummary": true
       },
       "templates": {
         "letterhead": {
@@ -642,6 +643,10 @@
           "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
         },
         "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidVaccineCertificateEmail": {
           "subject": "Medical Certificate now available",
           "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
         },
