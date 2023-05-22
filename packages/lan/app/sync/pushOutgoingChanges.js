@@ -2,7 +2,7 @@ import { calculatePageLimit } from './calculatePageLimit';
 
 // This is only used for jest tests. It is a workaround to spies not working
 // with importing modules in the way that this module is used. See the
-// FacilitySyncManager.test.js ('edge cases' suite).
+// FacilitySyncManager.test.js ('edge cases' suite) or SAV-249
 let __testSpyEnabled = false;
 export const __testOnlyCalls = [];
 export const __testOnlyEnableSpy = () => {
