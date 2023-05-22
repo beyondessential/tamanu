@@ -78,7 +78,7 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
   const { models, params, query } = req;
   const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
   const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
-  
+
   if (skipPermissionCheck === false) {
     req.checkPermission('list', modelName);
   }

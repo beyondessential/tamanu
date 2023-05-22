@@ -24,7 +24,7 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
     return;
   }
 
-  const idCondition = id ? ({ id: { [Op.ne]: id }}) : {}; 
+  const idCondition = id ? { id: { [Op.ne]: id } } : {};
   const conflictingRecords = await req.models.PatientLetterTemplate.count({
     where: { name, ...idCondition },
   });
