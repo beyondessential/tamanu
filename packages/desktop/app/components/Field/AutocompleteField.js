@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -92,8 +93,6 @@ const StyledExpandMore = styled(ChevronIcon)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
-  position: absolute;
-  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
@@ -235,9 +234,12 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, name } = this.props;
+    const { onChange, onClear } = this.props;
     this.setState({ selectedOption: { value: '', tag: null } });
-    onChange({ target: { value: undefined, name } });
+    onChange({ target: { value: undefined, name: null } });
+    if (onClear) {
+      onClear();
+    }
   };
 
   clearOptions = () => {
