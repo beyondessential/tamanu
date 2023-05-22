@@ -85,7 +85,7 @@ export const PatientLetterModal = React.memo(
           patientLetterData: {
             todo: 'TODO',
           },
-          // type: DOCUMENT_SOURCES.PATIENT_LETTER, TODO
+          type: 'application/pdf',
           source: DOCUMENT_SOURCES.PATIENT_LETTER,
           name: data.title,
           clinicianId: data.clinicianId,

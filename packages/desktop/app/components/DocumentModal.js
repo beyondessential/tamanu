@@ -35,17 +35,6 @@ const Message = styled(Typography)`
   margin-bottom: 30px;
 `;
 
-const getType = attachmentType => {
-  // Note that this may not be the actual extension of the file uploaded.
-  // Instead, its the default extension for the mime-type of the file uploaded.
-  const fileExtension = extension(attachmentType)?.toUpperCase();
-  if (typeof fileExtension !== 'string') {
-    throw new Error('Unsupported file type');
-  }
-
-  return EXTENSION_TO_DOCUMENT_TYPE[fileExtension] ?? fileExtension;
-};
-
 export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
   const [error, setError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,7 +65,8 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
         await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
           ...data,
           attachmentType,
-          type: getType(attachmentType),
+          type: attachmentType,
+          source: DOCUMENT_SOURCES.UPLOADED,
           documentCreatedAt: toDateTimeString(birthtime),
           documentUploadedAt: getCurrentDateTimeString(),
         });

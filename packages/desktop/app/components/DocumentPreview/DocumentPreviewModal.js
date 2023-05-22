@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Typography } from '@material-ui/core';
 
-import { DOCUMENT_SOURCES } from 'shared/constants';
-
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
@@ -23,17 +21,16 @@ const Subtitle = styled(Typography)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-const DOCUMENT_TYPES = {
+const PREVIEWABLE_DOCUMENT_TYPES = {
   PDF: 'PDF',
   JPEG: 'JPEG',
 }
 
 const Preview = ({ documentType, attachmentId, ...props }) => {
-  // TODO
-  if (documentType === DOCUMENT_TYPES.PDF) {
+  if (documentType === PREVIEWABLE_DOCUMENT_TYPES.PDF) {
     return <PDFPreview attachmentId={attachmentId} {...props} />;
   }
-  if (documentType === DOCUMENT_TYPES.RAW_JPEG) {
+  if (documentType === PREVIEWABLE_DOCUMENT_TYPES.JPEG) {
     return <PhotoPreview attachmentId={attachmentId} />;
   }
   return `Preview is not supported for document type ${documentType}`;
@@ -57,7 +54,7 @@ export const DocumentPreviewModal = ({
         <div>
           {title}
           <Subtitle>
-            {documentType === DOCUMENT_TYPES.PDF
+            {documentType === PREVIEWABLE_DOCUMENT_TYPES.PDF
               ? `Page ${scrollPage} of ${pageCount ?? 'Unknown'}`
               : null}
           </Subtitle>

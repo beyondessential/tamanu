@@ -146,7 +146,7 @@ encounter.post('/:id/createPatientLetter', asyncHandler(async (req, res) => {
       data: fileData,
     }),
   );
-
+  
 
   const documentMetadataObject = await models.DocumentMetadata.create({
     ...documentMetadata,

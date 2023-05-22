@@ -44,20 +44,19 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   </ActionsContainer>
 ));
 
-const getAttachmentType = (documentType) =>   {
+const getTitle = ({ source, name }) => source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
+const getAttachmentExtension = (documentType) =>   {
   // Note that this may not be the actual extension of the file uploaded.
   // Instead, its the default extension for the mime-type of the file uploaded.
-  const fileExtension = extension(documentType)?.toUpperCase();
-  if (typeof fileExtension !== 'string') {
-    throw new Error('Unsupported file type');
-  }
-
-  return EXTENSION_TO_DOCUMENT_TYPE[fileExtension] ?? fileExtension;
+  const fileExtension = extension(type);
+  if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
+  return 'Unknown';
 }
 
+
 const getTypeLabel = ({ source, type }) => {
-  if(source === DOCUMENT_SOURCES.UPLOADED){
-    return getAttachmentType(type)
+  if (source === DOCUMENT_SOURCES.UPLOADED) {
+    return getAttachmentExtension(type)
   }
   
   return DOCUMENT_SOURCE_LABELS[source] ?? 'Unknown';
@@ -161,9 +160,9 @@ export const DocumentsTable = React.memo(
         /> */}
         <DocumentPreviewModal
           open={selectedDocument !== null}
-          title={selectedDocument?.name}
+          title={getTitle(selectedDocument ?? {})}
           attachmentId={selectedDocument?.attachmentId}
-          documentType={getAttachmentType(selectedDocument?.type)}
+          documentType={getAttachmentExtension(selectedDocument?.type)}
           onClose={onClose}
           onDownload={() => onDownload(selectedDocument)}
         />
