@@ -234,9 +234,11 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, onClear } = this.props;
+    const { onChange, onClear, name } = this.props;
     this.setState({ selectedOption: { value: '', tag: null } });
-    onChange({ target: { value: undefined, name: null } });
+    // TODO: need to resolve this. When I add the name to the onChange it it will properly save the form state however when pressing "clear"
+    // it will not clear the value. If I remove the name from the onChange it will clear the value properly but the form state is out of sync
+    onChange({ target: { value: undefined, name } });
     if (onClear) {
       onClear();
     }
