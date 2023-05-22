@@ -25,6 +25,11 @@ const RightContainer = styled.div`
   position: relative;
 `;
 
+const SessionContainer = styled.div`
+  position: sticky;
+  top: ${TOP_BAR_HEIGHT}px;
+`;
+
 const TopBar = styled(TopBarBase)`
   position: sticky;
   top: 0;
@@ -134,41 +139,43 @@ export const AppointmentsCalendar = () => {
       <TwoColumnDisplay>
         <LeftContainer>
           <TopBarBase title="Calendar" />
-          <Section>
-            <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
-            <FilterSwitch>
-              {Object.entries(filters).map(([key, { label }]) => (
-                <Button
-                  key={key}
-                  color={key === activeFilter ? 'primary' : null}
-                  variant={key === activeFilter ? 'contained' : null}
-                  onClick={() => {
-                    setActiveFilter(key);
-                    setFilterValue('');
-                  }}
-                >
-                  {label}
-                </Button>
-              ))}
-            </FilterSwitch>
-          </Section>
-          <Section>
-            <SectionTitle variant="subtitle2">{filters[activeFilter].label}</SectionTitle>
-            {filters[activeFilter].component}
-          </Section>
-          <Section>
-            <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
-            <MultiselectInput
-              onChange={e => {
-                if (!e.target.value) {
-                  setAppointmentType([]);
-                  return;
-                }
-                setAppointmentType(e.target.value.split(', '));
-              }}
-              options={appointmentTypeOptions}
-            />
-          </Section>
+          <SessionContainer>
+            <Section>
+              <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
+              <FilterSwitch>
+                {Object.entries(filters).map(([key, { label }]) => (
+                  <Button
+                    key={key}
+                    color={key === activeFilter ? 'primary' : null}
+                    variant={key === activeFilter ? 'contained' : null}
+                    onClick={() => {
+                      setActiveFilter(key);
+                      setFilterValue('');
+                    }}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </FilterSwitch>
+            </Section>
+            <Section>
+              <SectionTitle variant="subtitle2">{filters[activeFilter].label}</SectionTitle>
+              {filters[activeFilter].component}
+            </Section>
+            <Section>
+              <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
+              <MultiselectInput
+                onChange={e => {
+                  if (!e.target.value) {
+                    setAppointmentType([]);
+                    return;
+                  }
+                  setAppointmentType(e.target.value.split(', '));
+                }}
+                options={appointmentTypeOptions}
+              />
+            </Section>
+          </SessionContainer>
         </LeftContainer>
         <RightContainer>
           <TopBar>
