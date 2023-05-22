@@ -119,15 +119,10 @@ describe('CentralSyncManager', () => {
         limit: 10,
       });
 
-      expect(changes.length).toBe(4);
-
-      const insertedPatient1 = await models.Patient.findByPk(patient1.id);
-      const insertedPatient2 = await models.Patient.findByPk(patient2.id);
-      const insertedPatient3 = await models.Patient.findByPk(patient3.id);
-      const insertedPatient4 = await models.Patient.findByPk(patient4.id);
+      expect(changes).toHaveLength(4);
 
       expect(changes.map(c => c.data.id).sort()).toEqual(
-        [insertedPatient1.id, insertedPatient2.id, insertedPatient3.id, insertedPatient4.id].sort(),
+        [patient1.id, patient2.id, patient3.id, patient4.id].sort(),
       );
     });
   });
