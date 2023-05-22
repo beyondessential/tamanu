@@ -119,6 +119,7 @@ const StyledTable = styled(MaterialTable)`
 
 const StyledTableHead = styled(TableHead)`
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+  white-space: nowrap;
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -127,6 +128,14 @@ const StyledTableFooter = styled(TableFooter)`
   tr:last-child td {
     border-bottom: none;
   }
+`;
+
+const ActiveSortIcon = styled(ExpandMore)`
+  color: ${Colors.darkestText} !important;
+`;
+
+const InactiveSortIcon = styled(ActiveSortIcon)`
+  color: ${Colors.midText} !important;
 `;
 
 const HeaderContainer = React.memo(({ children, numeric }) => (
@@ -240,10 +249,10 @@ class TableComponent extends React.Component {
 
       const headerElement = sortable ? (
         <TableSortLabel
-          active={orderBy === key}
-          direction={order}
+          active
+          direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
-          IconComponent={ExpandMore}
+          IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
         >
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>

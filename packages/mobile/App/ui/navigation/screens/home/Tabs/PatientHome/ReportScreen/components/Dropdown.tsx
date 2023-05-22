@@ -26,7 +26,7 @@ const DropdownItem: FC<{
   </TouchableOpacity>
 );
 
-export const Dropdown: FC<IDropdownProps> = (props) => {
+export const Dropdown: FC<IDropdownProps> = props => {
   const [isOpen, setIsOpen] = useState(false);
   const [translateY, setTranslateY] = useState(0);
   const [translateX, setTranslateX] = useState(0);
