@@ -29,7 +29,7 @@ const CheckField = ({ field }) => (
   </Tooltip>
 );
 
-export const DisplayIdField = props => (
+export const DisplayIdSearchField = props => (
   <FieldContainer
     {...props}
     name="displayId"

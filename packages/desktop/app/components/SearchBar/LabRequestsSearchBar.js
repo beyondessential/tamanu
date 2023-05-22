@@ -9,7 +9,7 @@ import {
   Field,
   SuggesterSelectField,
   SearchField,
-  DisplayIdField,
+  DisplayIdSearchField,
   AutocompleteField,
   CheckField,
 } from '../Field';
@@ -106,7 +106,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
       }
     >
       <>
-        <DisplayIdField useShortLabel />
+        <DisplayIdSearchField useShortLabel />
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
         <Field name="requestId" label="Test ID" component={SearchField} />
