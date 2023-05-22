@@ -20,3 +20,4 @@ export * from './surveys';
 export * from './sync';
 export * from './templates';
 export * from './vaccines';
+export * from './settings';
