@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 
-export const getPatientDetailsValidation = (sexValues, configValidation) => {
+export const getPatientDetailsValidation = sexValues => {
   return yup.object().shape({
     firstName: yup.string().required(),
     middleName: yup.string(),
@@ -43,6 +43,5 @@ export const getPatientDetailsValidation = (sexValues, configValidation) => {
     birthType: yup.string().oneOf(Object.values(BIRTH_TYPES)),
     timeOfBirth: yup.string(),
     registeredBirthPlace: yup.string().oneOf(Object.values(PLACE_OF_BIRTH_TYPES)),
-    ...configValidation,
   });
 };
