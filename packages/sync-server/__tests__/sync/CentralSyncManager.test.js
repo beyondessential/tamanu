@@ -40,6 +40,7 @@ describe('CentralSyncManager', () => {
     ctx = await createTestContext();
     ({ models, sequelize } = ctx.store);
   });
+  afterAll(() => ctx.close());
 
   describe('startSession', () => {
     it.todo('creates a new session');
