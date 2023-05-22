@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { Box } from '@material-ui/core';
 
-import { DOCUMENT_TYPES } from 'shared/constants';
+import { DOCUMENT_SOURCES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../api';
 import { Modal, ModalLoader } from './Modal';
@@ -85,7 +85,8 @@ export const PatientLetterModal = React.memo(
           patientLetterData: {
             todo: 'TODO',
           },
-          type: DOCUMENT_TYPES.PATIENT_LETTER,
+          // type: DOCUMENT_SOURCES.PATIENT_LETTER, TODO
+          source: DOCUMENT_SOURCES.PATIENT_LETTER,
           name: data.title,
           clinicianId: data.clinicianId,
           documentCreatedAt: getCurrentDateTimeString(),

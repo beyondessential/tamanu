@@ -5,7 +5,7 @@ import { promises as asyncFs } from 'fs';
 import { extension, lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
 import { ForbiddenError } from 'shared/errors';
-import { DOCUMENT_TYPES } from 'shared/constants';
+import { DOCUMENT_SOURCES } from 'shared/constants';
 import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 
 import { useApi } from '../api';
@@ -34,11 +34,6 @@ const Message = styled(Typography)`
   line-height: 18px;
   margin-bottom: 30px;
 `;
-
-const EXTENSION_TO_DOCUMENT_TYPE = {
-  PDF: DOCUMENT_TYPES.RAW_PDF,
-  JPEG: DOCUMENT_TYPES.RAW_JPEG,
-};
 
 const getType = attachmentType => {
   // Note that this may not be the actual extension of the file uploaded.

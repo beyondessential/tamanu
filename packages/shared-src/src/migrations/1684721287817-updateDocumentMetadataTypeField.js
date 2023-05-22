@@ -1,69 +1,21 @@
-import { QueryTypes } from 'sequelize';
-
-const TYPE_MAPPING = {
-  'application/pdf': 'RAW_PDF',
-  'image/jpeg': 'RAW_JPEG',
-  'patient_letter': 'PATIENT_LETTER',
-};
+import { QueryTypes, DataTypes } from 'sequelize';
 
 export async function up(query) {
-  const unknownDocumentTypes = await query.sequelize.query(
-    `
-      SELECT COUNT(*), type 
-      FROM document_metadata
-      WHERE type NOT IN (:known_types)
-      GROUP BY type
-    `,
-    {
-      replacements: {
-        known_types: Object.keys(TYPE_MAPPING),
-      },
-      type: QueryTypes.SELECT,
-    },
-  );
+  await query.addColumn('document_metadata', 'source', {
+    type: DataTypes.STRING,
+    allowNull: true,
+  });
 
-  if (unknownDocumentTypes.length > 0) {
-    const typesWithCount = unknownDocumentTypes.map(d => `"${d.type}" (x${d.count})`).join(',');
-    throw new Error(
-      `Found some unknown document_metadata types. Please resolve before proceeding.\nThe types are: ${typesWithCount}`,
-    );
-  }
-  await Promise.all(Object.entries(TYPE_MAPPING).map(([from, to]) =>
-    query.sequelize.query(`
-      UPDATE document_metadata dm
-      SET type = '${to}'
-      where type = '${from}';
-    `)
-  ));
+  await query.sequelize.query(`
+    UPDATE document_metadata
+    SET source = CASE 
+      WHEN type = 'application/pdf' THEN 'RAW_PDF'
+      WHEN type = 'image/jpeg' THEN 'RAW_JPEG'
+      ELSE NULL
+    END
+  `);
 }
 
 export async function down(query) {
-  const unknownDocumentTypes = await query.sequelize.query(
-    `
-      SELECT COUNT(*), type 
-      FROM document_metadata
-      WHERE type NOT IN (:known_types)
-      GROUP BY type
-    `,
-    {
-      replacements: {
-        known_types: Object.values(TYPE_MAPPING),
-      },
-      type: QueryTypes.SELECT,
-    },
-  );
-
-  if (unknownDocumentTypes.length > 0) {
-    const typesWithCount = unknownDocumentTypes.map(d => `"${d.type}" (x${d.count})`).join(',');
-    throw new Error(
-      `Found some unknown document_metadata types. Please resolve before proceeding.\nThe types are: ${typesWithCount}`,
-    );
-  }
-  await Promise.all(Object.entries(TYPE_MAPPING).map(([to, from]) =>
-    query.sequelize.query(`
-      UPDATE document_metadata dm
-      SET type = '${to}'
-      where type = '${from}';
-    `)
-  ));
+  await query.removeColumn('document_metadata', 'source');
 }

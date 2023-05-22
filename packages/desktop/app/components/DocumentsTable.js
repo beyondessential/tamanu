@@ -5,7 +5,8 @@ import { promises as asyncFs } from 'fs';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { IconButton } from '@material-ui/core';
 
-import { DOCUMENT_TYPE_LABELS } from '../constants';
+import { DOCUMENT_SOURCES } from 'shared/constants';
+import { DOCUMENT_SOURCE_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
@@ -43,9 +44,26 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   </ActionsContainer>
 ));
 
-const getType = ({ type }) => DOCUMENT_TYPE_LABELS[type] ?? 'Unknown';
+const getAttachmentType = (documentType) =>   {
+  // Note that this may not be the actual extension of the file uploaded.
+  // Instead, its the default extension for the mime-type of the file uploaded.
+  const fileExtension = extension(documentType)?.toUpperCase();
+  if (typeof fileExtension !== 'string') {
+    throw new Error('Unsupported file type');
+  }
+
+  return EXTENSION_TO_DOCUMENT_TYPE[fileExtension] ?? fileExtension;
+}
+
+const getTypeLabel = ({ source, type }) => {
+  if(source === DOCUMENT_SOURCES.UPLOADED){
+    return getAttachmentType(type)
+  }
+  
+  return DOCUMENT_SOURCE_LABELS[source] ?? 'Unknown';
+};
 const getUploadedDate = ({ documentUploadedAt }) =>
-  documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
+documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
@@ -98,7 +116,7 @@ export const DocumentsTable = React.memo(
     const COLUMNS = useMemo(
       () => [
         { key: 'name', title: 'Name' },
-        { key: 'type', title: 'Type', accessor: getType },
+        { key: 'type', title: 'Type', accessor: getTypeLabel },
         { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
         { key: 'documentOwner', title: 'Owner' },
         {
@@ -145,7 +163,7 @@ export const DocumentsTable = React.memo(
           open={selectedDocument !== null}
           title={selectedDocument?.name}
           attachmentId={selectedDocument?.attachmentId}
-          documentType={selectedDocument?.type}
+          documentType={getAttachmentType(selectedDocument?.type)}
           onClose={onClose}
           onDownload={() => onDownload(selectedDocument)}
         />

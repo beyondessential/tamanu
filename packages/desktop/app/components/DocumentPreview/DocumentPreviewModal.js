@@ -3,13 +3,12 @@ import styled from 'styled-components';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Typography } from '@material-ui/core';
 
-import { DOCUMENT_TYPES } from 'shared/constants';
+import { DOCUMENT_SOURCES } from 'shared/constants';
 
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
 import { Button } from '../Button';
-import { PDF_DOCUMENT_TYPES } from '../../constants';
 
 const DownloadButton = ({ onClick }) => {
   return (
@@ -24,8 +23,14 @@ const Subtitle = styled(Typography)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
+const DOCUMENT_TYPES = {
+  PDF: 'PDF',
+  JPEG: 'JPEG',
+}
+
 const Preview = ({ documentType, attachmentId, ...props }) => {
-  if (PDF_DOCUMENT_TYPES.includes(documentType)) {
+  // TODO
+  if (documentType === DOCUMENT_TYPES.PDF) {
     return <PDFPreview attachmentId={attachmentId} {...props} />;
   }
   if (documentType === DOCUMENT_TYPES.RAW_JPEG) {
@@ -52,7 +57,7 @@ export const DocumentPreviewModal = ({
         <div>
           {title}
           <Subtitle>
-            {PDF_DOCUMENT_TYPES.includes(documentType)
+            {documentType === DOCUMENT_TYPES.PDF
               ? `Page ${scrollPage} of ${pageCount ?? 'Unknown'}`
               : null}
           </Subtitle>
