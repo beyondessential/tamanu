@@ -29,6 +29,7 @@ import {
   Button,
   ButtonRow,
   DateField,
+  DisplayIdField,
   Field,
   Form,
   FormGrid,
@@ -153,7 +154,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
 
       <StyledHeading>Identification information</StyledHeading>
       <StyledFormGrid>
-        {canEditDisplayId && <LocalisedField name="displayId" component={TextField} />}
+        {canEditDisplayId && <DisplayIdField />}
         <LocalisedField name="birthCertificate" component={TextField} />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
           <LocalisedField name="drivingLicense" component={TextField} />
