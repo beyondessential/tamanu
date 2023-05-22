@@ -6,7 +6,7 @@ import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import { toDateTimeString } from 'shared/utils/dateTime';
-import { PageContainer, TopBar } from '../../components';
+import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
@@ -47,7 +47,8 @@ const DateDisplay = styled.span`
 
 const CalendarContainer = styled.div`
   overflow: auto;
-  width: 100%;
+  height: calc(100vh - ${TOP_BAR_HEIGHT}px - 1px);
+  width: fill-available;
   position: absolute;
 `;
 

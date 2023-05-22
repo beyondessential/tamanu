@@ -33,6 +33,7 @@ const TopBarSubHeading = styled(Typography)`
 
 const AppBar = styled.div`
   position: sticky;
+  height: ${TOP_BAR_HEIGHT}px;
   top: 0;
   z-index: 9;
   flex-grow: 1;
