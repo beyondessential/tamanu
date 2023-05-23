@@ -6,6 +6,7 @@ import { Typography } from '@material-ui/core';
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES } from '../../constants';
+import { ConfirmModal } from '../ConfirmModal';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -39,6 +40,7 @@ export class Form extends React.PureComponent {
     super();
     this.state = {
       validationErrors: {},
+      confirming: false,
     };
   }
 
@@ -154,21 +156,43 @@ export class Form extends React.PureComponent {
       values = newValues;
       originalSetValues(newValues);
     };
+    const onFinalise = () => {
+      this.setState({ confirming: true });
+    };
+    const onBack = () => {
+      this.setState({ confirming: false });
+    };
+    const onConfirm = (...props) => {
+      this.setState({ confirming: false });
+      submitForm(...props);
+    };
 
-    const { render, style } = this.props;
-
+    const { render, style, onCancel, confirmModalProps } = this.props;
+    const isConfirmNeeded = !!confirmModalProps;
+    const { confirming } = this.state;
     return (
       <>
-        <form style={style} onSubmit={submitForm} noValidate>
-          {render({
-            ...formProps,
-            setValues,
-            isValid,
-            isSubmitting,
-            submitForm,
-            clearForm: () => formProps.resetForm({}),
-          })}
-        </form>
+        {isConfirmNeeded && (
+          <ConfirmModal
+            open={confirming}
+            onCancel={onCancel}
+            onConfirm={onConfirm}
+            onBack={onBack}
+            {...confirmModalProps}
+          />
+        )}
+        {!confirming && (
+          <form style={style} onSubmit={submitForm} noValidate>
+            {render({
+              ...formProps,
+              setValues,
+              isValid,
+              isSubmitting,
+              submitForm: isConfirmNeeded ? onFinalise : submitForm,
+              clearForm: () => formProps.resetForm({}),
+            })}
+          </form>
+        )}
         <ScrollToError />
       </>
     );
