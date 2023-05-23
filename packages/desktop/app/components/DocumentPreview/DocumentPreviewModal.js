@@ -50,7 +50,7 @@ export const DocumentPreviewModal = ({
           {title}
           <Subtitle>
             {documentType === SUPPORTED_DOCUMENT_TYPES.PDF
-              ? `Page ${scrollPage} of ${pageCount}`
+              ? `Page ${scrollPage} of ${pageCount ?? 'Unknown'}`
               : null}
           </Subtitle>
         </div>
