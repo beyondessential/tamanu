@@ -35,6 +35,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
 
   return (
     <StyledTooltip
+      className="appointment-tooltip"
       arrow
       open={detailOpen}
       onClose={closeDetail}
@@ -51,9 +52,9 @@ export const Appointment = ({ appointment, onUpdated }) => {
         onClick={() => setDetailOpen(open => !open)}
       >
         <div>
-          <div>
+          <PatientNamePadding>
             <PatientNameDisplay patient={patient} />
-          </div>
+          </PatientNamePadding>
           <DateDisplay date={startTime} showDate={false} showTime />
         </div>
         <div className="icon">
@@ -66,12 +67,16 @@ export const Appointment = ({ appointment, onUpdated }) => {
   );
 };
 
+const PatientNamePadding = styled.div`
+  padding-top: 2px;
+`;
+
 const StyledAppointment = styled.div`
   display: flex;
   justify-content: space-between;
   column-gap: 1rem;
   cursor: pointer;
-  padding: 0.5em 0.75em;
+  padding: 10px;
   border-bottom: 1px solid ${Colors.outline};
   &:last-child {
     border-bottom: none;

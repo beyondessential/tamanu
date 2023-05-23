@@ -53,7 +53,7 @@ const DateDisplay = styled.span`
 const CalendarContainer = styled.div`
   overflow: auto;
   height: calc(100vh - ${TOP_BAR_HEIGHT}px - 1px);
-  width: fill-available;
+  width: 100%;
   position: absolute;
 `;
 
