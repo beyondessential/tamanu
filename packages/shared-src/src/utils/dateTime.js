@@ -2,6 +2,7 @@ import {
   isValid,
   formatISO9075,
   differenceInMonths,
+  differenceInWeeks,
   differenceInYears,
   compareDesc,
   format as dateFnsFormat,
@@ -115,6 +116,10 @@ export function getCurrentDateString() {
 
 export function convertISO9075toRFC3339(dateString) {
   return dateFnsFormat(new Date(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+}
+
+export function ageInWeeks(dob) {
+  return differenceInWeeks(new Date(), new Date(dob));
 }
 
 export function ageInMonths(dob) {
