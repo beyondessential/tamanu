@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Divider as BaseDivider } from '@material-ui/core';
 
-import { Modal } from './Modal';
+import { MODAL_PADDING_LEFT_AND_RIGHT, Modal } from './Modal';
 import { OutlinedButton } from './Button';
 import { ButtonRow } from './ButtonRow';
 
@@ -13,6 +14,10 @@ const Content = styled.div`
 const FlexSpaceBetween = styled.div`
   display: flex;
   justify-content: space-between;
+`;
+
+const Divider = styled(BaseDivider)`
+  margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
 const GoBackButtonContainer = styled(ButtonRow)`
@@ -47,18 +52,19 @@ export const ConfirmModal = ({
         <p>{subText}</p>
       </Content>
     )}
+    <Divider />
     <FlexSpaceBetween>
       {onBack && (
         <GoBackButtonContainer>
           <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
         </GoBackButtonContainer>
       )}
-    <ButtonRow>
-      <OutlinedButton onClick={onCancel}>{cancelButtonText}</OutlinedButton>
-      <ConfirmButton variant="contained" onClick={onConfirm}>
-        {confirmButtonText}
-      </ConfirmButton>
-    </ButtonRow>
+      <ButtonRow>
+        <OutlinedButton onClick={onCancel}>{cancelButtonText}</OutlinedButton>
+        <ConfirmButton variant="contained" onClick={onConfirm}>
+          {confirmButtonText}
+        </ConfirmButton>
+      </ButtonRow>
     </FlexSpaceBetween>
   </Modal>
 );
