@@ -45,8 +45,6 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   </ActionsContainer>
 ));
 
-const getTitle = ({ source, name }) =>
-  source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
 const getAttachmentType = type => {
   // Note that this may not be the actual extension of the file uploaded.
   // Instead, its the default extension for the mime-type of the file uploaded.
@@ -68,48 +66,8 @@ const getUploadedDate = ({ documentUploadedAt }) =>
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint, searchParameters, refreshCount, selectedDocument, setSelectedDocument }) => {
+  ({ endpoint, searchParameters, refreshCount, setSelectedDocument }) => {
     const { showSaveDialog, openPath } = useElectron();
-    const api = useApi();
-
-    // Confirm delete modal will be open/close if it has a document ID
-    const onClose = useCallback(() => {
-      setSelectedDocument(null);
-    }, [setSelectedDocument]);
-
-    const onDownload = useCallback(
-      async row => {
-        if (!navigator.onLine) {
-          throw new Error(
-            'You do not currently have an internet connection. Documents require live internet to download.',
-          );
-        }
-
-        // Suggest a filename that matches the document name
-        const path = await showSaveDialog({ defaultPath: row.name });
-        if (path.canceled) return;
-
-        try {
-          // Give feedback to user that download is starting
-          notify('Your download has started, please wait.', { type: 'info' });
-
-          // Download attachment (*currently the API only supports base64 responses)
-          const { data, type } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
-
-          // If the extension is unknown, save it without extension
-          const fileExtension = extension(type);
-          const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
-
-          // Create file and open it
-          await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
-          notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
-          openPath(fullFilePath);
-        } catch (error) {
-          notifyError(error.message);
-        }
-      },
-      [api, openPath, showSaveDialog],
-    );
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = useMemo(
@@ -139,25 +97,15 @@ export const DocumentsTable = React.memo(
     );
 
     return (
-      <>
-        <DataFetchingTable
-          endpoint={endpoint}
-          columns={COLUMNS}
-          noDataMessage="No documents found"
-          fetchOptions={searchParameters}
-          refreshCount={refreshCount}
-          allowExport={false}
-          elevated={false}
-        />
-        <DocumentPreviewModal
-          open={selectedDocument !== null}
-          title={getTitle(selectedDocument ?? {})}
-          attachmentId={selectedDocument?.attachmentId}
-          documentType={getAttachmentType(selectedDocument?.type)}
-          onClose={onClose}
-          onDownload={() => onDownload(selectedDocument)}
-        />
-      </>
+      <DataFetchingTable
+        endpoint={endpoint}
+        columns={COLUMNS}
+        noDataMessage="No documents found"
+        fetchOptions={searchParameters}
+        refreshCount={refreshCount}
+        allowExport={false}
+        elevated={false}
+      />
     );
   },
 );
