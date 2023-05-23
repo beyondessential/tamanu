@@ -8,6 +8,9 @@ import PhotoPreview from './PhotoPreview';
 import { Button } from '../Button';
 import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
 
+const getTitle = ({ source, name }) =>
+  source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
+  
 const DownloadButton = ({ onClick }) => {
   return (
     <Button variant="outlined" size="small" startIcon={<GetAppIcon />} onClick={onClick}>
@@ -33,21 +36,20 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
 
 export const DocumentPreviewModal = ({
   open,
-  title,
-  attachmentId,
-  documentType,
   onClose,
   onDownload,
+  document,
 }) => {
   const [scrollPage, setScrollPage] = useState(1);
   const [pageCount, setPageCount] = useState();
+  const { type: documentType, attachmentId } = document;
 
   return (
     <Modal
       open={open}
       title={
         <div>
-          {title}
+          {getTitle(document)}
           <Subtitle>
             {documentType === SUPPORTED_DOCUMENT_TYPES.PDF
               ? `Page ${scrollPage} of ${pageCount ?? 'Unknown'}`
