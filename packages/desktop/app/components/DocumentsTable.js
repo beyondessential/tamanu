@@ -44,32 +44,33 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   </ActionsContainer>
 ));
 
-const getTitle = ({ source, name }) => source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
-const getAttachmentExtension = (documentType) =>   {
+const getTitle = ({ source, name }) =>
+  source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
+const getAttachmentExtension = type => {
   // Note that this may not be the actual extension of the file uploaded.
   // Instead, its the default extension for the mime-type of the file uploaded.
+  // i.e. a '.jpg' file may be listed as a JPEG
   const fileExtension = extension(type);
   if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
   return 'Unknown';
-}
-
+};
 
 const getTypeLabel = ({ source, type }) => {
   if (source === DOCUMENT_SOURCES.UPLOADED) {
-    return getAttachmentExtension(type)
+    return getAttachmentExtension(type);
   }
-  
+
   return DOCUMENT_SOURCE_LABELS[source] ?? 'Unknown';
 };
 const getUploadedDate = ({ documentUploadedAt }) =>
-documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
+  documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, selectedDocument, setSelectedDocument }) => {
     const { showSaveDialog, openPath } = useElectron();
     const api = useApi();
-    
+
     // Confirm delete modal will be open/close if it has a document ID
     const onClose = useCallback(() => {
       setSelectedDocument(null);
@@ -82,7 +83,6 @@ export const DocumentsTable = React.memo(
           throw new Error(
             'You do not currently have an internet connection. Documents require live internet to download.',
           );
-          return;
         }
 
         // Suggest a filename that matches the document name

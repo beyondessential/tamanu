@@ -24,7 +24,7 @@ const Subtitle = styled(Typography)`
 const PREVIEWABLE_DOCUMENT_TYPES = {
   PDF: 'PDF',
   JPEG: 'JPEG',
-}
+};
 
 const Preview = ({ documentType, attachmentId, ...props }) => {
   if (documentType === PREVIEWABLE_DOCUMENT_TYPES.PDF) {
