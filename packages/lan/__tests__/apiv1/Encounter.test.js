@@ -1090,6 +1090,7 @@ describe('Encounter', () => {
         const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
           name: 'test document',
           type: 'application/pdf',
+          source: 'PATIENT_LETTER',
           documentOwner: 'someone',
           note: 'some note',
         });

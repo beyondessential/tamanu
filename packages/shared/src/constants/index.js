@@ -4,6 +4,7 @@ export * from './comms';
 export * from './datetimes';
 export * from './deaths';
 export * from './diagnoses';
+export * from './documents';
 export * from './encounters';
 export * from './fhir';
 export * from './imaging';
