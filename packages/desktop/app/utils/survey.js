@@ -18,6 +18,7 @@ import {
   DateTimeField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { ageInYears, ageInMonths, ageInWeeks } from 'shared/utils/dateTime';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -321,4 +322,36 @@ export const getValidationSchema = surveyData => {
     {},
   );
   return yup.object().shape(schema);
+};
+
+/*
+  Only applies to vitals survey components:
+  Validation criteria normal range can be different by age but we also need
+  to support the previous format where only one is specified.
+  This will also be on mobile in file /App/ui/components/VitalsTable/index.tsx
+  both should be changed together. Though note that the functions might not
+  be exactly the same because of different APIs.
+*/
+export const getNormalRangeByAge = (normalRange = {}, patientDateOfBirth) => {
+  if (Array.isArray(normalRange) === false) {
+    return normalRange;
+  }
+
+  if (!patientDateOfBirth) return {};
+
+  const age = {
+    years: ageInYears(patientDateOfBirth),
+    months: ageInMonths(patientDateOfBirth),
+    weeks: ageInWeeks(patientDateOfBirth),
+  };
+
+  const normalRangeByAge = normalRange.find(
+    ({ ageUnit = '', ageMin = -Infinity, ageMax = Infinity }) => {
+      if (['years', 'months', 'weeks'].includes(ageUnit) === false) return false;
+      const ageInUnit = age[ageUnit];
+      return ageInUnit >= ageMin && ageInUnit < ageMax;
+    },
+  );
+
+  return normalRangeByAge || {};
 };
