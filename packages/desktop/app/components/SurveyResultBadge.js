@@ -8,6 +8,7 @@ const COLORS = {
   orange: '#fe8c00',
   red: '#ff2222',
   deepred: '#971a1a',
+  purple: '#971a1a',
 };
 
 const ColoredBadge = styled.div`
