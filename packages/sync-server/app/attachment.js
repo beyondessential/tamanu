@@ -18,7 +18,7 @@ attachmentRoutes.get(
     }
 
     if (base64 === 'true') {
-      res.send({ data: Buffer.from(attachment.data).toString('base64') });
+      res.send({ data: Buffer.from(attachment.data).toString('base64'), type: attachment.type });
     } else {
       res.setHeader('Content-Type', attachment.type);
       res.setHeader('Content-Length', attachment.size);
