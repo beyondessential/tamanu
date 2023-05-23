@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { promises as asyncFs } from 'fs';
+import { lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
+import { ForbiddenError } from 'shared/errors';
+import { DOCUMENT_SOURCES } from 'shared/constants';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+
+import { useApi } from '../api';
 import { Modal, ModalLoader } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
 import { ConfirmCancelRow } from './ButtonRow';
@@ -28,14 +35,89 @@ const Message = styled(Typography)`
   margin-bottom: 30px;
 `;
 
-export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting, isError }) => {
+export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
+  const [error, setError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const api = useApi();
+
+  const handleClose = useCallback(() => {
+    setError(false);
+    // Prevent user from navigating away if we're submitting a document
+    if (!isSubmitting) {
+      onClose();
+    }
+  }, [isSubmitting, onClose, setError]);
+
+  const onSubmit = useCallback(
+    async ({ file, ...data }) => {
+      if (!navigator.onLine) {
+        setError(true);
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      // Read and inject document creation date and type to metadata sent
+      const { birthtime } = await asyncFs.stat(file);
+      const attachmentType = lookupMimeType(file);
+
+      try {
+        await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
+          ...data,
+          attachmentType,
+          type: attachmentType,
+          source: DOCUMENT_SOURCES.UPLOADED,
+          documentCreatedAt: toDateTimeString(birthtime),
+          documentUploadedAt: getCurrentDateTimeString(),
+        });
+      } catch (e) {
+        // Assume that if submission fails is because of lack of storage
+        if (e instanceof ForbiddenError) {
+          throw e; // allow error to be caught by error boundary
+        } else {
+          setError(true);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      handleClose();
+      refreshTable();
+      setIsSubmitting(false);
+    },
+    [setIsSubmitting, handleClose, refreshTable, api, endpoint],
+  );
+
+  useEffect(() => {
+    function handleBeforeUnload(event) {
+      if (isSubmitting) {
+        // According to the electron docs, using event.returnValue is
+        // is recommended rather than just returning a value.
+        // https://www.electronjs.org/docs/latest/api/browser-window#event-close
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = false;
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSubmitting]);
+
   let ModalBody = (
-    <DocumentForm actionText="Add" onSubmit={onSubmit} onCancel={onClose} editedObject={document} />
+    <DocumentForm
+      actionText="Add"
+      onSubmit={onSubmit}
+      onCancel={handleClose}
+      editedObject={document}
+    />
   );
 
   if (isSubmitting) {
     ModalBody = <ModalLoader loadingText="Please wait while we upload your document" />;
-  } else if (isError) {
+  } else if (error) {
     ModalBody = (
       <div>
         <MessageContainer>
@@ -46,13 +128,13 @@ export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting
             your system administrator.
           </Message>
         </MessageContainer>
-        <ConfirmCancelRow cancelText="Close" onCancel={onClose} />
+        <ConfirmCancelRow cancelText="Close" onCancel={handleClose} />
       </div>
     );
   }
 
   return (
-    <Modal width="md" title="Add document" open={open} onClose={onClose}>
+    <Modal width="md" title="Add document" open={open} onClose={handleClose}>
       {ModalBody}
     </Modal>
   );
@@ -61,13 +143,10 @@ export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting
 DocumentModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  isSubmitting: PropTypes.bool,
-  isError: PropTypes.bool,
+  endpoint: PropTypes.string.isRequired,
+  refreshTable: PropTypes.func.isRequired,
 };
 
 DocumentModal.defaultProps = {
   open: false,
-  isSubmitting: false,
-  isError: false,
 };
