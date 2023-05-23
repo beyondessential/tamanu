@@ -1,6 +1,8 @@
 import config from 'config';
 import { sub } from 'date-fns';
 import { toDateString } from 'shared/utils/dateTime';
+import { ENCOUNTER_TYPES } from 'shared/constants';
+
 import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
@@ -63,7 +65,13 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.sex, `patients.sex = :sex`),
     makeFilter(
       filterParams.currentPatient,
-      `recent_encounter_by_patient IS NOT NULL AND encounters.encounter_type NOT IN (:currentPatientExcludedEncounterTypes)`,
+      `recent_encounter_by_patient IS NOT NULL AND encounters.encounter_type NOT IN (:currentPatientExcludeEncounterTypes)`,
+      () => ({
+        currentPatientExcludeEncounterTypes: [
+          ENCOUNTER_TYPES.IMAGING,
+          ENCOUNTER_TYPES.SURVEY_RESPONSE,
+        ],
+      }),
     ),
   ].filter(f => f);
 

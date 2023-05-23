@@ -5,7 +5,7 @@ import { QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
-import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES, ENCOUNTER_TYPES } from 'shared/constants';
+import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { isGeneratedDisplayId } from 'shared/utils/generateId';
 
 import { renameObjectKeys } from '../../../utils/renameObjectKeys';
@@ -375,10 +375,6 @@ patientRoute.get(
         filterParams,
       );
     filterReplacements.facilityId = config.serverFacilityId;
-    filterReplacements.currentPatientExcludedEncounterTypes = [
-      ENCOUNTER_TYPES.IMAGING,
-      ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    ];
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
