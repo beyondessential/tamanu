@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay, sub, parseISO } from 'date-fns';
+import { endOfDay, startOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
 import { log } from 'shared/services/logging';
@@ -39,7 +39,7 @@ export const dischargeOutpatientEncounters = async (
     });
 
     for (const oldEncounter of oldEncounters) {
-      const justBeforeMidnight = sub(endOfDay(parseISO(oldEncounter.startDate)), { minutes: 1 });
+      const justBeforeMidnight = endOfDay(parseISO(oldEncounter.startDate));
       await oldEncounter.update({
         endDate: justBeforeMidnight,
         systemNote: 'Automatically discharged',
