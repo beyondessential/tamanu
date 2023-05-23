@@ -1,4 +1,4 @@
-import { QueryTypes, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 export async function up(query) {
   await query.addColumn('document_metadata', 'source', {
