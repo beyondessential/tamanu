@@ -236,6 +236,7 @@ export class AutocompleteInput extends Component {
   handleClearValue = () => {
     const { onChange, onClear, name } = this.props;
     onChange({ target: { value: '', name } });
+    this.setState({ selectedOption: { value: '', tag: undefined } });
     if (onClear) {
       onClear();
     }
