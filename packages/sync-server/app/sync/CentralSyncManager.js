@@ -208,7 +208,7 @@ export class CentralSyncManager {
 
       const pendingSyncTicks = await getSyncTicksOfPendingEdits(sequelize, tick);
 
-      // wait for any in-flight transactions using a tick within the range we are syncing here, so
+      // wait for any in-flight transactions of pending edits
       // that we don't miss any changes that are in progress
       await Promise.all(pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(sequelize, t)));
 
