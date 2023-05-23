@@ -30,6 +30,8 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
+import { MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -207,6 +209,32 @@ const EncounterOverview = ({
   );
 };
 
+const ModalContent = styled.div`
+  text-align: left;
+  padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px 0;
+  h3 {
+    color: ${Colors.alert};
+    font-size: 16px;
+    font-weight: 500;
+  }
+  p {
+    font-size: 14px;
+    font-weight: 400;
+  }
+`;
+
+const ConfirmModalContent = () => (
+  <ModalContent>
+    <h3>Confirm patient discharge</h3>
+    <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
+  </ModalContent>
+);
+
+const confirmModalProps = {
+  title: 'Discharge patient',
+  customContent: <ConfirmModalContent />,
+};
+
 export const DischargeForm = ({
   dispositionSuggester,
   practitionerSuggester,
@@ -295,7 +323,9 @@ export const DischargeForm = ({
   return (
     <Form
       onSubmit={handleSubmit}
+      onCancel={onCancel}
       render={renderForm}
+      confirmModalProps={confirmModalProps}
       enableReinitialize
       initialValues={getDischargeInitialValues(
         encounter,
