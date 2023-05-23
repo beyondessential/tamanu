@@ -206,7 +206,8 @@ export class CentralSyncManager {
       // process is ongoing, will have a later updated_at_sync_tick)
       const { tick } = await this.tickTockGlobalClock();
 
-      const pendingSyncTicks = await getSyncTicksOfPendingEdits(sequelize, tick);
+      // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
+      const pendingSyncTicks = (await getSyncTicksOfPendingEdits(sequelize)).filter(t => t < tick);
 
       // wait for any in-flight transactions of pending edits
       // that we don't miss any changes that are in progress
