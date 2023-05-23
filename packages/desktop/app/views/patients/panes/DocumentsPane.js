@@ -114,7 +114,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <DocumentPreviewModal
         open={modalStatus === MODAL_STATES.DOCUMENT_PREVIEW_OPEN}
         onClose={closeModal}
-        document={selectedDocument}
+        document={selectedDocument ?? {}}
         onDownload={downloadCurrent}
       />
     </>

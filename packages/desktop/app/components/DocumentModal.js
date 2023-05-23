@@ -64,7 +64,6 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
       try {
         await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
           ...data,
-          attachmentType,
           type: attachmentType,
           source: DOCUMENT_SOURCES.UPLOADED,
           documentCreatedAt: toDateTimeString(birthtime),
