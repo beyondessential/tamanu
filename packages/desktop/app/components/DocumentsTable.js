@@ -1,7 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
-import { promises as asyncFs } from 'fs';
 
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { IconButton } from '@material-ui/core';
@@ -11,10 +10,6 @@ import { DOCUMENT_SOURCE_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
-import { useElectron } from '../contexts/Electron';
-import { useApi } from '../api';
-import { notify, notifySuccess, notifyError } from '../utils';
-import { DocumentPreviewModal } from './DocumentPreview';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -66,9 +61,7 @@ const getUploadedDate = ({ documentUploadedAt }) =>
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint, searchParameters, refreshCount, setSelectedDocument }) => {
-    const { showSaveDialog, openPath } = useElectron();
-
+  ({ endpoint, searchParameters, refreshCount, onDownload, openDocumentPreview }) => {
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = useMemo(
       () => [
@@ -87,13 +80,13 @@ export const DocumentsTable = React.memo(
           key: 'actions',
           title: 'Actions',
           accessor: row => (
-            <ActionButtons row={row} onDownload={onDownload} onClickView={setSelectedDocument} />
+            <ActionButtons row={row} onDownload={onDownload} onClickView={openDocumentPreview} />
           ),
           dontCallRowInput: true,
           sortable: false,
         },
       ],
-      [onDownload, setSelectedDocument],
+      [onDownload, openDocumentPreview],
     );
 
     return (
