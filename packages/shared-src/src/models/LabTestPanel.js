@@ -34,5 +34,10 @@ export class LabTestPanel extends Model {
       as: 'labTestTypes',
       foreignKey: 'labTestPanelId',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'categoryId',
+      as: 'category',
+    });
   }
 }
