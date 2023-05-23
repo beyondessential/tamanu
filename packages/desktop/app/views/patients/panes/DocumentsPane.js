@@ -30,7 +30,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
 
   const onDownload = useCallback(
-    async row => {
+    async document => {
       if (!navigator.onLine) {
         throw new Error(
           'You do not currently have an internet connection. Documents require live internet to download.',
@@ -38,7 +38,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       }
 
       // Suggest a filename that matches the document name
-      const path = await showSaveDialog({ defaultPath: row.name });
+      const path = await showSaveDialog({ defaultPath: document.name });
       if (path.canceled) return;
 
       try {
@@ -46,7 +46,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         notify('Your download has started, please wait.', { type: 'info' });
 
         // Download attachment (*currently the API only supports base64 responses)
-        const { data, type } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
+        const { data, type } = await api.get(`attachment/${document.attachmentId}`, { base64: true });
 
         // If the extension is unknown, save it without extension
         const fileExtension = extension(type);
