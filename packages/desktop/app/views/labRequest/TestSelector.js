@@ -123,7 +123,7 @@ const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
 
 const usePanels = (placeholderData, onSuccess) => {
   const api = useApi();
-  return useQuery(['labTestTypes'], () => api.get(`suggestions/labTestPanel/all`), {
+  return useQuery(['suggestions/labTestPanel/all'], () => api.get(`suggestions/labTestPanel/all`), {
     placeholderData,
     onSuccess,
   });
