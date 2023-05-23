@@ -1,7 +1,6 @@
 import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
 import _config from 'config';
-import { range } from 'lodash';
 
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
@@ -18,6 +17,7 @@ import {
   saveIncomingChanges,
   adjustDataPostSyncPush,
   waitForPendingEditsUsingSyncTick,
+  getSyncTicksOfPendingEdits,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { uuidToFairlyUniqueInteger } from 'shared/utils';
@@ -206,10 +206,11 @@ export class CentralSyncManager {
       // process is ongoing, will have a later updated_at_sync_tick)
       const { tick } = await this.tickTockGlobalClock();
 
+      const pendingSyncTicks = await getSyncTicksOfPendingEdits(sequelize, tick);
+
       // wait for any in-flight transactions using a tick within the range we are syncing here, so
       // that we don't miss any changes that are in progress
-      const ticksInRange = range(since, tick);
-      await Promise.all(ticksInRange.map(t => waitForPendingEditsUsingSyncTick(sequelize, t)));
+      await Promise.all(pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(sequelize, t)));
 
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
