@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { simpleGet, simplePut, simplePost } from './crudHelpers';
+import { simpleGet, simplePut, simplePost } from 'shared/utils/crudHelpers';
 
 export const ongoingCondition = express.Router();
 
