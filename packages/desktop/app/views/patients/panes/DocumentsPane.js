@@ -73,11 +73,17 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
-  const downloadCurrent = useCallback(() => onDownload(selectedDocument), [onDownload, selectedDocument]);
-  const openDocumentPreview = useCallback(document => {
-    setSelectedDocument(document);
-    setModalStatus(MODAL_STATES.DOCUMENT_PREVIEW_OPEN);
-  }, [setSelectedDocument, setModalStatus])
+  const downloadCurrent = useCallback(() => onDownload(selectedDocument), [
+    onDownload,
+    selectedDocument,
+  ]);
+  const openDocumentPreview = useCallback(
+    document => {
+      setSelectedDocument(document);
+      setModalStatus(MODAL_STATES.DOCUMENT_PREVIEW_OPEN);
+    },
+    [setSelectedDocument, setModalStatus],
+  );
 
   return (
     <>
