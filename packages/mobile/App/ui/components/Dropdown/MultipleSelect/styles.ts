@@ -45,6 +45,11 @@ export default {
     fontSize: 30,
     color: colorPack.placeholderTextColor,
   },
+  removeIndicator: {
+    fontSize: 20,
+    marginTop: 2,
+    color: colorPack.placeholderTextColor,
+  },
   selectedItem: {
     flexDirection: 'row',
     alignItems: 'center',
