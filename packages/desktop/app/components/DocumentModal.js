@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { promises as asyncFs } from 'fs';
-import { extension, lookup as lookupMimeType } from 'mime-types';
+import { lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
 import { ForbiddenError } from 'shared/errors';
 import { DOCUMENT_SOURCES } from 'shared/constants';
@@ -143,8 +143,8 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
 DocumentModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
-  endpoint: PropTypes.string,
-  refreshTable: PropTypes.func,
+  endpoint: PropTypes.string.isRequired,
+  refreshTable: PropTypes.func.isRequired,
 };
 
 DocumentModal.defaultProps = {

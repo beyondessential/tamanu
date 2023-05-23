@@ -13,9 +13,6 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
-// TODO: implement more robust solution since navigator.onLine isn't completely
-// reliable and might give false positives
-
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});

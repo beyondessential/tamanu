@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 import { promises as asyncFs } from 'fs';
@@ -46,10 +46,10 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
 
 const getTitle = ({ source, name }) =>
   source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
-const getAttachmentExtension = type => {
+const getAttachmentType = type => {
   // Note that this may not be the actual extension of the file uploaded.
   // Instead, its the default extension for the mime-type of the file uploaded.
-  // i.e. a '.jpg' file may be listed as a JPEG
+  // i.e. a file which originally had '.jpg' extension may be listed as a JPEG
   const fileExtension = extension(type);
   if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
   return 'Unknown';
@@ -57,7 +57,7 @@ const getAttachmentExtension = type => {
 
 const getTypeLabel = ({ source, type }) => {
   if (source === DOCUMENT_SOURCES.UPLOADED) {
-    return getAttachmentExtension(type);
+    return getAttachmentType(type);
   }
 
   return DOCUMENT_SOURCE_LABELS[source] ?? 'Unknown';
@@ -148,20 +148,11 @@ export const DocumentsTable = React.memo(
           allowExport={false}
           elevated={false}
         />
-        {/* <ConfirmModal
-          open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.DELETE}
-          title="Delete document"
-          text="WARNING: This action is irreversible!"
-          subText="Are you sure you want to delete this document?"
-          onConfirm={onConfirmDelete}
-          onCancel={onClose}
-          ConfirmButton={DeleteButton}
-        /> */}
         <DocumentPreviewModal
           open={selectedDocument !== null}
           title={getTitle(selectedDocument ?? {})}
           attachmentId={selectedDocument?.attachmentId}
-          documentType={getAttachmentExtension(selectedDocument?.type)}
+          documentType={getAttachmentType(selectedDocument?.type)}
           onClose={onClose}
           onDownload={() => onDownload(selectedDocument)}
         />

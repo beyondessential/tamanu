@@ -106,28 +106,29 @@ export const PatientLetterModal = React.memo(
     );
 
     return (
-      <>
-        <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
-          {isSubmitting ? (
-            <ModalLoader loadingText="Please wait while we create your patient letter" />
-          ) : (
-            <>
-              <PatientDetails patient={patient} />
-              <PatientLetterForm onSubmit={onSubmit} onCancel={onClose} />
-            </>
-          )}
-        </Modal>
-      </>
+      <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
+        {isSubmitting ? (
+          <ModalLoader loadingText="Please wait while we create your patient letter" />
+        ) : (
+          <>
+            <PatientDetails patient={patient} />
+            <PatientLetterForm onSubmit={onSubmit} onCancel={onClose} />
+          </>
+        )}
+      </Modal>
     );
   },
 );
 
-// PatientLetterModal.propTypes = {
-//   open: PropTypes.bool,
-//   onClose: PropTypes.func.isRequired,
-//   onSubmit: PropTypes.func.isRequired,
-// };
+PatientLetterModal.propTypes = {
+  open: PropTypes.bool,
+  onClose: PropTypes.func.isRequired,
+  endpoint: PropTypes.string.isRequired,
+  refreshTable: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
+  setSelectedDocument: PropTypes.func.isRequired,
+};
 
-// PatientLetterModal.defaultProps = {
-//   open: false,
-// };
+PatientLetterModal.defaultProps = {
+  open: false,
+};
