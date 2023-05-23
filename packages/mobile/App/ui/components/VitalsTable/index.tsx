@@ -1,4 +1,5 @@
 import React, { memo, useState } from 'react';
+import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { Table, TableCells } from '../Table';
 import { vitalsTableHeader } from './VitalsTableHeader';
@@ -13,11 +14,47 @@ import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 import { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
 
 interface VitalsTableProps {
   data: TableCells<PatientVitalsProps>;
   columns: string[];
 }
+
+/*
+  Only applies to vitals survey components:
+  Validation criteria normal range can be different by age but we also need
+  to support the previous format where only one is specified.
+  This will also be on desktop in file /app/utils/survey.js
+  both should be changed together. Though note that the functions might not
+  be exactly the same because of different APIs.
+*/
+const getNormalRangeByAge = (
+  normalRange: any = {},
+  patientDateOfBirth: string
+): ValidationCriteriaNormalRange | {} => {
+  if (Array.isArray(normalRange) === false) {
+    return normalRange;
+  }
+
+  if (!patientDateOfBirth) return {};
+
+  const age = {
+    years: differenceInYears(new Date(), parseISO(patientDateOfBirth)),
+    months: differenceInMonths(new Date(), parseISO(patientDateOfBirth)),
+    weeks: differenceInWeeks(new Date(), parseISO(patientDateOfBirth)),
+  };
+
+  const normalRangeByAge = normalRange.find(
+    ({ ageUnit = '', ageMin = -Infinity, ageMax = Infinity }) => {
+      if (['years', 'months', 'weeks'].includes(ageUnit) === false) return false;
+      const ageInUnit = age[ageUnit];
+      return ageInUnit >= ageMin && ageInUnit < ageMax;
+    },
+  );
+
+  return normalRangeByAge || {};
+};
 
 const checkNeedsAttention = (
   value: string,
