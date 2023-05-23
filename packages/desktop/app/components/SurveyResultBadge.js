@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
+// Desktop/Mobile duplicated
 const COLORS = {
   green: '#83d452',
   yellow: '#ffea5a',
