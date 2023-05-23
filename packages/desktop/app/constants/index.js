@@ -20,6 +20,7 @@ import {
   LAB_REQUEST_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
+  DOCUMENT_SOURCES,
 } from 'shared/constants';
 
 import {
@@ -444,6 +445,12 @@ export const DRUG_ROUTE_VALUE_TO_LABEL = {
 
 export const FORM_STATUSES = {
   SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+};
+
+export const DOCUMENT_SOURCE_LABELS = {
+  [DOCUMENT_SOURCES.PATIENT_LETTER]: 'Patient Letter',
+  // Handled separately
+  [DOCUMENT_SOURCES.UPLOADED]: null,
 };
 
 export const SUPPORTED_DOCUMENT_TYPES = {
