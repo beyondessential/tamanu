@@ -94,6 +94,11 @@ export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
+export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+  border: 1px solid ${Colors.alert};
+  color: ${Colors.alert};
+`;
+
 const StyledLargeButton = styled(StyledButton)`
   font-size: 15px;
   line-height: 18px;
