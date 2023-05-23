@@ -63,7 +63,7 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.sex, `patients.sex = :sex`),
     makeFilter(
       filterParams.currentPatient,
-      `recent_encounter_by_patient IS NOT NULL AND encounters.encounter_type NOT IN (:currentPatientExcludeEncounterTypes)`,
+      `recent_encounter_by_patient IS NOT NULL AND encounters.encounter_type NOT IN (:currentPatientExcludedEncounterTypes)`,
     ),
   ].filter(f => f);
 

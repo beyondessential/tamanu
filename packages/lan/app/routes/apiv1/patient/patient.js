@@ -375,7 +375,7 @@ patientRoute.get(
         filterParams,
       );
     filterReplacements.facilityId = config.serverFacilityId;
-    filterReplacements.currentPatientExcludeEncounterTypes = [
+    filterReplacements.currentPatientExcludedEncounterTypes = [
       ENCOUNTER_TYPES.IMAGING,
       ENCOUNTER_TYPES.SURVEY_RESPONSE,
     ];
