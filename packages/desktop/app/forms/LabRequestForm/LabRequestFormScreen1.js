@@ -81,7 +81,7 @@ const useLabRequestFormTypeOptions = setFieldValue => {
     }
   }, [defaultOption, setFieldValue, isSuccess]);
 
-  return { options };
+  return { options, panelData: data };
 };
 
 export const LabRequestFormScreen1 = ({

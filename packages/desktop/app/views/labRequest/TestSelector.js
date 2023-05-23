@@ -121,6 +121,14 @@ const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   );
 };
 
+const usePanels = (placeholderData, onSuccess) => {
+  const api = useApi();
+  return useQuery(['labTestTypes'], () => api.get(`suggestions/labTestPanel/all`), {
+    placeholderData,
+    onSuccess,
+  });
+};
+
 const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
   testTypes
     // Filter out tests that don't match the search query or category
@@ -142,7 +150,6 @@ export const TestSelectorInput = ({
   onClearPanel,
   isLoading,
   onChange,
-  required,
   helperText,
   error,
 }) => {
@@ -150,6 +157,10 @@ export const TestSelectorInput = ({
     labTestCategoryId: '',
     search: '',
   });
+
+  const { data: panelData } = usePanels();
+
+  console.log(panelData);
 
   const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
 
@@ -228,27 +239,33 @@ export const TestSelectorInput = ({
           </Box>
           <FormSeparatorLine />
           <SelectorTable>
-            {showLoadingText && <BodyText>Loading tests</BodyText>}
-            {!showLoadingText &&
-              (queriedTypes.length > 0 ? (
-                queriedTypes.map(type => (
-                  <SelectableTestItem
-                    key={`${type.id}-checkbox`}
-                    label={type.name}
-                    name={type.id}
-                    category={type.category.name}
-                    checked={isSelected(type)}
-                    onChange={handleCheck}
-                  />
-                ))
-              ) : (
-                <BodyText>No tests found.</BodyText>
-              ))}
+            {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
+              <>
+                {showLoadingText && <BodyText>Loading tests</BodyText>}
+                {!showLoadingText &&
+                  (queriedTypes.length > 0 ? (
+                    queriedTypes.map(type => (
+                      <SelectableTestItem
+                        key={`${type.id}-checkbox`}
+                        label={type.name}
+                        name={type.id}
+                        category={type.category.name}
+                        checked={isSelected(type)}
+                        onChange={handleCheck}
+                      />
+                    ))
+                  ) : (
+                    <BodyText>No tests found.</BodyText>
+                  ))}
+              </>
+            )}
           </SelectorTable>
         </SelectorContainer>
         <SelectorContainer>
           <Box display="flex" justifyContent="space-between">
-            <SectionHeader>Selected tests</SectionHeader>
+            <SectionHeader>
+              Selected {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? 'panels' : 'tests'}
+            </SectionHeader>
             {value.length > 0 && <ClearAllButton onClick={handleClear}>Clear all</ClearAllButton>}
           </Box>
           <FormSeparatorLine />
