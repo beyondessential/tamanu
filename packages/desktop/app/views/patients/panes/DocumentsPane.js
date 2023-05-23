@@ -40,7 +40,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           endpoint={`${endpoint}/documentMetadata`}
           searchParameters={searchParameters}
           refreshCount={refreshCount}
-          canInvokeDocumentAction={canInvokeDocumentAction}
+          selectedDocument={selectedDocument}
+          setSelectedDocument={setSelectedDocument}
         />
       </PaneWrapper>
       <PatientLetterModal
