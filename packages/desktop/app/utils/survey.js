@@ -332,12 +332,13 @@ export const getValidationSchema = surveyData => {
   both should be changed together. Though note that the functions might not
   be exactly the same because of different APIs.
 */
-export const getNormalRangeByAge = (normalRange = {}, patientDateOfBirth) => {
+export const getNormalRangeByAge = (validationCriteria = {}, patientDateOfBirth) => {
+  const { normalRange = {} } = validationCriteria;
   if (Array.isArray(normalRange) === false) {
     return normalRange;
   }
 
-  if (!patientDateOfBirth) return {};
+  if (!patientDateOfBirth) return undefined;
 
   const age = {
     years: ageInYears(patientDateOfBirth),
@@ -353,5 +354,5 @@ export const getNormalRangeByAge = (normalRange = {}, patientDateOfBirth) => {
     },
   );
 
-  return normalRangeByAge || {};
+  return normalRangeByAge;
 };

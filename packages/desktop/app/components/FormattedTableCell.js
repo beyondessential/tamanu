@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Colors } from '../constants';
 import { formatLong, formatShortest, formatTime } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
+import { getNormalRangeByAge } from '../utils';
 
 const CellWrapper = styled.div`
   background: ${({ severity }) =>
@@ -36,7 +37,7 @@ export const DateHeadCell = React.memo(({ value }) => (
 
 export const RangeTooltipCell = React.memo(({ value, config, validationCriteria }) => {
   const { unit = '' } = config || {};
-  const { normalRange } = validationCriteria || {};
+  const normalRange = getNormalRangeByAge(validationCriteria);
   const tooltip =
     normalRange && `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`;
   return tooltip ? (
@@ -52,7 +53,7 @@ export const RangeValidatedCell = React.memo(({ value, config, validationCriteri
   let tooltip = '';
   let severity = 'info';
   const { rounding = 0, unit = '' } = config || {};
-  const { normalRange } = validationCriteria || {};
+  const normalRange = getNormalRangeByAge(validationCriteria);
   const float = parseFloat(value);
   const formattedValue = isNaN(float)
     ? capitalize(value) || '-'

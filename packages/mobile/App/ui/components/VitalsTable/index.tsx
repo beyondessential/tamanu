@@ -30,14 +30,15 @@ interface VitalsTableProps {
   be exactly the same because of different APIs.
 */
 const getNormalRangeByAge = (
-  normalRange: any = {},
+  validationCriteria: any = {},
   patientDateOfBirth: string
-): ValidationCriteriaNormalRange | {} => {
+): ValidationCriteriaNormalRange | undefined => {
+  const { normalRange = {} } = validationCriteria;
   if (Array.isArray(normalRange) === false) {
     return normalRange;
   }
 
-  if (!patientDateOfBirth) return {};
+  if (!patientDateOfBirth) return undefined;
 
   const age = {
     years: differenceInYears(new Date(), parseISO(patientDateOfBirth)),
@@ -53,14 +54,14 @@ const getNormalRangeByAge = (
     },
   );
 
-  return normalRangeByAge || {};
+  return normalRangeByAge;
 };
 
 const checkNeedsAttention = (
   value: string,
   validationCriteria: SurveyScreenValidationCriteria = {},
 ): boolean => {
-  const { normalRange } = validationCriteria;
+  const normalRange = getNormalRangeByAge(validationCriteria, '');
   const fValue = parseFloat(value);
   if (!normalRange || Number.isNaN(fValue)) return false;
   return fValue > normalRange.max || fValue < normalRange.min;
