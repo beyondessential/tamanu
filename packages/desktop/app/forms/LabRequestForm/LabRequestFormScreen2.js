@@ -68,7 +68,7 @@ export const LabRequestFormScreen2 = props => {
           <Heading3 mb="12px">{formTypeToLabelConfig.subheading}</Heading3>
         )}
         {formTypeToLabelConfig.instructions && (
-          <StyledBodyText mb="28px" color="textTertiary">
+          <StyledBodyText width="500px" mb="28px" color="textTertiary">
             {formTypeToLabelConfig.instructions}
           </StyledBodyText>
         )}

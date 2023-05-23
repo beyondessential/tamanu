@@ -108,17 +108,6 @@ const StyledSearchField = styled(SearchField)`
   }
 `;
 
-const StyledSuggesterSelectField = styled(SuggesterSelectField)`
-  .MuiInputBase-input.Mui-disabled {
-    background: #f3f5f7;
-  }
-`;
-
-const RequiredLabel = styled.span`
-  color: ${Colors.alert};
-  padding-left: 3px;
-`;
-
 const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   const api = useApi();
   return useQuery(
@@ -197,10 +186,7 @@ export const TestSelectorInput = ({
 
   return (
     <Container>
-      <LabelText>
-        {label}
-        {required && <RequiredLabel>*</RequiredLabel>}
-      </LabelText>
+      <LabelText>{label}</LabelText>
       <Wrapper>
         <SelectorContainer>
           {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
@@ -215,18 +201,14 @@ export const TestSelectorInput = ({
               name="labTestCategoryId"
             />
           )}
-          {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
-            <Field
-              name="labTestPanelId"
-              label="Test panel"
-              component={StyledSuggesterSelectField}
-              endpoint="labTestPanel"
-              disabled={!!labTestPanelId}
-            />
-          )}
-          <FormSeparatorLine />
           {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
-            <TextTypeLabel>Test type</TextTypeLabel>
+            <>
+              <FormSeparatorLine />
+              <TextTypeLabel>Test type</TextTypeLabel>
+            </>
+          )}
+          {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
+            <TextTypeLabel>Panels</TextTypeLabel>
           )}
           <Box display="flex" alignItems="center">
             <SelectableTestItem
@@ -240,7 +222,7 @@ export const TestSelectorInput = ({
                 value: testFilters.search,
                 onChange: handleChangeTestFilters,
               }}
-              placeholder="Search"
+              placeholder="Search panel or category"
               name="search"
             />
           </Box>
