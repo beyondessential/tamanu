@@ -35,9 +35,9 @@ export const DateHeadCell = React.memo(({ value }) => (
   </TableTooltip>
 ));
 
-export const RangeTooltipCell = React.memo(({ value, config, validationCriteria }) => {
+export const RangeTooltipCell = React.memo(({ value, config, validationCriteria, patient }) => {
   const { unit = '' } = config || {};
-  const normalRange = getNormalRangeByAge(validationCriteria);
+  const normalRange = getNormalRangeByAge(validationCriteria, patient?.dateOfBirth);
   const tooltip =
     normalRange && `Normal range ${normalRange.min}${unit} - ${normalRange.max}${unit}`;
   return tooltip ? (
@@ -49,38 +49,40 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
-export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, ...props }) => {
-  let tooltip = '';
-  let severity = 'info';
-  const { rounding = 0, unit = '' } = config || {};
-  const normalRange = getNormalRangeByAge(validationCriteria);
-  const float = parseFloat(value);
-  const formattedValue = isNaN(float)
-    ? capitalize(value) || '-'
-    : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
+export const RangeValidatedCell = React.memo(
+  ({ value, config, validationCriteria, patient, ...props }) => {
+    let tooltip = '';
+    let severity = 'info';
+    const { rounding = 0, unit = '' } = config || {};
+    const normalRange = getNormalRangeByAge(validationCriteria, patient?.dateOfBirth);
+    const float = parseFloat(value);
+    const formattedValue = isNaN(float)
+      ? capitalize(value) || '-'
+      : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
 
-  if (normalRange) {
-    const baseTooltip = `Outside normal range\n`;
-    if (float < normalRange.min) {
-      tooltip = `${baseTooltip} <${normalRange.min}${unit}`;
-      severity = 'alert';
-    } else if (float > normalRange.max) {
-      tooltip = `${baseTooltip} >${normalRange.max}${unit}`;
-      severity = 'alert';
+    if (normalRange) {
+      const baseTooltip = `Outside normal range\n`;
+      if (float < normalRange.min) {
+        tooltip = `${baseTooltip} <${normalRange.min}${unit}`;
+        severity = 'alert';
+      } else if (float > normalRange.max) {
+        tooltip = `${baseTooltip} >${normalRange.max}${unit}`;
+        severity = 'alert';
+      }
     }
-  }
 
-  if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
-    // Show full unit in tooltip as its not displayed on table
-    tooltip = `${float.toFixed(rounding)}${unit}`;
-  }
-  return tooltip ? (
-    <TableTooltip title={tooltip}>
-      <CellWrapper severity={severity} {...props}>
-        {formattedValue}
-      </CellWrapper>
-    </TableTooltip>
-  ) : (
-    <CellWrapper {...props}>{formattedValue}</CellWrapper>
-  );
-});
+    if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
+      // Show full unit in tooltip as its not displayed on table
+      tooltip = `${float.toFixed(rounding)}${unit}`;
+    }
+    return tooltip ? (
+      <TableTooltip title={tooltip}>
+        <CellWrapper severity={severity} {...props}>
+          {formattedValue}
+        </CellWrapper>
+      </TableTooltip>
+    ) : (
+      <CellWrapper {...props}>{formattedValue}</CellWrapper>
+    );
+  },
+);
