@@ -10,9 +10,25 @@ const Content = styled.div`
   margin-bottom: 2rem;
 `;
 
+const FlexSpaceBetween = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const GoBackButtonContainer = styled(ButtonRow)`
+  align-items: stretch;
+  justify-content: flex-start;
+
+  > button,
+  > div {
+    margin-left: 0px;
+  }
+`;
+
 export const ConfirmModal = ({
   open,
   onCancel,
+  onBack,
   onConfirm,
   title,
   text,
@@ -21,6 +37,7 @@ export const ConfirmModal = ({
   ConfirmButton = OutlinedButton,
   confirmButtonText = 'Confirm',
   cancelButtonText = 'Cancel',
+  backButtonText = 'Back',
   customContent,
 }) => (
   <Modal width={width} title={title} open={open} onClose={onCancel} cornerExitButton={false}>
@@ -30,11 +47,18 @@ export const ConfirmModal = ({
         <p>{subText}</p>
       </Content>
     )}
+    <FlexSpaceBetween>
+      {onBack && (
+        <GoBackButtonContainer>
+          <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+        </GoBackButtonContainer>
+      )}
     <ButtonRow>
       <OutlinedButton onClick={onCancel}>{cancelButtonText}</OutlinedButton>
       <ConfirmButton variant="contained" onClick={onConfirm}>
         {confirmButtonText}
       </ConfirmButton>
     </ButtonRow>
+    </FlexSpaceBetween>
   </Modal>
 );
