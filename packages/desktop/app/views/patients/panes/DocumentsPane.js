@@ -31,6 +31,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
+          <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
+            Patient letter
+          </OutlinedButton>
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable
@@ -40,6 +43,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           canInvokeDocumentAction={canInvokeDocumentAction}
         />
       </PaneWrapper>
+      <PatientLetterModal
+        open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
+        onClose={() => setModalStatus(MODAL_STATES.CLOSED)}
+        endpoint={endpoint}
+        refreshTable={refreshTable}
+        setSelectedDocument={setSelectedDocument}
+        patient={patient}
+      />
       <DocumentModal
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={() => setModalStatus(MODAL_STATES.CLOSED)}
