@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Typography } from '@material-ui/core';
+import { DOCUMENT_SOURCES } from 'shared/constants';
+
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
@@ -10,7 +12,7 @@ import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
 
 const getTitle = ({ source, name }) =>
   source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
-  
+
 const DownloadButton = ({ onClick }) => {
   return (
     <Button variant="outlined" size="small" startIcon={<GetAppIcon />} onClick={onClick}>
@@ -34,12 +36,7 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
   return `Preview is not supported for document type ${documentType}`;
 };
 
-export const DocumentPreviewModal = ({
-  open,
-  onClose,
-  onDownload,
-  document,
-}) => {
+export const DocumentPreviewModal = ({ open, onClose, onDownload, document }) => {
   const [scrollPage, setScrollPage] = useState(1);
   const [pageCount, setPageCount] = useState();
   const { type: documentType, attachmentId } = document;

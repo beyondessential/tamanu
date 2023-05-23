@@ -73,7 +73,7 @@ const PatientDetails = ({ patient }) => (
 );
 
 export const PatientLetterModal = React.memo(
-  ({ open, onClose, endpoint, refreshTable, patient, setSelectedDocument }) => {
+  ({ open, onClose, endpoint, refreshTable, patient, openDocumentPreview }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const api = useApi();
 
@@ -97,12 +97,12 @@ export const PatientLetterModal = React.memo(
 
         if (submissionType === 'FinaliseAndPrint') {
           onClose();
-          setSelectedDocument(document);
+          openDocumentPreview(document);
         } else {
           onClose();
         }
       },
-      [onClose, api, endpoint, refreshTable, setSelectedDocument],
+      [onClose, api, endpoint, refreshTable, openDocumentPreview],
     );
 
     return (
@@ -126,7 +126,7 @@ PatientLetterModal.propTypes = {
   endpoint: PropTypes.string.isRequired,
   refreshTable: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
-  setSelectedDocument: PropTypes.func.isRequired,
+  openDocumentPreview: PropTypes.func.isRequired,
 };
 
 PatientLetterModal.defaultProps = {
