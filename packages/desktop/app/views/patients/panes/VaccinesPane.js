@@ -45,8 +45,8 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
     setVaccineData(row);
   }, []);
 
-  const { data: vaccine } = useAdministeredVaccines(patient.id);
-  const vaccinations = vaccine?.data || [];
+  const { data: vaccines } = useAdministeredVaccines(patient.id);
+  const vaccinations = vaccines?.data || [];
   const certifiable = vaccinations.some(v => v.certifiable);
 
   return (
