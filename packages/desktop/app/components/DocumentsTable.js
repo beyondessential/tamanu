@@ -79,7 +79,6 @@ export const DocumentsTable = React.memo(
     const onDownload = useCallback(
       async row => {
         if (!navigator.onLine) {
-          // TODO: Ask about error flow
           throw new Error(
             'You do not currently have an internet connection. Documents require live internet to download.',
           );

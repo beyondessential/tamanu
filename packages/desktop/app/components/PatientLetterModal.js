@@ -83,7 +83,7 @@ export const PatientLetterModal = React.memo(
 
         const document = await api.post(`${endpoint}/createPatientLetter`, {
           patientLetterData: {
-            todo: 'TODO',
+            todo: 'TODO: will pass through in the next PR',
           },
           type: 'application/pdf',
           source: DOCUMENT_SOURCES.PATIENT_LETTER,
