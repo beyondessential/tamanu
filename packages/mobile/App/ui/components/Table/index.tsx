@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
 import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
@@ -41,13 +41,20 @@ export const Table = ({
   tableHeader = null,
   onPressItem,
   scrollHandler,
+  scrollOffset,
 }: TableProps): JSX.Element => (
   <RowView>
     <StyledView>
       {Title && <Title />}
       {rows.map((r, i) => r.rowHeader(i))}
     </StyledView>
-    <ScrollView bounces={false} showsHorizontalScrollIndicator onScroll={scrollHandler} horizontal>
+    <ScrollView
+      contentOffset={{ x: scrollOffset }}
+      bounces={false}
+      showsHorizontalScrollIndicator
+      onScroll={scrollHandler}
+      horizontal
+    >
       <RowView>
         {columns.map((column: any) => (
           <StyledView key={`${column}`}>

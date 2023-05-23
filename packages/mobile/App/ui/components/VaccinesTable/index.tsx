@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, { useRef, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
@@ -24,13 +24,21 @@ export const VaccinesTable = ({
   categoryName,
   selectedPatient,
 }: VaccinesTableProps): JSX.Element => {
-  const scrollViewRef = useRef(null);
+  const [scrollOffsetTable, setScrollOffsetTable] = useState(0);
+  const [scrollOffsetHeader, setScrollOffsetHeader] = useState(0);
 
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
   // of the table and feeds this back up to position the header appropriately.
-  const handleScroll = (event: any) => {
-    scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
+  const handleScrollHeader = (event: any) => {
+    // scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
+    console.log(event);
+    setScrollOffsetTable(event.nativeEvent.contentOffset.x);
+  };
+  const handleScrollTable = (event: any) => {
+    // scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
+    console.log(event);
+    setScrollOffsetHeader(event.nativeEvent.contentOffset.x);
   };
 
   const isFocused = useIsFocused();
@@ -102,7 +110,11 @@ export const VaccinesTable = ({
     <ScrollView bounces={false} stickyHeaderIndices={[0]}>
       <StyledView flexDirection="row">
         <VaccinesTableTitle />
-        <ScrollView ref={scrollViewRef} horizontal scrollEnabled={false}>
+        <ScrollView
+          contentOffset={{ x: scrollOffsetHeader }}
+          horizontal
+          onScroll={handleScrollHeader}
+        >
           {columns.map((column: any) => (
             <StyledView key={`${column}`}>
               {vaccineTableHeader.accessor(column, onPressItem)}
@@ -115,7 +127,8 @@ export const VaccinesTable = ({
         rows={rows}
         columns={columns}
         cells={cells}
-        scrollHandler={handleScroll}
+        scrollHandler={handleScrollTable}
+        scrollOffset={scrollOffsetTable}
       />
     </ScrollView>
   );
