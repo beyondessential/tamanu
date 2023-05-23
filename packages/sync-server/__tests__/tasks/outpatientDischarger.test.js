@@ -25,6 +25,8 @@ describe('Outpatient discharger', () => {
     expect(startDate).toBeTruthy();
     expect(endDate).toBeTruthy();
     expect(isSameDay(parseISO(startDate), parseISO(endDate))).toEqual(true);
+
+    // verify if endDate is set to be 11:59PM of the same day as startDate
     expect(toDateTimeString(endOfDay(parseISO(startDate)))).toEqual(endDate);
   };
 
