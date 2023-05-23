@@ -19,11 +19,19 @@ export enum SurveyTypes {
   Vitals = 'vitals',
 }
 
+export type ValidationCriteriaNormalRange = {
+  min: number;
+  max: number;
+  ageUnit?: string;
+  ageMin?: number;
+  ageMax?: number;
+}
+
 export type SurveyScreenValidationCriteria = {
   min?: number;
   max?: number;
   mandatory?: boolean;
-  normalRange?: { min: number; max: number };
+  normalRange?: ValidationCriteriaNormalRange | ValidationCriteriaNormalRange[];
 };
 
 export type SurveyScreenConfig = {
