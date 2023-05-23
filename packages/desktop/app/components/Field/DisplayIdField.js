@@ -14,7 +14,7 @@ export const DisplayIdField = ({ name = 'displayId', required }) => {
 
   const validateFn = value => {
     let errorMessage;
-    if (value !== initialValues[name] && regex.test(value) === false) {
+    if (value !== initialValues[name] && regex && !regex.test(value)) {
       errorMessage = `Invalid ${longLabel}`;
     }
     return errorMessage;
