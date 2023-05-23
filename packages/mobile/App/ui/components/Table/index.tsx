@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyledView, RowView } from '/styled/common';
+import { StyledView, RowView, StyledScrollView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
 import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
@@ -43,11 +43,19 @@ export const Table = ({
   scrollHandler,
 }: TableProps): JSX.Element => (
   <RowView>
-    <StyledView>
+    <StyledView paddingTop={60}>
       {Title && <Title />}
       {rows.map((r, i) => r.rowHeader(i))}
     </StyledView>
-    <ScrollView bounces={false} showsHorizontalScrollIndicator onScroll={scrollHandler} horizontal>
+    <StyledScrollView
+      bounces={false}
+      showsHorizontalScrollIndicator
+      onScroll={scrollHandler}
+      horizontal
+      paddingTop={60}
+      bottom={60}
+      position="relative"
+    >
       <RowView>
         {columns.map((column: any) => (
           <StyledView key={`${column}`}>
@@ -62,6 +70,6 @@ export const Table = ({
           </StyledView>
         ))}
       </RowView>
-    </ScrollView>
+    </StyledScrollView>
   </RowView>
 );
