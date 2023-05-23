@@ -28,6 +28,10 @@ export class LabTestPanel extends Model {
     );
   }
 
+  static getListReferenceAssociations() {
+    return ['category'];
+  }
+
   static initRelations(models) {
     this.belongsToMany(models.LabTestType, {
       through: models.LabTestPanelLabTestTypes,

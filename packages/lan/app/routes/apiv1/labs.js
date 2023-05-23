@@ -392,6 +392,7 @@ labTestType.get(
 
 export const labTestPanel = express.Router();
 
+labTestPanel.get('/', simpleGetList('LabTestPanel'));
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));
 labTestPanel.get(
   '/:id/labTestTypes',

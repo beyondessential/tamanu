@@ -7,7 +7,7 @@ import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
-import { Field, SearchField, SuggesterSelectField } from '../../components/Field';
+import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
@@ -121,12 +121,15 @@ const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   );
 };
 
-const usePanels = (placeholderData, onSuccess) => {
+const usePanels = placeholderData => {
   const api = useApi();
-  return useQuery(['suggestions/labTestPanel/all'], () => api.get(`suggestions/labTestPanel/all`), {
+  const query = useQuery(['labTestPanels'], () => api.get('labTestPanel'), {
     placeholderData,
-    onSuccess,
   });
+  return {
+    ...query,
+    data: query.data.data,
+  };
 };
 
 const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
@@ -139,6 +142,13 @@ const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
     )
     // Sort by category then title alphabetically
     .sort((a, b) => a.category.name.localeCompare(b.category.name) || a.name.localeCompare(b.name));
+
+const filterByNameOrCategory = (panels = [], { search }) =>
+  panels
+    .filter(
+      result => subStrSearch(search, result.name) || subStrSearch(search, result.category.name),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name) || a.category.name.localeCompare(b.category.name));
 
 export const TestSelectorInput = ({
   name,
@@ -158,9 +168,10 @@ export const TestSelectorInput = ({
     search: '',
   });
 
-  const { data: panelData } = usePanels();
+  const handleClearSearch = () => setTestFilters(values => ({ ...values, search: '' }));
 
-  console.log(panelData);
+  // TODO combine with useTestTypes into a hook that takes formType
+  const { data: panelData } = usePanels({ data: [] });
 
   const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
 
@@ -185,6 +196,8 @@ export const TestSelectorInput = ({
   const showLoadingText = isLoading || isFetching;
 
   const queriedTypes = filterByTestTypeQuery(testTypeData, testFilters);
+  // todo combine into filterByTestTypeQuery
+  const queriedPanels = filterByNameOrCategory(panelData, testFilters);
 
   const isSelected = type => value.includes(type.id);
   const allSelected = queriedTypes.length && queriedTypes.every(isSelected);
@@ -233,6 +246,7 @@ export const TestSelectorInput = ({
                 value: testFilters.search,
                 onChange: handleChangeTestFilters,
               }}
+              onClear={handleClearSearch}
               placeholder="Search panel or category"
               name="search"
             />
@@ -256,6 +270,26 @@ export const TestSelectorInput = ({
                     ))
                   ) : (
                     <BodyText>No tests found.</BodyText>
+                  ))}
+              </>
+            )}
+            {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
+              <>
+                {showLoadingText && <BodyText>Loading panels</BodyText>}
+                {!showLoadingText &&
+                  (queriedPanels.length > 0 ? (
+                    queriedPanels.map(type => (
+                      <SelectableTestItem
+                        key={`${type.id}-checkbox`}
+                        label={type.name}
+                        name={type.id}
+                        category={type.category.name}
+                        checked={isSelected(type)}
+                        onChange={handleCheck}
+                      />
+                    ))
+                  ) : (
+                    <BodyText>No panels found.</BodyText>
                   ))}
               </>
             )}
