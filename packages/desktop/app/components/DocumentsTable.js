@@ -1,23 +1,20 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 import { promises as asyncFs } from 'fs';
 
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { IconButton } from '@material-ui/core';
+
+import { DOCUMENT_SOURCES } from 'shared/constants';
+import { DOCUMENT_SOURCE_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { DeleteButton, Button } from './Button';
-import { ConfirmModal } from './ConfirmModal';
+import { Button } from './Button';
 import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
 import { notify, notifySuccess, notifyError } from '../utils';
 import { DocumentPreviewModal } from './DocumentPreview';
-
-const DOCUMENT_ACTIONS = {
-  DELETE: 'delete',
-  VIEW: 'view',
-};
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -37,95 +34,71 @@ const StyledIconButton = styled(IconButton)`
   padding-right: 10px;
 `;
 
-// eslint-disable-next-line no-unused-vars
-const ActionButtons = React.memo(({ row, onDownload, onClickDelete, onClickView }) => {
-  // Currently delete and attach to care plan aren't built, so we'll hide them
-  /*
-    {
-      label: 'Delete',
-      onClick: () => onClickDelete(row.id),
-    },
-    {
-      label: 'Attach to care plan',
-      onClick: () => console.log('clicked attach to care plan'),
-    },
-    */
+const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
+  <ActionsContainer>
+    <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
+      View
+    </Action>
+    <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
+      <GetAppIcon fontSize="small" />
+    </StyledIconButton>
+  </ActionsContainer>
+));
 
-  return (
-    <ActionsContainer>
-      <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
-        View
-      </Action>
-      <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
-        <GetAppIcon fontSize="small" />
-      </StyledIconButton>
-    </ActionsContainer>
-  );
-});
-
-const getType = ({ type }) => {
+const getTitle = ({ source, name }) =>
+  source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
+const getAttachmentType = type => {
+  // Note that this may not be the actual extension of the file uploaded.
+  // Instead, its the default extension for the mime-type of the file uploaded.
+  // i.e. a file which originally had '.jpg' extension may be listed as a JPEG
   const fileExtension = extension(type);
   if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
   return 'Unknown';
+};
+
+const getTypeLabel = ({ source, type }) => {
+  if (source === DOCUMENT_SOURCES.UPLOADED) {
+    return getAttachmentType(type);
+  }
+
+  return DOCUMENT_SOURCE_LABELS[source] ?? 'Unknown';
 };
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint, searchParameters, refreshCount, canInvokeDocumentAction, elevated }) => {
+  ({ endpoint, searchParameters, refreshCount, selectedDocument, setSelectedDocument }) => {
     const { showSaveDialog, openPath } = useElectron();
     const api = useApi();
 
     // Confirm delete modal will be open/close if it has a document ID
-    const [selectedDocument, setSelectedDocument] = useState(null);
-    const [documentAction, setDocumentAction] = useState(null);
     const onClose = useCallback(() => {
       setSelectedDocument(null);
-      setDocumentAction(null);
-    }, []);
+    }, [setSelectedDocument]);
 
-    // Deletes selected document on confirmation (TBD)
-    const onConfirmDelete = useCallback(() => {
-      // Only perform deletion if there is internet connection
-      if (canInvokeDocumentAction()) {
-        console.log('Delete document TBD', selectedDocument); // eslint-disable-line no-console
-      }
-
-      // Close modal either way
-      onClose();
-    }, [selectedDocument, onClose, canInvokeDocumentAction]);
-
-    // Callbacks invoked inside getActions
-    const onClickDelete = useCallback(row => {
-      setSelectedDocument(row);
-      setDocumentAction(DOCUMENT_ACTIONS.DELETE);
-    }, []);
-    const onClickView = useCallback(row => {
-      setSelectedDocument(row);
-      setDocumentAction(DOCUMENT_ACTIONS.VIEW);
-    }, []);
     const onDownload = useCallback(
       async row => {
-        // Modal error will be set and shouldn't continue download
-        if (!canInvokeDocumentAction()) {
-          return;
+        if (!navigator.onLine) {
+          throw new Error(
+            'You do not currently have an internet connection. Documents require live internet to download.',
+          );
         }
 
         // Suggest a filename that matches the document name
         const path = await showSaveDialog({ defaultPath: row.name });
         if (path.canceled) return;
 
-        // If the extension is unknown, save it without extension
-        const fileExtension = extension(row.type);
-        const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
-
         try {
           // Give feedback to user that download is starting
           notify('Your download has started, please wait.', { type: 'info' });
 
           // Download attachment (*currently the API only supports base64 responses)
-          const { data } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
+          const { data, type } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
+
+          // If the extension is unknown, save it without extension
+          const fileExtension = extension(type);
+          const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
           // Create file and open it
           await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
@@ -135,14 +108,14 @@ export const DocumentsTable = React.memo(
           notifyError(error.message);
         }
       },
-      [api, openPath, showSaveDialog, canInvokeDocumentAction],
+      [api, openPath, showSaveDialog],
     );
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = useMemo(
       () => [
         { key: 'name', title: 'Name' },
-        { key: 'type', title: 'Type', accessor: getType },
+        { key: 'type', title: 'Type', accessor: getTypeLabel },
         { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
         { key: 'documentOwner', title: 'Owner' },
         {
@@ -156,18 +129,13 @@ export const DocumentsTable = React.memo(
           key: 'actions',
           title: 'Actions',
           accessor: row => (
-            <ActionButtons
-              row={row}
-              onDownload={onDownload}
-              onClickDelete={onClickDelete}
-              onClickView={onClickView}
-            />
+            <ActionButtons row={row} onDownload={onDownload} onClickView={setSelectedDocument} />
           ),
           dontCallRowInput: true,
           sortable: false,
         },
       ],
-      [onDownload, onClickDelete, onClickView],
+      [onDownload, setSelectedDocument],
     );
 
     return (
@@ -179,22 +147,13 @@ export const DocumentsTable = React.memo(
           fetchOptions={searchParameters}
           refreshCount={refreshCount}
           allowExport={false}
-          elevated={elevated}
-        />
-        <ConfirmModal
-          open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.DELETE}
-          title="Delete document"
-          text="WARNING: This action is irreversible!"
-          subText="Are you sure you want to delete this document?"
-          onConfirm={onConfirmDelete}
-          onCancel={onClose}
-          ConfirmButton={DeleteButton}
+          elevated={false}
         />
         <DocumentPreviewModal
-          open={selectedDocument !== null && documentAction === DOCUMENT_ACTIONS.VIEW}
-          title={selectedDocument?.name}
+          open={selectedDocument !== null}
+          title={getTitle(selectedDocument ?? {})}
           attachmentId={selectedDocument?.attachmentId}
-          documentType={getType({ type: selectedDocument?.type })}
+          documentType={getAttachmentType(selectedDocument?.type)}
           onClose={onClose}
           onDownload={() => onDownload(selectedDocument)}
         />
