@@ -35,6 +35,8 @@ const OptionTag = styled(FormFieldTag)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
+  position: absolute;
+  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
@@ -94,31 +96,35 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
+  onClear,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
       if (!changedOption) {
         onChange({ target: { value: '', name } });
+        if (onClear) {
+          onClear();
+        }
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name],
+    [onChange, name, onClear],
   );
 
   const customStyles = {
     control: (provided, state) => {
       const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
-      const fontSize = props.size === 'small' ? '11px' : '14px';
+      const fontSize = props.size === 'small' ? '11px' : '15px';
       return {
         ...provided,
         borderColor,
         boxShadow: 'none',
         borderRadius: '3px',
-        paddingTop: '5px',
-        paddingBottom: '3px',
+        paddingTop: '11px',
+        paddingBottom: '9px',
         paddingLeft: '5px',
         fontSize,
       };

@@ -31,6 +31,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [survey, setSurvey] = useState(null);
   const [programs, setPrograms] = useState(null);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
+  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
 
@@ -60,6 +61,11 @@ const SurveyFlow = ({ patient, currentUser }) => {
     setSurvey(null);
   }, []);
 
+  const clearProgram = useCallback(() => {
+    setSelectedSurveyId(null);
+    setSurveys(null);
+  }, []);
+
   const selectProgram = useCallback(
     async event => {
       const programId = event.target.value;
@@ -69,7 +75,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       setSelectedProgramId(programId);
 
       if (!programId) {
-        setSurveys(null);
+        clearProgram();
         return;
       }
 
@@ -80,7 +86,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
           .map(x => ({ value: x.id, label: x.name })),
       );
     },
-    [api, selectedProgramId],
+    [api, selectedProgramId, clearProgram],
   );
 
   const submitSurveyResponse = async data => {
@@ -117,7 +123,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
             label="Select program"
           />
           <SurveySelector
-            onSelectSurvey={setSelectedSurvey}
+            onSubmit={setSelectedSurvey}
+            onChange={setSelectedSurveyId}
+            value={selectedSurveyId}
             surveys={surveys}
             buttonText="Begin survey"
           />

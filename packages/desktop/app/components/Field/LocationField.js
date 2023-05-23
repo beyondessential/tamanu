@@ -84,6 +84,11 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
+    const clearLocationField = () => {
+      setLocationId('');
+      onChange({ target: { value: '', name } });
+    };
+
     // Disable the location and location group fields if:
     // 1. In edit mode (form already is initialised with pre-filled values); and
     // 2. The existing location has a different facility than the current facility
@@ -104,6 +109,7 @@ export const LocationInput = React.memo(
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
           autofill={!value} // do not autofill if there is a pre-filled value
+          onClear={clearLocationField}
         />
         <AutocompleteInput
           label={label}

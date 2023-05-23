@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -111,7 +112,8 @@ export class AutocompleteInput extends Component {
   }
 
   async componentDidMount() {
-    await this.updateValue();
+    const { allowFreeTextForExistingValue } = this.props;
+    await this.updateValue(allowFreeTextForExistingValue);
   }
 
   async componentDidUpdate(prevProps) {
@@ -124,7 +126,7 @@ export class AutocompleteInput extends Component {
     }
   }
 
-  updateValue = async () => {
+  updateValue = async (allowFreeTextForExistingValue = false) => {
     const { value, suggester } = this.props;
 
     if (!suggester || value === undefined) {
@@ -135,14 +137,21 @@ export class AutocompleteInput extends Component {
       this.attemptAutoFill();
       return;
     }
-    const currentOption = await suggester.fetchCurrentOption(value);
-    if (currentOption) {
-      this.setState({
-        selectedOption: {
-          value: currentOption.label,
-          tag: currentOption.tag,
-        },
-      });
+
+    if (!allowFreeTextForExistingValue) {
+      const currentOption = await suggester.fetchCurrentOption(value);
+
+      if (currentOption) {
+        this.setState({
+          selectedOption: {
+            value: currentOption.label,
+            tag: currentOption.tag,
+          },
+        });
+      }
+    } else if (allowFreeTextForExistingValue && value) {
+      this.setState({ selectedOption: { value, tag: null } });
+      this.handleSuggestionChange({ value, label: value });
     } else {
       this.handleSuggestionChange({ value: null, label: '' });
     }
@@ -225,9 +234,12 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, name } = this.props;
+    const { onChange, onClear } = this.props;
     this.setState({ selectedOption: { value: '', tag: null } });
-    onChange({ target: { value: '', name } });
+    onChange({ target: { value: undefined, name: null } });
+    if (onClear) {
+      onClear();
+    }
   };
 
   clearOptions = () => {

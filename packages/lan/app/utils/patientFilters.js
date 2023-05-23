@@ -55,7 +55,7 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
     makeFilter(
       filterParams.facilityId === ':local' ? config.serverFacilityId : filterParams.facilityId,
-      `department.facility_id = :facilityId`,
+      `location.facility_id = :facilityId`,
     ),
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
