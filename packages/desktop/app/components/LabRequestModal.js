@@ -41,13 +41,16 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const { loadEncounter } = useEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
+  const specimenTypeSuggester = useSuggester('specimenType');
+  const labSampleSiteSuggester = useSuggester('labSampleSite');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
 
   const handleSubmit = async data => {
+    const body = { ...data };
     const response = await api.post(`labRequest`, {
-      ...data,
+      ...body,
       encounterId: encounter.id,
     });
     setNewLabRequestIds(response.map(request => request.id));
@@ -74,6 +77,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
       departmentSuggester={departmentSuggester}
+      specimenTypeSuggester={specimenTypeSuggester}
+      labSampleSiteSuggester={labSampleSiteSuggester}
     />
   );
 
