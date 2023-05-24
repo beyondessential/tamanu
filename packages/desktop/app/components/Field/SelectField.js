@@ -101,8 +101,9 @@ export const SelectInput = ({
 }) => {
   const handleChange = useCallback(
     changedOption => {
+      // changedOption is empty if Clear indicator is clicked
       if (!changedOption) {
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: null, name } });
         if (onClear) {
           onClear();
         }
