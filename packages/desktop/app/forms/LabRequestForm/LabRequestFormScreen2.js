@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
-import { useQuery } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import styled from 'styled-components';
-import { useApi } from '../../api';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { Heading3, BodyText } from '../../components/Typography';
@@ -17,7 +15,27 @@ export const screen2ValidationSchema = yup.object().shape({
   labTestTypeIds: yup
     .array()
     .of(yup.string())
-    .required(),
+    .when('requestFormType', {
+      is: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+      then: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Please select at least one test')
+        .required(),
+      otherwise: yup.array().of(yup.string()),
+    }),
+  panelIds: yup
+    .array()
+    .of(yup.string())
+    .when('requestFormType', {
+      is: LAB_REQUEST_FORM_TYPES.PANEL,
+      then: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Please select at least one panel')
+        .required(),
+      otherwise: yup.array().of(yup.string()),
+    }),
   labTestPanelId: yup.string(),
   notes: yup.string(),
 });
@@ -27,60 +45,46 @@ const SECTION_LABELS = {
     subheading: 'Select tests',
     instructions:
       'Please select the test or tests you would like to request below and add any relevant notes. \nYou can filter test by category using the field below.',
-    testSelectorFieldLabel: 'Select tests',
+    selectableName: 'test',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
     subheading: 'Select panel',
     instructions:
       'Please select the panel or panels you would like to request below and add any relevant notes.',
-    testSelectorFieldLabel: 'Select the test panel or panels',
+    label: 'Select the test panel or panels',
+    selectableName: 'panel',
+    searchFieldPlaceholder: 'Search panel or category',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: 'Select superset',
     instructions:
       'Please select the superset you would like to request below and add any relevant notes. \nYou can also remove or add additional panels to your request.',
-    testSelectorFieldLabel: 'Select superset',
+    selectableName: 'panel',
   },
 };
 
 export const LabRequestFormScreen2 = props => {
   const {
-    values: { requestFormType, labTestPanelId },
-    setFieldValue,
+    values: { requestFormType },
   } = props;
 
-  const formTypeToLabelConfig = useMemo(() => {
-    return SECTION_LABELS[requestFormType] || { testSelectorFieldLabel: 'Select tests' };
-  }, [requestFormType]);
-  const api = useApi();
-  const { data: testTypesData, isLoading } = useQuery(['labTestTypes'], () =>
-    api.get('labTestType'),
-  );
-
-  const handleClearPanel = () => {
-    setFieldValue('labTestPanelId', undefined);
-  };
+  const labelConfig = useMemo(() => SECTION_LABELS[requestFormType], [requestFormType]);
+  const { subheading, instructions } = labelConfig;
 
   return (
     <>
       <div style={{ gridColumn: '1 / -1' }}>
-        {formTypeToLabelConfig.subheading && (
-          <Heading3 mb="12px">{formTypeToLabelConfig.subheading}</Heading3>
-        )}
-        {formTypeToLabelConfig.instructions && (
-          <StyledBodyText width="500px" mb="28px" color="textTertiary">
-            {formTypeToLabelConfig.instructions}
-          </StyledBodyText>
-        )}
+        <Heading3 mb="12px">{subheading}</Heading3>
+        <StyledBodyText width="500px" mb="28px" color="textTertiary">
+          {instructions}
+        </StyledBodyText>
         <Field
-          name="labTestTypeIds"
-          label={formTypeToLabelConfig.testSelectorFieldLabel || 'Select tests'}
-          onClearPanel={handleClearPanel}
+          name={
+            requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL ? 'labTestTypeIds' : 'panelIds'
+          }
+          labelConfig={labelConfig}
           component={TestSelectorField}
           requestFormType={requestFormType}
-          labTestPanelId={labTestPanelId}
-          testTypes={testTypesData}
-          isLoading={isLoading}
           required
           {...props}
         />

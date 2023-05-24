@@ -394,25 +394,7 @@ export const labTestPanel = express.Router();
 
 labTestPanel.get('/', async (req, res) => {
   req.checkPermission('list', 'LabTestPanel');
-  const { models, query } = req;
-  const { search } = query;
-  // Get all panels that match search by name or joined category name from reference data
-  const where = search
-    ? {
-        [Op.or]: [
-          {
-            name: {
-              [Op.iLike]: `%${search}%`,
-            },
-          },
-          {
-            '$category.name$': {
-              [Op.iLike]: `%${search}%`,
-            },
-          },
-        ],
-      }
-    : {};
+  const { models } = req;
   const response = await models.LabTestPanel.findAll({
     include: [
       {
@@ -420,7 +402,6 @@ labTestPanel.get('/', async (req, res) => {
         as: 'category',
       },
     ],
-    where,
   });
   res.send(response);
 });
