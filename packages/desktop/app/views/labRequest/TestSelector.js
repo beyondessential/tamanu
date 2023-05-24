@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, FormHelperText } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
@@ -108,6 +108,31 @@ const StyledSearchField = styled(SearchField)`
   }
 `;
 
+export default function useDebounce(value, delay) {
+  // State and setters for debounced value
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(
+    () => {
+      // Update debounced value after delay
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+
+      // Cancel the timeout if value changes (also on delay change or unmount)
+      // This is how we prevent debounced value from updating if value is changed ...
+      // .. within the delay period. Timeout gets cleared and restarted.
+      return () => {
+        clearTimeout(handler);
+      };
+    },
+    [value, delay] // Only re-call effect if value or delay changes
+  );
+
+  return debouncedValue;
+}
+
+
 const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   const api = useApi();
   return useQuery(
@@ -121,15 +146,14 @@ const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   );
 };
 
-const usePanels = placeholderData => {
+const usePanels = (placeholderData, search) => {
   const api = useApi();
-  const query = useQuery(['labTestPanels'], () => api.get('labTestPanel'), {
+  return useQuery(['labTestPanels', search], {
+    queryFn: () => api.get('labTestPanel', { search }),
     placeholderData,
+    keepPreviousData: true,
+    staleTime: 1000,
   });
-  return {
-    ...query,
-    data: query.data.data,
-  };
 };
 
 const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
@@ -171,7 +195,8 @@ export const TestSelectorInput = ({
   const handleClearSearch = () => setTestFilters(values => ({ ...values, search: '' }));
 
   // TODO combine with useTestTypes into a hook that takes formType
-  const { data: panelData } = usePanels({ data: [] });
+  const debouncedSearch = useDebounce(testFilters.search, 200);
+  const { data: panelData, isFetching: isPanelsFetching } = usePanels([], debouncedSearch);
 
   const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
 
@@ -275,10 +300,10 @@ export const TestSelectorInput = ({
             )}
             {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
               <>
-                {showLoadingText && <BodyText>Loading panels</BodyText>}
-                {!showLoadingText &&
-                  (queriedPanels.length > 0 ? (
-                    queriedPanels.map(type => (
+                {isPanelsFetching && <BodyText>Loading panels</BodyText>}
+                {!isPanelsFetching &&
+                  (panelData.length > 0 ? (
+                    panelData.map(type => (
                       <SelectableTestItem
                         key={`${type.id}-checkbox`}
                         label={type.name}

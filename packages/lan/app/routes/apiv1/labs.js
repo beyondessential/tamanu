@@ -392,7 +392,39 @@ labTestType.get(
 
 export const labTestPanel = express.Router();
 
-labTestPanel.get('/', simpleGetList('LabTestPanel'));
+labTestPanel.get('/', async (req, res) => {
+  req.checkPermission('list', 'LabTestPanel');
+  const { models, query } = req;
+  const { search } = query;
+  // Get all panels that match search by name or joined category name from reference data
+  const where = search
+    ? {
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${search}%`,
+            },
+          },
+          {
+            '$category.name$': {
+              [Op.iLike]: `%${search}%`,
+            },
+          },
+        ],
+      }
+    : {};
+  const response = await models.LabTestPanel.findAll({
+    include: [
+      {
+        model: models.ReferenceData,
+        as: 'category',
+      },
+    ],
+    where,
+  });
+  res.send(response);
+});
+
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));
 labTestPanel.get(
   '/:id/labTestTypes',
