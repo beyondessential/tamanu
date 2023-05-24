@@ -9,6 +9,7 @@ import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
 import { DateDisplay } from '../DateDisplay';
+import { Box } from '@material-ui/core';
 
 const StyledTooltip = withStyles(() => ({
   tooltip: {
@@ -52,9 +53,9 @@ export const Appointment = ({ appointment, onUpdated }) => {
         onClick={() => setDetailOpen(open => !open)}
       >
         <div>
-          <PatientNamePadding>
+          <Box paddingTop="2px">
             <PatientNameDisplay patient={patient} />
-          </PatientNamePadding>
+          </Box>
           <DateDisplay date={startTime} showDate={false} showTime />
         </div>
         <div className="icon">
@@ -66,10 +67,6 @@ export const Appointment = ({ appointment, onUpdated }) => {
     </StyledTooltip>
   );
 };
-
-const PatientNamePadding = styled.div`
-  padding-top: 2px;
-`;
 
 const StyledAppointment = styled.div`
   display: flex;
