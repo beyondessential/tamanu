@@ -21,8 +21,10 @@ RUN apk add --no-cache \
 COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
 
 FROM base AS run-base
+RUN apk add --no-cache bash
 # set the runtime options
-ENTRYPOINT ["node", "dist/app.bundle.js"]
+COPY scripts/docker-entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["serve"]
 
 
