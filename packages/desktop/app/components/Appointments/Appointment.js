@@ -36,7 +36,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
 
   return (
     <StyledTooltip
-      className="appointment-tooltip"
+      s
       arrow
       open={detailOpen}
       onClose={closeDetail}
