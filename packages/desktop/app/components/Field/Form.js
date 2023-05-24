@@ -156,7 +156,7 @@ export class Form extends React.PureComponent {
       values = newValues;
       originalSetValues(newValues);
     };
-    const onFinalise = () => {
+    const navigateToConfirmModal = () => {
       this.setState({ confirming: true });
     };
     const onBack = () => {
@@ -188,7 +188,7 @@ export class Form extends React.PureComponent {
               setValues,
               isValid,
               isSubmitting,
-              submitForm: isConfirmNeeded ? onFinalise : submitForm,
+              submitForm: isConfirmNeeded ? navigateToConfirmModal : submitForm,
               clearForm: () => formProps.resetForm({}),
             })}
           </form>
