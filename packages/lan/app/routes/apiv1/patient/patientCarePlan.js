@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { NOTE_TYPES, NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 
-import { simpleGet, simplePut } from '../crudHelpers';
+import { simpleGet, simplePut } from 'shared/utils/crudHelpers';
 
 export const patientCarePlan = express.Router();
 
