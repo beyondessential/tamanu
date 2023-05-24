@@ -47,6 +47,7 @@ export const LabRequestFormScreen2 = props => {
   const {
     values: { requestFormType, labTestPanelId },
     setFieldValue,
+    onCategoriesChange,
   } = props;
 
   const formTypeToLabelConfig = useMemo(() => {
@@ -59,6 +60,25 @@ export const LabRequestFormScreen2 = props => {
 
   const handleClearPanel = () => {
     setFieldValue('labTestPanelId', undefined);
+  };
+
+  const handleTestTypeChange = ({ target: { value: testTypeIds } }) => {
+    console.log({ testTypeIds });
+    // const testTypeCategories = testTypeIds.map(
+    //   id => testTypesData.find(testType => testType.id === id).category,
+    // );
+    // const uniqueCategories = testTypeCategories.reduce((acc, category) => {
+    //   if (!acc[category.id]) {
+    //     acc[category.id] = {
+    //       id: category.id,
+    //       name: category.name,
+    //     };
+    //   }
+    //   return acc;
+    // }, {});
+    // if (onCategoriesChange) {
+    //   onCategoriesChange(Object.values(uniqueCategories));
+    // }
   };
 
   return (
@@ -81,6 +101,7 @@ export const LabRequestFormScreen2 = props => {
           labTestPanelId={labTestPanelId}
           testTypes={testTypesData}
           isLoading={isLoading}
+          onChange={handleTestTypeChange}
           required
           {...props}
         />
