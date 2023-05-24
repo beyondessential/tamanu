@@ -23,7 +23,7 @@ export const ConfirmModal = ({
   cancelButtonText = 'Cancel',
   customContent,
 }) => (
-  <Modal width={width} title={title} open={open} onClose={onCancel}>
+  <Modal width={width} title={title} open={open} onClose={onCancel} cornerExitButton={false}>
     {customContent || (
       <Content>
         <h3>{text}</h3>
