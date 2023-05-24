@@ -40,7 +40,7 @@ export class Form extends React.PureComponent {
     super();
     this.state = {
       validationErrors: {},
-      confirming: false,
+      onConfirmModal: false,
     };
   }
 
@@ -115,12 +115,12 @@ export class Form extends React.PureComponent {
 
     // submission phase
     const { onSubmit, onSuccess } = this.props;
-    const { confirming } = this.state;
+    const { onConfirmModal } = this.state;
 
     try {
-      if (isConfirmNeeded && !confirming) {
+      if (isConfirmNeeded && !onConfirmModal) {
         // Navigate to confirm modal
-        this.setState({ confirming: true });
+        this.setState({ onConfirmModal: true });
         return null;
       }
 
@@ -152,7 +152,7 @@ export class Form extends React.PureComponent {
     let { values } = formProps;
     const { render, style, onCancel, confirmModalProps } = this.props;
     const isConfirmNeeded = !!confirmModalProps;
-    const { confirming } = this.state;
+    const { onConfirmModal } = this.state;
 
     // we need this func for nested forms
     // as the original submitForm() will trigger validation automatically
@@ -172,10 +172,10 @@ export class Form extends React.PureComponent {
 
     // onBack and onConfirm used for ConfirmModal
     const onBack = () => {
-      this.setState({ confirming: false });
+      this.setState({ onConfirmModal: false });
     };
     const onConfirm = (...props) => {
-      this.setState({ confirming: false });
+      this.setState({ onConfirmModal: false });
       submitForm(...props);
     };
 
@@ -183,14 +183,14 @@ export class Form extends React.PureComponent {
       <>
         {isConfirmNeeded && (
           <ConfirmModal
-            open={confirming}
+            open={onConfirmModal}
             onCancel={onCancel}
             onConfirm={onConfirm}
             onBack={onBack}
             {...confirmModalProps}
           />
         )}
-        {!confirming && (
+        {!onConfirmModal && (
           <form style={style} onSubmit={submitForm} noValidate>
             {render({
               ...formProps,
