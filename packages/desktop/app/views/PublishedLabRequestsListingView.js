@@ -12,7 +12,7 @@ import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest
 import { useEncounter } from '../contexts/Encounter';
 
 export const PublishedLabRequestsListingView = React.memo(() => {
-  const { loadLabRequests, searchParameters } = useLabRequest(LabRequestSearchParamKeys.Published);
+  const { loadLabRequest, searchParameters } = useLabRequest(LabRequestSearchParamKeys.Published);
   const { loadEncounter } = useEncounter();
   return (
     <PageContainer>
@@ -22,7 +22,7 @@ export const PublishedLabRequestsListingView = React.memo(() => {
         <LabRequestsSearchBar status={LAB_REQUEST_STATUSES.PUBLISHED} />
         <LabRequestsTable
           loadEncounter={loadEncounter}
-          loadLabRequests={loadLabRequests}
+          loadLabRequest={loadLabRequest}
           searchParameters={searchParameters}
           status={LAB_REQUEST_STATUSES.PUBLISHED}
         />
