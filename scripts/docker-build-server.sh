@@ -35,6 +35,7 @@ else
   rm -rf packages/*/jest.* || true
   rm -rf packages/*/docker || true
   rm -rf packages/*/coverage || true
+  rm -rf packages/*/config/{local,development,test}.* || true
 
   yarn workspace "$package" build
 fi
