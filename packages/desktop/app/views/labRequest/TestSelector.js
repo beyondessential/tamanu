@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, FormHelperText } from '@material-ui/core';
+import { Box, FormHelperText, capitalize } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
@@ -11,6 +11,11 @@ import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
+
+const SELECTABLE_DATA_ENDPOINTS = {
+  [LAB_REQUEST_FORM_TYPES.PANEL]: 'labTestPanel',
+  [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'labTestType',
+};
 
 const Container = styled.div`
   .MuiFormHelperText-root {
@@ -108,129 +113,76 @@ const StyledSearchField = styled(SearchField)`
   }
 `;
 
-export default function useDebounce(value, delay) {
-  // State and setters for debounced value
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(
-    () => {
-      // Update debounced value after delay
-      const handler = setTimeout(() => {
-        setDebouncedValue(value);
-      }, delay);
-
-      // Cancel the timeout if value changes (also on delay change or unmount)
-      // This is how we prevent debounced value from updating if value is changed ...
-      // .. within the delay period. Timeout gets cleared and restarted.
-      return () => {
-        clearTimeout(handler);
-      };
-    },
-    [value, delay], // Only re-call effect if value or delay changes
-  );
-
-  return debouncedValue;
-}
-
-const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
+const useSelectable = formType => {
   const api = useApi();
-  return useQuery(
-    ['labTestTypes', labTestPanelId],
-    () => api.get(`labTestPanel/${encodeURIComponent(labTestPanelId)}/labTestTypes`),
-    {
-      onSuccess,
-      placeholderData,
-      enabled: !!labTestPanelId,
-    },
-  );
-};
-
-const usePanels = (placeholderData, search) => {
-  const api = useApi();
-  return useQuery(['labTestPanels', search], {
-    queryFn: () => api.get('labTestPanel', { search }),
-    placeholderData,
-    keepPreviousData: true,
-    staleTime: 1000,
+  const endpoint = SELECTABLE_DATA_ENDPOINTS[formType];
+  return useQuery([endpoint], () => api.get(endpoint), {
+    placeholderData: [],
   });
 };
 
-const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
-  testTypes
-    // Filter out tests that don't match the search query or category
-    .filter(
-      result =>
-        subStrSearch(search, result.name) &&
-        (!labTestCategoryId || result.category.id === labTestCategoryId),
-    )
-    // Sort by category then title alphabetically
-    .sort((a, b) => a.category.name.localeCompare(b.category.name) || a.name.localeCompare(b.name));
+const queryBySearch = (formType, data, { search, labTestCategoryId }) =>
+  formType === LAB_REQUEST_FORM_TYPES.PANEL
+    ? data.filter(
+        result => subStrSearch(search, result.name) || subStrSearch(search, result.category.name),
+      )
+    : data.filter(
+        result =>
+          subStrSearch(search, result.name) &&
+          (!labTestCategoryId || result.category.id === labTestCategoryId),
+      );
+
+const sortByCategoryAndName = (a, b) =>
+  a.category.name.localeCompare(b.category.name) || a.name.localeCompare(b.name);
 
 export const TestSelectorInput = ({
   name,
-  label,
-  testTypes,
   value,
   requestFormType,
-  labTestPanelId,
-  onClearPanel,
+  labelConfig,
   isLoading,
   onChange,
   helperText,
   error,
 }) => {
-  const [selected, setSelected] = useState([]);
-  const [testFilters, setTestFilters] = useState({
+  const {
+    selectableName,
+    label = labelConfig.subheading,
+    searchFieldPlaceholder = 'Search',
+  } = labelConfig;
+  const [searchQuery, setSearchQuery] = useState({
     labTestCategoryId: '',
     search: '',
   });
 
-  const handleClearSearch = () => setTestFilters(values => ({ ...values, search: '' }));
-
-  // TODO combine with useTestTypes into a hook that takes formType
-  const debouncedSearch = useDebounce(testFilters.search, 200);
-  const { data: panelData, isFetching: isPanelsFetching } = usePanels([], debouncedSearch);
-
-  const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
-
-  const handleChangePanel = data => {
-    handleChange(data.map(type => type.id));
-  };
-  const handleClear = () => {
-    setTestFilters(values => ({ ...values, labTestPanelId: '' }));
-    handleChange([]);
-    setSelected([]);
-    onClearPanel();
-  };
-
-  const handleChangeTestFilters = event =>
-    setTestFilters({ ...testFilters, [event.target.name]: event.target.value });
-
-  const { data: testTypeData, isFetching } = useTestTypes(
-    labTestPanelId,
-    testTypes,
-    handleChangePanel,
-  );
+  const { data, isFetching } = useSelectable(requestFormType);
+  const queriedData = queryBySearch(requestFormType, data, searchQuery).sort(sortByCategoryAndName);
 
   const showLoadingText = isLoading || isFetching;
-
-  const queriedTypes = filterByTestTypeQuery(testTypeData, testFilters);
-  // todo combine into filterByTestTypeQuery
-
+  const selected = useMemo(() => data.filter(({ id }) => value.includes(id)), [data, value]);
   const isSelected = ({ id }) => value.includes(id);
-  const allSelected = panelData.length && panelData.every(isSelected);
-  const someSelected = panelData.length && panelData.some(isSelected);
+  const allSelected = queriedData.length && queriedData.every(isSelected);
+  const someSelected = queriedData.some(isSelected) && !allSelected;
 
-  const handleSelectAll = () => handleChange(allSelected ? [] : queriedTypes.map(type => type.id));
+  const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
+  const handleClear = () => {
+    handleChange([]);
+  };
+  const handleChangeSearchQuery = event =>
+    setSearchQuery({ ...searchQuery, [event.target.name]: event.target.value });
 
-  const handleCheck = (newSelection, checked) => {
-    // Set internal state to array of selected objects
-    const newSelected = checked
-      ? [...selected, newSelection]
-      : selected.filter(selection => selection.id !== newSelection.id);
-    setSelected(newSelected);
-    // Set field value to array of selected ids
-    handleChange(newSelected.map(selection => selection.id));
+  const handleSelectAll = () =>
+    handleChange(
+      allSelected
+        ? value.filter(id => !queriedData.some(({ id: dataId }) => dataId === id))
+        : [...value, ...queriedData.filter(({ id }) => !value.includes(id)).map(({ id }) => id)],
+    );
+  const handleSelect = event => {
+    handleChange(
+      event.target.checked
+        ? [...value, event.target.name]
+        : value.filter(id => id !== event.target.name),
+    );
   };
 
   return (
@@ -239,94 +191,60 @@ export const TestSelectorInput = ({
       <Wrapper>
         <SelectorContainer>
           {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
-            <SuggesterSelectField
-              field={{
-                value: testFilters.labTestCategoryId,
-                onChange: handleChangeTestFilters,
-              }}
-              initialOptions={[{ label: 'All', value: '' }]}
-              label="Test category"
-              endpoint="labTestCategory"
-              name="labTestCategoryId"
-            />
-          )}
-          {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
             <>
+              <SuggesterSelectField
+                field={{
+                  value: searchQuery.labTestCategoryId,
+                  onChange: handleChangeSearchQuery,
+                }}
+                initialOptions={[{ label: 'All', value: '' }]}
+                label="Test category"
+                endpoint="labTestCategory"
+                name="labTestCategoryId"
+              />
               <FormSeparatorLine />
-              <TextTypeLabel>Test type</TextTypeLabel>
             </>
           )}
-          {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
-            <TextTypeLabel>Panels</TextTypeLabel>
-          )}
+          <TextTypeLabel>{capitalize(selectableName)}s</TextTypeLabel>
           <Box display="flex" alignItems="center">
             <SelectableTestItem
               name="selectAll"
-              indeterminate={someSelected && !allSelected}
+              indeterminate={someSelected}
               checked={allSelected}
               onChange={handleSelectAll}
             />
             <StyledSearchField
               field={{
-                value: testFilters.search,
-                onChange: handleChangeTestFilters,
+                value: searchQuery.search,
+                onChange: handleChangeSearchQuery,
               }}
-              onClear={handleClearSearch}
-              placeholder="Search panel or category"
+              placeholder={searchFieldPlaceholder}
               name="search"
             />
           </Box>
           <FormSeparatorLine />
           <SelectorTable>
-            {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
-              <>
-                {showLoadingText && <BodyText>Loading tests</BodyText>}
-                {!showLoadingText &&
-                  (queriedTypes.length > 0 ? (
-                    queriedTypes.map(type => (
-                      <SelectableTestItem
-                        key={`${type.id}-checkbox`}
-                        label={type.name}
-                        name={type.id}
-                        category={type.category.name}
-                        checked={isSelected(type)}
-                        // onChange={}
-                      />
-                    ))
-                  ) : (
-                    <BodyText>No tests found.</BodyText>
-                  ))}
-              </>
-            )}
-            {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL && (
-              <>
-                {isPanelsFetching && <BodyText>Loading panels</BodyText>}
-                {!isPanelsFetching &&
-                  (panelData.length > 0 ? (
-                    panelData.map(panel => (
-                      <SelectableTestItem
-                        key={`panel-${panel.id}-checkbox`}
-                        label={panel.name}
-                        name={panel.id}
-                        category={panel.category.name}
-                        checked={isSelected(panel)}
-                        onChange={event => {
-                          handleCheck(panel, event.target.checked);
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <BodyText>No panels found.</BodyText>
-                  ))}
-              </>
-            )}
+            {showLoadingText && <BodyText>Loading {selectableName}s</BodyText>}
+            {!showLoadingText &&
+              (queriedData.length > 0 ? (
+                queriedData.map(selectable => (
+                  <SelectableTestItem
+                    key={`${selectable.id}-checkbox`}
+                    label={selectable.name}
+                    name={selectable.id}
+                    category={selectable.category.name}
+                    checked={isSelected(selectable)}
+                    onChange={handleSelect}
+                  />
+                ))
+              ) : (
+                <BodyText>No {selectableName}s found.</BodyText>
+              ))}
           </SelectorTable>
         </SelectorContainer>
         <SelectorContainer>
           <Box display="flex" justifyContent="space-between">
-            <SectionHeader>
-              Selected {requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? 'panels' : 'tests'}
-            </SectionHeader>
+            <SectionHeader>Selected {selectableName}s</SectionHeader>
             {value.length > 0 && <ClearAllButton onClick={handleClear}>Clear all</ClearAllButton>}
           </Box>
           <FormSeparatorLine />
@@ -338,9 +256,7 @@ export const TestSelectorInput = ({
                   label={option.name}
                   name={option.id}
                   category={option.category.name}
-                  onRemove={() => {
-                    handleCheck(option, false);
-                  }}
+                  onRemove={handleSelect}
                 />
               );
             })}
