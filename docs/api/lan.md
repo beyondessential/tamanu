@@ -40,7 +40,7 @@ Query and save survey data, this includes referrals.
 ### Other endpoints
 
 The following endpoints all have basic create, read and update endpoints through the
-handlers found in `packages/lan/app/routes/apiv1/crudHelpers.js`
+handlers found in `packages/shared-src/src/utils/crudHelpers.js`
 
 `/v1/procedure`
 
