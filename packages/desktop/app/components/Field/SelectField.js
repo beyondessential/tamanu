@@ -102,7 +102,7 @@ export const SelectInput = ({
   const handleChange = useCallback(
     changedOption => {
       if (!changedOption) {
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: null, name } });
         if (onClear) {
           onClear();
         }
