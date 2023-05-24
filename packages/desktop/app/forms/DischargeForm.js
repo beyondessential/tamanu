@@ -327,6 +327,7 @@ export const DischargeForm = ({
       render={renderForm}
       confirmModalProps={confirmModalProps}
       enableReinitialize
+      showInlineErrorsOnly
       initialValues={getDischargeInitialValues(
         encounter,
         dischargeNotePages,
