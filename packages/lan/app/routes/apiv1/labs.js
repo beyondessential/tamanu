@@ -12,9 +12,14 @@ import {
   NOTE_RECORD_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
+import { renameObjectKeys } from 'shared/utils';
+import {
+  simpleGet,
+  simplePut,
+  simpleGetList,
+  permissionCheckingRouter,
+} from 'shared/utils/crudHelpers';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
-import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
