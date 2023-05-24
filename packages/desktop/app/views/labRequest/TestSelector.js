@@ -126,12 +126,11 @@ export default function useDebounce(value, delay) {
         clearTimeout(handler);
       };
     },
-    [value, delay] // Only re-call effect if value or delay changes
+    [value, delay], // Only re-call effect if value or delay changes
   );
 
   return debouncedValue;
 }
-
 
 const useTestTypes = (labTestPanelId, placeholderData, onSuccess) => {
   const api = useApi();
@@ -167,13 +166,6 @@ const filterByTestTypeQuery = (testTypes = [], { labTestCategoryId, search }) =>
     // Sort by category then title alphabetically
     .sort((a, b) => a.category.name.localeCompare(b.category.name) || a.name.localeCompare(b.name));
 
-const filterByNameOrCategory = (panels = [], { search }) =>
-  panels
-    .filter(
-      result => subStrSearch(search, result.name) || subStrSearch(search, result.category.name),
-    )
-    .sort((a, b) => a.name.localeCompare(b.name) || a.category.name.localeCompare(b.category.name));
-
 export const TestSelectorInput = ({
   name,
   label,
@@ -187,6 +179,7 @@ export const TestSelectorInput = ({
   helperText,
   error,
 }) => {
+  const [selected, setSelected] = useState([]);
   const [testFilters, setTestFilters] = useState({
     labTestCategoryId: '',
     search: '',
@@ -206,6 +199,7 @@ export const TestSelectorInput = ({
   const handleClear = () => {
     setTestFilters(values => ({ ...values, labTestPanelId: '' }));
     handleChange([]);
+    setSelected([]);
     onClearPanel();
   };
 
@@ -222,15 +216,21 @@ export const TestSelectorInput = ({
 
   const queriedTypes = filterByTestTypeQuery(testTypeData, testFilters);
   // todo combine into filterByTestTypeQuery
-  const queriedPanels = filterByNameOrCategory(panelData, testFilters);
 
-  const isSelected = type => value.includes(type.id);
-  const allSelected = queriedTypes.length && queriedTypes.every(isSelected);
-  const someSelected = queriedTypes.length && queriedTypes.some(isSelected);
+  const isSelected = ({ id }) => value.includes(id);
+  const allSelected = panelData.length && panelData.every(isSelected);
+  const someSelected = panelData.length && panelData.some(isSelected);
 
   const handleSelectAll = () => handleChange(allSelected ? [] : queriedTypes.map(type => type.id));
-  const handleCheck = ({ target: { name: testId, checked } }) => {
-    handleChange(checked ? [...value, testId] : value.filter(id => id !== testId));
+
+  const handleCheck = (newSelection, checked) => {
+    // Set internal state to array of selected objects
+    const newSelected = checked
+      ? [...selected, newSelection]
+      : selected.filter(selection => selection.id !== newSelection.id);
+    setSelected(newSelected);
+    // Set field value to array of selected ids
+    handleChange(newSelected.map(selection => selection.id));
   };
 
   return (
@@ -290,7 +290,7 @@ export const TestSelectorInput = ({
                         name={type.id}
                         category={type.category.name}
                         checked={isSelected(type)}
-                        onChange={handleCheck}
+                        // onChange={}
                       />
                     ))
                   ) : (
@@ -303,14 +303,16 @@ export const TestSelectorInput = ({
                 {isPanelsFetching && <BodyText>Loading panels</BodyText>}
                 {!isPanelsFetching &&
                   (panelData.length > 0 ? (
-                    panelData.map(type => (
+                    panelData.map(panel => (
                       <SelectableTestItem
-                        key={`${type.id}-checkbox`}
-                        label={type.name}
-                        name={type.id}
-                        category={type.category.name}
-                        checked={isSelected(type)}
-                        onChange={handleCheck}
+                        key={`panel-${panel.id}-checkbox`}
+                        label={panel.name}
+                        name={panel.id}
+                        category={panel.category.name}
+                        checked={isSelected(panel)}
+                        onChange={event => {
+                          handleCheck(panel, event.target.checked);
+                        }}
                       />
                     ))
                   ) : (
@@ -329,16 +331,16 @@ export const TestSelectorInput = ({
           </Box>
           <FormSeparatorLine />
           <SelectorTable>
-            {value.map(testId => {
-              const testType = testTypeData.find(type => type.id === testId);
-              if (!testType) return null;
+            {selected.map(option => {
               return (
                 <TestItem
-                  key={`${testId}-selected`}
-                  label={testType.name}
-                  name={testId}
-                  category={testType.category.name}
-                  onRemove={handleCheck}
+                  key={`${option.id}-selected`}
+                  label={option.name}
+                  name={option.id}
+                  category={option.category.name}
+                  onRemove={() => {
+                    handleCheck(option, false);
+                  }}
                 />
               );
             })}
