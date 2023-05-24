@@ -75,6 +75,7 @@ export class Form extends React.PureComponent {
     setSubmitting,
     getValues,
     setStatus,
+    isConfirmNeeded,
     ...rest
   }) => async (event, submissionParameters, componentsToValidate) => {
     event.preventDefault();
@@ -114,7 +115,15 @@ export class Form extends React.PureComponent {
 
     // submission phase
     const { onSubmit, onSuccess } = this.props;
+    const { confirming } = this.state;
+
     try {
+      if (isConfirmNeeded && !confirming) {
+        // Navigate to confirm modal
+        this.setState({ confirming: true });
+        return null;
+      }
+
       const result = await onSubmit(values, {
         ...rest,
         setErrors: this.setErrors,
@@ -141,12 +150,16 @@ export class Form extends React.PureComponent {
     ...formProps
   }) => {
     let { values } = formProps;
+    const { render, style, onCancel, confirmModalProps } = this.props;
+    const isConfirmNeeded = !!confirmModalProps;
+    const { confirming } = this.state;
 
     // we need this func for nested forms
     // as the original submitForm() will trigger validation automatically
     const submitForm = this.createSubmissionHandler({
       isSubmitting,
       getValues: () => values,
+      isConfirmNeeded,
       ...formProps,
     });
 
@@ -156,9 +169,8 @@ export class Form extends React.PureComponent {
       values = newValues;
       originalSetValues(newValues);
     };
-    const navigateToConfirmModal = () => {
-      this.setState({ confirming: true });
-    };
+
+    // onBack and onConfirm used for ConfirmModal
     const onBack = () => {
       this.setState({ confirming: false });
     };
@@ -167,9 +179,6 @@ export class Form extends React.PureComponent {
       submitForm(...props);
     };
 
-    const { render, style, onCancel, confirmModalProps } = this.props;
-    const isConfirmNeeded = !!confirmModalProps;
-    const { confirming } = this.state;
     return (
       <>
         {isConfirmNeeded && (
@@ -188,7 +197,7 @@ export class Form extends React.PureComponent {
               setValues,
               isValid,
               isSubmitting,
-              submitForm: isConfirmNeeded ? navigateToConfirmModal : submitForm,
+              submitForm,
               clearForm: () => formProps.resetForm({}),
             })}
           </form>
