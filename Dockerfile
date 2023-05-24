@@ -59,3 +59,7 @@ COPY --from=build-server /app/node_modules/ node_modules/
 
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
+
+# explicitly reconfigure the port
+RUN echo '{"port":3000}' > config/local.json
+EXPOSE 3000
