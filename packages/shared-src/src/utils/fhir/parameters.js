@@ -5,11 +5,16 @@ import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
+  FHIR_MAX_RESOURCES_PER_PAGE,
 } from '../../constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
-const { parameters: PARAMETERS_CONFIG } = config?.integrations?.fhir || {};
+// Extract config values with a fallback
+// _COUNT_CONFIG_MAX needs to be at least as big as the default
+const _COUNT_CONFIG = config?.integrations?.fhir?.parameters?._count || {};
+const _COUNT_CONFIG_DEFAULT = _COUNT_CONFIG?.default || FHIR_MAX_RESOURCES_PER_PAGE;
+const _COUNT_CONFIG_MAX = Math.max(_COUNT_CONFIG?.max || 0, _COUNT_CONFIG_DEFAULT);
 
 export function normaliseParameter([key, param], overrides = {}) {
   const defaultSchema = DEFAULT_SCHEMA_FOR_TYPE[param.type];
@@ -50,8 +55,8 @@ export const RESULT_PARAMETERS = {
       .number()
       .integer()
       .min(0) // equivalent to _summary=count
-      .max(PARAMETERS_CONFIG?._count?.max)
-      .default(PARAMETERS_CONFIG?._count?.default),
+      .max(_COUNT_CONFIG_MAX)
+      .default(_COUNT_CONFIG_DEFAULT),
   },
   _page: {
     type: FHIR_SEARCH_PARAMETERS.SPECIAL,
