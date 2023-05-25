@@ -1,15 +1,9 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
-import styled from 'styled-components';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
-import { Heading3, BodyText } from '../../components/Typography';
-
-const StyledBodyText = styled(BodyText)`
-  margin-bottom: 28px;
-  white-space: pre-line;
-`;
+import { BodyText, Heading3 } from '../../components/Typography';
 
 export const screen2ValidationSchema = yup.object().shape({
   labTestTypeIds: yup
@@ -75,9 +69,9 @@ export const LabRequestFormScreen2 = props => {
     <>
       <div style={{ gridColumn: '1 / -1' }}>
         <Heading3 mb="12px">{subheading}</Heading3>
-        <StyledBodyText width="500px" mb="28px" color="textTertiary">
+        <BodyText width="500px" mb="28px" color="textTertiary">
           {instructions}
-        </StyledBodyText>
+        </BodyText>
         <Field
           name={
             requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL ? 'labTestTypeIds' : 'panelIds'
