@@ -5,50 +5,12 @@ import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 
-// If header is longer than 24 characters, split it into two lines
-const splitHeaderIfNeeded = header => {
-  const findMiddleSpacePosition = string => {
-    const middleIndex = Math.floor(string.length / 2);
-    let leftIndex = middleIndex;
-    let rightIndex = middleIndex;
-
-    while (leftIndex >= 0 || rightIndex < string.length) {
-      if (string[leftIndex] === ' ') {
-        return leftIndex;
-      }
-      if (string[rightIndex] === ' ') {
-        return rightIndex;
-      }
-
-      leftIndex--;
-      rightIndex++;
-    }
-
-    return -1; // Return -1 if no space is found
-  };
-
-  let middleSpacePosition = -1;
-  if (header.length > 24) {
-    middleSpacePosition = findMiddleSpacePosition(header);
-  }
-  const headerStrings =
-    middleSpacePosition === -1
-      ? [header]
-      : [header.slice(0, middleSpacePosition), header.slice(middleSpacePosition + 1)];
-
-  return headerStrings;
-};
-
 const Column = ({ header, appointments, onAppointmentUpdated }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
-  const headerStrings = splitHeaderIfNeeded(header);
-
   return (
     <>
-      <ColumnHeader className="location">
-        {headerStrings.map(headerString => (
-          <ColumnHeaderLine>{headerString}</ColumnHeaderLine>
-        ))}
+      <ColumnHeader className="location" $headerLength={header.length}>
+        {header}
       </ColumnHeader>
       <ColumnBody className="appointments">
         {appointmentsByStartTime.map(appt => (
@@ -122,14 +84,17 @@ const Container = styled.div`
   width: fit-content;
 `;
 
+// If header is longer than 24 characters, split it into two lines. Width expands if needed.
 const ColumnHeader = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  width: ${({ $headerLength }) => ($headerLength > 24 ? `${($headerLength * 15) / 2}px` : '100%')};
   border: 1px solid ${Colors.outline};
   border-right: none;
   font-weight: bold;
   padding: 0.75em 1.5em;
-  align-items: center;
+  text-align: center;
   background-color: ${Colors.white};
   position: sticky;
   top: 0;
@@ -137,11 +102,6 @@ const ColumnHeader = styled.div`
   :nth-last-of-type(2) {
     border-right: 1px solid ${Colors.outline};
   }
-`;
-
-const ColumnHeaderLine = styled.div`
-  text-align: center;
-  width: max-content;
 `;
 
 const ColumnBody = styled.div`
