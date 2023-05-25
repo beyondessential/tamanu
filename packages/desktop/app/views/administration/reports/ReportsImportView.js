@@ -16,7 +16,6 @@ import {
   TextField,
 } from '../../../components';
 import { FileChooserField } from '../../../components/Field/FileChooserField';
-import { useAuth } from '../../../contexts/Auth';
 import { ReportSelectField } from './ReportsSelectFields';
 import { Colors } from '../../../constants';
 
@@ -102,7 +101,6 @@ export const ReportsImportView = () => {
   const api = useApi();
   const queryClient = useQueryClient();
   const [feedback, setFeedback] = useState(null);
-  const { currentUser } = useAuth();
 
   const handleSubmit = async payload => {
     try {

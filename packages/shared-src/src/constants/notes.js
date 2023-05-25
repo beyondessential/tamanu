@@ -10,6 +10,7 @@ export const NOTE_RECORD_TYPES = {
 
 export const NOTE_TYPES = {
   TREATMENT_PLAN: 'treatmentPlan',
+  ADMISSION: 'admission',
   MEDICAL: 'medical',
   SURGICAL: 'surgical',
   NURSING: 'nursing',

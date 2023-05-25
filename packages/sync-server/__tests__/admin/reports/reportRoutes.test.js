@@ -109,6 +109,7 @@ describe('reportRoutes', () => {
         'status',
         'notes',
         'queryOptions',
+        'active',
         'createdBy',
       ];
       const additionalKeys = Object.keys(res.body[0]).filter(k => !allowedKeys.includes(k));

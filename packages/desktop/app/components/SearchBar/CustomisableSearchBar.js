@@ -110,8 +110,10 @@ export const CustomisableSearchBar = ({
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
                   if (Object.keys(values).length === 0) return;
-                  clearForm();
                   onSearch({});
+                  // ClearForm needed to be deferred in order ensure that it re-initializes to an empty
+                  // state rather than the previous state
+                  setTimeout(() => clearForm(), 0);
                 }}
               >
                 Clear

@@ -215,7 +215,7 @@
     "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
     "electron-debug": "^2.0.0",
-    "formik": "^1.5.2",
+    "formik": "^2.2.9",
     "fs-jetpack": "^2.2.2",
     "history": "^4.7.2",
     "iso-lang-codes": "^2.1.1",

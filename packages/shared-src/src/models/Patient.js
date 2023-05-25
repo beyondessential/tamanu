@@ -106,7 +106,7 @@ export class Patient extends Model {
     const { models } = this.sequelize;
     const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
 
-    const { where: optWhere = {}, include = [], ...optRest } = queryOptions;
+    const { where: optWhere = {}, include = [], includeNotGiven = true, ...optRest } = queryOptions;
 
     if (include.length === 0) {
       include.push(
@@ -118,7 +118,19 @@ export class Patient extends Model {
         {
           model: models.Location,
           as: 'location',
-          include: ['locationGroup'],
+          include: ['locationGroup', 'facility'],
+        },
+        {
+          model: models.Department,
+          as: 'department',
+        },
+        {
+          model: models.User,
+          as: 'recorder',
+        },
+        {
+          model: models.ReferenceData,
+          as: 'notGivenReason',
         },
       );
     }
@@ -131,18 +143,20 @@ export class Patient extends Model {
       });
     }
 
-    const results = await models.AdministeredVaccine.findAll({
+    const { count, rows } = await models.AdministeredVaccine.findAndCountAll({
       order: [['date', 'DESC']],
       ...optRest,
       include,
       where: {
         '$encounter.patient_id$': this.id,
-        status: VACCINE_STATUS.GIVEN,
+        status: JSON.parse(includeNotGiven)
+          ? { [Op.in]: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN] }
+          : VACCINE_STATUS.GIVEN,
         ...optWhere,
       },
     });
 
-    const data = results.map(x => x.get({ plain: true }));
+    const data = rows.map(x => x.get({ plain: true }));
 
     for (const record of data) {
       if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
@@ -150,7 +164,7 @@ export class Patient extends Model {
       }
     }
 
-    return data;
+    return { count, data };
   }
 
   async getCovidClearanceLabTests(queryOptions) {
