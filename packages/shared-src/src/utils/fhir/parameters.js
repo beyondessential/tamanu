@@ -1,13 +1,15 @@
 import * as yup from 'yup';
+import config from 'config';
 
 import {
   FHIR_SEARCH_PARAMETERS,
-  FHIR_MAX_RESOURCES_PER_PAGE,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from '../../constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
+
+const { parameters: PARAMETERS_CONFIG } = config.integrations.fhir;
 
 export function normaliseParameter([key, param], overrides = {}) {
   const defaultSchema = DEFAULT_SCHEMA_FOR_TYPE[param.type];
@@ -48,8 +50,8 @@ export const RESULT_PARAMETERS = {
       .number()
       .integer()
       .min(0) // equivalent to _summary=count
-      .max(FHIR_MAX_RESOURCES_PER_PAGE)
-      .default(FHIR_MAX_RESOURCES_PER_PAGE),
+      .max(PARAMETERS_CONFIG._count.max)
+      .default(PARAMETERS_CONFIG._count.default),
   },
   _page: {
     type: FHIR_SEARCH_PARAMETERS.SPECIAL,
