@@ -118,8 +118,8 @@ export const VaccineForm = ({
     ...initialValues,
     status,
     recorderId: user.id,
-    locationId: locationId,
-    departmentId: departmentId,
+    locationId,
+    departmentId,
   });
 
   const consentSchema =
