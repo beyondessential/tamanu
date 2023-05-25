@@ -77,7 +77,7 @@ export const VaccineForm = ({
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   const user = useSelector(authUserSelector);
 
-  const [locationAndDepartment, error] = useBackendEffect(
+  const [locationAndDepartment, error, isLoading] = useBackendEffect(
     async ({ models }) => {
       if (initialValues?.locationId && initialValues?.departmentId) {
         return { locationId: initialValues.locationId, departmentId: initialValues.departmentId };
@@ -104,15 +104,15 @@ export const VaccineForm = ({
     [patientId, initialValues?.locationId, initialValues?.departmentId],
   );
 
-  const { locationId, departmentId } = locationAndDepartment || {};
-
   if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if (!locationId || !departmentId) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
+
+  const { locationId, departmentId } = locationAndDepartment || {};
 
   const newInitialValues = createInitialValues({
     ...initialValues,
