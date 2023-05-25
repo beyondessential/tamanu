@@ -146,6 +146,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
           defaultLabel="Priority"
           component={SelectField}
           options={imagingPriorities}
+          size="small"
         />
       )}
       {status && (
