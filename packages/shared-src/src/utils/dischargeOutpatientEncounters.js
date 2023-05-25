@@ -1,8 +1,21 @@
-import { endOfDay, startOfDay, parseISO } from 'date-fns';
+import { endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
+
+export const getDischargeOutPatientEncountersWhereClause = () => {
+  const today = getCurrentDateString();
+
+  return {
+    encounterType: 'clinic',
+    endDate: null,
+    startDate: {
+      [Op.lt]: today,
+    },
+  };
+};
 
 export const dischargeOutpatientEncounters = async (
   models,
@@ -10,15 +23,7 @@ export const dischargeOutpatientEncounters = async (
   batchSize = 1000,
   batchSleepAsyncDurationInMilliseconds = 50,
 ) => {
-  const startOfToday = startOfDay(new Date());
-
-  const where = {
-    encounterType: 'clinic',
-    endDate: null,
-    startDate: {
-      [Op.lt]: startOfToday,
-    },
-  };
+  const where = getDischargeOutPatientEncountersWhereClause();
 
   // If ids are passed in then we narrow down the encounters to only these ids
   if (ids && ids.length) {
