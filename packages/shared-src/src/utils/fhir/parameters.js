@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import config from 'config';
+import { log } from '../../services/logging';
 
 import {
   FHIR_SEARCH_PARAMETERS,
@@ -15,6 +16,10 @@ import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 const _COUNT_CONFIG = config?.integrations?.fhir?.parameters?._count || {};
 export const _COUNT_CONFIG_DEFAULT = _COUNT_CONFIG?.default || FHIR_MAX_RESOURCES_PER_PAGE;
 const _COUNT_CONFIG_MAX = Math.max(_COUNT_CONFIG?.max || 0, _COUNT_CONFIG_DEFAULT);
+
+if (config?.integrations?.fhir?.enabled && _COUNT_CONFIG_DEFAULT > _COUNT_CONFIG?.max) {
+  log.warn('FHIR _count config default value is bigger than the max.');
+}
 
 export function normaliseParameter([key, param], overrides = {}) {
   const defaultSchema = DEFAULT_SCHEMA_FOR_TYPE[param.type];
