@@ -9,7 +9,7 @@ import {
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
-const { parameters: PARAMETERS_CONFIG } = config.integrations.fhir;
+const { parameters: PARAMETERS_CONFIG } = config?.integrations?.fhir || {};
 
 export function normaliseParameter([key, param], overrides = {}) {
   const defaultSchema = DEFAULT_SCHEMA_FOR_TYPE[param.type];
@@ -50,8 +50,8 @@ export const RESULT_PARAMETERS = {
       .number()
       .integer()
       .min(0) // equivalent to _summary=count
-      .max(PARAMETERS_CONFIG._count.max)
-      .default(PARAMETERS_CONFIG._count.default),
+      .max(PARAMETERS_CONFIG?._count?.max)
+      .default(PARAMETERS_CONFIG?._count?.default),
   },
   _page: {
     type: FHIR_SEARCH_PARAMETERS.SPECIAL,
