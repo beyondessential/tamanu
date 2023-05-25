@@ -148,7 +148,7 @@ export const TestSelectorInput = ({
   const {
     selectableName,
     label = labelConfig.subheading,
-    searchFieldPlaceholder = 'search',
+    searchFieldPlaceholder = 'Search',
   } = labelConfig;
   const [searchQuery, setSearchQuery] = useState({
     labTestCategoryId: '',
