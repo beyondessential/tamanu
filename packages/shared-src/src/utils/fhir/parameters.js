@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import config from 'config';
-//import { log } from '../../services/logging';
+// import { log } from '../../services/logging';
 
 import {
   FHIR_SEARCH_PARAMETERS,
