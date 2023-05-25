@@ -1,4 +1,8 @@
-import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import {
+  LAB_TEST_STATUSES,
+  LAB_REQUEST_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+} from 'shared/constants';
 import config from 'config';
 import Chance from 'chance';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
@@ -156,9 +160,30 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  it('lab test types should not show up in individual workflow when visibilityStatus set to "panelsOnly"', async () => {
-    // create 6 lab test types (3 should have onlyPanels)
-    const { data, count } = await app.get('/v1/labTestType');
+  it('lab test types should not be fetched directly from general labTestType get route when visibilityStatus set to "panelsOnly"', async () => {
+    const makeLabTestType = async visibilityStatus => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const { id } = category;
+
+      await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        visibilityStatus,
+        labTestCategoryId: id,
+      });
+    };
+    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+
+    const {
+      body: { data, count },
+    } = await app.get('/v1/labTestType');
     expect(count).toBe(3);
     data.forEach(labTestType => {
       expect(labTestType.visibilityStatus).toBe('panelsOnly');
