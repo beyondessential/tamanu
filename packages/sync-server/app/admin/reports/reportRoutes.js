@@ -156,13 +156,13 @@ reportsRouter.get(
 reportsRouter.post(
   '/import',
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, user } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
     } = store;
 
-    const { name, file, userId, dryRun } = body;
+    const { name, file, dryRun } = body;
     const versionData = await readJSON(file);
 
     if (versionData.versionNumber)
@@ -199,7 +199,7 @@ reportsRouter.post(
 
           await ReportDefinitionVersion.create({
             ...versionData,
-            userId,
+            userId: user.id,
             versionNumber,
             reportDefinitionId: definition.id,
           });

@@ -127,7 +127,6 @@ export const ReportsImportView = () => {
         onSubmit={handleSubmit}
         validationSchema={schema}
         initialValues={{
-          userId: currentUser.id,
           dryRun: true,
         }}
         showInlineErrorsOnly
