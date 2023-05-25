@@ -11,7 +11,21 @@ fi
 if [[ "$1" == "healthcheck" ]]; then
   # used as healthcheck command in ECS
   set -eo pipefail
-  curl http://localhost:3000 | jq '.index == true' | grep -F true
+
+  # rest of the arguments are those used to start the container
+  # that can be used to determine what kind of healthcheck to run
+  shift
+
+  case "$1" in
+    serve)
+      curl http://localhost:3000 | jq '.index == true' | grep -F true
+      ;;
+    # TODO: healthcheck for task runner (check process is running?)
+    *)
+      echo "Unknown healthcheck type: $1"
+      exit 0 # assume success
+      ;;
+  esac
 elif which "$1" >/dev/null; then
   # if the first arg is a binary, run it
   # that provides a convenient way to run arbitrary commands in the container
