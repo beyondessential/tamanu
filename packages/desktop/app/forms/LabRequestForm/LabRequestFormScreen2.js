@@ -6,30 +6,8 @@ import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
 
 export const screen2ValidationSchema = yup.object().shape({
-  labTestTypeIds: yup
-    .array()
-    .of(yup.string())
-    .when('requestFormType', {
-      is: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(1, 'Please select at least one test')
-        .required(),
-      otherwise: yup.array().of(yup.string()),
-    }),
-  panelIds: yup
-    .array()
-    .of(yup.string())
-    .when('requestFormType', {
-      is: LAB_REQUEST_FORM_TYPES.PANEL,
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(1, 'Please select at least one panel')
-        .required(),
-      otherwise: yup.array().of(yup.string()),
-    }),
+  labTestTypeIds: yup.array().of(yup.string()),
+  panelIds: yup.array().of(yup.string()),
   labTestPanelId: yup.string(),
   notes: yup.string(),
 });
@@ -64,6 +42,8 @@ export const LabRequestFormScreen2 = props => {
 
   const labelConfig = useMemo(() => SECTION_LABELS[requestFormType], [requestFormType]);
   const { subheading, instructions } = labelConfig;
+
+  console.log(props);
 
   return (
     <>
