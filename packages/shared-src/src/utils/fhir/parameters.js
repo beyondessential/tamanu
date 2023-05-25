@@ -13,7 +13,7 @@ import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 // Extract config values with a fallback
 // _COUNT_CONFIG_MAX needs to be at least as big as the default
 const _COUNT_CONFIG = config?.integrations?.fhir?.parameters?._count || {};
-const _COUNT_CONFIG_DEFAULT = _COUNT_CONFIG?.default || FHIR_MAX_RESOURCES_PER_PAGE;
+export const _COUNT_CONFIG_DEFAULT = _COUNT_CONFIG?.default || FHIR_MAX_RESOURCES_PER_PAGE;
 const _COUNT_CONFIG_MAX = Math.max(_COUNT_CONFIG?.max || 0, _COUNT_CONFIG_DEFAULT);
 
 export function normaliseParameter([key, param], overrides = {}) {
