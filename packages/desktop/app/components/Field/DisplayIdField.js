@@ -4,6 +4,7 @@ import { Tooltip, InputAdornment, Checkbox } from '@material-ui/core';
 import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import { LocalisedField } from './LocalisedField';
 import { Field } from './Field';
+import { SearchField } from './SearchField';
 
 const FieldContainer = styled(LocalisedField)`
   .MuiOutlinedInput-adornedEnd {
@@ -34,6 +35,7 @@ export const DisplayIdField = props => (
     {...props}
     name="displayId"
     className="display-field"
+    component={SearchField}
     InputProps={{
       endAdornment: (
         <InputAdornment position="end">
