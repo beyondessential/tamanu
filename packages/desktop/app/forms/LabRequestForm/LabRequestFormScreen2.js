@@ -43,8 +43,6 @@ export const LabRequestFormScreen2 = props => {
   const labelConfig = useMemo(() => SECTION_LABELS[requestFormType], [requestFormType]);
   const { subheading, instructions } = labelConfig;
 
-  console.log(props);
-
   return (
     <>
       <div style={{ gridColumn: '1 / -1' }}>
