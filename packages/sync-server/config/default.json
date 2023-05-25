@@ -248,6 +248,12 @@
       "worker": {
         "enabled": true, // the materialisation worker
         "concurrency": 100
+      },
+      "parameters": {
+        "_count": {
+          "default": 20,
+          "max": 20
+        }
       }
     },
     "omniLab": {
