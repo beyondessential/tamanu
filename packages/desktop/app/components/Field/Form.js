@@ -6,7 +6,6 @@ import { Typography } from '@material-ui/core';
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES } from '../../constants';
-import { ConfirmModal } from '../ConfirmModal';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -40,7 +39,6 @@ export class Form extends React.PureComponent {
     super();
     this.state = {
       validationErrors: {},
-      onConfirmModal: false,
     };
   }
 
@@ -75,7 +73,6 @@ export class Form extends React.PureComponent {
     setSubmitting,
     getValues,
     setStatus,
-    isConfirmNeeded,
     ...rest
   }) => async (event, submissionParameters, componentsToValidate) => {
     event.preventDefault();
@@ -115,15 +112,7 @@ export class Form extends React.PureComponent {
 
     // submission phase
     const { onSubmit, onSuccess } = this.props;
-    const { onConfirmModal } = this.state;
-
     try {
-      if (isConfirmNeeded && !onConfirmModal) {
-        // Navigate to confirm modal
-        this.setState({ onConfirmModal: true });
-        return null;
-      }
-
       const result = await onSubmit(values, {
         ...rest,
         setErrors: this.setErrors,
@@ -150,16 +139,12 @@ export class Form extends React.PureComponent {
     ...formProps
   }) => {
     let { values } = formProps;
-    const { render, style, onCancel, confirmModalProps } = this.props;
-    const isConfirmNeeded = !!confirmModalProps;
-    const { onConfirmModal } = this.state;
 
     // we need this func for nested forms
     // as the original submitForm() will trigger validation automatically
     const submitForm = this.createSubmissionHandler({
       isSubmitting,
       getValues: () => values,
-      isConfirmNeeded,
       ...formProps,
     });
 
@@ -170,38 +155,20 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    // onBack and onConfirm used for ConfirmModal
-    const onBack = () => {
-      this.setState({ onConfirmModal: false });
-    };
-    const onConfirm = (...props) => {
-      this.setState({ onConfirmModal: false });
-      submitForm(...props);
-    };
+    const { render, style } = this.props;
 
     return (
       <>
-        {isConfirmNeeded && (
-          <ConfirmModal
-            open={onConfirmModal}
-            onCancel={onCancel}
-            onConfirm={onConfirm}
-            onBack={onBack}
-            {...confirmModalProps}
-          />
-        )}
-        {!onConfirmModal && (
-          <form style={style} onSubmit={submitForm} noValidate>
-            {render({
-              ...formProps,
-              setValues,
-              isValid,
-              isSubmitting,
-              submitForm,
-              clearForm: () => formProps.resetForm({}),
-            })}
-          </form>
-        )}
+        <form style={style} onSubmit={submitForm} noValidate>
+          {render({
+            ...formProps,
+            setValues,
+            isValid,
+            isSubmitting,
+            submitForm,
+            clearForm: () => formProps.resetForm({}),
+          })}
+        </form>
         <ScrollToError />
       </>
     );
