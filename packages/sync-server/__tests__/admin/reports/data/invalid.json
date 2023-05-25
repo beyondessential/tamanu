@@ -1,0 +1,22 @@
+{
+    "versionNumber": 1,
+    "query": "select * from p"atients limit 0",
+    "queryOptions": {
+      "defaultDateRange": "allTime",
+      "dataSources": [
+        "thisFacility"
+      ],
+      "parameters": [
+        {
+          "parameterField": "ParameterSuggesterSelectField",
+          "label": "Area",
+          "name": "locationGroup",
+          "suggesterEndpoint": "locationGroup"
+        }
+      ]
+    },
+    "status": "published",
+    "notes": "Report doing absolutely nothing"
+  }
+}
+

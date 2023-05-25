@@ -37,7 +37,7 @@ const ParameterMultiselectField = ({ name, ...props }) => (
 
 const EmptyField = styled.div``;
 
-const PARAMETER_FIELD_COMPONENTS = {
+export const PARAMETER_FIELD_COMPONENTS = {
   VillageField,
   LabTestLaboratoryField,
   PractitionerField,

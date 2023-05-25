@@ -1,9 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
-import { NotFoundError } from 'shared/errors';
-import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants';
-import { sanitizeFilename } from './utils';
+import { QueryTypes, Sequelize } from 'sequelize';
+import { NotFoundError, InvalidOperationError } from 'shared/errors';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from 'shared/constants';
+import { readJSON, sanitizeFilename, verifyQuery } from './utils';
+import { DryRun } from '../errors';
 
 export const reportsRouter = express.Router();
 
@@ -50,6 +51,15 @@ reportsRouter.get(
         'status',
         'notes',
         'queryOptions',
+        [
+          store.sequelize.literal(`version_number = (
+            SELECT MAX(version_number)
+            FROM report_definition_versions AS rdv
+            WHERE rdv.report_definition_id = "ReportDefinitionVersion".report_definition_id
+            AND rdv.status = '${REPORT_STATUSES.PUBLISHED}'
+          )`),
+          'active',
+        ],
       ],
       order: [['versionNumber', 'DESC']],
       include: [
@@ -61,6 +71,43 @@ reportsRouter.get(
       ],
     });
     res.send(versions);
+  }),
+);
+
+reportsRouter.post(
+  '/:reportId/versions',
+  asyncHandler(async (req, res) => {
+    const { store, params, body } = req;
+    const {
+      models: { ReportDefinitionVersion },
+      sequelize,
+    } = store;
+    const { reportId } = params;
+
+    if (body.versionNumber)
+      throw new InvalidOperationError('Cannot create a report with a version number');
+
+    await verifyQuery(body.query, body.queryOptions.parameters, store);
+    await sequelize.transaction(
+      {
+        // Prevents race condition when determining the next version number
+        isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+      },
+      async () => {
+        const latestVersion = await ReportDefinitionVersion.findOne({
+          where: { reportDefinitionId: reportId },
+          attributes: ['versionNumber'],
+          order: [['versionNumber', 'DESC']],
+        });
+        const nextVersionNumber = (latestVersion?.versionNumber || 0) + 1;
+        const version = await ReportDefinitionVersion.create({
+          ...body,
+          versionNumber: nextVersionNumber,
+          reportDefinitionId: reportId,
+        });
+        res.send(version);
+      },
+    );
   }),
 );
 
@@ -103,5 +150,73 @@ reportsRouter.get(
       filename,
       data: Buffer.from(data),
     });
+  }),
+);
+
+reportsRouter.post(
+  '/import',
+  asyncHandler(async (req, res) => {
+    const { store, body, user } = req;
+    const {
+      models: { ReportDefinition, ReportDefinitionVersion },
+      sequelize,
+    } = store;
+
+    const { name, file, dryRun } = body;
+    const versionData = await readJSON(file);
+
+    if (versionData.versionNumber)
+      throw new InvalidOperationError('Cannot import a report with a version number');
+
+    await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
+
+    const feedback = {};
+    try {
+      await sequelize.transaction(
+        {
+          // Prevents race condition when determining the next version number
+          isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+        },
+        async () => {
+          const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
+            where: {
+              name,
+            },
+            include: [
+              {
+                model: ReportDefinitionVersion,
+                as: 'versions',
+                attributes: ['versionNumber'],
+                order: [['versionNumber', 'DESC']],
+                limit: 1,
+              },
+            ],
+          });
+
+          const versionNumber = createdDefinition
+            ? 1
+            : (definition.versions?.[0]?.versionNumber || 0) + 1;
+
+          await ReportDefinitionVersion.create({
+            ...versionData,
+            userId: user.id,
+            versionNumber,
+            reportDefinitionId: definition.id,
+          });
+
+          feedback.createdDefinition = createdDefinition;
+          feedback.versionNumber = versionNumber;
+
+          if (dryRun) {
+            throw new DryRun();
+          }
+        },
+      );
+    } catch (err) {
+      if (!(err instanceof DryRun)) {
+        throw err;
+      }
+    }
+    res.send(feedback);
   }),
 );

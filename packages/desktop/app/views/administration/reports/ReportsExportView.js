@@ -2,22 +2,17 @@ import React from 'react';
 import { promises as fs } from 'fs';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from 'shared/constants/reports';
-import {
-  Field,
-  Form,
-  FormGrid,
-  OutlinedButton,
-  RadioField,
-  SelectField,
-} from '../../../components';
+import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
 import { useApi } from '../../../api';
+import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { useElectron } from '../../../contexts/Electron';
+import { Colors } from '../../../constants';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
+  background-color: ${Colors.white};
 `;
 const InnerContainer = styled.div`
   padding: 20px;
@@ -42,58 +37,6 @@ const SuccessMessage = ({ onClick, filePath }) => (
     Successfully exported to <StyledLink onClick={onClick}>{filePath}</StyledLink>
   </>
 );
-
-const ReportSelectField = ({ error, helperText, ...props }) => {
-  const api = useApi();
-  const { data: reportData = [], error: fetchError } = useQuery(['reportList'], () =>
-    api.get('admin/reports'),
-  );
-  const options = reportData.map(({ id, name }) => ({
-    label: name,
-    value: id,
-  }));
-
-  return (
-    <SelectField
-      {...props}
-      options={options}
-      error={!!fetchError || props.error}
-      helperText={fetchError?.message || props.helperText}
-    />
-  );
-};
-
-const VersionSelectField = ({ error, helperText, ...props }) => {
-  const api = useApi();
-  const {
-    form: {
-      values: { reportId },
-    },
-  } = props;
-
-  const query = useQuery(
-    ['reportVersions', reportId],
-    () => api.get(`admin/reports/${reportId}/versions`),
-    {
-      enabled: !!reportId,
-    },
-  );
-
-  const { data: versionData, error: fetchError } = query;
-  const options = versionData?.map(({ id, versionNumber }) => ({
-    label: versionNumber,
-    value: id,
-  }));
-
-  return (
-    <SelectField
-      {...props}
-      options={options}
-      error={!!fetchError || props.error}
-      helperText={fetchError?.message || props.helperText}
-    />
-  );
-};
 
 export const ReportsExportView = () => {
   const api = useApi();

@@ -140,9 +140,6 @@ export class ReportDefinitionVersion extends Model {
   forResponse(includeRelationIds = false) {
     const {
       updatedAtSyncTick,
-      createdAt,
-      updatedAt,
-      deletedAt,
       reportDefinitionId,
       ReportDefinitionId,
       userId,

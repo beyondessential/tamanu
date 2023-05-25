@@ -4,10 +4,12 @@ import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { ReportsExportView } from './ReportsExportView';
+import { ReportsEditorView } from './ReportsEditorView';
+import { ReportsImportView } from './ReportsImportView';
 
 const OuterContainer = styled.div`
   position: relative;
-  background-color: ${Colors.white};
+  background-color: ${Colors.background};
   min-height: 100%;
 `;
 
@@ -23,15 +25,25 @@ const TabContainer = styled.div`
 `;
 
 const REPORT_TABS = {
-  EDIT: 'edit',
+  EDITOR: 'editor',
   IMPORT: 'import',
   EXPORT: 'export',
 };
 
 export const ReportsAdminView = () => {
-  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EXPORT);
+  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDITOR);
 
   const tabs = [
+    {
+      label: 'Editor',
+      key: REPORT_TABS.EDITOR,
+      icon: 'fa fa-edit',
+      render: () => (
+        <TabContainer>
+          <ReportsEditorView />
+        </TabContainer>
+      ),
+    },
     {
       label: 'Export',
       key: REPORT_TABS.EXPORT,
@@ -39,6 +51,16 @@ export const ReportsAdminView = () => {
       render: () => (
         <TabContainer>
           <ReportsExportView />
+        </TabContainer>
+      ),
+    },
+    {
+      label: 'Import',
+      key: REPORT_TABS.IMPORT,
+      icon: 'fa fa-file-import',
+      render: () => (
+        <TabContainer>
+          <ReportsImportView />
         </TabContainer>
       ),
     },
