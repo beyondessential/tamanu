@@ -5,11 +5,11 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import CancelIcon from '@material-ui/icons/Cancel';
 import Tooltip from '@material-ui/core/Tooltip';
+import { Box } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
 import { DateDisplay } from '../DateDisplay';
-import { Box } from '@material-ui/core';
 
 const StyledTooltip = withStyles(() => ({
   tooltip: {
@@ -36,7 +36,6 @@ export const Appointment = ({ appointment, onUpdated }) => {
 
   return (
     <StyledTooltip
-      s
       arrow
       open={detailOpen}
       onClose={closeDetail}
