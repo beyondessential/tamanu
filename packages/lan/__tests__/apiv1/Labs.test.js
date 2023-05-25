@@ -156,6 +156,15 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
+  it('lab test types should not show up in individual workflow when visibilityStatus set to "panelsOnly"', async () => {
+    // create 6 lab test types (3 should have onlyPanels)
+    const { data, count } = await app.get('/v1/labTestType');
+    expect(count).toBe(3);
+    data.forEach(labTestType => {
+      expect(labTestType.visibilityStatus).toBe('panelsOnly');
+    });
+  });
+
   describe('Filtering by allFacilities', () => {
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
