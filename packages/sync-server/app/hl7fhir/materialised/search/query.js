@@ -5,11 +5,11 @@ import * as yup from 'yup';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_PREFIXES,
-  FHIR_MAX_RESOURCES_PER_PAGE,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from 'shared/constants';
 import { Invalid, Unsupported, RESULT_PARAMETER_NAMES } from 'shared/utils/fhir';
+import { FHIR_COUNT_CONFIG_DEFAULT } from 'shared/utils/fhir/parameters';
 
 export function pushToQuery(query, param, value) {
   const insert = query.get(param) ?? [];
@@ -19,7 +19,7 @@ export function pushToQuery(query, param, value) {
 
 export function buildSearchQuery(query, parameters, FhirResource) {
   const sql = {
-    limit: FHIR_MAX_RESOURCES_PER_PAGE,
+    limit: FHIR_COUNT_CONFIG_DEFAULT,
   };
 
   if (query.has('_sort')) {

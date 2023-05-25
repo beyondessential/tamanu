@@ -240,7 +240,13 @@
       "requireClientHeaders": true
     },
     "fhir": {
-      "enabled": false
+      "enabled": false,
+      "parameters": {
+        "_count": {
+          "default": 20,
+          "max": 20
+        }
+      }
     },
     "omniLab": {
       "enabled": false,
