@@ -12,12 +12,12 @@ import {
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
 // Extract config values with a fallback
-// _COUNT_CONFIG_MAX needs to be at least as big as the default
-const _COUNT_CONFIG = config?.integrations?.fhir?.parameters?._count || {};
-export const _COUNT_CONFIG_DEFAULT = _COUNT_CONFIG?.default || FHIR_MAX_RESOURCES_PER_PAGE;
-const _COUNT_CONFIG_MAX = Math.max(_COUNT_CONFIG?.max || 0, _COUNT_CONFIG_DEFAULT);
+// FHIR_COUNT_CONFIG_MAX needs to be at least as big as the default
+const FHIR_COUNT_CONFIG = config?.integrations?.fhir?.parameters?._count || {};
+export const FHIR_COUNT_CONFIG_DEFAULT = FHIR_COUNT_CONFIG?.default || FHIR_MAX_RESOURCES_PER_PAGE;
+const FHIR_COUNT_CONFIG_MAX = Math.max(FHIR_COUNT_CONFIG?.max || 0, FHIR_COUNT_CONFIG_DEFAULT);
 
-if (config?.integrations?.fhir?.enabled && _COUNT_CONFIG_DEFAULT > _COUNT_CONFIG?.max) {
+if (config?.integrations?.fhir?.enabled && FHIR_COUNT_CONFIG_DEFAULT > FHIR_COUNT_CONFIG?.max) {
   log.warn('FHIR _count config default value is bigger than the max.');
 }
 
@@ -60,8 +60,8 @@ export const RESULT_PARAMETERS = {
       .number()
       .integer()
       .min(0) // equivalent to _summary=count
-      .max(_COUNT_CONFIG_MAX)
-      .default(_COUNT_CONFIG_DEFAULT),
+      .max(FHIR_COUNT_CONFIG_MAX)
+      .default(FHIR_COUNT_CONFIG_DEFAULT),
   },
   _page: {
     type: FHIR_SEARCH_PARAMETERS.SPECIAL,
