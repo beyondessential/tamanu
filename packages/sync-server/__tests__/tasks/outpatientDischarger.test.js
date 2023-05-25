@@ -60,7 +60,7 @@ describe('Outpatient discharger', () => {
 
   it('Should discharge a patient that was left open a few days ago', async () => {
     const enc = await createEncounter({
-      startDate: sub(new Date(), { days: 2 }),
+      startDate: toDateTimeString(sub(new Date(), { days: 2 })),
     });
     await runDischarger();
     await enc.reload();
@@ -73,7 +73,7 @@ describe('Outpatient discharger', () => {
   // probably not critical.
   xit('Should discharge a patient that was left open at 11:58pm last night', async () => {
     const enc = await createEncounter({
-      startDate: sub(startOfDay(new Date()), { minutes: 2 }),
+      startDate: toDateTimeString(sub(startOfDay(new Date()), { minutes: 2 })),
     });
     console.log('enc starting at', enc.startDate);
     await runDischarger();
@@ -84,7 +84,7 @@ describe('Outpatient discharger', () => {
 
   it('Should not discharge a patient whose encounter opened today', async () => {
     const enc = await createEncounter({
-      startDate: sub(new Date(), { minutes: 2 }),
+      startDate: toDateTimeString(sub(new Date(), { minutes: 2 })),
     });
     await runDischarger();
     await enc.reload();
@@ -93,7 +93,7 @@ describe('Outpatient discharger', () => {
 
   it('Should not discharge a patient on a non-clinic encounter', async () => {
     const enc = await createEncounter({
-      startDate: sub(new Date(), { minutes: 2 }),
+      startDate: toDateTimeString(sub(new Date(), { minutes: 2 })),
       encounterType: ENCOUNTER_TYPES.ADMISSION,
     });
     await runDischarger();
@@ -103,7 +103,7 @@ describe('Outpatient discharger', () => {
 
   it('Should discharge a patient to the same day as their startDate', async () => {
     const enc = await createEncounter({
-      startDate: sub(new Date(), { days: 6 }),
+      startDate: toDateTimeString(sub(new Date(), { days: 6 })),
     });
     await runDischarger();
     await enc.reload();
