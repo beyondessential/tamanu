@@ -1,3 +1,5 @@
+import { VISIBILITY_STATUSES } from './importable';
+
 export const LAB_REQUEST_STATUSES = {
   RECEPTION_PENDING: 'reception_pending',
   RESULTS_PENDING: 'results_pending',
@@ -66,4 +68,9 @@ export const LAB_REQUEST_FORM_TYPES = {
   PANEL: 'panel',
   INDIVIDUAL: 'individual',
   SUPERSET: 'superset',
+};
+
+export const LAB_TEST_TYPE_VISIBILITY_STATUSES = {
+  ...VISIBILITY_STATUSES,
+  PANEL_ONLY: 'panelOnly',
 };

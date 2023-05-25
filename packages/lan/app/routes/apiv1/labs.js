@@ -11,6 +11,7 @@ import {
   NOTE_TYPES,
   NOTE_RECORD_TYPES,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
@@ -385,6 +386,9 @@ labTestType.get(
           as: 'category',
         },
       ],
+      where: {
+        visibilityStatus: { [Op.not]: LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY },
+      },
     });
     res.send(labTests);
   }),
