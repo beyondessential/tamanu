@@ -104,11 +104,13 @@ export const VaccineForm = ({
     [patientId, initialValues?.locationId, initialValues?.departmentId],
   );
 
+  const { locationId, departmentId } = locationAndDepartment || {};
+
   if (error) {
     return <ErrorScreen error={error} />;
   }
 
-  if (!locationAndDepartment?.locationId || !locationAndDepartment?.departmentId) {
+  if (!locationId || !departmentId) {
     return <LoadingScreen />;
   }
 
@@ -116,8 +118,8 @@ export const VaccineForm = ({
     ...initialValues,
     status,
     recorderId: user.id,
-    locationId: locationAndDepartment?.locationId,
-    departmentId: locationAndDepartment?.departmentId,
+    locationId: locationId,
+    departmentId: departmentId,
   });
 
   const consentSchema =
