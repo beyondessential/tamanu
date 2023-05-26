@@ -138,7 +138,7 @@ const CustomCheckField = ({ field, lineOne, lineTwo }) => (
       icon={<i className="far fa-square" />}
       checkedIcon={<i className="far fa-check-square" />}
       color="primary"
-      value="checked"
+      value="true"
       checked={field.value || false}
       name={field.name}
       onChange={field.onChange}

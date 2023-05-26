@@ -24,7 +24,7 @@ const CheckField = ({ field }) => (
       name={field.name}
       checked={!!field.value}
       onChange={field.onChange}
-      value="checked"
+      value="true"
       color="primary"
     />
   </Tooltip>
