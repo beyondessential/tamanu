@@ -12,6 +12,10 @@ env:
   NODE_OPTIONS: "--max-old-space-size=6144"
   NODE_ENV: test
 
+permissions:
+  contents: read
+  id-token: write # OIDC token for ECR login
+
 jobs:
   build:
     strategy:
