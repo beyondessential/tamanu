@@ -44,7 +44,7 @@ jobs:
           - name: meta
             path: meta-server
 
-    name: Build ${{ matrix.package.name }} container for ${{ matrix.platform }}
+    name: Build ${{ matrix.package.name }} container for ${{ matrix.platform.arch }}
     runs-on: ubuntu-latest
 
     steps:
