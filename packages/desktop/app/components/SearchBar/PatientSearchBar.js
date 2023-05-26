@@ -5,6 +5,7 @@ import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 
 const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];
+
 export const PatientSearchBar = React.memo(
   ({ onSearch, searchParameters, suggestByFacility = true }) => {
     const locationGroupSuggester = useSuggester('locationGroup', {
