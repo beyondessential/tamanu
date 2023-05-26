@@ -54,21 +54,27 @@ jobs:
       
       - uses: actions/github-script@v6
         id: image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPO_NAME: ${{ matrix.package.name }}
         with:
           result-encoding: string
           script: |
-            const registry = '${{ steps.login-ecr.outputs.registry }}';
-            const repo_name = '${{ matrix.package.name }}';
+            const registry = process.env.REGISTRY;
+            const repo_name = process.env.REPO_NAME;
             const image = `${registry}/tamanu/${repo_name}`;
             console.log({ registry, repo_name, image });
             return image;
       - uses: actions/github-script@v6
         id: ref
+        env:
+          GH_HEAD_REF: ${{ github.head_ref }}
+          GH_REF_NAME: ${{ github.ref_name }}
         with:
           result-encoding: string
           script: |
-            const head_ref = github.context.payload.pull_request?.head.ref;
-            const ref_name = github.context.ref.replace('refs/heads/', '');
+            const head_ref = process.env.GH_HEAD_REF;
+            const ref_name = process.env.GH_REF_NAME;
             const ref = head_ref ?? ref_name;
             console.log({ head_ref, ref_name, ref });
             const cleaned = ref
