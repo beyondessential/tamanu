@@ -78,7 +78,6 @@ jobs:
             const ref = head_ref ?? ref_name;
             console.log({ head_ref, ref_name, ref });
             const cleaned = ref
-              .replace(/^(feature\/|fix\/|epic\//, '')
               .replace(/[^a-z0-9-]/g, '-')
               .replace(/-+/g, '-')
               .replace(/^-|-$/g, '');
