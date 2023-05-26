@@ -11,15 +11,10 @@ on:
   push:
     branches:
       - dev
-      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.run_id }}
   cancel-in-progress: true
-
-env:
-  NODE_OPTIONS: '--max-old-space-size=6144'
-  NODE_ENV: test
 
 permissions:
   contents: read
