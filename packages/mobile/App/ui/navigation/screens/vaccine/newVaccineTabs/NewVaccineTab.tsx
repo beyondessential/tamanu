@@ -135,6 +135,7 @@ export const NewVaccineTabComponent = ({
       <VaccineForm
         onSubmit={recordVaccination}
         onCancel={onPressCancel}
+        patientId={selectedPatient.id}
         initialValues={{
           ...vaccineObject,
           date: vaccineObject.date ? parseISO(vaccineObject.date) : null,
