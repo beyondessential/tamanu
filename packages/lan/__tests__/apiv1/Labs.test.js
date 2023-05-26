@@ -176,12 +176,12 @@ describe('Labs', () => {
     };
 
     await models.LabTestType.truncate({ cascade: true });
-    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
-    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
-    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
-    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
-    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
-    makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
 
     const { body: results } = await app.get('/v1/labTestType');
     expect(results.length).toBe(3);
