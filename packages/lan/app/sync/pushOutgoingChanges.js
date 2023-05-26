@@ -4,14 +4,14 @@ import { calculatePageLimit } from './calculatePageLimit';
 // with importing modules in the way that this module is used. See the
 // FacilitySyncManager.test.js ('edge cases' suite) or SAV-249
 let __testSpyEnabled = false;
-export const __testOnlyCalls = [];
+export const __testOnlyPushOutGoingChangesSpy = [];
 export const __testOnlyEnableSpy = () => {
   __testSpyEnabled = true;
 };
 
 export const pushOutgoingChanges = async (centralServer, sessionId, changes) => {
   if (__testSpyEnabled) {
-    __testOnlyCalls.push({ centralServer, sessionId, changes });
+    __testOnlyPushOutGoingChangesSpy.push({ centralServer, sessionId, changes });
   }
 
   let startOfPage = 0;
