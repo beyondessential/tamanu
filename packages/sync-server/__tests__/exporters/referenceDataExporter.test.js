@@ -3,8 +3,7 @@ import { createDummyPatient } from 'shared/demoData/patients';
 import { parseDate } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
-import * as excelUtils from '../../app/admin/exporter/excelUtils';
-import { writeExcelFile } from '../../app/admin/referenceDataExporter/excelUtils';
+import { writeExcelFile } from '../../app/admin/exporter/excelUtils';
 import {
   createAdministeredVaccineData,
   createAllergy,
@@ -16,8 +15,8 @@ import {
   createDataForEncounter,
 } from './referenceDataUtils';
 
-jest.mock('../../app/admin/referenceDataExporter/excelUtils', () => {
-  const originalModule = jest.requireActual('../../app/admin/referenceDataExporter/excelUtils');
+jest.mock('../../app/admin/exporter/excelUtils', () => {
+  const originalModule = jest.requireActual('../../app/admin/exporter/excelUtils');
 
   return {
     __esModule: true,
@@ -299,7 +298,7 @@ describe('Reference data exporter', () => {
     await exporter(models, {
       1: 'administeredVaccine',
     });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -390,7 +389,6 @@ describe('Reference data exporter', () => {
 });
 
 describe('Permission and Roles exporter', () => {
-  const writeExcelFileSpy = jest.spyOn(excelUtils, 'writeExcelFile').mockReturnValue({});
   let ctx;
   let models;
 
@@ -410,7 +408,7 @@ describe('Permission and Roles exporter', () => {
 
   it('Should export a file with no data if there is no permission and roles', async () => {
     await exporter(models, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [],
@@ -438,7 +436,7 @@ describe('Permission and Roles exporter', () => {
     });
 
     await exporter(models, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -480,7 +478,7 @@ describe('Permission and Roles exporter', () => {
     });
 
     await exporter(models, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
