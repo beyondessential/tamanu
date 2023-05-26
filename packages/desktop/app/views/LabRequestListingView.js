@@ -23,7 +23,7 @@ export const LabRequestListingView = React.memo(() => {
         <LabRequestsTable
           loadEncounter={loadEncounter}
           loadLabRequest={loadLabRequest}
-          searchParameter={searchParameters}
+          searchParameters={searchParameters}
         />
       </ContentPane>
     </PageContainer>
