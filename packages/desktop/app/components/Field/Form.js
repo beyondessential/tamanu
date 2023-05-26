@@ -180,6 +180,7 @@ export class Form extends React.PureComponent {
       showInlineErrorsOnly,
       validateOnChange,
       validateOnBlur,
+      initialValues,
       ...props
     } = this.props;
     const { validationErrors } = this.state;
@@ -198,6 +199,7 @@ export class Form extends React.PureComponent {
           onSubmit={onSubmit}
           validateOnChange={validateOnChange}
           validateOnBlur={validateOnBlur}
+          initialValues={initialValues}
           initialStatus={{
             page: 1,
           }}
