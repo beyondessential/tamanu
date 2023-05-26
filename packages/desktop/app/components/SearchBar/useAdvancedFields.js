@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 
 export const useAdvancedFields = (advancedFields, searchParameters) => {
+  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
   // If one of the advanced fields is filled in when landing on the screen,
   // show the advanced fields section
   const defaultFilterOpen = useCallback(() => {
@@ -14,6 +15,5 @@ export const useAdvancedFields = (advancedFields, searchParameters) => {
     setShowAdvancedFields(defaultFilterOpen());
   }, [defaultFilterOpen]);
 
-  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
   return { showAdvancedFields, setShowAdvancedFields };
 };
