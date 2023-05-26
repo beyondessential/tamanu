@@ -7,6 +7,11 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Colors } from '../../constants';
 
+/* 
+  Note that the Checkbox value prop only controls what gets sent,
+  not the checkbox state. It's also worth noting that usually forms
+  will send the state value, not the prop value.
+*/
 const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     icon={<i className="far fa-square" />}
