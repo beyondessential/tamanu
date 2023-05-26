@@ -112,14 +112,12 @@ patientVaccineRoutes.put(
 
 async function getVaccinationDescription(models, scheduledVaccineId) {
   const scheduledVaccine = await models.ScheduledVaccine.findByPk(scheduledVaccineId, {
-    include: 'vaccine'
+    include: 'vaccine',
   });
-  
-  return [
-    'Vaccination recorded for',
-    scheduledVaccine.vaccine?.name, 
-    scheduledVaccine.schedule,
-  ].filter(Boolean).join(' ');
+
+  return ['Vaccination recorded for', scheduledVaccine.vaccine?.name, scheduledVaccine.schedule]
+    .filter(Boolean)
+    .join(' ');
 }
 
 patientVaccineRoutes.post(
@@ -180,7 +178,10 @@ patientVaccineRoutes.post(
           examinerId: vaccineData.recorderId,
           locationId,
           departmentId,
-          reasonForEncounter: await getVaccinationDescription(req.models, vaccineData.scheduledVaccineId),
+          reasonForEncounter: await getVaccinationDescription(
+            req.models,
+            vaccineData.scheduledVaccineId,
+          ),
         });
         await newEncounter.update({
           endDate: vaccineData.date || currentDate,

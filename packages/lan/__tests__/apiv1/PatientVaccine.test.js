@@ -404,7 +404,7 @@ describe('PatientVaccine', () => {
       expect(vaccine.date).toBe(null);
     });
 
-    it.only('Should create a vaccine encounter with the correct description', async () => {
+    it('Should create a vaccine encounter with the correct description', async () => {
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_STATUS.GIVEN,
         scheduledVaccineId: scheduled1.id,
