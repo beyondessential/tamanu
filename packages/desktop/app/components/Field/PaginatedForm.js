@@ -120,6 +120,7 @@ export const PaginatedForm = ({
   SuccessScreen = DefaultSuccessScreen,
   validationSchema,
   initialValues,
+  formProps,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
   const [showStepper, setShowStepper] = useState(true);
@@ -198,6 +199,7 @@ export const PaginatedForm = ({
           />
         );
       }}
+      {...formProps}
     />
   );
 };

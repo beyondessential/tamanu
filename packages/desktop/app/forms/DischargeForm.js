@@ -332,6 +332,7 @@ export const DischargeForm = ({
           })
           .required(),
       })}
+      formProps={{ enableReinitialize: true, showInlineErrorsOnly: true, validateOnChange: true }}
     >
       <FormGrid>
         <EncounterOverview encounter={encounter} />
