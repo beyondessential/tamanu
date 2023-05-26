@@ -34,8 +34,9 @@ jobs:
         platform:
           - arch: linux/amd64
             prefix: ''
-          - arch: linux/arm64
-            prefix: linarm-
+          # - arch: linux/arm64
+          #   prefix: linarm-
+          # it works, but it's just too slow
         package:
           - name: central
             path: sync-server
