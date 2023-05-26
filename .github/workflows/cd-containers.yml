@@ -32,8 +32,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - linux/amd64
-          - linux/arm64
+          - arch: linux/amd64
+            prefix: ''
+          - arch: linux/arm64
+            prefix: linarm-
         package:
           - name: central
             path: sync-server
@@ -60,7 +62,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install QEMU
-        if: matrix.platform == 'linux/arm64'
+        if: matrix.platform.arch == 'linux/arm64'
         uses: docker/setup-qemu-action@v2
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v2
@@ -103,11 +105,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ matrix.platform.arch }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           push: true
           tags: |
-            ${{ steps.image.outputs.result }}:${{ github.sha }}
-            ${{ steps.image.outputs.result }}:${{ steps.ref.outputs.result }}
+            ${{ steps.image.outputs.result }}:${{ matrix.platform.prefix }}${{ github.sha }}
+            ${{ steps.image.outputs.result }}:${{ matrix.platform.prefix }}${{ steps.ref.outputs.result }}
