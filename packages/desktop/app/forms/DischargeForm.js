@@ -3,15 +3,15 @@ import * as yup from 'yup';
 import Select from 'react-select';
 import styled from 'styled-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import { Divider as BaseDivider } from '@material-ui/core';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
-import { Colors } from '../constants';
+import { Colors, FORM_STATUSES } from '../constants';
 import { useApi } from '../api';
 
 import { foreignKey } from '../utils/validation';
 
 import {
-  Form,
   Field,
   AutocompleteField,
   TextField,
@@ -20,6 +20,8 @@ import {
   LocalisedField,
   useLocalisedSchema,
   CheckControl,
+  PaginatedForm,
+  DefaultFormScreen,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
@@ -27,11 +29,28 @@ import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { ConfirmCancelBackRow, ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import { MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
-import { ConfirmModal } from '../components/ConfirmModal';
+import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
+
+const Divider = styled(BaseDivider)`
+  margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
+`;
+
+const ConfirmContent = styled.div`
+  text-align: left;
+  padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px 0;
+  h3 {
+    color: ${Colors.alert};
+    font-size: 16px;
+    font-weight: 500;
+  }
+  p {
+    font-size: 14px;
+    font-weight: 400;
+  }
+`;
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -209,31 +228,48 @@ const EncounterOverview = ({
   );
 };
 
-const ModalContent = styled.div`
-  text-align: left;
-  padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px 0;
-  h3 {
-    color: ${Colors.alert};
-    font-size: 16px;
-    font-weight: 500;
-  }
-  p {
-    font-size: 14px;
-    font-weight: 400;
-  }
-`;
+const DischargeFormScreen = props => {
+  const { validateForm, onStepForward, setStatus, onCancel } = props;
 
-const ConfirmModalContent = () => (
-  <ModalContent>
-    <h3>Confirm patient discharge</h3>
-    <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
-  </ModalContent>
-);
-
-const confirmModalProps = {
-  title: 'Discharge patient',
-  customContent: <ConfirmModalContent />,
+  return (
+    <DefaultFormScreen
+      customBottomRow={
+        <ConfirmCancelRow
+          onCancel={onCancel}
+          onConfirm={async () => {
+            const { isCanceled, ...formErrors } = await validateForm();
+            if (Object.keys(formErrors).length > 0) {
+              // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
+              // without hitting submit button
+              setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+            } else {
+              onStepForward();
+            }
+          }}
+          confirmText="Finalise"
+          cancelText="Cancel"
+        />
+      }
+      {...props}
+    />
+  );
 };
+
+const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
+  <div className="ConfirmContent">
+    <ConfirmContent>
+      <h3>Confirm patient discharge</h3>
+      <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
+    </ConfirmContent>
+    <Divider />
+    <ConfirmCancelBackRow
+      onBack={onStepBack}
+      onConfirm={submitForm}
+      onCancel={onCancel}
+      confirmText="Save"
+    />
+  </div>
+);
 
 export const DischargeForm = ({
   dispositionSuggester,
@@ -271,8 +307,32 @@ export const DischargeForm = ({
     })();
   }, [api, encounter.id]);
 
-  const renderForm = ({ submitForm }) => (
-    <>
+  return (
+    <PaginatedForm
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      initialValues={getDischargeInitialValues(
+        encounter,
+        dischargeNotePages,
+        medicationInitialValues,
+      )}
+      FormScreen={DischargeFormScreen}
+      SummaryScreen={DischargeSummaryScreen}
+      validationSchema={yup.object().shape({
+        endDate: yup.date().required(),
+        discharge: yup
+          .object()
+          .shape({
+            dischargerId: foreignKey('Discharging physician is a required field'),
+          })
+          .shape({
+            dispositionId: getLocalisedSchema({
+              name: 'dischargeDisposition',
+            }),
+          })
+          .required(),
+      })}
+    >
       <FormGrid>
         <EncounterOverview encounter={encounter} />
         <Field
@@ -315,39 +375,7 @@ export const DischargeForm = ({
           rows={4}
           style={{ gridColumn: '1 / -1' }}
         />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
       </FormGrid>
-    </>
-  );
-
-  return (
-    <Form
-      onSubmit={handleSubmit}
-      onCancel={onCancel}
-      render={renderForm}
-      confirmModalProps={confirmModalProps}
-      enableReinitialize
-      showInlineErrorsOnly
-      validateOnChange
-      initialValues={getDischargeInitialValues(
-        encounter,
-        dischargeNotePages,
-        medicationInitialValues,
-      )}
-      validationSchema={yup.object().shape({
-        endDate: yup.date().required(),
-        discharge: yup
-          .object()
-          .shape({
-            dischargerId: foreignKey('Discharging physician is a required field'),
-          })
-          .shape({
-            dispositionId: getLocalisedSchema({
-              name: 'dischargeDisposition',
-            }),
-          })
-          .required(),
-      })}
-    />
+    </PaginatedForm>
   );
 };

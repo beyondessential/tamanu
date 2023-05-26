@@ -45,13 +45,14 @@ const DefaultSuccessScreen = ({ onClose }) => (
   </div>
 );
 
-const DefaultFormScreen = ({
+export const DefaultFormScreen = ({
   screenComponent,
   values,
   onStepForward,
   onStepBack,
   isLast,
   screenIndex,
+  customBottomRow,
 }) => {
   const { children } = screenComponent.props;
   const questionComponents = React.Children.toArray(children);
@@ -67,6 +68,7 @@ const DefaultFormScreen = ({
   return (
     <>
       {updatedScreenComponent}
+      {customBottomRow || (
       <Box mt={4} display="flex" justifyContent="space-between">
         <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
           Back
@@ -75,6 +77,7 @@ const DefaultFormScreen = ({
           {isLast ? 'Submit' : 'Continue'}
         </Button>
       </Box>
+      )}
     </>
   );
 };
@@ -140,7 +143,7 @@ export const PaginatedForm = ({
       onSubmit={onSubmitForm}
       validationSchema={validationSchema}
       initialValues={initialValues}
-      render={({ submitForm, values, setValues }) => {
+      render={({ submitForm, validateForm, values, setValues, setStatus }) => {
         if (screenIndex <= maxIndex) {
           const screenComponent = formScreens.find((screen, i) =>
             i === screenIndex ? screen : null,
@@ -166,6 +169,8 @@ export const PaginatedForm = ({
                 screenIndex={screenIndex}
                 setShowStepper={setShowStepper}
                 onCancel={onCancel}
+                validateForm={validateForm}
+                setStatus={setStatus}
               />
             </>
           );
