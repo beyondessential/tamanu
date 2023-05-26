@@ -51,6 +51,33 @@ jobs:
 
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
+      
+      - uses: actions/github-script@v6
+        id: image
+        with:
+          result-encoding: string
+          script: |
+            const registry = '${{ steps.login-ecr.outputs.registry }}';
+            const repo_name = '${{ matrix.package.name }}';
+            const image = `${registry}/tamanu/${repo_name}`;
+            console.log({ registry, repo_name, image });
+            return image;
+      - uses: actions/github-script@v6
+        id: ref
+        with:
+          result-encoding: string
+          script: |
+            const head_ref = github.context.payload.pull_request?.head.ref;
+            const ref_name = github.context.ref.replace('refs/heads/', '');
+            const ref = head_ref ?? ref_name;
+            console.log({ head_ref, ref_name, ref });
+            const cleaned = ref
+              .replace(/^(feature\/|fix\/|epic\//, '')
+              .replace(/[^a-z0-9-]/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-|-$/g, '');
+            console.log({ cleaned });
+            return cleaned;
 
       - name: Build and push
         uses: docker/build-push-action@v4
@@ -62,5 +89,5 @@ jobs:
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ github.sha }}
-            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ github.ref_name }}
+            ${{ steps.image.outputs.result }}:${{ github.sha }}
+            ${{ steps.image.outputs.result }}:${{ steps.ref.outputs.result }}
