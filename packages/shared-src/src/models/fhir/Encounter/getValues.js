@@ -71,6 +71,7 @@ function classificationCode({ encounterType }) {
     case ENCOUNTER_TYPES.ADMISSION:
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
+    case ENCOUNTER_TYPES.VACCINATION:
       return FHIR_ENCOUNTER_CLASS_CODE.IMP;
 
     case ENCOUNTER_TYPES.EMERGENCY:
