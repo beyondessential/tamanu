@@ -13,6 +13,7 @@ export enum EncounterType {
   Observation = 'observation',
   Triage = 'triage',
   SurveyResponse = 'surveyResponse',
+  Vaccination = 'vaccination',
 }
 
 export interface IEncounter {

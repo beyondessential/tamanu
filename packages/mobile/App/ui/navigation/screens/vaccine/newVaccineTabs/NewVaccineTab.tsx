@@ -11,7 +11,7 @@ import { StyledSafeAreaView } from '/styled/common';
 import { VaccineForm, VaccineFormValues } from '/components/Forms/VaccineForms';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { useBackend } from '~/ui/hooks';
-import { IPatient } from '~/types';
+import { IPatient, EncounterType } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -62,6 +62,7 @@ export const NewVaccineTabComponent = ({
         {
           department: departmentId,
           location: locationId,
+          encounterType: EncounterType.Vaccination,
         },
       );
 
