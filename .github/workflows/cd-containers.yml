@@ -14,8 +14,23 @@ env:
 
 jobs:
   build:
-    name: Build containers
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+        package:
+          - name: central
+            path: sync-server
+          - name: facility
+            path: lan
+          - name: meta
+            path: meta-server
+
+    name: Build ${{ matrix.package.name }} container for ${{ matrix.platform }}
     runs-on: ubuntu-latest
+
     steps:
     - uses: docker/setup-qemu-action@v2
     - uses: docker/setup-buildx-action@v2
@@ -37,8 +52,11 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ matrix.platform }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: PACKAGE_PATH=${{ matrix.package.path }}
         push: true
         tags: |
-          ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}
-          ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.ref_name }}
+          ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ github.sha }}
+          ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ github.ref_name }}
