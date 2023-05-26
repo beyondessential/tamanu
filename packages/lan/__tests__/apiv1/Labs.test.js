@@ -184,6 +184,7 @@ describe('Labs', () => {
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
 
     const { body: results } = await app.get('/v1/labTestType');
+    console.log(results)
     expect(results.length).toBe(3);
     results.forEach(labTestType => {
       expect(labTestType.visibilityStatus).not.toBe('panelsOnly');
