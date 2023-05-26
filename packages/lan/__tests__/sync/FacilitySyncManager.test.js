@@ -5,7 +5,7 @@ import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fake } from 'shared/test-helpers/fake';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
-import { __testOnlyCalls, __testOnlyEnableSpy } from '../../app/sync/pushOutgoingChanges';
+import { __testOnlyPushOutGoingChangesSpy, __testOnlyEnableSpy } from '../../app/sync/pushOutgoingChanges';
 
 import { createTestContext } from '../utilities';
 
@@ -350,7 +350,7 @@ describe('FacilitySyncManager', () => {
       // check that the snapshot included _both_ patient records (the changes get passed as an
       // argument to pushOutgoingChanges, which we spy on)
       expect(
-        __testOnlyCalls[0].changes
+        __testOnlyPushOutGoingChangesSpy[0].changes
           .filter(c => c.recordType === 'patients')
           .map(c => c.recordId)
           .sort(),
