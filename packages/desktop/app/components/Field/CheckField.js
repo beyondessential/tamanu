@@ -12,7 +12,7 @@ const CheckControl = React.memo(({ value, ...props }) => (
     icon={<i className="far fa-square" />}
     checkedIcon={<i className="far fa-check-square" />}
     checked={value}
-    value="checked"
+    value="true"
     {...props}
   />
 ));
