@@ -50,7 +50,7 @@ rm -rf packages/*/*.config.* || true
 mv -v package.json{.orig,}
 
 # compact to a single node_modules
-# this is quite hacky but we'll change how this works altogether very soon
+# this is quite hacky but we'll change how this works altogether very soon (SAV-263)
 cp -R packages/shared/node_modules/*   node_modules/
 rm -rf packages/$pkg_name/node_modules/@tamanu/shared || true
 cp -R packages/$pkg_name/node_modules/*   node_modules/
