@@ -42,8 +42,9 @@ jobs:
             path: sync-server
           - name: facility
             path: lan
-          - name: meta
-            path: meta-server
+          # - name: meta
+          #   path: meta-server
+          # not yet used
 
     name: Build ${{ matrix.package.name }} container for ${{ matrix.platform.arch }}
     runs-on: ubuntu-latest
