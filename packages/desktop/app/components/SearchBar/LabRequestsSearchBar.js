@@ -18,15 +18,9 @@ import { useLabRequest, LabRequestSearchParamKeys } from '../../contexts/LabRequ
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 
-const ADVANCED_FIELDS_PER_STATUS = {
-  all: ['locationGroupId', 'departmentId', 'laboratory', 'priority', 'allFacilities'],
-  [LAB_REQUEST_STATUSES.PUBLISHED]: [
-    'locationGroupId',
-    'departmentId',
-    'publishedDate',
-    'allFacilities',
-  ],
-};
+const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
+const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
+const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -40,7 +34,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
     publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
   );
 
-  const advancedFields = ADVANCED_FIELDS_PER_STATUS[status || 'all'];
+  const advancedFields = publishedStatus ? PUBLISHED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS;
   const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
     advancedFields,
     searchParameters,

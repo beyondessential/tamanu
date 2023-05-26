@@ -28,15 +28,14 @@ const Spacer = styled.div`
   width: 100%;
 `;
 
-const ADVANCED_FIELDS_PER_STATUS = {
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: [
-    'locationGroupId',
-    'departmentId',
-    'completedAt',
-    'allFacilities',
-  ],
-  all: ['allFacilities'],
-};
+const BASE_ADVANCED_FIELDS = ['allFacilities'];
+const COMPLETED_ADVANCED_FIELDS = [
+  ...BASE_ADVANCED_FIELDS,
+  'locationGroupId',
+  'departmentId',
+  'completedAt',
+];
+const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS];
 
 export const ImagingRequestsSearchBar = ({ status = '' }) => {
   const { getLocalisation } = useLocalisation();
@@ -52,7 +51,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
   );
 
   const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
-    ADVANCED_FIELDS_PER_STATUS[status || 'all'],
+    completedStatus ? COMPLETED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS,
     searchParameters,
   );
   const statusFilter = status ? { status } : {};
