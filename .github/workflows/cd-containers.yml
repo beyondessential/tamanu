@@ -31,10 +31,10 @@ jobs:
         package:
           - name: central
             path: sync-server
-          # - name: facility
-          #   path: lan
-          # - name: meta
-          #   path: meta-server
+          - name: facility
+            path: lan
+          - name: meta
+            path: meta-server
 
     name: Build ${{ matrix.package.name }} container for ${{ matrix.platform }}
     runs-on: ubuntu-latest
