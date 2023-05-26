@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
+import { omit } from 'lodash';
 import { Typography, Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
-import { getVisibleQuestions } from '../../utils';
+import { getVisibleQuestions, getInvisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
 
 const COMPLETE_MESSAGE = `
@@ -69,14 +70,14 @@ export const DefaultFormScreen = ({
     <>
       {updatedScreenComponent}
       {customBottomRow || (
-      <Box mt={4} display="flex" justifyContent="space-between">
-        <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
-          Back
-        </OutlinedButton>
-        <Button color="primary" variant="contained" onClick={onStepForward}>
-          {isLast ? 'Submit' : 'Continue'}
-        </Button>
-      </Box>
+        <Box mt={4} display="flex" justifyContent="space-between">
+          <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
+            Back
+          </OutlinedButton>
+          <Button color="primary" variant="contained" onClick={onStepForward}>
+            {isLast ? 'Submit' : 'Continue'}
+          </Button>
+        </Box>
       )}
     </>
   );
@@ -178,15 +179,14 @@ export const PaginatedForm = ({
         }
 
         const submitVisibleValues = event => {
-          const visibleFields = new Set(
-            getVisibleQuestions(
+          const invisibleFields = new Set(
+            getInvisibleQuestions(
               formScreens.map(s => React.Children.toArray(s.props.children)).flat(),
               values,
             ).map(q => q.props.name),
           );
-          const visibleValues = Object.fromEntries(
-            Object.entries(values).filter(([key]) => visibleFields.has(key)),
-          );
+          const visibleValues = omit({ ...values }, invisibleFields);
+
           setValues(visibleValues);
           submitForm(event);
         };
