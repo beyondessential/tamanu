@@ -23,7 +23,7 @@ const CheckField = ({ field }) => (
       icon={<SpellcheckIcon color="disabled" />}
       checkedIcon={<SpellcheckIcon />}
       name={field.name}
-      value={!!field.value}
+      value={field.value}
       onChange={field.onChange}
       color="primary"
     />
