@@ -1,11 +1,3 @@
-module.exports = {
-  transform: {
-    '^.+\\.[jt]s$': ['@swc/jest'],
-  },
-  setupFiles: ['<rootDir>/__tests__/setup.ts'],
-  testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
-  collectCoverageFrom: ['src/**/*.js', 'src/**/*.ts'],
+const { SWC } = require('../../common.jest.config');
 
-  // workaround for memory leaks
-  workerIdleMemoryLimit: '512MB',
-};
+module.exports = SWC;
