@@ -135,10 +135,7 @@ alongside the checkbox with different stylings.
 const CustomCheckField = ({ field, lineOne, lineTwo }) => (
   <StyledFlexDiv>
     <StyledCheckbox
-      icon={<i className="far fa-square" />}
-      checkedIcon={<i className="far fa-check-square" />}
       color="primary"
-      value="true"
       checked={field.value || false}
       name={field.name}
       onChange={field.onChange}

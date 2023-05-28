@@ -20,12 +20,9 @@ const FieldContainer = styled(LocalisedField)`
 const CheckField = ({ field }) => (
   <Tooltip title="Exact term search">
     <CheckControl
-      icon={<SpellcheckIcon color="disabled" />}
-      checkedIcon={<SpellcheckIcon />}
       name={field.name}
       checked={!!field.value}
       onChange={field.onChange}
-      value="true"
       color="primary"
     />
   </Tooltip>
