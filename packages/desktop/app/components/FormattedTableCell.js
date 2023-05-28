@@ -83,16 +83,19 @@ export const RangeValidatedCell = React.memo(
       // Show full unit in tooltip as its not displayed on table
       tooltip = `${float.toFixed(rounding)}${unit}`;
     }
+
+    const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
+
     return tooltip ? (
       <TableTooltip title={tooltip}>
-        <ClickableCellWrapper onClick={onClick} severity={severity} {...props}>
+        <CellContainer onClick={onClick} severity={severity} {...props}>
           {formattedValue}
-        </ClickableCellWrapper>
+        </CellContainer>
       </TableTooltip>
     ) : (
-      <ClickableCellWrapper onClick={onClick} {...props}>
+      <CellContainer onClick={onClick} {...props}>
         {formattedValue}
-      </ClickableCellWrapper>
+      </CellContainer>
     );
   },
 );
