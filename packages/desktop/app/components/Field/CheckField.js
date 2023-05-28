@@ -60,7 +60,7 @@ export const CheckInput = React.memo(
 );
 
 export const CheckField = React.memo(({ field, ...props }) => (
-  <CheckInput name={field.name} value={field.value || false} onChange={field.onChange} {...props} />
+  <CheckInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 ));
 
 CheckInput.propTypes = {
