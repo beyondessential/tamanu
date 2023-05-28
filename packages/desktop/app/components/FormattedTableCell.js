@@ -57,51 +57,42 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
-export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, ...props }) => {
-  let tooltip = '';
-  let severity = 'info';
-  const { rounding = 0, unit = '' } = config || {};
-  const { normalRange } = validationCriteria || {};
-  const float = parseFloat(value);
-  const formattedValue = isNaN(float)
-    ? capitalize(value) || '-'
-    : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
+export const RangeValidatedCell = React.memo(
+  ({ value, config, validationCriteria, onClick, ...props }) => {
+    let tooltip = '';
+    let severity = 'info';
+    const { rounding = 0, unit = '' } = config || {};
+    const { normalRange } = validationCriteria || {};
+    const float = parseFloat(value);
+    const formattedValue = isNaN(float)
+      ? capitalize(value) || '-'
+      : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
 
-  if (normalRange) {
-    const baseTooltip = `Outside normal range\n`;
-    if (float < normalRange.min) {
-      tooltip = `${baseTooltip} <${normalRange.min}${unit}`;
-      severity = 'alert';
-    } else if (float > normalRange.max) {
-      tooltip = `${baseTooltip} >${normalRange.max}${unit}`;
-      severity = 'alert';
+    if (normalRange) {
+      const baseTooltip = `Outside normal range\n`;
+      if (float < normalRange.min) {
+        tooltip = `${baseTooltip} <${normalRange.min}${unit}`;
+        severity = 'alert';
+      } else if (float > normalRange.max) {
+        tooltip = `${baseTooltip} >${normalRange.max}${unit}`;
+        severity = 'alert';
+      }
     }
-  }
 
-  if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
-    // Show full unit in tooltip as its not displayed on table
-    tooltip = `${float.toFixed(rounding)}${unit}`;
-  }
-  return tooltip ? (
-    <TableTooltip title={tooltip}>
-      <ClickableCellWrapper
-        onClick={() => {
-          console.log(123);
-        }}
-        severity={severity}
-        {...props}
-      >
+    if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
+      // Show full unit in tooltip as its not displayed on table
+      tooltip = `${float.toFixed(rounding)}${unit}`;
+    }
+    return tooltip ? (
+      <TableTooltip title={tooltip}>
+        <ClickableCellWrapper onClick={onClick} severity={severity} {...props}>
+          {formattedValue}
+        </ClickableCellWrapper>
+      </TableTooltip>
+    ) : (
+      <ClickableCellWrapper onClick={onClick} {...props}>
         {formattedValue}
       </ClickableCellWrapper>
-    </TableTooltip>
-  ) : (
-    <ClickableCellWrapper
-      onClick={() => {
-        console.log(123);
-      }}
-      {...props}
-    >
-      {formattedValue}
-    </ClickableCellWrapper>
-  );
-});
+    );
+  },
+);

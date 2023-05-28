@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
@@ -6,6 +6,7 @@ import { Colors } from '../constants';
 import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { EditVitalCellModal } from './EditVitalCellModal';
 
 const StyledTable = styled(Table)`
   table {
@@ -35,6 +36,7 @@ const StyledTable = styled(Table)`
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
+  const [openEditModal, setOpenEditModal] = useState(false);
 
   // create a column for each reading
   const columns = [
@@ -58,6 +60,9 @@ export const VitalsTable = React.memo(() => {
               value={value}
               config={config}
               validationCriteria={validationCriteria}
+              onClick={() => {
+                setOpenEditModal(true);
+              }}
             />
           );
         },
@@ -68,12 +73,20 @@ export const VitalsTable = React.memo(() => {
   ];
 
   return (
-    <StyledTable
-      columns={columns}
-      data={data}
-      elevated={false}
-      isLoading={isLoading}
-      errorMessage={error?.message}
-    />
+    <>
+      <EditVitalCellModal
+        open={openEditModal}
+        onClose={() => {
+          setOpenEditModal(false);
+        }}
+      />
+      <StyledTable
+        columns={columns}
+        data={data}
+        elevated={false}
+        isLoading={isLoading}
+        errorMessage={error?.message}
+      />
+    </>
   );
 });
