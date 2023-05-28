@@ -12,7 +12,7 @@ import { Colors } from '../../constants';
   not the checkbox state. It's also worth noting that usually forms
   will send the state value, not the prop value.
 */
-const CheckControl = React.memo(({ value, ...props }) => (
+export const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     icon={<i className="far fa-square" />}
     checkedIcon={<i className="far fa-check-square" />}
