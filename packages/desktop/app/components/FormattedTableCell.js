@@ -14,6 +14,15 @@ const CellWrapper = styled.div`
   width: fit-content;
 `;
 
+const ClickableCellWrapper = styled(CellWrapper)`
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ severity }) =>
+      severity === 'alert' ? 'rgba(247, 104, 83, 0.4)' : Colors.background};
+  }
+`;
+
 const HeadCellWrapper = styled.div`
   display: block;
   width: fit-content;
@@ -75,11 +84,24 @@ export const RangeValidatedCell = React.memo(({ value, config, validationCriteri
   }
   return tooltip ? (
     <TableTooltip title={tooltip}>
-      <CellWrapper severity={severity} {...props}>
+      <ClickableCellWrapper
+        onClick={() => {
+          console.log(123);
+        }}
+        severity={severity}
+        {...props}
+      >
         {formattedValue}
-      </CellWrapper>
+      </ClickableCellWrapper>
     </TableTooltip>
   ) : (
-    <CellWrapper {...props}>{formattedValue}</CellWrapper>
+    <ClickableCellWrapper
+      onClick={() => {
+        console.log(123);
+      }}
+      {...props}
+    >
+      {formattedValue}
+    </ClickableCellWrapper>
   );
 });
