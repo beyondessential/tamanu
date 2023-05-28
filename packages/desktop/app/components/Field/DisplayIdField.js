@@ -21,7 +21,7 @@ const CheckField = ({ field }) => (
   <Tooltip title="Exact term search">
     <CheckControl
       name={field.name}
-      checked={!!field.value}
+      value={!!field.value}
       onChange={field.onChange}
       color="primary"
     />

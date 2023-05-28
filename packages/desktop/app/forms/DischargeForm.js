@@ -136,7 +136,7 @@ const CustomCheckField = ({ field, lineOne, lineTwo }) => (
   <StyledFlexDiv>
     <StyledCheckbox
       color="primary"
-      checked={field.value || false}
+      value={field.value || false}
       name={field.name}
       onChange={field.onChange}
     />
