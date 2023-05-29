@@ -52,11 +52,6 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
 
   const onSubmit = useCallback(
     async ({ file, ...data }) => {
-      if (!navigator.onLine) {
-        setError(true);
-        return;
-      }
-
       setIsSubmitting(true);
 
       // Read and inject document creation date and type to metadata sent
