@@ -85,13 +85,13 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue }) => {
       </FormGrid>
       <ModalButtonRow>
         <FinaliseAndPrintButton
-          onClick={e => submitForm(e, { submissionType: 'FinaliseAndPrint' })}
+          onClick={e => submitForm(e, { printRequested: true })}
         >
           Finalise & Print
         </FinaliseAndPrintButton>
         <Gap />
         <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-        <Button onClick={e => submitForm(e, { submissionType: 'Finalise' })}>Finalise</Button>
+        <Button onClick={submitForm}>Finalise</Button>
       </ModalButtonRow>
     </>
   );

@@ -77,7 +77,7 @@ export const PatientLetterModal = React.memo(
     const api = useApi();
 
     const onSubmit = useCallback(
-      async ({ submissionType, ...data }) => {
+      async ({ printRequested, ...data }) => {
         setIsSubmitting(true);
 
         const document = await api.post(`${endpoint}/createPatientLetter`, {
@@ -93,12 +93,10 @@ export const PatientLetterModal = React.memo(
         });
         refreshTable();
         setIsSubmitting(false);
+        onClose();
 
-        if (submissionType === 'FinaliseAndPrint') {
-          onClose();
+        if (printRequested) {
           openDocumentPreview(document);
-        } else {
-          onClose();
         }
       },
       [onClose, api, endpoint, refreshTable, openDocumentPreview],
