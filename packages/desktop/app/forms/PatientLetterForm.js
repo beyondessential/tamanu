@@ -41,12 +41,10 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue }) => {
   useEffect(() => {
     const updateValues = async () => {
       const template = await api.get(`patientLetterTemplate/${templateId}`);
-      if (template) {
-        setValues({ 
-          title: template.title,
-          body: template.body,
-        });
-      }
+      setValues({ 
+        title: template.title,
+        body: template.body,
+      });
       setTemplateLoading(false);
     };
 
