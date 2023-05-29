@@ -42,8 +42,10 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue }) => {
     const updateValues = async () => {
       const template = await api.get(`patientLetterTemplate/${templateId}`);
       if (template) {
-        setFieldValue('title', template.title);
-        setFieldValue('body', template.body);
+        setValues({ 
+          title: template.title,
+          body: template.body,
+        });
       }
       setTemplateLoading(false);
     };
