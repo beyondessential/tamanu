@@ -119,23 +119,28 @@ export const Paginator = React.memo(
                 return <PaginationItem {...item} component={NextButton} />;
               }
 
-              // We wanted some custom logic for what pages to show that couldnt be done through the built in boundaryCount and siblingcount
-              // so I needed to create a set of conditions to determine what pages to show and when to show ellipses.
+              // We needed some custom logic for what page numbers to show that couldnt be done through the built in boundaryCount and siblingcount props
+              // so I needed to create a set of conditions to determine what page numbers to show and when to show ellipses.
               const selectedPage = page + 1;
               const pageNumber = item.page;
-              // When we are on the first page, we want to show the first 3 pages and the last page however and when
-              // we are on the last page we want to show the last 3 pages and the first page.
-              const standardRange =
-                selectedPage >= pageNumber - 1 && selectedPage <= pageNumber + 1;
-              const startRange = selectedPage === 1 && pageNumber <= 3;
-              const endRange = selectedPage === numberOfPages && pageNumber >= numberOfPages - 2;
+
               // The standard range for showing page numbers except for the first and last page which
               // we override above is the current page +/- 1
+              const standardRange =
+                selectedPage >= pageNumber - 1 && selectedPage <= pageNumber + 1;
+              // When we are on the first page, we want to show the first 3 pages and the last page however and when
+              // we are on the last page we want to show the last 3 pages and the first page.
+              const startRange = selectedPage === 1 && pageNumber <= 3;
+              const endRange = selectedPage === numberOfPages && pageNumber >= numberOfPages - 2;
+
               const isInRange = standardRange || startRange || endRange;
+
               // We always want to show the first or last page
               const isEndPage = pageNumber === 1 || pageNumber === numberOfPages;
+
               // We dont want to include any ellipsis as we make our own in this custom logic
               const isEllipses = item.type === 'start-ellipsis' || item.type === 'end-ellipsis';
+
               // Conditionally show the page number button if it falls within the defined ranges above
               if ((isInRange || isEndPage) && !isEllipses) {
                 wasLastItemEllipses = false;
