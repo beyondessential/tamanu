@@ -30,11 +30,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [selectedDocument, setSelectedDocument] = useState(null);
 
-  const endpoint = encounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
-
   const isFromEncounter = !!encounter?.id;
-  const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
-
+  
+  const endpoint = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
+  
   const onDownload = useCallback(
     async document => {
       if (!navigator.onLine) {
@@ -84,7 +83,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     },
     [setSelectedDocument, setModalStatus],
   );
-
+      
+  const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
   return (
     <>
       {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
