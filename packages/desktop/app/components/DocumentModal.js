@@ -76,6 +76,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
         if (e instanceof ForbiddenError) {
           throw e; // allow error to be caught by error boundary
         } else {
+          console.error(e);
           setError(true);
           setIsSubmitting(false);
           return;
@@ -86,7 +87,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
       refreshTable();
       setIsSubmitting(false);
     },
-    [setIsSubmitting, handleClose, refreshTable, api, endpoint],
+    [setIsSubmitting, handleClose, refreshTable, api, endpoint, getFileStatus],
   );
 
   useEffect(() => {

@@ -30,9 +30,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   const isFromEncounter = !!encounter?.id;
-  
+
   const endpoint = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
-  
+
   const onDownload = useCallback(
     async document => {
       if (!navigator.onLine) {
@@ -66,7 +66,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         notifyError(error.message);
       }
     },
-    [api, openPath, showSaveDialog],
+    [api, openPath, showSaveDialog, writeFile],
   );
 
   const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
@@ -82,7 +82,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     },
     [setSelectedDocument, setModalStatus],
   );
-      
+
   const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
   return (
     <>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
@@ -15,6 +16,7 @@ import {
   AutocompleteField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { ModalLoader } from '../components/Modal';
 import { OutlinedButton, Button } from '../components';
 import { ModalButtonRow } from '../components/ModalActionRow';
 
@@ -30,29 +32,27 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
-const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue }) => {
+const PatientLetterFormContents = ({ submitForm, onCancel, setValues, values }) => {
   const [templateId, setTemplateId] = useState(null);
-  const [templateLoading, setTemplateLoading] = useState(null);
 
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const patientLetterTemplateSuggester = useSuggester('patientLetterTemplate');
 
+  const { data: template, isLoading: templateLoading } = useQuery(
+    ['patientLetterTemplate', templateId],
+    api.get(`patientLetterTemplate/${templateId}`),
+  );
+
   useEffect(() => {
-    const updateValues = async () => {
-      const template = await api.get(`patientLetterTemplate/${templateId}`);
-      setValues({ 
+    if(template){
+      setValues({
+        ...values,
         title: template.title,
         body: template.body,
       });
-      setTemplateLoading(false);
-    };
-
-    if (templateId) {
-      setTemplateLoading(true);
-      updateValues();
     }
-  }, [templateId, api, setFieldValue]);
+  }, [template, setValues, values])
 
   return (
     <>
@@ -84,9 +84,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue }) => {
         />
       </FormGrid>
       <ModalButtonRow>
-        <FinaliseAndPrintButton
-          onClick={e => submitForm(e, { printRequested: true })}
-        >
+        <FinaliseAndPrintButton onClick={e => submitForm(e, { printRequested: true })}>
           Finalise & Print
         </FinaliseAndPrintButton>
         <Gap />
@@ -100,10 +98,17 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue }) => {
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject }) => {
   const { currentUser } = useAuth();
 
+  const renderForm = props =>
+    props.isSubmitting ? (
+      <ModalLoader loadingText="Please wait while we create your patient letter" />
+    ) : (
+      <PatientLetterFormContents onCancel={onCancel} {...props} />
+    );
+
   return (
     <Form
       onSubmit={onSubmit}
-      render={props => <PatientLetterFormContents onCancel={onCancel} {...props} />}
+      render={renderForm}
       initialValues={{
         date: getCurrentDateString(),
         clinicianId: currentUser.id,
