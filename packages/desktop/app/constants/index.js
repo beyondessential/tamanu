@@ -449,8 +449,7 @@ export const FORM_STATUSES = {
 
 export const DOCUMENT_SOURCE_LABELS = {
   [DOCUMENT_SOURCES.PATIENT_LETTER]: 'Patient Letter',
-  // Handled separately
-  [DOCUMENT_SOURCES.UPLOADED]: null,
+  [DOCUMENT_SOURCES.UPLOADED]: 'Uploaded',
 };
 
 export const SUPPORTED_DOCUMENT_TYPES = {
