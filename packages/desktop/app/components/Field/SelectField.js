@@ -102,8 +102,14 @@ export const SelectInput = ({
   const handleChange = useCallback(
     changedOption => {
       // changedOption is empty if Clear indicator is clicked
+      const {
+        form: {
+          initialValues: { search },
+        },
+      } = props;
       if (!changedOption) {
-        onChange({ target: { value: null, name } });
+        // Send undefined if search bar as we dont want to filter by empty string
+        onChange({ target: { value: search ? undefined : null, name } });
         if (onClear) {
           onClear();
         }
@@ -111,7 +117,7 @@ export const SelectInput = ({
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear],
+    [onChange, name, onClear, props],
   );
 
   const customStyles = {

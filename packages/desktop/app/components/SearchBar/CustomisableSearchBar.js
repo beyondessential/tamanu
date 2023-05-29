@@ -123,7 +123,7 @@ export const CustomisableSearchBar = ({
           {isExpanded && <CustomisableSearchBarGrid>{hiddenFields}</CustomisableSearchBarGrid>}
         </Container>
       )}
-      initialValues={initialValues}
+      initialValues={{ ...initialValues, search: true }}
       enableReinitialize
     />
   );
