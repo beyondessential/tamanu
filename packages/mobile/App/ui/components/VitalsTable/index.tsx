@@ -34,9 +34,10 @@ interface VitalsTableProps {
 */
 const getNormalRangeByAge = (
   validationCriteria: any = {},
-  patientDateOfBirth: string
+  patient: any
 ): ValidationCriteriaNormalRange | undefined => {
   const { normalRange = {} } = validationCriteria;
+  const patientDateOfBirth = patient?.dateOfBirth;
   if (Array.isArray(normalRange) === false) {
     return normalRange;
   }
