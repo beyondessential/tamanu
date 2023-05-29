@@ -30,7 +30,7 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
-const DumbPatientLetterForm = ({ submitForm, onCancel, setFieldValue }) => {
+const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue }) => {
   const [templateId, setTemplateId] = useState(null);
   const [templateLoading, setTemplateLoading] = useState(null);
 
@@ -103,7 +103,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject }) => {
   return (
     <Form
       onSubmit={onSubmit}
-      render={props => <DumbPatientLetterForm onCancel={onCancel} {...props} />}
+      render={props => <PatientLetterFormContents onCancel={onCancel} {...props} />}
       initialValues={{
         date: getCurrentDateString(),
         clinicianId: currentUser.id,
