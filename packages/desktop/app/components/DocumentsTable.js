@@ -91,7 +91,7 @@ export const DocumentsTable = React.memo(
 
     return (
       <DataFetchingTable
-        endpoint={endpoint}
+        endpoint={`${endpoint}/documentMetadata`}
         columns={COLUMNS}
         noDataMessage="No documents found"
         fetchOptions={searchParameters}

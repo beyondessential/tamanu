@@ -96,7 +96,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable
-          endpoint={`${endpoint}/documentMetadata`}
+          endpoint={endpoint}
           searchParameters={searchParameters}
           refreshCount={refreshCount}
           onDownload={onDownload}
