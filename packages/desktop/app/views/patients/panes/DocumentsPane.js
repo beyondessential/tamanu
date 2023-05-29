@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { promises as asyncFs } from 'fs';
 import { extension } from 'mime-types';
 
 import { useApi } from '../../../api';
@@ -23,7 +22,7 @@ const MODAL_STATES = {
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
-  const { showSaveDialog, openPath } = useElectron();
+  const { showSaveDialog, openPath, writeFile } = useElectron();
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
@@ -60,7 +59,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
         // Create file and open it
-        await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
+        await writeFile(fullFilePath, data, { encoding: 'base64' });
         notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
         openPath(fullFilePath);
       } catch (error) {
