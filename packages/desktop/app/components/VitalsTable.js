@@ -7,6 +7,7 @@ import { Colors } from '../constants';
 import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { getNormalRangeByAge } from '../utils';
 
 const StyledTable = styled(Table)`
   table {
@@ -47,8 +48,7 @@ export const VitalsTable = React.memo(() => {
         <RangeTooltipCell
           value={value}
           config={config}
-          validationCriteria={validationCriteria}
-          patient={patient}
+          validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
         />
       ),
     },
@@ -64,8 +64,7 @@ export const VitalsTable = React.memo(() => {
             <RangeValidatedCell
               value={value}
               config={config}
-              validationCriteria={validationCriteria}
-              patient={patient}
+              validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
             />
           );
         },
