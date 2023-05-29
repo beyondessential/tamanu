@@ -20,6 +20,7 @@ export const VaccineTableTabs = (): ReactElement => {
       tabBarOptions={{
         labelStyle: { textTransform: 'none' },
       }}
+      swipeEnabled={false}
     >
       <Tabs.Screen
         options={{
