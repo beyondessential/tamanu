@@ -2,9 +2,9 @@ import { trace, propagation, context } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { UUID_NIL, JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
-import { verifyToken, stripUser, findUser, findUserById } from './utils';
+import { verifyToken, stripUser, findUserById } from './utils';
 
 const FAKE_TOKEN = 'fake-token';
 
@@ -28,7 +28,7 @@ export const userMiddleware = ({ secret }) =>
     }
 
     if (allowDummyToken && token === FAKE_TOKEN) {
-      req.user = await findUser(store.models, config.auth.initialUser.email);
+      req.user = await store.models.User.systemUser();
       next();
       return;
     }

@@ -6,10 +6,5 @@
     "host": "CONFIG_SYNC_DB_HOST",
     "port": "CONFIG_SYNC_DB_PORT",
     "verbose": "CONFIG_SYNC_DB_VERBOSE"
-  },
-  "auth": {
-    "initialUser": {
-      "email": "CONFIG_DUMMY_USER_EMAIL"
-    }
   }
 }
