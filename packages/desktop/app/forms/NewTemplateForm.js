@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
 import * as yup from 'yup';
+import styled from 'styled-components';
+import { Link } from '@material-ui/core';
 
 import { TEMPLATE_TYPES } from 'shared/constants';
 
@@ -7,7 +9,25 @@ import { Form, Field, TextField, MultilineTextField, SelectField } from '../comp
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../constants';
 
-import { ConfirmClearRow } from '../components/ButtonRow';
+import { Button } from '../components/Button';
+import { ButtonRow } from '../components/ButtonRow';
+
+const ConfirmButton = styled(Button)`
+  min-width: 90px;
+`;
+
+const CenteredLink = styled(Link)`
+  align-self: center;
+`;
+
+export const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
+  <ButtonRow>
+    <CenteredLink onClick={onClear}>Clear</CenteredLink>
+    <ConfirmButton color="primary" onClick={onConfirm}>
+      Confirm
+    </ConfirmButton>
+  </ButtonRow>
+));
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />

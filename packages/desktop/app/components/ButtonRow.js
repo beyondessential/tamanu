@@ -1,6 +1,5 @@
 import React, { Children } from 'react';
 import styled from 'styled-components';
-import { Link } from '@material-ui/core';
 
 import { Button, OutlinedButton } from './Button';
 
@@ -42,30 +41,6 @@ export const ConfirmCancelRow = React.memo(
   }) => (
     <ButtonRow {...props}>
       {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
-      {onConfirm && (
-        <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
-          {confirmText}
-        </ConfirmButton>
-      )}
-    </ButtonRow>
-  ),
-);
-
-const CenteredLink = styled(Link)`
-  align-self: center;
-`;
-
-export const ConfirmClearRow = React.memo(
-  ({
-    onClear,
-    onConfirm,
-    confirmText = 'Confirm',
-    confirmColor = 'primary',
-    confirmDisabled,
-    ...props
-  }) => (
-    <ButtonRow {...props}>
-      {onClear && <CenteredLink onClick={onClear}>Clear</CenteredLink>}
       {onConfirm && (
         <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
           {confirmText}
