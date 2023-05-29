@@ -36,7 +36,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       setErrors,
       errors,
       setStatus,
-      status
+      status,
     } = props;
 
     // 1. get a list of visible fields
