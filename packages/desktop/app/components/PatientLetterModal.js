@@ -8,7 +8,6 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../api';
 import { Modal, ModalLoader } from './Modal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
-// import { PatientLetterForm } from '../forms/PatientLetterForm';
 import { Colors, SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from '.';
 
