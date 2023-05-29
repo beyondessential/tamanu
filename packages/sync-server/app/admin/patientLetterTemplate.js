@@ -9,6 +9,7 @@ import { simpleGetList, simplePost, simplePut } from 'shared/utils/crudHelpers';
 export const patientLetterTemplateRoutes = express.Router();
 
 // This isn't a "loadbearing" permissions checker but is simply required to use crudHelpers
+// to be cleaned up in SAV-254
 patientLetterTemplateRoutes.use(ensurePermissionCheck);
 patientLetterTemplateRoutes.use((req, res, next) => {
   req.flagPermissionChecked();
