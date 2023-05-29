@@ -47,6 +47,7 @@ const UNHIDEABLE_FIELDS = [
   'emergencyContactNumber',
   'locationId',
   'locationGroupId',
+  'diagnosis',
 ];
 
 const HIDEABLE_FIELDS = [
