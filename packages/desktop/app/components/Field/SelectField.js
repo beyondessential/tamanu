@@ -96,17 +96,22 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
+  onClear,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
+      // changedOption is empty if Clear indicator is clicked
       if (!changedOption) {
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: null, name } });
+        if (onClear) {
+          onClear();
+        }
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name],
+    [onChange, name, onClear],
   );
 
   const customStyles = {
@@ -119,8 +124,8 @@ export const SelectInput = ({
         borderColor,
         boxShadow: 'none',
         borderRadius: '3px',
-        paddingTop: '10px',
-        paddingBottom: '8px',
+        paddingTop: '11px',
+        paddingBottom: '9px',
         paddingLeft: '5px',
         fontSize,
       };

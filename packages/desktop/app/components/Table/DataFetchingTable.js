@@ -43,6 +43,8 @@ export const DataFetchingTable = memo(
       setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
     }, []);
 
+    const fetchOptionsString = JSON.stringify(fetchOptions);
+
     useEffect(() => {
       updateFetchState({ isLoading: true });
       (async () => {
@@ -81,13 +83,15 @@ export const DataFetchingTable = memo(
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
       })();
+      // Needed to compare fetchOptions as a string instead of an object
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       api,
       endpoint,
       page,
       rowsPerPage,
       sorting,
-      fetchOptions,
+      fetchOptionsString,
       refreshCount,
       forcedRefreshCount,
       transformRow,

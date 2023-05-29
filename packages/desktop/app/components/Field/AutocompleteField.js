@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -92,8 +93,6 @@ const StyledExpandMore = styled(ChevronIcon)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
-  position: absolute;
-  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
@@ -235,9 +234,14 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, name } = this.props;
+    const { onChange, onClear, name, required } = this.props;
+    // use correct error message for required fields by setting to "" but otherwise set to null value to prevent FK errors
+    const clearValue = required ? '' : null;
+    onChange({ target: { value: clearValue, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    onChange({ target: { value: undefined, name } });
+    if (onClear) {
+      onClear();
+    }
   };
 
   clearOptions = () => {
