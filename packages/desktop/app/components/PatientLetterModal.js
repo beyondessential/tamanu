@@ -6,7 +6,7 @@ import { Box } from '@material-ui/core';
 import { DOCUMENT_SOURCES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../api';
-import { Modal, ModalLoader } from './Modal';
+import { Modal } from './Modal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
 import { Colors, SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from '.';
@@ -104,14 +104,8 @@ export const PatientLetterModal = React.memo(
 
     return (
       <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
-        {isSubmitting ? (
-          <ModalLoader loadingText="Please wait while we create your patient letter" />
-        ) : (
-          <>
-            <PatientDetails patient={patient} />
-            <PatientLetterForm onSubmit={onSubmit} onCancel={onClose} />
-          </>
-        )}
+        <PatientDetails patient={patient} />
+        <PatientLetterForm onSubmit={onSubmit} onCancel={onClose} />
       </Modal>
     );
   },
