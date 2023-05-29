@@ -10,10 +10,15 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 
-async function provision({ file }) {
+async function provision({ file, quitIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
+    if (quitIfNotNeeded) {
+      log.info(`Found ${userCount} users already in the database, but expecting to, quitting.`);
+      process.exit(0);
+    }
+
     throw new Error(`Found ${userCount} users already in the database, aborting provision.`);
   }
 
@@ -130,4 +135,8 @@ export const provisionCommand = new Command('provision')
     'Set up initial data. See https://beyond-essential.slab.com/posts/tamanu-provisioning-file-h1urgi86 for details or /docs/provisioning/example.kdl for a sample file.',
   )
   .argument('<file>', 'Path to the provisioning file')
+  .option(
+    '--quit-if-not-needed',
+    'If there are already users in the database, exit(0) instead of aborting.',
+  )
   .action(provision);
