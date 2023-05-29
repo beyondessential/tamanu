@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Pagination, PaginationItem } from '@material-ui/lab';
 import { Select, MenuItem } from '@material-ui/core';
@@ -88,7 +88,7 @@ export const Paginator = React.memo(
     rowsPerPageOptions,
   }) => {
     const numberOfPages = Math.ceil(count / rowsPerPage);
-    let wasLastItemEllipses = false;
+    const wasLastItemEllipses = useRef(false);
     return (
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
@@ -143,14 +143,14 @@ export const Paginator = React.memo(
 
               // Conditionally show the page number button if it falls within the defined ranges above
               if ((isInRange || isEndPage) && !isEllipses) {
-                wasLastItemEllipses = false;
+                wasLastItemEllipses.current = false;
                 return <PaginationItem {...item} />;
               }
               // If the item falls out of the defined range and is not the first or last page, show an ellipses
               // however we only want to show one ellipses in a row so we need to keep track of the last item
               // and dont show if one was rendered before in the list
-              if (!wasLastItemEllipses) {
-                wasLastItemEllipses = true;
+              if (!wasLastItemEllipses.current) {
+                wasLastItemEllipses.current = true;
                 return <PaginationItem size="small" type="start-ellipsis" />;
               }
               return null;
