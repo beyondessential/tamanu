@@ -7,7 +7,6 @@ import {
   LocalisedField,
   SelectField,
   AutocompleteField,
-  DynamicSelectField,
   Field,
   CheckField,
   SearchField,
