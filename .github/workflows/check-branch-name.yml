@@ -16,8 +16,8 @@ jobs:
         BRANCH_NAME: ${{ github.head_ref }}
       shell: bash
       run: |
-        if ! grep -qP '^(feature|fix)/' <<< "$BRANCH_NAME"; then
-          echo "::warning::Branch name should be prefixed with feature/ or fix/"
+        if ! grep -qP '^(feature|fix|epic)/' <<< "$BRANCH_NAME"; then
+          echo "::warning::Branch name should be prefixed with feature/ or fix/ or epic/"
           exit 1
         fi
 
