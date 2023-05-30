@@ -16,7 +16,8 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalLoader } from '../components/Modal';
-import { OutlinedButton, Button, PatientDetailsCard } from '../components';
+import { OutlinedButton, Button } from '../components';
+import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalButtonRow } from '../components/ModalActionRow';
 
 const TallMultilineTextField = props => (
@@ -31,27 +32,30 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
-const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue, values, setValues }) => {
+const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const patientLetterTemplateSuggester = useSuggester('patientLetterTemplate');
 
   const [templateLoading, setTemplateLoading] = useState(false);
 
-  const onChangeTemplate = useCallback(async (templateId) => {
-    if (!templateId) {
-      return;
-    }
-    setTemplateLoading(true);
-    const template = await api.get(`patientLetterTemplate/${templateId}`);
-    setValues(values => ({
-      ...values,
-      title: template.title,
-      body: template.body,
-    }));
+  const onChangeTemplate = useCallback(
+    async templateId => {
+      if (!templateId) {
+        return;
+      }
+      setTemplateLoading(true);
+      const template = await api.get(`patientLetterTemplate/${templateId}`);
+      setValues(values => ({
+        ...values,
+        title: template.title,
+        body: template.body,
+      }));
 
-    setTemplateLoading(false);
-  }, [api, setTemplateLoading, setValues])
+      setTemplateLoading(false);
+    },
+    [api, setTemplateLoading, setValues],
+  );
 
   return (
     <>
@@ -102,7 +106,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, patient })
       <ModalLoader loadingText="Please wait while we create your patient letter" />
     ) : (
       <>
-        <PatientDetailsCard patient={patient} /> 
+        <PatientDetailsCard patient={patient} />
         <PatientLetterFormContents onCancel={onCancel} {...props} />
       </>
     );

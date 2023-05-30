@@ -14,7 +14,6 @@ export * from './ModalActionRow';
 export * from './MenuButton';
 export * from './Notification';
 export * from './PageContainer';
-export * from './PatientDetailsCard';
 export * from './Paper';
 export * from './Preloader';
 export * from './LocationSearchBar';

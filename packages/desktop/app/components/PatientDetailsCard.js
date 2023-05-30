@@ -5,7 +5,6 @@ import { Box } from '@material-ui/core';
 import { Colors, SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from '.';
 
-
 const Card = styled(Box)`
   background: white;
   border-radius: 5px;
