@@ -11,13 +11,16 @@ import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { Button } from '../../components/Button';
-import { DateDisplay } from '../../components/DateDisplay';
+import { DateDisplay, formatShort } from '../../components/DateDisplay';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { getFullLocationName } from '../../utils/location';
+import { getDisplayAge } from '../../utils/dateTime';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
+import { usePatientAdditionalData } from '../../api/queries';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -30,25 +33,32 @@ const SummaryPageContainer = styled.div`
 `;
 
 const Label = styled.span`
-  min-width: 200px;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 10px;
 `;
 
+const Text = styled.span`
+  font-weight: 400;
+  font-size: 10px;
+`;
+
+const Section = styled(Box)`
+  padding-bottom: 10px;
+`;
 const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 100px;
 `;
 
-const Header = styled.section`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 100px;
-  margin: 50px 0 20px 0;
+const Header = styled.div`
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 600;
 `;
 
 const HorizontalLine = styled.div`
-  margin: 20px 0;
+  margin: 4px 0;
   border-top: 1px solid ${Colors.primaryDark};
 `;
 
@@ -68,10 +78,6 @@ const NavContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-`;
-
-const IdValue = styled.span`
-  font-weight: normal;
 `;
 
 const DiagnosesList = ({ diagnoses }) => {
@@ -175,15 +181,40 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         logoSrc={logo}
         pageTitle="Patient Discharge Summary"
       />
-      <Header>
-        <h4>
-          <Label>Patient name: </Label>
-          <span>{`${patient.firstName} ${patient.lastName}`}</span>
-        </h4>
-        <h4>
-          <Label>
-            <LocalisedText path="fields.displayId.shortLabel" />:{' '}
-          </Label>
+      <Section>
+        <Header>Patient details</Header>
+        <HorizontalLine />
+        <Content>
+          <div>
+            <Label>Patient name: </Label>
+            <Text>{`${patient.firstName} ${patient.lastName}`}</Text>
+          </div>
+          <div>
+            <Label>
+              <LocalisedText path="fields.displayId.shortLabel" />:{' '}
+            </Label>
+            <Text>{patient.displayId}</Text>
+          </div>
+          <div>
+            <Label>DOB: </Label>
+            <Text>
+              {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(patient.dateOfBirth)})`}
+            </Text>
+          </div>
+          <div>
+            <Label>Address: </Label>
+            <Text>{`${address}`}</Text>
+          </div>
+          <div>
+            <Label>Sex: </Label>
+            <Text>{`${capitaliseFirstLetter(patient.sex)}`}</Text>
+          </div>
+          <div>
+            <Label>Village: </Label>
+            <Text>{`${cityTown}`}</Text>
+          </div>
+        </Content>
+      </Section>
           <IdValue>{patient.displayId}</IdValue>
         </h4>
       </Header>
