@@ -3,6 +3,9 @@ import { pick } from 'lodash';
 import { fake, chance } from 'shared/test-helpers';
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
+import {
+  createDummyEncounter,
+} from 'shared/demoData/patients';
 
 const createUser = overrides => ({
   email: chance.email(),
@@ -139,59 +142,129 @@ describe('User', () => {
       expect(result.body).toHaveProperty('permissions');
     });
 
-    it('should create a new recently viewed patient on first post from user', async () => {
+  });
+
+  describe('Recently viewed patients', () => {
+
+    let user = null;
+    let app = null;
+    let patients = [];
+    
+    let viewPatient = async (patient) => {
+      const result = await app.post(`/v1/user/recently-viewed-patients/${patient.id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        userId: user.id,
+        patientId: patient.id,
+      });
+      return result;
+    };
+
+    beforeAll(async () => {
+      user = await models.User.create(
+        createUser({
+          role: 'practitioner',
+        }),
+      );
+      
+      app = await baseApp.asUser(user);
+
+      const patientCreations = new Array(20).fill(0).map(() => models.Patient.create(fake(models.Patient)));
+      patients = await Promise.all(patientCreations);
+    });
+
+    beforeEach(async () => {
       await models.UserRecentlyViewedPatient.destroy({
         where: {},
         truncate: true,
       });
-      await authUser.update({
-        role: 'practitioner',
-      });
-      const userAgent = await baseApp.asUser(authUser);
-      const newPatient = await models.Patient.create({
-        ...fake(models.Patient),
-      });
-      const postResult = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
-      expect(postResult).toHaveSucceeded();
-      expect(postResult.body).toHaveProperty('userId', authUser.id);
-      expect(postResult.body).toHaveProperty('patientId', newPatient.id);
-      const getResult = await userAgent.get('/v1/user/recently-viewed-patients');
+    });
+
+    it('should create a new recently viewed patient on first post from user', async () => {
+      const [firstPatient] = patients;
+
+      await viewPatient(firstPatient);
+      
+      const getResult = await app.get('/v1/user/recently-viewed-patients');
       expect(getResult).toHaveSucceeded();
       expect(getResult.body.data).toHaveLength(1);
       expect(getResult.body.count).toBe(1);
     });
 
-    it('should update updatedAt when posting with id of an already recently viewed patient', async () => {
-      await models.UserRecentlyViewedPatient.destroy({
-        where: {},
-        truncate: true,
-      });
-      await authUser.update({
-        role: 'practitioner',
-      });
-      const userAgent = await baseApp.asUser(authUser);
-      const newPatient = await models.Patient.create({
-        ...fake(models.Patient),
-      });
-      const result = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
-      expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('userId', authUser.id);
-      expect(result.body).toHaveProperty('patientId', newPatient.id);
-      const result2 = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
-      expect(result2).toHaveSucceeded();
-      expect(result2.body).toHaveProperty('userId', authUser.id);
-      expect(result2.body).toHaveProperty('patientId', newPatient.id);
+    it('should update updatedAt when posting with id of an already recently viewed patient', async () => {      
+      const [firstPatient] = patients;
+
+      const result = await viewPatient(firstPatient);
+      const result2 = await viewPatient(firstPatient);
+
       const resultDate = new Date(result.body.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(resultDate.getTime());
-      const getResult = await userAgent.get('/v1/user/recently-viewed-patients');
+      
+      const getResult = await app.get('/v1/user/recently-viewed-patients');
       expect(getResult).toHaveSucceeded();
       expect(getResult.body.data).toHaveLength(1);
       expect(getResult.body.count).toBe(1);
+      
+      expect(getResult.body.data[0]).toHaveProperty('id', firstPatient.id);
+
       const getResultDate = new Date(getResult.body.data[0].last_accessed_on);
       expect(getResultDate.getTime()).toBe(result2Date.getTime());
     });
 
+    it('should not include more than 12 recent patients', async () => {
+      // first register a view for every patient in the list (>12)
+      for (const p of patients) {
+        await viewPatient(p);
+      }
+      
+      const result = await app.get('/v1/user/recently-viewed-patients');
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toBe(12);
+      expect(result.body.data).toHaveLength(12);
+
+      // orders should match
+      const resultIds = result.body.data.map(x => x.id);
+      const sourceIds = patients.map(x => x.id).reverse().slice(0, 12);
+      expect(resultIds).toEqual(sourceIds);
+    });
+
+    it('should handle multiple encounters cleanly', async () => {
+      const patientsToView = patients.slice(0, 4);
+
+      for (const p of patientsToView) {
+        // open a few encounters for each patient
+        for (let i = 0; i < 4; ++i) {
+          const enc = await models.Encounter.create(
+            await createDummyEncounter(models, { 
+              patientId: p.id,
+              encounterType: 'admission', 
+            }),
+          );
+
+          // close some of them but not all
+          if (i >= 2) {
+            await enc.update({ endDate: new Date() });
+          }
+        }
+      }
+
+      for (const p of patientsToView) {
+        await viewPatient(p);
+        await viewPatient(p);
+        await viewPatient(p);
+        await viewPatient(p);
+      }
+      
+      const result = await app.get('/v1/user/recently-viewed-patients?encounterType=admission');
+      expect(result).toHaveSucceeded();
+
+      // orders should match
+      const resultIds = result.body.data.map(x => x.id);
+      const sourceIds = patientsToView.map(x => x.id).reverse();
+      expect(resultIds).toEqual(sourceIds);
+    });
 
   });
+
 });

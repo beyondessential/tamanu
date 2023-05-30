@@ -55,7 +55,7 @@ user.get(
     let andClauses = '';
 
     if (query.encounterType) {
-      andClauses = `AND encounters.encounter_type = '${query.encounterType}'`;
+      andClauses = 'AND encounters.encounter_type = :encounterType';
     }
 
     const recentlyViewedPatients = await req.db.query(
@@ -82,7 +82,7 @@ user.get(
           ON (patients.id = recent_encounter_by_patient.patient_id)
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
-        WHERE user_recently_viewed_patients.user_id = '${currentUser.id}'
+        WHERE user_recently_viewed_patients.user_id = :userId
         ${andClauses}
         ORDER BY last_accessed_on DESC
         LIMIT 12
@@ -91,6 +91,10 @@ user.get(
         model: Patient,
         type: QueryTypes.SELECT,
         mapToModel: true,
+        replacements: {
+          userId: currentUser.id,
+          encounterType: query.encounterType,
+        }
       },
     );
 
