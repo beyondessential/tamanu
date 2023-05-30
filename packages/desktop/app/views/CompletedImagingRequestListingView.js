@@ -1,4 +1,5 @@
 import React from 'react';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared-src/src/constants/statuses';
 import {
   TopBar,
   PageContainer,
@@ -8,13 +9,13 @@ import {
 } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 
-export const ImagingRequestListingView = () => (
+export const CompletedImagingRequestListingView = () => (
   <PageContainer>
-    <TopBar title="Imaging requests" />
+    <TopBar title="Completed imaging requests" />
     <ContentPane>
       <SearchTableTitle>Imaging request search</SearchTableTitle>
-      <ImagingRequestsSearchBar />
-      <ImagingRequestsTable />
+      <ImagingRequestsSearchBar status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
+      <ImagingRequestsTable status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
     </ContentPane>
   </PageContainer>
 );
