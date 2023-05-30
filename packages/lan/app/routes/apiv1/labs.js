@@ -145,8 +145,8 @@ labRequest.get(
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeSimpleTextFilter('patientId', 'patient.id'),
-      makeSimpleTextFilter('requestedById', 'lab_requests.requested_by_id'),
-      makeSimpleTextFilter('departmentId', 'encounter.department_id'),
+      makeFilter(filterParams.requestedById, `lab_requests.requested_by_id = :requestedById`),
+      makeFilter(filterParams.departmentId, `lab_requests.department_id = :departmentId`),
       makeFilter(filterParams.locationGroupId, `location.location_group_id = :locationGroupId`),
       makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
       makeFilter(
