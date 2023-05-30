@@ -146,6 +146,13 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
     getLocalisation('fields.dischargeDisposition.hidden') === false;
 
   const patient = useSelector(state => state.patient);
+  const { data: patientAdditionalData } = usePatientAdditionalData(patient.id);
+  const { streetVillage, cityTown, country } = patientAdditionalData;
+  let address = null;
+  if (streetVillage && cityTown && country) {
+    address = `${streetVillage}, ${cityTown}, ${country.name}`;
+  }
+
   const {
     diagnoses,
     procedures,
