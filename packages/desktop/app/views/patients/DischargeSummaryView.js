@@ -20,7 +20,7 @@ import { getFullLocationName } from '../../utils/location';
 import { getDisplayAge } from '../../utils/dateTime';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
-import { usePatientAdditionalData } from '../../api/queries';
+import { usePatientAdditionalData, usePatientConditions } from '../../api/queries';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -62,14 +62,28 @@ const HorizontalLine = styled.div`
   border-top: 1px solid ${Colors.primaryDark};
 `;
 
-const ListColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  ul {
+const ListColumn = styled.ul`
+  list-style-type: none;
+  padding: 0;
     margin: 0;
-    padding-left: 20px;
+  li {
+    font-size: 10px;
+    padding-left: 0;
   }
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+`;
+
+const LeftGridItem = styled.div`
+  border: 1px solid black;
+  padding: 10px;
+`;
+
+const RightGridItem = styled(LeftGridItem)`
+  border-left: 0px;
 `;
 
 const NavContainer = styled.div`
@@ -153,6 +167,12 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
   const patient = useSelector(state => state.patient);
   const { data: patientAdditionalData } = usePatientAdditionalData(patient.id);
+  const { data: patienConditionsData } = usePatientConditions(patient.id);
+  const patientConditions = (patienConditionsData?.data || [])
+    .filter(p => !p.resolved)
+    .map(p => p.condition.name)
+    .sort((a, b) => a > b);
+
   const { streetVillage, cityTown, country } = patientAdditionalData;
   let address = null;
   if (streetVillage && cityTown && country) {
@@ -253,6 +273,20 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             <Text>{reasonForEncounter}</Text>
           </div>
       </Content>
+      </Section>
+      <Section>
+        <Grid>
+          <LeftGridItem>
+            <Label>Ongoing conditions</Label>
+          </LeftGridItem>
+          <RightGridItem>
+            <ListColumn>
+              {patientConditions.map(condition => (
+                <li>{condition}</li>
+              ))}
+            </ListColumn>
+          </RightGridItem>
+        </Grid>
       </Section>
       <Content>
         <Label>Primary diagnoses: </Label>
