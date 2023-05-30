@@ -48,23 +48,24 @@ export const LabRequestChangeStatusModal = React.memo(
                 options={LAB_REQUEST_STATUS_OPTIONS}
                 component={SelectField}
               />
-              {values.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (
-                <>
-                  <Field
-                    name="sampleTime"
-                    label="Sample date & time"
-                    required
-                    component={DateTimeField}
-                    saveDateAsString
-                  />
-                  <Field
-                    name="labSampleSiteId"
-                    label="Site"
-                    component={SuggesterSelectField}
-                    endpoint="labSampleSite"
-                  />
-                </>
-              )}
+              {labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
+                values.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (
+                  <>
+                    <Field
+                      name="sampleTime"
+                      label="Sample date & time"
+                      required
+                      component={DateTimeField}
+                      saveDateAsString
+                    />
+                    <Field
+                      name="labSampleSiteId"
+                      label="Site"
+                      component={SuggesterSelectField}
+                      endpoint="labSampleSite"
+                    />
+                  </>
+                )}
               <ConfirmCancelRow confirmText="Confirm" onCancel={onClose} onConfirm={submitForm} />
             </FormGrid>
           )}

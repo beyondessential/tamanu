@@ -3,18 +3,18 @@ import { getDisplayDate } from 'shared/utils/patientCertificates/getDisplayDate'
 import { Divider } from 'shared/utils/handoverNotes/Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
-import { getDOB } from '../patientCertificates/accessors';
-import { getName, getSex } from './accessors';
+import { getName, getSex, getDOB } from './accessors';
 
 const PATIENT_FIELDS = [
-  { key: 'name', label: 'Patient Name', accessor: getName },
-  { key: 'displayId', label: 'Patient ID' },
+  { key: 'name', label: 'Patient Name', accessor: getName, percentageWidth: 40 },
+  { key: 'displayId', label: 'Patient ID', percentageWidth: 40 },
   {
     key: 'dateOfBirth',
     label: 'DOB',
     accessor: getDOB,
+    percentageWidth: 20,
   },
-  { key: 'sex', label: 'Sex', accessor: getSex },
+  { key: 'sex', label: 'Sex', accessor: getSex, percentageWidth: 40 },
 ];
 
 const ValueDisplay = ({ width, title, value }) => (
@@ -45,14 +45,27 @@ export const HandoverPatient = ({
       <Row style={{ width: '100%', marginBottom: 40 }}>
         <Col style={{ width: '100%' }}>
           <Row>
-            {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-              const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-              const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
+            {detailsToDisplay.map(
+              ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
+                const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+                const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
 
-              return <ValueDisplay key={key} width="33%" title={label} value={value} />;
-            })}
-            <ValueDisplay width="33%" title="Location" value={location} />
-            <ValueDisplay width="33%" title="Arrival date" value={getDisplayDate(arrivalDate)} />
+                return (
+                  <ValueDisplay
+                    key={key}
+                    width={`${percentageWidth}%`}
+                    title={label}
+                    value={value}
+                  />
+                );
+              },
+            )}
+            <ValueDisplay width="40%" title="Location" value={location} />
+            <ValueDisplay
+              width="20%"
+              title="Arrival date"
+              value={getDisplayDate(arrivalDate, 'dd/MM/yy')}
+            />
           </Row>
           {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
           {notes && (

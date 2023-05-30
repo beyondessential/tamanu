@@ -12,7 +12,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <NotePageModal
-        title="New Note"
+        title="New note"
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}

@@ -24,10 +24,28 @@ export function getAgeWithMonthsFromDate(date: string): string {
 }
 
 export function formatStringDate(date: string, dateFormat: string): string {
+  if (!date) {
+    return '';
+  }
+
   const dateValue: Date = parseISO(date);
   return formatDate(dateValue, dateFormat);
 }
 
 export function getCurrentDateTimeString(): string {
   return formatISO9075(new Date());
+}
+
+export function getCombinedDateString(date: Date, time: Date): string {
+  return formatISO9075(
+    new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      time.getHours(),
+      time.getMinutes(),
+      time.getSeconds(),
+      time.getMilliseconds(),
+    ),
+  );
 }
