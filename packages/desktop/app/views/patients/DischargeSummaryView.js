@@ -160,6 +160,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   }
 
   const {
+    department,
     diagnoses,
     procedures,
     medications,
@@ -215,47 +216,45 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </div>
         </Content>
       </Section>
-          <IdValue>{patient.displayId}</IdValue>
-        </h4>
-      </Header>
+      <Section>
+      <Header>Encounter details</Header>
+      <HorizontalLine />
       <Content>
         <div>
-          <Label>Admission date: </Label>
-          <DateDisplay date={startDate} showTime />
+            <Label>Facility: </Label>
+            <Text>{location?.facility?.name || null}</Text>
         </div>
         <div>
-          <Label>Discharge date: </Label>
-          <DateDisplay date={endDate} showTime />
+            <Label>Department: </Label>
+            <Text>{department?.name || null}</Text>
         </div>
         <div>
-          <Label>Department: </Label>
-          {getFullLocationName(location)}
+            <Label>Supervising clinician: </Label>
+            <Text>{examiner?.displayName}</Text>
         </div>
-        {discharge && dischargeDispositionVisible && (
           <div>
-            <Label>Discharge disposition: </Label>
-            {discharge.disposition?.name}
+            <Label>Date of admission: </Label>
+            <Text>
+              <DateDisplay date={startDate} showTime />
+            </Text>
           </div>
-        )}
-        <div />
-      </Content>
-      <HorizontalLine />
-      <Content>
         <div>
-          <Label>Supervising clinician: </Label>
-          <span>{examiner?.displayName}</span>
+            <Label>Discharging physician: </Label>
+            <Text>{discharge?.discharger?.displayName}</Text>
         </div>
-        <div />
         <div>
-          <Label>Discharging physician: </Label>
-          <span>{discharge?.discharger?.displayName}</span>
+            <Label>Date of discharge: </Label>
+            <Text>
+              <DateDisplay date={endDate} showTime />
+            </Text>
         </div>
-        <div />
+          <div>
+            <Label>Reason for encounter: </Label>
+            <Text>{reasonForEncounter}</Text>
+          </div>
       </Content>
-      <HorizontalLine />
+      </Section>
       <Content>
-        <Label>Reason for encounter: </Label>
-        <div>{reasonForEncounter}</div>
         <Label>Primary diagnoses: </Label>
         <ListColumn>
           <ul>
