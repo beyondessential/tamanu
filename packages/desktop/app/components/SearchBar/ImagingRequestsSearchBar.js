@@ -150,7 +150,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
         <LocalisedField
           name="requestedById"
           defaultLabel="Requested by"
-          component={DynamicSelectField}
+          component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"
         />
