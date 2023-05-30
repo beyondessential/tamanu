@@ -1,10 +1,6 @@
 import { checkVisibility } from './survey';
 
-const checkVisibilityByCriteria = (
-  values,
-  questionComponents,
-  checkIsInvisible = false,
-) => component => {
+const isVisible = (values, questionComponents) => component => {
   const result = checkVisibility(
     {
       visibilityCriteria: JSON.stringify(component.props.visibilityCriteria),
@@ -16,7 +12,7 @@ const checkVisibilityByCriteria = (
     })),
   );
 
-  return checkIsInvisible ? !result : result;
+  return result;
 };
 
 // Used with PaginatedForm
@@ -24,10 +20,10 @@ export const getVisibleQuestions = (questionComponents, values) =>
   // Adapt the questionComponents from react elements to the survey config objects which the
   // checkVisibility util expects
   questionComponents
-    .filter(checkVisibilityByCriteria(values, questionComponents))
+    .filter(component => isVisible(values, questionComponents)(component))
     .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));
 
 export const getInvisibleQuestions = (questionComponents, values) =>
   questionComponents
-    .filter(checkVisibilityByCriteria(values, questionComponents, true))
+    .filter(component => !isVisible(values, questionComponents)(component))
     .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));
