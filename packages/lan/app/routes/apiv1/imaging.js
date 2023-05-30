@@ -2,7 +2,7 @@ import express from 'express';
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { Op } from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import {
   NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -402,6 +402,16 @@ globalImagingRequests.get(
 
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
+      attributes: {
+        include: [
+          [
+            Sequelize.literal(
+              `SELECT display_id FROM patient WHERE encounter.patient_id = patient.id`,
+            ),
+            'patientDisplayId',
+          ],
+        ],
+      },
       where: {
         [Op.and]: {
           ...imagingRequestFilters,
@@ -421,7 +431,7 @@ globalImagingRequests.get(
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
-      subQuery: false,
+      // subQuery: false,
     });
 
     // Extract and normalize data calling a base model method
