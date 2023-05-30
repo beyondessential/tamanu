@@ -1,7 +1,9 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { ImagingRequestListingView } from '../views/ImagingRequestListingView';
-import { CompletedImagingRequestListingView } from '../views/CompletedImagingRequestListingView';
+import {
+  ImagingRequestListingView,
+  CompletedImagingRequestListingView,
+} from '../views/ImagingRequestListingView';
 
 export const ImagingRoutes = React.memo(({ match }) => (
   <div>
