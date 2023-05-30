@@ -7,7 +7,7 @@ import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from 
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 
@@ -234,9 +234,22 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, onClear, name, required } = this.props;
-    // use correct error message for required fields by setting to "" but otherwise set to null value to prevent FK errors
-    const clearValue = required ? '' : null;
+    const {
+      onChange,
+      onClear,
+      name,
+      required,
+      form: { status },
+    } = this.props;
+    // use correct error message for required fields by setting to "" but otherwise set to null value to prevent FK errors in forms and undefined for search fields
+    let clearValue = null;
+    if (status.formType === FORM_TYPES.SEARCH_FORM) {
+      clearValue = undefined;
+    }
+    if (required) {
+      clearValue = '';
+    }
+
     onChange({ target: { value: clearValue, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
     if (onClear) {
