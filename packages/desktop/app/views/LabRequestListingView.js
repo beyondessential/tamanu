@@ -11,9 +11,9 @@ import { LabRequestsTable } from './LabRequestsTable';
 import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
 
-const LabRequestListing = ({ status = '' }) => {
+const LabRequestListing = ({ status = '', searchParamKey = LabRequestSearchParamKeys.All }) => {
   const { loadEncounter } = useEncounter();
-  const { loadLabRequest, searchParameters } = useLabRequest(LabRequestSearchParamKeys.All);
+  const { loadLabRequest, searchParameters } = useLabRequest(searchParamKey);
 
   return (
     <ContentPane>
@@ -39,6 +39,9 @@ export const LabRequestListingView = () => (
 export const PublishedLabRequestListingView = () => (
   <PageContainer>
     <TopBar title="Published lab requests" />
-    <LabRequestListing status={LAB_REQUEST_STATUSES.PUBLISHED} />
+    <LabRequestListing
+      status={LAB_REQUEST_STATUSES.PUBLISHED}
+      searchParamKey={LabRequestSearchParamKeys.Published}
+    />
   </PageContainer>
 );
