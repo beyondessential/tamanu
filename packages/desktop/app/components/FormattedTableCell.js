@@ -69,7 +69,7 @@ export const RangeValidatedCell = React.memo(({ value, config, validationCriteri
     }
   }
 
-  if (!tooltip && unit && unit.length > 2) {
+  if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
     // Show full unit in tooltip as its not displayed on table
     tooltip = `${float.toFixed(rounding)}${unit}`;
   }

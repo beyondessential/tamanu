@@ -124,13 +124,14 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
-        [LAB_REQUEST_STATUSES.DELETED]: LAB_REQUEST_STATUSES.DELETED,
+        deleted: LAB_REQUEST_STATUSES.DELETED,
       })),
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
-        [LAB_REQUEST_STATUSES.CANCELLED]: LAB_REQUEST_STATUSES.CANCELLED,
+        cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -167,6 +168,22 @@ labRequest.get(
         `location.facility_id = :facilityId`,
         () => ({ facilityId: config.serverFacilityId }),
       ),
+      makeFilter(
+        filterParams.publishedDate,
+        `lab_requests.published_date LIKE :publishedDate`,
+        ({ publishedDate }) => {
+          return {
+            publishedDate: `${publishedDate}%`,
+          };
+        },
+      ),
+      makeFilter(
+        filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
+        `lab_requests.status != :published`,
+        () => ({
+          published: LAB_REQUEST_STATUSES.PUBLISHED,
+        }),
+      ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -195,7 +212,7 @@ labRequest.get(
           ON (examiner.id = encounter.examiner_id)
         LEFT JOIN users AS requester
           ON (requester.id = lab_requests.requested_by_id)
-      ${whereClauses && `WHERE ${whereClauses}`}
+        ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
     const filterReplacements = filters
@@ -231,6 +248,7 @@ labRequest.get(
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
       status: 'status',
+      publishedDate: 'published_date',
     };
 
     const sortKey = sortKeys[orderBy];
@@ -276,7 +294,6 @@ labRequest.get(
     );
 
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-
     res.send({
       data: forResponse,
       count,

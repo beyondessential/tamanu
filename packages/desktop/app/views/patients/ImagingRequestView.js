@@ -130,7 +130,6 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
-          required
         />
       )}
       <TextInput
@@ -245,6 +244,7 @@ const ImagingRequestInfoPane = React.memo(
           onSubmit(updateValues);
         }}
         enableReinitialize // Updates form to reflect changes in initialValues
+        initialStatus={{}}
         initialValues={{
           ...imagingRequest,
           newResult: {

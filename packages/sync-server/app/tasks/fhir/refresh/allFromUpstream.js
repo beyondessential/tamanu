@@ -36,51 +36,58 @@ export async function allFromUpstream({ payload }, { log, sequelize }) {
       op,
     });
 
-    const query = await Resource.queryToFindUpstreamIdsFromTable(tableName, id, deletedRow);
-    if (!query) {
-      log.debug('no upstream found for row', {
-        resource: Resource.fhirName,
-        table,
+    for (const UpstreamModel of Resource.UpstreamModels) {
+      const query = await Resource.queryToFindUpstreamIdsFromTable(
+        UpstreamModel.tableName,
+        tableName,
         id,
-        op,
+        deletedRow,
+      );
+      if (!query) {
+        log.debug('no upstream found for row', {
+          resource: Resource.fhirName,
+          table,
+          id,
+          op,
+        });
+        continue;
+      }
+
+      const sql = await prepareQuery(UpstreamModel, query);
+      const insertSql = `
+        WITH upstreams AS (${sql.replace(/;$/, '')})
+        INSERT INTO fhir.jobs (topic, discriminant, payload)
+        SELECT
+          $topic::text,
+          concat($resource::text, ':', upstreams.id),
+          json_build_object(
+            'resource', $resource::text,
+            'upstreamId', upstreams.id,
+            'table', $table::text,
+            'op', $op::text
+          )
+        FROM upstreams
+        ON CONFLICT (discriminant) DO NOTHING
+      `;
+
+      const results = await sequelize.query(insertSql, {
+        type: Sequelize.QueryTypes.INSERT,
+        bind: {
+          topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
+          resource: Resource.fhirName,
+          table,
+          op,
+        },
       });
-      continue;
-    }
+      if (!results) {
+        throw new Error(`Failed to insert jobs: ${JSON.stringify(results)}`);
+      }
 
-    const sql = await prepareQuery(Resource.UpstreamModel, query);
-    const insertSql = `
-      WITH upstreams AS (${sql.replace(/;$/, '')})
-      INSERT INTO fhir.jobs (topic, discriminant, payload)
-      SELECT
-        $topic::text,
-        concat($resource::text, ':', upstreams.id),
-        json_build_object(
-          'resource', $resource::text,
-          'upstreamId', upstreams.id,
-          'table', $table::text,
-          'op', $op::text
-        )
-      FROM upstreams
-      ON CONFLICT (discriminant) DO NOTHING
-    `;
-
-    const results = await sequelize.query(insertSql, {
-      type: Sequelize.QueryTypes.INSERT,
-      bind: {
-        topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
+      log.debug('FhirWorker: submitted refresh jobs', {
         resource: Resource.fhirName,
-        table,
-        op,
-      },
-    });
-    if (!results) {
-      throw new Error(`Failed to insert jobs: ${JSON.stringify(results)}`);
+        count: results[1],
+      });
     }
-
-    log.debug('FhirWorker: submitted refresh jobs', {
-      resource: Resource.fhirName,
-      count: results[1],
-    });
   }
 }
 
