@@ -35,12 +35,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const onDownload = useCallback(
     async document => {
-      if (!navigator.onLine) {
-        throw new Error(
-          'You do not currently have an internet connection. Documents require live internet to download.',
-        );
-      }
-
       // Suggest a filename that matches the document name
       const path = await showSaveDialog({ defaultPath: document.name });
       if (path.canceled) return;
