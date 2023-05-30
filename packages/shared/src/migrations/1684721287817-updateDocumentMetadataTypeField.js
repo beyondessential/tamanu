@@ -4,8 +4,11 @@ export async function up(query) {
   await query.addColumn('document_metadata', 'source', {
     type: DataTypes.STRING,
     allowNull: true,
-    defaultValue: 'UPLOADED',
   });
+
+  await query.sequelize.query(`
+    UPDATE document_metadata SET source = 'UPLOADED';
+  `);
 }
 
 export async function down(query) {
