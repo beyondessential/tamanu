@@ -24,7 +24,7 @@ export const EditVitalCellModal = ({ value, onConfirm, onClose, open }) => (
     <Form
       onSubmit={onConfirm}
       validationSchema={yup.object().shape({
-        reasonForCancellation: yup.string().required(),
+        reasonForCancellation: yup.string().required('Reason for cancellation is mandatory'),
       })}
       render={({
         // value: formValue,
