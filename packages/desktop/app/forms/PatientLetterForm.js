@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
@@ -15,7 +15,9 @@ import {
   AutocompleteField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { ModalLoader } from '../components/Modal';
 import { OutlinedButton, Button } from '../components';
+import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalButtonRow } from '../components/ModalActionRow';
 
 const TallMultilineTextField = props => (
@@ -30,29 +32,30 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
-const DumbPatientLetterForm = ({ submitForm, onCancel, setFieldValue }) => {
-  const [templateId, setTemplateId] = useState(null);
-  const [templateLoading, setTemplateLoading] = useState(null);
-
+const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const patientLetterTemplateSuggester = useSuggester('patientLetterTemplate');
 
-  useEffect(() => {
-    const updateValues = async () => {
-      const template = await api.get(`patientLetterTemplate/${templateId}`);
-      if (template) {
-        setFieldValue('title', template.title);
-        setFieldValue('body', template.body);
-      }
-      setTemplateLoading(false);
-    };
+  const [templateLoading, setTemplateLoading] = useState(false);
 
-    if (templateId) {
+  const onChangeTemplate = useCallback(
+    async templateId => {
+      if (!templateId) {
+        return;
+      }
       setTemplateLoading(true);
-      updateValues();
-    }
-  }, [templateId, api, setFieldValue]);
+      const template = await api.get(`patientLetterTemplate/${templateId}`);
+      setValues(values => ({
+        ...values,
+        title: template.title,
+        body: template.body,
+      }));
+
+      setTemplateLoading(false);
+    },
+    [api, setTemplateLoading, setValues],
+  );
 
   return (
     <>
@@ -73,7 +76,7 @@ const DumbPatientLetterForm = ({ submitForm, onCancel, setFieldValue }) => {
           suggester={patientLetterTemplateSuggester}
           required
           component={AutocompleteField}
-          onChange={e => setTemplateId(e.target.value)}
+          onChange={e => onChangeTemplate(e.target.value)}
         />
         <Field name="title" label="Letter title" component={TextField} disabled={templateLoading} />
         <Field
@@ -84,26 +87,34 @@ const DumbPatientLetterForm = ({ submitForm, onCancel, setFieldValue }) => {
         />
       </FormGrid>
       <ModalButtonRow>
-        <FinaliseAndPrintButton
-          onClick={e => submitForm(e, { submissionType: 'FinaliseAndPrint' })}
-        >
+        <FinaliseAndPrintButton onClick={e => submitForm(e, { printRequested: true })}>
           Finalise & Print
         </FinaliseAndPrintButton>
         <Gap />
         <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-        <Button onClick={e => submitForm(e, { submissionType: 'Finalise' })}>Finalise</Button>
+        <Button onClick={submitForm}>Finalise</Button>
       </ModalButtonRow>
     </>
   );
 };
 
-export const PatientLetterForm = ({ onSubmit, onCancel, editedObject }) => {
+export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, patient }) => {
   const { currentUser } = useAuth();
+
+  const renderForm = props =>
+    props.isSubmitting ? (
+      <ModalLoader loadingText="Please wait while we create your patient letter" />
+    ) : (
+      <>
+        <PatientDetailsCard patient={patient} />
+        <PatientLetterFormContents onCancel={onCancel} {...props} />
+      </>
+    );
 
   return (
     <Form
       onSubmit={onSubmit}
-      render={props => <DumbPatientLetterForm onCancel={onCancel} {...props} />}
+      render={renderForm}
       initialValues={{
         date: getCurrentDateString(),
         clinicianId: currentUser.id,

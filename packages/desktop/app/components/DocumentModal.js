@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
 import { ForbiddenError } from 'shared/errors';
@@ -9,6 +8,7 @@ import { DOCUMENT_SOURCES } from 'shared/constants';
 import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 
 import { useApi } from '../api';
+import { useElectron } from '../contexts/Electron';
 import { Modal, ModalLoader } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
 import { ConfirmCancelRow } from './ButtonRow';
@@ -36,9 +36,11 @@ const Message = styled(Typography)`
 `;
 
 export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
+  const api = useApi();
+  const { getFileStatus } = useElectron();
+
   const [error, setError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const api = useApi();
 
   const handleClose = useCallback(() => {
     setError(false);
@@ -50,21 +52,15 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
 
   const onSubmit = useCallback(
     async ({ file, ...data }) => {
-      if (!navigator.onLine) {
-        setError(true);
-        return;
-      }
-
       setIsSubmitting(true);
 
       // Read and inject document creation date and type to metadata sent
-      const { birthtime } = await asyncFs.stat(file);
+      const { birthtime } = await getFileStatus(file);
       const attachmentType = lookupMimeType(file);
 
       try {
         await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
           ...data,
-          attachmentType,
           type: attachmentType,
           source: DOCUMENT_SOURCES.UPLOADED,
           documentCreatedAt: toDateTimeString(birthtime),
@@ -75,6 +71,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
         if (e instanceof ForbiddenError) {
           throw e; // allow error to be caught by error boundary
         } else {
+          console.error(e);
           setError(true);
           setIsSubmitting(false);
           return;
@@ -85,7 +82,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
       refreshTable();
       setIsSubmitting(false);
     },
-    [setIsSubmitting, handleClose, refreshTable, api, endpoint],
+    [setIsSubmitting, handleClose, refreshTable, api, endpoint, getFileStatus],
   );
 
   useEffect(() => {

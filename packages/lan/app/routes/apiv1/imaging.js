@@ -11,10 +11,10 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
+import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
 import { getNotePageWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
-import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults(models, imagingRequest) {
@@ -303,6 +303,11 @@ globalImagingRequests.get(
     const { models, query } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const nullPosition =
+      orderBy === 'results.completedAt' &&
+      (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
@@ -409,7 +414,9 @@ globalImagingRequests.get(
           },
         },
       },
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+      order: orderBy
+        ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
+        : undefined,
       include: [requestedBy, encounter, areas, results],
       limit: rowsPerPage,
       offset: page * rowsPerPage,

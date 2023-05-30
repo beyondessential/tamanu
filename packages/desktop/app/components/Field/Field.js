@@ -8,7 +8,7 @@ import { FORM_STATUSES } from '../../constants';
 export const Field = formikConnect(
   ({ formik: { errors, status }, name, component = TextField, onChange, helperText, ...props }) => {
     // Only show error messages once the user has attempted to submit the form
-    const error = status === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
+    const error = status?.submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
 
     const [field] = useField(name);
