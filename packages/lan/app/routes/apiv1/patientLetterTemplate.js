@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { simpleGet } from 'shared/crudHelpers';
+import { simpleGet } from 'shared/utils/crudHelpers';
 
 export const patientLetterTemplate = express.Router();
 
