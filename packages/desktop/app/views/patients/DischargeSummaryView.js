@@ -108,12 +108,7 @@ const DiagnosesList = ({ diagnoses }) => {
     .map(item => (
       <li>
         {item.diagnosis.name}
-        {displayIcd10Codes && (
-          <span>
-            {' '}
-            <Label>ICD 10 Code: </Label> {item.diagnosis.code}
-          </span>
-        )}
+        {displayIcd10Codes && <span>{` (${item.diagnosis.code})`}</span>}
       </li>
     ));
 };
@@ -288,19 +283,33 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </RightGridItem>
         </Grid>
       </Section>
-      <Content>
-        <Label>Primary diagnoses: </Label>
+
+      <Section>
+        <Grid>
+          <LeftGridItem>
+            <Label>Primary diagnoses</Label>
+          </LeftGridItem>
+          <RightGridItem>
         <ListColumn>
-          <ul>
             <DiagnosesList diagnoses={primaryDiagnoses} />
-          </ul>
         </ListColumn>
-        <Label>Secondary diagnoses: </Label>
+          </RightGridItem>
+        </Grid>
+      </Section>
+
+      <Section>
+        <Grid>
+          <LeftGridItem>
+            <Label>Secondary diagnoses</Label>
+          </LeftGridItem>
+          <RightGridItem>
         <ListColumn>
-          <ul>
             <DiagnosesList diagnoses={secondaryDiagnoses} />
-          </ul>
         </ListColumn>
+          </RightGridItem>
+        </Grid>
+      </Section>
+
         <Label>Procedures: </Label>
         <ListColumn>
           <ul>
