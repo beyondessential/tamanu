@@ -1,7 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Box } from '@material-ui/core';
 
 import { DOCUMENT_SOURCES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -15,8 +13,6 @@ export const PatientLetterModal = React.memo(
 
     const onSubmit = useCallback(
       async ({ printRequested, ...data }) => {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-
         const document = await api.post(`${endpoint}/createPatientLetter`, {
           patientLetterData: {
             todo: 'TODO: will pass through in the next PR',
@@ -28,9 +24,9 @@ export const PatientLetterModal = React.memo(
           documentCreatedAt: getCurrentDateTimeString(),
           documentUploadedAt: getCurrentDateTimeString(),
         });
+
         refreshTable();
         onClose();
-
         if (printRequested) {
           openDocumentPreview(document);
         }

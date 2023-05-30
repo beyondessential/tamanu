@@ -32,10 +32,11 @@ const Gap = styled.div`
 `;
 
 const PatientLetterFormContents = ({ submitForm, onCancel, setFieldValue, values, setValues }) => {
-  const [templateLoading, setTemplateLoading] = useState(false);
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const patientLetterTemplateSuggester = useSuggester('patientLetterTemplate');
+
+  const [templateLoading, setTemplateLoading] = useState(false);
 
   const onChangeTemplate = useCallback(async (templateId) => {
     if (!templateId) {
