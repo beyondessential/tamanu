@@ -1,8 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import { DOCUMENT_SOURCES } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../api';
 import { Modal } from './Modal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
