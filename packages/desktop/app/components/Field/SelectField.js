@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ChevronIcon } from '../Icons/ChevronIcon';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Tag } from '../Tag';
@@ -102,8 +102,11 @@ export const SelectInput = ({
   const handleChange = useCallback(
     changedOption => {
       // changedOption is empty if Clear indicator is clicked
+      const { status } = props.form;
+      const clearValue = status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
       if (!changedOption) {
-        onChange({ target: { value: null, name } });
+        // Send undefined if search bar as we dont want to filter by empty string
+        onChange({ target: { value: clearValue, name } });
         if (onClear) {
           onClear();
         }
@@ -111,7 +114,7 @@ export const SelectInput = ({
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear],
+    [onChange, name, onClear, props.form],
   );
 
   const customStyles = {

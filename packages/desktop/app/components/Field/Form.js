@@ -73,6 +73,7 @@ export class Form extends React.PureComponent {
     setSubmitting,
     getValues,
     setStatus,
+    status,
     ...rest
   }) => async (event, submissionParameters, componentsToValidate) => {
     event.preventDefault();
@@ -80,7 +81,7 @@ export class Form extends React.PureComponent {
 
     // Use formik status prop to track if the user has attempted to submit the form. This is used in
     // Field.js to only show error messages once the user has attempted to submit the form
-    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+    setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
 
     // avoid multiple submissions
     if (isSubmitting) {
