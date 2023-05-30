@@ -244,6 +244,7 @@ const ImagingRequestInfoPane = React.memo(
           onSubmit(updateValues);
         }}
         enableReinitialize // Updates form to reflect changes in initialValues
+        initialStatus={{}}
         initialValues={{
           ...imagingRequest,
           newResult: {
