@@ -99,7 +99,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
       onRowClick={selectImagingRequest}
       fetchOptions={{ ...searchParameters, ...statusFilter }}
       elevated={false}
-      initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+      initialSort={{
+        order: 'desc',
+        orderBy:
+          status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED
+            ? 'results.completedAt'
+            : 'requestedDate',
+      }}
     />
   );
 });
