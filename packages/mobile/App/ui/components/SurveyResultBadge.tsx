@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { StyledView, StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
+// Desktop/Mobile duplicated
 const COLORS = {
   green: '#83d452',
   yellow: '#ffea5a',

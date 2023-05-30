@@ -16,4 +16,5 @@ export * from './withConfig';
 export * from './dischargeOutpatientEncounters';
 export * from './getCovidClearanceCertificateFilter';
 export * from './getLabTestsFromLabRequests';
+export { renameObjectKeys } from './renameObjectKeys';
 export * from './objectToCamelCase';
