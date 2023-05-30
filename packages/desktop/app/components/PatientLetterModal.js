@@ -17,12 +17,8 @@ export const PatientLetterModal = React.memo(
           patientLetterData: {
             todo: 'TODO: will pass through in the next PR',
           },
-          type: 'application/pdf',
-          source: DOCUMENT_SOURCES.PATIENT_LETTER,
           name: data.title,
           clinicianId: data.clinicianId,
-          documentCreatedAt: getCurrentDateTimeString(),
-          documentUploadedAt: getCurrentDateTimeString(),
         });
 
         refreshTable();
