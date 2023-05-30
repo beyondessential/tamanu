@@ -87,7 +87,7 @@ export const SurveyScreen = ({
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();
-      setStatus(null);
+      setStatus({});
     } else {
       // Use formik status prop to track if the user has attempted to submit the form. This is used in
       // Field.js to only show error messages once the user has attempted to submit the form
