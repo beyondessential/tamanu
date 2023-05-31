@@ -28,7 +28,7 @@ const Container = styled.div`
 `;
 
 const SummaryPageContainer = styled.div`
-  margin: 0 auto;
+  margin: 0 60px;
   max-width: 830px;
 `;
 
@@ -91,6 +91,7 @@ const Grid = styled.div`
 
 const InnerGrid = styled(Grid)`
   border: none;
+  grid-template-columns: max-content auto;
 `;
 
 const GridItem = styled.div`
@@ -238,6 +239,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </div>
         </Content>
       </Section>
+
       <Section>
         <Header>Encounter details</Header>
         <HorizontalLine />
@@ -282,6 +284,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </div>
         </Content>
       </Section>
+
       <Section>
         <Grid>
           <GridItem>
@@ -341,28 +344,25 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <GridItem>
             <Label>Medications</Label>
           </GridItem>
-          <Box display="flex" flexDirection="column">
-            <InnerGrid>
-              <GridItem>
-                <Text>Current</Text>
-              </GridItem>
-              <GridItem>
-                <ListColumn>
-                  <MedicationsList medications={medications.filter(m => !m.discontinued)} />
-                </ListColumn>
-              </GridItem>
-            </InnerGrid>
-            <InnerGrid>
-              <GridItem>
-                <Text>Discontinued</Text>
-              </GridItem>
-              <GridItem>
-                <ListColumn>
-                  <MedicationsList medications={medications.filter(m => m.discontinued)} />
-                </ListColumn>
-              </GridItem>
-            </InnerGrid>
-          </Box>
+
+          <InnerGrid>
+            <GridItem>
+              <Text>Current</Text>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                <MedicationsList medications={medications.filter(m => !m.discontinued)} />
+              </ListColumn>
+            </GridItem>
+            <GridItem>
+              <Text>Discontinued</Text>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                <MedicationsList medications={medications.filter(m => m.discontinued)} />
+              </ListColumn>
+            </GridItem>
+          </InnerGrid>
         </Grid>
       </Section>
 
