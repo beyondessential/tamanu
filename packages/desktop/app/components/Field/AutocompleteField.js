@@ -236,7 +236,7 @@ export class AutocompleteInput extends Component {
   handleClearValue = () => {
     const { onChange, onClear, name, required, form } = this.props;
     const formType = form?.status?.formType;
-    // This is a weird bit of logic. As our autocomplete is in a bunch of places over the app we actually need to be able to set a range of "empty" values
+    // As our autocomplete is in a bunch of places over the app we actually need to be able to set a range of "empty" values
     // based on the situation the field is in.
     // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
     // 2. Required form fields should be empty strings in order to have the form validation work correctly and show the error message
