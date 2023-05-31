@@ -1,7 +1,7 @@
 - name: tamanu deployment
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
-  tag: ^(master$|dev$|main$|release/|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
+  tag: ^(main$|release/|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
   steps:
     - name: copy files
       service: build
