@@ -1,5 +1,4 @@
 import { promises as fs } from 'fs';
-import TOML from '@iarna/toml';
 
 // it does work, but eslint doesn't like it
 // eslint-disable-next-line import/no-unresolved
@@ -10,8 +9,6 @@ export async function loadSettingFile(filepath) {
   let value;
   if (filepath.endsWith('.json')) {
     value = JSON.parse(file);
-  } else if (filepath.endsWith('.toml')) {
-    value = TOML.parse(file);
   } else if (filepath.endsWith('.kdl')) {
     value = parseJiK(file);
   } else {
