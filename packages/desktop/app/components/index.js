@@ -4,6 +4,7 @@ export * from './Card';
 export * from './ContentPane';
 export * from './DateDisplay';
 export * from './Dialog';
+export * from './EditVitalCellModal';
 export * from './Field';
 export * from './FormSeparatorLine';
 export * from './FormGrid';
