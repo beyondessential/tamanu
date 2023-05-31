@@ -73,7 +73,7 @@ export async function startScheduledTasks(context) {
 }
 
 async function getReportSchedulers(context) {
-  const systemUser = await context.store.models.User.systemUser();
+  const systemUser = await context.store.models.User.getSystemUser();
 
   const schedulers = [];
   for (const options of config.scheduledReports) {

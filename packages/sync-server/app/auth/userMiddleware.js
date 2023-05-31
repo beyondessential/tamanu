@@ -28,7 +28,7 @@ export const userMiddleware = ({ secret }) =>
     }
 
     if (allowDummyToken && token === FAKE_TOKEN) {
-      req.user = await store.models.User.systemUser();
+      req.user = await store.models.User.getSystemUser();
       next();
       return;
     }

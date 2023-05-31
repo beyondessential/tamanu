@@ -12,7 +12,7 @@ export class User extends Model {
     return hash(pw, User.SALT_ROUNDS ?? DEFAULT_SALT_ROUNDS);
   }
 
-  static systemUser() {
+  static getSystemUser() {
     return this.findByPk(UUID_NIL);
   }
 
