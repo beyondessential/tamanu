@@ -1,7 +1,7 @@
 import { relative } from 'path';
 import { Command } from 'commander';
 
-import { UUID_NIL } from 'shared/constants';
+import { SYSTEM_USER_UUID } from 'shared/constants';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
@@ -123,7 +123,7 @@ export async function provision({ file, skipIfNotNeeded }) {
 
   log.info('Creating system user');
   await store.models.User.create({
-    id: UUID_NIL,
+    id: SYSTEM_USER_UUID,
     role: 'system',
     displayName: 'System',
   });
