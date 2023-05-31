@@ -30,6 +30,7 @@ const FormContainer = styled(FormGrid)`
 
 const StyledButton = styled(OutlinedButton)`
   background: ${Colors.white};
+  margin-bottom: 20px;
 `;
 
 const StyledFileChooserField = styled(FileChooserField)`
