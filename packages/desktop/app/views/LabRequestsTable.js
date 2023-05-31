@@ -72,7 +72,10 @@ export const LabRequestsTable = React.memo(
           ...searchParameters,
           ...(status && { status }),
         }}
-        initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+        initialSort={{
+          order: 'desc',
+          orderBy: publishedStatus ? 'publishedDate' : 'requestedDate',
+        }}
       />
     );
   },
