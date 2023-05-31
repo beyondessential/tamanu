@@ -110,30 +110,18 @@ const NavContainer = styled.div`
 
 const DiagnosesList = ({ diagnoses }) => {
   const { getLocalisation } = useLocalisation();
-
-  if (diagnoses.length === 0) {
-    return <span>N/A</span>;
-  }
-
   const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
 
-  return diagnoses
-    .filter(({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty))
-    .map(item => (
-      <li>
-        {item.diagnosis.name}
-        {displayIcd10Codes && <span>{` (${item.diagnosis.code})`}</span>}
-      </li>
-    ));
+  return diagnoses.map(item => (
+    <li>
+      {item.diagnosis.name}
+      {displayIcd10Codes && <span>{` (${item.diagnosis.code})`}</span>}
+    </li>
+  ));
 };
 
 const ProceduresList = ({ procedures }) => {
   const { getLocalisation } = useLocalisation();
-
-  if (!procedures || procedures.length === 0) {
-    return <span>N/A</span>;
-  }
-
   const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
 
   return procedures.map(procedure => (
@@ -194,8 +182,11 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
     reasonForEncounter,
   } = encounter;
 
-  const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
-  const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
+  const visibleDiagnoses = diagnoses.filter(
+    ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
+  );
+  const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
+  const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
 
   return (
     <SummaryPageContainer>
@@ -285,91 +276,102 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </Content>
       </Section>
 
-      <Section>
-        <Grid>
-          <GridItem>
-            <Label>Ongoing conditions</Label>
-          </GridItem>
-          <GridItem>
-            <ListColumn>
-              {patientConditions.map(condition => (
-                <li>{condition}</li>
-              ))}
-            </ListColumn>
-          </GridItem>
-        </Grid>
-      </Section>
-
-      <Section>
-        <Grid>
-          <GridItem>
-            <Label>Primary diagnoses</Label>
-          </GridItem>
-          <GridItem>
-            <ListColumn>
-              <DiagnosesList diagnoses={primaryDiagnoses} />
-            </ListColumn>
-          </GridItem>
-        </Grid>
-      </Section>
-
-      <Section>
-        <Grid>
-          <GridItem>
-            <Label>Secondary diagnoses</Label>
-          </GridItem>
-          <GridItem>
-            <ListColumn>
-              <DiagnosesList diagnoses={secondaryDiagnoses} />
-            </ListColumn>
-          </GridItem>
-        </Grid>
-      </Section>
-
-      <Section>
-        <Grid>
-          <GridItem>
-            <Label>Procedures</Label>
-          </GridItem>
-          <GridItem>
-            <ListColumn>
-              <ProceduresList procedures={procedures} />
-            </ListColumn>
-          </GridItem>
-        </Grid>
-      </Section>
-
-      <Section>
-        <Grid>
-          <GridItem>
-            <Label>Medications</Label>
-          </GridItem>
-
-          <InnerGrid>
+      {patientConditions > 0 && (
+        <Section>
+          <Grid>
             <GridItem>
-              <Text>Current</Text>
+              <Label>Ongoing conditions</Label>
             </GridItem>
             <GridItem>
               <ListColumn>
-                <MedicationsList medications={medications.filter(m => !m.discontinued)} />
+                {patientConditions.map(condition => (
+                  <li>{condition}</li>
+                ))}
               </ListColumn>
             </GridItem>
+          </Grid>
+        </Section>
+      )}
+
+      {primaryDiagnoses.length > 0 && (
+        <Section>
+          <Grid>
             <GridItem>
-              <Text>Discontinued</Text>
+              <Label>Primary diagnoses</Label>
             </GridItem>
             <GridItem>
               <ListColumn>
-                <MedicationsList medications={medications.filter(m => m.discontinued)} />
+                <DiagnosesList diagnoses={primaryDiagnoses} />
               </ListColumn>
             </GridItem>
-          </InnerGrid>
-        </Grid>
-      </Section>
+          </Grid>
+        </Section>
+      )}
 
-      <Section>
-        <Label>Discharge planning notes:</Label>
-        <Note>{discharge?.note}</Note>
-      </Section>
+      {secondaryDiagnoses.length > 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Secondary diagnoses</Label>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                <DiagnosesList diagnoses={secondaryDiagnoses} />
+              </ListColumn>
+            </GridItem>
+          </Grid>
+        </Section>
+      )}
+
+      {procedures.length > 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Procedures</Label>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                <ProceduresList procedures={procedures} />
+              </ListColumn>
+            </GridItem>
+          </Grid>
+        </Section>
+      )}
+
+      {medications.length !== 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Medications</Label>
+            </GridItem>
+            <InnerGrid>
+              <GridItem>
+                <Text>Current</Text>
+              </GridItem>
+              <GridItem>
+                <ListColumn>
+                  <MedicationsList medications={medications.filter(m => !m.discontinued)} />
+                </ListColumn>
+              </GridItem>
+              <GridItem>
+                <Text>Discontinued</Text>
+              </GridItem>
+              <GridItem>
+                <ListColumn>
+                  <MedicationsList medications={medications.filter(m => m.discontinued)} />
+                </ListColumn>
+              </GridItem>
+            </InnerGrid>
+          </Grid>
+        </Section>
+      )}
+
+      {discharge?.note && (
+        <Section>
+          <Label>Discharge planning notes:</Label>
+          <Note>{discharge.note}</Note>
+        </Section>
+      )}
     </SummaryPageContainer>
   );
 });
