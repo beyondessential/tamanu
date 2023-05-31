@@ -27,14 +27,6 @@ interface SignInFormModelValues {
 
 const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
-const signInValidationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Must be a valid email address')
-    .required(REQUIRED_VALIDATION_MESSAGE),
-  password: Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
-  server: Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
-});
-
 const ServerInfo = __DEV__
   ? ({ host }): ReactElement => {
       const { facilityName } = useFacility();

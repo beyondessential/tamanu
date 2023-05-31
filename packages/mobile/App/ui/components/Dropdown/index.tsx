@@ -47,6 +47,7 @@ const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
     styleInputGroup: {
       borderColor: theme.colors.ALERT,
       borderWidth: 1,
+      borderRadius: 6,
     },
     styleDropdownMenuSubsection: {
       ...baseStyleDropdownMenuSubsection,
