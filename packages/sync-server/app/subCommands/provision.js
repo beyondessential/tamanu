@@ -10,16 +10,18 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 
-async function provision({ file, quitIfNotNeeded }) {
+export async function provision({ file, skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
-    if (quitIfNotNeeded) {
-      log.info(`Found ${userCount} users already in the database, but expecting to, quitting.`);
-      process.exit(0);
+    if (skipIfNotNeeded) {
+      log.info(
+        `Found ${userCount} users already in the database, but expecting to, not provisioning`,
+      );
+      return;
     }
 
-    throw new Error(`Found ${userCount} users already in the database, aborting provision.`);
+    throw new Error(`Found ${userCount} users already in the database, aborting provision`);
   }
 
   checkIntegrationsConfig();
@@ -50,10 +52,10 @@ async function provision({ file, quitIfNotNeeded }) {
     for (const error of errors) {
       log.error(error);
     }
-    throw new Error(`Encountered ${errors.length} errors during provisioning.`);
+    throw new Error(`Encountered ${errors.length} errors during provisioning`);
   }
 
-  log.info('Imported reference data successfully.', stats);
+  log.info('Imported reference data successfully', stats);
 
   /// //////////
   /// FACILITIES
@@ -127,7 +129,6 @@ async function provision({ file, quitIfNotNeeded }) {
   });
 
   log.info(`Done.`);
-  process.exit(0);
 }
 
 export const provisionCommand = new Command('provision')
@@ -136,7 +137,7 @@ export const provisionCommand = new Command('provision')
   )
   .argument('<file>', 'Path to the provisioning file')
   .option(
-    '--quit-if-not-needed',
-    'If there are already users in the database, exit(0) instead of aborting.',
+    '--skip-if-not-needed',
+    'If there are already users in the database, exit(0) instead of aborting',
   )
   .action(provision);
