@@ -102,7 +102,9 @@ export const SelectInput = ({
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      // Send undefined if search bar as we dont want to filter by empty string
+      // As the select field is in a few places on the site we need to account for a range of "empty" values for state
+      // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
+      // 2. Form fields should be null as we need to be able to save them as null in the database if we are trying to remove a value when editing a record
       const clearValue = form?.status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
       if (!changedOption) {
         // Change option is empty if the user clicks the clear button
