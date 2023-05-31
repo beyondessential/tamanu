@@ -35,16 +35,17 @@ const SummaryPageContainer = styled.div`
 const Label = styled.span`
   font-weight: 600;
   font-size: 10px;
+  vertical-align: top;
 `;
 
-const Text = styled.span`
+const Text = styled(Label)`
   font-weight: 400;
-  font-size: 10px;
 `;
 
 const Section = styled(Box)`
   padding-bottom: 10px;
 `;
+
 const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -58,14 +59,14 @@ const Header = styled.div`
 `;
 
 const HorizontalLine = styled.div`
-  margin: 4px 0;
+  margin: 5px 0;
   border-top: 1px solid ${Colors.primaryDark};
 `;
 
 const ListColumn = styled.ul`
   list-style-type: none;
   padding: 0;
-    margin: 0;
+  margin: 0;
   li {
     font-size: 10px;
     padding-left: 0;
@@ -75,15 +76,18 @@ const ListColumn = styled.ul`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr 3fr;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
 `;
 
-const LeftGridItem = styled.div`
-  border: 1px solid black;
-  padding: 10px;
+const InnerGrid = styled(Grid)`
+  border: none;
 `;
 
-const RightGridItem = styled(LeftGridItem)`
-  border-left: 0px;
+const GridItem = styled.div`
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: 8px 10px;
 `;
 
 const NavContainer = styled.div`
@@ -170,7 +174,6 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   }
 
   const {
-    department,
     diagnoses,
     procedures,
     medications,
@@ -227,111 +230,137 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </Content>
       </Section>
       <Section>
-      <Header>Encounter details</Header>
-      <HorizontalLine />
-      <Content>
-        <div>
+        <Header>Encounter details</Header>
+        <HorizontalLine />
+        <Content>
+          <div>
             <Label>Facility: </Label>
             <Text>{location?.facility?.name || null}</Text>
-        </div>
-        <div>
+          </div>
+          <div>
             <Label>Department: </Label>
-            <Text>{department?.name || null}</Text>
-        </div>
-        <div>
+            <Text>{getFullLocationName(location)}</Text>
+          </div>
+          <div>
             <Label>Supervising clinician: </Label>
             <Text>{examiner?.displayName}</Text>
-        </div>
+          </div>
           <div>
             <Label>Date of admission: </Label>
             <Text>
               <DateDisplay date={startDate} showTime />
             </Text>
           </div>
-        <div>
+          <div>
             <Label>Discharging physician: </Label>
             <Text>{discharge?.discharger?.displayName}</Text>
-        </div>
-        <div>
+          </div>
+          <div>
             <Label>Date of discharge: </Label>
             <Text>
               <DateDisplay date={endDate} showTime />
             </Text>
-        </div>
+          </div>
+          {discharge && dischargeDispositionVisible && (
+            <div>
+              <Label>Discharge disposition: </Label>
+              <Text>{discharge.disposition?.name}</Text>
+            </div>
+          )}
           <div>
             <Label>Reason for encounter: </Label>
             <Text>{reasonForEncounter}</Text>
           </div>
-      </Content>
+        </Content>
       </Section>
       <Section>
         <Grid>
-          <LeftGridItem>
+          <GridItem>
             <Label>Ongoing conditions</Label>
-          </LeftGridItem>
-          <RightGridItem>
+          </GridItem>
+          <GridItem>
             <ListColumn>
               {patientConditions.map(condition => (
                 <li>{condition}</li>
               ))}
             </ListColumn>
-          </RightGridItem>
+          </GridItem>
         </Grid>
       </Section>
 
       <Section>
         <Grid>
-          <LeftGridItem>
+          <GridItem>
             <Label>Primary diagnoses</Label>
-          </LeftGridItem>
-          <RightGridItem>
-        <ListColumn>
-            <DiagnosesList diagnoses={primaryDiagnoses} />
-        </ListColumn>
-          </RightGridItem>
+          </GridItem>
+          <GridItem>
+            <ListColumn>
+              <DiagnosesList diagnoses={primaryDiagnoses} />
+            </ListColumn>
+          </GridItem>
         </Grid>
       </Section>
 
       <Section>
         <Grid>
-          <LeftGridItem>
+          <GridItem>
             <Label>Secondary diagnoses</Label>
-          </LeftGridItem>
-          <RightGridItem>
-        <ListColumn>
-            <DiagnosesList diagnoses={secondaryDiagnoses} />
-        </ListColumn>
-          </RightGridItem>
+          </GridItem>
+          <GridItem>
+            <ListColumn>
+              <DiagnosesList diagnoses={secondaryDiagnoses} />
+            </ListColumn>
+          </GridItem>
         </Grid>
       </Section>
 
       <Section>
         <Grid>
-          <LeftGridItem>
+          <GridItem>
             <Label>Procedures</Label>
-          </LeftGridItem>
-          <RightGridItem>
-        <ListColumn>
-            <ProceduresList procedures={procedures} />
-        </ListColumn>
-          </RightGridItem>
+          </GridItem>
+          <GridItem>
+            <ListColumn>
+              <ProceduresList procedures={procedures} />
+            </ListColumn>
+          </GridItem>
         </Grid>
       </Section>
-        <Label>Discharge medications: </Label>
-        <ListColumn>
-          <ul>
-            <MedicationsList
-              medications={medications.filter(
-                medication => !medication.discontinued && medication.isDischarge,
-              )}
-            />
-          </ul>
-        </ListColumn>
-        <div>
-          <Label>Discharge planning notes:</Label>
-          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{discharge?.note}</div>
-        </div>
-      </Content>
+
+      <Section>
+        <Grid>
+          <GridItem>
+            <Label>Medications</Label>
+          </GridItem>
+          <Box display="flex" flexDirection="column">
+            <InnerGrid>
+              <GridItem>
+                <Text>Current</Text>
+              </GridItem>
+              <GridItem>
+                <ListColumn>
+                  <MedicationsList medications={medications.filter(m => !m.discontinued)} />
+                </ListColumn>
+              </GridItem>
+            </InnerGrid>
+            <InnerGrid>
+              <GridItem>
+                <Text>Discontinued</Text>
+              </GridItem>
+              <GridItem>
+                <ListColumn>
+                  <MedicationsList medications={medications.filter(m => m.discontinued)} />
+                </ListColumn>
+              </GridItem>
+            </InnerGrid>
+          </Box>
+        </Grid>
+      </Section>
+
+      <div>
+        <Label>Discharge planning notes:</Label>
+        <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{discharge?.note}</div>
+      </div>
     </SummaryPageContainer>
   );
 });
