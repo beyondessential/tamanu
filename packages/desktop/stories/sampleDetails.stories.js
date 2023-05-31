@@ -14,23 +14,26 @@ export default {
 
 const chance = new Chance();
 
-const userSuggester = createDummySuggester(mapToSuggestions(USERS));
+const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const specimenTypeSuggester = createDummySuggester(mapToSuggestions(SPECIMEN_TYPES));
 const labSampleSiteSuggester = createDummySuggester(mapToSuggestions(LAB_SAMPLE_SITES));
-const labRequests = ['Microbiology', 'Malaria', 'Serology', 'Covid'].map(category => ({
+const initialSamples = ['Microbiology', 'Malaria', 'Serology', 'Covid'].map(category => ({
   id: chance.hash({ length: 8 }),
   categoryName: category,
   categoryId: category,
 }));
-
+const withPanelsRequests = initialSamples.map(groupedRequest => ({
+  ...groupedRequest,
+  panelId: 'panel-1',
+  panelName: 'Panel 1',
+}));
 const Template = args => (
   <Formik initialValues={{}}>
     <SampleDetailsField
-      userSuggester={userSuggester}
+      practitionerSuggester={practitionerSuggester}
       specimenTypeSuggester={specimenTypeSuggester}
       labSampleSiteSuggester={labSampleSiteSuggester}
-      field={{}}
-      labRequests={labRequests}
+      initialSamples={initialSamples}
       {...args}
     />
   </Formik>
@@ -38,3 +41,8 @@ const Template = args => (
 
 export const Default = Template.bind({});
 Default.args = {};
+
+export const WithPanels = Template.bind({});
+WithPanels.args = {
+  initialSamples: withPanelsRequests,
+};

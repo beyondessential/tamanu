@@ -38,29 +38,29 @@ const SECTION_LABELS = {
 export const LabRequestFormScreen2 = props => {
   const {
     values: { requestFormType },
-    onCategoriesChange,
+    onSelectionChange,
   } = props;
 
   const labelConfig = useMemo(() => SECTION_LABELS[requestFormType], [requestFormType]);
   const { subheading, instructions } = labelConfig;
 
-  const handleTestTypeChange = changed => {
-    console.log({ changed });
-    // const testTypeCategories = testTypeIds.map(
-    //   id => testTypesData.find(testType => testType.id === id).category,
-    // );
-    // const uniqueCategories = testTypeCategories.reduce((acc, category) => {
-    //   if (!acc[category.id]) {
-    //     acc[category.id] = {
-    //       id: category.id,
-    //       name: category.name,
-    //     };
-    //   }
-    //   return acc;
-    // }, {});
-    // if (onCategoriesChange) {
-    //   onCategoriesChange(Object.values(uniqueCategories));
-    // }
+  const handleSelectionChange = ({ selectedObjects }) => {
+    if (onSelectionChange) {
+      const grouped = selectedObjects.reduce((acc, obj) => {
+        const { category = {}, id, name } = obj;
+        const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
+        const groupKey = isPanelRequest ? id : category.id;
+        if (!acc[groupKey]) {
+          acc[groupKey] = {
+            categoryId: category.id,
+            categoryName: category.name,
+            ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
+          };
+        }
+        return acc;
+      }, {});
+      onSelectionChange(Object.values(grouped));
+    }
   };
 
   return (
@@ -77,7 +77,7 @@ export const LabRequestFormScreen2 = props => {
           labelConfig={labelConfig}
           component={TestSelectorField}
           requestFormType={requestFormType}
-          onChange={handleTestTypeChange}
+          onChange={handleSelectionChange}
           required
           {...props}
         />

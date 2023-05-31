@@ -28,7 +28,7 @@ export const LabRequestMultiStepForm = ({
   editedObject,
 }) => {
   const { currentUser } = useAuth();
-  const [categories, setCategories] = useState([]);
+  const [initialSamples, setInitialSamples] = useState([]);
 
   return (
     <MultiStepForm
@@ -41,8 +41,6 @@ export const LabRequestMultiStepForm = ({
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
-        specimenAttached: 'no',
-        status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
         labTestTypeIds: [],
         panelIds: [],
         notes: '',
@@ -60,8 +58,8 @@ export const LabRequestMultiStepForm = ({
       </FormStep>
       <FormStep validationSchema={screen2ValidationSchema}>
         <LabRequestFormScreen2
-          onCategoriesChange={selectedCategories => {
-            setCategories(selectedCategories);
+          onSelectionChange={samples => {
+            setInitialSamples(samples);
           }}
         />
       </FormStep>
@@ -70,7 +68,7 @@ export const LabRequestMultiStepForm = ({
           practitionerSuggester={practitionerSuggester}
           specimenTypeSuggester={specimenTypeSuggester}
           labSampleSiteSuggester={labSampleSiteSuggester}
-          categories={categories}
+          initialSamples={initialSamples}
         />
       </FormStep>
     </MultiStepForm>

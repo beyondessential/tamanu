@@ -11,7 +11,7 @@ const Container = styled.div`
   background: ${Colors.white};
   border-radius: 5px;
   display: grid;
-  grid-template-columns: 230px 1fr 1fr 1fr 1fr;
+  grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
   padding-bottom: 10px;
 `;
 
@@ -33,11 +33,6 @@ const Cell = styled.div`
   border-bottom: ${props => (props.displayBorder ? `1px solid ${Colors.outline}` : 'none')};
 `;
 
-const SampleDetailsCell = styled(Cell)`
-  padding: 10px 0;
-  margin-left: 32px;
-`;
-
 const StyledField = styled(Field)`
   width: 100%;
   .Mui-disabled {
@@ -52,33 +47,33 @@ const HEADERS = ['Category', 'Date & time collected', 'Collected by', 'Specimen 
 const WITH_PANELS_HEADERS = ['Panel', ...HEADERS];
 
 export const SampleDetailsField = ({
-  labRequests,
+  initialSamples,
   practitionerSuggester,
   specimenTypeSuggester,
   labSampleSiteSuggester,
-  onCategorySampleChange: onSamplesChange,
+  onSampleChange,
 }) => {
   const [samples, setSamples] = useState({});
 
   const hasPanels = useMemo(() => {
-    return labRequests.some(request => request.panel);
-  }, [labRequests]);
+    return initialSamples.some(sample => sample.panelId);
+  }, [initialSamples]);
 
   const headers = useMemo(() => (hasPanels ? WITH_PANELS_HEADERS : HEADERS), [hasPanels]);
 
   useEffect(() => {
-    if (samples && onSamplesChange) {
-      onSamplesChange(samples);
+    if (samples && onSampleChange) {
+      onSampleChange(samples);
     }
-  }, [samples, onSamplesChange]);
+  }, [samples, onSampleChange]);
 
   const setValue = useCallback(
-    (category, key, value) => {
+    (identifier, field, value) => {
       setSamples(previousState => {
-        const previousCategoryValue = previousState[category.id] || {};
+        const previousSample = previousState[identifier] || {};
         return {
           ...previousState,
-          [category.id]: { ...previousCategoryValue, [key]: value },
+          [identifier]: { ...previousSample, [field]: value },
         };
       });
     },
@@ -86,79 +81,79 @@ export const SampleDetailsField = ({
   );
 
   const removeSample = useCallback(
-    key => {
+    identifier => {
       setSamples(previousState => {
         const value = { ...previousState };
-        delete value[key];
+        delete value[identifier];
         return { ...value };
       });
     },
     [setSamples],
   );
 
-  const renderRequest = useCallback(
-    (request, isLastRequest) => {
-      const cellProps = { displayBorder: !isLastRequest };
-      const key = `${request.categoryId}|${request.panelId}`;
-      const isSampleCollected = samples[key]?.sampleTime;
+  const renderSampleDetails = useCallback(
+    (sample, isLastSample) => {
+      const cellProps = { displayBorder: !isLastSample };
+      const identifier = hasPanels ? sample.panelId : sample.categoryId;
+      const isSampleCollected = samples[identifier]?.sampleTime;
 
       return (
-        <React.Fragment key={key}>
+        <React.Fragment key={identifier}>
           {hasPanels && (
-            <SampleDetailsCell {...cellProps}>
-              <Typography variant="subtitle1">{request.panelName}</Typography>
-            </SampleDetailsCell>
+            <Cell {...cellProps} style={{ marginLeft: '32px' }}>
+              <Typography variant="subtitle1">{sample.panelName}</Typography>
+            </Cell>
           )}
-          <SampleDetailsCell {...cellProps}>
-            <Typography variant="subtitle1">{request.categoryName}</Typography>
-          </SampleDetailsCell>
+          <Cell {...cellProps} style={!hasPanels ? { marginLeft: '32px' } : {}}>
+            <Typography variant="subtitle1">{sample.categoryName}</Typography>
+          </Cell>
           <Cell {...cellProps}>
             <StyledField
-              name={`sampleTime-${key}`}
+              name={`sampleTime-${identifier}`}
               component={DateTimeField}
               max={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
               onChange={({ target: { value } }) => {
                 if (value) {
-                  setValue(request, 'sampleTime', value);
+                  setValue(identifier, 'sampleTime', value);
                 } else {
-                  removeSample(request);
+                  removeSample(identifier);
                 }
               }}
             />
           </Cell>
           <Cell {...cellProps}>
             <StyledField
-              name={`collectedBy-${key}`}
+              name={`collectedBy-${identifier}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              value={samples[key]?.collectedBy}
+              value={samples[identifier]?.collectedBy}
               onChange={({ target: { value } }) => {
-                setValue(request, 'collectedById', value);
+                setValue(identifier, 'collectedById', value);
               }}
             />
           </Cell>
           <Cell {...cellProps}>
             <StyledField
-              name={`specimenType-${key}`}
+              name={`specimenType-${identifier}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={specimenTypeSuggester}
-              value={samples[key]?.specimenType}
+              value={samples[identifier]?.specimenType}
               onChange={({ target: { value } }) => {
-                setValue(request, 'specimenTypeId', value);
+                setValue(identifier, 'specimenTypeId', value);
               }}
             />
           </Cell>
           <Cell {...cellProps}>
             <StyledField
-              name={`labSampleSiteSuggester-${key}`}
+              name={`labSampleSiteSuggester-${identifier}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={labSampleSiteSuggester}
-              value={samples[key]?.labSampleSite}
+              value={samples[identifier]?.labSampleSite}
               onChange={({ target: { value } }) => {
-                setValue(request, 'labSampleSiteId', value);
+                setValue(identifier, 'labSampleSiteId', value);
               }}
             />
           </Cell>
@@ -177,15 +172,15 @@ export const SampleDetailsField = ({
   );
 
   return (
-    <Container>
+    <Container hasPanels={hasPanels}>
       {headers.map((header, index) => (
         <HeaderCell style={index === 0 ? { paddingLeft: '32px' } : {}} key={`header-${header}`}>
           {header}
         </HeaderCell>
       ))}
-      {labRequests.map((request, index) => {
-        const isLastRequest = labRequests.length - 1 === index;
-        return renderRequest(request, isLastRequest);
+      {initialSamples.map((request, index) => {
+        const isLastSample = initialSamples.length - 1 === index;
+        return renderSampleDetails(request, isLastSample);
       })}
     </Container>
   );

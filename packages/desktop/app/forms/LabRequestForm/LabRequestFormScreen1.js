@@ -23,19 +23,6 @@ export const screen1ValidationSchema = yup.object().shape({
     .string()
     .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
     .required('Select type must be selected'),
-  specimenAttached: yup
-    .string()
-    .oneOf(binaryOptions.map(o => o.value))
-    .required(),
-  sampleTime: yup.string().when('specimenAttached', {
-    is: 'yes',
-    then: yup.string().required(),
-    otherwise: yup.string().nullable(),
-  }),
-  status: yup
-    .string()
-    .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED])
-    .required(),
 });
 
 const OPTIONS = {

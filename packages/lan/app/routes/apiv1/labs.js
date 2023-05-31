@@ -52,62 +52,13 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
-    const { note } = body;
+    const { note, requestFormType } = body;
     req.checkPermission('create', 'LabRequest');
 
-    const { labTestTypeIds } = req.body;
-
-    if (!labTestTypeIds.length) {
-      throw new InvalidOperationError('A lab request must have at least one test');
-    }
-
-    const categories = await models.LabTestType.findAll({
-      attributes: [
-        [Sequelize.fn('array_agg', Sequelize.col('id')), 'lab_test_type_ids'],
-        'lab_test_category_id',
-      ],
-      where: {
-        id: {
-          [Op.in]: labTestTypeIds,
-        },
-      },
-      group: ['lab_test_category_id'],
-    });
-
-    // Check to see that all the test types are valid
-    const count = categories.reduce(
-      (validTestTypesCount, category) =>
-        validTestTypesCount + category.get('lab_test_type_ids').length,
-      0,
-    );
-
-    if (count < labTestTypeIds.length) {
-      throw new InvalidOperationError('Invalid test type id');
-    }
-
-    const { categorySamples = {}, ...labRequestBody } = body;
-
-    const response = await Promise.all(
-      categories.map(async category => {
-        const categoryId = category.get('lab_test_category_id');
-        const categorySample = categorySamples[categoryId] || {};
-        const labRequestData = {
-          ...labRequestBody,
-          ...categorySample,
-          labTestTypeIds: category.get('lab_test_type_ids'),
-          labTestCategoryId: categoryId,
-        };
-
-        const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
-        if (note) {
-          const notePage = await newLabRequest.createNotePage({
-            noteType: NOTE_TYPES.OTHER,
-          });
-          await notePage.createNoteItem({ content: note, authorId: user.id });
-        }
-        return newLabRequest;
-      }),
-    );
+    const response =
+      requestFormType === 'panel'
+        ? await createPanelLabRequests(models, body, note, user)
+        : await createIndividualLabRequests(models, body, note, user);
 
     res.send(response);
   }),
@@ -433,3 +384,115 @@ labTestPanel.get(
     res.send(response);
   }),
 );
+
+async function createPanelLabRequests(models, body, note, user) {
+  const { panelIds } = body;
+
+  if (!panelIds.length) {
+    throw new InvalidOperationError('A lab request must have at least one panel');
+  }
+
+  const panels = await models.LabTestPanel.findAll({
+    where: {
+      id: panelIds,
+    },
+    include: [
+      {
+        model: models.LabTestType,
+        as: 'labTestTypes',
+      },
+    ],
+    nest: true,
+  });
+
+  const { sampleDetails = {}, ...labRequestBody } = body;
+
+  const response = await Promise.all(
+    panels.map(async panel => {
+      const panelId = panel.id;
+      const requestSample = sampleDetails[panelId] || {};
+      const labRequestData = {
+        ...labRequestBody,
+        ...requestSample,
+        specimenAttached: requestSample.specimenTypeId ? 'yes' : 'no',
+        status: requestSample.sampleTime
+          ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
+          : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+
+        labTestTypeIds: panel.labTestTypes?.map(testType => testType.id) || [],
+        labTestCategoryId: panel.categoryId,
+      };
+
+      const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
+      if (note) {
+        const notePage = await newLabRequest.createNotePage({
+          noteType: NOTE_TYPES.OTHER,
+        });
+        await notePage.createNoteItem({ content: note, authorId: user.id });
+      }
+      return newLabRequest;
+    }),
+  );
+  return response;
+}
+
+async function createIndividualLabRequests(models, body, note, user) {
+  const { labTestTypeIds } = body;
+
+  if (!labTestTypeIds.length) {
+    throw new InvalidOperationError('A lab request must have at least one test');
+  }
+
+  const categories = await models.LabTestType.findAll({
+    attributes: [
+      [Sequelize.fn('array_agg', Sequelize.col('id')), 'lab_test_type_ids'],
+      'lab_test_category_id',
+    ],
+    where: {
+      id: {
+        [Op.in]: labTestTypeIds,
+      },
+    },
+    group: ['lab_test_category_id'],
+  });
+
+  // Check to see that all the test types are valid
+  const count = categories.reduce(
+    (validTestTypesCount, category) =>
+      validTestTypesCount + category.get('lab_test_type_ids').length,
+    0,
+  );
+
+  if (count < labTestTypeIds.length) {
+    throw new InvalidOperationError('Invalid test type id');
+  }
+
+  const { sampleDetails = {}, ...labRequestBody } = body;
+
+  const response = await Promise.all(
+    categories.map(async category => {
+      const categoryId = category.get('lab_test_category_id');
+      const requestSample = sampleDetails[categoryId] || {};
+      const labRequestData = {
+        ...labRequestBody,
+        ...requestSample,
+        specimenAttached: requestSample.specimenTypeId ? 'yes' : 'no',
+        status: requestSample.sampleTime
+          ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
+          : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+        labTestTypeIds: category.get('lab_test_type_ids'),
+        labTestCategoryId: categoryId,
+      };
+
+      const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
+      if (note) {
+        const notePage = await newLabRequest.createNotePage({
+          noteType: NOTE_TYPES.OTHER,
+        });
+        await notePage.createNoteItem({ content: note, authorId: user.id });
+      }
+      return newLabRequest;
+    }),
+  );
+  return response;
+}

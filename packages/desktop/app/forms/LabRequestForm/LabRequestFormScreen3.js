@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { Field } from '../../components';
 import { Heading3, BodyText } from '../../components/Typography';
-import { CategoryTestSampleField } from '../../views/labRequest/CategoryTestSample';
+import { SampleDetailsField } from '../../views/labRequest/SampleDetailsField';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
@@ -13,7 +13,7 @@ export const LabRequestFormScreen3 = props => {
   const {
     values: { requestFormType, labTestPanelId },
     setFieldValue,
-    categories,
+    initialSamples,
     practitionerSuggester,
     specimenTypeSuggester,
     labSampleSiteSuggester,
@@ -23,9 +23,9 @@ export const LabRequestFormScreen3 = props => {
     setFieldValue('labTestPanelId', undefined);
   };
 
-  const setCategorySample = useCallback(
-    samples => {
-      setFieldValue('categorySamples', samples);
+  const setSamples = useCallback(
+    sampleDetails => {
+      setFieldValue('sampleDetails', sampleDetails);
     },
     [setFieldValue],
   );
@@ -39,13 +39,13 @@ export const LabRequestFormScreen3 = props => {
           click ‘Finalise’.
         </StyledBodyText>
         <Field
-          name="categorySamples"
+          name="sampleDetails"
           onClearPanel={handleClearPanel}
-          component={CategoryTestSampleField}
-          onCategorySampleChange={setCategorySample}
+          component={SampleDetailsField}
+          onSampleChange={setSamples}
           requestFormType={requestFormType}
           labTestPanelId={labTestPanelId}
-          categories={categories}
+          initialSamples={initialSamples}
           practitionerSuggester={practitionerSuggester}
           specimenTypeSuggester={specimenTypeSuggester}
           labSampleSiteSuggester={labSampleSiteSuggester}
