@@ -1,7 +1,7 @@
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from 'shared/sync';
 import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpers/fake';
-import { createDummyEncounter } from 'shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
@@ -22,6 +22,8 @@ const doImport = (options, models) => {
 describe('CentralSyncManager', () => {
   let ctx;
   let models;
+  let sequelize;
+
   const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
 
   const initializeCentralSyncManager = () => {
@@ -41,7 +43,7 @@ describe('CentralSyncManager', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    ({ models } = ctx.store);
+    ({ models, sequelize } = ctx.store);
   });
 
   beforeEach(async () => {
@@ -250,7 +252,7 @@ describe('CentralSyncManager', () => {
         return [facility, program, survey];
       };
 
-      const prepareMockedModelQueryPromise = async () => {
+      const prepareMockedPullOnlyModelQueryPromise = async () => {
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
         let resolveMockedModelQueryPromise;
@@ -258,8 +260,8 @@ describe('CentralSyncManager', () => {
           // count: 100 is not correct but shouldn't matter in this test case
           resolveMockedModelQueryPromise = async () => resolve([[{ maxId: null, count: 100 }]]);
         });
-        const MockedModel = {
-          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        const MockedPullOnlyModel = {
+          syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           associations: [],
           getAttributes() {
             return {
@@ -274,7 +276,7 @@ describe('CentralSyncManager', () => {
           },
         };
 
-        return { MockedModel, resolveMockedModelQueryPromise };
+        return { MockedPullOnlyModel, resolveMockedModelQueryPromise };
       };
 
       afterEach(async () => {
@@ -289,12 +291,12 @@ describe('CentralSyncManager', () => {
         // then we can insert some new records while snapshotting is happening
         const {
           resolveMockedModelQueryPromise,
-          MockedModel,
-        } = await prepareMockedModelQueryPromise();
+          MockedPullOnlyModel,
+        } = await prepareMockedPullOnlyModelQueryPromise();
 
-        // Initialize CentralSyncManager with MockedModel
+        // Initialize CentralSyncManager with MockedPullOnlyModel
         ctx.store.models = {
-          MockedModel,
+          MockedPullOnlyModel,
           ...models,
         };
 
@@ -360,12 +362,12 @@ describe('CentralSyncManager', () => {
         // then we can insert some new records while snapshotting is happening
         const {
           resolveMockedModelQueryPromise,
-          MockedModel,
-        } = await prepareMockedModelQueryPromise();
+          MockedPullOnlyModel,
+        } = await prepareMockedPullOnlyModelQueryPromise();
 
-        // Initialize CentralSyncManager with MockedModel
+        // Initialize CentralSyncManager with MockedPullOnlyModel
         ctx.store.models = {
-          MockedModel,
+          MockedPullOnlyModel,
           ...models,
         };
 
@@ -412,12 +414,12 @@ describe('CentralSyncManager', () => {
         // then we can insert some new records while snapshotting is happening
         const {
           resolveMockedModelQueryPromise,
-          MockedModel,
-        } = await prepareMockedModelQueryPromise();
+          MockedPullOnlyModel,
+        } = await prepareMockedPullOnlyModelQueryPromise();
 
-        // Initialize CentralSyncManager with MockedModel
+        // Initialize CentralSyncManager with MockedPullOnlyModel
         ctx.store.models = {
-          MockedModel,
+          MockedPullOnlyModel,
           ...models,
         };
 
@@ -841,6 +843,78 @@ describe('CentralSyncManager', () => {
             expect.arrayContaining([fullSyncedAdministeredVaccine3.id]),
           );
         });
+      });
+    });
+
+    describe('handles in-flight transactions', () => {
+      it('should wait until all the in-flight transactions using previous ticks (within the range of syncing) to finish and snapshot them for outgoing changes', async () => {
+        const OLD_SYNC_TICK_1 = '4';
+        const OLD_SYNC_TICK_2 = '6';
+        const OLD_SYNC_TICK_3 = '8';
+        const CURRENT_SYNC_TICK = '10';
+        const facility = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        // Insert PATIENT 1 using an old sync tick and don't commit the transaction yet
+        await models.LocalSystemFact.set('currentSyncTick', OLD_SYNC_TICK_1);
+        const transactionForPatient1 = await sequelize.transaction();
+        const patient1 = await models.Patient.create(createDummyPatient(), {
+          transaction: transactionForPatient1,
+        });
+
+        // Insert PATIENT 2 using an old sync tick and don't commit the transaction yet
+        await models.LocalSystemFact.set('currentSyncTick', OLD_SYNC_TICK_2);
+        const transactionForPatient2 = await sequelize.transaction();
+        const patient2 = await models.Patient.create(createDummyPatient(), {
+          transaction: transactionForPatient2,
+        });
+
+        // Insert PATIENT 3 using an old sync tick and don't commit the transaction yet
+        await models.LocalSystemFact.set('currentSyncTick', OLD_SYNC_TICK_3);
+        const transactionForPatient3 = await sequelize.transaction();
+        const patient3 = await models.Patient.create(createDummyPatient(), {
+          transaction: transactionForPatient3,
+        });
+
+        // Insert PATIENT 4 using the latest sync tick and commit the transaction
+        await models.LocalSystemFact.set('currentSyncTick', CURRENT_SYNC_TICK);
+        const patient4 = await models.Patient.create(createDummyPatient());
+
+        const snapshotForPullPromise = centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 2,
+            facilityId: facility.id,
+          },
+          () => true,
+        );
+
+        // Wait for the snapshot process to go through
+        await sleepAsync(200);
+
+        // Commit the transaction for patient 3 (the last inserted patient) first, then 2, then 1
+        // so that we can also test an edge case when the previous transactions were still not committed
+        await transactionForPatient3.commit();
+        await sleepAsync(200);
+        await transactionForPatient2.commit();
+        await sleepAsync(200);
+        await transactionForPatient1.commit();
+        await snapshotForPullPromise;
+
+        const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
+          limit: 10,
+        });
+
+        expect(changes).toHaveLength(4);
+
+        expect(changes.map(c => c.data.id).sort()).toEqual(
+          [patient1.id, patient2.id, patient3.id, patient4.id].sort(),
+        );
       });
     });
   });

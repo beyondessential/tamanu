@@ -56,7 +56,7 @@ export const ExpandedMultiSelectField = ({
         <MultiSelectItem key="select_all">
           <CheckInput
             label="Select all"
-            checked={currentList.length === options.length}
+            value={currentList.length === options.length}
             onChange={e => {
               const { checked } = e.target;
               const newList = checked ? options.map(option => option.value) : [];
@@ -74,7 +74,7 @@ export const ExpandedMultiSelectField = ({
                   name={value}
                   key={value}
                   label={optionLabel}
-                  checked={currentList.includes(value)}
+                  value={currentList.includes(value)}
                   onChange={toggle}
                 />
               </MultiSelectItem>

@@ -76,6 +76,7 @@ const ModalTitle = styled(DialogTitle)`
 const VerticalCenteredText = styled.span`
   display: flex;
   align-items: center;
+  padding: 12px 0;
 `;
 
 const StyledButton = styled(Button)`
@@ -96,7 +97,7 @@ export const Modal = memo(
     additionalActions,
     color = Colors.background,
     overrideContentPadding = false,
-    disableHeaderCloseIcon = false,
+    cornerExitButton = true,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -149,7 +150,7 @@ export const Modal = memo(
                 Print
               </StyledButton>
             )}
-            {!disableHeaderCloseIcon && (
+            {cornerExitButton && (
               <IconButton onClick={onClose}>
                 <CloseIcon />
               </IconButton>

@@ -162,6 +162,7 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 // Treatment plan first and alphabetical after that
 export const noteTypes = [
   { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
+  { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
   { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
   { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
   { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
@@ -448,4 +449,10 @@ export const FORM_STATUSES = {
 export const SUPPORTED_DOCUMENT_TYPES = {
   PDF: 'PDF',
   JPEG: 'JPEG',
+};
+
+export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
+
+export const FORM_TYPES = {
+  SEARCH_FORM: 'searchForm',
 };
