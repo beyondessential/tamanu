@@ -103,7 +103,7 @@ export const SelectInput = ({
     changedOption => {
       // changedOption is empty if Clear indicator is clicked
       const { status } = props.form;
-      const clearValue = status?.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
+      const clearValue = status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
       if (!changedOption) {
         // Send undefined if search bar as we dont want to filter by empty string
         onChange({ target: { value: clearValue, name } });
