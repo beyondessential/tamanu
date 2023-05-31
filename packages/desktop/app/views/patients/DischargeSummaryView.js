@@ -125,12 +125,7 @@ const ProceduresList = ({ procedures }) => {
   return procedures.map(procedure => (
     <li>
       {procedure.procedureType.name}
-      {displayProcedureCodes && (
-        <span>
-          {' '}
-          (<Label>CPT Code: </Label> {procedure.procedureType.code})
-        </span>
-      )}
+      {displayProcedureCodes && <span>{` (${procedure.procedureType.code})`}</span>}
     </li>
   ));
 };
@@ -310,12 +305,18 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </Grid>
       </Section>
 
-        <Label>Procedures: </Label>
+      <Section>
+        <Grid>
+          <LeftGridItem>
+            <Label>Procedures</Label>
+          </LeftGridItem>
+          <RightGridItem>
         <ListColumn>
-          <ul>
             <ProceduresList procedures={procedures} />
-          </ul>
         </ListColumn>
+          </RightGridItem>
+        </Grid>
+      </Section>
         <Label>Discharge medications: </Label>
         <ListColumn>
           <ul>
