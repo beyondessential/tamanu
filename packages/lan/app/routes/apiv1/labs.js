@@ -85,12 +85,17 @@ labRequest.post(
       throw new InvalidOperationError('Invalid test type id');
     }
 
+    const { categorySamples = {}, ...labRequestBody } = body;
+
     const response = await Promise.all(
       categories.map(async category => {
+        const categoryId = category.get('lab_test_category_id');
+        const categorySample = categorySamples[categoryId] || {};
         const labRequestData = {
-          ...body,
+          ...labRequestBody,
+          ...categorySample,
           labTestTypeIds: category.get('lab_test_type_ids'),
-          labTestCategoryId: category.get('lab_test_category_id'),
+          labTestCategoryId: categoryId,
         };
 
         const newLabRequest = await models.LabRequest.createWithTests(labRequestData);

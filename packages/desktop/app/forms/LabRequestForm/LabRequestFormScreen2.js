@@ -38,10 +38,30 @@ const SECTION_LABELS = {
 export const LabRequestFormScreen2 = props => {
   const {
     values: { requestFormType },
+    onCategoriesChange,
   } = props;
 
   const labelConfig = useMemo(() => SECTION_LABELS[requestFormType], [requestFormType]);
   const { subheading, instructions } = labelConfig;
+
+  const handleTestTypeChange = changed => {
+    console.log({ changed });
+    // const testTypeCategories = testTypeIds.map(
+    //   id => testTypesData.find(testType => testType.id === id).category,
+    // );
+    // const uniqueCategories = testTypeCategories.reduce((acc, category) => {
+    //   if (!acc[category.id]) {
+    //     acc[category.id] = {
+    //       id: category.id,
+    //       name: category.name,
+    //     };
+    //   }
+    //   return acc;
+    // }, {});
+    // if (onCategoriesChange) {
+    //   onCategoriesChange(Object.values(uniqueCategories));
+    // }
+  };
 
   return (
     <>
@@ -57,6 +77,7 @@ export const LabRequestFormScreen2 = props => {
           labelConfig={labelConfig}
           component={TestSelectorField}
           requestFormType={requestFormType}
+          onChange={handleTestTypeChange}
           required
           {...props}
         />
