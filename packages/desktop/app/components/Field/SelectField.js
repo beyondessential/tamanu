@@ -97,15 +97,15 @@ export const SelectInput = ({
   helperText,
   inputRef,
   onClear,
+  form,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      // changedOption is empty if Clear indicator is clicked
-      const { status } = props.form;
-      const clearValue = status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
+      // Send undefined if search bar as we dont want to filter by empty string
+      const clearValue = form?.status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
       if (!changedOption) {
-        // Send undefined if search bar as we dont want to filter by empty string
+        // Change option is empty if the user clicks the clear button
         onChange({ target: { value: clearValue, name } });
         if (onClear) {
           onClear();
@@ -114,7 +114,7 @@ export const SelectInput = ({
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear, props.form],
+    [onChange, name, onClear, form],
   );
 
   const customStyles = {
