@@ -7,7 +7,7 @@ export async function up(query) {
 
   // if there are no users, provisioning will take care of it
   // if there are users, this is an existing install, so create a system user
-  if (counts?.[0]?.userCount > 0) {
+  if (counts[0].userCount > 0) {
     await query.sequelize.query(`
       INSERT INTO "users"
       (id, email, created_at, updated_at, display_name, role)
