@@ -101,10 +101,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
       elevated={false}
       initialSort={{
         order: 'desc',
-        orderBy:
-          status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED
-            ? 'results.completedAt'
-            : 'requestedDate',
+        orderBy: completedStatus ? 'results.completedAt' : 'requestedDate',
       }}
     />
   );
