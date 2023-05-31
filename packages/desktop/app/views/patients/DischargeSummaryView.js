@@ -46,6 +46,15 @@ const Section = styled(Box)`
   padding-bottom: 10px;
 `;
 
+const Note = styled.p`
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 10px;
+  border: 1px solid black;
+  margin: 0;
+  padding: 8px 10px;
+`;
+
 const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -357,10 +366,10 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </Grid>
       </Section>
 
-      <div>
+      <Section>
         <Label>Discharge planning notes:</Label>
-        <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{discharge?.note}</div>
-      </div>
+        <Note>{discharge?.note}</Note>
+      </Section>
     </SummaryPageContainer>
   );
 });
