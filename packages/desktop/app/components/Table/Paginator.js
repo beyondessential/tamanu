@@ -116,8 +116,6 @@ export const Paginator = React.memo(
     const upperRange =
       count > rowsPerPage && page + 1 !== numberOfPages ? (page + 1) * rowsPerPage : count;
 
-    console.log(page, rowsPerPage);
-
     return (
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
