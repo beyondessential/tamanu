@@ -97,15 +97,17 @@ export const SelectInput = ({
   helperText,
   inputRef,
   onClear,
+  form,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      // changedOption is empty if Clear indicator is clicked
-      const { status } = props.form;
-      const clearValue = status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
-      if (!changedOption) {
-        // Send undefined if search bar as we dont want to filter by empty string
+      // As the select field is in a few places on the site we need to account for a range of "empty" values for state
+      // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
+      // 2. Form fields should be null as we need to be able to save them as null in the database if we are trying to remove a value when editing a record
+      const clearValue = form?.status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
         onChange({ target: { value: clearValue, name } });
         if (onClear) {
           onClear();
@@ -114,7 +116,7 @@ export const SelectInput = ({
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear, props.form],
+    [onChange, name, onClear, form],
   );
 
   const customStyles = {
