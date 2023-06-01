@@ -76,7 +76,6 @@ jobs:
             const registry = process.env.REGISTRY;
             const repo_name = process.env.REPO_NAME;
             const image = `${registry}/tamanu/${repo_name}`;
-            console.log({ registry, repo_name, image });
             return image;
       - name: Normalise branch/ref name
         uses: actions/github-script@v6
@@ -90,12 +89,10 @@ jobs:
             const head_ref = process.env.GH_HEAD_REF;
             const ref_name = process.env.GH_REF_NAME;
             const ref = head_ref ?? ref_name;
-            console.log({ head_ref, ref_name, ref });
             const cleaned = ref
               .replace(/[^a-z0-9-]/g, '-')
               .replace(/-+/g, '-')
               .replace(/^-|-$/g, '');
-            console.log({ cleaned });
             return cleaned;
 
       - name: Build and push
