@@ -171,10 +171,5 @@ export class FacilitySyncManager {
       log.debug('Sync: Updating last successful sync pull', { pullUntil });
       await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullUntil);
     });
-
-    await this.centralServer.endSyncSession(sessionId);
-
-    // clear temp data stored for persist
-    await dropSnapshotTable(this.sequelize, sessionId);
   }
 }

@@ -339,7 +339,6 @@ describe('FacilitySyncManager', () => {
       const riskyPatient = await models.Patient.findByPk(riskyPatientId);
       expect(riskyPatient.updatedAtSyncTick).toBe(currentSyncTick);
 
-      // console.log('push.pushOutgoingChanges.mock.calls', push.pushOutgoingChanges.mock.calls);
       // check that the snapshot included _both_ patient records (the changes get passed as an
       // argument to pushOutgoingChanges, which we spy on)
       expect(

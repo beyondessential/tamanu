@@ -38,6 +38,7 @@ describe('CentralSyncManager', () => {
     let ready = false;
     while (!ready) {
       ready = await centralSyncManager.checkSessionReady(sessionId);
+      await sleepAsync(100);
     }
   };
 
@@ -104,7 +105,22 @@ describe('CentralSyncManager', () => {
       await waitForSession(centralSyncManager, sessionId);
 
       const syncSession = await centralSyncManager.connectToSession(sessionId);
-      expect(syncSession).not.toBeUndefined();
+      expect(syncSession).toBeDefined();
+    });
+
+    it('throws an error if connecting to a session that has errored out', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      const session = await models.SyncSession.findByPk(sessionId);
+      session.error =
+        'Snapshot processing incomplete, likely because the central server restarted during the snapshot';
+      await session.save();
+
+      expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
+        `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
+      );
     });
   });
 
@@ -158,7 +174,7 @@ describe('CentralSyncManager', () => {
 
   describe('setupSnapshotForPull', () => {
     describe('handles snapshot process', () => {
-      it('returns all encounters for marked-for-sync patients', async () => {
+      it('returns all encounters for newly marked-for-sync patients', async () => {
         const OLD_SYNC_TICK = 10;
         const NEW_SYNC_TICK = 20;
 
@@ -234,6 +250,69 @@ describe('CentralSyncManager', () => {
         expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
         expect(encounterIds).not.toEqual(expect.arrayContaining([encounter3.id]));
       });
+
+      it('returns only newly created encounter for a previously marked-for-sync patient', async () => {
+        const OLD_SYNC_TICK = 10;
+        const NEW_SYNC_TICK = 20;
+
+        // ~ ~ ~ Set up old data
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+        const patient1 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const facility = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        await models.User.create(fakeUser());
+        await models.Department.create({
+          ...fake(models.Department),
+          facilityId: facility.id,
+        });
+        await models.Location.create({
+          ...fake(models.Location),
+          facilityId: facility.id,
+        });
+        // Create encounter 1 having the same sync tick as the patient_facility
+        await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient1.id,
+        });
+        // ~ ~ ~ Set up data for marked for sync patients
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patient1.id,
+          facilityId: facility.id,
+        });
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+
+        const encounter2 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient1.id,
+        });
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 15,
+            facilityId: facility.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const sessionTwoEncounterIds = outgoingChanges
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
+
+        // Assert if outgoing changes contain only encounter2 and not encounter1
+        expect(sessionTwoEncounterIds).toHaveLength(1);
+        expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
+      });
     });
 
     describe('handles concurrent transactions', () => {
@@ -253,12 +332,19 @@ describe('CentralSyncManager', () => {
       };
 
       const prepareMockedPullOnlyModelQueryPromise = async () => {
+        let resolveSnapshotOutgoingChangesWaitingPromise;
+        const snapshotOutgoingChangesWaitingPromise = new Promise(resolve => {
+          // count: 100 is not correct but shouldn't matter in this test case
+          resolveSnapshotOutgoingChangesWaitingPromise = async () => resolve(true);
+        });
+
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
-        let resolveMockedModelQueryPromise;
-        const mockedModelQueryPromise = new Promise(resolve => {
+        let resolveMockedModelSnapshotOutgoingChangesQueryPromise;
+        const mockedModelSnapshotOutgoingChangesQueryPromise = new Promise(resolve => {
           // count: 100 is not correct but shouldn't matter in this test case
-          resolveMockedModelQueryPromise = async () => resolve([[{ maxId: null, count: 100 }]]);
+          resolveMockedModelSnapshotOutgoingChangesQueryPromise = async () =>
+            resolve([[{ maxId: null, count: 100 }]]);
         });
         const MockedPullOnlyModel = {
           syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -271,12 +357,17 @@ describe('CentralSyncManager', () => {
           },
           sequelize: {
             async query() {
-              return mockedModelQueryPromise;
+              await resolveSnapshotOutgoingChangesWaitingPromise();
+              return mockedModelSnapshotOutgoingChangesQueryPromise;
             },
           },
         };
 
-        return { MockedPullOnlyModel, resolveMockedModelQueryPromise };
+        return {
+          MockedPullOnlyModel,
+          resolveMockedModelSnapshotOutgoingChangesQueryPromise,
+          snapshotOutgoingChangesWaitingPromise,
+        };
       };
 
       afterEach(async () => {
@@ -290,7 +381,8 @@ describe('CentralSyncManager', () => {
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
         const {
-          resolveMockedModelQueryPromise,
+          resolveMockedModelSnapshotOutgoingChangesQueryPromise,
+          snapshotOutgoingChangesWaitingPromise,
           MockedPullOnlyModel,
         } = await prepareMockedPullOnlyModelQueryPromise();
 
@@ -315,8 +407,9 @@ describe('CentralSyncManager', () => {
           () => true,
         );
 
-        // wait until setupSnapshotForPull() reach and block the snapshotting process inside the wrapper transaction,
-        await sleepAsync(1000);
+        // wait until setupSnapshotForPull() reaches snapshotting for MockedModel
+        // and block the snapshotting process inside the wrapper transaction,
+        await snapshotOutgoingChangesWaitingPromise;
 
         // Insert the records just before we release the lock,
         // meaning that we're inserting the records below in the middle of the snapshotting process,
@@ -339,7 +432,7 @@ describe('CentralSyncManager', () => {
         });
 
         // Now release the lock to see if the snapshot captures the newly inserted records above
-        await resolveMockedModelQueryPromise();
+        await resolveMockedModelSnapshotOutgoingChangesQueryPromise();
         await sleepAsync(20);
 
         await snapshot;
@@ -361,7 +454,8 @@ describe('CentralSyncManager', () => {
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
         const {
-          resolveMockedModelQueryPromise,
+          resolveMockedModelSnapshotOutgoingChangesQueryPromise,
+          snapshotOutgoingChangesWaitingPromise,
           MockedPullOnlyModel,
         } = await prepareMockedPullOnlyModelQueryPromise();
 
@@ -386,15 +480,16 @@ describe('CentralSyncManager', () => {
           () => true,
         );
 
-        // wait until setupSnapshotForPull() reach and block the snapshotting process inside the wrapper transaction,
-        await sleepAsync(1000);
+        // wait until setupSnapshotForPull() reaches snapshotting for MockedModel
+        // and block the snapshotting process inside the wrapper transaction
+        await snapshotOutgoingChangesWaitingPromise;
 
         // Insert the records just before we release the lock,
         // meaning that we're inserting the records below in the middle of the snapshotting process,
         await doImport({ file: 'refdata-valid', dryRun: false }, models);
 
         // Now release the lock to see if the snapshot captures the newly inserted records above
-        await resolveMockedModelQueryPromise();
+        await resolveMockedModelSnapshotOutgoingChangesQueryPromise();
         await sleepAsync(20);
 
         await snapshot;
@@ -413,7 +508,8 @@ describe('CentralSyncManager', () => {
         // Build the fakeModelPromise so that it can block the snapshotting process,
         // then we can insert some new records while snapshotting is happening
         const {
-          resolveMockedModelQueryPromise,
+          resolveMockedModelSnapshotOutgoingChangesQueryPromise,
+          snapshotOutgoingChangesWaitingPromise,
           MockedPullOnlyModel,
         } = await prepareMockedPullOnlyModelQueryPromise();
 
@@ -438,8 +534,9 @@ describe('CentralSyncManager', () => {
           () => true,
         );
 
-        // wait until setupSnapshotForPull() reach and block the snapshotting process inside the wrapper transaction,
-        await sleepAsync(1000);
+        // wait until setupSnapshotForPull() reaches snapshotting for MockedModel
+        // and block the snapshotting process inside the wrapper transaction
+        await snapshotOutgoingChangesWaitingPromise;
 
         const survey1 = fakeSurvey();
         const survey2 = fakeSurvey();
@@ -483,7 +580,7 @@ describe('CentralSyncManager', () => {
         await sleepAsync(100);
 
         // Now release the lock to see if the snapshot captures the newly inserted records above
-        await resolveMockedModelQueryPromise();
+        await resolveMockedModelSnapshotOutgoingChangesQueryPromise();
         await sleepAsync(20);
 
         await snapshot;
@@ -499,7 +596,7 @@ describe('CentralSyncManager', () => {
       });
     });
 
-    describe('handles SYNC configurations', () => {
+    describe('handles sync special case configurations', () => {
       describe('syncAllLabRequests', () => {
         let facility;
         let labRequest1;
@@ -591,7 +688,7 @@ describe('CentralSyncManager', () => {
           );
         });
 
-        it('does not sync all lab requests when enabled', async () => {
+        it('does not sync all lab requests when disabled', async () => {
           // Disable syncAllLabRequests
           await models.Setting.create({
             facilityId: facility.id,
@@ -847,7 +944,7 @@ describe('CentralSyncManager', () => {
     });
 
     describe('handles in-flight transactions', () => {
-      it('should wait until all the in-flight transactions using previous ticks (within the range of syncing) to finish and snapshot them for outgoing changes', async () => {
+      it('waits until all the in-flight transactions using previous ticks (within the range of syncing) to finish and snapshot them for outgoing changes', async () => {
         const OLD_SYNC_TICK_1 = '4';
         const OLD_SYNC_TICK_2 = '6';
         const OLD_SYNC_TICK_3 = '8';
