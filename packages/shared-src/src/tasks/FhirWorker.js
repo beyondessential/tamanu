@@ -135,6 +135,7 @@ export class FhirWorker {
   processQueue() {
     // start a new root span here to avoid tying this to any callers
     return getTracer().startActiveSpan(`FhirWorker.processQueue`, { root: true }, async span => {
+      this.log.debug(`Starting to process the queue from worker ${this.worker.id}.`);
       span.setAttributes({
         'code.function': 'processQueue',
         'job.worker': this.worker.id,
@@ -172,6 +173,7 @@ export class FhirWorker {
 
         await Promise.allSettled(runs);
       } catch (err) {
+        this.log.debug('Trouble retrieving the backlog');
         span.recordException(err);
         span.setStatus({ code: SpanStatusCode.ERROR });
         throw err;
@@ -262,15 +264,14 @@ export class FhirWorker {
           throw new FhirWorkerError(topic, 'error running job', err);
         } finally {
           this.processing.delete(job.id);
-
-          // immediately process the queue again to work through the backlog
-          this.processQueueNow();
         }
       } catch (err) {
         span.recordException(err);
         span.setStatus({ code: SpanStatusCode.ERROR });
       } finally {
         span.end();
+        // immediately process the queue again to work through the backlog
+        this.processQueueNow();
       }
     });
   }
