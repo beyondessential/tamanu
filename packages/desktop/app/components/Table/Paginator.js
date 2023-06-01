@@ -112,7 +112,7 @@ export const Paginator = React.memo(
     // This is the index of the top row of the table (set to 0 if no rows are present)
     const lowerRange = count > 0 ? page * rowsPerPage + 1 : 0;
     // This is the index of the bottom row of the table (set it to total count if less than a whole page is present)
-    const upperRange = count > rowsPerPage ? (page + 1) * rowsPerPage : count;
+    const upperRange = count > rowsPerPage && page + 1 !== numberOfPages ? (page + 1) * rowsPerPage : count;
 
     return (
       <PaginatorWrapper colSpan={colSpan}>
