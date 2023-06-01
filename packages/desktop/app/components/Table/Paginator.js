@@ -79,7 +79,6 @@ const NextButton = styled(ChevronIcon)`
   transform: rotate(-90deg);
 `;
 
-// As the dropdown menu is not a child of the select component, I have styled it using the makeStyles hook
 const useStyles = makeStyles({
   selectMenu: {
     borderRadius: 3,
