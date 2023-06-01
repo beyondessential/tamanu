@@ -33,7 +33,6 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
     field: { value, name },
     form: { setFieldValue } = {},
     label,
-    onClear,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
 
@@ -45,9 +44,6 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
     setSearchValue('');
     if (setFieldValue) {
       setFieldValue(name, '');
-    }
-    if (onClear) {
-      onClear();
     }
   };
 

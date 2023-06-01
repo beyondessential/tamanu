@@ -234,7 +234,7 @@ class BaseAutocomplete extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, onClear, name, required, form } = this.props;
+    const { onChange, name, required, form } = this.props;
     const formType = form?.status?.formType;
     // As our autocomplete is in a bunch of places over the app we actually need to be able to set a range of "empty" values
     // based on the situation the field is in.
@@ -251,9 +251,6 @@ class BaseAutocomplete extends Component {
 
     onChange({ target: { value: clearValue, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    if (onClear) {
-      onClear();
-    }
   };
 
   clearOptions = () => {
