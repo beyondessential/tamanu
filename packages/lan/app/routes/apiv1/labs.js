@@ -90,35 +90,36 @@ labRequest.get(
       })),
       makeSimpleTextFilter('status', 'lab_requests.status'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
-      makeSimpleTextFilter('category', 'category.name'),
-      makeSimpleTextFilter('priority', 'priority.name'),
-      makeSimpleTextFilter('laboratory', 'laboratory.name'),
+      makeFilter(filterParams.category, 'category.id = :category'),
+      makeSimpleTextFilter('priority', 'priority.id'),
+      makeFilter(filterParams.laboratory, 'lab_requests.lab_test_laboratory_id = :laboratory'),
       makeSimpleTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeSimpleTextFilter('patientId', 'patient.id'),
+      makeFilter(filterParams.locationGroupId, 'location.location_group_id = :locationGroupId'),
       makeFilter(
         filterParams.requestedDateFrom,
-        `lab_requests.requested_date >= :requestedDateFrom`,
+        'lab_requests.requested_date >= :requestedDateFrom',
         ({ requestedDateFrom }) => ({
           requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
         }),
       ),
       makeFilter(
         filterParams.requestedDateTo,
-        `lab_requests.requested_date <= :requestedDateTo`,
+        'lab_requests.requested_date <= :requestedDateTo',
         ({ requestedDateTo }) => ({
           requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
         }),
       ),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
-        `location.facility_id = :facilityId`,
+        'location.facility_id = :facilityId',
         () => ({ facilityId: config.serverFacilityId }),
       ),
       makeFilter(
         filterParams.publishedDate,
-        `lab_requests.published_date LIKE :publishedDate`,
+        'lab_requests.published_date LIKE :publishedDate',
         ({ publishedDate }) => {
           return {
             publishedDate: `${publishedDate}%`,
@@ -127,7 +128,7 @@ labRequest.get(
       ),
       makeFilter(
         filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
-        `lab_requests.status != :published`,
+        'lab_requests.status != :published',
         () => ({
           published: LAB_REQUEST_STATUSES.PUBLISHED,
         }),
