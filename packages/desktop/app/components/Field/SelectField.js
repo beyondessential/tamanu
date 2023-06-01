@@ -96,7 +96,6 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  onClear,
   form,
   ...props
 }) => {
@@ -109,14 +108,11 @@ export const SelectInput = ({
       const userClickedClear = !changedOption;
       if (userClickedClear) {
         onChange({ target: { value: clearValue, name } });
-        if (onClear) {
-          onClear();
-        }
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear, form],
+    [onChange, name, form],
   );
 
   const customStyles = {
