@@ -135,6 +135,7 @@ export class FhirWorker {
   processQueue() {
     // start a new root span here to avoid tying this to any callers
     return getTracer().startActiveSpan(`FhirWorker.processQueue`, { root: true }, async span => {
+      this.log.debug(`Starting to process the queue from worker ${this.worker.id}.`);
       span.setAttributes({
         'code.function': 'processQueue',
         'job.worker': this.worker.id,
