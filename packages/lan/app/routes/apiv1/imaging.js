@@ -361,13 +361,6 @@ globalImagingRequests.get(
     const requestedBy = {
       association: 'requestedBy',
     };
-    const areas = {
-      association: 'areas',
-      through: {
-        // Don't include attributes on through table
-        attributes: [],
-      },
-    };
     const patient = {
       association: 'patient',
       where: patientFilters,
@@ -417,10 +410,11 @@ globalImagingRequests.get(
       order: orderBy
         ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
         : undefined,
-      include: [requestedBy, encounter, areas, results],
+      include: [requestedBy, encounter, results],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
+      subQuery: false,
     });
 
     // Extract and normalize data calling a base model method
