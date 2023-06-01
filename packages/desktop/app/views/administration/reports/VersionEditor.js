@@ -5,11 +5,13 @@ import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
 import SaveAsIcon from '@material-ui/icons/SaveAltSharp';
+import EditIcon from '@material-ui/icons/EditSharp';
 import { OutlinedButton, CardItem, formatShort, formatTime } from '../../../components';
 import { schema, templates } from './schema';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
+import { QueryEditor } from './QueryEditor';
 
 const ajv = new Ajv({ allErrors: true });
 
@@ -151,6 +153,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
   } = version;
   const { name } = report;
   const { currentUser } = useAuth();
+  const [showSqlEditor, setShowSqlEditor] = useState(false);
   const [isValid, setIsValid] = useState(true);
   const [dirty, setDirty] = useState(false);
   const [value, setValue] = useState(editableData);
@@ -163,12 +166,25 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
     setIsValid(ajv.validate(schema, json));
   };
 
-  const handleReset = () => {
-    setDirty(false);
+  // Force jsoneditor to re-render
+  const triggerRefresh = json => {
     setValue(null);
-    // This has has to be deferred to reload jsoneditor window properly
-    setTimeout(() => setValue(editableData), 0);
+    setTimeout(() => setValue(json), 0);
   };
+
+  const handleReset = () => {
+    triggerRefresh(editableData);
+  };
+
+  const handleUpdate = query => {
+    if (query === editableData.query) return;
+    setDirty(true);
+    const updatedData = { ...value, query };
+    triggerRefresh(updatedData);
+  };
+
+  const handleShowSqlEditor = () => setShowSqlEditor(true);
+  const handleCloseSqlEditor = () => setShowSqlEditor(false);
 
   const handleSave = async () => {
     try {
@@ -187,40 +203,51 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
   };
 
   return (
-    <EditorContainer>
-      <ButtonContainer>
-        <StyledButton onClick={onBack}>Back</StyledButton>
-        <StyledButton onClick={handleReset} disabled={!dirty}>
-          Reset
-        </StyledButton>
-      </ButtonContainer>
-      <ButtonContainer>
-        <SaveButton
-          submitting={submitting}
-          onClick={() => handleSave(true)}
-          dirty={dirty}
-          isValid={isValid}
-        >
-          <SaveIcon />
-          Save new version
-        </SaveButton>
-      </ButtonContainer>
-      <DetailList>
-        <VersionInfo name={name} version={version} />
-        {value && (
-          <ErrorBoundary errorKey={version.id} ErrorComponent={LoadError}>
-            <JsonEditor
-              schema={schema}
-              ajv={ajv}
-              value={value}
-              onChange={handleChange}
-              allowSchemaSuggestions
-              mainMenuBar={false}
-              templates={templates}
-            />
-          </ErrorBoundary>
-        )}
-      </DetailList>
-    </EditorContainer>
+    <>
+      {value && (
+        <QueryEditor
+          title={`Edit SQL: ${name} v${version.versionNumber}`}
+          initialValue={value.query}
+          onSubmit={handleUpdate}
+          open={showSqlEditor}
+          onClose={handleCloseSqlEditor}
+        />
+      )}
+      <EditorContainer>
+        <ButtonContainer>
+          <StyledButton onClick={onBack}>Back</StyledButton>
+          <StyledButton onClick={handleReset} disabled={!dirty}>
+            Reset
+          </StyledButton>
+        </ButtonContainer>
+        <ButtonContainer>
+          <SaveButton submitting={submitting} onClick={handleSave} dirty={dirty} isValid={isValid}>
+            <SaveIcon />
+            Save new version
+          </SaveButton>
+          <StyledButton onClick={handleShowSqlEditor}>
+            {' '}
+            <EditIcon />
+            Edit SQL
+          </StyledButton>
+        </ButtonContainer>
+        <DetailList>
+          <VersionInfo name={name} version={version} />
+          {value && (
+            <ErrorBoundary errorKey={version.id} ErrorComponent={LoadError}>
+              <JsonEditor
+                schema={schema}
+                ajv={ajv}
+                value={value}
+                onChange={handleChange}
+                allowSchemaSuggestions
+                mainMenuBar={false}
+                templates={templates}
+              />
+            </ErrorBoundary>
+          )}
+        </DetailList>
+      </EditorContainer>
+    </>
   );
 };
