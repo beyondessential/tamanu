@@ -16,6 +16,7 @@ const FooterContent = styled.div`
 
 const StyledPagination = styled(Pagination)`
   margin-right: 20px;
+  padding: 24px 0;
   ul {
     li {
       .MuiPaginationItem-page {
@@ -78,7 +79,7 @@ const NextButton = styled(ChevronIcon)`
   transform: rotate(-90deg);
 `;
 
-// As the dropdown menu is not a child of the select component, I have styled it using the makeStyles hook 
+// As the dropdown menu is not a child of the select component, I have styled it using the makeStyles hook
 const useStyles = makeStyles({
   select: {
     borderRadius: 3,
@@ -111,8 +112,11 @@ export const Paginator = React.memo(
     const classes = useStyles();
     // This is the index of the top row of the table (set to 0 if no rows are present)
     const lowerRange = count > 0 ? page * rowsPerPage + 1 : 0;
-    // This is the index of the bottom row of the table (set it to total count if less than a whole page is present)
-    const upperRange = count > rowsPerPage && page + 1 !== numberOfPages ? (page + 1) * rowsPerPage : count;
+    // This is the index of the bottom row of the table (set it to total count if less than a whole page is present or on last page)
+    const upperRange =
+      count > rowsPerPage && page + 1 !== numberOfPages ? (page + 1) * rowsPerPage : count;
+
+    console.log(page, rowsPerPage);
 
     return (
       <PaginatorWrapper colSpan={colSpan}>
@@ -170,7 +174,7 @@ export const Paginator = React.memo(
               // Conditionally show the page number button if it falls within the defined ranges above
               if ((isInRange || isEndPage) && !isEllipses) {
                 wasLastItemEllipses.current = false;
-                return <PaginationItem {...item} />;
+                return <PaginationItem {...item} selected={item.page === selectedPage} />;
               }
               // If the item falls out of the defined range and is not the first or last page, show an ellipses
               // however we only want to show one ellipses in a row so we need to keep track of the last item
