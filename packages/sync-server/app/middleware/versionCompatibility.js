@@ -1,23 +1,21 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
 import { buildVersionCompatibilityCheck } from 'shared/utils';
 import { InvalidClientHeadersError } from 'shared/errors';
 
-const { version } = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf8'));
+// only works via webpack, not direct nodejs
+import pkgjson from '../../package.json';
 
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
-    min: version,
-    max: version, // note that higher patch versions will be allowed to connect
+    min: pkgjson.version,
+    max: pkgjson.version, // note that higher patch versions will be allowed to connect
   },
   'Tamanu Desktop': {
-    min: version,
-    max: version, // note that higher patch versions will be allowed to connect
+    min: pkgjson.version,
+    max: pkgjson.version, // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
-    min: version,
-    max: version, // note that higher patch versions will be allowed to connect
+    min: pkgjson.version,
+    max: pkgjson.version, // note that higher patch versions will be allowed to connect
   },
   'fiji-vps': {
     min: null,
