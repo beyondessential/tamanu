@@ -421,7 +421,6 @@ globalImagingRequests.get(
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
-      subQuery: false,
     });
 
     // Extract and normalize data calling a base model method
