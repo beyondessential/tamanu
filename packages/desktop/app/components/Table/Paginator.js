@@ -78,6 +78,7 @@ const NextButton = styled(ChevronIcon)`
   transform: rotate(-90deg);
 `;
 
+// As the dropdown menu is not a child of the select component, I have styled it using the makeStyles hook 
 const useStyles = makeStyles({
   select: {
     borderRadius: 3,
@@ -108,7 +109,9 @@ export const Paginator = React.memo(
     const numberOfPages = Math.ceil(count / rowsPerPage);
     const wasLastItemEllipses = useRef(false);
     const classes = useStyles();
+    // This is the index of the top row of the table (set to 0 if no rows are present)
     const lowerRange = count > 0 ? page * rowsPerPage + 1 : 0;
+    // This is the index of the bottom row of the table (set it to total count if less than a whole page is present)
     const upperRange = count > rowsPerPage ? (page + 1) * rowsPerPage : count;
 
     return (
