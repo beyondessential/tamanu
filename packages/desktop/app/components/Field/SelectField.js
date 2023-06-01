@@ -106,8 +106,8 @@ export const SelectInput = ({
       // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
       // 2. Form fields should be null as we need to be able to save them as null in the database if we are trying to remove a value when editing a record
       const clearValue = form?.status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
-      if (!changedOption) {
-        // Change option is empty if the user clicks the clear button
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
         onChange({ target: { value: clearValue, name } });
         if (onClear) {
           onClear();
