@@ -106,13 +106,7 @@ export class FhirJob extends Model {
         );
       } catch (err) {
         // 40001 is the Postgres error code for serialization failure
-        if (err?.parent?.code !== 40001) {
-          log.debug('Apparently this means we should throw, but wanna be sure that is the case');
-        }
-        if (err?.parent?.code !== '40001') {
-          log.debug('Lets see if this ever gets logged');
-          throw err;
-        }
+        if (err?.parent?.code !== 40001 || err?.parent?.code !== '40001') throw err;
 
         // retry, with a bit of jitter to avoid thundering herd
         const delay = Math.floor(Math.random() * 500);
