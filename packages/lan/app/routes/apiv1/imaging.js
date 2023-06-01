@@ -402,7 +402,7 @@ globalImagingRequests.get(
             [Op.notIn]: [
               IMAGING_REQUEST_STATUS_TYPES.DELETED,
               IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-              IMAGING_REQUEST_STATUS_TYPES.CANCELLED, 
+              IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
             ],
           },
         },
@@ -414,7 +414,7 @@ globalImagingRequests.get(
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
-      // subQuery: false,
+      subQuery: false,
     });
 
     // Extract and normalize data calling a base model method
