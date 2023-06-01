@@ -7,7 +7,7 @@ import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from 
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 
@@ -234,9 +234,21 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, onClear, name, required } = this.props;
-    // use correct error message for required fields by setting to "" but otherwise set to null value to prevent FK errors
-    const clearValue = required ? '' : null;
+    const { onChange, onClear, name, required, form } = this.props;
+    const formType = form?.status?.formType;
+    // As our autocomplete is in a bunch of places over the app we actually need to be able to set a range of "empty" values
+    // based on the situation the field is in.
+    // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
+    // 2. Required form fields should be empty strings in order to have the form validation work correctly and show the error message
+    // 3. Non-required form fields should be null as we need to be able to save them as null in the database if we are trying to remove a value when editing a record
+    let clearValue = null;
+    if (formType === FORM_TYPES.SEARCH_FORM) {
+      clearValue = undefined;
+    }
+    if (required) {
+      clearValue = '';
+    }
+
     onChange({ target: { value: clearValue, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
     if (onClear) {
