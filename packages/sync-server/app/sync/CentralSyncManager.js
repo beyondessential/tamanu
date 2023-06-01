@@ -115,6 +115,9 @@ export class CentralSyncManager {
     if (!session) {
       throw new Error(`Sync session '${sessionId}' not found`);
     }
+    if (session.completedAt) {
+      throw new Error(`Sync session '${sessionId}' is already completed`);
+    }
     if (session.error) {
       throw new Error(errorMessageFromSession(session));
     }
