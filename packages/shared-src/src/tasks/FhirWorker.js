@@ -262,15 +262,14 @@ export class FhirWorker {
           throw new FhirWorkerError(topic, 'error running job', err);
         } finally {
           this.processing.delete(job.id);
-
-          // immediately process the queue again to work through the backlog
-          this.processQueueNow();
         }
       } catch (err) {
         span.recordException(err);
         span.setStatus({ code: SpanStatusCode.ERROR });
       } finally {
         span.end();
+        // immediately process the queue again to work through the backlog
+        this.processQueueNow();
       }
     });
   }
