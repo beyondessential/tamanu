@@ -1,3 +1,6 @@
+import { sub, endOfDay, parseISO } from 'date-fns';
+import { v4 as uuid } from 'uuid';
+
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from 'shared/sync';
 import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpers/fake';
@@ -5,6 +8,8 @@ import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patien
 import { randomLabRequest } from 'shared/demoData';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { toDateTimeString } from 'shared/utils/dateTime';
+
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
@@ -38,6 +43,14 @@ describe('CentralSyncManager', () => {
     let ready = false;
     while (!ready) {
       ready = await centralSyncManager.checkSessionReady(sessionId);
+      await sleepAsync(100);
+    }
+  };
+
+  const waitForPushCompleted = async (centralSyncManager, sessionId) => {
+    let complete = false;
+    while (!complete) {
+      complete = await centralSyncManager.checkPushComplete(sessionId);
       await sleepAsync(100);
     }
   };
@@ -568,12 +581,7 @@ describe('CentralSyncManager', () => {
         const { sessionId: sessionIdTwo } = await centralSyncManager.startSession();
         await waitForSession(centralSyncManager, sessionIdTwo);
 
-        await centralSyncManager.addIncomingChanges(
-          sessionIdTwo,
-          changes,
-          { pushedSoFar: 0, totalToPush: 3 },
-          ['surveys'],
-        );
+        await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
         await centralSyncManager.completePush(sessionIdTwo);
         // Wait for persist of session 2 to complete
         await sleepAsync(100);
@@ -1013,6 +1021,92 @@ describe('CentralSyncManager', () => {
         );
       });
     });
+
+    describe('handles discharging outpatients', () => {
+      it("discharge outpatients when encounter's startDate is before today and pull the discharged encounter down ", async () => {
+        // Set up data pre sync
+        const CURRENT_SYNC_TICK = '6';
+        const facility = await models.Facility.create(fake(models.Facility));
+        await models.Department.create({
+          ...fake(models.Department),
+          facilityId: facility.id,
+        });
+        await models.Location.create({
+          ...fake(models.Location),
+          facilityId: facility.id,
+        });
+        await models.User.create(fakeUser());
+        const patient = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patient.id,
+          facilityId: facility.id,
+        });
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+
+        // Encounter data for pushing (not inserted yet)
+        const encounterData = {
+          ...(await createDummyEncounter(models)),
+          id: uuid(),
+          patientId: patient.id,
+          encounterType: 'clinic',
+          startDate: toDateTimeString(sub(new Date(), { days: 1 })),
+          endDate: null,
+        };
+
+        const changes = [
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'encounters',
+            recordId: encounterData.id,
+            data: encounterData,
+          },
+        ];
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        // Push the encounter
+        await centralSyncManager.addIncomingChanges(sessionId, changes);
+        await centralSyncManager.completePush(sessionId);
+        await waitForPushCompleted(centralSyncManager, sessionId);
+
+        // Start the snapshot for pull process
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: CURRENT_SYNC_TICK - 2,
+            facilityId: facility.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const returnedEncounter = outgoingChanges.find(c => c.recordType === 'encounters');
+
+        const insertedEncounter = await models.Encounter.findByPk(encounterData.id);
+        const expectedDischargedEndDate = toDateTimeString(
+          endOfDay(parseISO(insertedEncounter.startDate)),
+        );
+
+        // Check if inserted encounter has endDate set
+        expect(insertedEncounter.endDate).toBe(expectedDischargedEndDate);
+
+        // outgoingChanges should contain:
+        // 1 encounter, 1 note_page, 1 note_item (system generated note for discharge), and 1 discharge
+        expect(outgoingChanges).toHaveLength(4);
+        expect(returnedEncounter.data.id).toBe(encounterData.id);
+        expect(returnedEncounter.data.endDate).toBe(expectedDischargedEndDate);
+        expect(outgoingChanges.find(c => c.recordType === 'note_pages')).toBeDefined();
+        expect(outgoingChanges.find(c => c.recordType === 'note_items')).toBeDefined();
+        expect(outgoingChanges.find(c => c.recordType === 'discharges')).toBeDefined();
+      });
+    });
   });
 
   describe('addIncomingChanges', () => {
@@ -1042,10 +1136,7 @@ describe('CentralSyncManager', () => {
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
-      await centralSyncManager.addIncomingChanges(sessionId, changes, {
-        pushedSofar: 0,
-        totalToPush: 2,
-      });
+      await centralSyncManager.addIncomingChanges(sessionId, changes);
       const incomingChanges = changes.map(c => ({
         ...c,
         direction: SYNC_SESSION_DIRECTION.INCOMING,
