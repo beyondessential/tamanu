@@ -108,11 +108,14 @@ export const Paginator = React.memo(
     const numberOfPages = Math.ceil(count / rowsPerPage);
     const wasLastItemEllipses = useRef(false);
     const classes = useStyles();
+    const lowerRange = count > 0 ? page * rowsPerPage + 1 : 0;
+    const upperRange = count > rowsPerPage ? (page + 1) * rowsPerPage : count;
+
     return (
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
           <PageRecordCount>
-            {page * rowsPerPage + 1}-{(page + 1) * rowsPerPage} of {count}
+            {lowerRange}-{upperRange} of {count}
           </PageRecordCount>
           <StyledSelectField
             label="Rows per page"
