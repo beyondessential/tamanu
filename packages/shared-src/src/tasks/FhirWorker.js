@@ -173,6 +173,7 @@ export class FhirWorker {
 
         await Promise.allSettled(runs);
       } catch (err) {
+        this.log.debug('I also think this never gets hit');
         span.recordException(err);
         span.setStatus({ code: SpanStatusCode.ERROR });
         throw err;
