@@ -66,7 +66,12 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
   ];
 
   const globalColumns = [
-    { key: 'patientDisplayId', title: 'NHN', accessor: getPatientDisplayId },
+    {
+      key: 'encounter.patient.displayId',
+      title: 'NHN',
+      accessor: getPatientDisplayId,
+      sortable: false,
+    },
     { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
     ...encounterColumns,
   ];
