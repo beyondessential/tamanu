@@ -83,7 +83,6 @@
     "saltRounds": 12,
     "tokenDuration": "1h",
     "reportNoUserError": false,
-    "allowDummyToken": false,
     "useHardcodedPermissions": true,
     "refreshToken": {
       "secret": null,
