@@ -89,7 +89,7 @@ export class FhirJob extends Model {
       try {
         return await this.sequelize.transaction(
           {
-            isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+            isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
           },
           async () => {
             const [{ id }] = await this.sequelize.query(
