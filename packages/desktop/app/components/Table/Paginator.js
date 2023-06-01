@@ -81,7 +81,7 @@ const NextButton = styled(ChevronIcon)`
 
 // As the dropdown menu is not a child of the select component, I have styled it using the makeStyles hook
 const useStyles = makeStyles({
-  select: {
+  selectMenu: {
     borderRadius: 3,
     '& ul': {
       backgroundColor: Colors.white,
@@ -129,7 +129,7 @@ export const Paginator = React.memo(
             onChange={onRowsPerPageChange}
             value={rowsPerPage || rowsPerPageOptions[0]}
             IconComponent={ChevronIcon}
-            MenuProps={{ classes: { paper: classes.select } }}
+            MenuProps={{ classes: { paper: classes.selectMenu } }}
           >
             {rowsPerPageOptions.map(option => (
               <StyledMenuItem value={option}>{option}</StyledMenuItem>
