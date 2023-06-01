@@ -334,7 +334,6 @@ describe('CentralSyncManager', () => {
       const prepareMockedPullOnlyModelQueryPromise = async () => {
         let resolveSnapshotOutgoingChangesWaitingPromise;
         const snapshotOutgoingChangesWaitingPromise = new Promise(resolve => {
-          // count: 100 is not correct but shouldn't matter in this test case
           resolveSnapshotOutgoingChangesWaitingPromise = async () => resolve(true);
         });
 
