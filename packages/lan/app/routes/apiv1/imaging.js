@@ -303,6 +303,11 @@ globalImagingRequests.get(
     const { models, query } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const nullPosition =
+      orderBy === 'results.completedAt' &&
+      (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
@@ -409,12 +414,13 @@ globalImagingRequests.get(
           },
         },
       },
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+      order: orderBy
+        ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
+        : undefined,
       include: [requestedBy, encounter, areas, results],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
-      subQuery: false,
     });
 
     // Extract and normalize data calling a base model method
