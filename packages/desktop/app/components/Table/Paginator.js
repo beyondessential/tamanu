@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Pagination, PaginationItem } from '@material-ui/lab';
 import { Select, MenuItem } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 
@@ -77,6 +78,23 @@ const NextButton = styled(ChevronIcon)`
   transform: rotate(-90deg);
 `;
 
+const useStyles = makeStyles({
+  select: {
+    borderRadius: 3,
+    '& ul': {
+      backgroundColor: Colors.white,
+      padding: 0,
+    },
+    '& li': {
+      borderRadius: 4,
+      margin: 3,
+    },
+    '& li:hover': {
+      backgroundColor: Colors.veryLightBlue,
+    },
+  },
+});
+
 export const Paginator = React.memo(
   ({
     page,
@@ -89,6 +107,7 @@ export const Paginator = React.memo(
   }) => {
     const numberOfPages = Math.ceil(count / rowsPerPage);
     const wasLastItemEllipses = useRef(false);
+    const classes = useStyles();
     return (
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
@@ -100,6 +119,7 @@ export const Paginator = React.memo(
             onChange={onRowsPerPageChange}
             value={rowsPerPage || rowsPerPageOptions[0]}
             IconComponent={ChevronIcon}
+            MenuProps={{ classes: { paper: classes.select } }}
           >
             {rowsPerPageOptions.map(option => (
               <StyledMenuItem value={option}>{option}</StyledMenuItem>
