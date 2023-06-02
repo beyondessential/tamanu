@@ -4,11 +4,12 @@ import { useAsset } from './useAsset';
 import { useTemplate } from './useTemplate';
 import { getCurrentUser } from '../store';
 
-export const useCertificate = () => {
+export const useCertificate = ({ footerImgName }) => {
   const { getLocalisation } = useLocalisation();
   const logo = useAsset('letterhead-logo');
   const watermark = useAsset('vaccine-certificate-watermark');
-  const footerImg = useAsset('certificate-bottom-half-img');
+  const footerImg = useAsset(footerImgName);
+  const defaultFooterImg = useAsset('certificate-bottom-half-img');
   const deathCertFooterImg = useAsset('death-certificate-bottom-half-img');
   const letterhead = useTemplate('templates.letterhead')?.data;
   const title = letterhead?.data?.title || getLocalisation('templates.letterhead.title');
@@ -21,7 +22,7 @@ export const useCertificate = () => {
     subTitle,
     logo,
     watermark,
-    footerImg,
+    footerImg: footerImg || defaultFooterImg,
     deathCertFooterImg,
     printedBy: currentUser?.displayName,
   };

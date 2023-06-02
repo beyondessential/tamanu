@@ -16,7 +16,9 @@ import { PDFViewer, printPDF } from '../PDFViewer';
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate();
+  const { watermark, logo, footerImg, printedBy } = useCertificate({
+    footerImgName: 'covid-vaccination-certificate-footer-img',
+  });
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   const { data: vaccineData } = useAdministeredVaccines(patient.id, {
