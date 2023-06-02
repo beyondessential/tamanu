@@ -74,14 +74,10 @@ user.get(
         LEFT JOIN patients
           ON (patients.id = user_recently_viewed_patients.patient_id)
         LEFT JOIN (
-            SELECT patient_id, max(start_date) AS most_recent_open_encounter
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date, id DESC) AS row_num
             FROM encounters
-            WHERE end_date IS NULL
-            GROUP BY patient_id
-          ) recent_encounter_by_patient
-          ON (patients.id = recent_encounter_by_patient.patient_id)
-        LEFT JOIN encounters
-          ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+            ) encounters
+            ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         WHERE user_recently_viewed_patients.user_id = :userId
         ${andClauses}
         ORDER BY last_accessed_on DESC
