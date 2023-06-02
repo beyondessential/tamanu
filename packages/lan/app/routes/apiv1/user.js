@@ -74,7 +74,7 @@ user.get(
         LEFT JOIN patients
           ON (patients.id = user_recently_viewed_patients.patient_id)
         LEFT JOIN (
-            SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date, id DESC) AS row_num
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             ) encounters
             ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
