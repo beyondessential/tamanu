@@ -403,9 +403,9 @@ describe('Imaging requests', () => {
     });
   });
 
-  describe.only('Listing requests', () => {
+  describe('Listing requests', () => {
     
-    const makeRequestAtFacility = async (facilityId, status) => {
+    const makeRequestAtFacility = async (facilityId, status, resultCount = 0) => {
       const testLocation = await models.Location.create({
         ...fake(models.Location),
         facilityId,
@@ -422,13 +422,12 @@ describe('Imaging requests', () => {
         requestedById: app.user.id,
       });
 
-      if (status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+      for (let i = 0; i < resultCount; ++i) {
         // add a result
-        if (Math.random() < 0.5) {
-          await models.ImagingResult.create(fake(models.ImagingResult, {
-            imagingRequestId: imagingRequest.id,
-          }));
-        }
+        // (note that `fake` will automatically assign a completedAt)
+        await models.ImagingResult.create(fake(models.ImagingResult, {
+          imagingRequestId: imagingRequest.id,
+        }));
       }
 
       return imagingRequest;
@@ -481,7 +480,7 @@ describe('Imaging requests', () => {
       });
     });
 
-    describe.only('Sorting by completed results', () => {
+    describe('Pagination', () => {
 
       // create a bunch of tests, use a number that isn't divisible by 10 to 
       // stress the pagination a bit harder
@@ -493,7 +492,8 @@ describe('Imaging requests', () => {
         await models.ImagingRequest.truncate({ cascade: true });
 
         for (let i = 0; i < completedCount; ++i) {
-          await makeRequestAtFacility(config.serverFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+          const resultCount = i % 4;  // get a few different result counts in, including 0
+          await makeRequestAtFacility(config.serverFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED, resultCount);
         }
         for (let i = 0; i < incompleteCount; ++i) {
           await makeRequestAtFacility(config.serverFacilityId);
@@ -524,7 +524,7 @@ describe('Imaging requests', () => {
 
       it('Should paginate correctly when sorting by completedAt', async () => {
         const getPage = async page => {
-          const result = await app.get(`/v1/imagingRequest?orderBy=results.completedAt&page=${page}&order=DESC`);
+          const result = await app.get(`/v1/imagingRequest?orderBy=completedAt&page=${page}&order=DESC`);
           expect(result).toHaveSucceeded();
           return result;
         };
@@ -557,9 +557,9 @@ describe('Imaging requests', () => {
         expect(ids.size).toBe(totalCount);  // ie no duplicates in the two result sets
       });
 
-      it.only('Should paginate correctly when sorting by completedAt and filtering by status', async () => {
+      it('Should paginate correctly when sorting by completedAt and filtering by status', async () => {
         const getPage = async page => {
-          const result = await app.get(`/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=results.completedAt&page=${page}&order=ASC`);
+          const result = await app.get(`/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`);
           expect(result).toHaveSucceeded();
           return result;
         };
@@ -581,13 +581,6 @@ describe('Imaging requests', () => {
           ...result2.body.data, 
           ...result3.body.data
         ];
-
-        console.log(allResults.map(x => ({
-          id: x.id,
-          status: x.status,
-          completedAt: x.results[0]?.completedAt,
-          resultCount: x.results.length,
-        })))
 
         const completed = allResults.filter(x => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
         expect(completed).toHaveLength(completedCount);
