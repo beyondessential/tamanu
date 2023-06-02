@@ -1,6 +1,7 @@
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance } from 'shared/test-helpers';
+import { addHours } from 'date-fns';
 import { createDummyEncounter } from 'shared/demoData/patients';
 
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
@@ -247,6 +248,43 @@ describe('User', () => {
           // close some of them but not all
           if (i >= 2) {
             await enc.update({ endDate: new Date() });
+          }
+        }
+      }
+
+      for (const p of patientsToView) {
+        await viewPatient(p);
+      }
+
+      const result = await app.get('/v1/user/recently-viewed-patients?encounterType=admission');
+      expect(result).toHaveSucceeded();
+
+      // orders should match
+      const resultIds = result.body.data.map(x => x.id);
+      const sourceIds = patientsToView.map(x => x.id).reverse();
+      expect(resultIds).toEqual(sourceIds);
+    });
+
+    it('should handle multiple encounters with same start date', async () => {
+      const patientsToView = patients.slice(0, 4);
+
+      for (const p of patientsToView) {
+        const startDate = new Date();
+        const endDate = addHours(startDate, 1);
+
+        // open a few encounters for each patient
+        for (let i = 0; i < 4; ++i) {
+          const enc = await models.Encounter.create(
+            await createDummyEncounter(models, {
+              patientId: p.id,
+              encounterType: 'admission',
+              startDate,
+            }),
+          );
+
+          // close some of them but not all
+          if (i >= 2) {
+            await enc.update({ endDate });
           }
         }
       }
