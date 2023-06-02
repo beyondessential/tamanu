@@ -307,6 +307,7 @@ patientRoute.get(
         LEFT JOIN (
           SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
           FROM encounters
+          WHERE end_date IS NULL
         ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN reference_data AS village
@@ -328,6 +329,7 @@ patientRoute.get(
         LEFT JOIN (
             SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
+            WHERE end_date IS NULL
           ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN users AS clinician 
