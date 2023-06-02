@@ -195,6 +195,7 @@ labRequest.get(
 
     const sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    const nullPosition = sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
 
     const result = await req.db.query(
       `
@@ -215,9 +216,8 @@ labRequest.get(
           laboratory.name AS laboratory_name,
           location.facility_id AS facility_id
         ${from}
-
-        ORDER BY ${sortKey} ${sortDirection}
-
+        
+        ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
         LIMIT :limit
         OFFSET :offset
       `,
