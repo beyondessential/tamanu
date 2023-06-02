@@ -97,7 +97,7 @@ export const Modal = memo(
     additionalActions,
     color = Colors.background,
     overrideContentPadding = false,
-    disableHeaderCloseIcon = false,
+    cornerExitButton = true,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -150,7 +150,7 @@ export const Modal = memo(
                 Print
               </StyledButton>
             )}
-            {!disableHeaderCloseIcon && (
+            {cornerExitButton && (
               <IconButton onClick={onClose}>
                 <CloseIcon />
               </IconButton>

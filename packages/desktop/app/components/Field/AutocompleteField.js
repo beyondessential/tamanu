@@ -7,7 +7,7 @@ import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from 
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 
@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -92,8 +93,6 @@ const StyledExpandMore = styled(ChevronIcon)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
-  position: absolute;
-  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
@@ -235,9 +234,23 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, name } = this.props;
+    const { onChange, name, required, form } = this.props;
+    const formType = form?.status?.formType;
+    // As our autocomplete is in a bunch of places over the app we actually need to be able to set a range of "empty" values
+    // based on the situation the field is in.
+    // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
+    // 2. Required form fields should be empty strings in order to have the form validation work correctly and show the error message
+    // 3. Non-required form fields should be null as we need to be able to save them as null in the database if we are trying to remove a value when editing a record
+    let clearValue = null;
+    if (formType === FORM_TYPES.SEARCH_FORM) {
+      clearValue = undefined;
+    }
+    if (required) {
+      clearValue = '';
+    }
+
+    onChange({ target: { value: clearValue, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    onChange({ target: { value: undefined, name } });
   };
 
   clearOptions = () => {

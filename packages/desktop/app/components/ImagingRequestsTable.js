@@ -64,7 +64,12 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   ];
 
   const globalColumns = [
-    { key: 'encounter.patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
+    {
+      key: 'encounter.patient.displayId',
+      title: 'NHN',
+      accessor: getPatientDisplayId,
+      sortable: false,
+    },
     { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
     ...encounterColumns,
   ];
@@ -97,7 +102,10 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       onRowClick={selectImagingRequest}
       fetchOptions={{ ...statusFilter, ...searchParameters }}
       elevated={false}
-      initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+      initialSort={{
+        order: 'desc',
+        orderBy: completedStatus ? 'results.completedAt' : 'requestedDate',
+      }}
     />
   );
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
 import {
   TopBar,
   PageContainer,
@@ -9,20 +10,24 @@ import {
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 import { IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
 
-export const ImagingRequestListingView = React.memo(({ memoryKey, statuses = [] }) => {
-  const tableTitle =
-    memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED
-      ? 'Completed imaging requests'
-      : 'Active imaging requests';
+const ImagingRequestListing = ({ status = '' }) => (
+  <ContentPane>
+    <SearchTableTitle>Imaging request search</SearchTableTitle>
+    <ImagingRequestsSearchBar status={status} />
+    <ImagingRequestsTable status={status} />
+  </ContentPane>
+);
 
-  return (
-    <PageContainer>
-      <TopBar title={tableTitle} />
-      <ContentPane>
-        <SearchTableTitle>Imaging request search</SearchTableTitle>
-        <ImagingRequestsSearchBar memoryKey={memoryKey} statuses={statuses} />
-        <ImagingRequestsTable memoryKey={memoryKey} statuses={statuses} />
-      </ContentPane>
-    </PageContainer>
-  );
-});
+export const ImagingRequestListingView = () => (
+  <PageContainer>
+    <TopBar title="Imaging requests" />
+    <ImagingRequestListing />
+  </PageContainer>
+);
+
+export const CompletedImagingRequestListingView = () => (
+  <PageContainer>
+    <TopBar title="Completed imaging requests" />
+    <ImagingRequestListing status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
+  </PageContainer>
+);

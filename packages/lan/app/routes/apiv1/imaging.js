@@ -303,6 +303,11 @@ globalImagingRequests.get(
     const { models, query } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const nullPosition =
+      orderBy === 'results.completedAt' &&
+      (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
@@ -364,13 +369,6 @@ globalImagingRequests.get(
     const requestedBy = {
       association: 'requestedBy',
     };
-    const areas = {
-      association: 'areas',
-      through: {
-        // Don't include attributes on through table
-        attributes: [],
-      },
-    };
     const patient = {
       association: 'patient',
       where: patientFilters,
@@ -416,8 +414,10 @@ globalImagingRequests.get(
           },
         },
       },
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
-      include: [requestedBy, encounter, areas, results],
+      order: orderBy
+        ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
+        : undefined,
+      include: [requestedBy, encounter, results],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,

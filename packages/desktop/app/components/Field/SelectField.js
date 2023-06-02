@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ChevronIcon } from '../Icons/ChevronIcon';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
@@ -96,17 +96,23 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
+  form,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      if (!changedOption) {
-        onChange({ target: { value: '', name } });
+      // As the select field is in a few places on the site we need to account for a range of "empty" values for state
+      // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
+      // 2. Form fields should be null as we need to be able to save them as null in the database if we are trying to remove a value when editing a record
+      const clearValue = form?.status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
+        onChange({ target: { value: clearValue, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name],
+    [onChange, name, form],
   );
 
   const customStyles = {
@@ -119,8 +125,8 @@ export const SelectInput = ({
         borderColor,
         boxShadow: 'none',
         borderRadius: '3px',
-        paddingTop: '10px',
-        paddingBottom: '8px',
+        paddingTop: '11px',
+        paddingBottom: '9px',
         paddingLeft: '5px',
         fontSize,
       };
