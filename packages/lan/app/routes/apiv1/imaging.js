@@ -305,8 +305,7 @@ globalImagingRequests.get(
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     const nullPosition =
-      orderBy === 'completedAt' &&
-      (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+      orderBy === 'completedAt' && (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
 
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
@@ -316,13 +315,6 @@ globalImagingRequests.get(
 
     const encounterFilters = mapQueryFilters(filterParams, [
       { key: 'departmentId', operator: Op.eq },
-    ]);
-    const resultFilters = mapQueryFilters(filterParams, [
-      {
-        key: 'completedAt',
-        operator: Op.startsWith,
-        mapFn: dateFilter,
-      },
     ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
@@ -407,14 +399,17 @@ globalImagingRequests.get(
       include: [requestedBy, encounter],
       attributes: {
         include: [
-          // Aggregate results into a new field using a literal subquery. This avoids Sequelize 
+          // Aggregate results into a new field using a literal subquery. This avoids Sequelize
           // including an entry for each ImagingRequest per result & messing up the pagination
-          [literal(`(
+          [
+            literal(`(
             SELECT MAX(completed_at)
             FROM imaging_results
             WHERE imaging_results.imaging_request_id = "ImagingRequest".id
-          )`), 'completedAt'],
-        ]
+          )`),
+            'completedAt',
+          ],
+        ],
       },
       limit: rowsPerPage,
       offset: page * rowsPerPage,
