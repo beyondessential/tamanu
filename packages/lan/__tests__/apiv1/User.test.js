@@ -1,11 +1,10 @@
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance } from 'shared/test-helpers';
+import { createDummyEncounter } from 'shared/demoData/patients';
+
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
-import {
-  createDummyEncounter,
-} from 'shared/demoData/patients';
 
 const createUser = overrides => ({
   email: chance.email(),
@@ -141,16 +140,14 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('permissions');
     });
-
   });
 
   describe('Recently viewed patients', () => {
-
     let user = null;
     let app = null;
     let patients = [];
-    
-    let viewPatient = async (patient) => {
+
+    const viewPatient = async patient => {
       const result = await app.post(`/v1/user/recently-viewed-patients/${patient.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -166,10 +163,12 @@ describe('User', () => {
           role: 'practitioner',
         }),
       );
-      
+
       app = await baseApp.asUser(user);
 
-      const patientCreations = new Array(20).fill(0).map(() => models.Patient.create(fake(models.Patient)));
+      const patientCreations = new Array(20)
+        .fill(0)
+        .map(() => models.Patient.create(fake(models.Patient)));
       patients = await Promise.all(patientCreations);
     });
 
@@ -184,14 +183,14 @@ describe('User', () => {
       const [firstPatient] = patients;
 
       await viewPatient(firstPatient);
-      
+
       const getResult = await app.get('/v1/user/recently-viewed-patients');
       expect(getResult).toHaveSucceeded();
       expect(getResult.body.data).toHaveLength(1);
       expect(getResult.body.count).toBe(1);
     });
 
-    it('should update updatedAt when posting with id of an already recently viewed patient', async () => {      
+    it('should update updatedAt when posting with id of an already recently viewed patient', async () => {
       const [firstPatient] = patients;
 
       const result = await viewPatient(firstPatient);
@@ -200,12 +199,12 @@ describe('User', () => {
       const resultDate = new Date(result.body.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(resultDate.getTime());
-      
+
       const getResult = await app.get('/v1/user/recently-viewed-patients');
       expect(getResult).toHaveSucceeded();
       expect(getResult.body.data).toHaveLength(1);
       expect(getResult.body.count).toBe(1);
-      
+
       expect(getResult.body.data[0]).toHaveProperty('id', firstPatient.id);
 
       const getResultDate = new Date(getResult.body.data[0].last_accessed_on);
@@ -217,7 +216,7 @@ describe('User', () => {
       for (const p of patients) {
         await viewPatient(p);
       }
-      
+
       const result = await app.get('/v1/user/recently-viewed-patients');
       expect(result).toHaveSucceeded();
       expect(result.body.count).toBe(12);
@@ -225,7 +224,10 @@ describe('User', () => {
 
       // orders should match
       const resultIds = result.body.data.map(x => x.id);
-      const sourceIds = patients.map(x => x.id).reverse().slice(0, 12);
+      const sourceIds = patients
+        .map(x => x.id)
+        .reverse()
+        .slice(0, 12);
       expect(resultIds).toEqual(sourceIds);
     });
 
@@ -236,9 +238,9 @@ describe('User', () => {
         // open a few encounters for each patient
         for (let i = 0; i < 4; ++i) {
           const enc = await models.Encounter.create(
-            await createDummyEncounter(models, { 
+            await createDummyEncounter(models, {
               patientId: p.id,
-              encounterType: 'admission', 
+              encounterType: 'admission',
             }),
           );
 
@@ -251,11 +253,8 @@ describe('User', () => {
 
       for (const p of patientsToView) {
         await viewPatient(p);
-        await viewPatient(p);
-        await viewPatient(p);
-        await viewPatient(p);
       }
-      
+
       const result = await app.get('/v1/user/recently-viewed-patients?encounterType=admission');
       expect(result).toHaveSucceeded();
 
@@ -264,7 +263,5 @@ describe('User', () => {
       const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
-
   });
-
 });

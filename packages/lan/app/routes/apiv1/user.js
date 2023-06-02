@@ -94,7 +94,7 @@ user.get(
         replacements: {
           userId: currentUser.id,
           encounterType: query.encounterType,
-        }
+        },
       },
     );
 
