@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Form, Formik } from 'formik';
+import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
@@ -121,6 +122,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
+        required
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
       {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
@@ -251,6 +253,9 @@ const ImagingRequestInfoPane = React.memo(
             completedAt: getCurrentDateTimeString(),
           },
         }}
+        validationSchema={yup.object().shape({
+          status: yup.string().required('Status is required'),
+        })}
       >
         {({ values }) => {
           return (
