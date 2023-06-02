@@ -2,7 +2,7 @@ import express from 'express';
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import {
   NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -305,7 +305,7 @@ globalImagingRequests.get(
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     const nullPosition =
-      orderBy === 'results.completedAt' &&
+      orderBy === 'completedAt' &&
       (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
 
     const patientFilters = mapQueryFilters(filterParams, [
@@ -386,12 +386,6 @@ globalImagingRequests.get(
       attributes: ['id', 'departmentId'],
       required: true,
     };
-    const results = {
-      association: 'results',
-      where: resultFilters,
-      required:
-        query.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && !!filterParams.completedAt,
-    };
 
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
@@ -410,7 +404,18 @@ globalImagingRequests.get(
       order: orderBy
         ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
         : undefined,
-      include: [requestedBy, encounter, results],
+      include: [requestedBy, encounter],
+      attributes: {
+        include: [
+          // Aggregate results into a new field using a literal subquery. This avoids Sequelize 
+          // including an entry for each ImagingRequest per result & messing up the pagination
+          [literal(`(
+            SELECT MAX(completed_at)
+            FROM imaging_results
+            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
+          )`), 'completedAt'],
+        ]
+      },
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
