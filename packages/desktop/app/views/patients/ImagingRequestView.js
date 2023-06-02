@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { Form, Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -29,6 +28,7 @@ import {
   DateTimeInput,
   DateTimeField,
   TextField,
+  Form,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
 import { useEncounterData } from '../../api/queries';
@@ -122,6 +122,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
+        isClearable={false}
         required
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
@@ -233,7 +234,7 @@ const ImagingRequestInfoPane = React.memo(
     const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
 
     return (
-      <Formik
+      <Form
         // Only submit specific fields for update
         onSubmit={fields => {
           const updateValues = pick(
@@ -256,10 +257,9 @@ const ImagingRequestInfoPane = React.memo(
         validationSchema={yup.object().shape({
           status: yup.string().required('Status is required'),
         })}
-      >
-        {({ values }) => {
+        render={({ values }) => {
           return (
-            <Form>
+            <>
               <ImagingRequestSection
                 {...{
                   values,
@@ -279,10 +279,10 @@ const ImagingRequestInfoPane = React.memo(
               <ButtonRow style={{ marginTop: 20 }}>
                 {!isCancelled && <Button type="submit">Save</Button>}
               </ButtonRow>
-            </Form>
+            </>
           );
         }}
-      </Formik>
+      />
     );
   },
 );
