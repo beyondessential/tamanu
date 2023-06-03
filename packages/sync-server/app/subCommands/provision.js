@@ -98,31 +98,35 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
 
   const allUsers = [
     ...Object.entries(users ?? {}),
-    ...Object.values(facilities ?? {})
-      .map(({ user, password }) => user && password && [user, { password }])
+    ...Object.entries(facilities ?? {})
+      .map(
+        ([id, { user, password }]) =>
+          user && password && [user, { displayName: `System: ${id} sync`, password }],
+      )
       .filter(Boolean),
   ];
 
-  for (const [id, { role = 'admin', password }] of allUsers) {
+  for (const [email, { role = 'admin', password, ...fields }] of allUsers) {
     let realPassword = password;
     if (!realPassword) {
       realPassword = getRandomBase64String(16);
       // eslint-disable-next-line no-console
-      console.log(`NEW PASSWORD for ${id}: ${realPassword}`);
+      console.log(`NEW PASSWORD for ${email}: ${realPassword}`);
     }
 
-    const user = await store.models.User.findByPk(id);
+    const user = await store.models.User.findOne({ email });
     if (user) {
-      log.info('Updating user', { id });
-      user.set({ role });
+      log.info('Updating user', { email });
+      user.set({ role, ...fields });
       user.setPassword(realPassword);
       await user.save();
     } else {
-      log.info('Creating user', { id });
+      log.info('Creating user', { email });
       await store.models.User.create({
-        id,
+        email,
         role,
         password: realPassword,
+        ...fields,
       });
     }
   }
