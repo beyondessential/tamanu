@@ -35,8 +35,10 @@ export async function provision({ file, skipIfNotNeeded }) {
 
   const errors = [];
   const stats = {};
-  for (const [type, path] of referenceData) {
-    if (type !== 'file') throw new Error(`Unknown reference data import type ${type}`);
+  for (const { file, ...rest } of referenceData ?? []) {
+    if (!file) {
+      throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
+    }
 
     const realpath = relative(file, path);
     log.info('Importing reference data file', { file: realpath });
@@ -60,7 +62,7 @@ export async function provision({ file, skipIfNotNeeded }) {
   /// //////////
   /// FACILITIES
 
-  for (const [id, { user, password, settings, ...fields }] of Object.entries(facilities)) {
+  for (const [id, { user, password, settings, ...fields }] of Object.entries(facilities ?? {})) {
     const facility = await store.models.Facility.findByPk(id);
     if (facility) {
       log.info('Updating facility', { id });
@@ -77,12 +79,12 @@ export async function provision({ file, skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
-  for (const [key, value] of Object.entries(globalSettings)) {
+  for (const [key, value] of Object.entries(globalSettings ?? {})) {
     log.info('Installing global setting', { key });
     await store.models.Setting.set(key, value);
   }
 
-  for (const [id, { settings }] of Object.entries(facilities)) {
+  for (const [id, { settings }] of Object.entries(facilities ?? {})) {
     for (const [key, value] of Object.entries(settings)) {
       log.info('Installing facility setting', { key, facility: id });
       await store.models.Setting.set(key, value, id);
@@ -93,8 +95,8 @@ export async function provision({ file, skipIfNotNeeded }) {
   /// USERS
 
   const allUsers = [
-    ...Object.entries(users),
-    ...Object.values(facilities).map(({ user, password }) => [user, { password }]),
+    ...Object.entries(users ?? {}),
+    ...Object.values(facilities ?? {}).map(({ user, password }) => [user, { password }]),
   ];
 
   for (const [id, { role = 'admin', password }] of allUsers) {
