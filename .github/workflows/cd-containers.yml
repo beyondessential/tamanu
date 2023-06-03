@@ -90,6 +90,13 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           push: true
+          labels: |
+            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
+            org.opencontainers.image.url=https://www.bes.au/products/tamanu/
+            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.pull_request.merged_at || github.event.head_commit.timestamp }}
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ github.sha }}
             ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ steps.ref.outputs.result }}
