@@ -120,20 +120,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node:
-          - '16.x'
+        server:
+          - sync-server
+          - lan
         postgres:
           - '12'
           - '14'
 
-    name: Test migrations node=${{ matrix.node }} pg=${{ matrix.postgres }}
+    name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node }}
+        node-version: 16
         cache: yarn
     - run: yarn
     - run: yarn build-shared
@@ -141,7 +141,7 @@ jobs:
     - name: Install and start postgres ${{ matrix.postgres }}
       run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
 
-    - run: scripts/apply_and_revert_sync_server_migrations.sh
+    - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
     strategy:
