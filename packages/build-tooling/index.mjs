@@ -27,6 +27,10 @@ const NODE_WEBPACK_CONFIG = {
     clean: true,
     filename: 'app.bundle.js',
   },
+  node: {
+    // webpack rewrites __dirname to `/` by default, which breaks migrations
+    __dirname: true,
+  },
 };
 
 export const NODE_WEBPACK_CONFIG_BABEL = {
