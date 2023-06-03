@@ -87,7 +87,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   }
 
   for (const [id, { settings }] of Object.entries(facilities ?? {})) {
-    for (const [key, value] of Object.entries(settings)) {
+    for (const [key, value] of Object.entries(settings ?? {})) {
       log.info('Installing facility setting', { key, facility: id });
       await store.models.Setting.set(key, value, id);
     }
@@ -98,7 +98,9 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
 
   const allUsers = [
     ...Object.entries(users ?? {}),
-    ...Object.values(facilities ?? {}).map(({ user, password }) => [user, { password }]),
+    ...Object.values(facilities ?? {})
+      .map(({ user, password }) => user && password && [user, { password }])
+      .filter(Boolean),
   ];
 
   for (const [id, { role = 'admin', password }] of allUsers) {
