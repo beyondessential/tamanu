@@ -69,6 +69,8 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
       await facility.update(fields);
     } else {
       log.info('Creating facility', { id });
+      fields.name ||= id;
+      fields.code ||= id;
       await store.models.Facility.create({
         id,
         ...fields,
