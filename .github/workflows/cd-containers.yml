@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - dev
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.run_id }}
@@ -22,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
@@ -57,6 +58,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - uses: actions/checkout@v3
+        with:
+          # in PRs, use the actual PR branch, not the merge branch
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
 
       - name: Install QEMU
         if: matrix.platform.arch == 'linux/arm64'
