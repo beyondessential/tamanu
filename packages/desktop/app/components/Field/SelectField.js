@@ -97,6 +97,7 @@ export const SelectInput = ({
   helperText,
   inputRef,
   form,
+  isClearable = true,
   ...props
 }) => {
   const handleChange = useCallback(
@@ -202,7 +203,7 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          isClearable={value !== ''}
+          isClearable={value !== '' && isClearable}
           isSearchable={false}
           components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}
