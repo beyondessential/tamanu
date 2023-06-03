@@ -1,8 +1,8 @@
-import { relative } from 'path';
+import { resolve } from 'path';
 import { Command } from 'commander';
 
-import { SYSTEM_USER_UUID } from 'shared/constants';
-import { log } from 'shared/services/logging';
+import { SYSTEM_USER_UUID } from '@tamanu/shared/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
@@ -40,7 +40,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = relative(provisioningFile, referenceDataFile);
+    const realpath = resolve(provisioningFile, referenceDataFile);
     log.info('Importing reference data file', { file: realpath });
     await referenceDataImporter({
       errors,
