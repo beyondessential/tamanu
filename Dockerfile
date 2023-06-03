@@ -33,12 +33,12 @@ CMD ["serve"]
 FROM build-base as metadata
 COPY .git/ .git/
 RUN mkdir /meta
-RUN git rev-parse --abbrev-ref HEAD > /meta/SOURCE_BRANCH
-RUN git log -1 --pretty=%H          > /meta/SOURCE_COMMIT_HASH
-RUN git log -1 --pretty=%s          > /meta/SOURCE_COMMIT_SUBJECT
-RUN git log -1 --pretty=%cs         > /meta/SOURCE_DATE
-RUN git log -1 --pretty=%ct         > /meta/SOURCE_DATE_EPOCH
-RUN git log -1 --pretty=%cI         > /meta/SOURCE_DATE_ISO
+RUN git rev-parse --abbrev-ref HEAD | tee /meta/SOURCE_BRANCH
+RUN git log -1 --pretty=%H          | tee /meta/SOURCE_COMMIT_HASH
+RUN git log -1 --pretty=%s          | tee /meta/SOURCE_COMMIT_SUBJECT
+RUN git log -1 --pretty=%cs         | tee /meta/SOURCE_DATE
+RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
+RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
 
 ## Build the shared packages and get their dependencies
