@@ -10,7 +10,7 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 
-export async function provision({ file, skipIfNotNeeded }) {
+export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
@@ -27,7 +27,7 @@ export async function provision({ file, skipIfNotNeeded }) {
   checkIntegrationsConfig();
 
   const { users, facilities, referenceData, settings: globalSettings } = await loadSettingFile(
-    file,
+    provisioningFile,
   );
 
   /// //////////////
@@ -35,12 +35,12 @@ export async function provision({ file, skipIfNotNeeded }) {
 
   const errors = [];
   const stats = {};
-  for (const { file, ...rest } of referenceData ?? []) {
-    if (!file) {
+  for (const { file: referenceDataFile, ...rest } of referenceData ?? []) {
+    if (!referenceDataFile) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = relative(file, path);
+    const realpath = relative(provisioningFile, referenceDataFile);
     log.info('Importing reference data file', { file: realpath });
     await referenceDataImporter({
       errors,
