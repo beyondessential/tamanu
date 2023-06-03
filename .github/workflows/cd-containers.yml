@@ -28,9 +28,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - linux/amd64
-          # - linux/arm64
-          # it works, but it's just too slow
+          - arch: linux/amd64
+            runs-on: ubuntu-latest
+          # - arch: linux/arm64
+          #   runs-on: ubuntu-arm64 # when available
         package:
           - name: central
             path: sync-server
@@ -41,7 +42,7 @@ jobs:
           # not yet used
 
     name: Build ${{ matrix.package.name }} container for ${{ matrix.platform.arch }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform.runs-on }}
 
     steps:
       - name: Configure AWS Credentials
@@ -84,7 +85,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ matrix.platform.arch }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
