@@ -12,7 +12,7 @@ if [[ -d /meta ]]; then
   # expose the build metadata as environment variables
   # these are then pulled by Tamanu into the OpenTelemetry context
   for f in /meta/*; do
-    export OTEL_CONTEXT_$(basename $f)=$(cat $f)
+    export "OTEL_CONTEXT_$(basename $f)"="$(cat $f)"
   done
 fi
 
