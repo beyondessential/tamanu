@@ -114,7 +114,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
       console.log(`NEW PASSWORD for ${email}: ${realPassword}`);
     }
 
-    const user = await store.models.User.findOne({ email });
+    const user = await store.models.User.findOne({ where: { email } });
     if (user) {
       log.info('Updating user', { email });
       user.set({ role, ...fields });
@@ -134,6 +134,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   log.info('Creating system user');
   await store.models.User.create({
     id: SYSTEM_USER_UUID,
+    email: 'system@tamanu.io',
     role: 'system',
     displayName: 'System',
   });
