@@ -28,10 +28,8 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - arch: linux/amd64
-            prefix: ''
-          # - arch: linux/arm64
-          #   prefix: linarm-
+          - linux/amd64
+          # - linux/arm64
           # it works, but it's just too slow
         package:
           - name: central
@@ -68,19 +66,6 @@ jobs:
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v2
 
-      - name: Prepare image name
-        uses: actions/github-script@v6
-        id: image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPO_NAME: ${{ matrix.package.name }}
-        with:
-          result-encoding: string
-          script: |
-            const registry = process.env.REGISTRY;
-            const repo_name = process.env.REPO_NAME;
-            const image = `${registry}/tamanu/${repo_name}`;
-            return image;
       - name: Normalise branch/ref name
         uses: actions/github-script@v6
         id: ref
@@ -90,24 +75,20 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const head_ref = process.env.GH_HEAD_REF;
-            const ref_name = process.env.GH_REF_NAME;
-            const ref = head_ref ?? ref_name;
-            const cleaned = ref
+            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
               .replace(/[^a-z0-9-]/g, '-')
               .replace(/-+/g, '-')
-              .replace(/^-|-$/g, '');
-            return cleaned;
+              .replace(/^-|-$/g, ''));
 
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: ${{ matrix.platform.arch }}
+          platforms: ${{ matrix.platform }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           push: true
           tags: |
-            ${{ steps.image.outputs.result }}:${{ matrix.platform.prefix }}${{ github.sha }}
-            ${{ steps.image.outputs.result }}:${{ matrix.platform.prefix }}${{ steps.ref.outputs.result }}
+            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ steps.ref.outputs.result }}
