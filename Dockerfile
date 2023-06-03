@@ -14,6 +14,7 @@ RUN apk add --no-cache \
     --virtual .build-deps \
     make \
     gcc \
+    git \
     g++ \
     python3 \
     bash \
@@ -26,6 +27,18 @@ RUN apk add --no-cache bash curl jq
 COPY scripts/docker-entrypoint.sh /entrypoint
 ENTRYPOINT ["/entrypoint"]
 CMD ["serve"]
+
+
+## Get some build metadata information
+FROM build-base as metadata
+COPY .git/ .git/
+RUN mkdir /meta
+RUN git rev-parse --abbrev-ref HEAD | tee /meta/SOURCE_BRANCH
+RUN git log -1 --pretty=%H          | tee /meta/SOURCE_COMMIT_HASH
+RUN git log -1 --pretty=%s          | tee /meta/SOURCE_COMMIT_SUBJECT
+RUN git log -1 --pretty=%cs         | tee /meta/SOURCE_DATE
+RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
+RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
 
 ## Build the shared packages and get their dependencies
@@ -56,6 +69,7 @@ ARG PACKAGE_PATH
 # copy the built packages and their deps
 COPY --from=build-server /app/packages/ packages/
 COPY --from=build-server /app/node_modules/ node_modules/
+COPY --from=metadata /meta/ /meta/
 
 # set the working directory, which is where the entrypoint will run
 WORKDIR /app/packages/${PACKAGE_PATH}
