@@ -85,12 +85,6 @@
     "reportNoUserError": false,
     "allowDummyToken": false,
     "useHardcodedPermissions": true,
-    "initialUser": {
-      "email": "admin@tamanu.io",
-      "displayName": "Initial Admin",
-      "role": "admin",
-      "password": "admin"
-    },
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",
