@@ -44,6 +44,9 @@ jobs:
     name: Build ${{ matrix.package.name }} container for ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
 
+    outputs:
+      tag: "sha-${{ github.sha }}"
+
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
