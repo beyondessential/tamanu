@@ -39,7 +39,6 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const { searchParameters } = useImagingRequests(memoryKey);
-  console.log(memoryKey, statuses)
 
   const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 

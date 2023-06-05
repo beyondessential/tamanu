@@ -43,11 +43,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
   const areaSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department');
   const requesterSuggester = useSuggester('practitioner');
-  const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+  const completedStatus = memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
 
-  const { searchParameters, setSearchParameters } = useImagingRequests(
-    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
-  );
+  const { searchParameters, setSearchParameters } = useImagingRequests(memoryKey);
 
   const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
     completedStatus ? COMPLETED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS,
