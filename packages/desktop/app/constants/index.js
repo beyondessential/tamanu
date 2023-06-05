@@ -455,4 +455,5 @@ export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
 
 export const FORM_TYPES = {
   SEARCH_FORM: 'searchForm',
+  DATA_FORM: 'dataForm',
 };
