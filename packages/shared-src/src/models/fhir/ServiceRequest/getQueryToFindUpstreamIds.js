@@ -21,6 +21,7 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
+            required: true,
             where: { id },
           },
         ],
@@ -31,14 +32,17 @@ export function fromImagingRequests(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Location,
                 as: 'location',
+                required: true,
                 include: [
                   {
                     model: Facility,
                     as: 'facility',
+                    required: true,
                     where: { id },
                   },
                 ],
@@ -53,10 +57,12 @@ export function fromImagingRequests(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Location,
                 as: 'location',
+                required: true,
                 where: { id },
               },
             ],
@@ -69,6 +75,7 @@ export function fromImagingRequests(models, table, id) {
           {
             model: LocationGroup,
             as: 'locationGroup',
+            required: true,
             where: { id },
           },
         ],
@@ -78,10 +85,12 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
+            required: true,
             include: [
               {
                 model: ReferenceData,
                 as: 'area',
+                required: true,
                 where: { id },
               },
             ],
@@ -93,14 +102,17 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
+            required: true,
             include: [
               {
                 model: ReferenceData,
                 as: 'area',
+                required: true,
                 include: [
                   {
                     model: ImagingAreaExternalCode,
                     as: 'imagingAreaExternalCode',
+                    required: true,
                     where: { id },
                   },
                 ],
@@ -115,10 +127,12 @@ export function fromImagingRequests(models, table, id) {
           {
             model: User,
             as: 'requestedBy',
+            required: true,
           },
           {
             model: User,
             as: 'completedBy',
+            required: true,
           },
         ],
         where: {
@@ -142,6 +156,7 @@ export function fromLabRequests(models, table, id) {
           {
             model: LabTest,
             as: 'tests',
+            required: true,
             where: { id },
           },
         ],
@@ -152,10 +167,12 @@ export function fromLabRequests(models, table, id) {
           {
             model: LabTest,
             as: 'tests',
+            required: true,
             include: [
               {
                 model: LabTestType,
                 as: 'labTestType',
+                required: true,
                 where: { id },
               },
             ],
@@ -168,6 +185,7 @@ export function fromLabRequests(models, table, id) {
           {
             model: LabTestPanelRequest,
             as: 'labTestPanelRequest',
+            required: true,
             where: { id },
           },
         ],
@@ -178,10 +196,12 @@ export function fromLabRequests(models, table, id) {
           {
             model: LabTestPanelRequest,
             as: 'labTestPanelRequest',
+            required: true,
             include: [
               {
                 model: LabTestPanel,
                 as: 'labTestPanel',
+                required: true,
                 where: { id },
               },
             ],
@@ -194,6 +214,7 @@ export function fromLabRequests(models, table, id) {
           {
             model: User,
             as: 'requestedBy',
+            required: true,
             where: { id },
           },
         ],
@@ -213,6 +234,7 @@ function fromBoth(models, table, id) {
           {
             model: NotePage,
             as: 'notePages',
+            required: true,
             where: { id },
           },
         ],
@@ -223,10 +245,12 @@ function fromBoth(models, table, id) {
           {
             model: NotePage,
             as: 'notePages',
+            required: true,
             include: [
               {
                 model: NoteItem,
                 as: 'noteItems',
+                required: true,
                 where: { id },
               },
             ],
@@ -239,6 +263,7 @@ function fromBoth(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             where: { id },
           },
         ],
@@ -249,10 +274,12 @@ function fromBoth(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Patient,
                 as: 'patient',
+                required: true,
                 where: { id },
               },
             ],
