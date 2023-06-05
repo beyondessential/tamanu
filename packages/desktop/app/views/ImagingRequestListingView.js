@@ -10,24 +10,30 @@ import {
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 import { IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
 
-const ImagingRequestListing = ({ status = '' }) => (
+const ImagingRequestListing = ({ memoryKey, statuses }) => (
   <ContentPane>
     <SearchTableTitle>Imaging request search</SearchTableTitle>
-    <ImagingRequestsSearchBar status={status} />
-    <ImagingRequestsTable status={status} />
+    <ImagingRequestsSearchBar memoryKey={memoryKey} statuses={statuses} />
+    <ImagingRequestsTable memoryKey={memoryKey} statuses={statuses} />
   </ContentPane>
 );
 
 export const ImagingRequestListingView = () => (
   <PageContainer>
     <TopBar title="Imaging requests" />
-    <ImagingRequestListing />
+    <ImagingRequestListing
+      memoryKey={IMAGING_REQUEST_SEARCH_KEYS.ACTIVE}
+      statuses={[IMAGING_REQUEST_STATUS_TYPES.PENDING, IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]}
+    />
   </PageContainer>
 );
 
 export const CompletedImagingRequestListingView = () => (
   <PageContainer>
     <TopBar title="Completed imaging requests" />
-    <ImagingRequestListing status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
+    <ImagingRequestListing
+      memoryKey={IMAGING_REQUEST_SEARCH_KEYS.COMPLETED}
+      statuses={[IMAGING_REQUEST_STATUS_TYPES.COMPLETED]}
+    />
   </PageContainer>
 );

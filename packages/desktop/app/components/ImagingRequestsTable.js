@@ -39,6 +39,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const { searchParameters } = useImagingRequests(memoryKey);
+  console.log(memoryKey, statuses)
 
   const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
@@ -104,7 +105,10 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       elevated={false}
       initialSort={{
         order: 'desc',
-        orderBy: completedStatus ? 'results.completedAt' : 'requestedDate',
+        orderBy:
+          memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED
+            ? 'results.completedAt'
+            : 'requestedDate',
       }}
     />
   );
