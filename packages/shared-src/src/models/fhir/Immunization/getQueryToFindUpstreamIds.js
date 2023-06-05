@@ -20,6 +20,7 @@ export function fromAdministeredVaccines(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Patient,
@@ -36,6 +37,7 @@ export function fromAdministeredVaccines(models, table, id) {
           {
             model: ScheduledVaccine,
             as: 'scheduledVaccine',
+            required: true,
             include: [
               {
                 model: ReferenceData,

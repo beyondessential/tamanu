@@ -26,6 +26,7 @@ export function fromLabTests(models, table, id) {
           {
             model: LabRequest,
             as: 'labRequest',
+            required: true,
             include: [
               {
                 model: Encounter,
@@ -42,6 +43,7 @@ export function fromLabTests(models, table, id) {
           {
             model: LabRequest,
             as: 'labRequest',
+            required: true,
             include: [
               {
                 model: Encounter,
@@ -58,18 +60,22 @@ export function fromLabTests(models, table, id) {
           {
             model: ReferenceData,
             as: 'category',
+            required: true,
           },
           {
             model: ReferenceData,
             as: 'labTestMethod',
+            required: true,
           },
           {
             model: LabRequest,
             as: 'labRequest',
+            required: true,
             include: [
               {
                 model: ReferenceData,
                 as: 'laboratory',
+                required: true,
               },
             ],
           },

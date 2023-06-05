@@ -31,10 +31,12 @@ export function fromImagingRequests(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Location,
                 as: 'location',
+                required: true,
                 include: [
                   {
                     model: Facility,
@@ -53,6 +55,7 @@ export function fromImagingRequests(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Location,
@@ -78,6 +81,7 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
+            required: true,
             include: [
               {
                 model: ReferenceData,
@@ -93,10 +97,12 @@ export function fromImagingRequests(models, table, id) {
         include: [
           {
             model: ImagingRequestArea,
+            required: true,
             include: [
               {
                 model: ReferenceData,
                 as: 'area',
+                required: true,
                 include: [
                   {
                     model: ImagingAreaExternalCode,
@@ -115,10 +121,12 @@ export function fromImagingRequests(models, table, id) {
           {
             model: User,
             as: 'requestedBy',
+            required: true,
           },
           {
             model: User,
             as: 'completedBy',
+            required: true,
           },
         ],
         where: {
@@ -152,6 +160,7 @@ export function fromLabRequests(models, table, id) {
           {
             model: LabTest,
             as: 'tests',
+            required: true,
             include: [
               {
                 model: LabTestType,
@@ -223,6 +232,7 @@ function fromBoth(models, table, id) {
           {
             model: NotePage,
             as: 'notePages',
+            required: true,
             include: [
               {
                 model: NoteItem,
@@ -249,6 +259,7 @@ function fromBoth(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Patient,
