@@ -1,4 +1,3 @@
-import config from 'config';
 import { sub } from 'date-fns';
 import { toDateString } from 'shared/utils/dateTime';
 import { ENCOUNTER_TYPES } from 'shared/constants';
