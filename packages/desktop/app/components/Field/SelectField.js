@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ChevronIcon } from '../Icons/ChevronIcon';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';

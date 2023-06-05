@@ -118,7 +118,7 @@ export class Form extends React.PureComponent {
 
     // If it is a data form, before submission, convert all the touched undefined values
     // to null because
-    // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are 
+    // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
     // trying to remove a value when editing a record
     // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
     if (formType === FORM_TYPES.DATA_FORM) {

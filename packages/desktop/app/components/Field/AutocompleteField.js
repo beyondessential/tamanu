@@ -7,7 +7,7 @@ import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from 
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 
