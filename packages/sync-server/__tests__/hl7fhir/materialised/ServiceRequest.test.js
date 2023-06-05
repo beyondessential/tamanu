@@ -681,12 +681,9 @@ Patient may need mobility assistance`,
           );
 
           await ir.setAreas([resources.area1.id]);
-          await ImagingRequest.sequelize.query(
-            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
-            { bind: [addDays(new Date(), 5), ir.id] },
-          );
           await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 5) });
           return ir;
         })(),
         (async () => {
@@ -702,12 +699,9 @@ Patient may need mobility assistance`,
           );
 
           await ir.setAreas([resources.area2.id]);
-          await ImagingRequest.sequelize.query(
-            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
-            { bind: [addDays(new Date(), 10), ir.id] },
-          );
           await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 10) });
           return ir;
         })(),
       ]);
