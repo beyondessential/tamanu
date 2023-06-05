@@ -280,17 +280,17 @@ describe(`Materialised FHIR - Encounter`, () => {
 
     describe('filters', () => {
       it('by lastUpdated=gt', async () => {
-        const startTime = new Date();
-        const [newEncounter] = await makeEncounter();
+        const [newEncounter, newMat] = await makeEncounter();
+        newMat.update({ lastUpdated: addDays(new Date(), 5) });
         const response = await app.get(
           `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_lastUpdated=gt${encodeURIComponent(
-            formatFhirDate(startTime),
+            formatFhirDate(addDays(new Date(), 4)),
           )}`,
         );
 
         expect(response.body.total).toBe(1);
         expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
-          [newEncounter].map(([, mat]) => mat.id),
+          [[newEncounter, newMat]].map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();
       });
