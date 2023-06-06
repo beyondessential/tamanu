@@ -29,7 +29,7 @@ export const makePatientLetter = async (req, { id, ...data }) => {
 
   try {
     await ReactPDF.render(
-      <PatientLetter getLocalisation={getLocalisationData} data={data} logo={logo} />,
+      <PatientLetter getLocalisation={getLocalisationData} data={data} logoSrc={logo} />,
       filePath,
     );
   } catch (error) {

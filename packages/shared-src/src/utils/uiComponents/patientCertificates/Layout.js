@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
   },
 });
 
-export const Row = props => <View style={styles.row} {...props} />;
+export const Row = ({ style, ...props}) => <View style={{...styles.row, ...style}} {...props} />;
 export const Col = props => <View style={styles.col} {...props} />;
 export const Box = ({ mt, mb, ...props }) => (
   <View style={[styles.box, { marginTop: mt, marginBottom: mb }]} {...props} />

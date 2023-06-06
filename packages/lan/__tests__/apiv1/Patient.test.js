@@ -12,7 +12,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
-import { CertificateTypes } from 'shared/utils/patientCertificates';
+import { CertificateTypes } from 'shared/utils/uiComponents/patientCertificates';
 
 import { createTestContext } from '../utilities';
 

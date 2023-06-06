@@ -1,73 +1,88 @@
 import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
+import { StyleSheet, View } from '@react-pdf/renderer';
 
-import { styles, Col, Box, Row, Watermark, CertificateLogo } from '../patientCertificates/Layout';
+import { styles, Col, Box, Row, Signature, Watermark, CertificateLogo } from '../patientCertificates/Layout';
 import { H3, P, CertificateAddress, CertificateTitle} from '../patientCertificates/Typography';
 import { Table } from '../patientCertificates/Table';
 import { getDOB } from '../patientCertificates/accessors';
 import { 
   CertificateHeader,
-  CertificateFooter,
+  LetterheadSection,
   CertificateTypes,
 } from '../patientCertificates';
+import { Divider } from '../handoverNotes/Divider';
+import { getDisplayDate } from '../patientCertificates/getDisplayDate';
+import { getSex, getName } from '../handoverNotes/accessors';
 
-const joinNames = ({ firstName, lastName }) => [firstName, lastName].join(' ');
-const PATIENT_FIELDS = [
-  { key: 'Patient name', label: 'Patient name', accessor: joinNames },
+export const getCreatedAtDate = ({ documentCreatedAt }, getLocalisation) =>
+  documentCreatedAt ? getDisplayDate(documentCreatedAt, 'dd/MM/yyyy', getLocalisation) : 'Unknown';
+
+const DETAIL_FIELDS = [
+  { key: 'Patient name', label: 'Patient name', accessor: getName },
+  { key: 'displayId', label: 'Patient ID' },
   {
     key: 'dateOfBirth',
     label: 'DOB',
     accessor: getDOB,
   },
-  { key: 'sex', label: 'Sex' },
-  { key: 'displayId', label: 'Patient ID' },
+  { key: 'clinician', label: 'Clinician' },
+  { key: 'sex', label: 'Sex', accessor: getSex },
+  { key: 'createdAtDate', label: 'Date', getCreatedAtDate },
 ];
 
-const PatientDetailsSection = ({ getLocalisation, patient }) => {
-  return (
-    <Row>
-      <Col style={{ marginBottom: 5 }}>
-        <Row>
-          {PATIENT_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-            const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+const detailsSectionStyle = {
+  borderTop: '1 solid #000000',
+  borderBottom: '1 solid #000000',
+  paddingTop: 4,
+  paddingBottom: 5,
+  marginBottom: 10,
+};
 
-            return (
-              <Col style={{ width: '33%' }} key={key}>
-                <P mb={6}>
-                  <P bold>{label}:</P> {value}
-                </P>
-              </Col>
-            );
-          })}
-        </Row>
-      </Col>
-    </Row>
+const DetailsSection = ({ getLocalisation, patient }) => {
+  return (
+    <View style={{ marginTop: 10 }}>
+      <H3 style={{ marginBottom: 5 }}>Details</H3>
+      <Row style={detailsSectionStyle}>
+        <Col style={{ marginBottom: 5 }}>
+          <Row>
+            {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
+              const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+              const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+
+              return (
+                <Col style={{ width: '50%' }} key={key}>
+                  <P mb={6}>
+                    <P bold>{label}:</P> {value}
+                  </P>
+                </Col>
+              );
+            })}
+          </Row>
+        </Col>
+      </Row>
+    </View>
   );
 };
 
-export const PatientLetter = ({ getLocalisation, patientLetterData }) => {
+export const PatientLetter = ({ getLocalisation, patientLetterData, logoSrc }) => {
   console.log(patientLetterData);
-  const { title: certificateTitle, patient = {} } = patientLetterData;
-  const title = getLocalisation('templates.letterhead.title');
-  const subTitle = getLocalisation('templates.letterhead.subTitle');
-  const logoSrc = undefined;
-
+  const { title: certificateTitle, body, patient = {} } = patientLetterData;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
-          <>
-            {logoSrc && <CertificateLogo logoSrc={logoSrc} />}
-            <CertificateAddress>{`${title}\n${subTitle}`}</CertificateAddress>
-            <CertificateTitle>{certificateTitle}</CertificateTitle>
-          </>
-          <PatientDetailsSection
+          <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} certificateTitle={certificateTitle} />
+          <DetailsSection
             patient={patient}
             getLocalisation={getLocalisation}
           />
         </CertificateHeader>
+        <View style={{ margin: '18px' }}>
+          <P mb={60} style={{ fontSize: 12 }} >{body}</P>
+          <Signature text="Signed" />
+        </View>
       </Page>
     </Document>
   )
