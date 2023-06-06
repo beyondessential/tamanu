@@ -127,13 +127,13 @@ encounter.post('/:id/createPatientLetter', asyncHandler(async (req, res) => {
     throw new NotFoundError();
   }
   
-  const documentOwner = await models.User.findByPk(clinicianId);
-  if (!documentOwner) {
+  const clinician = await models.User.findByPk(clinicianId);
+  if (!clinician) {
     throw new NotFoundError('Clinician not found');
   }  
   
   // Create attachment
-  const { filePath } = await makePatientLetter({ id: specifiedEncounter.id, ...patientLetterData });
+  const { filePath } = await makePatientLetter({ id: specifiedEncounter.id, clinician, ...patientLetterData });
 
   const { size } = fs.statSync(filePath);
   const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
@@ -151,7 +151,7 @@ encounter.post('/:id/createPatientLetter', asyncHandler(async (req, res) => {
 
   const documentMetadataObject = await models.DocumentMetadata.create({
     ...documentMetadata,
-    documentOwner: documentOwner.displayName,
+    documentOwner: clinician.displayName,
     attachmentId,
     encounterId: params.id,
   });

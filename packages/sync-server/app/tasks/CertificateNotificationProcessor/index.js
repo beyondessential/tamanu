@@ -13,7 +13,7 @@ import {
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { generateUVCI } from 'shared/utils/uvci';
-import { CertificateTypes } from 'shared/utils/patientCertificates';
+import { CertificateTypes } from 'shared/utils/uiComponents/patientCertificates';
 import {
   makeVaccineCertificate,
   makeCovidVaccineCertificate,

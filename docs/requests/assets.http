@@ -1,18 +1,36 @@
-@token=fake-token
-@server=http://localhost:3000
+@server=http://localhost:4000
 
-### Create/update some reference data items
-### For type column, please insert mime type of the asset
-### For data column, please insert base64 encoded string of the asset
-### Insert existing "id" if you want to update the asset
-POST {{server}}/v1/sync/asset  HTTP/1.1
+
+# @name login
+POST {{server}}/v1/login
+Content-Type: application/json
+
+{
+    "email": "admin@tamanu.io",
+    "password": ""
+}
+
+###
+@token={{login.response.body.token}}
+
+
+### Create patient letter
+POST {{server}}/v1/patient/298f4fcd-8a15-4da6-9019-45801deef3aa/createPatientLetter
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
-[
-    { "data": {
-        "name": "example-asset-name",
-        "type": "image/svg+xml",
-        "data": ""
-    }}
-]
+{
+    "patientLetterData": {
+        "title": "hi",
+        "nothing": "hi"
+    },
+    "clinicianId": "44edfb44-ae3f-44ac-999a-f8e9eca86a44",
+    "name": "Sick note"
+}
+
+
+
+###
+GET {{server}}/v1/attachment/18475fba-658e-42bd-a9e3-69fc91d4ff93
+?base64=true
+Authorization: Bearer {{token}}
