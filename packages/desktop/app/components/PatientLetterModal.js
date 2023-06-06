@@ -13,7 +13,8 @@ export const PatientLetterModal = React.memo(
       async ({ printRequested, ...data }) => {
         const document = await api.post(`${endpoint}/createPatientLetter`, {
           patientLetterData: {
-            todo: 'TODO: will pass through in the next PR',
+            ...data,
+            patient,
           },
           name: data.title,
           clinicianId: data.clinicianId,

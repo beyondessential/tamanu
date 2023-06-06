@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import fs, { promises as asyncFs } from 'fs';
 import { NotFoundError } from 'shared/errors';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { makePatientLetter } from '../utils/makePatientLetter';
 
 export const createPatientLetter = (modelName, idField) =>
@@ -8,6 +9,8 @@ export const createPatientLetter = (modelName, idField) =>
     req.checkPermission('create', 'DocumentMetadata');
     const { models, params } = req;
     const { patientLetterData, clinicianId, ...documentMetadata } = req.body;
+    
+    const documentCreatedAt = getCurrentDateTimeString();
 
     // Make sure the specified encounter/patient exists
     const specifiedObject = await models[modelName].findByPk(params.id);
@@ -24,6 +27,7 @@ export const createPatientLetter = (modelName, idField) =>
     const { filePath } = await makePatientLetter({
       id: specifiedObject.id,
       clinician,
+      documentCreatedAt,
       ...patientLetterData,
     });
 
@@ -33,7 +37,6 @@ export const createPatientLetter = (modelName, idField) =>
 
     const { id: attachmentId } = await models.Attachment.create(
       models.Attachment.sanitizeForFacilityServer({
-        // TODO: Maybe don't hardcode this?
         type: 'application/pdf',
         size,
         data: fileData,
@@ -44,6 +47,8 @@ export const createPatientLetter = (modelName, idField) =>
       ...documentMetadata,
       documentOwner: clinician.displayName,
       attachmentId,
+      documentCreatedAt,
+      documentUploadedAt: documentCreatedAt,
       [idField]: params.id,
     });
 
