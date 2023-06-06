@@ -153,7 +153,8 @@ jobs:
           upsert: true
           config-map: "{
             tamanu-internal:imageTag: {value: '${{ needs.build.outputs.tag }}', secret: false},
-            tamanu-internal:salt: {value: '${{ hashFiles('salt.*') }}', secret: true}
+            tamanu-internal:salt: {value: 'ghp_${{ hashFiles('salt.*') }}', secret: true}
           }"
+          # prefix the salt with ghp_ to make it look like a valid github token and get censored
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
