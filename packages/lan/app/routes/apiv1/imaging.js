@@ -1,8 +1,8 @@
 import express from 'express';
 import config from 'config';
 import asyncHandler from 'express-async-handler';
-import { startOfDay, endOfDay } from 'date-fns';
-import Sequelize, { Op, literal } from 'sequelize';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import { Op, literal } from 'sequelize';
 import {
   NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -371,28 +371,25 @@ globalImagingRequests.get(
       required: true,
     };
 
-    const fromImagingResultsSubQuery = `
-      FROM imaging_results
-      WHERE imaging_results.imaging_request_id = "ImagingRequest".id
-    `;
-    const resultFilters = {};
+    const imagingResultFilters = {};
     const replacements = {};
 
     // Sequelize does not support FROM sub query, only sub query as field
     // and alias cannot be used in where clause. So to filter by MAX(imaging_results.completed_at),
     // the sub query has to be duplicated in the where clause as well in the select part.
     if (filterParams.completedAt) {
-      resultFilters.id = {
-        [Op.in]: Sequelize.literal(
+      imagingResultFilters.id = {
+        [Op.in]: literal(
           `(
             SELECT imaging_request_id FROM (SELECT imaging_request_id, MAX(completed_at)
-            ${fromImagingResultsSubQuery}
+            FROM imaging_results
+            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
             GROUP BY imaging_request_id
             HAVING MAX(completed_at) LIKE :completedAtFilterDate) AS max_completed_at
           )`,
         ),
       };
-      replacements.completedAtFilterDate = `${toDateString(new Date(filterParams.completedAt))}%`;
+      replacements.completedAtFilterDate = `${toDateString(parseISO(filterParams.completedAt))}%`;
     }
 
     // Query database
@@ -400,7 +397,7 @@ globalImagingRequests.get(
       where: {
         [Op.and]: {
           ...imagingRequestFilters,
-          ...resultFilters,
+          ...imagingResultFilters,
           status: {
             [Op.notIn]: [
               IMAGING_REQUEST_STATUS_TYPES.DELETED,
@@ -421,7 +418,8 @@ globalImagingRequests.get(
           [
             literal(`(
             SELECT MAX(completed_at)
-            ${fromImagingResultsSubQuery}
+            FROM imaging_results
+            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
           )`),
             'completedAt',
           ],
