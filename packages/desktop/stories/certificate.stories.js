@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
+import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/uiComponents/patientCertificates';
+import { PatientLetter } from 'shared/utils/uiComponents';
 import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
@@ -225,6 +226,23 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         logoSrc={Logo}
         vdsSrc={vdsSrc}
         getLocalisation={getLocalisation}
+      />
+    </PDFViewer>
+  );
+});
+
+storiesOf('Certificates', module).add('PatientLetter', () => {
+  const patientLetterData = {
+    patientLetterData: {
+      title: 'hi',
+    },
+  };
+
+  return (
+    <PDFViewer width={800} height={1000} showToolbar={false}>
+      <VaccineCertificate
+        getLocalisation={getLocalisation}
+        patientLetterData={patientLetterData}
       />
     </PDFViewer>
   );
