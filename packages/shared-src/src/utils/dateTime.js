@@ -3,7 +3,6 @@ import {
   formatISO9075,
   differenceInMonths,
   differenceInYears,
-  compareDesc,
   format as dateFnsFormat,
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
   parseISO,
