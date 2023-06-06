@@ -2,7 +2,7 @@ import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import { get } from 'lodash';
-
+import { v4 as uuid } from 'uuid';
 import { log } from 'shared/services/logging';
 import { tmpdir, PatientLetter } from 'shared/utils';
 
@@ -19,8 +19,7 @@ export const makePatientLetter = async (req, { id, ...data }) => {
   });
 
   const folder = await tmpdir();
-  // TODO: add millies to filename (or just uuid)?
-  const fileName = `patient-letter-${id}.pdf`;
+  const fileName = `patient-letter-${id}-${uuid()}.pdf`;
   const filePath = path.join(folder, fileName);
 
   try {
