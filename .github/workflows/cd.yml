@@ -1,4 +1,4 @@
-name: CD Containers
+name: CD
 
 on:
   workflow_dispatch:
@@ -8,22 +8,24 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+      - labeled
   push:
     branches:
-      - dev
       - main
+      - release/*
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.run_id }}
+  group: ${{ github.workflow }}-${{ github.pull_request.id || github.sha || github.run_id }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  id-token: write # OIDC token for ECR login
+  pull-requests: write
+  id-token: write # OIDC token for AWS
 
 jobs:
   build:
-    if: github.event_name == 'push' || github.event.pull_request.draft == false
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'auto-deploy'))
     strategy:
       fail-fast: false
       matrix:
@@ -46,6 +48,8 @@ jobs:
 
     outputs:
       tag: "sha-${{ github.sha }}"
+      image: "${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}"
+      name: ${{ steps.ref.outputs.result }}
 
     steps:
       - name: Configure AWS Credentials
@@ -103,3 +107,63 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}
             ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ steps.ref.outputs.result }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
+          role-session-name: GithubActionsTamanuDeploy
+
+      - uses: actions/checkout@v3
+        with:
+          repository: beyondessential/ops
+          ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+      - name: Prepare pulumi
+        run: npm ci
+        working-directory: pulumi
+
+      - name: Refresh stack
+        uses: pulumi/actions@v3
+        with:
+          work-dir: pulumi/tamanu-internal
+          command: config refresh
+          stack-name: bes/${{ steps.build.outputs.name }}
+          upsert: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Setup salt
+        run: ls
+        working-directory: pulumi/tamanu-internal
+
+      - name: Configure image tag
+        uses: pulumi/actions@v3
+        with:
+          work-dir: pulumi/tamanu-internal
+          command: config set tamanu-internal:imageTag ${{ needs.build.outputs.tag }}
+          stack-name: bes/${{ steps.build.outputs.name }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Up!
+        uses: pulumi/actions@v3
+        with:
+          work-dir: pulumi/tamanu-internal
+          command: up
+          stack-name: bes/${{ steps.build.outputs.name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-on-pr: ${{ github.event_name == 'pull_request' }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
