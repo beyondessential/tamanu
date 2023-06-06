@@ -116,49 +116,54 @@ encounter.post(
   }),
 );
 
-encounter.post('/:id/createPatientLetter', asyncHandler(async (req, res) => {
-  req.checkPermission('create', 'DocumentMetadata');
-  const { models, params } = req;
-  const { patientLetterData, clinicianId, ...documentMetadata } = req.body;
+encounter.post(
+  '/:id/createPatientLetter',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'DocumentMetadata');
+    const { models, params } = req;
+    const { patientLetterData, clinicianId, ...documentMetadata } = req.body;
 
-  // Make sure the specified encounter exists
-  const specifiedEncounter = await models.Encounter.findByPk(params.id);
-  if (!specifiedEncounter) {
-    throw new NotFoundError();
-  }
-  
-  const clinician = await models.User.findByPk(clinicianId);
-  if (!clinician) {
-    throw new NotFoundError('Clinician not found');
-  }  
-  
-  // Create attachment
-  const { filePath } = await makePatientLetter({ id: specifiedEncounter.id, clinician, ...patientLetterData });
+    // Make sure the specified encounter exists
+    const specifiedEncounter = await models.Encounter.findByPk(params.id);
+    if (!specifiedEncounter) {
+      throw new NotFoundError();
+    }
 
-  const { size } = fs.statSync(filePath);
-  const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
-  fs.unlink(filePath, () => null);
+    const clinician = await models.User.findByPk(clinicianId);
+    if (!clinician) {
+      throw new NotFoundError('Clinician not found');
+    }
 
-  const { id: attachmentId } = await models.Attachment.create(
-    models.Attachment.sanitizeForFacilityServer({
-      // TODO: Maybe don't hardcode this?
-      type: 'application/pdf',
-      size,
-      data: fileData,
-    }),
-  );
-  
+    // Create attachment
+    const { filePath } = await makePatientLetter({
+      id: specifiedEncounter.id,
+      clinician,
+      ...patientLetterData,
+    });
 
-  const documentMetadataObject = await models.DocumentMetadata.create({
-    ...documentMetadata,
-    documentOwner: clinician.displayName,
-    attachmentId,
-    encounterId: params.id,
-  });
+    const { size } = fs.statSync(filePath);
+    const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
+    fs.unlink(filePath, () => null);
 
-  res.send(documentMetadataObject);
-}));
+    const { id: attachmentId } = await models.Attachment.create(
+      models.Attachment.sanitizeForFacilityServer({
+        // TODO: Maybe don't hardcode this?
+        type: 'application/pdf',
+        size,
+        data: fileData,
+      }),
+    );
 
+    const documentMetadataObject = await models.DocumentMetadata.create({
+      ...documentMetadata,
+      documentOwner: clinician.displayName,
+      attachmentId,
+      encounterId: params.id,
+    });
+
+    res.send(documentMetadataObject);
+  }),
+);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));

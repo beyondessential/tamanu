@@ -16,7 +16,10 @@ attachment.get(
 
     if (localAttachment) {
       if (base64 === 'true') {
-        res.send({ data: Buffer.from(localAttachment.data).toString('base64'), type: localAttachment.type });
+        res.send({
+          data: Buffer.from(localAttachment.data).toString('base64'),
+          type: localAttachment.type,
+        });
       } else {
         res.setHeader('Content-Type', localAttachment.type);
         res.setHeader('Content-Length', localAttachment.size);

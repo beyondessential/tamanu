@@ -4,11 +4,9 @@ import path from 'path';
 import { get } from 'lodash';
 
 import { log } from 'shared/services/logging';
-import { tmpdir } from 'shared/utils';
-import { PatientLetter } from 'shared/utils';
+import { tmpdir, PatientLetter } from 'shared/utils';
 
-
-export const makePatientLetter = async (req, { id,...data }) => {
+export const makePatientLetter = async (req, { id, ...data }) => {
   const { getLocalisation, models } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
@@ -24,7 +22,6 @@ export const makePatientLetter = async (req, { id,...data }) => {
   // TODO: add millies to filename (or just uuid)?
   const fileName = `patient-letter-${id}.pdf`;
   const filePath = path.join(folder, fileName);
-
 
   try {
     await ReactPDF.render(
@@ -49,8 +46,6 @@ export const makePatientLetter = async (req, { id,...data }) => {
 //   const folder = await tmpdir();
 //   const fileName = `vaccine-certificate-${patient.id}.pdf`;
 //   const filePath = path.join(folder, fileName);
-
-
 
 //   const signingImage = await models.Asset.findOne({
 //     raw: true,
