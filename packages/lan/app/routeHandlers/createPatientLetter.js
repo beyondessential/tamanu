@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import fs, { promises as asyncFs } from 'fs';
 import { NotFoundError } from 'shared/errors';
+import { DOCUMENT_SOURCES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { makePatientLetter } from '../utils/makePatientLetter';
 
@@ -24,7 +25,7 @@ export const createPatientLetter = (modelName, idField) =>
     }
 
     // Create attachment
-    const { filePath } = await makePatientLetter({
+    const { filePath } = await makePatientLetter(req, {
       id: specifiedObject.id,
       clinician,
       documentCreatedAt,
@@ -45,6 +46,8 @@ export const createPatientLetter = (modelName, idField) =>
 
     const documentMetadataObject = await models.DocumentMetadata.create({
       ...documentMetadata,
+      source: DOCUMENT_SOURCES.PATIENT_LETTER,
+      type: 'application/pdf',
       documentOwner: clinician.displayName,
       attachmentId,
       documentCreatedAt,

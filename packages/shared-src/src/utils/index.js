@@ -8,6 +8,7 @@ export * from './getResponseJsonSafely';
 export * from './uuidToFairlyUniqueInteger';
 export * from './patientCertificates';
 export * from './handoverNotes';
+export * from './patientLetters';
 export * from './sleepAsync';
 export * from './tmpdir';
 export * from './uvci';

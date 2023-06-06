@@ -58,14 +58,16 @@ const DetailsSection = ({ getLocalisation, data }) => {
   );
 };
 
-export const PatientLetter = ({ getLocalisation, patientLetterData, logoSrc }) => {
+export const PatientLetter = ({ getLocalisation, data, logoSrc }) => {
   const {
     title: certificateTitle,
     body,
     patient = {},
     clinician,
     documentCreatedAt,
-  } = patientLetterData;
+  } = data;
+
+  console.log(data, logoSrc);
 
   return (
     <Document>
@@ -74,7 +76,7 @@ export const PatientLetter = ({ getLocalisation, patientLetterData, logoSrc }) =
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
-            certificateTitle={certificateTitle}
+            certificateTitle={certificateTitle ?? ''}
           />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
@@ -83,7 +85,7 @@ export const PatientLetter = ({ getLocalisation, patientLetterData, logoSrc }) =
         </CertificateHeader>
         <View style={{ margin: '18px' }}>
           <P mb={60} style={{ fontSize: 12 }}>
-            {body}
+            {body ?? ''}
           </P>
           <Signature text="Signed" />
         </View>
