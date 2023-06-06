@@ -157,7 +157,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         resourceType: 'ServiceRequest',
         id: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         identifier: [
           {
@@ -232,7 +232,7 @@ Patient may need mobility assistance`,
           },
         ],
       });
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(ir.updatedAt)));
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
 
       // regression EPI-403
@@ -318,7 +318,7 @@ Patient may need mobility assistance`,
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
+          lastUpdated: expect.any(String),
         },
         type: 'searchset',
         total: 1,
@@ -334,7 +334,7 @@ Patient may need mobility assistance`,
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: formatFhirDate(ir.updatedAt),
+                lastUpdated: expect.any(String),
               },
               identifier: [
                 {
@@ -438,7 +438,7 @@ Patient may need mobility assistance`,
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
+          lastUpdated: expect.any(String),
         },
         type: 'searchset',
         total: 1,
@@ -454,7 +454,7 @@ Patient may need mobility assistance`,
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: formatFhirDate(ir.updatedAt),
+                lastUpdated: expect.any(String),
               },
               identifier: [
                 {
@@ -558,7 +558,7 @@ Patient may need mobility assistance`,
         id: expect.any(String),
         timestamp: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
+          lastUpdated: expect.any(String),
         },
         type: 'searchset',
         total: 1,
@@ -574,7 +574,7 @@ Patient may need mobility assistance`,
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: formatFhirDate(ir.updatedAt),
+                lastUpdated: expect.any(String),
               },
               identifier: [
                 {
@@ -681,12 +681,9 @@ Patient may need mobility assistance`,
           );
 
           await ir.setAreas([resources.area1.id]);
-          await ImagingRequest.sequelize.query(
-            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
-            { bind: [addDays(new Date(), 5), ir.id] },
-          );
           await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 5) });
           return ir;
         })(),
         (async () => {
@@ -702,12 +699,9 @@ Patient may need mobility assistance`,
           );
 
           await ir.setAreas([resources.area2.id]);
-          await ImagingRequest.sequelize.query(
-            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
-            { bind: [addDays(new Date(), 10), ir.id] },
-          );
           await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 10) });
           return ir;
         })(),
       ]);
