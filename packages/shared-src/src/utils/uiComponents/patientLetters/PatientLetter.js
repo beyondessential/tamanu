@@ -14,9 +14,10 @@ import {
 import { Divider } from '../handoverNotes/Divider';
 import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { getSex, getName } from '../handoverNotes/accessors';
+import { format as formatDate } from '../../dateTime';
 
 export const getCreatedAtDate = ({ documentCreatedAt }, getLocalisation) =>
-  documentCreatedAt ? getDisplayDate(documentCreatedAt, 'dd/MM/yyyy', getLocalisation) : 'Unknown';
+  documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
 
 const DETAIL_FIELDS = [
   { key: 'Patient name', label: 'Patient name', accessor: getName },
@@ -26,9 +27,9 @@ const DETAIL_FIELDS = [
     label: 'DOB',
     accessor: getDOB,
   },
-  { key: 'clinician', label: 'Clinician' },
+  { key: 'clinicianName', label: 'Clinician' },
   { key: 'sex', label: 'Sex', accessor: getSex },
-  { key: 'createdAtDate', label: 'Date', getCreatedAtDate },
+  { key: 'documentCreatedAt', label: 'Date', accessor: getCreatedAtDate },
 ];
 
 const detailsSectionStyle = {
@@ -39,7 +40,7 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getLocalisation, patient }) => {
+const DetailsSection = ({ getLocalisation, data }) => {
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -47,7 +48,7 @@ const DetailsSection = ({ getLocalisation, patient }) => {
         <Col style={{ marginBottom: 5 }}>
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
-              const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+              const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
               const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
               return (
@@ -66,8 +67,7 @@ const DetailsSection = ({ getLocalisation, patient }) => {
 };
 
 export const PatientLetter = ({ getLocalisation, patientLetterData, logoSrc }) => {
-  console.log(patientLetterData);
-  const { title: certificateTitle, body, patient = {} } = patientLetterData;
+  const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = patientLetterData;
 
   return (
     <Document>
@@ -75,7 +75,7 @@ export const PatientLetter = ({ getLocalisation, patientLetterData, logoSrc }) =
         <CertificateHeader>
           <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} certificateTitle={certificateTitle} />
           <DetailsSection
-            patient={patient}
+            data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
             getLocalisation={getLocalisation}
           />
         </CertificateHeader>

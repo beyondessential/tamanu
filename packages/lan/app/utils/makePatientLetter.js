@@ -8,7 +8,7 @@ import { tmpdir } from 'shared/utils';
 import { PatientLetter } from 'shared/utils';
 
 
-export const makePatientLetter = async (req, { id, ...data }) => {
+export const makePatientLetter = async (req, { id,...data }) => {
   const { getLocalisation, models } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
@@ -19,7 +19,6 @@ export const makePatientLetter = async (req, { id, ...data }) => {
       name: 'letterhead-logo',
     },
   });
-
 
   const folder = await tmpdir();
   // TODO: add millies to filename (or just uuid)?

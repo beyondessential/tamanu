@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
+import { PDFViewer } from '@react-pdf/renderer';
+
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
 import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/uiComponents/patientCertificates';
 import { PatientLetter } from 'shared/utils/uiComponents';
-import { PDFViewer } from '@react-pdf/renderer';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
@@ -141,6 +143,15 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   </PDFViewer>
 ));
 
+const examiner = {
+  id: '6b1269ff-2443-4381-a532-ddd48fbd5020',
+  email: 'admin@tamanu.io',
+  displayName: 'Initial Admin',
+  role: 'admin',
+  createdAt: '2022-01-20T22:48:47.375Z',
+  updatedAt: '2022-02-21T01:02:40.347Z',
+};
+
 const vaccinations = [
   {
     id: '2f27fd7a-e954-4d28-82e9-f64d7b0b5978',
@@ -181,14 +192,7 @@ const vaccinations = [
         createdAt: '2022-01-20T22:51:24.738Z',
         updatedAt: '2022-01-23T21:56:27.340Z',
       },
-      examiner: {
-        id: '6b1269ff-2443-4381-a532-ddd48fbd5020',
-        email: 'admin@tamanu.io',
-        displayName: 'Initial Admin',
-        role: 'admin',
-        createdAt: '2022-01-20T22:48:47.375Z',
-        updatedAt: '2022-02-21T01:02:40.347Z',
-      },
+      examiner,
     },
     scheduledVaccine: {
       id: 'e5813cff-51d2-4ae8-a30e-3c60332880db',
@@ -235,7 +239,8 @@ storiesOf('Certificates', module).add('PatientLetter', () => {
   const patientLetterData = {
     title: 'Sick note',
     patient,
-    clinicianId: 'asd',
+    clinician: examiner,
+    documentCreatedAt: getCurrentDateTimeString(),
     body: 'This is a sick note!\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
   };
 
