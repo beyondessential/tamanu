@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   CovidLabCertificate,
   CertificateTypes,
-} from 'shared/utils/uiComponents/patientCertificates';
+} from 'shared/utils/patientCertificates';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 
 import { Modal } from '../../Modal';

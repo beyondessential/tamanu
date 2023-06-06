@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HandoverNotesPDF } from 'shared/utils/uiComponents/handoverNotes';
-import { getDisplayDate } from 'shared/utils/uiComponents/patientCertificates/getDisplayDate';
+import { HandoverNotesPDF } from 'shared/utils/handoverNotes';
+import { getDisplayDate } from 'shared/utils/patientCertificates/getDisplayDate';
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';

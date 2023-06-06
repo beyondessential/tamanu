@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { VACCINATION_CERTIFICATE } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils/uiComponents/patientCertificates';
+import { VaccineCertificate } from 'shared/utils/patientCertificates';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
 import { Modal } from '../../Modal';

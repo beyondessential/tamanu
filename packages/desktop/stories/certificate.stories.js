@@ -4,8 +4,8 @@ import { storiesOf } from '@storybook/react';
 import { PDFViewer } from '@react-pdf/renderer';
 
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/uiComponents/patientCertificates';
-import { PatientLetter } from 'shared/utils/uiComponents';
+import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
+import { PatientLetter } from 'shared/utils';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';

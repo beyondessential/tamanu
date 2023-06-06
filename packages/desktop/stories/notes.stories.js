@@ -1,6 +1,6 @@
 import React from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { HandoverNotesPDF } from 'shared/utils/uiComponents/handoverNotes';
+import { HandoverNotesPDF } from 'shared/utils/handoverNotes';
 import styled from 'styled-components';
 import { createDummyPatient } from 'shared/demoData';
 import { LabRequestNoteForm } from '../app/forms/LabRequestNoteForm';

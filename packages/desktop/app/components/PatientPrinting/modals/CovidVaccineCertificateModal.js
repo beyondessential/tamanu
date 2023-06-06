@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { CovidVaccineCertificate } from 'shared/utils/uiComponents/patientCertificates';
+import { CovidVaccineCertificate } from 'shared/utils/patientCertificates';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
 import { Modal } from '../../Modal';

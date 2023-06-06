@@ -14,7 +14,7 @@ import {
 import {
   CovidLabCertificate,
   CertificateTypes,
-} from 'shared/utils/uiComponents/patientCertificates';
+} from 'shared/utils/patientCertificates';
 
 import { getLocalisation } from '../localisation';
 

@@ -14,7 +14,7 @@ import {
 import { Divider } from '../handoverNotes/Divider';
 import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { getSex, getName } from '../handoverNotes/accessors';
-import { format as formatDate } from '../../dateTime';
+import { format as formatDate } from '../dateTime';
 
 export const getCreatedAtDate = ({ documentCreatedAt }, getLocalisation) =>
   documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
