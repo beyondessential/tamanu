@@ -1,12 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import fs, { promises as asyncFs } from 'fs';
 import { Op } from 'sequelize';
 import { DOCUMENT_SIZE_LIMIT } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
-import { makePatientLetter } from '../../../utils/makePatientLetter';
+import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -119,49 +118,5 @@ patientDocumentMetadataRoutes.post(
 
 patientDocumentMetadataRoutes.post(
   '/:id/createPatientLetter',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'DocumentMetadata');
-    const { models, params } = req;
-    const { patientLetterData, clinicianId, ...documentMetadata } = req.body;
-
-    // Make sure the specified patient exists
-    const patient = await models.Patient.findByPk(params.id);
-    if (!patient) {
-      throw new NotFoundError('Patient not found');
-    }
-
-    const clinician = await models.User.findByPk(clinicianId);
-    if (!clinician) {
-      throw new NotFoundError('Clinician not found');
-    }
-
-    // Create attachment
-    const { filePath } = await makePatientLetter(req, {
-      id: patient.id,
-      clinician,
-      ...patientLetterData,
-    });
-
-    const { size } = fs.statSync(filePath);
-    const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
-    fs.unlink(filePath, () => null);
-
-    const { id: attachmentId } = await models.Attachment.create(
-      models.Attachment.sanitizeForFacilityServer({
-        // TODO: Maybe don't hardcode this?
-        type: 'application/pdf',
-        size,
-        data: fileData,
-      }),
-    );
-
-    const documentMetadataObject = await models.DocumentMetadata.create({
-      ...documentMetadata,
-      documentOwner: clinician.displayName,
-      attachmentId,
-      patientId: params.id,
-    });
-
-    res.send(documentMetadataObject);
-  }),
+  createPatientLetter('Patient', 'patientId'),
 );

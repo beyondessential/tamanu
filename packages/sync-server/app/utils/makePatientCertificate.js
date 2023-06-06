@@ -11,7 +11,10 @@ import {
   getPatientSurveyResponseAnswer,
   CovidVaccineCertificate,
 } from 'shared/utils';
-import { CovidLabCertificate, CertificateTypes } from 'shared/utils/uiComponents/patientCertificates';
+import {
+  CovidLabCertificate,
+  CertificateTypes,
+} from 'shared/utils/uiComponents/patientCertificates';
 
 import { getLocalisation } from '../localisation';
 
