@@ -48,8 +48,7 @@ jobs:
 
     outputs:
       tag: "sha-${{ github.sha }}"
-      image: "${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}"
-      name: ${{ steps.ref.outputs.result }}
+      name: "${{ steps.ref.outputs.result }}"
 
     steps:
       - name: Configure AWS Credentials
@@ -134,10 +133,11 @@ jobs:
         run: npm ci
         working-directory: pulumi
 
+      # a constant secret + a variable plain text, hashed, = a new secret!
       - name: Write files for salt hash
         env:
           KEY: ${{ secrets.TAMANU_OPS_SSH }}
-          NAME: ${{ steps.build.outputs.name }}
+          NAME: ${{ needs.build.outputs.name }}
         run: |
           echo "$KEY" > salt.key
           echo "$NAME" > salt.name
@@ -147,12 +147,12 @@ jobs:
         with:
           work-dir: pulumi/tamanu-internal
           command: up
-          stack-name: bes/${{ steps.build.outputs.name }}
+          stack-name: bes/${{ needs.build.outputs.name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
           upsert: true
           config-map: "{
-            tamanu-internal:imageTag: {value: '${{ steps.build.outputs.tag }}', secret: false},
+            tamanu-internal:imageTag: {value: '${{ needs.build.outputs.tag }}', secret: false},
             tamanu-internal:salt: {value: '${{ hashFiles('salt.*') }}', secret: true}
           }"
         env:
