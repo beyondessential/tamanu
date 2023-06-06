@@ -125,12 +125,6 @@ export function ageInYears(dob) {
   return differenceInYears(new Date(), new Date(dob));
 }
 
-export function latestDateTime(...args) {
-  const times = args.filter(x => x);
-  times.sort(compareDesc);
-  return times[0];
-}
-
 export function compareDateStrings(key = 'desc') {
   return (a, b) => {
     if (key.toLowerCase() === 'asc') return parseISO(a.date) - parseISO(b.date);
