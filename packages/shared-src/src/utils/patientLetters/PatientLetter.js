@@ -1,25 +1,14 @@
 import React from 'react';
-import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
+import { Document, Page, View } from '@react-pdf/renderer';
 
-import {
-  styles,
-  Col,
-  Box,
-  Row,
-  Signature,
-  Watermark,
-  CertificateLogo,
-} from '../patientCertificates/Layout';
-import { H3, P, CertificateAddress, CertificateTitle } from '../patientCertificates/Typography';
-import { Table } from '../patientCertificates/Table';
+import { styles, Col, Row, Signature } from '../patientCertificates/Layout';
+import { H3, P } from '../patientCertificates/Typography';
 import { getDOB } from '../patientCertificates/accessors';
-import { CertificateHeader, LetterheadSection, CertificateTypes } from '../patientCertificates';
-import { Divider } from '../handoverNotes/Divider';
-import { getDisplayDate } from '../patientCertificates/getDisplayDate';
+import { CertificateHeader, LetterheadSection } from '../patientCertificates';
 import { getSex, getName } from '../handoverNotes/accessors';
 import { format as formatDate } from '../dateTime';
 
-export const getCreatedAtDate = ({ documentCreatedAt }, getLocalisation) =>
+export const getCreatedAtDate = ({ documentCreatedAt }) =>
   documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
 
 const DETAIL_FIELDS = [
