@@ -19,8 +19,6 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   const { noteType, setNoteType } = useEncounterNotes();
   const { loadEncounter } = useEncounter();
 
-  console.log('setNoteType', setNoteType);
-
   return (
     <TabPane>
       <NotePageModal

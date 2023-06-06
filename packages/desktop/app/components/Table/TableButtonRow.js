@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { PropTypes } from 'prop-types';
 
 const Row = styled.div`
   display: flex;
@@ -17,3 +18,14 @@ export const TableButtonRow = ({ children, variant, justifyContent }) => (
     {children}
   </Row>
 );
+
+TableButtonRow.propTypes = {
+  children: PropTypes.node.isRequired,
+  variant: PropTypes.string,
+  justifyContent: PropTypes.string,
+};
+
+TableButtonRow.defaultProps = {
+  variant: null,
+  justifyContent: null,
+};
