@@ -22,7 +22,6 @@ export class Attachment extends Model {
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
 
-  // TODO: Understand the implications of this
   static sanitizeForFacilityServer({ data, ...restOfValues }) {
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
