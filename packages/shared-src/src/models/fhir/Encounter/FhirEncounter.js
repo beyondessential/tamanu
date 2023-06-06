@@ -1,7 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
 import { FhirResource } from '../Resource';
-import { FHIR_INTERACTIONS } from '../../../constants';
 import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';
 import { fromEncounters } from './getQueryToFindUpstreamIds';
