@@ -44,12 +44,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         notify('Your download has started, please wait.', { type: 'info' });
 
         // Download attachment (*currently the API only supports base64 responses)
-        const { data, type } = await api.get(`attachment/${document.attachmentId}`, {
+        const { data } = await api.get(`attachment/${document.attachmentId}`, {
           base64: true,
         });
 
         // If the extension is unknown, save it without extension
-        const fileExtension = extension(type);
+        const fileExtension = extension(document.type);
         const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
         // Create file and open it
