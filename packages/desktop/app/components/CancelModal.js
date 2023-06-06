@@ -40,6 +40,7 @@ export const CancelModal = React.memo(
                 name="reasonForCancellation"
                 options={options}
                 helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}
+                required
               />
             </Wrapper>
             <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} cancelText="Close" />
