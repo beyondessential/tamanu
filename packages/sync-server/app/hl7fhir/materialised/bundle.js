@@ -47,14 +47,10 @@ export class Bundle {
       id: uuidv4(),
       type: this.type,
       timestamp: currentFhirDate,
-    };
-
-    const hasResources = this.resources.length > 0;
-    if (hasResources) {
-      fields.meta = {
+      meta: {
         lastUpdated: currentFhirDate,
-      };
-    }
+      },
+    };
 
     if (typeof this.options.total === 'number') {
       fields.total = this.options.total;
