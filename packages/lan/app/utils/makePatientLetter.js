@@ -1,31 +1,26 @@
-// import fs, { promises as asyncFs } from 'fs';
-// import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
-// import { getUploadedData } from 'shared/utils/getUploadedData';
-// import { CentralServerConnection } from '../sync';
-
 import React from 'react';
-import ReactPDF, { Document, Page } from '@react-pdf/renderer';
+import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
-import QRCode from 'qrcode';
 import { get } from 'lodash';
-import config from 'config';
 
-import { styles, Col, Box, Row, Watermark } from 'shared/utils/patientCertificates/Layout';
-import { H3, P } from 'shared/utils/patientCertificates/Typography';
 import { log } from 'shared/services/logging';
-import { tmpdir, VaccineCertificate, getPatientSurveyResponseAnswer } from 'shared/utils';
-import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
-
-const TestPDF = () => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <H3>Patient Letter</H3>
-    </Page>
-  </Document>
-);
+import { tmpdir } from 'shared/utils';
+import { PatientLetter } from 'shared/utils';
 
 
-export const makePatientLetter = async ({ id, ...data}) => {
+export const makePatientLetter = async (req, { id, ...data }) => {
+  const { getLocalisation, models } = req;
+  const localisation = await getLocalisation();
+  const getLocalisationData = key => get(localisation, key);
+
+  const logo = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'letterhead-logo',
+    },
+  });
+
+
   const folder = await tmpdir();
   // TODO: add millies to filename (or just uuid)?
   const fileName = `patient-letter-${id}.pdf`;
@@ -34,7 +29,7 @@ export const makePatientLetter = async ({ id, ...data}) => {
 
   try {
     await ReactPDF.render(
-      <TestPDF />,
+      <PatientLetter getLocalisation={getLocalisationData} data={data} logo={logo} />,
       filePath,
     );
   } catch (error) {
@@ -56,12 +51,7 @@ export const makePatientLetter = async ({ id, ...data}) => {
 //   const fileName = `vaccine-certificate-${patient.id}.pdf`;
 //   const filePath = path.join(folder, fileName);
 
-//   const logo = await models.Asset.findOne({
-//     raw: true,
-//     where: {
-//       name: 'letterhead-logo',
-//     },
-//   });
+
 
 //   const signingImage = await models.Asset.findOne({
 //     raw: true,

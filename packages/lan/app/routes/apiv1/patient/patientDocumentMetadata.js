@@ -7,7 +7,6 @@ import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
 import { makePatientLetter } from '../../../utils/makePatientLetter'
-import { getUploadedData } from 'shared/utils/getUploadedData';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -136,7 +135,7 @@ patientDocumentMetadataRoutes.post('/:id/createPatientLetter', asyncHandler(asyn
   
   
   // Create attachment
-  const { filePath } = await makePatientLetter({ id: patient.id, ...patientLetterData });
+  const { filePath } = await makePatientLetter(req, { id: patient.id, ...patientLetterData });
 
   const { size } = fs.statSync(filePath);
   const fileData = await asyncFs.readFile(filePath, { encoding: 'base64' });
