@@ -134,28 +134,13 @@ jobs:
         run: npm ci
         working-directory: pulumi
 
-      - name: Refresh stack
-        uses: pulumi/actions@v3
-        with:
-          work-dir: pulumi/tamanu-internal
-          command: config refresh
-          stack-name: bes/${{ steps.build.outputs.name }}
-          upsert: true
+      - name: Write files for salt hash
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
-      - name: Setup salt
-        run: ls
-        working-directory: pulumi/tamanu-internal
-
-      - name: Configure image tag
-        uses: pulumi/actions@v3
-        with:
-          work-dir: pulumi/tamanu-internal
-          command: config set tamanu-internal:imageTag ${{ needs.build.outputs.tag }}
-          stack-name: bes/${{ steps.build.outputs.name }}
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          KEY: ${{ secrets.TAMANU_OPS_SSH }}
+          NAME: ${{ steps.build.outputs.name }}
+        run: |
+          echo "$KEY" > salt.key
+          echo "$NAME" > salt.name
 
       - name: Up!
         uses: pulumi/actions@v3
@@ -165,5 +150,10 @@ jobs:
           stack-name: bes/${{ steps.build.outputs.name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
+          upsert: true
+          config-map: "{
+            tamanu-internal:imageTag: {value: '${{ steps.build.outputs.tag }}', secret: false},
+            tamanu-internal:salt: {value: '${{ hashFiles('salt.*') }}', secret: true}
+          }"
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
