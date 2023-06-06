@@ -1,16 +1,19 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
-import { StyleSheet, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 
-import { styles, Col, Box, Row, Signature, Watermark, CertificateLogo } from '../patientCertificates/Layout';
-import { H3, P, CertificateAddress, CertificateTitle} from '../patientCertificates/Typography';
+import {
+  styles,
+  Col,
+  Box,
+  Row,
+  Signature,
+  Watermark,
+  CertificateLogo,
+} from '../patientCertificates/Layout';
+import { H3, P, CertificateAddress, CertificateTitle } from '../patientCertificates/Typography';
 import { Table } from '../patientCertificates/Table';
 import { getDOB } from '../patientCertificates/accessors';
-import { 
-  CertificateHeader,
-  LetterheadSection,
-  CertificateTypes,
-} from '../patientCertificates';
+import { CertificateHeader, LetterheadSection, CertificateTypes } from '../patientCertificates';
 import { Divider } from '../handoverNotes/Divider';
 import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { getSex, getName } from '../handoverNotes/accessors';
@@ -67,23 +70,35 @@ const DetailsSection = ({ getLocalisation, data }) => {
 };
 
 export const PatientLetter = ({ getLocalisation, patientLetterData, logoSrc }) => {
-  const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = patientLetterData;
+  const {
+    title: certificateTitle,
+    body,
+    patient = {},
+    clinician,
+    documentCreatedAt,
+  } = patientLetterData;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
-          <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} certificateTitle={certificateTitle} />
+          <LetterheadSection
+            getLocalisation={getLocalisation}
+            logoSrc={logoSrc}
+            certificateTitle={certificateTitle}
+          />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
             getLocalisation={getLocalisation}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>
-          <P mb={60} style={{ fontSize: 12 }} >{body}</P>
+          <P mb={60} style={{ fontSize: 12 }}>
+            {body}
+          </P>
           <Signature text="Signed" />
         </View>
       </Page>
     </Document>
-  )
+  );
 };
