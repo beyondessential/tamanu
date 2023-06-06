@@ -39,7 +39,7 @@ export class FhirServiceRequest extends FhirResource {
       options,
     );
 
-    this.UpstreamModels = [models.ImagingRequest, models.LabRequest];
+    this.UpstreamModels = [models.ImagingRequest];
     this.upstreams = [
       models.ImagingRequest,
       models.ImagingRequestArea,
