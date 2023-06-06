@@ -2,7 +2,7 @@ import express from 'express';
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import Sequelize, { Op, literal, where } from 'sequelize';
+import Sequelize, { Op, literal } from 'sequelize';
 import {
   NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -380,7 +380,7 @@ globalImagingRequests.get(
 
     // Sequelize does not support FROM sub query, only sub query as field
     // and alias cannot be used in where clause. So to filter by MAX(imaging_results.completed_at),
-    // the sub query has to be duplicated in the where clause as well as in the select part.
+    // the sub query has to be duplicated in the where clause as well in the select part.
     if (filterParams.completedAt) {
       resultFilters.id = {
         [Op.in]: Sequelize.literal(
