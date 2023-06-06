@@ -2,7 +2,7 @@ import express from 'express';
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay } from 'date-fns';
-import { Op, literal } from 'sequelize';
+import Sequelize, { Op, literal, where } from 'sequelize';
 import {
   NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -61,14 +61,6 @@ const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
     [Op.iLike]: `${value}%`,
   },
 });
-
-const dateFilter = (fieldName, operator, value) => {
-  return {
-    [fieldName]: {
-      [operator]: toDateString(new Date(value)),
-    },
-  };
-};
 
 export const imagingRequest = express.Router();
 
@@ -379,11 +371,36 @@ globalImagingRequests.get(
       required: true,
     };
 
+    const fromImagingResultsSubQuery = `
+      FROM imaging_results
+      WHERE imaging_results.imaging_request_id = "ImagingRequest".id
+    `;
+    const resultFilters = {};
+    const replacements = {};
+
+    // Sequelize does not support FROM sub query, only sub query as field
+    // and alias cannot be used in where clause. So to filter by MAX(imaging_results.completed_at),
+    // the sub query has to be duplicated in the where clause as well as in the select part.
+    if (filterParams.completedAt) {
+      resultFilters.id = {
+        [Op.in]: Sequelize.literal(
+          `(
+            SELECT imaging_request_id FROM (SELECT imaging_request_id, MAX(completed_at)
+            ${fromImagingResultsSubQuery}
+            GROUP BY imaging_request_id
+            HAVING MAX(completed_at) LIKE :completedAtFilterDate) AS max_completed_at
+          )`,
+        ),
+      };
+      replacements.completedAtFilterDate = `${toDateString(new Date(filterParams.completedAt))}%`;
+    }
+
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: {
         [Op.and]: {
           ...imagingRequestFilters,
+          ...resultFilters,
           status: {
             [Op.notIn]: [
               IMAGING_REQUEST_STATUS_TYPES.DELETED,
@@ -404,8 +421,7 @@ globalImagingRequests.get(
           [
             literal(`(
             SELECT MAX(completed_at)
-            FROM imaging_results
-            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
+            ${fromImagingResultsSubQuery}
           )`),
             'completedAt',
           ],
@@ -415,6 +431,7 @@ globalImagingRequests.get(
       offset: page * rowsPerPage,
       distinct: true,
       subQuery: false,
+      replacements,
     });
 
     // Extract and normalize data calling a base model method
