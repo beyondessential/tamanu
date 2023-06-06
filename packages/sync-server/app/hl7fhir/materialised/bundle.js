@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { FHIR_BUNDLE_TYPES } from 'shared/constants';
-import { latestDateTime } from 'shared/utils/dateTime';
 import { formatFhirDate, OperationOutcome } from 'shared/utils/fhir';
 
 import { getBaseUrl, getHL7Link } from '../utils';
@@ -42,19 +41,16 @@ export class Bundle {
   }
 
   asFhir() {
+    const currentFhirDate = formatFhirDate(new Date());
     const fields = {
       resourceType: 'Bundle',
       id: uuidv4(),
       type: this.type,
-      timestamp: formatFhirDate(new Date()),
+      timestamp: currentFhirDate,
+      meta: {
+        lastUpdated: currentFhirDate,
+      },
     };
-
-    const latestUpdated = latestDateTime(...this.resources.map(r => new Date(r.lastUpdated)));
-    if (latestUpdated) {
-      fields.meta = {
-        lastUpdated: formatFhirDate(latestUpdated),
-      };
-    }
 
     if (typeof this.options.total === 'number') {
       fields.total = this.options.total;
