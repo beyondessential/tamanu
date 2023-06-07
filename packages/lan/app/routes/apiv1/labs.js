@@ -407,14 +407,14 @@ labTestPanel.get('/', async (req, res) => {
 });
 
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));
+
 labTestPanel.get(
   '/:id/labTestTypes',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const panelId = params.id;
-
-    req.checkPermission('list', 'LabTests');
-
+    req.checkPermission('read', 'LabTestPanel');
+    req.checkPermission('list', 'LabTestType');
     const panel = await models.LabTestPanel.findByPk(panelId);
     const response = await panel.getLabTestTypes({
       include: [
