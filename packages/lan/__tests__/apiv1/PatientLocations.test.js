@@ -27,6 +27,7 @@ describe('PatientLocations', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
+    const locationTest = await models.Location.count({ where: { maxOccupancy: 1 } });
     locations = await models.Location.bulkCreate([
       generateFakeLocation(models.Location),
       generateFakeLocation(models.Location),
@@ -34,6 +35,8 @@ describe('PatientLocations', () => {
       generateFakeLocation(models.Location, { maxOccupancy: null }),
     ]);
     maxOneOccupancyLocations = locations.filter(location => location.maxOccupancy === 1);
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+    console.log(locationTest, maxOneOccupancyLocations.length);
   });
   beforeEach(async () => {
     await models.Encounter.truncate({
