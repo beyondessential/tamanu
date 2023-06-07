@@ -6,14 +6,11 @@ import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { verifyToken, stripUser, findUserById } from './utils';
 
-const FAKE_TOKEN = 'fake-token';
-
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
 
-    const { canonicalHostName, auth } = config;
-    const { allowDummyToken } = auth;
+    const { canonicalHostName } = config;
 
     // get token
     const { authorization } = headers;
@@ -25,12 +22,6 @@ export const userMiddleware = ({ secret }) =>
     const [bearer, token] = authorization.split(/\s/);
     if (bearer.toLowerCase() !== 'bearer') {
       throw new BadAuthenticationError('Only Bearer token is supported');
-    }
-
-    if (allowDummyToken && token === FAKE_TOKEN) {
-      req.user = await store.models.User.getSystemUser();
-      next();
-      return;
     }
 
     let contents = null;
