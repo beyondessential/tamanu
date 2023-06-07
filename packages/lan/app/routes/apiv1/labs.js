@@ -416,6 +416,9 @@ labTestPanel.get(
     req.checkPermission('read', 'LabTestPanel');
     req.checkPermission('list', 'LabTestType');
     const panel = await models.LabTestPanel.findByPk(panelId);
+    if (!panel) {
+      throw new NotFoundError();
+    }
     const response = await panel.getLabTestTypes({
       include: [
         {
