@@ -225,7 +225,11 @@ export class Encounter extends Model {
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
           WHERE e.updated_at_sync_tick > :since
           OR lr.updated_at_sync_tick > :since
-          AND encounters.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway
+          ${
+            patientIds.length > 0
+              ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
+              : ''
+          }
           GROUP BY e.id
         ) AS encounters_with_labs ON encounters_with_labs.id = encounters.id
       `);
@@ -258,7 +262,11 @@ export class Encounter extends Model {
             OR
               av.updated_at_sync_tick > :since
             )
-          AND encounters.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway
+          ${
+            patientIds.length > 0
+              ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
+              : ''
+          }
           GROUP BY e.id
         ) AS encounters_with_scheduled_vaccines
         ON encounters_with_scheduled_vaccines.id = encounters.id
