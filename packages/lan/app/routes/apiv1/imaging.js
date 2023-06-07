@@ -360,7 +360,7 @@ globalImagingRequests.get(
     };
 
     const locationWhere = {
-      where: filterParams?.allFacilities
+      where: filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
         ? {}
         : { facilityId: { [Op.eq]: config.serverFacilityId } },
     };
