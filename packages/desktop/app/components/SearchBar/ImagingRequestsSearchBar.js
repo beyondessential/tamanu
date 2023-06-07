@@ -43,12 +43,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
   const areaSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department');
   const requesterSuggester = useSuggester('practitioner');
-  const completedStatus = memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
+  const isCompletedTable = memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
 
   const { searchParameters, setSearchParameters } = useImagingRequests(memoryKey);
 
   const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
-    completedStatus ? COMPLETED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS,
+    isCompletedTable ? COMPLETED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS,
     searchParameters,
   );
   const statusFilter = statuses ? { status: statuses } : {};
@@ -69,7 +69,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
       staticValues={{ displayIdExact: true }}
       hiddenFields={
         <>
-          {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+          {!isCompletedTable && (
             <>
               <LocalisedField
                 name="requestedById"
@@ -94,7 +94,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
             suggester={departmentSuggester}
             size="small"
           />
-          {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+          {isCompletedTable && (
             <>
               <LocalisedField
                 name="completedAt"
@@ -114,7 +114,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField name="requestId" defaultLabel="Request ID" component={SearchField} />
-      {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+      {!isCompletedTable && (
         <LocalisedField
           name="status"
           defaultLabel="Status"
@@ -125,7 +125,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
           size="small"
         />
       )}
-      {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && <Spacer />}
+      {isCompletedTable && <Spacer />}
       <LocalisedField
         name="imagingType"
         defaultLabel="Type"
@@ -145,7 +145,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
         saveDateAsString
         component={DateField}
       />
-      {memoryKey !== IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+      {!isCompletedTable && (
         <LocalisedField
           name="priority"
           defaultLabel="Priority"
@@ -154,7 +154,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
           size="small"
         />
       )}
-      {memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED && (
+      {isCompletedTable && (
         <LocalisedField
           name="requestedById"
           defaultLabel="Requested by"
