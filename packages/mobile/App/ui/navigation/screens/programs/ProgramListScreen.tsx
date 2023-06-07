@@ -26,7 +26,9 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
 
   const [surveys, error] = useBackendEffect(({ models }) =>
     models.Survey.find({
-      surveyType: SurveyTypes.Programs,
+      where: {
+        surveyType: SurveyTypes.Programs,
+      },
       order: {
         name: 'ASC',
       },
