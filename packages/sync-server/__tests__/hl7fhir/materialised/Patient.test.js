@@ -51,7 +51,7 @@ describe(`Materialised FHIR - Patient`, () => {
         meta: {
           // TODO: uncomment when we support versioning
           // versionId: expect.any(String),
-          lastUpdated: formatFhirDate(additionalData.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         active: true,
         address: [
@@ -105,9 +105,7 @@ describe(`Materialised FHIR - Patient`, () => {
           },
         ],
       });
-      expect(response.headers['last-modified']).toBe(
-        formatRFC7231(new Date(additionalData.updatedAt)),
-      );
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
 
@@ -120,7 +118,7 @@ describe(`Materialised FHIR - Patient`, () => {
         patientId: patient.id,
       });
       await patient.reload(); // saving PatientAdditionalData updates the patient too
-      await FhirPatient.materialiseFromUpstream(patient.id);
+      const mat = await FhirPatient.materialiseFromUpstream(patient.id);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
@@ -133,9 +131,6 @@ describe(`Materialised FHIR - Patient`, () => {
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: formatFhirDate(additionalData.updatedAt),
-        },
         type: 'searchset',
         total: 1,
         link: [
@@ -152,7 +147,7 @@ describe(`Materialised FHIR - Patient`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: formatFhirDate(additionalData.updatedAt),
+                lastUpdated: formatFhirDate(mat.lastUpdated),
               },
               active: true,
               address: [
