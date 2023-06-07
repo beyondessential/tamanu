@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { ICAO_DOCUMENT_TYPES, ASSET_NAMES } from 'shared/constants';
 import { CovidVaccineCertificate } from 'shared/utils/patientCertificates';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
@@ -17,7 +17,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate({
-    footerImgName: 'covid-vaccination-certificate-footer-img',
+    footerAssetName: ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
   });
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 

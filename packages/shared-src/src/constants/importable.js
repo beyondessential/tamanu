@@ -135,6 +135,10 @@ export const ASSET_NAMES = {
   VACCINE_CERTIFICATE_WATERMARK: 'vaccine-certificate-watermark',
   CERTIFICATE_BOTTOM_HALF_IMG: 'certificate-bottom-half-img',
   DEATH_CERTIFICATE_BOTTOM_HALF_IMG: 'death-certificate-bottom-half-img',
+  COVID_VACCINATION_CERTIFICATE_FOOTER: 'covid-vaccination-certificate-footer-img',
+  COVID_CLEARANCE_CERTIFICATE_FOOTER: 'covid-clearance-certificate-footer-img',
+  COVID_TEST_CERTIFICATE_FOOTER: 'covid-test-certificate-footer-img',
+  VACCINATION_CERTIFICATE_FOOTER: 'vaccination-certificate-footer-img',
 };
 
 export const ASSET_MIME_TYPES = {

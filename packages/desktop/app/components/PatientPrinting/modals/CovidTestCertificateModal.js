@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { ICAO_DOCUMENT_TYPES, ASSET_NAMES } from 'shared/constants';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -17,7 +17,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const api = useApi();
   const { watermark, logo, footerImg, printedBy } = useCertificate({
-    footerImgName: 'covid-test-certificate-footer-img',
+    footerAssetName: ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER,
   });
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 

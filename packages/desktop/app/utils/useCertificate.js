@@ -3,14 +3,16 @@ import { useLocalisation } from '../contexts/Localisation';
 import { useAsset } from './useAsset';
 import { useTemplate } from './useTemplate';
 import { getCurrentUser } from '../store';
+import { ASSET_NAMES } from 'shared/constants';
 
-export const useCertificate = ({ footerImgName }) => {
+
+export const useCertificate = ({ footerAssetName }) => {
   const { getLocalisation } = useLocalisation();
-  const logo = useAsset('letterhead-logo');
-  const watermark = useAsset('vaccine-certificate-watermark');
-  const footerImg = useAsset(footerImgName);
-  const defaultFooterImg = useAsset('certificate-bottom-half-img');
-  const deathCertFooterImg = useAsset('death-certificate-bottom-half-img');
+  const logo = useAsset(ASSET_NAMES.LETTERHEAD_LOGO);
+  const watermark = useAsset(ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK);
+  const footerImg = useAsset(footerAssetName);
+  const defaultFooterImg = useAsset(ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG);
+  const deathCertFooterImg = useAsset(ASSET_NAMES.DEATH_CERTIFICATE_BOTTOM_HALF_IMG);
   const letterhead = useTemplate('templates.letterhead')?.data;
   const title = letterhead?.data?.title || getLocalisation('templates.letterhead.title');
   const subTitle = letterhead?.data?.subTitle || getLocalisation('templates.letterhead.subTitle');

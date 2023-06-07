@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
-import { COVID_19_CLEARANCE_CERTIFICATE } from 'shared/constants';
+import { COVID_19_CLEARANCE_CERTIFICATE, ASSET_NAMES } from 'shared/constants';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -18,7 +18,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const api = useApi();
   const { watermark, logo, footerImg, printedBy } = useCertificate({
-    footerImgName: 'covid-clearance-certificate-footer-img',
+    footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
   });
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 

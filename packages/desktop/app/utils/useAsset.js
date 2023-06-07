@@ -1,20 +1,26 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 
 export const useAsset = assetName => {
+
   const api = useApi();
+
+  const { data: queryData } = useQuery({
+    queryKey: ['asset', assetName],
+    queryFn: () => api.get(`asset/${assetName}`),
+    enabled: !!assetName,
+  });
 
   const [assetData, setAssetData] = useState(null);
   const [assetDataType, setAssetDataType] = useState(null);
 
   useEffect(() => {
-    if (assetName) {
-      api.get(`asset/${assetName}`).then(response => {
-        setAssetData(Buffer.from(response.data).toString('base64'));
-        setAssetDataType(response.type);
-      });
+    if (queryData) {
+      setAssetData(Buffer.from(queryData.data).toString('base64'));
+      setAssetDataType(queryData.type);
     }
-  }, [api, assetName]);
+  }, [queryData]);
 
   if (!assetData) {
     return null;
