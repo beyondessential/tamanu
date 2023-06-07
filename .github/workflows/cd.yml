@@ -129,12 +129,13 @@ jobs:
         with:
           node-version: 16
           cache: npm
+
       - name: Prepare pulumi
         run: npm ci
         working-directory: pulumi
 
       # a constant secret + a variable plain text, hashed, = a new secret!
-      - name: Write files for salt hash
+      - name: Prepare salt
         id: salt
         env:
           KEY: ${{ secrets.TAMANU_OPS_SSH }}
