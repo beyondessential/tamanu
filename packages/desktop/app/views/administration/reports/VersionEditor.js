@@ -206,7 +206,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
     <>
       {value && (
         <QueryEditor
-          title={`Edit SQL: ${name} v${version.versionNumber}`}
+          title={`Edit Query: ${name} v${version.versionNumber}`}
           initialValue={value.query}
           onSubmit={handleUpdate}
           open={showSqlEditor}

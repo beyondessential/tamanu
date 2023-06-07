@@ -9,6 +9,8 @@ html {
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
 }
 
-
-// monospaced font for sql editor
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&display=swap');
+// Monospaced font for sql editor
+@font-face {
+  font-family: 'Fira Code';
+  src: url('FiraCode-Medium.ttf') format('truetype');
+}
