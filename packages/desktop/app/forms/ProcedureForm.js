@@ -12,7 +12,6 @@ import {
   CheckField,
   AutocompleteField,
   TextField,
-  FormGroup,
   LocationField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
