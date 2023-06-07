@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { Colors } from '../app/constants';
-import { TooltipContent } from '../app/components/Chart/components/TooltipContent';
+import { TooltipContent } from '../app/components/Charts/components/TooltipContent';
 
 const FlexColumn = styled.div`
   flex-direction: column;
