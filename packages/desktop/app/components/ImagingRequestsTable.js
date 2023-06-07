@@ -28,9 +28,7 @@ const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
-const getCompletedDate = ({ results }) => (
-  <DateDisplay date={results[0]?.completedAt} timeOnlyTooltip />
-);
+const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
 
 export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) => {
   const dispatch = useDispatch();
@@ -56,7 +54,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
     ...(status
       ? [
           {
-            key: 'results.completedAt',
+            key: 'completedAt',
             title: 'Completed',
             accessor: getCompletedDate,
           },
@@ -66,7 +64,12 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
   ];
 
   const globalColumns = [
-    { key: 'encounter.patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
+    {
+      key: 'encounter.patient.displayId',
+      title: 'NHN',
+      accessor: getPatientDisplayId,
+      sortable: false,
+    },
     { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
     ...encounterColumns,
   ];
@@ -101,10 +104,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
       elevated={false}
       initialSort={{
         order: 'desc',
-        orderBy:
-          status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED
-            ? 'results.completedAt'
-            : 'requestedDate',
+        orderBy: completedStatus ? 'completedAt' : 'requestedDate',
       }}
     />
   );

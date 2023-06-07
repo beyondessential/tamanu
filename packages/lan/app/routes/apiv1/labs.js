@@ -138,39 +138,39 @@ labRequest.get(
       })),
       makeSimpleTextFilter('status', 'lab_requests.status'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
-      makeSimpleTextFilter('category', 'category.id'),
+      makeFilter(filterParams.category, 'category.id = :category'),
       makeSimpleTextFilter('priority', 'priority.id'),
-      makeSimpleTextFilter('laboratory', 'laboratory.id'),
+      makeFilter(filterParams.laboratory, 'lab_requests.lab_test_laboratory_id = :laboratory'),
       makeSimpleTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeSimpleTextFilter('patientId', 'patient.id'),
-      makeSimpleTextFilter('requestedById', 'lab_requests.requested_by_id'),
-      makeSimpleTextFilter('departmentId', 'encounter.department_id'),
-      makeSimpleTextFilter('locationGroupId', 'location.location_group_id'),
+      makeFilter(filterParams.requestedById, 'lab_requests.requested_by_id = :requestedById'),
+      makeFilter(filterParams.departmentId, 'lab_requests.department_id = :departmentId'),
+      makeFilter(filterParams.locationGroupId, 'location.location_group_id = :locationGroupId'),
       makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
       makeFilter(
         filterParams.requestedDateFrom,
-        `lab_requests.requested_date >= :requestedDateFrom`,
+        'lab_requests.requested_date >= :requestedDateFrom',
         ({ requestedDateFrom }) => ({
           requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
         }),
       ),
       makeFilter(
         filterParams.requestedDateTo,
-        `lab_requests.requested_date <= :requestedDateTo`,
+        'lab_requests.requested_date <= :requestedDateTo',
         ({ requestedDateTo }) => ({
           requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
         }),
       ),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
-        `location.facility_id = :facilityId`,
+        'location.facility_id = :facilityId',
         () => ({ facilityId: config.serverFacilityId }),
       ),
       makeFilter(
         filterParams.publishedDate,
-        `lab_requests.published_date LIKE :publishedDate`,
+        'lab_requests.published_date LIKE :publishedDate',
         ({ publishedDate }) => {
           return {
             publishedDate: `${publishedDate}%`,
@@ -179,7 +179,7 @@ labRequest.get(
       ),
       makeFilter(
         filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
-        `lab_requests.status != :published`,
+        'lab_requests.status != :published',
         () => ({
           published: LAB_REQUEST_STATUSES.PUBLISHED,
         }),
@@ -253,6 +253,7 @@ labRequest.get(
 
     const sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    const nullPosition = sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
 
     const result = await req.db.query(
       `
@@ -275,7 +276,7 @@ labRequest.get(
           location.facility_id AS facility_id
         ${from}
         
-        ORDER BY ${sortKey} ${sortDirection}
+        ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
         LIMIT :limit
         OFFSET :offset
       `,
