@@ -28,9 +28,7 @@ const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
-const getCompletedDate = ({ results }) => (
-  <DateDisplay date={results[0]?.completedAt} timeOnlyTooltip />
-);
+const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
 
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
@@ -54,7 +52,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     ...(memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED
       ? [
           {
-            key: 'results.completedAt',
+            key: 'completedAt',
             title: 'Completed',
             accessor: getCompletedDate,
           },

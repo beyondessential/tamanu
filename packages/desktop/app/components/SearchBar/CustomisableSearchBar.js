@@ -124,8 +124,8 @@ export const CustomisableSearchBar = ({
         </Container>
       )}
       initialValues={initialValues}
-      initialStatus={{ formType: FORM_TYPES.SEARCH_FORM }}
       enableReinitialize
+      formType={FORM_TYPES.SEARCH_FORM}
     />
   );
 };
