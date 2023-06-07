@@ -290,9 +290,6 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       expect(response.body).toEqual({
         resourceType: 'Bundle',
         id: expect.any(String),
-        meta: {
-          lastUpdated: expect.any(String),
-        },
         type: 'searchset',
         timestamp: expect.any(String),
         total: 1,

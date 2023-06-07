@@ -47,9 +47,6 @@ export class Bundle {
       id: uuidv4(),
       type: this.type,
       timestamp: currentFhirDate,
-      meta: {
-        lastUpdated: currentFhirDate,
-      },
     };
 
     if (typeof this.options.total === 'number') {
