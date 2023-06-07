@@ -86,8 +86,8 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform.arch }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ steps.ref.outputs.result }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ steps.ref.outputs.result }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           push: true
           labels: |
