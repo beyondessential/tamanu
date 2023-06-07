@@ -26,6 +26,9 @@ describe('PatientLocations', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    await models.Location.truncate({
+      cascade: true,
+    });
     patient = await models.Patient.create(await createDummyPatient(models));
     locations = await models.Location.bulkCreate([
       generateFakeLocation(models.Location),
