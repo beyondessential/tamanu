@@ -135,13 +135,13 @@ jobs:
         working-directory: pulumi
 
       # a constant secret + a variable plain text, hashed, = a new secret!
+      # importantly this needs to remain constant for the lifetime of the stack
       - name: Prepare salt
         id: salt
         env:
           KEY: ${{ secrets.TAMANU_OPS_SSH }}
           NAME: ${{ needs.build.outputs.name }}
-        run: echo salt=ghp_$(echo "$KEY" "$NAME" | sha1sum | cut -d' ' -f1) >> $GITHUB_OUTPUT
-        # prefix the salt with ghp_ to make it look like a valid github token and get censored
+        run: echo salt=$(sha1sum <<< "$KEY$NAME" | cut -d' ' -f1) >> $GITHUB_OUTPUT
 
       - name: Up!
         uses: pulumi/actions@v3
