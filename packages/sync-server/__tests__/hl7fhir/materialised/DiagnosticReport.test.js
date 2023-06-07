@@ -155,14 +155,14 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(labTest.updatedAt)));
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response.body).toMatchObject({
         resourceType: 'DiagnosticReport',
         id: expect.any(String),
         meta: {
           // TODO: uncomment when we support versioning
           // versionId: expect.any(String),
-          lastUpdated: formatFhirDate(labTest.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         effectiveDateTime: convertISO9075toRFC3339(labRequest.sampleTime),
         issued: convertISO9075toRFC3339(labRequest.requestedDate),
@@ -291,7 +291,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
         resourceType: 'Bundle',
         id: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(labTest.updatedAt),
+          lastUpdated: expect.any(String),
         },
         type: 'searchset',
         timestamp: expect.any(String),
@@ -314,7 +314,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: formatFhirDate(labTest.updatedAt),
+                lastUpdated: formatFhirDate(mat.lastUpdated),
               },
               code: {
                 coding: [
