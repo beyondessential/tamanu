@@ -103,9 +103,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       initialSort={{
         order: 'desc',
         orderBy:
-          memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED
-            ? 'results.completedAt'
-            : 'requestedDate',
+          memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED ? 'completedAt' : 'requestedDate',
       }}
     />
   );
