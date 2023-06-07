@@ -41,12 +41,11 @@ export class Bundle {
   }
 
   asFhir() {
-    const currentFhirDate = formatFhirDate(new Date());
     const fields = {
       resourceType: 'Bundle',
       id: uuidv4(),
       type: this.type,
-      timestamp: currentFhirDate,
+      timestamp: formatFhirDate(new Date()),
     };
 
     if (typeof this.options.total === 'number') {
