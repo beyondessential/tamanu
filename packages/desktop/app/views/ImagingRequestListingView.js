@@ -11,6 +11,9 @@ import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 import { IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
 
 const ImagingRequestListing = ({ memoryKey, statuses }) => (
+  // Since we need to track the state of the search bar and table for each version of the Imaging request table,
+  // We assign a memoryKey to each version of the table that references a context that stores the state of the
+  // search bar and table. We also pass in the actual statuses we want to filter the table by.
   <ContentPane>
     <SearchTableTitle>Imaging request search</SearchTableTitle>
     <ImagingRequestsSearchBar memoryKey={memoryKey} statuses={statuses} />
