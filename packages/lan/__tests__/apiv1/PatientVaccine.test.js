@@ -11,7 +11,7 @@ import {
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
-import { REFERENCE_TYPES } from '../../../shared-src/src/constants';
+import { REFERENCE_TYPES } from 'shared/constants';
 
 describe('PatientVaccine', () => {
   let ctx;
