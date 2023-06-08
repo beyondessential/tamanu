@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
 const GRID_ROW_GAP = 18;
+const inlineContext = createContext(false);
 
 const Card = styled.div`
   background: white;
@@ -52,15 +53,18 @@ const CardValue = styled(CardLabel)`
   display: ${props => (props.$inline ? 'inline' : 'block')};
 `;
 
-const InfoCardEntry = ({ label, value, inline }) => (
-  <>
-    <CardLabel $inline={inline}>
-      {label}
-      {inline ? ':' : ''}
-    </CardLabel>
-    <CardValue $inline={inline}>{value}</CardValue>
-  </>
-);
+const InfoCardEntry = ({ label, value }) => {
+  const inline = useContext(inlineContext);
+  return (
+    <>
+      <CardLabel $inline={inline}>
+        {label}
+        {inline ? ':' : ''}
+      </CardLabel>
+      <CardValue $inline={inline}>{value}</CardValue>
+    </>
+  );
+};
 
 export const InfoCardHeader = ({ label, value, inlineValues, ...props }) => (
   <CardHeader {...props}>
@@ -68,16 +72,16 @@ export const InfoCardHeader = ({ label, value, inlineValues, ...props }) => (
   </CardHeader>
 );
 
-export const InfoCardItem = ({ label, value, fallback = '-', inlineValues, ...props }) => (
+export const InfoCardItem = ({ label, value, inlineValues, ...props }) => (
   <CardCell {...props}>
-    <InfoCardEntry label={label} value={value || fallback} inline={inlineValues} />
+    <InfoCardEntry label={label} value={value} inline={inlineValues} />
   </CardCell>
 );
 
-export const InfoCard = ({ children, elevated, inlineValues = false }) => (
-  <Card $elevated={elevated}>
-    <CardBody>
-      {React.Children.map(children, child => child && React.cloneElement(child, { inlineValues }))}
-    </CardBody>
-  </Card>
+export const InfoCard = ({ children, elevated, inlineValues }) => (
+  <inlineContext.Provider value={inlineValues}>
+    <Card $elevated={elevated}>
+      <CardBody>{children}</CardBody>
+    </Card>
+  </inlineContext.Provider>
 );
