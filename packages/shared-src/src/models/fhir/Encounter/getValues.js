@@ -65,7 +65,6 @@ function classificationCode({ encounterType }) {
     case ENCOUNTER_TYPES.ADMISSION:
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
-    case ENCOUNTER_TYPES.VACCINATION:
       return FHIR_ENCOUNTER_CLASS_CODE.IMP;
 
     case ENCOUNTER_TYPES.EMERGENCY:
@@ -76,6 +75,7 @@ function classificationCode({ encounterType }) {
       return FHIR_ENCOUNTER_CLASS_CODE.OBSENC;
 
     case ENCOUNTER_TYPES.SURVEY_RESPONSE:
+    case ENCOUNTER_TYPES.VACCINATION:
     default:
       return null; // these should be filtered out (TODO EPI-452)
   }
