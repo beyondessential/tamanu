@@ -19,18 +19,7 @@ import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
 
-labRequest.get(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    req.checkPermission('read', 'LabRequest');
-    const labRequestRecord = await models.LabRequest.findByPk(params.id, {
-      include: [...models.LabRequest.getFullReferenceAssociations(), 'collectedBy', 'specimenType'],
-    });
-    if (!labRequestRecord) throw new NotFoundError();
-    res.send(labRequestRecord);
-  }),
-);
+labRequest.get('/:id', simpleGet('LabRequest'));
 
 labRequest.put(
   '/:id',
