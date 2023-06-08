@@ -284,7 +284,17 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
+    const {
+      label,
+      required,
+      className,
+      infoTooltip,
+      tag,
+      value,
+      size,
+      disabled,
+      ...other
+    } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -306,7 +316,7 @@ class BaseAutocomplete extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                {value && (
+                {value && !disabled && (
                   <StyledIconButton onClick={this.handleClearValue}>
                     <StyledClearIcon />
                   </StyledIconButton>
@@ -325,6 +335,7 @@ class BaseAutocomplete extends Component {
           }}
           fullWidth
           value={value}
+          disabled={disabled}
           {...other}
         />
       </OuterLabelFieldWrapper>
