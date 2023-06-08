@@ -8,3 +8,9 @@ html {
   // set default font
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
 }
+
+// Monospaced font for sql editor
+@font-face {
+  font-family: 'Fira Code';
+  src: url('FiraCode-Medium.ttf') format('truetype');
+}
