@@ -97,6 +97,12 @@ export class LabRequest extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'collectedById',
+      as: 'collectedBy',
+    });
+
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
@@ -125,6 +131,11 @@ export class LabRequest extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'labTestLaboratoryId',
       as: 'laboratory',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'specimenTypeId',
+      as: 'specimenType',
     });
 
     this.belongsTo(models.LabTestPanelRequest, {
@@ -163,6 +174,10 @@ export class LabRequest extends Model {
       { association: 'labTestPanelRequest', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
+  }
+
+  static getFullReferenceAssociations() {
+    return [...LabRequest.getListReferenceAssociations(), 'collectedBy', 'specimenType'];
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
