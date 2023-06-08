@@ -65,12 +65,51 @@ const HorizontalLine = styled.div`
   right: 0;
 `;
 
+const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
+  const practitionerSuggester = useSuggester('practitioner');
+  const specimenTypeSuggester = useSuggester('specimenType');
+  return (
+    <>
+      <FieldContainer>
+        <HorizontalLine />
+        <FormGrid columns={4}>
+          <StyledField
+            name="sampleTime"
+            label="Data & time collected"
+            required
+            component={StyledDateTimeField}
+          />
+          <StyledField
+            name="collectedById"
+            label="Collected by"
+            suggester={practitionerSuggester}
+            disabled={!values.sampleTime}
+            component={AutocompleteField}
+          />
+          <StyledField
+            name="specimenTypeId"
+            label="Specimen type"
+            component={AutocompleteField}
+            suggester={specimenTypeSuggester}
+            disabled={!values.sampleTime}
+          />
+          <StyledField
+            name="labSampleSiteId"
+            label="Site"
+            disabled={!values.sampleTime}
+            component={SuggesterSelectField}
+            endpoint="labSampleSite"
+          />
+        </FormGrid>
+      </FieldContainer>
+      <ModalActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
+    </>
+  );
+};
+
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
-    const practitionerSuggester = useSuggester('practitioner');
-    const specimenTypeSuggester = useSuggester('specimenType');
-
     const updateSample = async formValues => {
       await updateLabReq({
         ...formValues,
@@ -84,62 +123,24 @@ export const LabRequestRecordSampleModal = React.memo(
     };
 
     return (
-      <>
-        <StyledModal
-          open={open}
-          onClose={onClose}
-          title={sampleNotCollected ? 'Record sample details' : 'Edit sample date and time'}
-        >
-          <Form
-            onSubmit={updateSample}
-            validationSchema={validationSchema}
-            showInlineErrorsOnly
-            initialValues={{
-              sampleTime: labRequest.sampleTime,
-              labSampleSiteId: labRequest.labSampleSiteId,
-              specimenType: labRequest.specimenTypeId,
-              collectedById: labRequest.collectedById,
-            }}
-            render={({ submitForm, values }) => (
-              <>
-                <FieldContainer>
-                  <HorizontalLine />
-                  <FormGrid columns={4}>
-                    <StyledField
-                      name="sampleTime"
-                      label="Data & time collected"
-                      required
-                      component={StyledDateTimeField}
-                    />
-                    <StyledField
-                      name="collectedById"
-                      label="Collected by"
-                      suggester={practitionerSuggester}
-                      disabled={!values.sampleTime}
-                      component={AutocompleteField}
-                    />
-                    <StyledField
-                      name="specimenTypeId"
-                      label="Specimen type"
-                      component={AutocompleteField}
-                      suggester={specimenTypeSuggester}
-                      disabled={!values.sampleTime}
-                    />
-                    <StyledField
-                      name="labSampleSiteId"
-                      label="Site"
-                      disabled={!values.sampleTime}
-                      component={SuggesterSelectField}
-                      endpoint="labSampleSite"
-                    />
-                  </FormGrid>
-                </FieldContainer>
-                <ModalActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
-              </>
-            )}
-          />
-        </StyledModal>
-      </>
+      <StyledModal
+        open={open}
+        onClose={onClose}
+        title={sampleNotCollected ? 'Record sample details' : 'Edit sample date and time'}
+      >
+        <Form
+          onSubmit={updateSample}
+          validationSchema={validationSchema}
+          showInlineErrorsOnly
+          initialValues={{
+            sampleTime: labRequest.sampleTime,
+            labSampleSiteId: labRequest.labSampleSiteId,
+            specimenType: labRequest.specimenTypeId,
+            collectedById: labRequest.collectedById,
+          }}
+          render={props => <LabRequestRecordSampleForm {...props} onClose={onClose} />}
+        />
+      </StyledModal>
     );
   },
 );
