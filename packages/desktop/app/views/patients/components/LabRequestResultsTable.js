@@ -60,7 +60,7 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
 };
 
 const columns = sex => [
-  { title: 'Test type', key: 'type', accessor: row => row.labTestType.name },
+  { title: 'Test type', key: 'labTestType.name', accessor: row => row.labTestType.name },
   {
     title: 'Result',
     key: 'result',
