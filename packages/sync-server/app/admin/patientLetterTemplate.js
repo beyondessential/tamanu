@@ -11,12 +11,9 @@ export const patientLetterTemplateRoutes = express.Router();
 // This isn't a "loadbearing" permissions checker but is simply required to use crudHelpers
 // to be cleaned up in SAV-254
 patientLetterTemplateRoutes.use(ensurePermissionCheck);
-patientLetterTemplateRoutes.use((req, res, next) => {
-  req.flagPermissionChecked();
-  next();
-});
 
 const checkUniqueName = asyncHandler(async (req, res, next) => {
+  req.flagPermissionChecked();
   const { name, id } = req.body;
 
   // If we're not trying to change the name, no check needed
@@ -25,9 +22,8 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
     return;
   }
 
-  const idCondition = id ? { id: { [Op.ne]: id } } : {};
   const conflictingRecords = await req.models.PatientLetterTemplate.count({
-    where: { name, ...idCondition },
+    where: { name, id: { [Op.ne]: id ?? null } },
   });
 
   if (conflictingRecords) {
