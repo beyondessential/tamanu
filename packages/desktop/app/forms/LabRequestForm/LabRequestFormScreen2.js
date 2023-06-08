@@ -8,7 +8,6 @@ import { BodyText, Heading3 } from '../../components/Typography';
 export const screen2ValidationSchema = yup.object().shape({
   labTestTypeIds: yup.array().of(yup.string()),
   panelIds: yup.array().of(yup.string()),
-  labTestPanelId: yup.string(),
   notes: yup.string(),
 });
 
