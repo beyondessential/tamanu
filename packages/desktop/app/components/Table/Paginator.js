@@ -98,7 +98,7 @@ const useStyles = makeStyles({
 
 export const Paginator = React.memo(
   ({
-    page,
+    page: pageIndex,
     colSpan,
     count,
     rowsPerPage,
@@ -106,14 +106,17 @@ export const Paginator = React.memo(
     onRowsPerPageChange,
     rowsPerPageOptions,
   }) => {
-    const numberOfPages = Math.ceil(count / rowsPerPage);
     const wasLastItemEllipses = useRef(false);
     const classes = useStyles();
+
+    const selectedPageNumber = pageIndex + 1;
+    const numberOfPages = Math.ceil(count / rowsPerPage);
+    const isDataInTable = count > 0;
+    const isLastPage = selectedPageNumber === numberOfPages;
     // This is the index of the top row of the table (set to 0 if no rows are present)
-    const lowerRange = count > 0 ? page * rowsPerPage + 1 : 0;
+    const lowerRange = isDataInTable ? pageIndex * rowsPerPage + 1 : 0;
     // This is the index of the bottom row of the table (set it to total count if less than a whole page is present or on last page)
-    const upperRange =
-      count > rowsPerPage && page + 1 !== numberOfPages ? (page + 1) * rowsPerPage : count;
+    const upperRange = isLastPage || !isDataInTable ? count : selectedPageNumber * rowsPerPage;
 
     return (
       <PaginatorWrapper colSpan={colSpan}>
@@ -148,17 +151,18 @@ export const Paginator = React.memo(
 
               // We needed some custom logic for what page numbers to show that couldnt be done through the built in boundaryCount and siblingcount props
               // so I needed to create a set of conditions to determine what page numbers to show and when to show ellipses.
-              const selectedPage = page + 1;
+              // const selectedPage = page + 1;
               const pageNumber = item.page;
 
               // The standard range for showing page numbers except for the first and last page which
               // we override above is the current page +/- 1
               const standardRange =
-                selectedPage >= pageNumber - 1 && selectedPage <= pageNumber + 1;
+                selectedPageNumber >= pageNumber - 1 && selectedPageNumber <= pageNumber + 1;
               // When we are on the first page, we want to show the first 3 pages and the last page however and when
               // we are on the last page we want to show the last 3 pages and the first page.
-              const startRange = selectedPage === 1 && pageNumber <= 3;
-              const endRange = selectedPage === numberOfPages && pageNumber >= numberOfPages - 2;
+              const startRange = selectedPageNumber === 1 && pageNumber <= 3;
+              const endRange =
+                selectedPageNumber === numberOfPages && pageNumber >= numberOfPages - 2;
 
               const isInRange = standardRange || startRange || endRange;
 
@@ -171,7 +175,7 @@ export const Paginator = React.memo(
               // Conditionally show the page number button if it falls within the defined ranges above
               if ((isInRange || isEndPage) && !isEllipses) {
                 wasLastItemEllipses.current = false;
-                return <PaginationItem {...item} selected={item.page === selectedPage} />;
+                return <PaginationItem {...item} selected={item.page === selectedPageNumber} />;
               }
               // If the item falls out of the defined range and is not the first or last page, show an ellipses
               // however we only want to show one ellipses in a row so we need to keep track of the last item
