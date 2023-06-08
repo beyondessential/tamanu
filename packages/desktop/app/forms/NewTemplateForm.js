@@ -5,7 +5,7 @@ import { Link } from '@material-ui/core';
 
 import { TEMPLATE_TYPES } from 'shared/constants';
 
-import { Form, Field, TextField, MultilineTextField, SelectField } from '../components/Field';
+import { Form, Field, TextField, TallMultilineTextField, SelectField } from '../components/Field';
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../constants';
 
@@ -28,10 +28,6 @@ export const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
     </ConfirmButton>
   </ButtonRow>
 ));
-
-const TallMultilineTextField = props => (
-  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
-);
 
 export const NewTemplateForm = memo(({ onSubmit }) => {
   const renderForm = ({ submitForm, resetForm }) => (

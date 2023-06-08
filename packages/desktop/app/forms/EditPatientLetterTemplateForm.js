@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Form, Field, TextField, MultilineTextField } from '../components/Field';
+import { Form, Field, TextField, TallMultilineTextField } from '../components/Field';
 import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
 import { Button, ModalButtonRow, RedOutlinedButton, OutlinedButton } from '../components';
 
@@ -29,10 +29,6 @@ const EditedActions = ({ onClose, onDelete, onSave }) => (
     <OutlinedButton onClick={onClose}>Cancel</OutlinedButton>
     <Button onClick={onSave}>Save</Button>
   </ModalButtonRow>
-);
-
-const TallMultilineTextField = props => (
-  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
 );
 
 export const EditPatientLetterTemplateForm = memo(
