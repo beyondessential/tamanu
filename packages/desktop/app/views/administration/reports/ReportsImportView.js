@@ -44,11 +44,12 @@ const schema = yup.object().shape({
   file: yup.string().required('Report JSON is a required field'),
 });
 
-const ImportFeedback = ({ name, feedback, dryRun }) => (
+const ImportFeedback = ({ feedback }) => (
   <Alert>
-    <Heading4 mb={1}>{dryRun ? 'Dry Run' : 'Successfully imported'}</Heading4>
+    <Heading4 mb={1}>{feedback.dryRun ? 'Dry Run' : 'Successfully imported'}</Heading4>
     <BodyText mb={1}>
-      {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition: <b>{name}</b>
+      {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition:{' '}
+      <b>{feedback.name}</b>
     </BodyText>
     <BodyText>
       created new version: <b>{feedback.versionNumber}</b>
@@ -108,11 +109,12 @@ export const ReportsImportView = () => {
       const { reportDefinitionId, ...importValues } = payload;
       setFeedback(null);
       const res = await api.post('admin/reports/import', importValues);
-      setFeedback(res);
-      if (!payload.dryRun) {
+      const { dryRun, name } = importValues;
+      setFeedback({ ...res, name, dryRun });
+      if (!dryRun) {
         queryClient.invalidateQueries(['reportList']);
-        if (payload.reportDefinitionId) {
-          queryClient.invalidateQueries(['reportVersions', payload.reportDefinitionId]);
+        if (reportDefinitionId) {
+          queryClient.invalidateQueries(['reportVersions', reportDefinitionId]);
         }
       }
     } catch (err) {
