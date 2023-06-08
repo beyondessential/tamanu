@@ -226,12 +226,9 @@ class TableComponent extends React.Component {
   };
 
   handleChangeRowsPerPage = event => {
-    const { onChangeRowsPerPage, onChangePage } = this.props;
+    const { onChangeRowsPerPage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
-    if (onChangeRowsPerPage) {
-      onChangePage(0);
-      onChangeRowsPerPage(newRowsPerPage);
-    }
+    if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
   };
 
   renderHeaders() {
