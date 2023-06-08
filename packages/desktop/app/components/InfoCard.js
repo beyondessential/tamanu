@@ -68,9 +68,9 @@ export const InfoCardHeader = ({ label, value, inlineValues, ...props }) => (
   </CardHeader>
 );
 
-export const InfoCardItem = ({ label, value, inlineValues, ...props }) => (
+export const InfoCardItem = ({ label, value, fallback = '-', inlineValues, ...props }) => (
   <CardCell {...props}>
-    <InfoCardEntry label={label} value={value} inline={inlineValues} />
+    <InfoCardEntry label={label} value={value || fallback} inline={inlineValues} />
   </CardCell>
 );
 
