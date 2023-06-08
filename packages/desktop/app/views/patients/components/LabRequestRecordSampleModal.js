@@ -135,7 +135,7 @@ export const LabRequestRecordSampleModal = React.memo(
           initialValues={{
             sampleTime: labRequest.sampleTime,
             labSampleSiteId: labRequest.labSampleSiteId,
-            specimenType: labRequest.specimenTypeId,
+            specimenTypeId: labRequest.specimenTypeId,
             collectedById: labRequest.collectedById,
           }}
           render={props => <LabRequestRecordSampleForm {...props} onClose={onClose} />}
