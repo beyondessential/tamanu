@@ -349,7 +349,24 @@ labRequest.use(labRelations);
 
 export const labTest = express.Router();
 
-labTest.put('/:id', simplePut('LabTest'));
+labTest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const updatedLabTestData = req.body;
+
+    req.checkPermission('read', 'LabTest');
+
+    const labTestRecord = await models.LabTest.findByPk(params.id);
+    if (!labTestRecord) throw new NotFoundError();
+
+    req.checkPermission('write', labTestRecord);
+
+    await labTestRecord.update(updatedLabTestData);
+
+    res.send(labTestRecord);
+  }),
+);
 
 labTest.get(
   '/:id',
