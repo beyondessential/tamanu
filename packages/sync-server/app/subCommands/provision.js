@@ -1,8 +1,8 @@
-import { relative } from 'path';
+import { resolve } from 'path';
 import { Command } from 'commander';
 
-import { SYSTEM_USER_UUID } from 'shared/constants';
-import { log } from 'shared/services/logging';
+import { SYSTEM_USER_UUID } from '@tamanu/shared/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
@@ -10,7 +10,7 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 
-export async function provision({ file, skipIfNotNeeded }) {
+export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
@@ -27,7 +27,7 @@ export async function provision({ file, skipIfNotNeeded }) {
   checkIntegrationsConfig();
 
   const { users, facilities, referenceData, settings: globalSettings } = await loadSettingFile(
-    file,
+    provisioningFile,
   );
 
   /// //////////////
@@ -35,10 +35,12 @@ export async function provision({ file, skipIfNotNeeded }) {
 
   const errors = [];
   const stats = {};
-  for (const [type, path] of referenceData) {
-    if (type !== 'file') throw new Error(`Unknown reference data import type ${type}`);
+  for (const { file: referenceDataFile, ...rest } of referenceData ?? []) {
+    if (!referenceDataFile) {
+      throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
+    }
 
-    const realpath = relative(file, path);
+    const realpath = resolve(provisioningFile, referenceDataFile);
     log.info('Importing reference data file', { file: realpath });
     await referenceDataImporter({
       errors,
@@ -60,13 +62,15 @@ export async function provision({ file, skipIfNotNeeded }) {
   /// //////////
   /// FACILITIES
 
-  for (const [id, { user, password, settings, ...fields }] of Object.entries(facilities)) {
+  for (const [id, { user, password, settings, ...fields }] of Object.entries(facilities ?? {})) {
     const facility = await store.models.Facility.findByPk(id);
     if (facility) {
       log.info('Updating facility', { id });
       await facility.update(fields);
     } else {
       log.info('Creating facility', { id });
+      fields.name ||= id;
+      fields.code ||= id;
       await store.models.Facility.create({
         id,
         ...fields,
@@ -77,13 +81,13 @@ export async function provision({ file, skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
-  for (const [key, value] of Object.entries(globalSettings)) {
+  for (const [key, value] of Object.entries(globalSettings ?? {})) {
     log.info('Installing global setting', { key });
     await store.models.Setting.set(key, value);
   }
 
-  for (const [id, { settings }] of Object.entries(facilities)) {
-    for (const [key, value] of Object.entries(settings)) {
+  for (const [id, { settings }] of Object.entries(facilities ?? {})) {
+    for (const [key, value] of Object.entries(settings ?? {})) {
       log.info('Installing facility setting', { key, facility: id });
       await store.models.Setting.set(key, value, id);
     }
@@ -93,30 +97,36 @@ export async function provision({ file, skipIfNotNeeded }) {
   /// USERS
 
   const allUsers = [
-    ...Object.entries(users),
-    ...Object.values(facilities).map(({ user, password }) => [user, { password }]),
+    ...Object.entries(users ?? {}),
+    ...Object.entries(facilities ?? {})
+      .map(
+        ([id, { user, password }]) =>
+          user && password && [user, { displayName: `System: ${id} sync`, password }],
+      )
+      .filter(Boolean),
   ];
 
-  for (const [id, { role = 'admin', password }] of allUsers) {
+  for (const [email, { role = 'admin', password, ...fields }] of allUsers) {
     let realPassword = password;
     if (!realPassword) {
       realPassword = getRandomBase64String(16);
       // eslint-disable-next-line no-console
-      console.log(`NEW PASSWORD for ${id}: ${realPassword}`);
+      console.log(`NEW PASSWORD for ${email}: ${realPassword}`);
     }
 
-    const user = await store.models.User.findByPk(id);
+    const user = await store.models.User.findOne({ where: { email } });
     if (user) {
-      log.info('Updating user', { id });
-      user.set({ role });
+      log.info('Updating user', { email });
+      user.set({ role, ...fields });
       user.setPassword(realPassword);
       await user.save();
     } else {
-      log.info('Creating user', { id });
+      log.info('Creating user', { email });
       await store.models.User.create({
-        id,
+        email,
         role,
         password: realPassword,
+        ...fields,
       });
     }
   }
@@ -124,6 +134,7 @@ export async function provision({ file, skipIfNotNeeded }) {
   log.info('Creating system user');
   await store.models.User.create({
     id: SYSTEM_USER_UUID,
+    email: 'system@tamanu.io',
     role: 'system',
     displayName: 'System',
   });

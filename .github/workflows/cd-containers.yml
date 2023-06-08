@@ -29,10 +29,9 @@ jobs:
       matrix:
         platform:
           - arch: linux/amd64
-            prefix: ''
+            runs-on: ubuntu-latest
           # - arch: linux/arm64
-          #   prefix: linarm-
-          # it works, but it's just too slow
+          #   runs-on: ubuntu-arm64 # when available
         package:
           - name: central
             path: sync-server
@@ -43,7 +42,7 @@ jobs:
           # not yet used
 
     name: Build ${{ matrix.package.name }} container for ${{ matrix.platform.arch }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform.runs-on }}
 
     steps:
       - name: Configure AWS Credentials
@@ -68,19 +67,6 @@ jobs:
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v2
 
-      - name: Prepare image name
-        uses: actions/github-script@v6
-        id: image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPO_NAME: ${{ matrix.package.name }}
-        with:
-          result-encoding: string
-          script: |
-            const registry = process.env.REGISTRY;
-            const repo_name = process.env.REPO_NAME;
-            const image = `${registry}/tamanu/${repo_name}`;
-            return image;
       - name: Normalise branch/ref name
         uses: actions/github-script@v6
         id: ref
@@ -90,24 +76,27 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const head_ref = process.env.GH_HEAD_REF;
-            const ref_name = process.env.GH_REF_NAME;
-            const ref = head_ref ?? ref_name;
-            const cleaned = ref
+            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
               .replace(/[^a-z0-9-]/g, '-')
               .replace(/-+/g, '-')
-              .replace(/^-|-$/g, '');
-            return cleaned;
+              .replace(/^-|-$/g, ''));
 
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           platforms: ${{ matrix.platform.arch }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ steps.ref.outputs.result }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ steps.ref.outputs.result }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           push: true
+          labels: |
+            org.opencontainers.image.vendor=BES
+            org.opencontainers.image.title=Tamanu ${{ matrix.package.name }}
+            org.opencontainers.image.url=https://www.bes.au/products/tamanu/
+            org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.pull_request.merged_at || github.event.head_commit.timestamp }}
           tags: |
-            ${{ steps.image.outputs.result }}:${{ matrix.platform.prefix }}${{ github.sha }}
-            ${{ steps.image.outputs.result }}:${{ matrix.platform.prefix }}${{ steps.ref.outputs.result }}
+            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ steps.ref.outputs.result }}
