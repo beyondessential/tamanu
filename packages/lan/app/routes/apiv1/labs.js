@@ -413,8 +413,7 @@ labTestPanel.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const panelId = params.id;
-    req.checkPermission('read', 'LabTestPanel');
-    req.checkPermission('list', 'LabTestType');
+    req.checkPermission('list', 'LabTest');
     const panel = await models.LabTestPanel.findByPk(panelId);
     if (!panel) {
       throw new NotFoundError();
