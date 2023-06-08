@@ -66,15 +66,15 @@ const InfoCardEntry = ({ label, value }) => {
   );
 };
 
-export const InfoCardHeader = ({ label, value, inlineValues, ...props }) => (
+export const InfoCardHeader = ({ label, value, ...props }) => (
   <CardHeader {...props}>
-    <InfoCardEntry label={label} value={value} inline={inlineValues} />
+    <InfoCardEntry label={label} value={value} />
   </CardHeader>
 );
 
-export const InfoCardItem = ({ label, value, inlineValues, ...props }) => (
+export const InfoCardItem = ({ label, value, ...props }) => (
   <CardCell {...props}>
-    <InfoCardEntry label={label} value={value} inline={inlineValues} />
+    <InfoCardEntry label={label} value={value} />
   </CardCell>
 );
 
