@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from 'shared/constants';
 import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -12,7 +12,7 @@ import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
-import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
+import { useImagingRequests } from '../contexts/ImagingRequests';
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
@@ -37,7 +37,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const { searchParameters } = useImagingRequests(memoryKey);
-  const isCompletedTable = memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
+  const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
 
   const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 

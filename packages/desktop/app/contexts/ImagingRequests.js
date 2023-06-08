@@ -1,10 +1,11 @@
 import React, { useContext, createContext, useState, useCallback } from 'react';
+import { IMAGING_TABLE_VERSIONS } from 'shared/constants/imaging';
 
 const ImagingRequestsContext = createContext({});
 
-export const IMAGING_REQUEST_SEARCH_KEYS = {
-  ACTIVE: 'ActiveImagingRequestListingView',
-  COMPLETED: 'CompletedImagingRequestListingView',
+const IMAGING_REQUEST_SEARCH_KEYS = {
+  ACTIVE: IMAGING_TABLE_VERSIONS.ACTIVE.memoryKey,
+  COMPLETED: IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey,
 };
 
 // This key is used to store seperate search parameters for the different kinds of imaging request tables

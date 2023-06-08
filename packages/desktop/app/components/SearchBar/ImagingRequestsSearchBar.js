@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -14,7 +14,7 @@ import {
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
-import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../../contexts/ImagingRequests';
+import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 
 const FacilityCheckbox = styled.div`
@@ -43,7 +43,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
   const areaSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department');
   const requesterSuggester = useSuggester('practitioner');
-  const isCompletedTable = memoryKey === IMAGING_REQUEST_SEARCH_KEYS.COMPLETED;
+  const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
 
   const { searchParameters, setSearchParameters } = useImagingRequests(memoryKey);
 
