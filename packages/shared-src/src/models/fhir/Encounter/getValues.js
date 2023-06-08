@@ -16,7 +16,6 @@ import {
   FhirReference,
 } from '../../../services/fhirTypes';
 import { formatFhirDate } from '../../../utils/fhir';
-import { latestDateTime } from '../../../utils/dateTime';
 
 export async function getValues(upstream, models) {
   const { Encounter } = models;
@@ -27,12 +26,7 @@ export async function getValues(upstream, models) {
 
 async function getValuesFromEncounter(upstream) {
   return {
-    lastUpdated: latestDateTime(
-      upstream.updatedAt,
-      upstream.discharge?.updatedAt,
-      upstream.patient?.updatedAt,
-      upstream.location?.updatedAt,
-    ),
+    lastUpdated: new Date(),
     status: status(upstream),
     class: classification(upstream),
     actualPeriod: period(upstream),

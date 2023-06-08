@@ -234,14 +234,9 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, onClear, name, required } = this.props;
-    // use correct error message for required fields by setting to "" but otherwise set to null value to prevent FK errors
-    const clearValue = required ? '' : null;
-    onChange({ target: { value: clearValue, name } });
+    const { onChange, name } = this.props;
+    onChange({ target: { value: undefined, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    if (onClear) {
-      onClear();
-    }
   };
 
   clearOptions = () => {
