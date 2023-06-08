@@ -6,7 +6,7 @@ import { getCurrentUser } from '../store';
 import { ASSET_NAMES } from 'shared/constants';
 
 
-export const useCertificate = ({ footerAssetName }) => {
+export const useCertificate = ({ footerAssetName } = {}) => {
   const { getLocalisation } = useLocalisation();
   const logo = useAsset(ASSET_NAMES.LETTERHEAD_LOGO);
   const watermark = useAsset(ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK);
