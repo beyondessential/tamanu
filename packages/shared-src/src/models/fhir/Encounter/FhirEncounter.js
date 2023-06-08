@@ -1,7 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
 import { FhirResource } from '../Resource';
-import { FHIR_INTERACTIONS } from '../../../constants';
 import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';
 import { fromEncounters } from './getQueryToFindUpstreamIds';
@@ -27,11 +26,7 @@ export class FhirEncounter extends FhirResource {
     this.upstreams = [models.Encounter, models.Discharge, models.Patient, models.Location];
   }
 
-  static CAN_DO = new Set([
-    FHIR_INTERACTIONS.INSTANCE.READ,
-    FHIR_INTERACTIONS.TYPE.SEARCH,
-    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
-  ]);
+  static CAN_DO = new Set([]);
 
   async updateMaterialisation() {
     const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));

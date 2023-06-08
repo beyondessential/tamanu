@@ -15,6 +15,7 @@ export function fromEncounters(models, table, id, deletedRow) {
           {
             model: Discharge,
             as: 'discharge',
+            required: true,
             where: { id },
           },
         ],
@@ -26,6 +27,7 @@ export function fromEncounters(models, table, id, deletedRow) {
           {
             model: Patient,
             as: 'patient',
+            required: true,
             where: { id },
           },
         ],
@@ -37,6 +39,7 @@ export function fromEncounters(models, table, id, deletedRow) {
           {
             model: Location,
             as: 'location',
+            required: true,
             where: { id },
           },
         ],
