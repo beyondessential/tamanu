@@ -6,8 +6,22 @@ import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
 
 export const screen2ValidationSchema = yup.object().shape({
-  labTestTypeIds: yup.array().of(yup.string()),
-  panelIds: yup.array().of(yup.string()),
+  labTestTypeIds: yup.array().when('panelIds', {
+    is: panelIds => !!panelIds,
+    then: yup
+      .array()
+      .of(yup.string())
+      .min(1, 'Please select at least one test type'),
+    otherwise: yup.array().nullable(),
+  }),
+  panelIds: yup.array().when('labTestTypeIds', {
+    is: labTestTypeIds => !!labTestTypeIds,
+    then: yup
+      .array()
+      .of(yup.string())
+      .min(1, 'Please select at least one panel'),
+    otherwise: yup.array().nullable(),
+  }),
   notes: yup.string(),
 });
 
