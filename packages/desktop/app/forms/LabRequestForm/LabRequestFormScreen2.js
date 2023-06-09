@@ -11,12 +11,13 @@ export const screen2ValidationSchema = yup.object().shape({
   notes: yup.string(),
 });
 
-const SECTION_LABELS = {
+const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: 'Select tests',
     instructions:
       'Please select the test or tests you would like to request below and add any relevant notes. \nYou can filter test by category using the field below.',
     selectableName: 'test',
+    fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
     subheading: 'Select panel',
@@ -25,6 +26,7 @@ const SECTION_LABELS = {
     label: 'Select the test panel or panels',
     selectableName: 'panel',
     searchFieldPlaceholder: 'Search panel or category',
+    fieldName: 'panelIds',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: 'Select superset',
@@ -39,8 +41,8 @@ export const LabRequestFormScreen2 = props => {
     values: { requestFormType },
   } = props;
 
-  const labelConfig = useMemo(() => SECTION_LABELS[requestFormType], [requestFormType]);
-  const { subheading, instructions } = labelConfig;
+  const fieldConfig = useMemo(() => FORM_TYPE_TO_FIELD_CONFIG[requestFormType], [requestFormType]);
+  const { subheading, instructions, fieldName } = fieldConfig;
 
   return (
     <>
@@ -50,10 +52,8 @@ export const LabRequestFormScreen2 = props => {
           {instructions}
         </BodyText>
         <Field
-          name={
-            requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL ? 'labTestTypeIds' : 'panelIds'
-          }
-          labelConfig={labelConfig}
+          name={fieldName}
+          labelConfig={fieldConfig}
           component={TestSelectorField}
           requestFormType={requestFormType}
           required
