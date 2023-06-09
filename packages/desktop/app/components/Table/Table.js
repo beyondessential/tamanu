@@ -148,6 +148,12 @@ const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   </StyledTableRow>
 ));
 
+const ErrorTableCell = styled(StyledTableCell)`
+  &.MuiTableCell-body {
+    padding: 60px;
+  }
+`;
+
 const Row = React.memo(
   ({ rowIndex, columns, data, onClick, cellOnChange, rowStyle, refreshTable }) => {
     const cells = columns.map(
@@ -205,9 +211,9 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
-    <StyledTableCell colSpan={colSpan} align="center">
+    <ErrorTableCell colSpan={colSpan} align="center">
       {children}
-    </StyledTableCell>
+    </ErrorTableCell>
   </RowContainer>
 ));
 
@@ -334,10 +340,10 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, exportName, columns, data, allowExport } = this.props;
+    const { page, exportName, columns, data, allowExport, count } = this.props;
 
     // Footer is empty, don't render anything
-    if (page === null && !allowExport) {
+    if ((page === null && !allowExport) || count === 0) {
       return null;
     }
 
