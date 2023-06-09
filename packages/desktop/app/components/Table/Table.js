@@ -229,6 +229,9 @@ class TableComponent extends React.Component {
     const { onChangeRowsPerPage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
     if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
+    // TODO: Need to reset to page one when changing rows per page without messing up
+    // the navigation buttons (currently when setting to 0 we navigate to the right page but
+    // the navigation buttons are still in their previous state)
   };
 
   renderHeaders() {
