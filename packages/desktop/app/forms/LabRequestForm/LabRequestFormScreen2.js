@@ -7,20 +7,26 @@ import { BodyText, Heading3 } from '../../components/Typography';
 
 export const screen2ValidationSchema = yup.object().shape(
   {
-    labTestTypeIds: yup.array().when('panelIds', {
-      is: '',
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(1, 'Please select at least one test type'),
-    }),
-    panelIds: yup.array().when('labTestTypeIds', {
-      is: '',
-      then: yup
-        .array()
-        .of(yup.string())
-        .min(1, 'Please select at least one panel'),
-    }),
+    labTestTypeIds: yup
+      .array()
+      .nullable()
+      .when('panelIds', {
+        is: '',
+        then: yup
+          .array()
+          .of(yup.string())
+          .min(1, 'Please select at least one test type'),
+      }),
+    panelIds: yup
+      .array()
+      .nullable()
+      .when('labTestTypeIds', {
+        is: '',
+        then: yup
+          .array()
+          .of(yup.string())
+          .min(1, 'Please select at least one panel'),
+      }),
     notes: yup.string(),
   },
   ['labTestTypeIds', 'panelIds'],
