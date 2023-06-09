@@ -31,6 +31,10 @@ labRequest.put(
     if (!labRequestRecord) throw new NotFoundError();
     req.checkPermission('write', labRequestRecord);
 
+    if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
+      req.checkPermission('write', 'LabRequestStatus');
+    }
+
     await db.transaction(async () => {
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
         if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
