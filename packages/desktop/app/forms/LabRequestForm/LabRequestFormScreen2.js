@@ -5,32 +5,29 @@ import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
 
-export const screen2ValidationSchema = yup.object().shape(
-  {
-    labTestTypeIds: yup
-      .array()
-      .nullable()
-      .when('panelIds', {
-        is: '',
-        then: yup
-          .array()
-          .of(yup.string())
-          .min(1, 'Please select at least one test type'),
-      }),
-    panelIds: yup
-      .array()
-      .nullable()
-      .when('labTestTypeIds', {
-        is: '',
-        then: yup
-          .array()
-          .of(yup.string())
-          .min(1, 'Please select at least one panel'),
-      }),
-    notes: yup.string(),
-  },
-  ['labTestTypeIds', 'panelIds'],
-);
+export const screen2ValidationSchema = yup.object().shape({
+  labTestTypeIds: yup
+    .array()
+    .nullable()
+    .when('requestFormType', {
+      is: val => val === LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+      then: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Please select at least one test type'),
+    }),
+  panelIds: yup
+    .array()
+    .nullable()
+    .when('requestFormType', {
+      is: val => val === LAB_REQUEST_FORM_TYPES.PANEL,
+      then: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Please select at least one panel'),
+    }),
+  notes: yup.string(),
+});
 
 const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
