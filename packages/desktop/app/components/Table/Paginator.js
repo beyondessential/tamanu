@@ -151,7 +151,6 @@ export const Paginator = React.memo(
 
               // We needed some custom logic for what page numbers to show that couldnt be done through the built in boundaryCount and siblingcount props
               // so I needed to create a set of conditions to determine what page numbers to show and when to show ellipses.
-              // const selectedPage = page + 1;
               const pageNumber = item.page;
 
               // The standard range for showing page numbers except for the first and last page which
