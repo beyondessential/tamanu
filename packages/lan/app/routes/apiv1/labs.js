@@ -362,10 +362,6 @@ labTest.put(
 
     req.checkPermission('write', labTestRecord);
 
-    if (updatedLabTestData.status && updatedLabTestData.status !== labTestRecord.status) {
-      req.checkPermission('write', 'LabTestStatus');
-    }
-
     if (updatedLabTestData.result && updatedLabTestData.result !== labTestRecord.result) {
       req.checkPermission('write', 'LabTestResult');
     }
