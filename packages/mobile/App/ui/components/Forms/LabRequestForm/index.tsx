@@ -29,10 +29,16 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
   });
   const labSampleSiteSuggester = new Suggester(models.ReferenceData, {
     where: {
-      type: ReferenceDataType.labSampleSite,
+      type: ReferenceDataType.LabSampleSite,
     },
   });
-  const practitionerSuggester = new Suggester(
+  const specimenTypeSuggester = new Suggester(models.ReferenceData, {
+    where: {
+      type: ReferenceDataType.SpecimenType,
+    },
+  });
+
+  const userSuggester = new Suggester(
     models.User,
     { column: 'displayName' },
     (model): OptionType => ({ label: model.displayName, value: model.id }),
@@ -61,7 +67,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         label="Requesting clinician"
         name="requestedBy"
         required
-        suggester={practitionerSuggester}
+        suggester={userSuggester}
         modalRoute={Routes.Autocomplete.Modal}
       />
       <Field
@@ -74,6 +80,20 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       />
       <Field component={DateField} label="Sample date" mode="date" name="sampleDate" />
       <Field component={DateField} label="Sample time" mode="time" name="sampleTime" />
+      <Field
+        component={AutocompleteModalField}
+        label="Collected by"
+        name="collectedBy"
+        suggester={userSuggester}
+        modalRoute={Routes.Autocomplete.Modal}
+      />
+      <Field
+        component={AutocompleteModalField}
+        label="Specimen type"
+        name="specimenType"
+        suggester={specimenTypeSuggester}
+        modalRoute={Routes.Autocomplete.Modal}
+      />
       <Field
         component={AutocompleteModalField}
         label="Site"

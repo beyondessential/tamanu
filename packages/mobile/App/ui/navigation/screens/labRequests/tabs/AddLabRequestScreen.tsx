@@ -17,8 +17,7 @@ import { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
 import { getCombinedDateString } from '/helpers/date';
 
-const ALPHABET_FOR_ID =
-  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 interface LabRequestFormData {
   displayId: ID;
@@ -27,6 +26,8 @@ interface LabRequestFormData {
   requestedBy: string;
   sampleDate: Date;
   sampleTime: Date;
+  specimenType: string;
+  collectedBy: string;
   categoryId: string;
   priorityId: string;
   labSampleSite: string;
@@ -99,6 +100,8 @@ export const DumbAddLabRequestScreen = ({
       sampleTime,
       labSampleSite,
       requestedBy,
+      collectedBy,
+      specimenType,
       displayId: generatedDisplayId,
     } = values;
 
@@ -116,7 +119,10 @@ export const DumbAddLabRequestScreen = ({
       sampleTime: sampleTimeString,
       labTestTypeIds: values.labTestTypes,
       labSampleSite,
+      collectedBy,
+      specimenType,
     });
+
 
     navigateToHistory();
   }, []);
