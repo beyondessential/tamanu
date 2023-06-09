@@ -2,9 +2,9 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Form, Field, TextField, TallMultilineTextField } from '../components/Field';
-import { FormGrid, SmallGridSpacer } from '../components/FormGrid';
-import { Button, ModalButtonRow, RedOutlinedButton, OutlinedButton } from '../components';
+import { Form, Field, TextField, TallMultilineTextField } from '../../../components/Field';
+import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
+import { Button, ModalButtonRow, RedOutlinedButton, OutlinedButton } from '../../../components';
 
 const DeleteButton = styled(RedOutlinedButton)`
   margin-left: 0px !important;

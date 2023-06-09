@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from '../../../components';
-import { EditPatientLetterTemplateForm } from '../../../forms';
+import { EditPatientLetterTemplateForm } from './EditPatientLetterTemplateForm';
 
 export const EditTemplateModal = ({ template, onClose, open, onSubmit, onDelete }) => {
   return (

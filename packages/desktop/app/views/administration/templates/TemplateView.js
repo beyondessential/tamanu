@@ -5,7 +5,7 @@ import { VISIBILITY_STATUSES } from 'shared/constants';
 
 import { TopBar, PageContainer, ContentPane } from '../../../components';
 import { Colors } from '../../../constants';
-import { NewTemplateForm } from '../../../forms';
+import { NewTemplateForm } from './NewTemplateForm';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 
