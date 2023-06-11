@@ -5,8 +5,8 @@ on:
     types:
       - opened
       - reopened
-      - labelled
-      - unlabelled
+      - labeled
+      - unlabeled
 
 jobs:
   merge-paused:
