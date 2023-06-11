@@ -128,15 +128,13 @@ const useSelectable = formType => {
 };
 
 const queryBySearch = (formType, data, { search, labTestCategoryId }) =>
-  formType === LAB_REQUEST_FORM_TYPES.PANEL
-    ? data.filter(
-        result => subStrSearch(search, result.name) || subStrSearch(search, result.category.name),
-      )
-    : data.filter(
-        result =>
-          subStrSearch(search, result.name) &&
-          (!labTestCategoryId || result.category.id === labTestCategoryId),
-      );
+  data.filter(result => {
+    const nameMatch = subStrSearch(search, result.name);
+    if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
+      return nameMatch || subStrSearch(search, result.category.name);
+    }
+    return nameMatch && (!labTestCategoryId || result.category.id === labTestCategoryId);
+  });
 
 const sortByCategoryAndName = (a, b) =>
   a.category.name.localeCompare(b.category.name) || a.name.localeCompare(b.name);

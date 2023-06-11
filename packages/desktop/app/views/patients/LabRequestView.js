@@ -33,6 +33,7 @@ import { LabRequestChangePriorityModal } from './components/LabRequestChangePrio
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -52,6 +53,7 @@ const MODAL_IDS = {
   CHANGE_STATUS: 'changeStatus',
   VIEW_STATUS_LOG: 'viewStatusLog',
   RECORD_SAMPLE: 'recordSample',
+  SAMPLE_DETAILS: 'sampleDetails',
   PRINT: 'print',
   LABEL_PRINT: 'labelPrint',
   CHANGE_LABORATORY: 'changeLaboratory',
@@ -63,6 +65,7 @@ const MODALS = {
   [MODAL_IDS.CHANGE_STATUS]: LabRequestChangeStatusModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
+  [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.PRINT]: LabRequestPrintModal,
   [MODAL_IDS.LABEL_PRINT]: ({ labRequest, ...props }) => (
     <LabRequestPrintLabelModal {...props} labRequests={[labRequest]} />
@@ -122,8 +125,8 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const canWriteLabRequest = ability.can('write', 'LabRequest');
-  const canWriteLabTest = ability.can('write', 'LabTest');
+  const canWriteLabRequest = ability?.can('write', 'LabRequest');
+  const canWriteLabTest = ability?.can('write', 'LabTest');
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
@@ -195,6 +198,9 @@ export const LabRequestView = () => {
             </>
           }
           actions={{
+            'View details': () => {
+              handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS);
+            },
             [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
               ? 'Record sample'
               : 'Edit']: () => {
