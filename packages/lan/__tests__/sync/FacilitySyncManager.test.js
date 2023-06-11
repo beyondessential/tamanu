@@ -248,10 +248,6 @@ describe('FacilitySyncManager', () => {
   });
 
   describe('edge cases', () => {
-    beforeAll(async () => {
-      __testOnlyEnableSpy();
-    });
-
     it('will not start snapshotting until all transactions started under the old sync tick have committed', async () => {
       // It is possible for a transaction to be in flight when a sync starts, having created or
       // updated at least one record within it, but not yet committed/rolled back. If the sync
