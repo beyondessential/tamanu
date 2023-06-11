@@ -3,6 +3,12 @@ name: CI
 on:
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labelled
+      - unlabelled
   push:
     branches:
       - dev
@@ -182,4 +188,7 @@ jobs:
     steps:
     # fail if ANY dependency has failed or been skipped or cancelled
     - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')"
+      run: exit 1
+    # fail if the merge paused label is present
+    - if: "contains(github.event.pull_request.labels.*.name, 'merge paused')"
       run: exit 1
