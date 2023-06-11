@@ -3,6 +3,8 @@ name: Check label
 on:
   pull_request:
     types:
+      - opened
+      - reopened
       - labelled
       - unlabelled
 
