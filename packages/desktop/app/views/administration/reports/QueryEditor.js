@@ -6,7 +6,7 @@ import { BodyText, ConfirmCancelRow, Modal } from '../../../components';
 import { Colors } from '../../../constants';
 
 const EditorContainer = styled.div`
-  max-height: 56vh;
+  max-height: 52vh;
   margin: 0 auto;
   overflow: auto;
   ::-webkit-scrollbar {
