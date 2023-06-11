@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 import { inspect } from 'util';
 import config from 'config';
 
@@ -5,7 +6,10 @@ import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fake } from 'shared/test-helpers/fake';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
-import { __testOnlyPushOutGoingChangesSpy, __testOnlyEnableSpy } from '../../app/sync/pushOutgoingChanges';
+import {
+  __testOnlyPushOutGoingChangesSpy,
+  __testOnlyEnableSpy,
+} from '../../app/sync/pushOutgoingChanges';
 
 import { createTestContext } from '../utilities';
 
@@ -266,22 +270,6 @@ describe('FacilitySyncManager', () => {
       const currentSyncTick = '6';
       const newSyncTick = '8';
 
-      // mock out external push/pull functions
-      jest.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/snapshotOutgoingChanges'),
-      }));
-      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
-        pushOutgoingChanges: jest.fn(),
-      }));
-      jest.doMock('../../app/sync/pullIncomingChanges', () => ({
-        ...jest.requireActual('../../app/sync/pullIncomingChanges'),
-        pullIncomingChanges: () => ({
-          totalToPull: 0,
-          pullUntil: 0,
-        }),
-      }));
-
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
@@ -302,8 +290,6 @@ describe('FacilitySyncManager', () => {
           })),
         },
       });
-
-      const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
 
       // set current sync tick
       await models.LocalSystemFact.set('currentSyncTick', currentSyncTick);
