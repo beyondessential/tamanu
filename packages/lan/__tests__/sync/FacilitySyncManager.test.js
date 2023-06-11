@@ -5,6 +5,7 @@ import config from 'config';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fake } from 'shared/test-helpers/fake';
 import { createDummyPatient } from 'shared/demoData/patients';
+import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
 import {
   __testOnlyPushOutGoingChangesSpy,
@@ -19,11 +20,13 @@ describe('FacilitySyncManager', () => {
   let sequelize;
   const TEST_SESSION_ID = 'sync123';
 
-  beforeAll(async () => {
-    ctx = await createTestContext();
-    models = ctx.models;
-    sequelize = ctx.sequelize;
-  });
+  beforeAll(
+    withErrorShown(async () => {
+      ctx = await createTestContext();
+      models = ctx.models;
+      sequelize = ctx.sequelize;
+    }),
+  );
 
   afterAll(() => ctx.close());
 
@@ -254,9 +257,6 @@ describe('FacilitySyncManager', () => {
 
   describe('edge cases', () => {
     beforeAll(async () => {
-      ctx = await createTestContext();
-      models = ctx.models;
-      sequelize = ctx.sequelize;
       __testOnlyEnableSpy();
     });
 
