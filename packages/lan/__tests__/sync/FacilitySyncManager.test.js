@@ -5,13 +5,7 @@ import config from 'config';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fake } from 'shared/test-helpers/fake';
 import { createDummyPatient } from 'shared/demoData/patients';
-import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
-import {
-  __testOnlyPushOutGoingChangesSpy,
-  __testOnlyEnableSpy,
-} from '../../app/sync/pushOutgoingChanges';
-
 import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager', () => {
@@ -20,13 +14,11 @@ describe('FacilitySyncManager', () => {
   let sequelize;
   const TEST_SESSION_ID = 'sync123';
 
-  beforeAll(
-    withErrorShown(async () => {
-      ctx = await createTestContext();
-      models = ctx.models;
-      sequelize = ctx.sequelize;
-    }),
-  );
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    models = ctx.models;
+    sequelize = ctx.sequelize;
+  });
 
   afterAll(() => ctx.close());
 
@@ -290,6 +282,7 @@ describe('FacilitySyncManager', () => {
           })),
         },
       });
+      syncManager.__testSpyEnabled = true;
 
       // set current sync tick
       await models.LocalSystemFact.set('currentSyncTick', currentSyncTick);
@@ -336,7 +329,7 @@ describe('FacilitySyncManager', () => {
       // check that the snapshot included _both_ patient records (the changes get passed as an
       // argument to pushOutgoingChanges, which we spy on)
       expect(
-        __testOnlyPushOutGoingChangesSpy[0].changes
+        syncManager.__testOnlyPushChangesSpy[0].outgoingChanges
           .filter(c => c.recordType === 'patients')
           .map(c => c.recordId)
           .sort(),
