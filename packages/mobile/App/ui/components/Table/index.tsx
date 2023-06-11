@@ -47,7 +47,12 @@ export const Table = ({
       {Title && <Title />}
       {rows.map((r, i) => r.rowHeader(i))}
     </StyledView>
-    <ScrollView bounces={false} showsHorizontalScrollIndicator onScroll={scrollHandler} horizontal>
+    <ScrollView
+      bounces={false}
+      showsHorizontalScrollIndicator
+      onScroll={scrollHandler}
+      horizontal
+    >
       <RowView>
         {columns.map((column: any) => (
           <StyledView key={`${column}`}>

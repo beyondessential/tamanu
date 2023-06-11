@@ -17,6 +17,7 @@ import {
   saveIncomingChanges,
   adjustDataPostSyncPush,
   waitForPendingEditsUsingSyncTick,
+  getSyncTicksOfPendingEdits,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { uuidToFairlyUniqueInteger } from 'shared/utils';
@@ -63,7 +64,7 @@ export class CentralSyncManager {
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
     const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
-    return { tick: tock - 1, tock, previousTick: tock - 3, previousTock: tock - 2 };
+    return { tick: tock - 1, tock };
   }
 
   async startSession(userId, deviceId) {
@@ -113,6 +114,9 @@ export class CentralSyncManager {
 
     if (!session) {
       throw new Error(`Sync session '${sessionId}' not found`);
+    }
+    if (session.completedAt) {
+      throw new Error(`Sync session '${sessionId}' is already completed`);
     }
     if (session.error) {
       throw new Error(errorMessageFromSession(session));
@@ -203,9 +207,15 @@ export class CentralSyncManager {
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
       // process is ongoing, will have a later updated_at_sync_tick)
-      const { tick, previousTock } = await this.tickTockGlobalClock();
-      // wait for any transactions that were in progress using the previous central server "tock"
-      await waitForPendingEditsUsingSyncTick(sequelize, previousTock);
+      const { tick } = await this.tickTockGlobalClock();
+
+      // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
+      const pendingSyncTicks = (await getSyncTicksOfPendingEdits(sequelize)).filter(t => t < tick);
+
+      // wait for any in-flight transactions of pending edits
+      // that we don't miss any changes that are in progress
+      await Promise.all(pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(sequelize, t)));
+
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },

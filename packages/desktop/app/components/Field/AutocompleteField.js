@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -92,8 +93,6 @@ const StyledExpandMore = styled(ChevronIcon)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
-  position: absolute;
-  right: 35px;
 `;
 
 const StyledClearIcon = styled(ClearIcon)`
@@ -236,8 +235,8 @@ export class AutocompleteInput extends Component {
 
   handleClearValue = () => {
     const { onChange, name } = this.props;
-    this.setState({ selectedOption: { value: '', tag: null } });
     onChange({ target: { value: undefined, name } });
+    this.setState({ selectedOption: { value: '', tag: null } });
   };
 
   clearOptions = () => {
@@ -285,7 +284,17 @@ export class AutocompleteInput extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
+    const {
+      label,
+      required,
+      className,
+      infoTooltip,
+      tag,
+      value,
+      size,
+      disabled,
+      ...other
+    } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -307,7 +316,7 @@ export class AutocompleteInput extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                {value && (
+                {value && !disabled && (
                   <StyledIconButton onClick={this.handleClearValue}>
                     <StyledClearIcon />
                   </StyledIconButton>
@@ -326,6 +335,7 @@ export class AutocompleteInput extends Component {
           }}
           fullWidth
           value={value}
+          disabled={disabled}
           {...other}
         />
       </OuterLabelFieldWrapper>

@@ -44,8 +44,8 @@ expect.extend({
 
 // If for some reason we don't want to add triggers to a specific table
 // this would be the place to add them.
-const versioningTablesToIgnore = ['encounters'];
-const refreshTablesToIgnore = ['discharges', 'lab_test_panel_requests', 'lab_test_panels'];
+const versioningTablesToIgnore = [];
+const refreshTablesToIgnore = [];
 
 describe('databaseTriggers', () => {
   let ctx;
