@@ -148,8 +148,12 @@ patientVaccineRoutes.post(
 
     if (!departmentId || !locationId) {
       const vaccinationDefaults =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, config.serverFacilityId)) ||
-        {};
+        (await models.Setting.get(
+          vaccineData.givenElsewhere
+            ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
+            : SETTING_KEYS.VACCINATION_DEFAULTS,
+          config.serverFacilityId,
+        )) || {};
       departmentId = departmentId || vaccinationDefaults.departmentId;
       locationId = locationId || vaccinationDefaults.locationId;
     }

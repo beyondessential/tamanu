@@ -1,5 +1,11 @@
 import React from 'react';
-import { Field as FormikField, useField, connect as formikConnect, getIn } from 'formik';
+import {
+  Field as FormikField,
+  useField,
+  connect as formikConnect,
+  getIn,
+  useFormikContext,
+} from 'formik';
 import MuiBox from '@material-ui/core/Box';
 import { FormTooltip } from '../FormTooltip';
 import { TextField } from './TextField';
@@ -21,13 +27,20 @@ export const Field = formikConnect(
     const error = submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
 
+    const { setFieldTouched } = useFormikContext();
     const [field] = useField(name);
+
+    const baseOnChange = (...args) => {
+      setFieldTouched(name, true);
+      return field.onChange(...args);
+    };
+
     const combinedOnChange = onChange
       ? (...args) => {
           onChange(...args);
-          return field.onChange(...args);
+          return baseOnChange(...args);
         }
-      : field.onChange;
+      : baseOnChange;
 
     return (
       <FormikField
