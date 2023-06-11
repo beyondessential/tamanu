@@ -22,7 +22,7 @@ const LogoImage = styled.img`
   top: -5px;
   left: 0px;
   height: auto;
-  width: 90px;
+  width: 135px;
 `;
 
 const HeaderText = styled.div`
