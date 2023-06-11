@@ -19,7 +19,7 @@ const Header = styled.div`
 
 const LogoImage = styled.img`
   position: absolute;
-  top: -5px;
+  top: 0px;
   left: 0px;
   height: auto;
   max-width: 135px;
