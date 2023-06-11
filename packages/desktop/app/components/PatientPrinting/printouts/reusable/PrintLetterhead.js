@@ -22,6 +22,7 @@ const LogoImage = styled.img`
   top: 0px;
   left: 0px;
   height: auto;
+  width: auto;
   max-height: 50px;
   max-width: 135px;
 `;
