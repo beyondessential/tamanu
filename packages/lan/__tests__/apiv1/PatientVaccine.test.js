@@ -25,6 +25,7 @@ describe('PatientVaccine', () => {
   let scheduled6 = null;
   let clinician = null;
   let location = null;
+  let locationGroup = null;
   let department = null;
   let facility = null;
   let givenVaccine1 = null;
@@ -103,7 +104,7 @@ describe('PatientVaccine', () => {
       'Dose 1',
     );
 
-    const locationGroup = await models.LocationGroup.create({
+    locationGroup = await models.LocationGroup.create({
       ...fake(models.LocationGroup),
       facilityId: facility.id,
     });
@@ -219,10 +220,26 @@ describe('PatientVaccine', () => {
   });
 
   describe('Administered vaccines', () => {
+    let location2;
+    let department2;
     beforeAll(async () => {
+      location2 = await models.Location.create({
+        ...fake(models.Location),
+        locationGroupId: locationGroup.id,
+        facilityId: facility.id,
+      });
+      department2 = await models.Department.create({
+        ...fake(models.Department),
+        facilityId: facility.id,
+      });
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_DEFAULTS,
         { locationId: location.id, departmentId: department.id },
+        facility.id,
+      );
+      await models.Setting.set(
+        SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
+        { locationId: location2.id, departmentId: department2.id },
         facility.id,
       );
     });
@@ -324,6 +341,11 @@ describe('PatientVaccine', () => {
         code: 'Australia',
       });
 
+      const vaccinationDefaults = await models.Setting.get(
+        SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
+        facility.id,
+      );
+
       const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
         status: VACCINE_RECORDING_TYPES.GIVEN,
         scheduledVaccineId: scheduled1.id,
@@ -339,8 +361,8 @@ describe('PatientVaccine', () => {
       const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
       const encounter = await models.Encounter.findByPk(vaccine.encounterId);
 
-      expect(encounter.locationId).toEqual(location.id);
-      expect(encounter.departmentId).toEqual(department.id);
+      expect(encounter.locationId).toEqual(vaccinationDefaults.locationId);
+      expect(encounter.departmentId).toEqual(vaccinationDefaults.departmentId);
     });
 
     it('Should update corresponding NOT_GIVEN vaccine to HISTORICAL when recording GIVEN vaccine', async () => {
