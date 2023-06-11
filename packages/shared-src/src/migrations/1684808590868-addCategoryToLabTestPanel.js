@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 
 export async function up(query) {
   await query.addColumn('lab_test_panels', 'category_id', {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING,
     allowNull: true,
     references: {
       model: 'reference_data',

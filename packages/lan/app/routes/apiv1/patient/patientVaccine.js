@@ -286,3 +286,25 @@ patientVaccineRoutes.get(
     res.send({ count: results.count, data: results.data });
   }),
 );
+
+patientVaccineRoutes.get(
+  '/:id/administeredVaccine/:vaccineId/circumstances',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'PatientVaccine');
+    const { models, params } = req;
+    const administeredVaccine = await models.AdministeredVaccine.findByPk(params.vaccineId);
+    if (!administeredVaccine) throw new NotFoundError();
+    if (
+      !Array.isArray(administeredVaccine.circumstanceIds) ||
+      administeredVaccine.circumstanceIds.length === 0
+    )
+      res.send({ count: 0, data: [] });
+    const results = await models.ReferenceData.findAll({
+      where: {
+        id: administeredVaccine.circumstanceIds,
+      },
+    });
+
+    res.send({ count: results.count, data: results?.map(({ id, name }) => ({ id, name })) });
+  }),
+);
