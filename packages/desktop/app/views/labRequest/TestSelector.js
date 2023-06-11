@@ -62,6 +62,7 @@ const SelectorTable = styled.div`
 
   ::-webkit-scrollbar-thumb {
     background-color: ${Colors.softText};
+    height: 35px;
     border-radius: 20px;
     border: 7px solid transparent;
     background-clip: content-box;
@@ -102,6 +103,11 @@ const StyledSearchField = styled(SearchField)`
   width: 100%;
   .MuiInputBase-root {
     padding-left: 0;
+  }
+  .MuiInputBase-input {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    font-size: 14px;
   }
   .MuiOutlinedInput-root {
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
