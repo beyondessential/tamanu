@@ -143,10 +143,24 @@ export const Paginator = React.memo(
             renderItem={item => {
               // Set custom icons for navigation buttons
               if (item.type === 'previous') {
-                return <PaginationItem {...item} component={PreviousButton} />;
+                return (
+                  <PaginationItem
+                    {...item}
+                    onClick={event => onPageChange(event, selectedPageNumber - 1)}
+                    disabled={selectedPageNumber === 1}
+                    component={PreviousButton}
+                  />
+                );
               }
               if (item.type === 'next') {
-                return <PaginationItem {...item} component={NextButton} />;
+                return (
+                  <PaginationItem
+                    {...item}
+                    onClick={event => onPageChange(event, selectedPageNumber + 1)}
+                    disabled={selectedPageNumber === numberOfPages}
+                    component={NextButton}
+                  />
+                );
               }
 
               // We needed some custom logic for what page numbers to show that couldnt be done through the built in boundaryCount and siblingcount props
