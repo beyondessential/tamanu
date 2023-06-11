@@ -392,16 +392,32 @@ labTestType.get(
 
 export const labTestPanel = express.Router();
 
+labTestPanel.get('/', async (req, res) => {
+  req.checkPermission('list', 'LabTestPanel');
+  const { models } = req;
+  const response = await models.LabTestPanel.findAll({
+    include: [
+      {
+        model: models.ReferenceData,
+        as: 'category',
+      },
+    ],
+  });
+  res.send(response);
+});
+
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));
+
 labTestPanel.get(
   '/:id/labTestTypes',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const panelId = params.id;
-
-    req.checkPermission('list', 'LabTests');
-
+    req.checkPermission('list', 'LabTest');
     const panel = await models.LabTestPanel.findByPk(panelId);
+    if (!panel) {
+      throw new NotFoundError();
+    }
     const response = await panel.getLabTestTypes({
       include: [
         {
