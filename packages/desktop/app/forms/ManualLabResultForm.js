@@ -14,6 +14,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useSuggester } from '../api';
+import { useAuth } from '../contexts/Auth';
 
 function getComponentForTest(resultType, options) {
   if (options && options.length) return SelectField;
@@ -37,9 +38,12 @@ function renderOptions(options) {
 }
 
 export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) => {
+  const { ability } = useAuth();
   const { resultType, options } = labTest.labTestType;
   const component = getComponentForTest(resultType, options);
   const methodSuggester = useSuggester('labTestMethod');
+
+  const canWriteLabTestResult = ability.can('write', 'LabTestResult');
 
   return (
     <Form
@@ -52,7 +56,7 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) 
             required
             component={component}
             options={renderOptions(options)}
-            disabled={isReadOnly}
+            disabled={isReadOnly || !canWriteLabTestResult}
           />
           <Field
             label="Completed"

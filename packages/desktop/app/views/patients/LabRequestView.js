@@ -124,6 +124,7 @@ export const LabRequestView = () => {
 
   const canWriteLabRequest = ability.can('write', 'LabRequest');
   const canWriteLabTest = ability.can('write', 'LabTest');
+  const canWriteLabRequestStatus = ability.can('write', 'LabRequestStatus');
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
@@ -169,11 +170,12 @@ export const LabRequestView = () => {
             </TileTag>
           }
           actions={{
-            ...(!areLabRequestsReadOnly && {
-              'Change status': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-              },
-            }),
+            ...(!areLabRequestsReadOnly &&
+              canWriteLabRequestStatus && {
+                'Change status': () => {
+                  handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+                },
+              }),
             'View status log': () => {
               handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
             },
