@@ -8,7 +8,7 @@ import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { LabTestResultModal } from '../LabTestResultModal';
 
 const ManualLabResultModal = React.memo(
-  ({ labTest, onClose, open, isReadOnly, isLabTestResultEditable }) => {
+  ({ labTest, onClose, open, isReadOnly, areLabTestResultsReadOnly }) => {
     const { updateLabTest, labRequest } = useLabRequest();
     const { navigateToLabRequest } = usePatientNavigation();
 
@@ -43,7 +43,7 @@ const ManualLabResultModal = React.memo(
           onSubmit={onSubmit}
           onClose={onClose}
           isReadOnly={isReadOnly}
-          isLabTestResultEditable={isLabTestResultEditable}
+          areLabTestResultsReadOnly={areLabTestResultsReadOnly}
         />
       </Modal>
     );
@@ -82,7 +82,7 @@ const columns = sex => [
 ];
 
 export const LabRequestResultsTable = React.memo(
-  ({ labRequest, patient, isReadOnly, isLabTestResultEditable }) => {
+  ({ labRequest, patient, isReadOnly, areLabTestResultsReadOnly }) => {
     const [activeTest, setActiveTest] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);
 
@@ -102,7 +102,7 @@ export const LabRequestResultsTable = React.memo(
           labTest={activeTest}
           onClose={closeModal}
           isReadOnly={isReadOnly}
-          isLabTestResultEditable={isLabTestResultEditable}
+          areLabTestResultsReadOnly={areLabTestResultsReadOnly}
         />
         <DataFetchingTable
           columns={sexAppropriateColumns}

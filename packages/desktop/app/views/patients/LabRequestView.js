@@ -131,6 +131,7 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden;
+  const areLabTestResultsReadOnly = !canWriteLabTestResult;
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
@@ -235,7 +236,7 @@ export const LabRequestView = () => {
         labRequest={labRequest}
         patient={patient}
         isReadOnly={areLabTestsReadOnly}
-        isLabTestResultEditable={canWriteLabTestResult}
+        areLabTestResultsReadOnly={areLabTestResultsReadOnly}
       />
       {modalId && (
         <ActiveModal
