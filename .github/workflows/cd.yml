@@ -24,8 +24,29 @@ permissions:
   id-token: write # OIDC token for AWS
 
 jobs:
-  build:
+  info:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'auto-deploy'))
+    name: Branch info
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalise branch/ref name
+        uses: actions/github-script@v6
+        id: ref
+        env:
+          GH_HEAD_REF: ${{ github.head_ref }}
+          GH_REF_NAME: ${{ github.ref_name }}
+        with:
+          result-encoding: string
+          script: |
+            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
+              .replace(/[^a-z0-9-]/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-|-$/g, ''));
+    outputs:
+      branch: ${{ steps.ref.outputs.result }}
+
+  build:
+    needs: info
     strategy:
       fail-fast: false
       matrix:
@@ -45,10 +66,6 @@ jobs:
 
     name: Build ${{ matrix.package.name }} container for ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
-
-    outputs:
-      tag: "sha-${{ github.sha }}"
-      name: "${{ steps.ref.outputs.result }}"
 
     steps:
       - name: Configure AWS Credentials
@@ -73,27 +90,13 @@ jobs:
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v2
 
-      - name: Normalise branch/ref name
-        uses: actions/github-script@v6
-        id: ref
-        env:
-          GH_HEAD_REF: ${{ github.head_ref }}
-          GH_REF_NAME: ${{ github.ref_name }}
-        with:
-          result-encoding: string
-          script: |
-            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
-              .replace(/[^a-z0-9-]/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-|-$/g, ''));
-
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           platforms: ${{ matrix.platform.arch }}
-          cache-from: type=gha,scope=${{ steps.ref.outputs.result }}-${{ matrix.package.name }}
-          cache-to: type=gha,mode=max,scope=${{ steps.ref.outputs.result }}-${{ matrix.package.name }}
+          cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           push: true
           labels: |
@@ -105,10 +108,14 @@ jobs:
             org.opencontainers.image.created=${{ github.event.pull_request.merged_at || github.event.head_commit.timestamp }}
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:sha-${{ github.sha }}
-            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ steps.ref.outputs.result }}
+            ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ needs.info.outputs.branch }}
+    outputs:
+      tag: "sha-${{ github.sha }}"
 
   deploy:
-    needs: build
+    needs:
+      - info
+      - build
     runs-on: ubuntu-latest
     name: Deploy
     steps:
@@ -140,7 +147,7 @@ jobs:
         id: salt
         env:
           KEY: ${{ secrets.TAMANU_OPS_SSH }}
-          NAME: ${{ needs.build.outputs.name }}
+          NAME: ${{ needs.info.outputs.branch }}
         run: |
           salt=$(sha1sum <<< "$KEY$NAME" | cut -d' ' -f1)
           echo "::add-mask::$salt"
@@ -151,7 +158,7 @@ jobs:
         with:
           work-dir: pulumi/tamanu-internal
           command: up
-          stack-name: bes/${{ needs.build.outputs.name }}
+          stack-name: bes/${{ needs.info.outputs.branch }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
           upsert: true
@@ -163,9 +170,17 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
   client:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
+    needs: info
     runs-on: ubuntu-latest
     name: Build desktop client
+    env:
+      CI_BRANCH: ${{ needs.info.outputs.branch }}
+      CI_COMMIT_ID: ${{ github.sha }}
+      CONFIG_DESKTOP: HOST="https://facility-1.${{ needs.info.outputs.branch }}.internal.tamanu.io"|REALM_PATH="/realm"
+      DESKTOP_ROOT: ${{ github.workspace }}/packages/desktop
+      DESKTOP_RELEASE_DIR: ${{ github.workspace }}/packages/desktop/release
+      DEPLOY_DIR: ${{ github.workspace }}/deploy
+      S3_BUCKET: ${{ vars.DESKTOP_S3_BUCKET }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -181,3 +196,12 @@ jobs:
         with:
           node-version: 16
           cache: npm
+
+      - name: Prepare dirs
+        run: mkdir -p $DESKTOP_RELEASE_DIR $DEPLOY_DIR 
+
+      - name: Build desktop client
+        run: scripts/build_desktop.sh build-only
+
+      - name: Push to S3
+        run: scripts/push.sh
