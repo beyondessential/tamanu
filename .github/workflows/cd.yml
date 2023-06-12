@@ -173,14 +173,6 @@ jobs:
     needs: info
     runs-on: ubuntu-latest
     name: Build desktop client
-    env:
-      CI_BRANCH: ${{ needs.info.outputs.branch }}
-      CI_COMMIT_ID: ${{ github.sha }}
-      CONFIG_DESKTOP: HOST="https://facility-1.${{ needs.info.outputs.branch }}.internal.tamanu.io"|REALM_PATH="/realm"
-      DESKTOP_ROOT: ${{ github.workspace }}/packages/desktop
-      DESKTOP_RELEASE_DIR: ${{ github.workspace }}/packages/desktop/release
-      DEPLOY_DIR: ${{ github.workspace }}/deploy
-      S3_BUCKET: ${{ vars.DESKTOP_S3_BUCKET }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -195,13 +187,27 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+          cache: yarn
 
-      - name: Prepare dirs
-        run: mkdir -p $DESKTOP_RELEASE_DIR $DEPLOY_DIR 
+      - name: Prepare yarn
+        run: yarn && yarn build-shared
+
+      - name: Prepare env
+        working-directory: packages/desktop
+        run: |
+        cat <<EOF > .env
+        HOST="https://facility-1.${{ needs.info.outputs.branch }}.internal.tamanu.io"
+        REALM_PATH="/realm"
+        EOF
 
       - name: Build desktop client
-        run: scripts/build_desktop.sh build-only
+        working-directory: packages/desktop
+        run: yarn package-win
+
+      - name: Pack desktop client
+        working-directory: packages/desktop/release
+        run: zip -q -r ../tamanu-$(jq .version ../package.json -r)-${{ github.sha }}.zip .
 
       - name: Push to S3
-        run: scripts/push.sh
+        working-directory: packages/desktop
+        run: aws s3 cp tamanu-*.zip s3://${{ vars.DESKTOP_S3_BUCKET }}/${{ needs.info.outputs.branch }} --no-progress
