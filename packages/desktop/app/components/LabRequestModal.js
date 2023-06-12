@@ -48,9 +48,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   });
 
   const handleSubmit = async data => {
-    const body = { ...data };
     const response = await api.post(`labRequest`, {
-      ...body,
+      ...data,
       encounterId: encounter.id,
     });
     setNewLabRequestIds(response.map(request => request.id));
