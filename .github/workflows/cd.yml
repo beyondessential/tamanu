@@ -191,7 +191,7 @@ jobs:
 
       - name: Prepare yarn
         run: |
-          yarn
+          yarn --network-timeout 120000 # ms
           yarn build-shared
 
       - name: Prepare env
