@@ -36,8 +36,8 @@ function singleOrder(path, order, def, _Model) {
 
   // optimisation in the simple case
   if (entirePath.length === 1) {
-    return [Sequelize.col(entirePath[0]), order];
+    return [Sequelize.col(entirePath[0]), `${order} NULLS LAST`];
   }
 
-  return [getJsonbQueryFn(entirePath), order];
+  return [getJsonbQueryFn(entirePath), `${order} NULLS LAST`];
 }
