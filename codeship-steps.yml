@@ -1,7 +1,7 @@
 - name: tamanu deployment
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
-  tag: ^(main$|release/|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
+  tag: ^(master$|main$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|(feature|epic|fix|release)/|deploy-meta$|deploy-nauru-demo$)
   steps:
     - name: copy files
       service: build
@@ -22,7 +22,7 @@
               exclude: ^deploy-meta$
               command: ./scripts/build_desktop.sh build-only
             - name: for lan
-              exclude: ^deploy-meta$
+              exclude: ^(deploy-meta$|(feature|epic|fix)/)
               type: serial
               steps:
                 - name: build linux release
@@ -31,7 +31,7 @@
                   tag: ^(master$|dev$|main$|release/|staging-|ci-)
                   command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
         - name: for sync release
-          exclude: ^deploy-meta$
+          exclude: ^(deploy-meta$|(feature|epic|fix)/)
           type: serial
           steps:
             - name: build linux release
@@ -52,7 +52,7 @@
         # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: the sync server
-          exclude: ^(release-desktop-|deploy-meta$)
+          exclude: ^(release-desktop-|deploy-meta$|(feature|epic|fix|release)/)
           type: serial
           service: deploy
           steps:
@@ -87,7 +87,7 @@
               tag: ^(da-)
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: the lan server
-          exclude: ^(release-desktop-|deploy-meta$)
+          exclude: ^(release-desktop-|deploy-meta$|(feature|epic|fix|release)/)
           type: serial
           service: deploy
           steps:
