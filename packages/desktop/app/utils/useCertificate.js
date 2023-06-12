@@ -1,10 +1,9 @@
 import { useSelector } from 'react-redux';
+import { ASSET_NAMES } from 'shared/constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAsset } from './useAsset';
 import { useTemplate } from './useTemplate';
 import { getCurrentUser } from '../store';
-import { ASSET_NAMES } from 'shared/constants';
-
 
 export const useCertificate = ({ footerAssetName } = {}) => {
   const { getLocalisation } = useLocalisation();
