@@ -178,7 +178,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-s3
+          role-to-assume: arn:aws:iam::143295493206:role/gha-desktop-s3
           role-session-name: GithubActionsTamanuS3
 
       - uses: actions/checkout@v3
