@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
@@ -10,6 +10,7 @@ import { EncounterTopBar, ContentPane } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { TabDisplay } from '../../components/TabDisplay';
+import { useApi } from '../../api';
 import {
   VitalsPane,
   NotesPane,
@@ -117,6 +118,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 `;
 
 export const EncounterView = () => {
+  const api = useApi();
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
   const { facility } = useAuth();
@@ -124,6 +126,10 @@ export const EncounterView = () => {
   const { encounter, isLoadingEncounter } = useEncounter();
   const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
   const disabled = encounter?.endDate || patient.death;
+
+  useEffect(() => {
+    api.post(`user/recently-viewed-patients/${patient.id}`);
+  }, [api, patient.id]);
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 

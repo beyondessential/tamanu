@@ -1,15 +1,47 @@
 import React from 'react';
-import { Field as FormikField, connect as formikConnect, getIn } from 'formik';
+import {
+  Field as FormikField,
+  useField,
+  connect as formikConnect,
+  getIn,
+  useFormikContext,
+} from 'formik';
 import MuiBox from '@material-ui/core/Box';
 import { FormTooltip } from '../FormTooltip';
 import { TextField } from './TextField';
 import { FORM_STATUSES } from '../../constants';
 
 export const Field = formikConnect(
-  ({ formik: { errors, status }, name, component = TextField, helperText, ...props }) => {
+  ({
+    formik: {
+      errors,
+      status: { submitStatus },
+    },
+    name,
+    component = TextField,
+    onChange,
+    helperText,
+    ...props
+  }) => {
     // Only show error messages once the user has attempted to submit the form
-    const error = status === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
+    const error = submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
+
+    const { setFieldTouched } = useFormikContext();
+    const [field] = useField(name);
+
+    const baseOnChange = (...args) => {
+      setFieldTouched(name, true);
+      return field.onChange(...args);
+    };
+
+    const combinedOnChange = onChange
+      ? (...args) => {
+          onChange(...args);
+          return baseOnChange(...args);
+        }
+      : baseOnChange;
+
     return (
       <FormikField
         {...props}
@@ -17,6 +49,7 @@ export const Field = formikConnect(
         error={error}
         helperText={message}
         name={name}
+        onChange={combinedOnChange}
       />
     );
   },

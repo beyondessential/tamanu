@@ -4,28 +4,32 @@
   tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
   steps:
     - name: copy files
-      service: app-without-db
+      service: build
       command: /pre/scripts/copy_files.sh
     - name: install dependencies
-      service: app-without-db
+      service: build
       command: scripts/build_shared.sh
     - name: build packages
       exclude: ^release-desktop-
-      service: app-without-db
+      service: build
       type: parallel
       steps:
-        - name: for lan
+        - name: for desktop and lan
           exclude: ^deploy-meta$
           type: serial
           steps:
-            - name: build linux release
-              command: ./scripts/build_package_release.sh lan
-            - name: package windows release
-              tag: ^(master$|dev$|staging-|ci-)
-              command: ./scripts/build_server_zip.sh lan ./deploy
-        - name: for desktop installer
-          exclude: ^deploy-meta$
-          command: ./scripts/build_desktop.sh build-only
+            - name: for desktop installer
+              exclude: ^deploy-meta$
+              command: ./scripts/build_desktop.sh build-only
+            - name: for lan
+              exclude: ^deploy-meta$
+              type: serial
+              steps:
+                - name: build linux release
+                  command: ./scripts/build_package_release.sh lan
+                - name: package windows release
+                  tag: ^(master$|dev$|staging-|ci-)
+                  command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
         - name: for sync release
           exclude: ^deploy-meta$
           type: serial
@@ -42,7 +46,7 @@
       type: parallel
       steps:
         - name: fix ssh for builds
-          service: app-without-db
+          service: build
           command: /pre/scripts/fix_ssh.sh
         # the following serial steps are a fix for a bug where version names can
         # collide if an application is deployed in parallel
@@ -50,7 +54,7 @@
         - name: the sync server
           exclude: ^(release-desktop-|deploy-meta$)
           type: serial
-          service: awsdeployment
+          service: deploy
           steps:
             - name: onto dev
               tag: ^(dev$|ci-)
@@ -85,7 +89,7 @@
         - name: the lan server
           exclude: ^(release-desktop-|deploy-meta$)
           type: serial
-          service: awsdeployment
+          service: deploy
           steps:
             - name: onto dev A
               tag: ^(dev$|ci-)
@@ -105,6 +109,9 @@
             - name: onto sepi A
               tag: ^(sepi-)
               command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
+            - name: onto sepi B
+              tag: ^(sepi-)
+              command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-b
             - name: onto da A
               tag: ^(da-)
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
@@ -133,7 +140,7 @@
               tag: ^(deploy-nauru-demo$)
               command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo-2
         - name: the meta server
-          service: awsdeployment
+          service: deploy
           type: serial
           steps:
             - name: onto dev
@@ -144,9 +151,9 @@
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
         - name: upload all artefacts to s3
           exclude: ^(release-desktop-|deploy-meta$)
-          service: awsdeployment
+          service: deploy
           command: ./scripts/push.sh
         - name: deploy desktop installer to auto-update channel
-          service: app-without-db
+          service: build
           tag: ^(release-desktop-)
           command: ./scripts/build_desktop.sh build-and-release
