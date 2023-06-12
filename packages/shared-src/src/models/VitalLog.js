@@ -44,8 +44,8 @@ export class VitalLog extends Model {
     });
 
     this.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'user',
+      foreignKey: 'recordedById',
+      as: 'recordedBy',
     });
   }
 }

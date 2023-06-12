@@ -39,7 +39,7 @@ export async function up(query) {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    user_id: {
+    recorded_by_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
