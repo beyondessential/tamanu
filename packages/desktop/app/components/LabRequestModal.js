@@ -11,7 +11,7 @@ import { useEncounter } from '../contexts/Encounter';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
-    max-width: 926px;
+    max-width: 1200px;
   }
 `;
 
@@ -95,11 +95,10 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
 
   return (
     <StyledModal
-      maxWidth="md"
       title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
       open={open}
       onClose={handleClose}
-      minHeight={500}
+      minHeight={800}
     >
       {ModalBody}
     </StyledModal>

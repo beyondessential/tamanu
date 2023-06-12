@@ -1,4 +1,8 @@
-import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import {
+  LAB_TEST_STATUSES,
+  LAB_REQUEST_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+} from 'shared/constants';
 import config from 'config';
 import Chance from 'chance';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
@@ -154,6 +158,38 @@ describe('Labs', () => {
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);
+  });
+
+  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly"', async () => {
+    const makeLabTestType = async visibilityStatus => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const { id } = category;
+
+      await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        visibilityStatus,
+        labTestCategoryId: id,
+      });
+    };
+
+    await models.LabTestType.truncate({ cascade: true });
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+
+    const result = await app.get('/v1/labTestType');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    expect(body.length).toBe(3);
+    body.forEach(labTestType => {
+      expect(labTestType.visibilityStatus).not.toBe('panelsOnly');
+    });
   });
 
   describe('Filtering by allFacilities', () => {

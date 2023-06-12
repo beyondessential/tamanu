@@ -178,6 +178,10 @@ export class LabRequest extends Model {
     ];
   }
 
+  static getFullReferenceAssociations() {
+    return [...LabRequest.getListReferenceAssociations(), 'collectedBy', 'specimenType'];
+  }
+
   static buildSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests

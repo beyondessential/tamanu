@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import * as yup from 'yup';
 import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
 import { useAuth } from '../../contexts/Auth';
@@ -10,10 +9,7 @@ import { LabRequestFormScreen1, screen1ValidationSchema } from './LabRequestForm
 import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
 
-const combinedValidationSchema = yup.object().shape({
-  ...screen1ValidationSchema.fields,
-  ...screen2ValidationSchema.fields,
-});
+const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,

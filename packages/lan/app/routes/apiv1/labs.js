@@ -11,6 +11,7 @@ import {
   NOTE_TYPES,
   NOTE_RECORD_TYPES,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
@@ -341,6 +342,10 @@ labTestType.get(
           as: 'category',
         },
       ],
+      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the indivudual lab workflow
+      where: {
+        visibilityStatus: { [Op.not]: LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY },
+      },
     });
     res.send(labTests);
   }),
@@ -363,15 +368,17 @@ labTestPanel.get('/', async (req, res) => {
 });
 
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));
+
 labTestPanel.get(
   '/:id/labTestTypes',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const panelId = params.id;
-
-    req.checkPermission('list', 'LabTests');
-
+    req.checkPermission('list', 'LabTest');
     const panel = await models.LabTestPanel.findByPk(panelId);
+    if (!panel) {
+      throw new NotFoundError();
+    }
     const response = await panel.getLabTestTypes({
       include: [
         {

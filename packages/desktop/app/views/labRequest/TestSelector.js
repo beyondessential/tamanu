@@ -62,6 +62,7 @@ const SelectorTable = styled.div`
 
   ::-webkit-scrollbar-thumb {
     background-color: ${Colors.softText};
+    height: 35px;
     border-radius: 20px;
     border: 7px solid transparent;
     background-clip: content-box;
@@ -103,6 +104,11 @@ const StyledSearchField = styled(SearchField)`
   .MuiInputBase-root {
     padding-left: 0;
   }
+  .MuiInputBase-input {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    font-size: 14px;
+  }
   .MuiOutlinedInput-root {
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
       border: none;
@@ -122,15 +128,13 @@ const useSelectable = formType => {
 };
 
 const queryBySearch = (formType, data, { search, labTestCategoryId }) =>
-  formType === LAB_REQUEST_FORM_TYPES.PANEL
-    ? data.filter(
-        result => subStrSearch(search, result.name) || subStrSearch(search, result.category?.name),
-      )
-    : data.filter(
-        result =>
-          subStrSearch(search, result.name) &&
-          (!labTestCategoryId || result.category.id === labTestCategoryId),
-      );
+  data.filter(result => {
+    const nameMatch = subStrSearch(search, result.name);
+    if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
+      return nameMatch || subStrSearch(search, result.category?.name);
+    }
+    return nameMatch && (!labTestCategoryId || result.category.id === labTestCategoryId);
+  });
 
 const sortByCategoryAndName = (a, b) =>
   a.category?.name.localeCompare(b.category?.name) || a.name.localeCompare(b.name);
@@ -170,6 +174,7 @@ export const TestSelectorInput = ({
       onChange({ target: { name, value: newSelected }, selectedObjects });
     }
   };
+
   const handleClear = () => {
     handleChange([]);
   };
