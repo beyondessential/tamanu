@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { sortedUniqBy } from 'lodash';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
@@ -63,20 +64,15 @@ export const LabRequestFormScreen2 = props => {
   const fieldConfig = useMemo(() => FORM_TYPE_TO_FIELD_CONFIG[requestFormType], [requestFormType]);
   const { subheading, instructions, fieldName } = fieldConfig;
   const handleSelectionChange = ({ selectedObjects }) => {
+    const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
     if (onSelectionChange) {
-      const grouped = selectedObjects.reduce((acc, obj) => {
-        const { category = {}, id, name } = obj;
-        const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
-        const groupKey = isPanelRequest ? id : category.id;
-        if (!acc[groupKey]) {
-          acc[groupKey] = {
-            categoryId: category.id,
-            categoryName: category.name,
-            ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
-          };
-        }
-        return acc;
-      }, {});
+      const grouped = sortedUniqBy(selectedObjects, ({ id, category }) =>
+        requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? id : category.id,
+      ).map(({ category = {}, id, name }) => ({
+        categoryId: category.id,
+        categoryName: category.name,
+        ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
+      }));
       onSelectionChange(Object.values(grouped));
     }
   };
