@@ -141,6 +141,13 @@ export function permissionLoader(item) {
     });
 }
 
+/**
+ * Creates a loader for grouped entities (parent and children)
+ * @param {Object} data data to be loaded
+ * @param {string} idListColumnName column name of comma separated id list
+ * @param {Object} modelNames model names { parent, through }
+ * @param {Object} relationColumnNames through tables fkey column names { parent, child }
+ */
 const groupedEntityLoader = (data, idListColumnName, modelNames, relationColumnNames) => {
   const { id: parentId, [idListColumnName]: childIdList, ...otherFields } = data;
   return [
