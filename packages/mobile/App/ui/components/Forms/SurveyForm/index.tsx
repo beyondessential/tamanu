@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useEffect, useCallback, useState } from 'react';
+import React, { ReactElement, useMemo, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { Form } from '../Form';
@@ -26,13 +26,7 @@ export const SurveyForm = ({
   const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [
     components,
   ]);
-  const [formValues, setFormValues] = useState(initialValues);
-  const formValidationSchema = useMemo(() => getFormSchema(components.filter(c => checkVisibilityCriteria(c, components, formValues))), [
-    checkVisibilityCriteria,
-    components,
-    formValues,
-  ]);
-  
+  const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
   const submitVisibleValues = useCallback(
     (values: any) => {
       // 1. get a list of visible fields
@@ -71,13 +65,6 @@ export const SurveyForm = ({
           Object.entries(calculatedValues)
             .filter(([key, value]) => values[key] !== value)
             .map(([key, value]) => setFieldValue(key, value, false));
-
-          // set parent formValues variable to the values here
-          setFormValues({
-            ...values,
-            ...calculatedValues,
-          });
-
         }, [values]);
         return <FormFields components={components} note={note} patient={patient} />;
       }}

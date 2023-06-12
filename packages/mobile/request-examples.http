@@ -8,8 +8,7 @@ Content-Type: application/json
 
 {
   "email": "",
-  "password": "",
-  "deviceId": ""
+  "password": ""
 }
 
 ### Retrieve first 100 patient records for sync

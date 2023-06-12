@@ -35,7 +35,6 @@ lints.md
 
 # Local config files
 **/config/local.*
-!**/config/local.example
 
 # Hidden files
 *.aes
@@ -58,8 +57,3 @@ lints.md
 /packages/sync-server/tamanu-reports/
 
 packages/shared
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml

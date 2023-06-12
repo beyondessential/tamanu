@@ -1,8 +1,6 @@
 import config from 'config';
 import { sub } from 'date-fns';
 import { toDateString } from 'shared/utils/dateTime';
-import { ENCOUNTER_TYPES } from 'shared/constants';
-
 import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
@@ -16,19 +14,19 @@ export const createPatientFilters = filterParams => {
           : ''
       })`,
       ({ displayId }) => ({
-        displayId: `%${displayId}%`,
+        displayId: filterParams.displayIdExact === 'true' ? displayId : `%${displayId}%`,
         secondaryDisplayId: displayId,
       }),
     ),
     makeFilter(
       filterParams.firstName,
       `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-      ({ firstName }) => ({ firstName: `%${firstName}%` }),
+      ({ firstName }) => ({ firstName: `${firstName}%` }),
     ),
     makeFilter(
       filterParams.lastName,
       `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-      ({ lastName }) => ({ lastName: `%${lastName}%` }),
+      ({ lastName }) => ({ lastName: `${lastName}%` }),
     ),
     makeFilter(
       filterParams.culturalName,
@@ -57,22 +55,11 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
     makeFilter(
       filterParams.facilityId === ':local' ? config.serverFacilityId : filterParams.facilityId,
-      `location.facility_id = :facilityId`,
+      `department.facility_id = :facilityId`,
     ),
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
-    makeFilter(filterParams.sex, `patients.sex = :sex`),
-    makeFilter(
-      filterParams.currentPatient,
-      `recent_encounter_by_patient IS NOT NULL AND encounters.encounter_type NOT IN (:currentPatientExcludeEncounterTypes)`,
-      () => ({
-        currentPatientExcludeEncounterTypes: [
-          ENCOUNTER_TYPES.IMAGING,
-          ENCOUNTER_TYPES.SURVEY_RESPONSE,
-        ],
-      }),
-    ),
   ].filter(f => f);
 
   return filters;

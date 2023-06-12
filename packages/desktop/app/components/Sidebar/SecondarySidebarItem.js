@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { ListItem, ListItemText } from '@material-ui/core';
 
 const SecondaryListItem = styled(ListItem)`
-  margin-bottom: 2px;
-  padding: 2px 0 2px 48px;
+  padding: 1px 0 2px 48px;
   border-radius: 4px;
 
   &:hover,

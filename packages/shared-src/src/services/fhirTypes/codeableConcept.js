@@ -1,10 +1,13 @@
 import { random } from 'lodash';
+import array from 'postgres-array';
 import * as yup from 'yup';
 
-import { FhirBaseType } from './baseType';
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirCoding } from './coding';
 
-export class FhirCodeableConcept extends FhirBaseType {
+export class FhirCodeableConcept extends Composite {
+  static FIELD_ORDER = ['coding', 'text'];
+
   static SCHEMA() {
     return yup
       .object({
@@ -21,6 +24,13 @@ export class FhirCodeableConcept extends FhirBaseType {
       .noUnknown();
   }
 
+  static validateAndTransformFromSql({ coding, ...fields }) {
+    return new this({
+      coding: coding && array.parse(coding, el => FhirCoding.fromSql(el)),
+      ...fields,
+    });
+  }
+
   static fake(...args) {
     const coding = Array(random(0, 3))
       .fill(0)
@@ -28,7 +38,11 @@ export class FhirCodeableConcept extends FhirBaseType {
 
     return new this({
       coding,
-      text: coding.map(c => c.display).join(' '),
+      text: coding.map(c => c.params.display).join(' '),
     });
   }
+}
+
+export class FHIR_CODEABLE_CONCEPT extends COMPOSITE {
+  static ValueClass = FhirCodeableConcept;
 }

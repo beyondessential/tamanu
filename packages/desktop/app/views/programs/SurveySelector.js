@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { Button } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
@@ -11,24 +11,23 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
-  const handleChange = useCallback(
-    event => {
-      const surveyId = event.target.value;
-      onChange(surveyId);
-    },
-    [onChange],
-  );
+export const SurveySelector = React.memo(({ onSelectSurvey, surveys, buttonText }) => {
+  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
 
-  const handleSubmit = useCallback(() => {
-    onSubmit(value);
-  }, [onSubmit, value]);
+  const onChangeSurvey = useCallback(event => {
+    const surveyId = event.target.value;
+    setSelectedSurveyId(surveyId);
+  }, []);
+
+  const onSubmit = useCallback(() => {
+    onSelectSurvey(selectedSurveyId);
+  }, [onSelectSurvey, selectedSurveyId]);
 
   return (
     <>
-      <SelectInput options={surveys} value={value} onChange={handleChange} />
+      <SelectInput options={surveys} value={selectedSurveyId} onChange={onChangeSurvey} />
       <StyledButtonRow>
-        <Button onClick={handleSubmit} disabled={!value} variant="contained" color="primary">
+        <Button onClick={onSubmit} disabled={!selectedSurveyId} variant="contained" color="primary">
           {buttonText}
         </Button>
       </StyledButtonRow>

@@ -15,11 +15,14 @@ export const LocationDetailsSection = (): ReactElement => {
   const { models } = useBackend();
   const { getString } = useLocalisation();
 
-  const villageSuggester = new Suggester(models.ReferenceData, {
-    where: {
-      type: ReferenceDataType.Village,
+  const villageSuggester = new Suggester(
+    models.ReferenceData,
+    {
+      where: {
+        type: ReferenceDataType.Village,
+      },
     },
-  });
+  );
 
   return (
     <FormGroup sectionName="LOCATION DETAILS" marginTop>

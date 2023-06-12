@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Row } from './Layout';
+import { Col, Row, VDSImage } from './Layout';
 import { P } from './Typography';
 import { getDOB, getNationality, getPassportNumber } from './accessors';
 
@@ -17,28 +17,43 @@ const PATIENT_FIELDS = [
   { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
-export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {
-  const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
-    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
-  );
+export const PatientDetailsSection = ({
+  patient,
+  getLocalisation,
+  vdsSrc,
+  extraFields = [],
+  uvci,
+}) => {
+  const detailsToDisplay = [
+    ...PATIENT_FIELDS.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true),
+    ...extraFields,
+  ];
   return (
     <Row>
-      <Col style={{ marginBottom: 5 }}>
+      <Col style={{ width: vdsSrc ? '68%' : '80%' }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
             const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
             return (
-              <Col style={{ width: '33%' }} key={key}>
-                <P mb={6}>
+              <Col key={key}>
+                <P mb={5}>
                   <P bold>{label}:</P> {value}
                 </P>
               </Col>
             );
           })}
         </Row>
+        {uvci && (
+          <Row>
+            <P>
+              <P bold>UVCI:</P> {uvci}
+            </P>
+          </Row>
+        )}
       </Col>
+      <Col style={{ width: vdsSrc ? '32%' : '20%' }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
     </Row>
   );
 };

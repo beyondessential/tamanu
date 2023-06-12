@@ -5,7 +5,6 @@ import { action } from '@storybook/addon-actions';
 import Chance from 'chance';
 
 import { Table } from '../app/components/Table/Table';
-import { CheckInput } from '../app/components/Field';
 
 function TableStateWrapper({ columns, data }) {
   const [order, setOrder] = React.useState('asc');
@@ -73,11 +72,4 @@ storiesOf('Table', module)
   ))
   .add('In loading state', () => <Table columns={dummyColumns} isLoading />)
   .add('With no data', () => <Table columns={dummyColumns} data={[]} />)
-  .add('With option row', () => (
-    <Table 
-      columns={dummyColumns}
-      data={dummyData}
-      optionRow={<CheckInput label={<small>Include citrus fruits</small>} />} 
-    />
-  ))
   .add('With sorting', () => <TableStateWrapper columns={sortableColumns} data={dummyData} />);

@@ -1,13 +1,15 @@
 import { random, sample } from 'lodash';
 import * as yup from 'yup';
 
-import { FhirBaseType } from './baseType';
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirPeriod } from './period';
 
 const SYSTEMS = ['phone', 'fax', 'email', 'pager', 'url', 'sms', 'other'];
 const USES = ['home', 'work', 'temp', 'old', 'mobile'];
 
-export class FhirContactPoint extends FhirBaseType {
+export class FhirContactPoint extends Composite {
+  static FIELD_ORDER = ['system', 'value', 'use', 'rank', 'period'];
+
   static SCHEMA() {
     return yup
       .object({
@@ -39,6 +41,13 @@ export class FhirContactPoint extends FhirBaseType {
       .noUnknown();
   }
 
+  static validateAndTransformFromSql({ period, ...fields }) {
+    return new this({
+      period: period && FhirPeriod.fromSql(period),
+      ...fields,
+    });
+  }
+
   static fake(model, { fieldName }, id) {
     return new this({
       system: sample(SYSTEMS),
@@ -47,4 +56,8 @@ export class FhirContactPoint extends FhirBaseType {
       rank: random(1, 10),
     });
   }
+}
+
+export class FHIR_CONTACT_POINT extends COMPOSITE {
+  static ValueClass = FhirContactPoint;
 }

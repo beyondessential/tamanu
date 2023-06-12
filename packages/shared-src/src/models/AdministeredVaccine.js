@@ -13,7 +13,6 @@ export class AdministeredVaccine extends Model {
         id: primaryKey,
         batch: Sequelize.STRING,
         consent: Sequelize.BOOLEAN,
-        consentGivenBy: Sequelize.TEXT,
         status: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -21,12 +20,9 @@ export class AdministeredVaccine extends Model {
         reason: Sequelize.STRING,
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
         givenBy: Sequelize.TEXT,
-        givenElsewhere: Sequelize.BOOLEAN,
-        vaccineBrand: Sequelize.TEXT,
-        vaccineName: Sequelize.TEXT,
-        disease: Sequelize.TEXT,
-        circumstanceIds: Sequelize.ARRAY(Sequelize.STRING),
-        date: dateTimeType('date'),
+        date: dateTimeType('date', {
+          allowNull: false,
+        }),
       },
       {
         ...options,
@@ -77,11 +73,6 @@ export class AdministeredVaccine extends Model {
     this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department',
-    });
-
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'notGivenReasonId',
-      as: 'notGivenReason',
     });
   }
 

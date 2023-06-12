@@ -19,7 +19,6 @@ import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
 import { EncounterModal } from '../EncounterModal';
-import { usePatientCurrentEncounter } from '../../api/queries';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -184,8 +183,9 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     data: currentEncounter,
     error: currentEncounterError,
     isLoading: currentEncounterLoading,
-  } = usePatientCurrentEncounter(patient.id);
-
+  } = useQuery(['currentEncounter', patient.id], () =>
+    api.get(`patient/${patient.id}/currentEncounter`),
+  );
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
     ['additionalData', patient.id],
     () => api.get(`patient/${patient.id}/additionalData`),

@@ -1,12 +1,23 @@
 import * as yup from 'yup';
+import array from 'postgres-array';
 import { Chance } from 'chance';
 import { random } from 'lodash';
 
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';
-import { FhirBaseType } from './baseType';
 
-export class FhirImmunizationProtocolApplied extends FhirBaseType {
+export class FhirImmunizationProtocolApplied extends Composite {
+  static FIELD_ORDER = [
+    'series',
+    'authority',
+    'targetDisease',
+    'doseNumberPositiveInt',
+    'doseNumberString',
+    'seriesDosesPositiveInt',
+    'seriesDosesString',
+  ];
+
   static SCHEMA() {
     return yup
       .object({
@@ -53,6 +64,15 @@ export class FhirImmunizationProtocolApplied extends FhirBaseType {
       .noUnknown();
   }
 
+  static validateAndTransformFromSql({ authority, targetDisease, ...fields }) {
+    return new this({
+      authority: authority && FhirReference.fromSql(authority),
+      targetDisease:
+        targetDisease && array.parse(targetDisease, el => FhirCodeableConcept.fromSql(el)),
+      ...fields,
+    });
+  }
+
   static fake(...args) {
     const chance = new Chance();
     const targetDisease = Array(random(0, 3))
@@ -67,4 +87,8 @@ export class FhirImmunizationProtocolApplied extends FhirBaseType {
       seriesDosesString: chance.string(),
     });
   }
+}
+
+export class FHIR_IMMUNIZATION_PROTOCOL_APPLIED extends COMPOSITE {
+  static ValueClass = FhirImmunizationProtocolApplied;
 }

@@ -67,7 +67,6 @@ export const SurveyScreen = ({
   validateForm,
   setErrors,
   errors,
-  status,
   setStatus,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
@@ -78,20 +77,17 @@ export const SurveyScreen = ({
 
     // Only include visible elements
     const pageErrors = Object.keys(formErrors).filter(x =>
-      components
-        .filter(c => checkVisibility(c, values, components))
-        .map(c => c.dataElementId)
-        .includes(x),
+      components.map(c => c.dataElementId).includes(x),
     );
 
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();
-      setStatus({});
+      setStatus(null);
     } else {
       // Use formik status prop to track if the user has attempted to submit the form. This is used in
       // Field.js to only show error messages once the user has attempted to submit the form
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
       const firstErroredQuestion = components.find(({ dataElementId }) =>
         pageErrors.includes(dataElementId),

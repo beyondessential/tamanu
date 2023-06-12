@@ -4,7 +4,7 @@ import { StyledView } from '/styled/common';
 import { useFormikContext } from 'formik';
 import { useBackend } from '~/ui/hooks';
 import { Field } from '../FormField';
-import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
+import { getAutocompleteDisplayAnswer } from './helpers';
 import { FieldTypes } from '../../../helpers/fields';
 import { TextField } from '../../TextField/TextField';
 

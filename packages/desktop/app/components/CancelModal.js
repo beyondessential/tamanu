@@ -34,7 +34,6 @@ export const CancelModal = React.memo(
             <BodyText>{bodyText}</BodyText>
             <Wrapper>
               <Field
-                required
                 component={SelectField}
                 label="Reason for cancellation"
                 name="reasonForCancellation"

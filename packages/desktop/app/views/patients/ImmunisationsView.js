@@ -2,15 +2,42 @@ import React, { useState } from 'react';
 import {
   TopBar,
   PageContainer,
+  DataFetchingTable,
   PatientSearchBar,
   ContentPane,
-  SearchTableTitle,
-  SearchTable,
 } from '../../components';
-import { displayId, firstName, lastName, culturalName, village, sex, dateOfBirth } from './columns';
+import {
+  displayId,
+  firstName,
+  lastName,
+  culturalName,
+  village,
+  sex,
+  dateOfBirth,
+  vaccinationStatus,
+} from './columns';
 import { PatientImmunisationsModal } from './components';
 
-const COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
+const COLUMNS = [
+  displayId,
+  firstName,
+  lastName,
+  culturalName,
+  village,
+  sex,
+  dateOfBirth,
+  vaccinationStatus,
+];
+
+const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => (
+  <DataFetchingTable
+    endpoint="patient"
+    columns={COLUMNS}
+    noDataMessage="No patients found"
+    onRowClick={onPatientSelect}
+    {...props}
+  />
+));
 
 export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
@@ -31,16 +58,9 @@ export const ImmunisationsView = () => {
         onClose={() => setModalOpen(false)}
       />
       <TopBar title="Immunisation register" />
+      <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
       <ContentPane>
-        <SearchTableTitle>Patient immunisation search</SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
-        <SearchTable
-          endpoint="patient"
-          columns={COLUMNS}
-          noDataMessage="No patients found"
-          onRowClick={onRowClick}
-          fetchOptions={searchParameters}
-        />
+        <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
       </ContentPane>
     </PageContainer>
   );

@@ -86,7 +86,7 @@ export const Routes = {
       },
       FilterSearch: '',
     },
-    DiagnosisAndTreatmentTabs: {
+    SickOrInjuredTabs: {
       Index: '',
       AddIllnessScreen: '',
       PrescribeMedication: '',

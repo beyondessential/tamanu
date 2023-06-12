@@ -152,23 +152,6 @@ const templatesSchema = yup
       .required()
       .noUnknown(),
 
-    covidVaccineCertificateEmail: yup
-      .object()
-      .shape({
-        subject: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-        body: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-
     covidTestCertificateEmail: yup
       .object()
       .shape({
@@ -420,7 +403,6 @@ const rootLocalisationSchema = yup
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
-        enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         editDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
@@ -434,8 +416,6 @@ const rootLocalisationSchema = yup
           })
           .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
-        displayProcedureCodesInDischargeSummary: yup.boolean().required(),
-        displayIcd10CodesInDischargeSummary: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

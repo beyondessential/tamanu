@@ -5,13 +5,11 @@ import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
-import { programImporter } from './programImporter';
-import { referenceDataImporter } from './referenceDataImporter';
-import { exporter } from './exporter';
+import { importer as programImporter, PERMISSIONS as PROGRAM_PERMISSIONS } from './programImporter';
+import { importer as refdataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './refdataImporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
-import { assetRoutes } from './asset';
 
 export const adminRoutes = express.Router();
 
@@ -58,19 +56,14 @@ adminRoutes.get(
   }),
 );
 
-adminRoutes.post('/import/referenceData', createDataImporterEndpoint(referenceDataImporter));
+adminRoutes.post(
+  '/importRefData',
+  createDataImporterEndpoint(refdataImporter, REFDATA_PERMISSIONS),
+);
 
-adminRoutes.post('/import/program', createDataImporterEndpoint(programImporter));
-
-adminRoutes.get(
-  '/export/referenceData',
-  asyncHandler(async (req, res) => {
-    const { store, query } = req;
-    const filename = await exporter(store.models, query.includedDataTypes);
-    res.download(filename);
-  }),
+adminRoutes.post(
+  '/importProgram',
+  createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
 );
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
-
-adminRoutes.use('/asset', assetRoutes);

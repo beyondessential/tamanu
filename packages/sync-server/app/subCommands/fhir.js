@@ -22,22 +22,16 @@ async function showStatus() {
         })
       )?.lastUpdated?.toISOString() || 'never';
 
-    let upstreamCount = 0;
-    let upstreamLatest = '';
-    for (const UpstreamModel of Resource.UpstreamModels) {
-      upstreamCount += await UpstreamModel.count();
-      const currentUpstreamLatest = (
-        await UpstreamModel.findOne({
+    const upstreamCount = await Resource.UpstreamModel?.count();
+    const upstreamLatest =
+      (
+        await Resource.UpstreamModel?.findOne({
           order: [['updatedAt', 'DESC']],
         })
-      )?.updatedAt?.toISOString();
-
-      if (currentUpstreamLatest > upstreamLatest) upstreamLatest = currentUpstreamLatest;
-    }
+      )?.updatedAt?.toISOString() || 'never';
 
     log.info(
-      // eslint-disable-next-line prettier/prettier
-      `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest || 'never'}`,
+      `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest}`,
     );
   }
 
@@ -49,7 +43,7 @@ async function doRefresh(resource, { existing, missing, since }) {
 
   if (resource.toLowerCase() === 'all') {
     for (const Resource of materialisableResources) {
-      if (!Resource?.UpstreamModels || Resource.UpstreamModels.length === 0) continue;
+      if (!Resource?.UpstreamModel) continue;
       await doRefresh(Resource.fhirName, { existing, missing, since });
     }
     return;
@@ -60,30 +54,11 @@ async function doRefresh(resource, { existing, missing, since }) {
   );
   if (!Resource) throw new Error(`No such FHIR Resource: ${resource}`);
 
-  const tableNames = Resource.UpstreamModels.map(model => model.tableName);
   const recordsToDo = (
     await Resource.sequelize.query(
       `
-      WITH upstream AS (
-        SELECT
-          coalesce(${tableNames.map(tableName => `${tableName}.id`).join(', ')}) as id,
-          coalesce(${tableNames
-            .map(tableName => `${tableName}.deleted_at`)
-            .join(', ')}) as deleted_at,
-          coalesce(${tableNames
-            .map(tableName => `${tableName}.updated_at`)
-            .join(', ')}) as updated_at
-        FROM ${tableNames
-          .map((tableName, i) => {
-            return i === 0
-              ? tableName
-              : `FULL OUTER JOIN ${tableName} ON ${tableNames[0]}.id = ${tableName}.id`;
-          })
-          .join(' ')}
-      )
-
       SELECT upstream.id AS id
-      FROM upstream
+      FROM ${Resource.UpstreamModel.tableName} upstream
       LEFT JOIN fhir.${Resource.tableName} downstream ON downstream.upstream_id = upstream.id
       WHERE true
         AND upstream.deleted_at IS NULL

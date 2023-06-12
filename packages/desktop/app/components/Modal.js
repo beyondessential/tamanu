@@ -11,9 +11,7 @@ import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
 
-export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
-export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
-export const MODAL_TRANSITION_DURATION = 300;
+export const MODAL_PADDING = 32;
 
 /*  To keep consistent use of styled-components,
     re-define dialog paper classes here instead of
@@ -39,8 +37,7 @@ const Dialog = styled(MuiDialog)`
 
 const ModalContent = styled.div`
   flex: 1 1 auto;
-  padding: ${MODAL_PADDING_TOP_AND_BOTTOM}px
-    ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
+  padding: 18px ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING)}px;
 `;
 
 const ModalContainer = styled.div`
@@ -54,7 +51,7 @@ const ModalContainer = styled.div`
 `;
 
 export const FullWidthRow = styled.div`
-  margin: 0 -${MODAL_PADDING_LEFT_AND_RIGHT}px;
+  margin: 0 -${MODAL_PADDING}px;
   grid-column: 1 / -1;
 `;
 
@@ -76,7 +73,6 @@ const ModalTitle = styled(DialogTitle)`
 const VerticalCenteredText = styled.span`
   display: flex;
   align-items: center;
-  padding: 12px 0;
 `;
 
 const StyledButton = styled(Button)`
@@ -97,7 +93,6 @@ export const Modal = memo(
     additionalActions,
     color = Colors.background,
     overrideContentPadding = false,
-    cornerExitButton = true,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -149,11 +144,9 @@ export const Modal = memo(
                 Print
               </StyledButton>
             )}
-            {cornerExitButton && (
-              <IconButton onClick={onClose}>
-                <CloseIcon />
-              </IconButton>
-            )}
+            <IconButton onClick={onClose}>
+              <CloseIcon />
+            </IconButton>
           </div>
         </ModalTitle>
         <ModalContainer $color={color}>

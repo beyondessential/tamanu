@@ -4,7 +4,5 @@ import { useApi } from '../useApi';
 export const useEncounterData = encounterId => {
   const api = useApi();
 
-  return useQuery(['patientEncounter', encounterId], () =>
-    api.get(`encounter/${encodeURIComponent(encounterId)}`),
-  );
+  return useQuery(['patientEncounter', encounterId], () => api.get(`encounter/${encounterId}`));
 };

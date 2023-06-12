@@ -1,17 +1,12 @@
 export const remote = {
   app: {
-    getLocale: () => navigator.language,
+    getLocale: () => navigator.language
   },
-  getGlobal: key => {
-    if (key === 'osLocales') return navigator.language;
-  },
-};
-
-export const ipcRenderer = {
-  invoke: () => true,
+  getGlobal: (key) => {
+    if (key === 'osLocales') return navigator.language
+  }
 };
 
 export default {
-  remote,
-  ipcRenderer,
+  remote
 };

@@ -9,7 +9,7 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
+import { CrossIcon, UserIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
@@ -64,7 +64,12 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
-          <RowView width="100%" justifyContent="flex-end" position="absolute" top={0}>
+          <RowView
+            width="100%"
+            justifyContent="flex-end"
+            position="absolute"
+            top={0}
+          >
             <StyledTouchableOpacity
               onPress={(): void => navigation.navigate(Routes.SignUpStack.Intro)}
               padding={screenPercentageToDP(2.43, Orientation.Height)}
@@ -76,30 +81,23 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledTouchableOpacity>
           </RowView>
           <StyledView
-            style={{ flexDirection: 'row', justifyContent: 'center' }}
+            width="100%"
+            alignItems="center"
             marginTop={screenPercentageToDP(7.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
           >
-            <HomeBottomLogoIcon
-              size={screenPercentageToDP(7.29, Orientation.Height)}
+            <UserIcon
+              height={screenPercentageToDP(7.29, Orientation.Height)}
+              width={screenPercentageToDP(7.29, Orientation.Height)}
               fill={theme.colors.SECONDARY_MAIN}
             />
             <StyledText
-              marginLeft={screenPercentageToDP(0.5, Orientation.Height)}
-              fontSize="40"
+              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
+              fontSize={screenPercentageToDP('2.55', Orientation.Height)}
               color={theme.colors.WHITE}
               fontWeight="bold"
-              verticalAlign="center"
             >
-              tamanu
-            </StyledText>
-          </StyledView>
-          <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
-            <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
-              Log In
-            </StyledText>
-            <StyledText fontSize={14} color={theme.colors.WHITE}>
-              Enter your details below to log in
+              Sign in
             </StyledText>
           </StyledView>
           <SignInForm
@@ -133,10 +131,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               marginTop={screenPercentageToDP('2.43', Orientation.Height)}
               marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
               fontSize={screenPercentageToDP('1.57', Orientation.Height)}
-              color={theme.colors.WHITE}
-              textDecorationLine="underline"
+              color={theme.colors.SECONDARY_MAIN}
             >
-              Forgot password?
+              Forgot your password?
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>

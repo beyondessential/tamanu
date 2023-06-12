@@ -237,8 +237,6 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
-)).add('Small', () => (
-  <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} size="small" />
 ));
 
 addStories('MultiselectInput', props => (

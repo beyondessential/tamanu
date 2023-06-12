@@ -11,13 +11,3 @@ export const useSexValues = () => {
 
   return sexValues;
 };
-
-export const useSexOptions = (includeAll = false) => {
-  const { getLocalisation } = useLocalisation();
-  const options =
-    getLocalisation('features.hideOtherSex') === true
-      ? sexOptions.filter(s => s.value !== 'other')
-      : sexOptions;
-
-  return [...(includeAll ? [{ value: '', label: 'All' }] : []), ...options];
-};

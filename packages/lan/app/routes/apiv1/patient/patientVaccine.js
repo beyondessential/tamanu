@@ -1,16 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import Sequelize, { QueryTypes, Op } from 'sequelize';
-import config from 'config';
-
-import {
-  ENCOUNTER_TYPES,
-  VACCINE_CATEGORIES,
-  VACCINE_STATUS,
-  SETTING_KEYS,
-} from 'shared/constants';
+import { QueryTypes, Op } from 'sequelize';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { getCurrentDateString } from 'shared/utils/dateTime';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -55,16 +47,15 @@ patientVaccineRoutes.get(
             administered_vaccines av
             JOIN encounters e ON av.encounter_id = e.id
           WHERE
-            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = :givenStatus
+            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = 'GIVEN'
         ${whereClause}
         GROUP BY sv.id
-        ORDER BY sv.index, max(sv.label), max(sv.schedule);
+        ORDER BY max(sv.label), max(sv.schedule);
       `,
       {
         replacements: {
           patientId: req.params.id,
           category: req.query.category,
-          givenStatus: VACCINE_STATUS.GIVEN,
         },
         model: req.models.ScheduledVaccine,
         mapToModel: true,
@@ -88,12 +79,7 @@ patientVaccineRoutes.get(
         });
         return allVaccines;
       }, {});
-
-    // Exclude vaccines that already have all the schedules administered for the patient
-    const availableVaccines = Object.values(vaccines).filter(v =>
-      v.schedules.some(s => !s.administered),
-    );
-    res.send(availableVaccines);
+    res.send(Object.values(vaccines));
   }),
 );
 
@@ -113,109 +99,42 @@ patientVaccineRoutes.put(
 patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
-    const { db } = req;
     req.checkPermission('create', 'PatientVaccine');
-
-    // Require scheduledVaccineId if vaccine category is not OTHER
-    if (req.body.category !== VACCINE_CATEGORIES.OTHER && !req.body.scheduledVaccineId) {
+    if (!req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
-    if (!req.body.status) {
-      res.status(400).send({ error: { message: 'status is required' } });
-    }
-
-    const { models } = req;
-    const patientId = req.params.id;
-    const vaccineData = { ...req.body };
-
-    if (vaccineData.category === VACCINE_CATEGORIES.OTHER) {
-      vaccineData.scheduledVaccineId = (
-        await models.ScheduledVaccine.getOtherCategoryScheduledVaccine()
-      )?.id;
-    }
-
-    const existingEncounter = await models.Encounter.findOne({
+    let encounterId;
+    const existingEncounter = await req.models.Encounter.findOne({
       where: {
         endDate: {
           [Op.is]: null,
         },
-        patientId,
+        patientId: req.params.id,
       },
     });
 
-    let { departmentId, locationId } = vaccineData;
-
-    if (!departmentId || !locationId) {
-      const vaccinationDefaults =
-        (await models.Setting.get(
-          vaccineData.givenElsewhere
-            ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
-            : SETTING_KEYS.VACCINATION_DEFAULTS,
-          config.serverFacilityId,
-        )) || {};
-      departmentId = departmentId || vaccinationDefaults.departmentId;
-      locationId = locationId || vaccinationDefaults.locationId;
+    if (existingEncounter) {
+      encounterId = existingEncounter.get('id');
+    } else {
+      const newEncounter = await req.models.Encounter.create({
+        encounterType: ENCOUNTER_TYPES.CLINIC,
+        startDate: req.body.date,
+        endDate: req.body.date,
+        patientId: req.params.id,
+        locationId: req.body.locationId,
+        examinerId: req.body.recorderId,
+        departmentId: req.body.departmentId,
+      });
+      encounterId = newEncounter.get('id');
     }
 
-    const currentDate = getCurrentDateString();
-
-    const newAdministeredVaccine = await db.transaction(async () => {
-      let encounterId;
-      if (existingEncounter) {
-        encounterId = existingEncounter.get('id');
-      } else {
-        const newEncounter = await req.models.Encounter.create({
-          encounterType: ENCOUNTER_TYPES.CLINIC,
-          startDate: vaccineData.date || currentDate,
-          patientId,
-          examinerId: vaccineData.recorderId,
-          locationId,
-          departmentId,
-        });
-        await newEncounter.update({
-          endDate: vaccineData.date || currentDate,
-          systemNote: 'Automatically discharged',
-          discharge: {
-            note: 'Automatically discharged after giving vaccine',
-          },
-        });
-        encounterId = newEncounter.get('id');
-      }
-
-      // When recording a GIVEN vaccine, check and update
-      // any existing NOT_GIVEN vaccines to status HISTORICAL so they are hidden
-      if (vaccineData.status === VACCINE_STATUS.GIVEN) {
-        await req.models.AdministeredVaccine.sequelize.query(
-          `
-          UPDATE administered_vaccines
-          SET
-            status = :newStatus
-          FROM encounters
-          WHERE
-            encounters.id = administered_vaccines.encounter_id
-            AND administered_vaccines.status = :status
-            AND administered_vaccines.scheduled_vaccine_id = :scheduledVaccineId
-            AND encounters.patient_id = :patientId
-        `,
-          {
-            replacements: {
-              newStatus: VACCINE_STATUS.HISTORICAL,
-              status: VACCINE_STATUS.NOT_GIVEN,
-              scheduledVaccineId: vaccineData.scheduledVaccineId,
-              patientId,
-            },
-          },
-        );
-      }
-
-      return req.models.AdministeredVaccine.create({
-        ...vaccineData,
-        encounterId,
-      });
+    const newRecord = await req.models.AdministeredVaccine.create({
+      status: 'GIVEN',
+      ...req.body,
+      encounterId,
     });
-
-    res.send(newAdministeredVaccine);
+    res.send(newRecord);
   }),
 );
 
@@ -224,91 +143,10 @@ patientVaccineRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
-    const where = JSON.parse(req.query.includeNotGiven || false)
-      ? {
-          status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
-        }
-      : {};
-
     const patient = await req.models.Patient.findByPk(req.params.id);
-    const {
-      orderBy = 'date',
-      order = 'ASC',
-      rowsPerPage = null,
-      page = 0,
-      invertNullDateOrdering = false,
-      ...rest
-    } = req.query;
-    // Here we create two custom columns with names that can be referenced by the key
-    // in the column object for the DataFetchingTable. These are used for sorting the table.
-    const customSortingColumns = {
-      attributes: {
-        include: [
-          [
-            // Use either the freetext vaccine name if it exists or the scheduled vaccine label
-            Sequelize.fn(
-              'COALESCE',
-              Sequelize.col('vaccine_name'),
-              Sequelize.col('scheduledVaccine.label'),
-            ),
-            'vaccineDisplayName',
-          ],
-          [
-            // If the vaccine was given elsewhere, use the given_by field which will have the country name saved as text,
-            // otherwise use the facility name
-            Sequelize.literal(
-              `CASE WHEN given_elsewhere THEN given_by ELSE "location->facility"."name" END`,
-            ),
-            'displayLocation',
-          ],
-        ],
-      },
-    };
+    const results = await patient.getAdministeredVaccines();
 
-    let orderWithNulls = order;
-    if (orderBy === 'date' && !invertNullDateOrdering) {
-      orderWithNulls = order.toLowerCase() === 'asc' ? 'ASC NULLS FIRST' : 'DESC NULLS LAST';
-    }
-
-    const results = await patient.getAdministeredVaccines({
-      ...rest,
-      ...customSortingColumns,
-      order: [
-        [
-          ...orderBy.split('.'),
-          // We want the date for vaccine listing to behave a little differently to standard SQL sorting for dates. When
-          // Sorting from oldest to newest we want the null values to show at the start of the list, and when sorting
-          // from newest to oldest we want the null values to show at the end of the list
-          orderWithNulls,
-        ],
-      ],
-      where,
-      limit: rowsPerPage,
-      offset: page * rowsPerPage,
-    });
-
-    res.send({ count: results.count, data: results.data });
-  }),
-);
-
-patientVaccineRoutes.get(
-  '/:id/administeredVaccine/:vaccineId/circumstances',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'PatientVaccine');
-    const { models, params } = req;
-    const administeredVaccine = await models.AdministeredVaccine.findByPk(params.vaccineId);
-    if (!administeredVaccine) throw new NotFoundError();
-    if (
-      !Array.isArray(administeredVaccine.circumstanceIds) ||
-      administeredVaccine.circumstanceIds.length === 0
-    )
-      res.send({ count: 0, data: [] });
-    const results = await models.ReferenceData.findAll({
-      where: {
-        id: administeredVaccine.circumstanceIds,
-      },
-    });
-
-    res.send({ count: results.count, data: results?.map(({ id, name }) => ({ id, name })) });
+    // TODO: enable pagination for this endpoint
+    res.send({ count: results.length, data: results });
   }),
 );

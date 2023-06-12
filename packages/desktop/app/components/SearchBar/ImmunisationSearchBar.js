@@ -10,7 +10,7 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
     <CustomisableSearchBar
       title="Search for Patients"
       onSearch={onSearch}
-      staticValues={{ displayIdExact: true }}
+      initialValues={{ displayIdExact: true }}
     >
       <DisplayIdField />
       <LocalisedField name="firstName" />

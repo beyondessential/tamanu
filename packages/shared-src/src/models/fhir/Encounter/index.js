@@ -1,1 +1,0 @@
-export { FhirEncounter } from './FhirEncounter';

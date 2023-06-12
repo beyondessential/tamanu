@@ -1,5 +1,6 @@
 import config from 'config';
 import { nzEthnicity } from 'shared/models/fhir/extensions';
+import { valueAsFhir } from 'shared/utils/pgComposite/sequelizeType';
 
 describe('New Zealand ethnicity extension', () => {
   const patient = {
@@ -20,7 +21,7 @@ describe('New Zealand ethnicity extension', () => {
       localisation: { data: { features: { fhirNewZealandEthnicity: true } } },
     };
     const extension = nzEthnicity.overrideConfig(patient, mockConfig);
-    expect(extension).toMatchObject([
+    expect(valueAsFhir(extension)).toMatchObject([
       {
         url: 'http://hl7.org.nz/fhir/StructureDefinition/nz-ethnicity',
         valueCodeableConcept: {

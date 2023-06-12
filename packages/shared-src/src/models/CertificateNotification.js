@@ -2,8 +2,6 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
-import { dateType } from './dateTimeTypes';
-
 export class CertificateNotification extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -15,7 +13,6 @@ export class CertificateNotification extends Model {
         requireSigning: Sequelize.BOOLEAN,
         status: Sequelize.STRING,
         error: Sequelize.TEXT,
-        printedDate: dateType('printedDate'),
       },
       {
         ...options,

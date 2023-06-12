@@ -1,7 +1,8 @@
 import config from 'config';
 import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
-import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { insertSnapshotRecords } from '../../../shared-src/src/sync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 

@@ -1,10 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { List, Divider, Box, Typography, Button, IconButton } from '@material-ui/core';
-import { NavigateBefore, NavigateNext } from '@material-ui/icons';
-import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
+import { List, Divider, Box, Typography, Button } from '@material-ui/core';
+import { TamanuLogoWhite } from '../TamanuLogo';
 import { Colors } from '../../constants';
 import { Translated } from '../Translated';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
@@ -20,69 +19,31 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: ${Colors.primaryDark};
-  min-width: ${props => (props.$retracted ? '60px' : '260px')};
-  max-width: ${props => (props.$retracted ? '86px' : '280px')};
+  min-width: 260px;
+  max-width: 280px;
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: auto;
   height: 100vh;
-  transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
 
   i {
     color: ${Colors.white};
   }
 `;
 
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: ${props => (props.$retracted ? 'center' : 'space-between')};
-  height: 72px;
-  padding: 16px 0 14px ${props => (props.$retracted ? '0' : '13px')};
+const Logo = styled(TamanuLogoWhite)`
+  margin: 24px 0 14px 18px;
 `;
-
-const RetractExtendButton = styled(IconButton)`
-  padding: 8px;
-  background-color: ${Colors.primaryDark};
-
-  &.MuiIconButton-root:hover {
-    background-color: #4e5f71;
-  }
-`;
-
-const RetractButton = styled(RetractExtendButton)``;
-
-const ExtendButton = styled(RetractExtendButton)`
-  position: fixed;
-  z-index: 12;
-  transform: translate(100%);
-`;
-
-const ExtendedLogo = styled(TamanuLogoWhite)``;
-
-const RetractedLogo = styled(TamanuLogoWhiteNoText)``;
 
 const Footer = styled.div`
   margin-top: auto;
   padding-bottom: 20px;
-  padding-right: ${props => (props.$retracted ? '0' : '18px')};
-`;
-
-const FooterContent = styled.div`
-  display: flex;
-  color: white;
-  height: 65px;
-  align-items: center;
-  justify-content: ${props => (props.$retracted ? 'center' : 'default')};
-  transition: ${props => props.theme.transitions.create('justify-content')};
+  padding-right: 18px;
 `;
 
 const StyledDivider = styled(Divider)`
-  background-color: ${props => (props.$invisible ? 'transparent' : 'rgba(255, 255, 255, 0.2)')};
-  transition: ${props => props.theme.transitions.create('background-color')};
+  background-color: rgba(255, 255, 255, 0.2);
   margin-bottom: 14px;
   margin-left: 16px;
 `;
@@ -100,26 +61,21 @@ const ConnectedTo = styled(Typography)`
   line-height: 15px;
 `;
 
-const StyledHiddenSyncAvatar = styled(HiddenSyncAvatar)`
-  margin-right: ${props => (props.$retracted ? '0' : '12px')};
-  cursor: ${props => (props.$retracted ? 'pointer' : 'default')};
-`;
-
 const Version = styled.div`
+  color: ${Colors.softText};
   font-size: 9px;
   line-height: 15px;
   font-weight: 400;
   margin-top: 6px;
-  color: ${Colors.softText};
 `;
 
 const LogoutButton = styled(Button)`
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
+  color: ${Colors.white};
   text-transform: none;
   text-decoration: underline;
-  color: ${Colors.white};
 `;
 
 const getInitials = string =>
@@ -138,96 +94,62 @@ const permissionCheck = (...items) => {
 
 // currentPath - the current route. eg. /programs/covid-19/patients
 // menuItemPath - the configured routes that are displayed in the sidebar. eg /patients
-const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) => {
+const isHighlighted = (currentPath, menuItemPath, sectionIsOpen) => {
   // remove leading slashes to get a like for like comparison
   const sectionPath = currentPath.replace(/^\/|\/$/g, '').split('/')[0];
   const itemPath = menuItemPath.replace(/^\/|\/$/g, '');
   // If the section is open, the child menu item is highlighted and the top level menu item is not
-  return sectionPath === itemPath && (!sectionIsOpen || isRetracted);
+  return sectionPath === itemPath && !sectionIsOpen;
 };
 
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
-  const [isRetracted, setIsRetracted] = useState(false);
   const { appVersion } = useApi();
   const { facility, centralHost, currentUser, onLogout } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
 
-  const extendSidebar = () => setIsRetracted(false);
-
   const onPathChanged = newPath => dispatch(push(newPath));
 
   const clickedParentItem = ({ key }) => {
-    if (isRetracted) {
-      extendSidebar();
-      setSelectedParentItem(key);
-    } else if (selectedParentItem === key) {
+    if (selectedParentItem === key) {
       setSelectedParentItem('');
     } else {
       setSelectedParentItem(key);
     }
   };
 
-  const handleRetractButtonClick = useCallback(() => setIsRetracted(true), []);
-
-  const handleExtendButtonClick = useCallback(extendSidebar, []);
-
   const initials = getInitials(currentUser.displayName);
 
   return (
-    <Container $retracted={isRetracted}>
-      <HeaderContainer $retracted={isRetracted}>
-        {isRetracted ? (
-          <>
-            <RetractedLogo height="31px" />
-            <ExtendButton onClick={handleExtendButtonClick} color="secondary" size="medium">
-              <NavigateNext />
-            </ExtendButton>
-          </>
-        ) : (
-          <>
-            <ExtendedLogo height="31px" />
-            <RetractButton onClick={handleRetractButtonClick} color="secondary" size="medium">
-              <NavigateBefore />
-            </RetractButton>
-          </>
-        )}
-      </HeaderContainer>
+    <Container>
+      <Logo size="126px" />
       <List component="nav">
         {items.map(item =>
           item.children ? (
             <PrimarySidebarItem
-              retracted={isRetracted}
               icon={item.icon}
               label={item.label}
               divider={item.divider}
               key={item.key}
-              highlighted={isHighlighted(
-                currentPath,
-                item.path,
-                selectedParentItem === item.key,
-                isRetracted,
-              )}
+              highlighted={isHighlighted(currentPath, item.path, selectedParentItem === item.key)}
               selected={selectedParentItem === item.key}
               onClick={() => clickedParentItem(item)}
             >
-              {!isRetracted &&
-                item.children.map(child => (
-                  <SecondarySidebarItem
-                    key={child.path}
-                    path={child.path}
-                    isCurrent={currentPath.includes(child.path)}
-                    color={child.color}
-                    label={child.label}
-                    disabled={!permissionCheck(child, item)}
-                    onClick={() => onPathChanged(child.path)}
-                  />
-                ))}
+              {item.children.map(child => (
+                <SecondarySidebarItem
+                  key={child.path}
+                  path={child.path}
+                  isCurrent={currentPath.includes(child.path)}
+                  color={child.color}
+                  label={child.label}
+                  disabled={!permissionCheck(child, item)}
+                  onClick={() => onPathChanged(child.path)}
+                />
+              ))}
             </PrimarySidebarItem>
           ) : (
             <TopLevelSidebarItem
-              retracted={isRetracted}
               icon={item.icon}
               path={item.path}
               label={item.label}
@@ -235,38 +157,31 @@ export const Sidebar = React.memo(({ items }) => {
               key={item.key}
               isCurrent={currentPath.includes(item.path)}
               disabled={!permissionCheck(item)}
-              onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
+              onClick={() => onPathChanged(item.path)}
             />
           ),
         )}
       </List>
-      <Footer $retracted={isRetracted}>
-        <StyledDivider $invisible={isRetracted} />
-        <FooterContent $retracted={isRetracted}>
-          <StyledHiddenSyncAvatar
-            $retracted={isRetracted}
-            onClick={isRetracted ? extendSidebar : undefined}
-          >
-            {initials}
-          </StyledHiddenSyncAvatar>
-          {!isRetracted && (
-            <Box flex={1}>
-              <UserName>{currentUser?.displayName}</UserName>
-              <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>
-              <Box display="flex" justifyContent="space-between">
-                <Version>Version {appVersion}</Version>
-                <LogoutButton
-                  type="button"
-                  onClick={onLogout}
-                  id="logout"
-                  data-test-id="siderbar-logout-item"
-                >
-                  <Translated id="logout" />
-                </LogoutButton>
-              </Box>
+      <Footer>
+        <StyledDivider />
+        <Box display="flex" color="white">
+          <HiddenSyncAvatar>{initials}</HiddenSyncAvatar>
+          <Box flex={1}>
+            <UserName>{currentUser?.displayName}</UserName>
+            <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>
+            <Box display="flex" justifyContent="space-between">
+              <Version>Version {appVersion}</Version>
+              <LogoutButton
+                type="button"
+                onClick={onLogout}
+                id="logout"
+                data-test-id="siderbar-logout-item"
+              >
+                <Translated id="logout" />
+              </LogoutButton>
             </Box>
-          )}
-        </FooterContent>
+          </Box>
+        </Box>
       </Footer>
     </Container>
   );

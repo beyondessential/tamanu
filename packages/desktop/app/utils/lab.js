@@ -19,9 +19,6 @@ export const getLaboratory = ({ laboratoryName, laboratory }) =>
   laboratoryName || laboratory?.name || 'Unknown';
 
 export const getCompletedDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
-export const getPublishedDate = ({ publishedDate }) => (
-  <DateDisplay date={publishedDate} timeOnlyTooltip />
-);
 export const getMethod = ({ labTestMethod }) => labTestMethod?.name || 'Unknown';
 
 export const getRequestedBy = ({ requestedBy }) =>
@@ -33,6 +30,5 @@ export const getRequestType = ({ categoryName, category }) =>
   categoryName || (category || {}).name || 'Unknown';
 export const getPriority = ({ priorityName, priority }) =>
   priorityName || (priority || {}).name || 'Unknown';
-export const getDateWithTimeTooltip = ({ requestedDate }) => (
-  <DateDisplay date={requestedDate} timeOnlyTooltip />
-);
+export const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
+export const getDateTime = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;

@@ -1,7 +1,6 @@
 import Table from 'cli-table3';
 import { promises as fs } from 'fs';
 import { log } from 'shared/services/logging';
-import { spyOnModule } from 'shared/test-helpers/spyOn';
 import { initDatabase } from '../../../app/database';
 import * as importUtils from '../../../app/subCommands/importReport/utils';
 import {
@@ -13,8 +12,6 @@ import {
   OVERWRITING_TEXT,
   formatUpdatedAt,
 } from '../../../app/subCommands/importReport/actions';
-
-spyOnModule(jest, '../../../app/subCommands/importReport/actions');
 
 const getUnparsedVersionData = num =>
   `{ ${num ? `"versionNumber": ${num},` : ''} "query": "test-query", "queryOptions": {

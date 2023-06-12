@@ -3,23 +3,22 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
-import { startScheduledTasks, startFhirWorkerTasks } from '../tasks';
+import { startScheduledTasks } from '../tasks';
 import pkg from '../../package.json';
 
 export const tasks = async ({ skipMigrationCheck }) => {
   log.info(`Starting sync tasks runner version ${pkg.version}.`);
 
   const context = await new ApplicationContext().init();
-  await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
+  const { store } = context;
+
+  await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const stopScheduledTasks = await startScheduledTasks(context);
-  const worker = await startFhirWorkerTasks(context);
-
   for (const sig of ['SIGINT', 'SIGTERM']) {
-    process.once(sig, async () => {
+    process.once(sig, () => {
       log.info(`Received ${sig}, stopping scheduled tasks`);
       stopScheduledTasks();
-      await worker.stop();
       context.close();
     });
   }

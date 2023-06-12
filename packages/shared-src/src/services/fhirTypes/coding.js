@@ -2,9 +2,11 @@ import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 
-import { FhirBaseType } from './baseType';
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
-export class FhirCoding extends FhirBaseType {
+export class FhirCoding extends Composite {
+  static FIELD_ORDER = ['system', 'version', 'code', 'display', 'userSelected'];
+
   static SCHEMA() {
     return yup
       .object({
@@ -50,4 +52,8 @@ export class FhirCoding extends FhirBaseType {
       userSelected: sample([null, true, false]),
     });
   }
+}
+
+export class FHIR_CODING extends COMPOSITE {
+  static ValueClass = FhirCoding;
 }

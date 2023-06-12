@@ -4,10 +4,9 @@ import {
   TopBar,
   DateDisplay,
   PageContainer,
+  DataFetchingTable,
   AppointmentsSearchBar,
   ContentPane,
-  SearchTableTitle,
-  SearchTable,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 
@@ -60,10 +59,9 @@ export const AppointmentListingView = () => {
       <TopBar title="Appointments">
         <NewAppointmentButton onSuccess={() => setRefreshCount(refreshCount + 1)} />
       </TopBar>
+      <AppointmentsSearchBar onSearch={setSearchParams} />
       <ContentPane>
-        <SearchTableTitle>Appointment search</SearchTableTitle>
-        <AppointmentsSearchBar onSearch={setSearchParams} />
-        <SearchTable
+        <DataFetchingTable
           endpoint="appointments"
           columns={COLUMNS}
           noDataMessage="No appointments found"

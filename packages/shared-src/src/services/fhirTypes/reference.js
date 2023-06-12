@@ -1,19 +1,15 @@
 import * as yup from 'yup';
 
-import { FhirBaseType } from './baseType';
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 // eslint-disable-next-line import/no-cycle
 import { FhirIdentifier } from './identifier';
 
-export class FhirReference extends FhirBaseType {
+export class FhirReference extends Composite {
+  static FIELD_ORDER = ['reference', 'type', 'identifier', 'display'];
+
   static SCHEMA() {
     return yup
       .object({
-        // on ancestor: Element
-        id: yup
-          .string()
-          .nullable()
-          .default(null),
-
         reference: yup
           .string()
           .nullable()
@@ -38,6 +34,14 @@ export class FhirReference extends FhirBaseType {
       .noUnknown();
   }
 
+  static validateAndTransformFromSql({ identifier, ...fields }) {
+    return new this({
+      // stored in postgres as JSONB to avoid type cycle
+      identifier: identifier && new FhirIdentifier(JSON.parse(identifier)),
+      ...fields,
+    });
+  }
+
   static fake(model, { fieldName }, id) {
     return new this({
       type: model,
@@ -48,7 +52,7 @@ export class FhirReference extends FhirBaseType {
   fhirTypeAndId() {
     const TYPE_ID_URL_REGEX = /\/?(?<type>\w+)\/(?<id>[0-9a-f-]+)$/i;
 
-    const { reference } = this;
+    const { reference } = this.params;
     if (!reference) return null;
 
     const match = TYPE_ID_URL_REGEX.exec(reference);
@@ -61,4 +65,8 @@ export class FhirReference extends FhirBaseType {
 
     return null;
   }
+}
+
+export class FHIR_REFERENCE extends COMPOSITE {
+  static ValueClass = FhirReference;
 }

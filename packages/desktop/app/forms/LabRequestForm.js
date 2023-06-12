@@ -94,7 +94,7 @@ export const LabRequestForm = ({
     api.get('suggestions/labTestType/all'),
   );
 
-  const renderForm = ({ values, submitForm, setFieldValue }) => {
+  const renderForm = ({ values, submitForm }) => {
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
@@ -141,11 +141,6 @@ export const LabRequestForm = ({
           name="labTestCategoryId"
           label="Test category"
           required
-          onChange={event => {
-            // Reset selected test types when category changes
-            setFieldValue('labTestCategoryId', event.target.value);
-            setFieldValue('labTestTypeIds', []);
-          }}
           component={SuggesterSelectField}
           endpoint="labTestCategory"
         />

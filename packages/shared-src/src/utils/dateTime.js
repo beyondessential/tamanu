@@ -3,6 +3,7 @@ import {
   formatISO9075,
   differenceInMonths,
   differenceInYears,
+  compareDesc,
   format as dateFnsFormat,
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
   parseISO,
@@ -124,12 +125,10 @@ export function ageInYears(dob) {
   return differenceInYears(new Date(), new Date(dob));
 }
 
-export function compareDateStrings(key = 'desc') {
-  return (a, b) => {
-    if (key.toLowerCase() === 'asc') return parseISO(a.date) - parseISO(b.date);
-    if (key.toLowerCase() === 'desc') return parseISO(b.date) - parseISO(a.date);
-    return 0;
-  };
+export function latestDateTime(...args) {
+  const times = args.filter(x => x);
+  times.sort(compareDesc);
+  return times[0];
 }
 
 /*

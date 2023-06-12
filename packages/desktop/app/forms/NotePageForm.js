@@ -7,7 +7,6 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from 'shared/constants';
-import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 
@@ -90,9 +89,6 @@ export const NotePageForm = ({
   contentRef,
 }) => {
   const { currentUser } = useAuth();
-  const { getLocalisation } = useLocalisation();
-
-  const creatingNewNotePage = isEmpty(notePage);
 
   const lastNoteItemRef = useCallback(node => {
     if (node !== null) {
@@ -102,7 +98,7 @@ export const NotePageForm = ({
 
   const renderForm = ({ submitForm }) => (
     <>
-      {!creatingNewNotePage && (
+      {!isEmpty(notePage) && (
         <>
           <StyledFormGrid columns={1}>
             <NoteItemList
@@ -123,8 +119,8 @@ export const NotePageForm = ({
           label="Type"
           required
           component={SelectField}
-          options={creatingNewNotePage ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
-          disabled={!creatingNewNotePage}
+          options={getSelectableNoteTypes(noteTypeCountByType)}
+          disabled={!isEmpty(notePage)}
           formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field
@@ -139,7 +135,6 @@ export const NotePageForm = ({
           label="Date & time"
           component={DateTimeField}
           required
-          disabled={!getLocalisation('features.enableNoteBackdating')}
           saveDateAsString
         />
       </StyledFormGrid>
