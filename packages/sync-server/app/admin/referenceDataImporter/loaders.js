@@ -142,23 +142,26 @@ export function permissionLoader(item) {
 }
 
 const groupedEntityLoader = (data, idListColumnName, modelNames, relationColumnNames) => {
-  const { id, [idListColumnName]: childIdList, ...otherFields } = data;
+  const { id: parentId, [idListColumnName]: childIdList, ...otherFields } = data;
   return [
     {
       model: modelNames.parent,
       values: {
-        id,
+        id: parentId,
         ...otherFields,
       },
     },
-    ...childIdList.split(/\s*,\s*/g).map(childId => ({
-      model: modelNames.through,
-      values: {
-        id: `${id};${childId}`,
-        [relationColumnNames.parent]: id,
-        [relationColumnNames.child]: childId,
-      },
-    })),
+    ...childIdList.split(',').map(idString => {
+      const childId = idString.trim();
+      return {
+        model: modelNames.through,
+        values: {
+          id: `${parentId};${childId}`,
+          [relationColumnNames.parent]: parentId,
+          [relationColumnNames.child]: childId,
+        },
+      };
+    }),
   ];
 };
 
