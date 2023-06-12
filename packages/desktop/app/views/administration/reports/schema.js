@@ -6,6 +6,8 @@ import {
 import { REFERENCE_TYPE_VALUES } from 'shared/constants/importable';
 import { PARAMETER_FIELD_COMPONENTS } from '../../reports/ParameterField';
 
+const parameterFieldOptions = Object.keys(PARAMETER_FIELD_COMPONENTS);
+
 export const schema = {
   title: 'Report',
   type: 'object',
@@ -77,7 +79,7 @@ export const schema = {
           title: 'Parameter Field',
           description:
             'This is the form field that is displayed to the user in the Tamanu desktop app that is used to capture the user input',
-          enum: Object.keys(PARAMETER_FIELD_COMPONENTS),
+          enum: parameterFieldOptions,
         },
         name: {
           type: 'string',
@@ -126,10 +128,10 @@ export const templates = [
     title: 'Insert a parameter node',
     field: 'ParameterTemplate',
     value: {
-      parameterField: '',
-      name: '',
-      label: '',
-      suggesterEndpoint: '',
+      parameterField: Object.keys(PARAMETER_FIELD_COMPONENTS)[0],
+      name: 'parameter-name',
+      label: 'Field Label',
+      suggesterEndpoint: 'department',
     },
   },
 ];
