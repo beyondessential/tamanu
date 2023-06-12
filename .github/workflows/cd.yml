@@ -181,9 +181,17 @@ jobs:
           cache: yarn
       
       - name: Install wine
+        # see https://github.com/actions/runner-images/issues/7589
         run: |
-          dpkg --add-architecture i386
-          apt install -y msitools wine32 wine wixl
+          set -e
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt-get install ppa-purge
+          sudo ppa-purge -y ppa:ubuntu-toolchain-r/test
+          sudo mkdir -pm755 /etc/apt/keyrings
+          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y msitools wine32 wine-stable wixl
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
