@@ -38,6 +38,9 @@ export * from './LabTestType';
 export * from './LabTestPanel';
 export * from './LabTestPanelRequest';
 export * from './LabTestPanelLabTestTypes';
+export * from './LabTestSuperset';
+export * from './LabTestSupersetLabTestPanels';
+
 export * from './ImagingRequest';
 export * from './ImagingRequestArea';
 export * from './ImagingAreaExternalCode';

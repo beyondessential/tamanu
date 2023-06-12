@@ -141,31 +141,55 @@ export function permissionLoader(item) {
     });
 }
 
+const rowsFromCommaSeparatedList = (list = '', id, modelName, primaryId, secondaryId) =>
+  list
+    .split(',')
+    .map(item => item.trim())
+    .map(item => ({
+      model: modelName,
+      values: {
+        id: `${id};${item}`,
+        [primaryId]: id,
+        [secondaryId]: item,
+      },
+    }));
+
 export function labTestPanelLoader(item) {
   const { id, testTypesInPanel, ...otherFields } = item;
-  const rows = [];
-
-  rows.push({
-    model: 'LabTestPanel',
-    values: {
-      id,
-      ...otherFields,
+  return [
+    {
+      model: 'LabTestPanel',
+      values: {
+        id,
+        ...otherFields,
+      },
     },
-  });
+    ...rowsFromCommaSeparatedList(
+      testTypesInPanel,
+      id,
+      'LabTestPanelLabTestTypes',
+      'labTestPanelId',
+      'labTestTypeId',
+    ),
+  ];
+}
 
-  (testTypesInPanel || '')
-    .split(',')
-    .map(t => t.trim())
-    .forEach(testType => {
-      rows.push({
-        model: 'LabTestPanelLabTestTypes',
-        values: {
-          id: `${id};${testType}`,
-          labTestPanelId: id,
-          labTestTypeId: testType,
-        },
-      });
-    });
-
-  return rows;
+export function labTestSupersetLoader(item) {
+  const { id, panelsInSuperset, ...otherFields } = item;
+  return [
+    {
+      model: 'LabTestSuperset',
+      values: {
+        id,
+        ...otherFields,
+      },
+    },
+    ...rowsFromCommaSeparatedList(
+      panelsInSuperset,
+      id,
+      'LabTestSupersetLabTestPanels',
+      'labTestSupersetId',
+      'labTestPanelId',
+    ),
+  ];
 }

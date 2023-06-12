@@ -320,6 +320,8 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
   };
 });
 
-// TODO: Use generic LabTest permissions for this suggester
+// TODO: Use generic LabTest permissions for these suggesters
 createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
 createNameSuggester('labTestPanel', 'LabTestPanel');
+createAllRecordsSuggesterRoute('labTestSuperset', 'LabTestSuperset', VISIBILITY_CRITERIA);
+createNameSuggester('labTestSuperset', 'LabTestSuperset');

@@ -4,6 +4,7 @@ import {
   patientFieldDefinitionLoader,
   permissionLoader,
   labTestPanelLoader,
+  labTestSupersetLoader,
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -48,6 +49,12 @@ export default {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
   },
+
+  labTestSuperset: {
+    loader: labTestSupersetLoader,
+    needs: ['labTestPanel'],
+  },
+
   invoicePriceChangeType: {},
   invoiceLineType: {
     needs: ['labTestType'],
