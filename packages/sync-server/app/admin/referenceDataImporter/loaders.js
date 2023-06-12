@@ -141,55 +141,41 @@ export function permissionLoader(item) {
     });
 }
 
-const rowsFromCommaSeparatedList = (list = '', id, modelName, primaryId, secondaryId) =>
-  list
-    .split(',')
-    .map(item => item.trim())
-    .map(item => ({
-      model: modelName,
-      values: {
-        id: `${id};${item}`,
-        [primaryId]: id,
-        [secondaryId]: item,
-      },
-    }));
-
-export function labTestPanelLoader(item) {
-  const { id, testTypesInPanel, ...otherFields } = item;
+const groupedEntityLoader = (data, idListColumnName, modelNames, relationColumnNames) => {
+  const { id, [idListColumnName]: childIdList, ...otherFields } = data;
   return [
     {
-      model: 'LabTestPanel',
+      model: modelNames.parent,
       values: {
         id,
         ...otherFields,
       },
     },
-    ...rowsFromCommaSeparatedList(
-      testTypesInPanel,
-      id,
-      'LabTestPanelLabTestTypes',
-      'labTestPanelId',
-      'labTestTypeId',
-    ),
+    ...childIdList.split(/\s*,\s*/g).map(childId => ({
+      model: modelNames.through,
+      values: {
+        id: `${id};${childId}`,
+        [relationColumnNames.parent]: id,
+        [relationColumnNames.child]: childId,
+      },
+    })),
   ];
+};
+
+export function labTestPanelLoader(item) {
+  return groupedEntityLoader(
+    item,
+    'testTypesInPanel',
+    { parent: 'LabTestPanel', through: 'LabTestPanelLabTestTypes' },
+    { parent: 'labTestPanelId', child: 'labTestTypeId' },
+  );
 }
 
 export function labTestSupersetLoader(item) {
-  const { id, panelsInSuperset, ...otherFields } = item;
-  return [
-    {
-      model: 'LabTestSuperset',
-      values: {
-        id,
-        ...otherFields,
-      },
-    },
-    ...rowsFromCommaSeparatedList(
-      panelsInSuperset,
-      id,
-      'LabTestSupersetLabTestPanels',
-      'labTestSupersetId',
-      'labTestPanelId',
-    ),
-  ];
+  return groupedEntityLoader(
+    item,
+    'panelsInSuperset',
+    { parent: 'LabTestSuperset', through: 'LabTestSupersetLabTestPanels' },
+    { parent: 'labTestSupersetId', child: 'labTestPanelId' },
+  );
 }
