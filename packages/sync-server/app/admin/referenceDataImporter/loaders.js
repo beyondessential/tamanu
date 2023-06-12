@@ -142,7 +142,7 @@ export function permissionLoader(item) {
 }
 
 /**
- * Creates a loader for grouped entities (parent and children)
+ * Creates a loader for grouped entities (a parent representing a group of child entities)
  * @param {Object} data data to be loaded
  * @param {string} idListColumnName column name of comma separated id list
  * @param {Object} modelNames model names { parent, through }
