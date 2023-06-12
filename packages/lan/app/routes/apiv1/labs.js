@@ -397,19 +397,22 @@ labTestType.get(
 
 export const labTestPanel = express.Router();
 
-labTestPanel.get('/', async (req, res) => {
-  req.checkPermission('list', 'LabTestPanel');
-  const { models } = req;
-  const response = await models.LabTestPanel.findAll({
-    include: [
-      {
-        model: models.ReferenceData,
-        as: 'category',
-      },
-    ],
-  });
-  res.send(response);
-});
+labTestPanel.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'LabTestPanel');
+    const { models } = req;
+    const response = await models.LabTestPanel.findAll({
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'category',
+        },
+      ],
+    });
+    res.send(response);
+  }),
+);
 
 labTestPanel.get('/:id', simpleGet('LabTestPanel'));
 
@@ -424,6 +427,45 @@ labTestPanel.get(
       throw new NotFoundError();
     }
     const response = await panel.getLabTestTypes({
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'category',
+        },
+      ],
+    });
+
+    res.send(response);
+  }),
+);
+
+export const labTestSuperset = express.Router();
+
+labTestSuperset.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'LabTestSuperset');
+    const { models } = req;
+    const response = await models.LabTestSuperset.findAll({
+      where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+    res.send(response);
+  }),
+);
+
+labTestSuperset.get('/:id', simpleGet('LabTestSuperset'));
+
+labTestSuperset.get(
+  '/:id/labTestPanels',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const supersetId = params.id;
+    req.checkPermission('list', 'LabTestPanel');
+    const superset = await models.LabTestSuperset.findByPk(supersetId);
+    if (!superset) {
+      throw new NotFoundError();
+    }
+    const response = await superset.getLabTestPanels({
       include: [
         {
           model: models.ReferenceData,
