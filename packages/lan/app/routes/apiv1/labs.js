@@ -444,7 +444,7 @@ export const labTestSuperset = express.Router();
 labTestSuperset.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'LabTestSuperset');
+    req.checkPermission('list', 'LabTest');
     const { models } = req;
     const response = await models.LabTestSuperset.findAll({
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
@@ -453,19 +453,31 @@ labTestSuperset.get(
   }),
 );
 
-labTestSuperset.get('/:id', simpleGet('LabTestSuperset'));
+labTestSuperset.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const supersetId = params.id;
+    req.checkPermission('read', 'LabTest');
+    const superset = await models.LabTestSuperset.findByPk(supersetId);
+    if (!superset) {
+      throw new NotFoundError();
+    }
+    res.send(superset);
+  }),
+);
 
 labTestSuperset.get(
   '/:id/labTestPanels',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const supersetId = params.id;
-    req.checkPermission('list', 'LabTestSuperset');
+    req.checkPermission('list', 'LabTest');
     const superset = await models.LabTestSuperset.findByPk(supersetId);
     if (!superset) {
       throw new NotFoundError();
     }
-    const response = await superset.getLabTestPanels({
+    const panels = await superset.getLabTestPanels({
       include: [
         {
           model: models.ReferenceData,
@@ -473,6 +485,6 @@ labTestSuperset.get(
         },
       ],
     });
-    res.send(response);
+    res.send(panels);
   }),
 );
