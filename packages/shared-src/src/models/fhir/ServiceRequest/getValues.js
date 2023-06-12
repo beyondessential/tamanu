@@ -1,6 +1,5 @@
 import config from 'config';
 
-import { latestDateTime } from '../../../utils/dateTime';
 import { getNotePagesWithType } from '../../../utils/notePages';
 import {
   FhirAnnotation,
@@ -44,16 +43,7 @@ async function getValuesFromImagingRequest(upstream, models) {
   );
 
   return {
-    lastUpdated: latestDateTime(
-      upstream.updatedAt,
-      upstream.requestedBy?.updatedAt,
-      upstream.encounter?.updatedAt,
-      upstream.encounter?.patient?.updatedAt,
-      upstream.location?.updatedAt,
-      upstream.location?.facility?.updatedAt,
-      ...upstream.areas.map(area => area.updatedAt),
-      ...[...areaExtCodes.values()].map(ext => ext.updatedAt),
-    ),
+    lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
         system: config.hl7.dataDictionaries.serviceRequestImagingId,
@@ -109,18 +99,7 @@ async function getValuesFromImagingRequest(upstream, models) {
 
 async function getValuesFromLabRequest(upstream) {
   return {
-    lastUpdated: latestDateTime(
-      upstream.updatedAt,
-      upstream.requestedBy?.updatedAt,
-      upstream.encounter?.updatedAt,
-      upstream.encounter?.patient?.updatedAt,
-      upstream.labTestPanelRequest?.labTestPanel?.updatedAt,
-      ...upstream.tests.map(test => test.updatedAt),
-      ...upstream.notePages.map(notePage => notePage.updatedAt),
-      ...upstream.notePages.flatMap(notePage =>
-        notePage.noteItems.map(noteItem => noteItem.updatedAt),
-      ),
-    ),
+    lastUpdated: new Date(),
     contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({

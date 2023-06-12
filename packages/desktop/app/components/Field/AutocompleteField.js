@@ -3,9 +3,9 @@ import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
-import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import ExpandLess from '@material-ui/icons/ExpandLess';
+import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
+import { ChevronIcon } from '../Icons/ChevronIcon';
+import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
@@ -55,9 +55,9 @@ const SuggestionsList = styled(Paper)`
 `;
 
 const Icon = styled(InputAdornment)`
+  margin-left: 0;
   .MuiSvgIcon-root {
-    color: ${Colors.softText};
-    font-size: 20px;
+    color: ${Colors.darkText};
   }
 `;
 
@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -76,18 +77,26 @@ const Item = styled(MenuItem)`
 `;
 
 const iconStyle = css`
-  &.MuiSvgIcon-root {
-    color: ${Colors.midText};
-    font-size: 24px;
-  }
+  color: ${Colors.darkText};
+  margin-left: 6px;
+  margin-right: 8px;
 `;
 
-const StyledExpandLess = styled(ExpandLess)`
+const StyledExpandLess = styled(ChevronIcon)`
+  ${iconStyle}
+  transform: rotate(180deg);
+`;
+
+const StyledExpandMore = styled(ChevronIcon)`
   ${iconStyle}
 `;
 
-const StyledExpandMore = styled(ExpandMore)`
-  ${iconStyle}
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+`;
+
+const StyledClearIcon = styled(ClearIcon)`
+  cursor: pointer;
 `;
 
 export class AutocompleteInput extends Component {
@@ -103,7 +112,8 @@ export class AutocompleteInput extends Component {
   }
 
   async componentDidMount() {
-    await this.updateValue();
+    const { allowFreeTextForExistingValue } = this.props;
+    await this.updateValue(allowFreeTextForExistingValue);
   }
 
   async componentDidUpdate(prevProps) {
@@ -116,7 +126,7 @@ export class AutocompleteInput extends Component {
     }
   }
 
-  updateValue = async () => {
+  updateValue = async (allowFreeTextForExistingValue = false) => {
     const { value, suggester } = this.props;
 
     if (!suggester || value === undefined) {
@@ -127,14 +137,21 @@ export class AutocompleteInput extends Component {
       this.attemptAutoFill();
       return;
     }
-    const currentOption = await suggester.fetchCurrentOption(value);
-    if (currentOption) {
-      this.setState({
-        selectedOption: {
-          value: currentOption.label,
-          tag: currentOption.tag,
-        },
-      });
+
+    if (!allowFreeTextForExistingValue) {
+      const currentOption = await suggester.fetchCurrentOption(value);
+
+      if (currentOption) {
+        this.setState({
+          selectedOption: {
+            value: currentOption.label,
+            tag: currentOption.tag,
+          },
+        });
+      }
+    } else if (allowFreeTextForExistingValue && value) {
+      this.setState({ selectedOption: { value, tag: null } });
+      this.handleSuggestionChange({ value, label: value });
     } else {
       this.handleSuggestionChange({ value: null, label: '' });
     }
@@ -156,15 +173,25 @@ export class AutocompleteInput extends Component {
       return;
     }
 
-    const suggestions = suggester
+    const searchSuggestions = suggester
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
+    const genericSuggestions = suggester ? await suggester.fetchSuggestions('') : options;
+
     if (value === '') {
-      if (await this.attemptAutoFill({ suggestions })) return;
+      if (await this.attemptAutoFill({ searchSuggestions })) return;
     }
 
-    this.setState({ suggestions });
+    // This will show the full suggestions list (or at least the first page) if the user
+    // has either just clicked the input or if the input does not match a value from list
+    this.setState({
+      suggestions:
+        reason === 'input-focused' &&
+        searchSuggestions.find(x => x.label.toLowerCase() === value.toLowerCase())
+          ? genericSuggestions
+          : searchSuggestions,
+    });
   };
 
   attemptAutoFill = async (overrides = { suggestions: null }) => {
@@ -204,6 +231,12 @@ export class AutocompleteInput extends Component {
         return { selectedOption: { value: newSuggestion.label, tag: newSuggestion.tag } };
       });
     }
+  };
+
+  handleClearValue = () => {
+    const { onChange, name } = this.props;
+    onChange({ target: { value: undefined, name } });
+    this.setState({ selectedOption: { value: '', tag: null } });
   };
 
   clearOptions = () => {
@@ -251,7 +284,17 @@ export class AutocompleteInput extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
+    const {
+      label,
+      required,
+      className,
+      infoTooltip,
+      tag,
+      value,
+      size,
+      disabled,
+      ...other
+    } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -273,6 +316,11 @@ export class AutocompleteInput extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
+                {value && !disabled && (
+                  <StyledIconButton onClick={this.handleClearValue}>
+                    <StyledClearIcon />
+                  </StyledIconButton>
+                )}
                 <Icon
                   position="end"
                   onClick={event => {
@@ -287,6 +335,7 @@ export class AutocompleteInput extends Component {
           }}
           fullWidth
           value={value}
+          disabled={disabled}
           {...other}
         />
       </OuterLabelFieldWrapper>

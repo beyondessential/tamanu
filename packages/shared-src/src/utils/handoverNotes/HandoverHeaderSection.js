@@ -52,7 +52,7 @@ export const HandoverHeaderSection = ({ getLocalisation, logoSrc, locationGroupN
             marginTop: 0,
           }}
         >
-          {locationGroupName} | {getDisplayDate(new Date(), 'dd/MM/yyyy hh:mm a')}
+          {locationGroupName} | {getDisplayDate(new Date(), 'dd/MM/yy hh:mm a')}
         </H1>
       </Box>
       <Divider />

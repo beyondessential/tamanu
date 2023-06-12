@@ -89,7 +89,7 @@ export class FhirJob extends Model {
       try {
         return await this.sequelize.transaction(
           {
-            isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+            isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
           },
           async () => {
             const [{ id }] = await this.sequelize.query(
@@ -105,8 +105,7 @@ export class FhirJob extends Model {
           },
         );
       } catch (err) {
-        // 40001 is the Postgres error code for serialization failure
-        if (err?.parent?.code !== '40001') throw err;
+        log.debug(`Failed to grab job`, err);
 
         // retry, with a bit of jitter to avoid thundering herd
         const delay = Math.floor(Math.random() * 500);

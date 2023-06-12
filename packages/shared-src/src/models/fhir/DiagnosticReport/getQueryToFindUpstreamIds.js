@@ -16,6 +16,7 @@ export function fromLabTests(models, table, id) {
           {
             model: LabRequest,
             as: 'labRequest',
+            required: true,
             where: { encounterId: id },
           },
         ],
@@ -26,10 +27,12 @@ export function fromLabTests(models, table, id) {
           {
             model: LabRequest,
             as: 'labRequest',
+            required: true,
             include: [
               {
                 model: Encounter,
                 as: 'encounter',
+                required: true,
                 where: { patientId: id },
               },
             ],
@@ -42,10 +45,12 @@ export function fromLabTests(models, table, id) {
           {
             model: LabRequest,
             as: 'labRequest',
+            required: true,
             include: [
               {
                 model: Encounter,
                 as: 'encounter',
+                required: true,
                 where: { examinerId: id },
               },
             ],
@@ -58,18 +63,22 @@ export function fromLabTests(models, table, id) {
           {
             model: ReferenceData,
             as: 'category',
+            required: true,
           },
           {
             model: ReferenceData,
             as: 'labTestMethod',
+            required: true,
           },
           {
             model: LabRequest,
             as: 'labRequest',
+            required: true,
             include: [
               {
                 model: ReferenceData,
                 as: 'laboratory',
+                required: true,
               },
             ],
           },

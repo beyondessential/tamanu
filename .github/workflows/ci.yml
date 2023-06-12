@@ -31,7 +31,6 @@ jobs:
           # - '12'
           - '14'
         package:
-          - desktop
           - lan
           - meta-server
           - shared-src
@@ -128,6 +127,7 @@ jobs:
         postgres:
           - '12'
           - '14'
+          - '15'
 
     name: Test migrations node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest

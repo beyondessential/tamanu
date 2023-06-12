@@ -27,7 +27,7 @@ export default {
   },
   subSection: {
     backgroundColor: colorPack.light,
-    borderBottomWidth: 1,
+    borderWidth: 1,
     borderColor: colorPack.borderColor,
     paddingLeft: 0,
     paddingRight: 20,
@@ -43,6 +43,11 @@ export default {
   },
   indicator: {
     fontSize: 30,
+    color: colorPack.placeholderTextColor,
+  },
+  removeIndicator: {
+    fontSize: 20,
+    marginTop: 2,
     color: colorPack.placeholderTextColor,
   },
   selectedItem: {

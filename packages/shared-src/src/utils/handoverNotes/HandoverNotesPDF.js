@@ -18,13 +18,14 @@ export const HandoverNotesPDF = ({
         logoSrc={logoSrc}
       />
       <Box mb={0}>
-        {handoverNotes.map(({ patient, diagnosis, notes, location, createdAt }) => (
+        {handoverNotes.map(({ patient, diagnosis, notes, location, createdAt, arrivalDate }) => (
           <HandoverPatient
             key={`patient-notes-${patient.displayId}`}
             patient={patient}
             location={location}
             createdAt={createdAt}
             diagnosis={diagnosis}
+            arrivalDate={arrivalDate}
             notes={notes}
             getLocalisation={getLocalisation}
           />
