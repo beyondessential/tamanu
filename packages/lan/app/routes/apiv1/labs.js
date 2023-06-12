@@ -460,7 +460,7 @@ labTestSuperset.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const supersetId = params.id;
-    req.checkPermission('list', 'LabTestPanel');
+    req.checkPermission('list', 'LabTestSuperset');
     const superset = await models.LabTestSuperset.findByPk(supersetId);
     if (!superset) {
       throw new NotFoundError();
@@ -473,7 +473,6 @@ labTestSuperset.get(
         },
       ],
     });
-
     res.send(response);
   }),
 );

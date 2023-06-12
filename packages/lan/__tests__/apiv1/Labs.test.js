@@ -242,4 +242,57 @@ describe('Labs', () => {
       expect(hasOtherFacility).toBe(true);
     });
   });
+
+  describe('Superset', () => {
+    let labTestPanels;
+    let labTestSupersets;
+
+    beforeAll(async () => {
+      const makeLabTestPanel = i =>
+        models.LabTestPanel.create({
+          name: `Demo test panel ${i}`,
+          code: `demo-test-panel-${i}`,
+        });
+      const makeLabTestSuperset = async (labTestPanelIds, i) => {
+        const superset = await models.LabTestSuperset.create({
+          name: `Demo test superset ${i + 1}`,
+          code: `demo-test-superset-${i + 1}`,
+        });
+        await superset.setLabTestPanels(labTestPanelIds);
+        return superset;
+      };
+      labTestPanels = await Promise.all([1, 2, 3, 4].map(makeLabTestPanel));
+      const panelIds = labTestPanels.map(ltp => ltp.id);
+      labTestSupersets = await Promise.all(
+        [panelIds.slice(0, 2), panelIds.slice(2, 4)].map(makeLabTestSuperset),
+      );
+    });
+
+    it('GET / should return a list of lab test supersets', async () => {
+      const result = await app.get('/v1/labTestSuperset');
+      expect(result).toHaveSucceeded();
+      expect(result.body.length).toBe(2);
+      expect(result.body.map(lts => lts.id).sort()).toEqual(
+        labTestSupersets.map(lts => lts.id).sort(),
+      );
+    });
+
+    it('GET /:id should return a lab test superset', async () => {
+      const result = await app.get(`/v1/labTestSuperset/${labTestSupersets[0].id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.id).toBe(labTestSupersets[0].id);
+    });
+
+    it('GET /:id/labTestPanels should return a list of lab test panels for that superset', async () => {
+      const result = await app.get(`/v1/labTestSuperset/${labTestSupersets[0].id}/labTestPanels`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.length).toBe(2);
+      expect(result.body.map(lts => lts.id).sort()).toEqual(
+        labTestPanels
+          .slice(0, 2)
+          .map(lts => lts.id)
+          .sort(),
+      );
+    });
+  });
 });
