@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
-import { useSelectableColumn } from '../../Table';
+import { Table, useSelectableColumn } from '../../Table';
+import { OuterLabelFieldWrapper } from '../../Field';
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsPrintoutModal';
 import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';
-import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 
 export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
@@ -51,18 +51,19 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
       />
-      <PrintMultipleSelectionTable
-        label="Select the imaging requests you would like to print"
-        headerColor={Colors.white}
-        columns={columns}
-        data={imagingRequestsData || []}
-        elevated={false}
-        isLoading={isLoading}
-        errorMessage={error?.message}
-        noDataMessage="No imaging requests found"
-        allowExport={false}
-      />
-      <FormDivider />
+
+      <OuterLabelFieldWrapper label="Select the imaging requests you would like to print">
+        <Table
+          headerColor={Colors.white}
+          columns={columns}
+          data={imagingRequestsData || []}
+          elevated={false}
+          isLoading={isLoading}
+          errorMessage={error?.message}
+          noDataMessage="No imaging requests found"
+          allowExport={false}
+        />
+      </OuterLabelFieldWrapper>
       <ConfirmCancelRow
         cancelText="Close"
         confirmText="Print"

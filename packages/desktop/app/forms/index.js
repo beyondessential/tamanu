@@ -5,6 +5,6 @@ export { NewPatientForm } from './NewPatientForm';
 export { NewUserForm } from './NewUserForm';
 export { OngoingConditionForm } from './OngoingConditionForm';
 export { PatientIssueForm } from './PatientIssueForm';
-export { VaccineGivenForm } from './VaccineGivenForm';
+export { ImmunisationForm } from './ImmunisationForm';
 export { PatientCarePlanForm } from './PatientCarePlanForm';
 export { VitalsForm } from './VitalsForm';

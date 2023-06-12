@@ -11,7 +11,7 @@ jest.mock('../App/ui/components/Icons', () => ({
   Avatar10: View,
   Avatar11: View,
   Avatar12: View,
-  DiagnosisAndTreatmentIcon: View,
+  SickOrInjuredIcon: View,
   Camera1: View,
   VitalsIcon: View,
   GivenOnTimeIcon: View,

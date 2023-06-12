@@ -8,10 +8,6 @@ import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { useApi } from '../../../api';
 import { TabPane } from '../components';
 import { Button, ContentPane, TableButtonRow } from '../../../components';
-import {
-  getCurrentDateTimeString,
-  toDateTimeString,
-} from '../../../../../shared-src/src/utils/dateTime';
 
 const MODAL_STATES = {
   CLOSED: 'closed',
@@ -72,8 +68,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         await api.postWithFileUpload(endpoint, file, {
           ...data,
           type,
-          documentCreatedAt: toDateTimeString(birthtime),
-          documentUploadedAt: getCurrentDateTimeString(),
+          documentCreatedAt: birthtime,
         });
         handleClose();
         setRefreshCount(refreshCount + 1);

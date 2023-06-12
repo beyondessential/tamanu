@@ -38,12 +38,19 @@
     "files.exclude": {
       "packages/": true
     },
-    "cSpell.words": ["singularize", "upsert", "upserted"],
+    "editor.formatOnSave": false,
+    "cSpell.words": [
+      "singularize",
+      "upsert",
+      "upserted"
+    ],
     "json.schemas": [
       {
-        "fileMatch": ["*.hl7.json"],
-        "url": "./packages/sync-server/__tests__/hl7fhir/fhir.schema.json"
+          "fileMatch": [
+              "*.hl7.json"
+          ],
+          "url": "./packages/sync-server/__tests__/hl7fhir/fhir.schema.json",
       }
     ]
-  }
+  },
 }

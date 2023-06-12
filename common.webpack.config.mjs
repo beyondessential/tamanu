@@ -1,9 +1,5 @@
-import NodemonPlugin from 'nodemon-webpack-plugin';
-import TerserPlugin from 'terser-webpack-plugin';
 import nodeExternals from 'webpack-node-externals';
-
-// we assume a Node.js environment, desktop has its own config
-
+import NodemonPlugin from 'nodemon-webpack-plugin';
 
 export default {
   entry: ['core-js/stable', './index.js'],
@@ -17,23 +13,10 @@ export default {
         use: {
           loader: 'babel-loader',
           options: {
-            cacheDirectory: true,
             rootMode: 'upward',
           },
         },
       },
-    ],
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          ecma: 2020,
-          keep_classnames: true,
-          keep_fnames: true,
-        },
-      }),
     ],
   },
   output: {

@@ -1,5 +1,4 @@
 {
-  "extends": ["../../common.tsconfig.json"],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -8,7 +7,7 @@
     "esModuleInterop": true,
     "isolatedModules": false,
     "baseUrl": ".",
-    "paths": {
+    "paths": {      
       "~/*": ["App/*"],
       "/root/*": ["./*"],
       "/components/*": ["App/ui/components/*"],
@@ -31,6 +30,8 @@
     "resolveJsonModule": true,
     "jsx": "react",
     "lib": ["es2019"],
+    "moduleResolution": "node",    
+    "noEmit": true,
     "skipLibCheck": true,
     "strict": false,
     "noImplicitThis": false,

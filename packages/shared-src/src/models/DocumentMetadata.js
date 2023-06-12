@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
@@ -19,11 +17,12 @@ export class DocumentMetadata extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        documentCreatedAt: dateTimeType('documentCreatedAt'),
-        documentUploadedAt: dateTimeType('documentUploadedAt', {
+        documentCreatedAt: Sequelize.DATE,
+        documentUploadedAt: {
+          type: Sequelize.DATE,
           allowNull: false,
-          defaultValue: getCurrentDateTimeString,
-        }),
+          defaultValue: Sequelize.NOW,
+        },
         documentOwner: Sequelize.TEXT,
         note: Sequelize.STRING,
 

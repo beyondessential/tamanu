@@ -59,7 +59,8 @@ describe('Patient', () => {
         use: 'usual',
         value: 'HE770 WOR7D',
         period: new FhirPeriod({
-          start: '2022-02-02T22:02:02-01:00',
+          // something to note: because we use DATETIMESTRING internally, subseconds are cut off
+          start: new Date('2022-02-02 22:02:02'),
         }),
       });
       const idB = new FhirIdentifier({
@@ -159,8 +160,8 @@ describe('Patient', () => {
         postalCode: '00000',
         country: 'Placeland',
         period: new FhirPeriod({
-          start: '2022-02-02T22:02:02-01:00',
-          end: '2022-02-22T20:22:02-01:00',
+          start: new Date('2022-02-02 22:02:02'),
+          end: new Date('2022-02-22 20:22:02'),
         }),
       });
 

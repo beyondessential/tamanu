@@ -2,7 +2,6 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import express from 'express';
-import path from 'path';
 
 import { SERVER_TYPES } from 'shared/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
@@ -49,10 +48,6 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
   });
 
   app.use('/', routes);
-
-  // Serve the latest desktop in upgrade folder so that desktops with lower versions
-  // can perform auto upgrade when pointing to this endpoint
-  app.use('/upgrade', express.static(path.join(process.cwd(), 'upgrade')));
 
   // Dis-allow all other routes
   app.get('*', (req, res) => {

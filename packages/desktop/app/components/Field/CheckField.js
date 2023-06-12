@@ -7,18 +7,13 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Colors } from '../../constants';
 
-/* 
-  Note that the Checkbox value prop only controls what gets sent,
-  not the checkbox state. It's also worth noting that usually forms
-  will send the state value, not the prop value.
-*/
-export const CheckControl = React.memo(({ value, ...props }) => (
+const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     icon={<i className="far fa-square" />}
     checkedIcon={<i className="far fa-check-square" />}
+    checked={value}
+    value="checked"
     {...props}
-    checked={Boolean(value)}
-    value="true"
   />
 ));
 
@@ -31,14 +26,10 @@ const ControlLabel = styled(FormControlLabel)`
     line-height: 18px;
   }
   i.fa-check-square {
-    color: ${props => props.$color || Colors.primary};
+    color: ${Colors.primary};
   }
   i.fa-square {
-    color: ${props => props.$color || Colors.softText};
-  }
-
-  .fa-square {
-    color: #dedede;
+    color: ${Colors.softText};
   }
 `;
 
@@ -49,22 +40,21 @@ const ControlCheck = styled(CheckControl)`
   width: max-content;
 `;
 
-export const CheckInput = React.memo(
-  ({ label, value, className, style, error, helperText, ...props }) => (
-    <FormControl style={style} className={className} error={error}>
-      <ControlLabel
-        control={<ControlCheck value={value} {...props} />}
-        style={style}
-        label={label}
-        $color={error ? Colors.alert : null}
-      />
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
-    </FormControl>
-  ),
-);
+export const CheckInput = React.memo(({ label, value, style, error, helperText, ...props }) => (
+  <FormControl style={style} error={error}>
+    <ControlLabel control={<ControlCheck value={value} {...props} />} style={style} label={label} />
+    {helperText && <FormHelperText>{helperText}</FormHelperText>}
+  </FormControl>
+));
 
-export const CheckField = React.memo(({ field, ...props }) => (
-  <CheckInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+export const CheckField = React.memo(({ field, error, ...props }) => (
+  <CheckInput
+    name={field.name}
+    value={field.value || false}
+    onChange={field.onChange}
+    error={error}
+    {...props}
+  />
 ));
 
 CheckInput.propTypes = {

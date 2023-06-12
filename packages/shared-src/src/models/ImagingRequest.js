@@ -3,11 +3,11 @@ import { InvalidOperationError } from 'shared/errors';
 import {
   SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
-  IMAGING_TYPES_VALUES,
+  IMAGING_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
-import { getNotePageWithType } from 'shared/utils/notePages';
+import { getNoteWithType } from 'shared/utils/notePages';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -15,9 +15,10 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
+const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
 
 export class ImagingRequest extends Model {
-  static init(options) {
+  static init({ primaryKey, ...options }) {
     super.init(
       {
         id: {
@@ -33,7 +34,7 @@ export class ImagingRequest extends Model {
         },
 
         imagingType: {
-          type: Sequelize.ENUM(IMAGING_TYPES_VALUES),
+          type: Sequelize.ENUM(ALL_IMAGING_TYPES),
           allowNull: false,
         },
         reasonForCancellation: {
@@ -84,7 +85,7 @@ export class ImagingRequest extends Model {
         include: [{ association: 'noteItems' }],
       }));
     const extractWithType = async type => {
-      const notePage = getNotePageWithType(notePages, type);
+      const notePage = getNoteWithType(notePages, type);
       if (!notePage) {
         return '';
       }
@@ -138,11 +139,6 @@ export class ImagingRequest extends Model {
     this.belongsToMany(models.ReferenceData, {
       through: models.ImagingRequestArea,
       as: 'areas',
-      foreignKey: 'imagingRequestId',
-    });
-
-    // Used to be able to explicitly include these (hence no alias)
-    this.hasMany(models.ImagingRequestArea, {
       foreignKey: 'imagingRequestId',
     });
 

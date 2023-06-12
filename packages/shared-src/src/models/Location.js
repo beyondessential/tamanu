@@ -22,7 +22,6 @@ export class Location extends Model {
         code: {
           type: Sequelize.STRING,
           allowNull: false,
-          unique: true,
         },
         name: {
           type: Sequelize.STRING,

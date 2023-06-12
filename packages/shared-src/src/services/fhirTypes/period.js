@@ -1,19 +1,23 @@
 import { random } from 'lodash';
 import * as yup from 'yup';
+import { FHIR_DATETIME_PRECISION } from '../../constants';
 
-import { formatFhirDate } from '../../utils/fhir';
-import { FhirBaseType } from './baseType';
+import { toDateTimeString } from '../../utils/dateTime';
+import { formatDateTime } from '../../utils/fhir';
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
-export class FhirPeriod extends FhirBaseType {
+export class FhirPeriod extends Composite {
+  static FIELD_ORDER = ['start', 'end'];
+
   static SCHEMA() {
     return yup
       .object({
         start: yup
-          .string()
+          .date()
           .nullable()
           .default(null),
         end: yup
-          .string()
+          .date()
           .when('start', (start, schema) =>
             start
               ? schema.test(
@@ -29,13 +33,28 @@ export class FhirPeriod extends FhirBaseType {
       .noUnknown();
   }
 
+  sqlFields(options) {
+    return super.sqlFields(options).map(toDateTimeString);
+  }
+
+  asFhir() {
+    return {
+      start: formatDateTime(this.params.start, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      end: formatDateTime(this.params.end, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+    };
+  }
+
   static fake() {
     const end = random(0, Date.now());
     const start = end - random(0, end);
 
     return new this({
-      start: formatFhirDate(new Date(start)),
-      end: formatFhirDate(new Date(end)),
+      start: new Date(start),
+      end: new Date(end),
     });
   }
+}
+
+export class FHIR_PERIOD extends COMPOSITE {
+  static ValueClass = FhirPeriod;
 }

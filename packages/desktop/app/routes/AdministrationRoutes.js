@@ -3,7 +3,6 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 
 import {
   ProgramsAdminView,
-  AssetUploaderView,
   ReferenceDataAdminView,
   PermissionsAdminView,
   PatientMergeView,
@@ -12,12 +11,11 @@ import {
 
 export const AdministrationRoutes = React.memo(({ match }) => (
   <Switch>
-    <Route path={`${match.path}/referenceData`} component={ReferenceDataAdminView} />
+    <Route path={`${match.path}/refdata`} component={ReferenceDataAdminView} />
     <Route path={`${match.path}/permissions`} component={PermissionsAdminView} />
     <Route path={`${match.path}/programs`} component={ProgramsAdminView} />
-    <Route path={`${match.path}/assets`} component={AssetUploaderView} />
     <Route path={`${match.path}/patientMerge`} component={PatientMergeView} />
     <Route path={`${match.path}/sync`} component={SyncView} />
-    <Redirect to={`${match.path}/referenceData`} />
+    <Redirect to={`${match.path}/refdata`} />
   </Switch>
 ));

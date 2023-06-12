@@ -1,8 +1,8 @@
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
-  In,
   Index,
   ManyToOne,
   OneToMany,
@@ -30,7 +30,6 @@ import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
-import { NotePage } from './NotePage';
 
 const TIME_OFFSET = 3;
 
@@ -148,65 +147,50 @@ export class Encounter extends BaseModel implements IEncounter {
     await Patient.markForSync(this.patient);
   }
 
-  static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
+  static async getOrCreateCurrentEncounter(
+    patientId: string,
+    userId: string,
+    createdEncounterOptions: any = {},
+  ): Promise<Encounter> {
     const repo = this.getRepository();
 
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
-    return repo
+    const found = await repo
       .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
       .andWhere("startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
       .getOne();
-  }
 
-  static async getOrCreateCurrentEncounter(
-    patientId: string,
-    userId: string,
-    createdEncounterOptions: any = {},
-  ): Promise<Encounter> {
-    const currentEncounter = await Encounter.getCurrentEncounterForPatient(patientId);
-
-    if (currentEncounter) {
-      return currentEncounter;
-    }
+    if (found) return found;
 
     // Read the selected facility for this client
     const facilityId = await readConfig('facilityId', '');
-    let { departmentId, locationId } = createdEncounterOptions;
 
-    if (!departmentId) {
-      // Find the first department and location that matches the
-      // selected facility to provide the default value for mobile.
-      const defaultDepartment = await Department.findOne({
-        where: { facility: { id: facilityId } },
-      });
+    // Find the first department and location that matches the
+    // selected facility to provide the default value for mobile.
+    const defaultDepartment = await Department.findOne({
+      where: { facility: { id: facilityId } },
+    });
 
-      if (!defaultDepartment) {
-        throw new Error(
-          `No default Department is configured for facility: ${facilityId}. You need to update the Department reference data.`,
-        );
-      }
-
-      departmentId = defaultDepartment.id;
+    if (!defaultDepartment) {
+      throw new Error(
+        `No default Department is configured for facility: ${facilityId}. You need to update the Department reference data.`,
+      );
     }
 
-    if (!locationId) {
-      const defaultLocation = await Location.findOne({
-        where: { facility: { id: facilityId } },
-      });
+    const defaultLocation = await Location.findOne({
+      where: { facility: { id: facilityId } },
+    });
 
-      if (!defaultLocation) {
-        throw new Error(
-          `No default Location is configured for facility: ${facilityId}. You need to update the Location reference data.`,
-        );
-      }
-
-      locationId = defaultLocation.id;
+    if (!defaultLocation) {
+      throw new Error(
+        `No default Location is configured for facility: ${facilityId}. You need to update the Location reference data.`,
+      );
     }
 
     return Encounter.createAndSaveOne({
@@ -216,8 +200,8 @@ export class Encounter extends BaseModel implements IEncounter {
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
-      department: departmentId,
-      location: locationId,
+      department: defaultDepartment.id,
+      location: defaultLocation.id,
       deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });
@@ -226,22 +210,11 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getForPatient(patientId: string): Promise<Encounter[]> {
     const repo = this.getRepository();
 
-    const encounters = await repo.find({
+    return repo.find({
       where: { patient: { id: patientId } },
       relations: ['location', 'location.facility'],
       order: { startDate: 'DESC' },
     });
-
-    const notes = await NotePage.find({
-      where: { recordId: In(encounters.map(({ id }) => id)) },
-      relations: ['noteItems'],
-    });
-
-    // Usually a patient won't have too many encounters, but if they do, this will be slow.
-    return encounters.map(encounter => ({
-      ...encounter,
-      notePages: notes.filter(note => note.recordId === encounter.id),
-    }));
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
@@ -284,8 +257,5 @@ export class Encounter extends BaseModel implements IEncounter {
     'completedReferrals',
     'labRequests',
     'labRequests.tests',
-    // Can't add these here as there's no ORM relation
-    // 'notePages',
-    // 'notePages.noteItems',
   ];
 }

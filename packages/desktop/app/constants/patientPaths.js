@@ -34,7 +34,7 @@ export const PATIENT_TABS = {
   REFERRALS: 'referrals',
   PROGRAMS: 'programs',
   DOCUMENTS: 'documents',
-  VACCINES: 'vaccines',
+  IMMUNISATION: 'immunisation',
   MEDICATION: 'medication',
   INVOICES: 'invoices',
 };

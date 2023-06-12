@@ -125,10 +125,6 @@ export class SurveyResponse extends Model {
   }
 
   static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
-    if (!this.sequelize.isInsideTransaction()) {
-      throw new Error('SurveyResponse.getSurveyEncounter must always run inside a transaction!');
-    }
-
     const { Encounter } = this.sequelize.models;
 
     if (encounterId) {
@@ -156,7 +152,7 @@ export class SurveyResponse extends Model {
     const { departmentId, userId, locationId } = responseData;
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
-    const newEncounter = await Encounter.create({
+    return Encounter.create({
       patientId,
       encounterType: 'surveyResponse',
       reasonForEncounter,
@@ -166,14 +162,7 @@ export class SurveyResponse extends Model {
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
       startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
-    });
-
-    return newEncounter.update({
       endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
-      systemNote: 'Automatically discharged',
-      discharge: {
-        note: 'Automatically discharged after survey completion',
-      },
     });
   }
 

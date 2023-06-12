@@ -24,7 +24,7 @@ export const NotesPagesSection = ({ idsAndNotePages }) => {
       return {
         content: (
           <p key={id}>
-            <StyledId>{idsAndNotePages.length > 1 ? id : ''}</StyledId>
+            <StyledId>{id}</StyledId>
             {content}
           </p>
         ),

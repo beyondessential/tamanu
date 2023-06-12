@@ -1,8 +1,7 @@
 import Chance from 'chance';
-import { formatRFC7231 } from 'date-fns';
+import { format, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData, fakeUser } from 'shared/test-helpers/fake';
-import { formatFhirDate } from 'shared/utils/fhir/datetime';
 import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
@@ -129,7 +128,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       expect(response.body).toMatchObject({
         resourceType: 'Immunization',
         meta: {
-          lastUpdated: formatFhirDate(administeredVaccine.updatedAt),
+          lastUpdated: format(new Date(administeredVaccine.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         },
         status: 'completed',
         vaccineCode: {
@@ -142,7 +141,7 @@ describe(`Materialised FHIR - Immunization`, () => {
         encounter: {
           reference: expect.stringContaining(encounter.id),
         },
-        occurrenceDateTime: formatFhirDate(administeredVaccine.date),
+        occurrenceDateTime: administeredVaccine.date,
         lotNumber: administeredVaccine.batch,
         site: [
           {
@@ -187,7 +186,7 @@ describe(`Materialised FHIR - Immunization`, () => {
       expect(response.body).toMatchObject({
         resourceType: 'Immunization',
         meta: {
-          lastUpdated: formatFhirDate(administeredVaccine.updatedAt),
+          lastUpdated: format(new Date(administeredVaccine.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         },
         status: 'completed',
         performer: [],

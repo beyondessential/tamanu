@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { Formik, useFormikContext } from 'formik';
+import React from 'react';
+import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
-import { FORM_STATUSES, FORM_TYPES } from '../../constants';
+import { FORM_STATUSES } from '../../constants';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -17,21 +17,6 @@ const FormErrors = ({ errors }) => {
       <ErrorMessage error={error} />
     </Typography>
   ));
-};
-
-const ScrollToError = () => {
-  const formik = useFormikContext();
-  const submitting = formik?.isSubmitting;
-
-  useEffect(() => {
-    const el = document.querySelector('.Mui-error, [data-error]');
-    const element = el?.parentElement ?? el;
-
-    if (element) {
-      element.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    }
-  }, [submitting]);
-  return null;
 };
 
 export class Form extends React.PureComponent {
@@ -73,22 +58,22 @@ export class Form extends React.PureComponent {
     setSubmitting,
     getValues,
     setStatus,
-    status,
     ...rest
-  }) => async (event, submissionParameters, componentsToValidate) => {
+  }) => async event => {
     event.preventDefault();
     event.persist();
 
     // Use formik status prop to track if the user has attempted to submit the form. This is used in
     // Field.js to only show error messages once the user has attempted to submit the form
-    setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
 
     // avoid multiple submissions
     if (isSubmitting) {
       return null;
     }
+
     setSubmitting(true);
-    const values = { ...getValues(), ...submissionParameters };
+    const values = getValues();
 
     // validation phase
 
@@ -97,14 +82,8 @@ export class Form extends React.PureComponent {
     // @see https://github.com/jaredpalmer/formik/issues/1209
     const { isCanceled, ...formErrors } = await validateForm(values);
 
-    const validFormErrors = componentsToValidate
-      ? Object.keys(formErrors || {}).filter(problematicComponent =>
-          componentsToValidate.has(problematicComponent),
-        )
-      : formErrors;
-
-    if (Object.keys(validFormErrors).length > 0) {
-      this.setErrors(validFormErrors);
+    if (Object.keys(formErrors).length > 0) {
+      this.setErrors(formErrors);
       // Set submitting false before throwing the error so that the form is reset
       // for future form submissions
       setSubmitting(false);
@@ -112,25 +91,9 @@ export class Form extends React.PureComponent {
     }
 
     // submission phase
-    const { onSubmit, onSuccess, formType = FORM_TYPES.DATA_FORM } = this.props;
-    const { touched } = rest;
-    const newValues = { ...values };
-
-    // If it is a data form, before submission, convert all the touched undefined values
-    // to null because
-    // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
-    // trying to remove a value when editing a record
-    // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
-    if (formType === FORM_TYPES.DATA_FORM) {
-      for (const key of Object.keys(touched)) {
-        if (newValues[key] === undefined) {
-          newValues[key] = null;
-        }
-      }
-    }
-
+    const { onSubmit, onSuccess } = this.props;
     try {
-      const result = await onSubmit(newValues, {
+      const result = await onSubmit(values, {
         ...rest,
         setErrors: this.setErrors,
       });
@@ -175,19 +138,16 @@ export class Form extends React.PureComponent {
     const { render } = this.props;
 
     return (
-      <>
-        <form onSubmit={submitForm} noValidate>
-          {render({
-            ...formProps,
-            setValues,
-            isValid,
-            isSubmitting,
-            submitForm,
-            clearForm: () => formProps.resetForm({}),
-          })}
-        </form>
-        <ScrollToError />
-      </>
+      <form onSubmit={submitForm} noValidate>
+        {render({
+          ...formProps,
+          setValues,
+          isValid,
+          isSubmitting,
+          submitForm,
+          clearForm: () => formProps.resetForm({}),
+        })}
+      </form>
     );
   };
 

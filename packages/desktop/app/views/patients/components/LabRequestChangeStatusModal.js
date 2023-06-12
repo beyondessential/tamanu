@@ -1,21 +1,12 @@
-import React from 'react';
-import * as yup from 'yup';
-
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
-
-import { ConfirmCancelRow, Form, FormGrid, Modal, SelectField, Field } from '../../../components';
+import React, { useState } from 'react';
+import { ConfirmCancelRow, FormGrid, Modal, SelectInput } from '../../../components';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
-
-const validationSchema = yup.object().shape({
-  status: yup
-    .string()
-    .oneOf(Object.values(LAB_REQUEST_STATUSES))
-    .required(),
-});
 
 export const LabRequestChangeStatusModal = React.memo(
   ({ status: currentStatus, updateLabReq, open, onClose }) => {
-    const updateLabStatus = async ({ status }) => {
+    const [status, setStatus] = useState(currentStatus);
+
+    const updateLabStatus = async () => {
       await updateLabReq({ status });
       onClose();
     };
@@ -23,25 +14,16 @@ export const LabRequestChangeStatusModal = React.memo(
     return (
       <>
         <Modal open={open} onClose={onClose} title="Change lab request status">
-          <Form
-            onSubmit={updateLabStatus}
-            validationSchema={validationSchema}
-            initialValues={{
-              status: currentStatus,
-            }}
-            render={({ submitForm }) => (
-              <FormGrid columns={1}>
-                <Field
-                  label="Status"
-                  name="status"
-                  options={LAB_REQUEST_STATUS_OPTIONS}
-                  component={SelectField}
-                  required
-                />
-                <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onClose} />
-              </FormGrid>
-            )}
-          />
+          <FormGrid columns={1}>
+            <SelectInput
+              label="Status"
+              name="status"
+              options={LAB_REQUEST_STATUS_OPTIONS}
+              value={status}
+              onChange={({ target: { value } }) => setStatus(value)}
+            />
+            <ConfirmCancelRow onConfirm={updateLabStatus} confirmText="Save" onCancel={onClose} />
+          </FormGrid>
         </Modal>
       </>
     );

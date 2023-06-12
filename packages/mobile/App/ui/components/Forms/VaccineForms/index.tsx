@@ -1,11 +1,7 @@
 import React, { FC, useMemo } from 'react';
-import { ScrollView } from 'react-native';
-import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { NavigationProp } from '@react-navigation/native';
-
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { RowView } from '/styled/common';
+import { ScrollView } from 'react-native';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { SubmitButton } from '../SubmitButton';
@@ -15,12 +11,6 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { InjectionSiteType } from '~/types';
 import { Form } from '../Form';
 import { Button } from '/components/Button';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { ErrorScreen } from '/components/ErrorScreen';
-
-import { useBackendEffect } from '~/ui/hooks';
-import { readConfig } from '~/services/config';
-import { SETTING_KEYS } from '../../../../constants';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -37,8 +27,6 @@ export type VaccineFormValues = {
   date: Date;
   reason?: string;
   batch?: string;
-  locationId?: string;
-  departmentId?: string;
   injectionSite?: InjectionSiteType;
   scheduledVaccineId?: string;
   givenBy?: string;
@@ -46,13 +34,11 @@ export type VaccineFormValues = {
   status: string | VaccineStatus;
 };
 
-interface VaccineFormProps {
+interface VaccineForm {
   status: VaccineStatus;
   initialValues: VaccineFormValues;
-  patientId: string;
   onSubmit: (values: VaccineFormValues) => Promise<void>;
   onCancel: () => void;
-  navigation: NavigationProp<any>;
 }
 
 const createInitialValues = (initialValues: VaccineFormValues): VaccineFormValues => ({
@@ -63,104 +49,32 @@ const createInitialValues = (initialValues: VaccineFormValues): VaccineFormValue
   ...initialValues,
 });
 
-const REQUIRED_INLINE_ERROR_MESSAGE = 'Required';
-
 /* eslint-disable @typescript-eslint/no-empty-function */
 export const VaccineForm = ({
   initialValues,
   status,
   onSubmit,
   onCancel,
-  navigation,
-  patientId,
-}: VaccineFormProps): JSX.Element => {
+}: VaccineForm): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
-  const user = useSelector(authUserSelector);
-
-  const [locationAndDepartment, error, isLoading] = useBackendEffect(
-    async ({ models }) => {
-      if (initialValues?.locationId && initialValues?.departmentId) {
-        return { locationId: initialValues.locationId, departmentId: initialValues.departmentId };
-      }
-
-      const currentEncounter = await models.Encounter.getCurrentEncounterForPatient(patientId);
-
-      if (currentEncounter) {
-        return {
-          locationId: currentEncounter.locationId,
-          departmentId: currentEncounter.departmentId,
-        };
-      }
-
-      const facilityId = await readConfig('facilityId', '');
-      const vaccinationDefaults =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, facilityId)) || {};
-
-      return {
-        locationId: vaccinationDefaults.locationId,
-        departmentId: vaccinationDefaults.departmentId,
-      };
-    },
-    [patientId, initialValues?.locationId, initialValues?.departmentId],
-  );
-
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  const { locationId, departmentId } = locationAndDepartment || {};
-
-  const newInitialValues = createInitialValues({
-    ...initialValues,
-    status,
-    recorderId: user.id,
-    locationId,
-    departmentId,
-  });
-
   const consentSchema =
     status === VaccineStatus.GIVEN
       ? Yup.boolean()
-          .oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
-          .required(REQUIRED_INLINE_ERROR_MESSAGE)
-      : undefined;
+          .oneOf([true])
+          .required()
+      : Yup.boolean();
   return (
     <Form
       onSubmit={onSubmit}
       validationSchema={Yup.object().shape({
-        date: Yup.date().when('givenElsewhere', {
-          is: givenElsewhere => !givenElsewhere,
-          then: Yup.date()
-            .typeError(REQUIRED_INLINE_ERROR_MESSAGE)
-            .required(),
-          otherwise: Yup.date().nullable(),
-        }),
-        locationId: Yup.string().when('givenElsewhere', {
-          is: givenElsewhere => !givenElsewhere,
-          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-          otherwise: Yup.string().nullable(),
-        }),
-        locationGroupId: Yup.string().when('givenElsewhere', {
-          is: givenElsewhere => !givenElsewhere,
-          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-          otherwise: Yup.string().nullable(),
-        }),
-        departmentId: Yup.string().when('givenElsewhere', {
-          is: givenElsewhere => !givenElsewhere,
-          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-          otherwise: Yup.string().nullable(),
-        }),
+        date: Yup.date().required(),
         consent: consentSchema,
       })}
-      initialValues={newInitialValues}
+      initialValues={createInitialValues({ ...initialValues, status })}
     >
       {(): JSX.Element => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
-          <StatusForm navigation={navigation} />
+          <StatusForm />
           <RowView paddingTop={20} paddingBottom={20} flex={1}>
             <Button
               width={screenPercentageToDP(43.1, Orientation.Width)}

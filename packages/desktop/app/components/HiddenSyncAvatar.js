@@ -29,31 +29,27 @@ const Error = ({ errorMessage }) => (
   </div>
 );
 
-export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
+export const HiddenSyncAvatar = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const api = useApi();
 
   const handleClick = async event => {
-    if (event.shiftKey) {
-      if (loading) return;
-      setLoading(true);
+    if (!event.shiftKey || loading) return;
+    setLoading(true);
 
-      toast.info('Starting manual sync...');
-      try {
-        await api.post(`sync/run`);
-        toast.success('Manual sync complete');
-      } catch (error) {
-        toast.error(<Error errorMessage={error.message} />);
-      } finally {
-        setLoading(false);
-      }
-    } else if (onClick) {
-      onClick(event);
+    toast.info('Starting manual sync...');
+    try {
+      await api.post(`sync/run`);
+      toast.success('Manual sync complete');
+    } catch (error) {
+      toast.error(<Error errorMessage={error.message} />);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <StyledAvatar onClick={handleClick} {...props}>
+    <StyledAvatar onClick={handleClick}>
       {loading ? <CustomCircularProgress size={20} /> : children}
     </StyledAvatar>
   );

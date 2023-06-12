@@ -1,13 +1,26 @@
 {
   "baseUrl": "./src",
-  "extends": ["../../common.tsconfig.json"],
   "compilerOptions": {
     "outDir": "./build",
+    "pretty": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "isolatedModules": false,
-    "noEmit": false,
     "resolveJsonModule": true,
+    "moduleResolution": "node",
     "skipLibCheck": true,
-    "target": "es2020"
-  }
+    "strict": true,
+    "alwaysStrict": true,
+    "target": "es2019",
+    "module": "CommonJS"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "build",
+    "node_modules",
+    "jest.config.js"
+  ]
 }

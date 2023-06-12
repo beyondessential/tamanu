@@ -138,13 +138,3 @@ if (__DEV__) {
     }
   });
 }
-
-// Add a dev menu item to drop database and rerun migrations
-if (__DEV__) {
-  DevSettings.addMenuItem('Drop database', async () => {
-    await Database.client.dropDatabase();
-    await Database.forceSync();
-    await clear();
-    DevSettings.reload();
-  });
-}

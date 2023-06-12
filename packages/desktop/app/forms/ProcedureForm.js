@@ -12,6 +12,7 @@ import {
   CheckField,
   AutocompleteField,
   TextField,
+  FormGroup,
   LocationField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
@@ -47,78 +48,82 @@ export const ProcedureForm = React.memo(
         const buttonText = getButtonText(isCompleted);
         return (
           <div>
-            <FormGrid>
-              <div style={{ gridColumn: 'span 2' }}>
+            <FormGroup disabled={isCompleted}>
+              <FormGrid>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <Field
+                    name="procedureTypeId"
+                    label="Procedure"
+                    required
+                    component={AutocompleteField}
+                    suggester={procedureSuggester}
+                  />
+                </div>
+                <FormGrid style={{ gridColumn: 'span 2' }}>
+                  <Field
+                    name="physicianId"
+                    label="Clinician"
+                    required
+                    component={AutocompleteField}
+                    suggester={practitionerSuggester}
+                  />
+                  <Field
+                    name="date"
+                    label="Procedure date"
+                    saveDateAsString
+                    required
+                    component={DateField}
+                  />
+                  <Field
+                    locationGroupLabel="Procedure area"
+                    label="Procedure location"
+                    name="locationId"
+                    enableLocationStatus={false}
+                    required
+                    component={LocationField}
+                  />
+                </FormGrid>
+                <FormGrid style={{ gridColumn: 'span 2' }}>
+                  <Field
+                    name="startTime"
+                    label="Time started"
+                    component={TimeField}
+                    saveDateAsString
+                  />
+                  <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
+                </FormGrid>
+
                 <Field
-                  name="procedureTypeId"
-                  label="Procedure"
-                  required
-                  component={AutocompleteField}
-                  suggester={procedureSuggester}
-                />
-              </div>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
-                <Field
-                  name="physicianId"
-                  label="Clinician"
-                  required
+                  name="anaesthetistId"
+                  label="Anaesthetist"
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
                 />
                 <Field
-                  name="date"
-                  label="Procedure date"
-                  saveDateAsString
-                  required
-                  component={DateField}
+                  name="anaestheticId"
+                  label="Anaesthetic type"
+                  component={AutocompleteField}
+                  suggester={anaestheticSuggester}
+                  rows={4}
+                  style={{ gridColumn: 'span 2' }}
                 />
                 <Field
-                  locationGroupLabel="Procedure area"
-                  label="Procedure location"
-                  name="locationId"
-                  enableLocationStatus={false}
-                  required
-                  component={LocationField}
+                  name="assistantId"
+                  label="Assistant"
+                  component={AutocompleteField}
+                  suggester={practitionerSuggester}
                 />
-              </FormGrid>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
-                  name="startTime"
-                  label="Time started"
-                  component={TimeField}
-                  saveDateAsString
+                  name="note"
+                  label="Notes or additional instructions"
+                  component={TextField}
+                  multiline
+                  rows={4}
+                  style={{ gridColumn: 'span 2' }}
                 />
-                <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
               </FormGrid>
-
-              <Field
-                name="anaesthetistId"
-                label="Anaesthetist"
-                component={AutocompleteField}
-                suggester={practitionerSuggester}
-              />
-              <Field
-                name="anaestheticId"
-                label="Anaesthetic type"
-                component={AutocompleteField}
-                suggester={anaestheticSuggester}
-                rows={4}
-                style={{ gridColumn: 'span 2' }}
-              />
-              <Field
-                name="assistantId"
-                label="Assistant"
-                component={AutocompleteField}
-                suggester={practitionerSuggester}
-              />
-              <Field
-                name="note"
-                label="Notes or additional instructions"
-                component={TextField}
-                multiline
-                rows={4}
-                style={{ gridColumn: 'span 2' }}
-              />
+            </FormGroup>
+            <FormGrid>
               <Field name="completed" label="Completed" component={CheckField} />
               <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
                 <Field

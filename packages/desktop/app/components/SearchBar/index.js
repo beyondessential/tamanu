@@ -7,4 +7,3 @@ export * from './ImmunisationSearchBar';
 export * from './InvoicesSearchBar';
 export * from './LabRequestsSearchBar';
 export * from './PatientSearchBar';
-export * from './BedManagementSearchBar';

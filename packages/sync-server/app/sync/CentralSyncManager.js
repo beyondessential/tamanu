@@ -1,4 +1,3 @@
-import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
@@ -17,7 +16,6 @@ import {
   saveIncomingChanges,
   adjustDataPostSyncPush,
   waitForPendingEditsUsingSyncTick,
-  getSyncTicksOfPendingEdits,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { uuidToFairlyUniqueInteger } from 'shared/utils';
@@ -64,7 +62,7 @@ export class CentralSyncManager {
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
     const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
-    return { tick: tock - 1, tock };
+    return { tick: tock - 1, tock, previousTick: tock - 3, previousTock: tock - 2 };
   }
 
   async startSession(userId, deviceId) {
@@ -98,13 +96,6 @@ export class CentralSyncManager {
       { startedAtTick: tick },
       { where: { id: syncSession.id } },
     );
-    // eslint-disable-next-line no-unused-expressions
-    trace.getActiveSpan()?.setAttributes({
-      'app.sync.sessionId': syncSession.id,
-      'app.sync.tick': tick,
-    });
-
-    return { sessionId: syncSession.id, tick };
   }
 
   async connectToSession(sessionId) {
@@ -119,11 +110,6 @@ export class CentralSyncManager {
       throw new Error(errorMessageFromSession(session));
     }
     await session.update({ lastConnectionTime: Date.now() });
-
-    // eslint-disable-next-line no-unused-expressions
-    trace.getActiveSpan()?.setAttributes({
-      'app.sync.sessionId': sessionId,
-    });
 
     return session;
   }
@@ -204,15 +190,9 @@ export class CentralSyncManager {
       // get a sync tick that we can safely consider the snapshot to be up to (because we use the
       // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
       // process is ongoing, will have a later updated_at_sync_tick)
-      const { tick } = await this.tickTockGlobalClock();
-
-      // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
-      const pendingSyncTicks = (await getSyncTicksOfPendingEdits(sequelize)).filter(t => t < tick);
-
-      // wait for any in-flight transactions of pending edits
-      // that we don't miss any changes that are in progress
-      await Promise.all(pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(sequelize, t)));
-
+      const { tick, previousTock } = await this.tickTockGlobalClock();
+      // wait for any transactions that were in progress using the previous central server "tock"
+      await waitForPendingEditsUsingSyncTick(sequelize, previousTock);
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
         { where: { id: sessionId } },

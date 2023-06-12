@@ -47,9 +47,6 @@ export class LabRequest extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        publishedDate: dateTimeType('publishedDate', {
-          allowNull: true,
-        }),
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

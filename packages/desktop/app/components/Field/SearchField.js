@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Search from '@material-ui/icons/Search';
-import { InputAdornment, IconButton } from '@material-ui/core';
+import { InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
-import { ClearIcon } from '../Icons/ClearIcon';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
 
@@ -19,34 +18,7 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const StyledIconButton = styled(IconButton)`
-  padding: 5px;
-`;
-
-const StyledClearIcon = styled(ClearIcon)`
-  cursor: pointer;
-  color: ${Colors.darkText};
-`;
-
-export const SearchField = ({ keepLetterCase = false, ...props }) => {
-  const {
-    field: { value, name },
-    form: { setFieldValue } = {},
-    label,
-  } = props;
-  const [searchValue, setSearchValue] = useState(value);
-
-  useEffect(() => {
-    setSearchValue(value);
-  }, [value]);
-
-  const clearSearch = () => {
-    setSearchValue('');
-    if (setFieldValue) {
-      setFieldValue(name, '');
-    }
-  };
-
+export const SearchField = props => {
   return (
     <StyledTextField
       InputProps={{
@@ -55,15 +27,9 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
             <Search />
           </Icon>
         ),
-        endAdornment: searchValue && (
-          <StyledIconButton onClick={clearSearch}>
-            <StyledClearIcon />
-          </StyledIconButton>
-        ),
       }}
-      placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
+      placeholder={props?.label ? `Search ${props?.label.toLowerCase()}` : ''}
       {...props}
-      value={searchValue}
     />
   );
 };

@@ -46,7 +46,6 @@ export const SurveyScreenPaginator = ({
   validateForm,
   setErrors,
   errors,
-  status,
   setStatus,
 }) => {
   const { components } = survey;
@@ -70,7 +69,6 @@ export const SurveyScreenPaginator = ({
         validateForm={validateForm}
         setErrors={setErrors}
         errors={errors}
-        status={status}
         setStatus={setStatus}
       />
     );

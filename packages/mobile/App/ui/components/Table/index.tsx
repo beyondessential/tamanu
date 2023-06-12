@@ -1,16 +1,11 @@
 import React from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { ScrollView } from 'react-native-gesture-handler';
-import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
 export type TableHeader = {
   key: string;
-  accessor: (
-    value: string,
-    onPress: (item: any) => void,
-    headerOffsetPosition?: number,
-  ) => JSX.Element;
-};
+  accessor: (value: string, onPress: (item: any) => void) => JSX.Element;
+}
 
 export type TableRow = {
   rowKey: string;
@@ -21,7 +16,7 @@ export type TableRow = {
 
 export type TableCells<T> = {
   [key: string]: T[];
-};
+}
 
 interface TableProps {
   Title: React.MemoExoticComponent<() => JSX.Element> | (() => JSX.Element);
@@ -30,40 +25,29 @@ interface TableProps {
   columns: string[];
   tableHeader: TableHeader;
   onPressItem?: (item: any) => void;
-  scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }
 
 export const Table = ({
-  Title = null,
+  Title,
   rows,
   columns,
   cells,
-  tableHeader = null,
+  tableHeader,
   onPressItem,
-  scrollHandler,
 }: TableProps): JSX.Element => (
   <RowView>
     <StyledView>
-      {Title && <Title />}
+      <Title />
       {rows.map((r, i) => r.rowHeader(i))}
     </StyledView>
-    <ScrollView
-      bounces={false}
-      showsHorizontalScrollIndicator
-      onScroll={scrollHandler}
-      horizontal
-    >
+    <ScrollView bounces={false} scrollEnabled showsHorizontalScrollIndicator horizontal>
       <RowView>
         {columns.map((column: any) => (
           <StyledView key={`${column}`}>
-            {tableHeader?.accessor(column, onPressItem)}
-            {cells[column] &&
-              rows.map((row, i) =>
-                row.cell(
-                  cells[column].find(c => c[row.rowKey] === row.rowTitle),
-                  i,
-                ),
-              )}
+            {tableHeader.accessor(column, onPressItem)}
+            {cells[column]
+              && rows.map((row, i) => row.cell(cells[column]
+                .find(c => c[row.rowKey] === row.rowTitle), i))}
           </StyledView>
         ))}
       </RowView>
