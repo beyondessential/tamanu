@@ -234,14 +234,9 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, onClear, name, required } = this.props;
-    // use correct error message for required fields by setting to "" but otherwise set to null value to prevent FK errors
-    const clearValue = required ? '' : null;
-    onChange({ target: { value: clearValue, name } });
+    const { onChange, name } = this.props;
+    onChange({ target: { value: undefined, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    if (onClear) {
-      onClear();
-    }
   };
 
   clearOptions = () => {
@@ -289,7 +284,17 @@ export class AutocompleteInput extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
+    const {
+      label,
+      required,
+      className,
+      infoTooltip,
+      tag,
+      value,
+      size,
+      disabled,
+      ...other
+    } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -311,7 +316,7 @@ export class AutocompleteInput extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                {value && (
+                {value && !disabled && (
                   <StyledIconButton onClick={this.handleClearValue}>
                     <StyledClearIcon />
                   </StyledIconButton>
@@ -330,6 +335,7 @@ export class AutocompleteInput extends Component {
           }}
           fullWidth
           value={value}
+          disabled={disabled}
           {...other}
         />
       </OuterLabelFieldWrapper>

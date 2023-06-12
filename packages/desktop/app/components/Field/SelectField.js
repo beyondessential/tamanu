@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ChevronIcon } from '../Icons/ChevronIcon';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
@@ -96,25 +96,20 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  onClear,
+  form,
+  isClearable = true,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      // changedOption is empty if Clear indicator is clicked
-      const { status } = props.form;
-      const clearValue = status?.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
-      if (!changedOption) {
-        // Send undefined if search bar as we dont want to filter by empty string
-        onChange({ target: { value: clearValue, name } });
-        if (onClear) {
-          onClear();
-        }
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
+        onChange({ target: { value: undefined, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear, props.form],
+    [onChange, name],
   );
 
   const customStyles = {
@@ -204,7 +199,7 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          isClearable={value !== ''}
+          isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}
