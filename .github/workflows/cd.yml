@@ -47,6 +47,7 @@ jobs:
 
   build:
     needs: info
+    if: false
     strategy:
       fail-fast: false
       matrix:
