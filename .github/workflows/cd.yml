@@ -179,7 +179,7 @@ jobs:
         with:
           node-version: 16
           cache: yarn
-      
+
       - name: Install wine
         # see https://github.com/actions/runner-images/issues/7589
         run: |
@@ -220,7 +220,6 @@ jobs:
       - name: Pack desktop client
         working-directory: packages/desktop/release
         run: zip -q -r ../tamanu-$(jq .version ../package.json -r)-${{ github.sha }}.zip .
-        shell: bash
 
       - name: Upload as artifact
         uses: actions/upload-artifact@v3
