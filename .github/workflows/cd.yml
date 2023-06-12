@@ -172,12 +172,14 @@ jobs:
 
   client:
     needs: info
-    runs-on: macos-latest # because wine doesn't install on ubuntu
+    # because wine doesn't install on ubuntu
+    # and yarn doesn't work on windows (io latency)
+    runs-on: macos-latest
     name: Build desktop client
     steps:
       - name: Install wine
         # see https://github.com/actions/runner-images/issues/743
-        run: brew cask install wine-stable
+        run: brew install wine-stable
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
