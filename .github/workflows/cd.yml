@@ -174,12 +174,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Build desktop client
     steps:
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: yarn
-
       - name: Install wine
         # see https://github.com/actions/runner-images/issues/7589
         run: |
@@ -201,6 +195,12 @@ jobs:
           role-session-name: GithubActionsTamanuS3
 
       - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
 
       - name: Prepare yarn
         run: yarn && yarn build-shared
