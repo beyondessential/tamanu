@@ -62,6 +62,13 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
             status: LAB_REQUEST_STATUSES.PUBLISHED,
           });
 
+          // Create a log entry for the lab request status
+          await this.models.LabRequestLog.create({
+            status: labRequest.status,
+            labRequestId: labRequest.id,
+            updatedById: labRequest.requestedById,
+          });
+
           log.info(`Auto-published lab request ${labRequest.id} (${labRequest.displayId})`);
         });
       } catch (e) {
