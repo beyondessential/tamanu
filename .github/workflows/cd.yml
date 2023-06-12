@@ -172,21 +172,12 @@ jobs:
 
   client:
     needs: info
-    runs-on: ubuntu-latest
+    runs-on: macos-latest # because wine doesn't install on ubuntu
     name: Build desktop client
     steps:
       - name: Install wine
-        # see https://github.com/actions/runner-images/issues/7589
-        run: |
-          set -e
-          export DEBIAN_FRONTEND=noninteractive
-          sudo apt-get install ppa-purge
-          sudo ppa-purge -y ppa:ubuntu-toolchain-r/test
-          sudo mkdir -pm755 /etc/apt/keyrings
-          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y msitools wine-stable wine-stable-i386 wixl
+        # see https://github.com/actions/runner-images/issues/743
+        run: brew cask install wine-stable
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
