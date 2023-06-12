@@ -207,6 +207,13 @@ jobs:
       - name: Pack desktop client
         working-directory: packages/desktop/release
         run: zip -q -r ../tamanu-$(jq .version ../package.json -r)-${{ github.sha }}.zip .
+      
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tamanu-desktop
+          path: packages/desktop/tamanu-*.zip
+          retention-days: 14
 
       - name: Push to S3
         working-directory: packages/desktop
