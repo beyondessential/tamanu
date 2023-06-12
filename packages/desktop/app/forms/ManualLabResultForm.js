@@ -14,7 +14,6 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useSuggester } from '../api';
-import { useAuth } from '../contexts/Auth';
 
 function getComponentForTest(resultType, options) {
   if (options && options.length) return SelectField;
