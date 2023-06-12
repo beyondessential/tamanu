@@ -8,6 +8,7 @@ import Chance from 'chance';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { createLabTestTypes } from '../../../shared-src/src/demoData/labRequests';
 
 const chance = new Chance();
 const VALID_LAB_REQUEST_STATUSES = [
@@ -45,32 +46,69 @@ describe('Labs', () => {
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
     expect(createdRequest).toBeTruthy();
-    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
 
     const createdTests = await models.LabTest.findAll({
       where: { labRequestId: createdRequest.id },
     });
     expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
   });
 
   it('should record a lab request with a Lab Test Panel', async () => {
-    const LabTestPanel = await models.LabTestPanel.create({
+    const labTestPanel = await models.LabTestPanel.create({
       name: 'Demo test panel',
       code: 'demo-test-panel',
     });
+
+    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId,
     });
 
-    const labRequest = await randomLabRequest(models, {
-      patientId,
-      labTestPanelId: LabTestPanel.id,
-    });
     const response = await app
       .post('/v1/labRequest')
-      .send({ ...labRequest, encounterId: encounter.id });
+      .send({ panelIds: [labTestPanel.id], encounterId: encounter.id, requestFormType: 'panel' });
+
+    expect(response).toHaveSucceeded();
+
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
+    expect(createdRequest).toBeTruthy();
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+
+    const createdTests = await models.LabTest.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdTests).toHaveLength(labTestTypes.length);
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+  });
+
+  it('should record samples for panels', async () => {
+    const labTestPanel = await models.LabTestPanel.create({
+      name: 'Demo test panel',
+      code: 'demo-test-panel',
+    });
+    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const sampleTime = '2023-06-09 00:00:00';
+    const sampleDetails = {
+      [labTestPanel.id]: {
+        sampleTime,
+      },
+    };
+    const response = await app.post('/v1/labRequest').send({
+      panelIds: [labTestPanel.id],
+      encounterId: encounter.id,
+      sampleDetails,
+      requestFormType: 'panel',
+    });
     expect(response).toHaveSucceeded();
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
@@ -80,8 +118,12 @@ describe('Labs', () => {
     const createdTests = await models.LabTest.findAll({
       where: { labRequestId: createdRequest.id },
     });
-    expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+    expect(createdTests).toHaveLength(labTestTypes.length);
+    expect(
+      createdTests.every(
+        x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
+      ),
+    );
   });
 
   it('should not record a lab request with an invalid testTypeId', async () => {
@@ -243,3 +285,13 @@ describe('Labs', () => {
     });
   });
 });
+async function createTestTypesForPanel(models, labTestPanel) {
+  const labTestTypes = await createLabTestTypes(models);
+  labTestTypes.map(async ltt => {
+    await models.LabTestPanelLabTestTypes.create({
+      labTestPanelId: labTestPanel.id,
+      labTestTypeId: ltt.id,
+    });
+  });
+  return labTestTypes;
+}

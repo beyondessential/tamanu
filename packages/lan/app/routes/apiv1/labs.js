@@ -55,7 +55,6 @@ labRequest.post(
     const { models, body, user } = req;
     const { note, requestFormType } = body;
     req.checkPermission('create', 'LabRequest');
-
     const response =
       requestFormType === 'panel'
         ? await createPanelLabRequests(models, body, note, user)
