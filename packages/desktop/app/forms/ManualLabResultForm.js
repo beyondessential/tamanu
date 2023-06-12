@@ -41,7 +41,7 @@ export const ManualLabResultForm = ({
   onClose,
   labTest,
   isReadOnly,
-  canWriteLabTestResult,
+  isLabTestResultEditable,
 }) => {
   const { resultType, options } = labTest.labTestType;
   const component = getComponentForTest(resultType, options);
@@ -58,7 +58,7 @@ export const ManualLabResultForm = ({
             required
             component={component}
             options={renderOptions(options)}
-            disabled={isReadOnly || !canWriteLabTestResult}
+            disabled={isReadOnly || !isLabTestResultEditable}
           />
           <Field
             label="Completed"

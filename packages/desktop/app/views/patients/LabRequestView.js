@@ -235,7 +235,7 @@ export const LabRequestView = () => {
         labRequest={labRequest}
         patient={patient}
         isReadOnly={areLabTestsReadOnly}
-        canWriteLabTestResult={canWriteLabTestResult}
+        isLabTestResultEditable={canWriteLabTestResult}
       />
       {modalId && (
         <ActiveModal
