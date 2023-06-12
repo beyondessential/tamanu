@@ -141,7 +141,10 @@ jobs:
         env:
           KEY: ${{ secrets.TAMANU_OPS_SSH }}
           NAME: ${{ needs.build.outputs.name }}
-        run: echo salt=$(sha1sum <<< "$KEY$NAME" | cut -d' ' -f1) >> $GITHUB_OUTPUT
+        run: |
+          salt=$(sha1sum <<< "$KEY$NAME" | cut -d' ' -f1)
+          echo "::add-mask::$salt"
+          echo "salt=$salt" >> $GITHUB_OUTPUT
 
       - name: Up!
         uses: pulumi/actions@v3
