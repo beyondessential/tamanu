@@ -195,10 +195,10 @@ jobs:
       - name: Prepare env
         working-directory: packages/desktop
         run: |
-        cat <<EOF > .env
-        HOST="https://facility-1.${{ needs.info.outputs.branch }}.internal.tamanu.io"
-        REALM_PATH="/realm"
-        EOF
+          cat <<EOF > .env
+          HOST="https://facility-1.${{ needs.info.outputs.branch }}.internal.tamanu.io"
+          REALM_PATH="/realm"
+          EOF
 
       - name: Build desktop client
         working-directory: packages/desktop
