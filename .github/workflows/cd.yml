@@ -171,7 +171,7 @@ jobs:
 
   client:
     needs: info
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     name: Build desktop client
     steps:
       - name: Configure AWS Credentials
@@ -190,7 +190,9 @@ jobs:
           cache: yarn
 
       - name: Prepare yarn
-        run: yarn && yarn build-shared
+        run: |
+          yarn
+          yarn build-shared
 
       - name: Prepare env
         working-directory: packages/desktop
@@ -207,7 +209,8 @@ jobs:
       - name: Pack desktop client
         working-directory: packages/desktop/release
         run: zip -q -r ../tamanu-$(jq .version ../package.json -r)-${{ github.sha }}.zip .
-      
+        shell: bash
+
       - name: Upload as artifact
         uses: actions/upload-artifact@v3
         with:
