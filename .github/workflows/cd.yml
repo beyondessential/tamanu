@@ -196,8 +196,15 @@ jobs:
           node-version: 16
           cache: yarn
 
+      - name: Install Python 3.10 (for node-gyp)
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+
       - name: Prepare yarn
         run: yarn && yarn build-shared
+        env:
+          PYTHON: /opt/homebrew/bin/python3.10
 
       - name: Prepare env
         working-directory: packages/desktop
