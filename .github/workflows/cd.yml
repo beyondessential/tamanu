@@ -171,9 +171,20 @@ jobs:
 
   client:
     needs: info
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     name: Build desktop client
     steps:
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      
+      - name: Install wine
+        run: |
+          dpkg --add-architecture i386
+          apt install -y msitools wine32 wine wixl
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -183,16 +194,8 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: yarn
-
       - name: Prepare yarn
-        run: |
-          yarn --network-timeout 120000 # ms
-          yarn build-shared
+        run: yarn && yarn build-shared
 
       - name: Prepare env
         working-directory: packages/desktop
