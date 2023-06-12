@@ -7,45 +7,48 @@ import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { LabTestResultModal } from '../LabTestResultModal';
 
-const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly }) => {
-  const { updateLabTest, labRequest } = useLabRequest();
-  const { navigateToLabRequest } = usePatientNavigation();
+const ManualLabResultModal = React.memo(
+  ({ labTest, onClose, open, isReadOnly, canWriteLabTestResult }) => {
+    const { updateLabTest, labRequest } = useLabRequest();
+    const { navigateToLabRequest } = usePatientNavigation();
 
-  const onSubmit = useCallback(
-    async ({ result, completedDate, laboratoryOfficer, labTestMethodId, verification }) => {
-      await updateLabTest(labRequest.id, labTest.id, {
-        result: `${result}`,
-        completedDate,
-        laboratoryOfficer,
-        verification,
-        labTestMethodId,
-      });
-      navigateToLabRequest(labRequest.id);
-      onClose();
-    },
-    [labRequest, labTest, onClose, updateLabTest, navigateToLabRequest],
-  );
+    const onSubmit = useCallback(
+      async ({ result, completedDate, laboratoryOfficer, labTestMethodId, verification }) => {
+        await updateLabTest(labRequest.id, labTest.id, {
+          result: `${result}`,
+          completedDate,
+          laboratoryOfficer,
+          verification,
+          labTestMethodId,
+        });
+        navigateToLabRequest(labRequest.id);
+        onClose();
+      },
+      [labRequest, labTest, onClose, updateLabTest, navigateToLabRequest],
+    );
 
-  if (isReadOnly) {
-    return <LabTestResultModal labTestId={labTest?.id} onClose={onClose} open={open} />;
-  }
+    if (isReadOnly) {
+      return <LabTestResultModal labTestId={labTest?.id} onClose={onClose} open={open} />;
+    }
 
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
-        labRequest.displayId}`}
-    >
-      <ManualLabResultForm
-        labTest={labTest}
-        onSubmit={onSubmit}
+    return (
+      <Modal
+        open={open}
         onClose={onClose}
-        isReadOnly={isReadOnly}
-      />
-    </Modal>
-  );
-});
+        title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
+          labRequest.displayId}`}
+      >
+        <ManualLabResultForm
+          labTest={labTest}
+          onSubmit={onSubmit}
+          onClose={onClose}
+          isReadOnly={isReadOnly}
+          canWriteLabTestResult={canWriteLabTestResult}
+        />
+      </Modal>
+    );
+  },
+);
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;

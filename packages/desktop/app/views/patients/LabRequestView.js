@@ -122,9 +122,11 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const canWriteLabRequest = ability.can('write', 'LabRequest');
-  const canWriteLabTest = ability.can('write', 'LabTest');
-  const canWriteLabRequestStatus = ability.can('write', 'LabRequestStatus');
+  const canWriteLabRequest = ability?.can('write', 'LabRequest');
+  const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
+
+  const canWriteLabTest = ability?.can('write', 'LabTest');
+  const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
@@ -233,6 +235,7 @@ export const LabRequestView = () => {
         labRequest={labRequest}
         patient={patient}
         isReadOnly={areLabTestsReadOnly}
+        canWriteLabTestResult={canWriteLabTestResult}
       />
       {modalId && (
         <ActiveModal

@@ -37,13 +37,16 @@ function renderOptions(options) {
     }));
 }
 
-export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) => {
-  const { ability } = useAuth();
+export const ManualLabResultForm = ({
+  onSubmit,
+  onClose,
+  labTest,
+  isReadOnly,
+  canWriteLabTestResult,
+}) => {
   const { resultType, options } = labTest.labTestType;
   const component = getComponentForTest(resultType, options);
   const methodSuggester = useSuggester('labTestMethod');
-
-  const canWriteLabTestResult = ability.can('write', 'LabTestResult');
 
   return (
     <Form
