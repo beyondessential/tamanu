@@ -61,8 +61,8 @@
   },
   "survey": {
     "defaultCodes": {
-      "department": "GeneralClinic",
-      "location": "GeneralClinic"
+      "department": "Cardiology",
+      "location": "Radiology"
     }
   },
   "serverFacilityId": "",
