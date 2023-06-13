@@ -12,7 +12,6 @@ import { Modal } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { MultipleLabRequestsPrintout } from '../../../components/PatientPrinting';
 import { Colors } from '../../../constants';
-import { useEncounterData, usePatientAdditionalData } from '../../../api/queries';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const api = useApi();
@@ -44,7 +43,6 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     isEncounterLoading ||
     areTestsLoading ||
     areNotesLoading ||
-    areTestsLoading ||
     isAdditionalDataLoading ||
     (isVillageEnabled && isVillageLoading);
 
