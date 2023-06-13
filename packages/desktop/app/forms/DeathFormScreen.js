@@ -18,6 +18,7 @@ const Actions = styled(Box)`
 
 export const DeathFormScreen = ({
   screenComponent,
+  allQuestionComponents,
   values,
   setValues,
   submitForm,
@@ -31,8 +32,12 @@ export const DeathFormScreen = ({
   const [showSummary, setShowSummary] = useState(false);
   const patient = useSelector(state => state.patient);
   const { children } = screenComponent.props;
-  const questionComponents = React.Children.toArray(children);
-  const visibleQuestions = getVisibleQuestions(questionComponents, values);
+  const screenQuestionComponents = React.Children.toArray(children);
+  const visibleQuestions = getVisibleQuestions(
+    allQuestionComponents,
+    screenQuestionComponents,
+    values,
+  );
   const showBackButton = screenIndex > 0;
   const showSaveAndClose = screenIndex === 0 && !patient.dateOfDeath;
 

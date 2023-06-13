@@ -48,6 +48,7 @@ const DefaultSuccessScreen = ({ onClose }) => (
 
 export const DefaultFormScreen = ({
   screenComponent,
+  allQuestionComponents,
   values,
   onStepForward,
   onStepBack,
@@ -56,8 +57,12 @@ export const DefaultFormScreen = ({
   customBottomRow,
 }) => {
   const { children } = screenComponent.props;
-  const questionComponents = React.Children.toArray(children);
-  const visibleQuestions = getVisibleQuestions(questionComponents, values);
+  const screenQuestionComponents = React.Children.toArray(children);
+  const visibleQuestions = getVisibleQuestions(
+    allQuestionComponents,
+    screenQuestionComponents,
+    values,
+  );
   const hasStepBack = screenIndex > 0;
 
   // screenComponent is a react element (not a component) so we have to attach the new children manually
@@ -137,6 +142,11 @@ export const PaginatedForm = ({
   }
 
   const formScreens = React.Children.toArray(children);
+  // allQuestionComponents means REACT components, not SurveyScreenComponent objects!
+  // There's unfortunately a lot of overlap between the two, in this component and its children
+  const allQuestionComponents = formScreens
+    .map(s => React.children.toArray(s.props.children))
+    .flat();
   const maxIndex = formScreens.length - 1;
   const isLast = screenIndex === maxIndex;
 
@@ -162,6 +172,7 @@ export const PaginatedForm = ({
               )}
               <FormScreen
                 screenComponent={screenComponent}
+                allQuestionComponents={allQuestionComponents}
                 values={values}
                 setValues={setValues}
                 submitForm={submitForm}
@@ -180,10 +191,7 @@ export const PaginatedForm = ({
 
         const submitVisibleValues = event => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(
-              formScreens.map(s => React.Children.toArray(s.props.children)).flat(),
-              values,
-            ).map(q => q.props.name),
+            getInvisibleQuestions(allQuestionComponents, values).map(q => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 
