@@ -20,7 +20,11 @@ import { getFullLocationName } from '../../utils/location';
 import { getDisplayAge } from '../../utils/dateTime';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
-import { usePatientAdditionalData, usePatientConditions } from '../../api/queries';
+import {
+  usePatientAdditionalData,
+  usePatientConditions,
+  useReferenceData,
+} from '../../api/queries';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -158,6 +162,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
     getLocalisation('fields.dischargeDisposition.hidden') === false;
 
   const patient = useSelector(state => state.patient);
+  const { data: village } = useReferenceData(patient.villageId);
   const { data: patientAdditionalData } = usePatientAdditionalData(patient.id);
   const { data: patienConditionsData } = usePatientConditions(patient.id);
   const patientConditions = (patienConditionsData?.data || [])
@@ -166,7 +171,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
     .sort((a, b) => a > b);
 
   const { streetVillage, cityTown, country } = patientAdditionalData;
-  let address = null;
+  let address = 'N/A';
   if (streetVillage && cityTown && country) {
     address = `${streetVillage}, ${cityTown}, ${country.name}`;
   }
@@ -226,7 +231,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </div>
           <div>
             <Label>Village: </Label>
-            <Text>{`${cityTown}`}</Text>
+            <Text>{`${village.name || 'N/A'}`}</Text>
           </div>
         </Content>
       </Section>
