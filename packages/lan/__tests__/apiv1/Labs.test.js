@@ -287,11 +287,13 @@ describe('Labs', () => {
 });
 async function createTestTypesForPanel(models, labTestPanel) {
   const labTestTypes = await createLabTestTypes(models);
-  labTestTypes.map(async ltt => {
-    await models.LabTestPanelLabTestTypes.create({
-      labTestPanelId: labTestPanel.id,
-      labTestTypeId: ltt.id,
-    });
-  });
+  await Promise.all(
+    labTestTypes.map(ltt =>
+      models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: labTestPanel.id,
+        labTestTypeId: ltt.id,
+      }),
+    ),
+  );
   return labTestTypes;
 }

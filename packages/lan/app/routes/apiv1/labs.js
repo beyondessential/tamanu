@@ -406,9 +406,9 @@ async function createPanelLabRequests(models, body, note, user) {
       {
         model: models.LabTestType,
         as: 'labTestTypes',
+        attributes: ['id'],
       },
     ],
-    nest: true,
   });
 
   const { sampleDetails = {}, ...labRequestBody } = body;
