@@ -31,7 +31,6 @@ export const LabRequestFormScreen3 = props => {
   );
 
   return (
-    <>
       <div style={{ gridColumn: '1 / -1' }}>
         <Heading3 mb="12px">Sample details</Heading3>
         <StyledBodyText mb="28px" color="textTertiary">
@@ -53,6 +52,5 @@ export const LabRequestFormScreen3 = props => {
           {...props}
         />
       </div>
-    </>
   );
 };
