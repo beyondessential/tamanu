@@ -63,17 +63,17 @@ export const LabRequestFormScreen2 = props => {
 
   const fieldConfig = useMemo(() => FORM_TYPE_TO_FIELD_CONFIG[requestFormType], [requestFormType]);
   const { subheading, instructions, fieldName } = fieldConfig;
- const handleSelectionChange = ({ selectedObjects }) => {
-  if (!onSelectionChange) return;
-  const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
-  const getCategoryKey = ({ category = {}, id }) => (isPanelRequest ? id : category.id);
-  const grouped = uniqBy(selectedObjects, getCategoryKey).map(({ category = {}, id, name }) => ({
-    categoryId: category.id,
-    categoryName: category.name,
-    ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
-  }));
-  onSelectionChange(grouped);
-}
+  const handleSelectionChange = ({ selectedObjects }) => {
+    if (!onSelectionChange) return;
+    const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
+    const getKey = ({ category = {}, id }) => (isPanelRequest ? id : category.id);
+    const grouped = uniqBy(selectedObjects, getKey).map(({ category = {}, id, name }) => ({
+      categoryId: category.id,
+      categoryName: category.name,
+      ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
+    }));
+    onSelectionChange(grouped);
+  };
 
   return (
     <>
