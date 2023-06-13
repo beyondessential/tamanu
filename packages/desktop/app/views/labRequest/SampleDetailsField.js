@@ -69,6 +69,11 @@ export const SampleDetailsField = ({
 
   const setValue = useCallback(
     (identifier, field, value) => {
+      // This set uses the previous value in order to add the value in a map.
+      // For instance, first time we call it with { identifier: 'category-1', 'sampleTime', '2023-06-12 00:00 }
+      // It's going to store in this state { category-1: { sampleTime: '2023-06-12 00:00'} }
+      // Next time when it's called with the specimenType, it will be something like it: { identifier: 'category-1', 'specimenType', 'specimen-type-id'}
+      // we need to store that { category-1: { sampleTime: '2023-06-12 00:00', specimenType: 'specimen-type-id'} }
       setSamples(previousState => {
         const previousSample = previousState[identifier] || {};
         return {
@@ -85,7 +90,7 @@ export const SampleDetailsField = ({
       setSamples(previousState => {
         const value = { ...previousState };
         delete value[identifier];
-        return { ...value };
+        return value;
       });
     },
     [setSamples],
