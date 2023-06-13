@@ -273,7 +273,7 @@ export const FHIR_LOCATION_PHYSICAL_TYPE_CODE = {
   ROAD: 'rd',
   AREA: 'area',
   JURISDICTION: 'jdn',
-  VI: 'virtual',
+  VIRTUAL: 'vi',
 };
 
 export const FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY = Object.fromEntries(
