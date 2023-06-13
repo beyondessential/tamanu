@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
-import { sortedUniqBy } from 'lodash';
+import { uniqBy } from 'lodash';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
@@ -66,14 +66,15 @@ export const LabRequestFormScreen2 = props => {
   const handleSelectionChange = ({ selectedObjects }) => {
     const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
     if (onSelectionChange) {
-      const grouped = sortedUniqBy(selectedObjects, ({ id, category }) =>
-        requestFormType === LAB_REQUEST_FORM_TYPES.PANEL ? id : category.id,
+      const grouped = uniqBy(selectedObjects, ({ category = {}, id }) =>
+        isPanelRequest ? id : category.id,
       ).map(({ category = {}, id, name }) => ({
         categoryId: category.id,
         categoryName: category.name,
         ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
       }));
-      onSelectionChange(Object.values(grouped));
+
+      onSelectionChange(grouped);
     }
   };
 
