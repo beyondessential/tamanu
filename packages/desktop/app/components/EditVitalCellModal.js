@@ -29,8 +29,8 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
             <Field
               required
               component={SelectField}
-              label="Reason for cancellation"
-              name="reasonForCancellation"
+              label="Reason for change to record"
+              name="reasonForChange"
               // options={options}
               style={{ gridColumn: '1 / 4' }}
             />
