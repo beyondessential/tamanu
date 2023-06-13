@@ -45,6 +45,8 @@ export const useVitals = encounterId => {
           (state, date) => ({
             ...state,
             [date]: {
+              vitalLabel: dataElement.name,
+              recordedDate: date,
               value: records[date],
               ...configs,
             },
