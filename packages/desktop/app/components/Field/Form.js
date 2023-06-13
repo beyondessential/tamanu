@@ -5,7 +5,7 @@ import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
-import { FORM_STATUSES } from '../../constants';
+import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -73,6 +73,7 @@ export class Form extends React.PureComponent {
     setSubmitting,
     getValues,
     setStatus,
+    status,
     ...rest
   }) => async (event, submissionParameters, componentsToValidate) => {
     event.preventDefault();
@@ -80,7 +81,7 @@ export class Form extends React.PureComponent {
 
     // Use formik status prop to track if the user has attempted to submit the form. This is used in
     // Field.js to only show error messages once the user has attempted to submit the form
-    setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+    setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
 
     // avoid multiple submissions
     if (isSubmitting) {
@@ -111,9 +112,25 @@ export class Form extends React.PureComponent {
     }
 
     // submission phase
-    const { onSubmit, onSuccess } = this.props;
+    const { onSubmit, onSuccess, formType = FORM_TYPES.DATA_FORM } = this.props;
+    const { touched } = rest;
+    const newValues = { ...values };
+
+    // If it is a data form, before submission, convert all the touched undefined values
+    // to null because
+    // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
+    // trying to remove a value when editing a record
+    // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
+    if (formType === FORM_TYPES.DATA_FORM) {
+      for (const key of Object.keys(touched)) {
+        if (newValues[key] === undefined) {
+          newValues[key] = null;
+        }
+      }
+    }
+
     try {
-      const result = await onSubmit(values, {
+      const result = await onSubmit(newValues, {
         ...rest,
         setErrors: this.setErrors,
       });

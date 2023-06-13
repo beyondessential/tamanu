@@ -6,7 +6,7 @@ import doubleDown from '../../assets/images/double_down.svg';
 import doubleUp from '../../assets/images/double_up.svg';
 import { Button, TextButton } from '../Button';
 import { Form } from '../Field';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -125,6 +125,7 @@ export const CustomisableSearchBar = ({
       )}
       initialValues={initialValues}
       enableReinitialize
+      formType={FORM_TYPES.SEARCH_FORM}
     />
   );
 };
