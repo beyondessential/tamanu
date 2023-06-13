@@ -36,6 +36,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       setErrors,
       errors,
       setStatus,
+      status,
     } = props;
 
     // 1. get a list of visible fields
@@ -51,7 +52,8 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
       // 3. Set visible values in form state
       setValues(visibleValues);
-      submitForm(event);
+      // The third parameter makes sure only visibleFields are validated against
+      submitForm(event, null, visibleFields);
     };
 
     return (
@@ -66,6 +68,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
         setErrors={setErrors}
         errors={errors}
         setStatus={setStatus}
+        status={status}
       />
     );
   };

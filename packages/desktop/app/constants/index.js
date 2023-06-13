@@ -18,6 +18,8 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUS_CONFIG,
   LAB_REQUEST_STATUSES,
+  LOCATION_AVAILABILITY_STATUS,
+  LOCATION_AVAILABILITY_TAG_CONFIG,
 } from 'shared/constants';
 
 import {
@@ -58,7 +60,12 @@ export const Colors = {
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
+  blue: '#1172D1',
   veryLightBlue: '#F4F9FF',
+  metallicYellow: '#BD9503',
+  pink: '#D10580',
+  purple: '#4101C9',
+  green: '#19934E',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };
@@ -144,17 +151,22 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
   x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value,
 );
 
+// The order here is how they'll show up in the dropdown
+// Treatment plan first and alphabetical after that
 export const noteTypes = [
   { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
-  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
-  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
+  { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
+  { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
   { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
+  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
+  { value: NOTE_TYPES.HANDOVER, label: 'Handover Notes' },
+  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
+  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
+  { value: NOTE_TYPES.OTHER, label: 'Other' },
   { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
   { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
   { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
-  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.OTHER, label: 'Other' },
+  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
 
@@ -294,6 +306,14 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   value: status,
 }));
 
+export const locationAvailabilityOptions = [
+  { value: '', label: 'All' },
+  ...Object.keys(LOCATION_AVAILABILITY_STATUS).map(status => ({
+    value: status,
+    label: LOCATION_AVAILABILITY_TAG_CONFIG[status].label,
+  })),
+];
+
 export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
   .filter(
     type =>
@@ -422,4 +442,11 @@ export const FORM_STATUSES = {
 export const SUPPORTED_DOCUMENT_TYPES = {
   PDF: 'PDF',
   JPEG: 'JPEG',
+};
+
+export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
+
+export const FORM_TYPES = {
+  SEARCH_FORM: 'searchForm',
+  DATA_FORM: 'dataForm',
 };

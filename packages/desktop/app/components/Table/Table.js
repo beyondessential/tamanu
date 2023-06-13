@@ -16,11 +16,13 @@ import {
   TableFooter,
   TablePagination,
 } from '@material-ui/core';
+import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -46,6 +48,15 @@ const CellError = React.memo(({ error }) => {
 });
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
+
+const OptionRow = styled.div`
+  border-bottom: 1px solid ${Colors.outline};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  font-size: 0.85rem;
+  padding: 0.7rem;
+`;
 
 const StyledTableRow = styled(TableRow)`
   margin-top: 1rem;
@@ -108,6 +119,7 @@ const StyledTable = styled(MaterialTable)`
 
 const StyledTableHead = styled(TableHead)`
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+  white-space: nowrap;
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -117,6 +129,18 @@ const StyledTableFooter = styled(TableFooter)`
     border-bottom: none;
   }
 `;
+
+const ActiveSortIcon = styled(ExpandMore)`
+  color: ${Colors.darkestText} !important;
+`;
+
+const InactiveSortIcon = styled(ActiveSortIcon)`
+  color: ${Colors.midText} !important;
+`;
+
+const HeaderContainer = React.memo(({ children, numeric }) => (
+  <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
+));
 
 const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   <StyledTableRow onClick={onClick} $rowStyle={rowStyle}>
@@ -217,30 +241,39 @@ class TableComponent extends React.Component {
       titleData,
       headerOnChange,
     } = this.props;
-    const getContent = (key, sortable, title, titleAccessor) => {
+    const getContent = (key, sortable, title, titleAccessor, tooltip) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
 
-      return sortable ? (
+      const headerElement = sortable ? (
         <TableSortLabel
-          active={orderBy === key}
-          direction={order}
+          active
+          direction={orderBy === key ? order : 'desc'}
           onClick={() => onChangeOrderBy(key)}
+          IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
         >
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
-        displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key
+        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
+      );
+
+      return tooltip ? (
+        <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip>
+      ) : (
+        headerElement
       );
     };
 
-    return columns.map(({ key, title, numeric, noTitle, titleAccessor, sortable = true }) => (
-      <StyledTableCell key={key} align={numeric ? 'right' : 'left'}>
-        {getContent(key, sortable, title, titleAccessor, noTitle)}
-      </StyledTableCell>
-    ));
+    return columns.map(
+      ({ key, title, numeric, noTitle, titleAccessor, sortable = true, tooltip }) => (
+        <HeaderContainer key={key} numeric={numeric}>
+          {getContent(key, sortable, title, titleAccessor, tooltip, noTitle)}
+        </HeaderContainer>
+      ),
+    );
   }
 
   renderBodyContent() {
@@ -320,9 +353,11 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated, headerColor } = this.props;
+    const { className, elevated, headerColor, optionRow } = this.props;
+
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
+        {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable>
           <StyledTableHead $headerColor={headerColor}>
             <TableRow>{this.renderHeaders()}</TableRow>
