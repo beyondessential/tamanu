@@ -1,7 +1,7 @@
 import { Typography } from '@material-ui/core';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { Heading4 } from '../../components';
 import { DateTimeField, Field, AutocompleteField } from '../../components/Field';
 import { Colors } from '../../constants';
@@ -123,7 +123,7 @@ export const SampleDetailsField = ({
             <StyledField
               name={`sampleTime-${identifier}`}
               component={DateTimeField}
-              max={getCurrentDateString()}
+              max={getCurrentDateTimeString()}
               onChange={({ target: { value } }) => {
                 if (value) {
                   setValue(identifier, 'sampleTime', value);

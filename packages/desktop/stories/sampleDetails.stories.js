@@ -22,10 +22,10 @@ const initialSamples = ['Microbiology', 'Malaria', 'Serology', 'Covid'].map(cate
   categoryName: category,
   categoryId: category,
 }));
-const withPanelsRequests = initialSamples.map(groupedRequest => ({
+const withPanelsRequests = initialSamples.map((groupedRequest, index) => ({
   ...groupedRequest,
-  panelId: 'panel-1',
-  panelName: 'Panel 1',
+  panelId: `{panel-${index}`,
+  panelName: `Panel ${index}`,
 }));
 const Template = args => (
   <Formik initialValues={{}}>
