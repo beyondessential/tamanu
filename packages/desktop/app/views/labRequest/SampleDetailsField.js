@@ -17,6 +17,10 @@ const Container = styled.div`
   > div:first-child {
     padding-left: 32px;
   }
+
+  > div:nth-last-child(-n + ${props => (props.hasPanels ? '6' : '5')}) {
+    border-bottom: none;
+  }
 `;
 
 const HeaderCell = styled(Heading4)`
@@ -34,7 +38,7 @@ const Cell = styled.div`
     width: 100%;
   }
 
-  border-bottom: ${props => (props.$displayBorder ? `1px solid ${Colors.outline}` : 'none')};
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const StyledField = styled(Field)`
@@ -101,22 +105,21 @@ export const SampleDetailsField = ({
   );
 
   const renderSampleDetails = useCallback(
-    (sample, isLastSample) => {
-      const cellProps = { $displayBorder: !isLastSample };
+    sample => {
       const identifier = hasPanels ? sample.panelId : sample.categoryId;
       const isSampleCollected = samples[identifier]?.sampleTime;
 
       return (
         <React.Fragment key={identifier}>
           {hasPanels && (
-            <Cell {...cellProps} style={{ marginLeft: '32px' }}>
+            <Cell style={{ marginLeft: '32px' }}>
               <Typography variant="subtitle1">{sample.panelName}</Typography>
             </Cell>
           )}
-          <Cell {...cellProps} style={!hasPanels ? { marginLeft: '32px' } : {}}>
+          <Cell style={!hasPanels ? { marginLeft: '32px' } : {}}>
             <Typography variant="subtitle1">{sample.categoryName}</Typography>
           </Cell>
-          <Cell {...cellProps}>
+          <Cell>
             <StyledField
               name={`sampleTime-${identifier}`}
               component={DateTimeField}
@@ -130,7 +133,7 @@ export const SampleDetailsField = ({
               }}
             />
           </Cell>
-          <Cell {...cellProps}>
+          <Cell>
             <StyledField
               name={`collectedBy-${identifier}`}
               disabled={!isSampleCollected}
@@ -142,7 +145,7 @@ export const SampleDetailsField = ({
               }}
             />
           </Cell>
-          <Cell {...cellProps}>
+          <Cell>
             <StyledField
               name={`specimenType-${identifier}`}
               disabled={!isSampleCollected}
@@ -154,7 +157,7 @@ export const SampleDetailsField = ({
               }}
             />
           </Cell>
-          <Cell {...cellProps}>
+          <Cell>
             <StyledField
               name={`labSampleSiteSuggester-${identifier}`}
               disabled={!isSampleCollected}
@@ -185,9 +188,8 @@ export const SampleDetailsField = ({
       {headers.map(header => (
         <HeaderCell key={`header-${header}`}>{header}</HeaderCell>
       ))}
-      {initialSamples.map((request, index) => {
-        const isLastSample = initialSamples.length - 1 === index;
-        return renderSampleDetails(request, isLastSample);
+      {initialSamples.map(request => {
+        return renderSampleDetails(request);
       })}
     </Container>
   );
