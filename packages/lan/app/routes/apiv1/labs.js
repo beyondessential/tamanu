@@ -392,7 +392,7 @@ labTestPanel.get(
 );
 
 async function createPanelLabRequests(models, body, note, user) {
-  const { panelIds } = body;
+  const { panelIds, sampleDetails = {}, ...labRequestBody } = body;
 
   if (!panelIds.length) {
     throw new InvalidOperationError('A lab request must have at least one panel');
@@ -410,8 +410,6 @@ async function createPanelLabRequests(models, body, note, user) {
       },
     ],
   });
-
-  const { sampleDetails = {}, ...labRequestBody } = body;
 
   const response = await Promise.all(
     panels.map(async panel => {
