@@ -67,6 +67,7 @@ const OptionTag = styled(FormFieldTag)`
 
 const SelectTag = styled(FormFieldTag)`
   position: relative;
+  margin-right: 3px;
 `;
 
 const Item = styled(MenuItem)`
@@ -111,7 +112,8 @@ export class AutocompleteInput extends Component {
   }
 
   async componentDidMount() {
-    await this.updateValue();
+    const { allowFreeTextForExistingValue } = this.props;
+    await this.updateValue(allowFreeTextForExistingValue);
   }
 
   async componentDidUpdate(prevProps) {
@@ -124,7 +126,7 @@ export class AutocompleteInput extends Component {
     }
   }
 
-  updateValue = async () => {
+  updateValue = async (allowFreeTextForExistingValue = false) => {
     const { value, suggester } = this.props;
 
     if (!suggester || value === undefined) {
@@ -135,14 +137,21 @@ export class AutocompleteInput extends Component {
       this.attemptAutoFill();
       return;
     }
-    const currentOption = await suggester.fetchCurrentOption(value);
-    if (currentOption) {
-      this.setState({
-        selectedOption: {
-          value: currentOption.label,
-          tag: currentOption.tag,
-        },
-      });
+
+    if (!allowFreeTextForExistingValue) {
+      const currentOption = await suggester.fetchCurrentOption(value);
+
+      if (currentOption) {
+        this.setState({
+          selectedOption: {
+            value: currentOption.label,
+            tag: currentOption.tag,
+          },
+        });
+      }
+    } else if (allowFreeTextForExistingValue && value) {
+      this.setState({ selectedOption: { value, tag: null } });
+      this.handleSuggestionChange({ value, label: value });
     } else {
       this.handleSuggestionChange({ value: null, label: '' });
     }
@@ -226,8 +235,8 @@ export class AutocompleteInput extends Component {
 
   handleClearValue = () => {
     const { onChange, name } = this.props;
+    onChange({ target: { value: undefined, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    onChange({ target: { value: '', name } });
   };
 
   clearOptions = () => {
@@ -275,7 +284,17 @@ export class AutocompleteInput extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
+    const {
+      label,
+      required,
+      className,
+      infoTooltip,
+      tag,
+      value,
+      size,
+      disabled,
+      ...other
+    } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -297,7 +316,7 @@ export class AutocompleteInput extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                {value && (
+                {value && !disabled && (
                   <StyledIconButton onClick={this.handleClearValue}>
                     <StyledClearIcon />
                   </StyledIconButton>
@@ -316,6 +335,7 @@ export class AutocompleteInput extends Component {
           }}
           fullWidth
           value={value}
+          disabled={disabled}
           {...other}
         />
       </OuterLabelFieldWrapper>

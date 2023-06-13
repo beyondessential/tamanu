@@ -1,38 +1,41 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { VACCINATION_CERTIFICATE } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils/patientCertificates';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalData } from '../../../api/queries';
+import { usePatientAdditionalData, useAdministeredVaccines } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
-export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
+export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
-  useEffect(() => {
-    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      setVaccinations(response.data);
-    });
-  }, [api, patient.id]);
+  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+    orderBy: 'date',
+    order: 'ASC',
+    invertNullDateOrdering: true,
+    includeNotGiven: false,
+  });
+  const vaccinations = vaccineData?.data || [];
 
-  const createImmunisationCertificateNotification = useCallback(
+  const createVaccineCertificateNotification = useCallback(
     data => {
       api.post('certificateNotification', {
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
-        requireSigning: true,
+        type: VACCINATION_CERTIFICATE,
+        requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
+        createdAt: getCurrentDateString(),
       });
     },
     [api, patient.id, printedBy],
@@ -42,14 +45,14 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
 
   return (
     <Modal
-      title="Vaccination Certificate"
+      title="Vaccine Certificate"
       open={open}
       onClose={onClose}
       width="md"
       printable
       keepMounted
       onPrint={() => printPDF('vaccine-certificate')}
-      additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
+      additionalActions={<EmailButton onEmail={createVaccineCertificateNotification} />}
     >
       <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
@@ -59,6 +62,7 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
           logoSrc={logo}
           signingSrc={footerImg}
           printedBy={printedBy}
+          printedDate={getCurrentDateString()}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>

@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
-import { StyledView } from '/styled/common';
+
+import { StyledView, StyledText } from '/styled/common';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
@@ -20,7 +21,10 @@ export interface DropdownProps extends BaseInputProps {
   onChange?: (items: string) => void;
   multiselect?: boolean;
   label?: string;
-  placeholderText?: string;
+  labelColor?: string;
+  fixedHeight: boolean;
+  searchPlaceholderText?: string;
+  selectPlaceholderText?: string;
   value?: string | string[];
   // Note the disabled prop is only known to work with
   // - single
@@ -28,31 +32,36 @@ export interface DropdownProps extends BaseInputProps {
   disabled?: boolean;
 }
 
+const baseStyleDropdownMenuSubsection = {
+  paddingTop: 9,
+  paddingBottom: 9,
+  paddingLeft: 12,
+  borderRadius: 5,
+};
+
 const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
   DEFAULT: {
-    styleDropdownMenuSubsection: {
-      paddingLeft: 12,
-    },
+    styleDropdownMenuSubsection: baseStyleDropdownMenuSubsection,
   },
   ERROR: {
     styleInputGroup: {
-      borderColor: theme.colors.ERROR,
+      borderColor: theme.colors.ALERT,
       borderWidth: 1,
+      borderRadius: 6,
     },
     styleDropdownMenuSubsection: {
-      paddingLeft: 12,
-      borderRadius: 3,
-      borderColor: theme.colors.ERROR,
+      ...baseStyleDropdownMenuSubsection,
+      borderColor: theme.colors.ALERT,
       borderWidth: 1,
     },
   },
   DISABLED: {
     textColor: theme.colors.DISABLED_GREY,
     styleDropdownMenuSubsection: {
+      ...baseStyleDropdownMenuSubsection,
       backgroundColor: theme.colors.BACKGROUND_GREY,
       borderWidth: 0.5,
       borderColor: theme.colors.DISABLED_GREY,
-      paddingLeft: 12,
     },
   },
 };
@@ -68,13 +77,23 @@ export const Dropdown = React.memo(
     options,
     onChange,
     multiselect = false,
-    label = 'Select Items',
-    placeholderText = 'Search Items...',
+    label = 'Select',
+    labelColor,
+    fixedHeight = false,
+    searchPlaceholderText = 'Search Items...',
+    selectPlaceholderText,
     value = [],
     error,
     disabled,
+    required = false,
   }: DropdownProps) => {
-    const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
+    const [selectedItems, setSelectedItems] = useState(() => {
+      if (!value) {
+        return [];
+      }
+
+      return Array.isArray(value) ? value : [value];
+    });
     const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
       items => {
@@ -85,10 +104,18 @@ export const Dropdown = React.memo(
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
     return (
-      <StyledView
-        width="100%"
-        marginBottom={error ? screenPercentageToDP(2, Orientation.Height) : 0}
-      >
+      <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
+        {!!label && (
+          <StyledText
+            fontSize={14}
+            fontWeight={600}
+            marginBottom={2}
+            color={labelColor || theme.colors.TEXT_SUPER_DARK}
+          >
+            {label}
+            {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+          </StyledText>
+        )}
         <MultiSelect
           single={!multiselect}
           items={options}
@@ -97,22 +124,47 @@ export const Dropdown = React.memo(
           ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
-          selectText={label}
-          searchInputPlaceholderText={filterable ? placeholderText : label}
+          selectText={selectPlaceholderText || label}
+          searchInputPlaceholderText={filterable ? searchPlaceholderText : label}
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
           tagTextColor={theme.colors.PRIMARY_MAIN}
+          textColor={value?.length ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
           selectedItemTextColor={theme.colors.PRIMARY_MAIN}
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
-          itemTextColor="#000"
+          itemTextColor={theme.colors.TEXT_SUPER_DARK}
+          itemFontSize={14}
           searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
-          styleMainWrapper={{ zIndex: 999 }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
+          styleMainWrapper={{ zIndex: 999 }}
+          fixedHeight={fixedHeight}
           styleDropdownMenu={{
             height: screenPercentageToDP(6.8, Orientation.Height),
             marginBottom: 0,
+            borderRadius: 5,
+          }}
+          styleSelectorContainer={{
+            borderRadius: 5,
+            backgroundColor: theme.colors.WHITE,
+            borderColor: theme.colors.PRIMARY_MAIN,
+          }}
+          styleRowList={{
+            borderRadius: 5,
+            backgroundColor: theme.colors.WHITE,
+            padding: 5,
+          }}
+          styleInputGroup={{
+            borderWidth: 1,
+            borderRadius: 6,
+            backgroundColor: theme.colors.WHITE,
+            borderColor: theme.colors.PRIMARY_MAIN,
+          }}
+          styleItemsContainer={{
+            borderWidth: 1,
+            borderRadius: 5,
+            borderColor: theme.colors.PRIMARY_MAIN,
           }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
@@ -135,12 +187,10 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const results = await models.ReferenceData.getSelectOptionsForType(
-        referenceDataType,
-      );
+      const results = await models.ReferenceData.getSelectOptionsForType(referenceDataType);
       setOptions(results);
     })();
   }, []);
 
-  return <Dropdown {...props} options={options}/>;
+  return <Dropdown {...props} options={options} />;
 };

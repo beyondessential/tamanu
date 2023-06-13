@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
-import { Form, Field, TextField } from './Field';
+import { Form, Field, SearchField } from './Field';
 import { FormGrid } from './FormGrid';
 import { LargeButton, LargeOutlineButton } from './Button';
 import { Colors } from '../constants';
@@ -32,9 +32,9 @@ const HeaderBar = styled.div`
 const renderSearchBar = ({ submitForm, clearForm }) => (
   <>
     <FormGrid columns={3}>
-      <Field name="type" placeholder="Type" component={TextField} />
-      <Field name="documentOwner" placeholder="Owner" component={TextField} />
-      <Field name="departmentName" placeholder="Department" component={TextField} />
+      <Field name="type" label="Type" component={SearchField} />
+      <Field name="documentOwner" label="Owner" component={SearchField} />
+      <Field name="departmentName" label="Department" component={SearchField} />
     </FormGrid>
     <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
       <LargeOutlineButton onClick={clearForm} style={{ marginRight: 12 }}>

@@ -14,6 +14,7 @@ export function fromPatients(models, table, id, deletedRow) {
           {
             model: PatientAdditionalData,
             as: 'additionalData',
+            required: true,
             where: { id },
           },
         ],

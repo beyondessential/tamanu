@@ -127,6 +127,7 @@ jobs:
         postgres:
           - '12'
           - '14'
+          - '15'
 
     name: Test migrations node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
