@@ -25,6 +25,9 @@ export class FhirEncounterLocation extends FhirBaseType {
         period: FhirPeriod.asYup()
           .nullable()
           .default(null),
+        physicalType: FhirCodeableConcept.asYup()
+          .nullable()
+          .default(null),
       })
       .noUnknown();
   }

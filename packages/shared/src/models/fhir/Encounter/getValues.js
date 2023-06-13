@@ -7,6 +7,8 @@ import {
   FHIR_ENCOUNTER_CLASS_DISPLAY,
   FHIR_ENCOUNTER_LOCATION_STATUS,
   FHIR_ENCOUNTER_STATUS,
+  FHIR_LOCATION_PHYSICAL_TYPE_CODE,
+  FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY,
 } from '../../../constants';
 import {
   FhirCodeableConcept,
@@ -107,13 +109,29 @@ function subjectRef(encounter) {
 }
 
 function locationRef(encounter) {
+  const { BED, WARD } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
   return [
-    new FhirEncounterLocation({
-      location: new FhirReference({
-        display: encounter.location.name,
-        id: encounter.location.id,
+    {
+      system: config.hl7.dataDictionaries.locationPhysicalType,
+      code: BED,
+      display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[BED],
+    },
+    {
+      system: config.hl7.dataDictionaries.locationPhysicalType,
+      code: WARD,
+      display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[WARD],
+    },
+  ].map(
+    coding =>
+      new FhirEncounterLocation({
+        location: new FhirReference({
+          display: encounter.location.name,
+          id: encounter.location.id,
+        }),
+        status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
+        physicalType: new FhirCodeableConcept({
+          coding: [coding],
+        }),
       }),
-      status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
-    }),
-  ];
+  );
 }

@@ -157,7 +157,7 @@ describe(`Materialised FHIR - Encounter`, () => {
                 {
                   system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
                   code: 'bd',
-                  value: 'bed',
+                  display: 'Bed',
                 },
               ],
             },
@@ -173,7 +173,7 @@ describe(`Materialised FHIR - Encounter`, () => {
                 {
                   system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
                   code: 'wa',
-                  value: 'ward',
+                  display: 'Ward',
                 },
               ],
             },
