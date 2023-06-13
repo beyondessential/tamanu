@@ -145,6 +145,15 @@ describe(`Materialised FHIR - Encounter`, () => {
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
+        location: [
+          {
+            status: 'active',
+            location: {
+              display: resources.location.name,
+              id: resources.location.id,
+            },
+          },
+        ],
       });
       expect(response).toHaveSucceeded();
     });
