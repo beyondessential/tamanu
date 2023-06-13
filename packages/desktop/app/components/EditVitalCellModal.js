@@ -8,9 +8,10 @@ import { FormSeparatorLine } from './FormSeparatorLine';
 import { formatShortest, formatTime } from './DateDisplay';
 
 export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
+  const vitalLabel = cell?.vitalLabel;
   const date = formatShortest(cell?.recordedDate);
   const time = formatTime(cell?.recordedDate);
-  const title = `${cell?.vitalLabel} | ${date} | ${time}`;
+  const title = `${vitalLabel} | ${date} | ${time}`;
   return (
     <Modal width="sm" title={title} onClose={onClose} open={cell !== null}>
       <Form
@@ -18,12 +19,13 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required('Reason for cancellation is mandatory'),
         })}
+        initialValues={{ value: cell?.value }}
         render={({
           // value: formValue,
           submitForm,
         }) => (
           <FormGrid columns={4}>
-            <Field component={TextField} label="Main" name="value" />
+            <Field component={TextField} label={vitalLabel} name="value" />
             <Field
               required
               component={SelectField}
