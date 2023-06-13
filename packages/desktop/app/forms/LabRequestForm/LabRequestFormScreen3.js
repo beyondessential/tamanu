@@ -31,26 +31,26 @@ export const LabRequestFormScreen3 = props => {
   );
 
   return (
-      <div style={{ gridColumn: '1 / -1' }}>
-        <Heading3 mb="12px">Sample details</Heading3>
-        <StyledBodyText mb="28px" color="textTertiary">
-          Please record details for the samples that have been collected. Otherwise leave blank and
-          click ‘Finalise’.
-        </StyledBodyText>
-        <Field
-          name="sampleDetails"
-          onClearPanel={handleClearPanel}
-          component={SampleDetailsField}
-          onSampleChange={setSamples}
-          requestFormType={requestFormType}
-          labTestPanelId={labTestPanelId}
-          initialSamples={initialSamples}
-          practitionerSuggester={practitionerSuggester}
-          specimenTypeSuggester={specimenTypeSuggester}
-          labSampleSiteSuggester={labSampleSiteSuggester}
-          required
-          {...props}
-        />
-      </div>
+    <div style={{ gridColumn: '1 / -1' }}>
+      <Heading3 mb="12px">Sample details</Heading3>
+      <StyledBodyText mb="28px" color="textTertiary">
+        Please record details for the samples that have been collected. Otherwise leave blank and
+        click ‘Finalise’.
+      </StyledBodyText>
+      <Field
+        name="sampleDetails"
+        onClearPanel={handleClearPanel}
+        component={SampleDetailsField}
+        onSampleChange={setSamples}
+        requestFormType={requestFormType}
+        labTestPanelId={labTestPanelId}
+        initialSamples={initialSamples}
+        practitionerSuggester={practitionerSuggester}
+        specimenTypeSuggester={specimenTypeSuggester}
+        labSampleSiteSuggester={labSampleSiteSuggester}
+        required
+        {...props}
+      />
+    </div>
   );
 };
