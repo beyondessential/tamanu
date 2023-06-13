@@ -13,6 +13,10 @@ const Container = styled.div`
   display: grid;
   grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
   padding-bottom: 10px;
+
+  > div:first-child {
+    padding-left: 32px;
+  }
 `;
 
 const HeaderCell = styled(Heading4)`
@@ -178,10 +182,8 @@ export const SampleDetailsField = ({
 
   return (
     <Container hasPanels={hasPanels}>
-      {headers.map((header, index) => (
-        <HeaderCell style={index === 0 ? { paddingLeft: '32px' } : {}} key={`header-${header}`}>
-          {header}
-        </HeaderCell>
+      {headers.map(header => (
+        <HeaderCell key={`header-${header}`}>{header}</HeaderCell>
       ))}
       {initialSamples.map((request, index) => {
         const isLastSample = initialSamples.length - 1 === index;
