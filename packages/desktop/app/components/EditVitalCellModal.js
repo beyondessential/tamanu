@@ -6,8 +6,8 @@ import { SelectField, Form, Field, TextField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSeparatorLine } from './FormSeparatorLine';
 
-export const EditVitalCellModal = ({ value, onConfirm, onClose, open }) => (
-  <Modal width="sm" title={value} onClose={onClose} open={open}>
+export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => (
+  <Modal width="sm" title={''} onClose={onClose} open={cell !== null}>
     <Form
       onSubmit={onConfirm}
       validationSchema={yup.object().shape({
