@@ -40,7 +40,7 @@ function compareData(dataType, expected, given) {
   return false;
 }
 
-export function checkVisibilityCriteria(component, allComponents, values) {
+function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
@@ -121,7 +121,28 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
-export function getResultValue(components, values) {
+/*
+  Ad hoc function. Currently desktop client sends all
+  survey answers in an object shaped with ProgramDataElement.id as keys.
+  However, mobile uses ProgramDataElement.code as keys instead. The logic
+  used is the same in both places but is just copy/pasted - for that reason,
+  this will convert the values object to match the one from mobile (in the meantime).
+  TODO: properly refactor the code. Probably by simply changing the desktop SurveyQuestion
+  and pass name={code} instead of name={id}.
+*/
+function getValuesByCode(components, valuesById) {
+  const valuesByCode = {};
+
+  Object.entries(valuesById).forEach(([id, value]) => {
+    const { dataElement } = components.find(c => c.dataElement.id === id);
+    valuesByCode[dataElement.code] = value;
+  });
+
+  return valuesByCode;
+}
+
+export function getResultValue(components, originalValues) {
+  const values = getValuesByCode(components, originalValues);
   const resultComponents = components
     .filter(c => c.dataElement.type === 'Result')
     .filter(c => checkVisibilityCriteria(c, components, values));
@@ -132,7 +153,7 @@ export function getResultValue(components, values) {
     return { result: 0, resultText: '' };
   }
 
-  const rawValue = values[component.dataElement.id];
+  const rawValue = values[component.dataElement.code];
 
   if (rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
     return { result: 0, resultText: component.detail || '' };

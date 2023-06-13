@@ -148,26 +148,32 @@ export class Encounter extends BaseModel implements IEncounter {
     await Patient.markForSync(this.patient);
   }
 
-  static async getOrCreateCurrentEncounter(
-    patientId: string,
-    userId: string,
-    createdEncounterOptions: any = {},
-  ): Promise<Encounter> {
+  static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
     const repo = this.getRepository();
 
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
-    const found = await repo
+    return repo
       .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
       .andWhere("startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
       .getOne();
+  }
 
-    if (found) return found;
+  static async getOrCreateCurrentEncounter(
+    patientId: string,
+    userId: string,
+    createdEncounterOptions: any = {},
+  ): Promise<Encounter> {
+    const currentEncounter = await Encounter.getCurrentEncounterForPatient(patientId);
+
+    if (currentEncounter) {
+      return currentEncounter;
+    }
 
     // Read the selected facility for this client
     const facilityId = await readConfig('facilityId', '');

@@ -93,7 +93,7 @@ export const AppointmentsCalendar = () => {
   const updateCalendar = () => {
     setRefreshCount(refreshCount + 1);
   };
-  const updateFilterValue = e => setFilterValue(e.target.value);
+  const updateFilterValue = e => setFilterValue(e.target.value || '');
 
   const filters = {
     locationGroup: {
