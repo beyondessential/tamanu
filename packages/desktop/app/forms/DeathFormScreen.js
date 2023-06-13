@@ -34,9 +34,9 @@ export const DeathFormScreen = ({
   const { children } = screenComponent.props;
   const screenQuestionComponents = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
+    values,
     allQuestionComponents,
     screenQuestionComponents,
-    values,
   );
   const showBackButton = screenIndex > 0;
   const showSaveAndClose = screenIndex === 0 && !patient.dateOfDeath;

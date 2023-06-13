@@ -59,9 +59,9 @@ export const DefaultFormScreen = ({
   const { children } = screenComponent.props;
   const screenQuestionComponents = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
+    values,
     allQuestionComponents,
     screenQuestionComponents,
-    values,
   );
   const hasStepBack = screenIndex > 0;
 
@@ -191,7 +191,7 @@ export const PaginatedForm = ({
 
         const submitVisibleValues = event => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(allQuestionComponents, values).map(q => q.props.name),
+            getInvisibleQuestions(values, allQuestionComponents).map(q => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 

@@ -16,14 +16,22 @@ const isVisible = (values, allQuestionComponents, component) => {
 };
 
 // Used with PaginatedForm
-export const getVisibleQuestions = (allQuestionComponents, screenQuestionComponents, values) =>
+export const getVisibleQuestions = (
+  values,
+  allQuestionComponents,
+  screenQuestionComponents = allQuestionComponents,
+) =>
   // Adapt the questionComponents from react elements to the survey config objects which the
   // checkVisibility util expects
   screenQuestionComponents
     .filter(component => isVisible(values, allQuestionComponents, component))
     .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));
 
-export const getInvisibleQuestions = (allQuestionComponents, screenQuestionComponents, values) =>
+export const getInvisibleQuestions = (
+  values,
+  allQuestionComponents,
+  screenQuestionComponents = allQuestionComponents,
+) =>
   screenQuestionComponents
     .filter(component => !isVisible(values, allQuestionComponents, component))
     .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));
