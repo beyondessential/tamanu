@@ -10,6 +10,7 @@ export function fromAdministeredVaccines(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             where: { id },
           },
         ],
@@ -20,10 +21,12 @@ export function fromAdministeredVaccines(models, table, id) {
           {
             model: Encounter,
             as: 'encounter',
+            required: true,
             include: [
               {
                 model: Patient,
                 as: 'patient',
+                required: true,
                 where: { id },
               },
             ],
@@ -36,10 +39,12 @@ export function fromAdministeredVaccines(models, table, id) {
           {
             model: ScheduledVaccine,
             as: 'scheduledVaccine',
+            required: true,
             include: [
               {
                 model: ReferenceData,
                 as: 'vaccine',
+                required: true,
                 where: { id },
               },
             ],
@@ -52,6 +57,7 @@ export function fromAdministeredVaccines(models, table, id) {
           {
             model: ScheduledVaccine,
             as: 'scheduledVaccine',
+            required: true,
             where: { id },
           },
         ],
@@ -62,6 +68,7 @@ export function fromAdministeredVaccines(models, table, id) {
           {
             model: User,
             as: 'recorder',
+            required: true,
             where: { id },
           },
         ],
