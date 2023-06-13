@@ -60,7 +60,7 @@ const COLUMNS = [
     title: 'Repeats',
     sortable: false,
     accessor: ({ repeats, onChange }) => (
-      <SelectInput options={REPEAT_OPTIONS} value={repeats} onChange={onChange} />
+      <SelectInput options={REPEAT_OPTIONS} value={repeats} onChange={onChange} required />
     ),
   },
 ];
