@@ -134,6 +134,7 @@ export const PatientLabTestsTable = React.memo(
         key: 'testCategory.id',
         title: 'Test category',
         accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
+        sortable: false,
       },
       {
         key: 'testType',
@@ -145,6 +146,7 @@ export const PatientLabTestsTable = React.memo(
             <BodyText color="textTertiary">{row.unit ? `(${row.unit})` : null}</BodyText>
           </CategoryCell>
         ),
+        sortable: false,
       },
       {
         key: 'normalRange',
@@ -154,6 +156,7 @@ export const PatientLabTestsTable = React.memo(
           const value = !range.min ? '-' : `${range.min}-${range.max}`;
           return <CategoryCell>{value}</CategoryCell>;
         },
+        sortable: false,
       },
       ...allDates
         .sort((a, b) => b.localeCompare(a))
