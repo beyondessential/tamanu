@@ -171,8 +171,6 @@ export class LabRequest extends Model {
       'priority',
       'laboratory',
       'site',
-      'specimenType',
-      'collectedBy',
       { association: 'labTestPanelRequest', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];

@@ -3,9 +3,9 @@ import Chance from 'chance';
 import { USERS } from 'shared/demoData/users';
 import { SPECIMEN_TYPES } from 'shared/demoData/specimenTypes';
 import { LAB_SAMPLE_SITES } from 'shared/demoData/labSampleSites';
-import { Formik } from 'formik';
 import { SampleDetailsField } from '../app/views/labRequest/SampleDetailsField';
 import { createDummySuggester, mapToSuggestions } from './utils';
+import { Form } from '../app/components';
 
 export default {
   title: 'SampleDetailsField',
@@ -28,15 +28,17 @@ const withPanelsRequests = initialSamples.map((groupedRequest, index) => ({
   panelName: `Panel ${index}`,
 }));
 const Template = args => (
-  <Formik initialValues={{}}>
-    <SampleDetailsField
-      practitionerSuggester={practitionerSuggester}
-      specimenTypeSuggester={specimenTypeSuggester}
-      labSampleSiteSuggester={labSampleSiteSuggester}
-      initialSamples={initialSamples}
-      {...args}
-    />
-  </Formik>
+  <Form
+    render={() => (
+      <SampleDetailsField
+        practitionerSuggester={practitionerSuggester}
+        specimenTypeSuggester={specimenTypeSuggester}
+        labSampleSiteSuggester={labSampleSiteSuggester}
+        initialSamples={initialSamples}
+        {...args}
+      />
+    )}
+  />
 );
 
 export const Default = Template.bind({});
