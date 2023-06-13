@@ -107,7 +107,7 @@ export const SampleDetailsField = ({
   const renderSampleDetails = useCallback(
     sample => {
       const identifier = hasPanels ? sample.panelId : sample.categoryId;
-      const isSampleCollected = samples[identifier]?.sampleTime;
+      const isSampleCollected = !!samples[identifier]?.sampleTime;
 
       return (
         <React.Fragment key={identifier}>
