@@ -116,7 +116,7 @@ export const SampleDetailsField = ({
             <StyledField
               name={`sampleTime-${identifier}`}
               component={DateTimeField}
-              max={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
+              max={getCurrentDateString()}
               onChange={({ target: { value } }) => {
                 if (value) {
                   setValue(identifier, 'sampleTime', value);
