@@ -169,9 +169,9 @@ export const TestSelectorInput = ({
   const someSelected = queriedData.some(isSelected) && !allSelected;
 
   const handleChange = newSelected => {
-     if (!onChange) return
-      const selectedObjects = data.filter(({ id }) => newSelected.includes(id));
-      onChange({ target: { name, value: newSelected }, selectedObjects });
+    if (!onChange) return;
+    const selectedObjects = data.filter(({ id }) => newSelected.includes(id));
+    onChange({ target: { name, value: newSelected }, selectedObjects });
   };
 
   const handleClear = () => {
