@@ -30,7 +30,7 @@ const Cell = styled.div`
     width: 100%;
   }
 
-  border-bottom: ${props => (props.displayBorder ? `1px solid ${Colors.outline}` : 'none')};
+  border-bottom: ${props => (props.$displayBorder ? `1px solid ${Colors.outline}` : 'none')};
 `;
 
 const StyledField = styled(Field)`
@@ -93,7 +93,7 @@ export const SampleDetailsField = ({
 
   const renderSampleDetails = useCallback(
     (sample, isLastSample) => {
-      const cellProps = { displayBorder: !isLastSample };
+      const cellProps = { $displayBorder: !isLastSample };
       const identifier = hasPanels ? sample.panelId : sample.categoryId;
       const isSampleCollected = samples[identifier]?.sampleTime;
 
