@@ -145,7 +145,7 @@ export const PaginatedForm = ({
   // allQuestionComponents means REACT components, not SurveyScreenComponent objects!
   // There's unfortunately a lot of overlap between the two, in this component and its children
   const allQuestionComponents = formScreens
-    .map(s => React.children.toArray(s.props.children))
+    .map(s => React.Children.toArray(s.props.children))
     .flat();
   const maxIndex = formScreens.length - 1;
   const isLast = screenIndex === maxIndex;
