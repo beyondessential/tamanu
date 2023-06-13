@@ -281,6 +281,7 @@ patientRelations.get(
 
     const { categoryId, panelId, status = 'published' } = query;
 
+    // TODO: Need to remove pagination from this query as the table is custom and not paginated
     const { count, data } = await runPaginatedQuery(
       db,
       LabTest,
