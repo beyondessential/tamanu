@@ -185,8 +185,8 @@ export const SampleDetailsField = ({
 
   return (
     <Container hasPanels={hasPanels}>
-      {headers.map(header => (
-        <HeaderCell key={`header-${header}`}>{header}</HeaderCell>
+      {headers.map(columnName => (
+        <HeaderCell key={`header-${columnName}`}>{columnName}</HeaderCell>
       ))}
       {initialSamples.map(request => {
         return renderSampleDetails(request);
