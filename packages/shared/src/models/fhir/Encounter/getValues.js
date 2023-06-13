@@ -110,19 +110,8 @@ function subjectRef(encounter) {
 
 function locationRef(encounter) {
   const { BED, WARD } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
-  return [
-    {
-      system: config.hl7.dataDictionaries.locationPhysicalType,
-      code: BED,
-      display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[BED],
-    },
-    {
-      system: config.hl7.dataDictionaries.locationPhysicalType,
-      code: WARD,
-      display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[WARD],
-    },
-  ].map(
-    coding =>
+  return [BED, WARD].map(
+    code =>
       new FhirEncounterLocation({
         location: new FhirReference({
           display: encounter.location.name,
@@ -130,7 +119,13 @@ function locationRef(encounter) {
         }),
         status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
         physicalType: new FhirCodeableConcept({
-          coding: [coding],
+          coding: [
+            {
+              system: config.hl7.dataDictionaries.locationPhysicalType,
+              code,
+              display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[code],
+            },
+          ],
         }),
       }),
   );
