@@ -147,10 +147,35 @@ describe(`Materialised FHIR - Encounter`, () => {
         },
         location: [
           {
-            status: 'active',
             location: {
               display: resources.location.name,
               id: resources.location.id,
+            },
+            status: 'active',
+            physicalType: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+                  code: 'bd',
+                  value: 'bed',
+                },
+              ],
+            },
+          },
+          {
+            location: {
+              display: resources.location.name,
+              id: resources.location.id,
+            },
+            status: 'active',
+            physicalType: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+                  code: 'wa',
+                  value: 'ward',
+                },
+              ],
             },
           },
         ],
