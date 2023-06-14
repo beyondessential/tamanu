@@ -246,7 +246,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </Content>
       </Section>
 
-      {patientConditions > 0 && (
+      {patientConditions.length > 0 && (
         <Section>
           <Grid>
             <GridItem>
