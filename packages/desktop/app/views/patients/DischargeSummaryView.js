@@ -11,7 +11,7 @@ import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { Button } from '../../components/Button';
-import { DateDisplay, formatShort } from '../../components/DateDisplay';
+import { formatShort, getDateDisplay } from '../../components/DateDisplay';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
@@ -254,9 +254,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </div>
           <div>
             <Label>Date of admission: </Label>
-            <Text>
-              <DateDisplay date={startDate} showTime />
-            </Text>
+            <Text>{getDateDisplay(startDate, { showTime: true })}</Text>
           </div>
           <div>
             <Label>Discharging physician: </Label>
@@ -264,9 +262,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </div>
           <div>
             <Label>Date of discharge: </Label>
-            <Text>
-              <DateDisplay date={endDate} showTime />
-            </Text>
+            <Text>{getDateDisplay(endDate, { showTime: true })}</Text>
           </div>
           {discharge && dischargeDispositionVisible && (
             <div>
