@@ -113,49 +113,49 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
     Icon: Icons.EmptyCircleIcon,
     background: 'transparent',
     color: theme.colors.TEXT_SOFT,
-    text: 'UNKNOWN',
+    text: 'Unknown',
   },
   [VaccineStatus.GIVEN]: {
     Icon: Icons.GivenOnTimeIcon,
     background: theme.colors.SAFE,
-    color: theme.colors.SAFE,
-    text: 'GIVEN',
+    color: theme.colors.WHITE,
+    text: 'Given',
   },
   [VaccineStatus.NOT_GIVEN]: {
     Icon: Icons.NotGivenIcon,
     background: theme.colors.DISABLED_GREY,
-    color: theme.colors.TEXT_SOFT,
-    text: 'NOT GIVEN',
+    color: theme.colors.WHITE,
+    text: 'Not given',
   },
   [VaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
     background: theme.colors.BACKGROUND_GREY,
     color: theme.colors.TEXT_SOFT,
-    text: 'SCHEDULED',
+    text: 'Scheduled',
   },
   [VaccineStatus.MISSED]: {
     Icon: Icons.CrossIcon,
     background: theme.colors.ALERT,
     color: theme.colors.TEXT_SOFT,
-    text: 'MISSED',
+    text: 'Missed',
   },
   [VaccineStatus.DUE]: {
     Icon: Icons.EmptyCircleIcon,
     background: theme.colors.PRIMARY_MAIN,
     color: theme.colors.TEXT_SOFT,
-    text: 'DUE NOW',
+    text: 'Due now',
   },
   [VaccineStatus.OVERDUE]: {
     Icon: Icons.EmptyCircleIcon,
     background: theme.colors.SECONDARY_MAIN,
     color: theme.colors.TEXT_SOFT,
-    text: 'OVERDUE',
+    text: 'Overdue',
   },
   [VaccineStatus.UPCOMING]: {
     Icon: Icons.EmptyCircleIcon,
     background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
     color: theme.colors.TEXT_SOFT,
-    text: 'UPCOMING',
+    text: 'Upcoming',
   },
 };
 
@@ -204,14 +204,46 @@ export const LabRequestStatus = {
 
 // also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
 export const AutocompleteSourceToColumnMap = {
-  User: 'displayName',
   Department: 'name',
   Facility: 'name',
   Location: 'name',
   LocationGroup: 'name',
   ReferenceData: 'name',
+  User: 'displayName',
 };
 
 export const VitalsDataElements = {
   dateRecorded: 'pde-PatientVitalsDate',
+};
+
+export const NOTE_RECORD_TYPES = {
+  ENCOUNTER: 'Encounter',
+  PATIENT: 'Patient',
+  TRIAGE: 'Triage',
+  PATIENT_CARE_PLAN: 'PatientCarePlan',
+  LAB_REQUEST: 'LabRequest',
+  IMAGING_REQUEST: 'ImagingRequest',
+  // IMPORTANT: if you add any more record types, you must also alter buildNoteLinkedSyncFilter
+};
+
+export const NOTE_TYPES = {
+  TREATMENT_PLAN: 'treatmentPlan',
+  MEDICAL: 'medical',
+  SURGICAL: 'surgical',
+  NURSING: 'nursing',
+  DIETARY: 'dietary',
+  PHARMACY: 'pharmacy',
+  PHYSIOTHERAPY: 'physiotherapy',
+  SOCIAL: 'social',
+  DISCHARGE: 'discharge',
+  AREA_TO_BE_IMAGED: 'areaToBeImaged',
+  RESULT_DESCRIPTION: 'resultDescription',
+  SYSTEM: 'system',
+  OTHER: 'other',
+  CLINICAL_MOBILE: 'clinicalMobile',
+  HANDOVER: 'handover',
+};
+
+export const FORM_STATUSES = {
+  SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
 };

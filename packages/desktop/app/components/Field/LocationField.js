@@ -7,7 +7,6 @@ import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
-import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 
@@ -78,6 +77,8 @@ export const LocationInput = React.memo(
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
+      setLocationId('');
+      onChange({ target: { value: '', name } });
     };
 
     const handleChange = async event => {

@@ -46,6 +46,10 @@ const StyledButton = styled(MuiButton)`
     padding-left: 14px;
     padding-right: 14px;
   }
+
+  &.MuiButton-outlinedPrimary {
+    border-color: ${props => props.theme.palette.primary.main};
+  }
 `;
 
 export const Button = ({ children, isSubmitting, disabled, hasPermission = true, ...props }) => {

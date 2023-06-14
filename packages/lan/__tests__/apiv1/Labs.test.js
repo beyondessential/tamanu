@@ -1,12 +1,20 @@
-import {
-  LAB_TEST_STATUSES,
-  LAB_REQUEST_STATUSES,
-  REFERENCE_TYPES,
-  VISIBILITY_STATUSES,
-} from 'shared/constants';
-import { createDummyPatient, randomLabRequest } from 'shared/demoData';
+import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import config from 'config';
+import Chance from 'chance';
+import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
+import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
+
+const chance = new Chance();
+const VALID_LAB_REQUEST_STATUSES = [
+  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+  LAB_REQUEST_STATUSES.RESULTS_PENDING,
+  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+  LAB_REQUEST_STATUSES.VERIFIED,
+  LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+  LAB_REQUEST_STATUSES.PUBLISHED,
+];
 
 describe('Labs', () => {
   let patientId = null;
@@ -54,26 +62,6 @@ describe('Labs', () => {
   });
 
   test.todo('should not record a lab request with zero tests');
-  test.todo(
-    "should not record a lab request with a test whose category does not match the request's category",
-  );
-  /*
-  it("should not record a lab request with a test whose category does not match the request's category", async () => {
-    const [categoryA, categoryB] = await models.ReferenceData.findAll({
-      where: { type: 'labTestCategory' },
-      order: models.ReferenceData.sequelize.random(),
-      limit: 2,
-    });
-    const labTestTypeIdsA = await randomLabTests(categoryA.id, 2);
-    const labTestTypeIdsB = await randomLabTests(categoryB.id, 2);
-
-    const response = await app.post('/v1/labRequest').send({
-      patientId,
-      labTestTypeIds: [...labTestTypeIdsA, ...labTestTypeIdsB],
-    });
-    expect(response).toHaveRequestError();
-  });
-  */
 
   it('should record a test result', async () => {
     const labRequest = await models.LabRequest.createWithTests(
@@ -137,61 +125,54 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  describe('Options', () => {
-    it('should fetch lab test type options', async () => {
-      const response = await app.get(`/v1/labTest/options`);
-      expect(response).toHaveSucceeded();
+  describe('Filtering by allFacilities', () => {
+    const otherFacilityId = 'kerang';
+    const makeRequestAtFacility = async facilityId => {
+      const location = await models.Location.create({
+        ...fake(models.Location),
+        facilityId,
+      });
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: location.id,
+        patientId,
+      });
+      await models.LabRequest.create({
+        ...fake(models.LabRequest),
+        encounterId: encounter.id,
+        requestedById: app.user.id,
+        status: chance.pickone(VALID_LAB_REQUEST_STATUSES),
+      });
+    };
 
-      expect(response.body.count).toBeGreaterThan(0);
-      const { data } = response.body;
-
-      // ensure it's an array
-      expect(Array.isArray(data)).toBeTruthy();
-
-      // check some fields exist on at least some objects
-      expect(data.find(x => x.maleMin)).toBeDefined();
-      expect(data.find(x => x.maleMax)).toBeDefined();
-      expect(data.find(x => x.femaleMin)).toBeDefined();
-      expect(data.find(x => x.femaleMax)).toBeDefined();
-      expect(data.find(x => x.unit)).toBeDefined();
-
-      // ensure there's at least one response with options
-      // and that options is returned as an array, not a string
-      const withOptions = data.filter(x => x.options);
-      expect(withOptions.length).toBeGreaterThan(0);
-      expect(withOptions.every(x => Array.isArray(x.options))).toEqual(true);
+    beforeAll(async () => {
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(config.serverFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
+      await makeRequestAtFacility(otherFacilityId);
     });
 
-    it("should fetch only lab test types with visibility status 'current'", async () => {
-      const category = await models.ReferenceData.create({
-        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
-        name: 'TestCategory1',
-        code: 'test_category_1',
+    it('should omit external requests when allFacilities is false', async () => {
+      const result = await app.get(`/v1/labRequest?allFacilities=false`);
+      expect(result).toHaveSucceeded();
+      result.body.data.forEach(lr => {
+        expect(lr.facilityId).toBe(config.serverFacilityId);
       });
-      await models.LabTestType.create({
-        labTestCategoryId: category.id,
-        name: 'Historical Lab Test Type',
-        code: 'historical_lab_test_type',
-        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-      });
-
-      const response = await app.get(`/v1/labTest/options`);
-      expect(response).toHaveSucceeded();
-      expect(response.body.count).toBeGreaterThan(0);
-
-      const { data } = response.body;
-      expect(Array.isArray(data)).toBeTruthy();
-      expect(data.every(l => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT)).toBeTruthy();
     });
 
-    it('should fetch lab test categories', async () => {
-      const response = await app.get(`/v1/labTest/categories`);
-      expect(response).toHaveSucceeded();
+    it('should include all requests when allFacilities  is true', async () => {
+      const result = await app.get(`/v1/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
 
-      const { data } = response.body;
-      expect(Array.isArray(data)).toBeTruthy();
-      expect(data[0]).toHaveProperty('name');
-      expect(data[0]).toHaveProperty('code');
+      const hasConfigFacility = result.body.data.some(
+        lr => lr.facilityId === config.serverFacilityId,
+      );
+      expect(hasConfigFacility).toBe(true);
+
+      const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
+      expect(hasOtherFacility).toBe(true);
     });
   });
 });

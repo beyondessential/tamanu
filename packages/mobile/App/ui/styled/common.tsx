@@ -28,6 +28,7 @@ import {
 import SafeAreaView from 'react-native-safe-area-view';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Value } from 'react-native-reanimated';
+import { GestureResponderEvent } from 'react-native';
 
 const sizes = [];
 for (let i = 0; i < 10; i++) {
@@ -140,7 +141,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${({
     borderLeftWidth,
   }): string | number => `border-left-width: ${borderLeftWidth}` || 0};
-  ${({ borderBottomWidth }): string | number => `border-left-width: ${borderBottomWidth}` || 0};
+  ${({ borderBottomWidth }): string | number => `border-bottom-width: ${borderBottomWidth}` || 0};
   ${boxShadow}
   ${zIndex}
   ${justifyContent}
@@ -204,6 +205,7 @@ export const StyledText = styled.Text<StyledTextProps>`
 interface StyledImageProps {
   height?: string | number;
   width?: string | number;
+  textAlign?: string
 }
 
 export const StyledImage = styled.Image<StyledImageProps>`
@@ -213,7 +215,7 @@ export const StyledImage = styled.Image<StyledImageProps>`
 
 interface StyledTouchableOpacityProps extends StyledViewProps {
   children?: ReactNode | Element[];
-  onPress: Function;
+  onPress: (e?: GestureResponderEvent) => void;
 }
 
 export const StyledTouchableOpacity = styled.TouchableOpacity<

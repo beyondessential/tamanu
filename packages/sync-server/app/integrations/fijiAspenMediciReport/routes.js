@@ -2,7 +2,10 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
-import { parseDateTime } from 'shared/utils/fhir/datetime';
+import { parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
@@ -11,8 +14,19 @@ export const routes = express.Router();
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
+// Workaround for this test changing from a hotfix, see EPI-483/484
+function formatDate(date) {
+  if (!date) return date;
+  return formatInTimeZone(
+    parseISO(formatFhirDate(date, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE)),
+    '+00:00',
+    "yyyy-MM-dd'T'HH:mm:ssXXX",
+  ).replace(/Z$/, '+00:00');
+}
+
 const reportQuery = `
 with
+
 notes_info as (
   select
     record_id,
@@ -20,13 +34,14 @@ notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone :timezone_string
+        'noteDate', ni."date"::timestamp at time zone $timezone_string
       ) 
     ) aggregated_notes
   from note_pages np
   join note_items ni on ni.note_page_id = np.id
   group by record_id
 ),
+
 lab_test_info as (
   select 
     lab_request_id,
@@ -39,6 +54,7 @@ lab_test_info as (
   left join lab_test_types ltt on ltt.id = lt.lab_test_type_id
   group by lab_request_id 
 ),
+
 lab_request_info as (
   select 
     encounter_id,
@@ -53,6 +69,7 @@ lab_request_info as (
   left join notes_info ni on ni.record_id = lr.id
   group by encounter_id
 ),
+
 procedure_info as (
   select
     encounter_id,
@@ -60,7 +77,7 @@ procedure_info as (
       json_build_object(
         'name', proc.name,
         'code', proc.code,
-        'date', date::timestamp at time zone :timezone_string,
+        'date', date::timestamp at time zone $timezone_string,
         'location', loc.name,
         'notes', p.note,
         'completedNotes', completed_note
@@ -71,6 +88,7 @@ procedure_info as (
   left join locations loc on loc.id = location_id
   group by encounter_id 
 ),
+
 medications_info as (
   select
     encounter_id,
@@ -86,6 +104,7 @@ medications_info as (
   join reference_data medication on medication.id = em.medication_id
   group by encounter_id
 ),
+
 diagnosis_info as (
   select
     encounter_id,
@@ -102,6 +121,7 @@ diagnosis_info as (
   where certainty not in ('disproven', 'error')
   group by encounter_id
 ),
+
 vaccine_info as (
   select
     encounter_id,
@@ -117,6 +137,7 @@ vaccine_info as (
   join reference_data drug on drug.id = sv.vaccine_id 
   group by encounter_id
 ),
+
 imaging_areas_by_request as (
   select
     imaging_request_id,
@@ -125,6 +146,7 @@ imaging_areas_by_request as (
   left join reference_data area on area.id =  ira.area_id
   group by imaging_request_id
 ),
+
 imaging_info as (
   select
     ir.encounter_id,
@@ -136,19 +158,20 @@ imaging_info as (
       )
     ) "Imaging requests"
   from imaging_requests ir
-  left join notes_info ni on ni.record_id = ir.id
+  left join notes_info ni on ni.record_id = ir.id::varchar
   left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
   group by encounter_id
 ),
-encounter_notes_info as (
+
 -- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
+encounter_notes_info as (
   select
     record_id encounter_id,
     json_agg(
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone :timezone_string
+        'noteDate', ni."date"::timestamp at time zone $timezone_string
       ) order by ni.date desc
     ) "Notes"
   from note_pages np
@@ -156,6 +179,7 @@ encounter_notes_info as (
   where note_type != 'system'
   group by record_id
 ),
+
 note_history as (
   select
     record_id encounter_id,
@@ -175,23 +199,24 @@ note_history as (
   where note_type = 'system'
   and ni.content ~ 'Changed (.*) from (.*) to (.*)'
 ),
+
 department_info as (
   select 
     e.id encounter_id,
     case when count("from") = 0
       then json_build_array(json_build_object(
         'department', d.name,
-        'assignedTime', e.start_date::timestamp at time zone :timezone_string
+        'assignedTime', e.start_date::timestamp at time zone $timezone_string
       ))
       else 
         array_to_json(json_build_object(
           'department', first_from, --first "from" from note
-          'assignedTime', e.start_date::timestamp at time zone :timezone_string
+          'assignedTime', e.start_date::timestamp at time zone $timezone_string
         ) ||
         array_agg(
           json_build_object(
             'department', "to",
-            'assignedTime', nh.date::timestamp at time zone :timezone_string
+            'assignedTime', nh.date::timestamp at time zone $timezone_string
           ) ORDER BY nh.date
         ))
     end department_history
@@ -211,23 +236,24 @@ department_info as (
   on e.id = first_from.enc_id
   group by e.id, d.name, e.start_date, first_from
 ),
+
 location_info as (
   select 
     e.id encounter_id,
     case when count("from") = 0
       then json_build_array(json_build_object(
         'location', coalesce(lg.name || ', ', '' ) || l.name,
-        'assignedTime', e.start_date::timestamp at time zone :timezone_string
+        'assignedTime', e.start_date::timestamp at time zone $timezone_string
       ))
       else 
         array_to_json(json_build_object(
           'location', first_from, --first "from" from note
-          'assignedTime', e.start_date::timestamp at time zone :timezone_string
+          'assignedTime', e.start_date::timestamp at time zone $timezone_string
         ) ||
         array_agg(
           json_build_object(
             'location', "to",
-            'assignedTime', nh.date::timestamp at time zone :timezone_string
+            'assignedTime', nh.date::timestamp at time zone $timezone_string
           ) ORDER BY nh.date
         ))
     end location_history
@@ -248,6 +274,7 @@ location_info as (
   on e.id = first_from.enc_id
   group by e.id, l.name, lg.name, e.start_date, first_from
 ),
+
 triage_info as (
   select
     encounter_id,
@@ -263,6 +290,7 @@ triage_info as (
   lateral (select floor(total_minutes / 60) hours) hours,
   lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
 ),
+
 discharge_disposition_info as (
   select
     encounter_id,
@@ -279,7 +307,8 @@ discharge_disposition_info as (
         LIMIT 1)
   join reference_data disposition on disposition.id = d.disposition_id
 )
-select
+
+SELECT
 p.display_id "patientId",
 p.first_name "firstname",
 p.last_name "lastname",
@@ -288,8 +317,9 @@ extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
 billing.name "patientBillingType",
 e.id "encounterId",
-e.start_date::timestamp at time zone :timezone_string "encounterStartDate",
-e.end_date::timestamp at time zone :timezone_string "encounterEndDate",
+e.start_date::timestamp at time zone $timezone_string "encounterStartDate",
+e.end_date::timestamp at time zone $timezone_string "encounterEndDate",
+e.end_date::timestamp at time zone $timezone_string "dischargeDate",
 case e.encounter_type
   when 'admission' then 'AR-DRG'
   when 'imaging' then 'AR-DRG'
@@ -327,6 +357,7 @@ pi."Procedures" as "procedures",
 lri."Lab requests" "labRequests",
 ii."Imaging requests" "imagingRequests",
 ni."Notes" notes
+
 from patients p
 join encounters e on e.patient_id = p.id
 left join reference_data billing on billing.id = e.patient_billing_type_id
@@ -343,20 +374,33 @@ left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
-where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) >= :from_date::timestamptz ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) <= :to_date::timestamptz ELSE true END
-order by e.start_date desc
-limit :limit offset :offset;
+
+WHERE true
+  AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')
+  AND e.end_date IS NOT NULL
+  AND CASE WHEN coalesce($from_date, 'not_a_date') != 'not_a_date'
+    THEN (e.end_date::timestamp at time zone $timezone_string) >= $from_date::timestamptz
+  ELSE
+    true
+  END
+  AND CASE WHEN coalesce($to_date, 'not_a_date') != 'not_a_date'
+    THEN (e.end_date::timestamp at time zone $timezone_string) <= $to_date::timestamptz
+  ELSE
+    true
+  END
+  AND CASE WHEN coalesce(array_length($input_encounter_ids::varchar[], 1), 0) != 0
+    THEN e.id = ANY(SELECT unnest($input_encounter_ids::varchar[]))
+  ELSE
+    true
+  END
+
+ORDER BY e.end_date DESC
+LIMIT $limit OFFSET $offset;
 `;
 
 const parseDateParam = date => {
   const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
-  if (!parsedDate) {
-    throw Error('period.start and period.end must be supplied and in ISO8061 format');
-  }
-
-  return parsedDate;
+  return parsedDate || null;
 };
 
 routes.use(requireClientHeaders);
@@ -364,29 +408,62 @@ routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
-    const { 'period.start': fromDate, 'period.end': toDate, limit, offset = 0 } = req.query;
-
+    const {
+      'period.start': fromDate,
+      'period.end': toDate,
+      limit = 100,
+      encounters,
+      offset = 0,
+    } = req.query;
     if (!COUNTRY_TIMEZONE) {
       throw new Error('A countryTimeZone must be configured in local.json for this report to run');
     }
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
-      replacements: {
+      bind: {
         from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
         to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
+        input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
-        timezone_string: COUNTRY_TIMEZONE,
-        limit: limit ?? null, // Limit of null means no limit
+        limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
+        timezone_string: COUNTRY_TIMEZONE,
       },
     });
+
+    const mapNotes = notes =>
+      notes?.map(note => ({
+        ...note,
+        noteDate: formatDate(note.noteDate),
+      }));
 
     const mappedData = data.map(encounter => ({
       ...encounter,
       age: parseInt(encounter.age),
       weight: parseFloat(encounter.weight),
       sex: upperFirst(encounter.sex),
+      departments: encounter.departments?.map(department => ({
+        ...department,
+        assignedTime: formatDate(department.assignedTime),
+      })),
+      locations: encounter.locations?.map(location => ({
+        ...location,
+        assignedTime: formatDate(location.assignedTime),
+      })),
+      imagingRequests: encounter.imagingRequests?.map(ir => ({
+        ...ir,
+        notes: mapNotes(ir.notes),
+      })),
+      labRequests: encounter.labRequests?.map(lr => ({
+        ...lr,
+        notes: mapNotes(lr.notes),
+      })),
+      procedures: encounter.procedures?.map(procedure => ({
+        ...procedure,
+        date: formatDate(procedure.date),
+      })),
+      notes: mapNotes(encounter.notes),
     }));
 
     res.status(200).send({ data: mappedData });

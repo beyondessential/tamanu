@@ -1,15 +1,10 @@
 import React from 'react';
-import { getCurrentDateString } from 'shared/utils/dateTime';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import {
-  AutocompleteField,
-  CheckField,
-  Field,
-  LocalisedField,
-  DisplayIdField,
-  DateField,
-} from '../Field';
+import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
+import { useAdvancedFields } from './useAdvancedFields';
+
+const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];
 
 export const PatientSearchBar = React.memo(
   ({ onSearch, searchParameters, suggestByFacility = true }) => {
@@ -19,43 +14,50 @@ export const PatientSearchBar = React.memo(
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
     });
+
+    const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
+      ADVANCED_FIELDS,
+      searchParameters,
+    );
+
     const practitionerSuggester = useSuggester('practitioner');
     return (
       <CustomisableSearchBar
+        showExpandButton
         title="Search for Patients"
-        renderCheckField={
-          <Field name="deceased" label="Include deceased patients" component={CheckField} />
-        }
         onSearch={onSearch}
-        initialValues={{ displayIdExact: true, ...searchParameters }}
+        isExpanded={showAdvancedFields}
+        setIsExpanded={setShowAdvancedFields}
+        initialValues={searchParameters}
+        staticValues={{ displayIdExact: true }}
+        hiddenFields={
+          <>
+            <LocalisedField
+              name="departmentId"
+              defaultLabel="Department"
+              size="small"
+              component={AutocompleteField}
+              suggester={departmentSuggester}
+            />
+            <LocalisedField
+              name="clinicianId"
+              defaultLabel="Clinician"
+              component={AutocompleteField}
+              size="small"
+              suggester={practitionerSuggester}
+            />
+          </>
+        }
       >
-        <LocalisedField name="firstName" />
-        <LocalisedField name="lastName" />
-        <Field
-          name="dateOfBirthExact"
-          label="DOB"
-          max={getCurrentDateString()}
-          component={DateField}
-          saveDateAsString
-        />
-        <DisplayIdField />
+        <LocalisedField useShortLabel component={SearchField} name="displayId" keepLetterCase />
+        <LocalisedField name="firstName" component={SearchField} />
+        <LocalisedField name="lastName" component={SearchField} />
         <LocalisedField
           name="locationGroupId"
           defaultLabel="Location"
           component={AutocompleteField}
+          size="small"
           suggester={locationGroupSuggester}
-        />
-        <LocalisedField
-          name="departmentId"
-          defaultLabel="Department"
-          component={AutocompleteField}
-          suggester={departmentSuggester}
-        />
-        <LocalisedField
-          name="clinicianId"
-          defaultLabel="Clinician"
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
         />
       </CustomisableSearchBar>
     );

@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
+import { snakeCase } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
 import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
@@ -14,6 +15,7 @@ import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
+import { patientLocations } from './patientLocations';
 import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
@@ -230,16 +232,11 @@ patientRoute.get(
 
     req.checkPermission('list', 'Patient');
 
-    const {
-      orderBy = 'lastName',
-      order = 'asc',
-      rowsPerPage = 10,
-      page = 0,
-      ...filterParams
-    } = query;
+    const { orderBy, order = 'asc', rowsPerPage = 10, page = 0, ...filterParams } = query;
 
-    const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.displayId;
+    const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.lastName;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
     // add secondary search terms so no matter what the primary order, the results are secondarily
     // sorted sensibly
     const secondarySearchTerm = [
@@ -258,9 +255,49 @@ patientRoute.get(
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
+    let filterSort = '';
+    let filterSortReplacements = {};
+    // If there is a sort selected by the user, it shouldn't use exact match sort.
+    // The search is complex and it has more details over this https://linear.app/bes/issue/TAN-2038/desktop-improve-patient-listing-search-fields
+    // Basically, we are sorting results based on the following rules:
+    // 1) if the user selects a column to sort, this is our first priority.
+    // 2) In case the user used one of the filters = "Display Id", "Last Name", "First Name", we have some special rules.
+    // 2.a) If there is an exact match for 'display Id', 'last name', 'first name, it should display those results on top
+    // 2.b) In the case we have a exact match for two or more columns listed above, we will display it sorted by display id, last name, and first name
+    // 2.c) After the exact match is applied, we should prioritize the results that starts with the text the user inserted.
+    // 2.d) the same rule of 2.b is applied in case we have two or more columns starting with what the user selected.
+    // 2.e) The last rule for selected filters, is, if the user has selected any of those filters, we should also sort them alphabetically.
+    if (!orderBy) {
+      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter(v => filterParams[v]);
+      if (selectedFilters?.length) {
+        filterSortReplacements = selectedFilters.reduce((acc, filter) => {
+          return {
+            ...acc,
+            [`exactMatchSort${filter}`]: filterParams[filter].toUpperCase(),
+            [`beginsWithSort${filter}`]: `${filterParams[filter].toUpperCase()}%`,
+          };
+        }, {});
+
+        // Exact match sort
+        const exactMatchSort = selectedFilters
+          .map(filter => `upper(${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`)
+          .join(', ');
+
+        // Begins with sort
+        const beginsWithSort = selectedFilters
+          .map(filter => `upper(${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
+          .join(', ');
+
+        // the last one is
+        const alphabeticSort = selectedFilters.map(filter => `${snakeCase(filter)} ASC`).join(', ');
+
+        filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
+      }
+    }
+
     // Check if this is the main patient listing and change FROM and SELECT
     // clauses to improve query speed by removing unused joins
-    const isAllPatientsListing = !filterParams.facilityId;
+    const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
@@ -301,6 +338,8 @@ patientRoute.get(
           ON patients.id = recent_encounter_by_patient.patient_id
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+        LEFT JOIN users AS clinician 
+          ON clinician.id = encounters.examiner_id  
         LEFT JOIN departments AS department
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
@@ -344,8 +383,8 @@ patientRoute.get(
 
     const count = parseInt(countResult[0].count, 10);
 
-    if (count === 0) {
-      // save ourselves a query
+    if (count === 0 || filterParams.countOnly) {
+      // save ourselves a query if 0 || user requested count only
       res.send({ data: [], count });
       return;
     }
@@ -365,6 +404,7 @@ patientRoute.get(
         patients.*,
         encounters.id AS encounter_id,
         encounters.encounter_type,
+        clinician.display_name as clinician,
         department.id AS department_id,
         department.name AS department_name,
         location.id AS location_id,
@@ -384,13 +424,15 @@ patientRoute.get(
         ${select}
         ${from}
 
-        ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${filterSort &&
+          `${filterSort},`} ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,
       {
         replacements: {
           ...filterReplacements,
+          ...filterSortReplacements,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
         },
@@ -414,11 +456,15 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
 
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { Patient } = models;
+    const { certType } = query;
 
     const patient = await Patient.findByPk(params.id);
-    const labTests = await patient.getCovidLabTests();
+    const labTests =
+      certType === 'clearance'
+        ? await patient.getCovidClearanceLabTests()
+        : await patient.getCovidLabTests();
 
     res.json({ data: labTests, count: labTests.length });
   }),
@@ -431,5 +477,6 @@ patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
+patientRoute.use(patientLocations);
 
 export { patientRoute as patient };

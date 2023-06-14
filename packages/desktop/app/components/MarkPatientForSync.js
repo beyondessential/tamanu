@@ -1,9 +1,9 @@
 import React from 'react';
 import { Loop } from '@material-ui/icons';
 import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
 
 import { Button } from './Button';
-import { connectApi } from '../api';
 import { Colors } from '../constants';
 import { syncPatient } from '../store/patient';
 
@@ -20,15 +20,13 @@ const MarkPatientForSyncIcon = styled(Loop)`
   padding-bottom: 1rem;
 `;
 
-const DumbMarkPatientForSync = ({ onMarkPatientForSync }) => (
-  <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
-    <MarkPatientForSyncIcon />
-    Sync patient records
-  </MarkPatientForSyncButton>
-);
-
-export const MarkPatientForSync = connectApi((api, dispatch) => ({
-  onMarkPatientForSync: () => {
-    dispatch(syncPatient());
-  },
-}))(DumbMarkPatientForSync);
+export const MarkPatientForSync = ({ patient }) => {
+  const dispatch = useDispatch();
+  const onMarkPatientForSync = () => dispatch(syncPatient(patient.id));
+  return (
+    <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
+      <MarkPatientForSyncIcon />
+      Sync patient records
+    </MarkPatientForSyncButton>
+  );
+};

@@ -152,6 +152,23 @@ const templatesSchema = yup
       .required()
       .noUnknown(),
 
+    covidVaccineCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
     covidTestCertificateEmail: yup
       .object()
       .shape({
@@ -202,6 +219,10 @@ const templatesSchema = yup
     covidTestCertificate: yup
       .object({
         laboratoryName: yup
+          .string()
+          .trim()
+          .required(),
+        clearanceCertRemark: yup
           .string()
           .trim()
           .required(),
@@ -321,6 +342,62 @@ const rootLocalisationSchema = yup
         label: yup.string().required(),
       }),
     ),
+    imagingCancellationReasons: yup
+      .array(
+        yup.object({
+          value: yup
+            .string()
+            .required()
+            .max(31),
+          label: yup.string().required(),
+        }),
+      )
+      .test({
+        name: 'imagingCancellationReasons',
+        test(conf, ctx) {
+          const values = conf.map(x => x.value);
+          if (!values.includes('duplicate')) {
+            return ctx.createError({
+              message: 'imagingCancellationReasons must include an option with value = duplicate',
+            });
+          }
+          if (!values.includes('entered-in-error')) {
+            return ctx.createError({
+              message:
+                'imagingCancellationReasons must include an option with value = entered-in-error',
+            });
+          }
+          return true;
+        },
+      }),
+    labsCancellationReasons: yup
+      .array(
+        yup.object({
+          value: yup
+            .string()
+            .required()
+            .max(31),
+          label: yup.string().required(),
+        }),
+      )
+      .test({
+        name: 'labsCancellationReasons',
+        test(conf, ctx) {
+          const values = conf.map(x => x.value);
+          if (!values.includes('duplicate')) {
+            return ctx.createError({
+              message: 'labsCancellationReasons must include an option with value = duplicate',
+            });
+          }
+          if (!values.includes('entered-in-error')) {
+            return ctx.createError({
+              message:
+                'labsCancellationReasons must include an option with value = entered-in-error',
+            });
+          }
+          return true;
+        },
+      }),
     triageCategories: yup
       .array(
         yup.object({
@@ -343,9 +420,22 @@ const rootLocalisationSchema = yup
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
+        enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         editDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
+        idleTimeout: yup
+          .object()
+          .shape({
+            enabled: yup.boolean().required(),
+            timeoutDuration: yup.number().required(),
+            warningPromptDuration: yup.number().required(),
+            refreshInterval: yup.number().required(),
+          })
+          .required(),
+        fhirNewZealandEthnicity: yup.boolean().required(),
+        displayProcedureCodesInDischargeSummary: yup.boolean().required(),
+        displayIcd10CodesInDischargeSummary: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

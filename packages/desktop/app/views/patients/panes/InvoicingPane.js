@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useEncounter } from '../../../contexts/Encounter';
-import { useApi } from '../../../api';
+import { useApi, isErrorUnknownAllow404s } from '../../../api';
 import { isInvoiceEditable } from '../../../utils';
 import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
 import { InvoicePriceChangeItemModal } from '../../../components/InvoicePriceChangeItemModal';
@@ -52,7 +52,11 @@ export const InvoicingPane = React.memo(({ encounter }) => {
 
   const getInvoice = useCallback(async () => {
     try {
-      const invoiceResponse = await api.get(`encounter/${encounter.id}/invoice`);
+      const invoiceResponse = await api.get(
+        `encounter/${encounter.id}/invoice`,
+        {},
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      );
       setInvoice(invoiceResponse);
     } catch (e) {
       // do nothing

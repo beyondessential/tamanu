@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
-import { LabRequestsTable } from '../../../components/LabRequestsTable';
+import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
-import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting/PrintMultipleLabRequestsSelectionModal';
+import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [printLabRequestsModalOpen, setPrintLabRequestsModalOpen] = useState(false);
+  const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
+  const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
   return (
     <TabPane>
-      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
+      <LabRequestModal
+        open={newRequestModalOpen}
+        encounter={encounter}
+        onClose={() => setNewRequestModalOpen(false)}
+      />
       <PrintMultipleLabRequestsSelectionModal
         encounter={encounter}
-        open={printLabRequestsModalOpen}
-        onClose={() => setPrintLabRequestsModalOpen(false)}
+        open={printRequestsModalOpen}
+        onClose={() => setPrintRequestsModalOpen(false)}
       />
       <TableButtonRow variant="small">
         <ButtonWithPermissionCheck
-          onClick={() => setPrintLabRequestsModalOpen(true)}
+          onClick={() => setPrintRequestsModalOpen(true)}
           disabled={readonly}
           verb="read"
           noun="LabRequest"
@@ -29,7 +33,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           Print
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
-          onClick={() => setModalOpen(true)}
+          onClick={() => setNewRequestModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="LabRequest"
@@ -37,7 +41,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           New lab request
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <LabRequestsTable encounterId={encounter.id} />
+      <EncounterLabRequestsTable encounterId={encounter.id} />
     </TabPane>
   );
 });

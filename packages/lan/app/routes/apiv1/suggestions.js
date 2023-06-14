@@ -25,7 +25,7 @@ function createSuggesterRoute(
   searchColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}`,
+    `/${endpoint}$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -78,7 +78,7 @@ function createAllRecordsSuggesterRoute(
   orderColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}/all`,
+    `/${endpoint}/all$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -112,19 +112,24 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-REFERENCE_TYPE_VALUES.map(typeName =>
+REFERENCE_TYPE_VALUES.forEach(typeName => {
   createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  }),
-);
+  });
 
-REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(typeName, 'ReferenceData', search => ({
     name: { [Op.iLike]: search },
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  })),
+  }));
+});
+
+createAllRecordsSuggesterRoute(
+  'labTestType',
+  'LabTestType',
+  VISIBILITY_CRITERIA,
+  ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 );
 
 const DEFAULT_WHERE_BUILDER = search => ({
@@ -210,7 +215,7 @@ createSuggester(
   search => ({
     name: { [Op.iLike]: search },
     surveyType: {
-      [Op.ne]: SURVEY_TYPES.OBSOLETE,
+      [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
     },
   }),
   ({ id, name }) => ({ id, name }),

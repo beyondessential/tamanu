@@ -23,6 +23,9 @@ export function normaliseSheetName(name) {
   if (norm === 'vaccineSchedule') return 'scheduledVaccine';
   if (norm === 'procedure') return 'procedureType';
 
+  // This is needed to handle the way we are exporting that data
+  if (norm === 'patientFieldDefCategory') return 'patientFieldDefinitionCategory';
+
   return norm;
 }
 
@@ -32,7 +35,7 @@ export async function importerTransaction({
   models,
   file,
   dryRun = false,
-  whitelist = [],
+  includedDataTypes = [],
 }) {
   const errors = [];
   const stats = [];
@@ -58,7 +61,7 @@ export async function importerTransaction({
         });
 
         try {
-          await importer({ errors, models, stats, file, whitelist });
+          await importer({ errors, models, stats, file, includedDataTypes });
         } catch (err) {
           errors.push(err);
         }
@@ -104,7 +107,7 @@ export function createDataImporterEndpoint(importer) {
       file,
       deleteFileAfterImport = true,
       dryRun = false,
-      whitelist = [],
+      includedDataTypes,
     } = await getUploadedData(req);
 
     const result = await importerTransaction({
@@ -112,7 +115,7 @@ export function createDataImporterEndpoint(importer) {
       file,
       models: store.models,
       dryRun,
-      whitelist,
+      includedDataTypes,
     });
 
     // we don't need the file any more
