@@ -8,7 +8,6 @@ import Box from '@material-ui/core/Box';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants';
 
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
-import { LocalisedText } from '../../components/LocalisedText';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { Button } from '../../components/Button';
 import { formatShort, getDateDisplay } from '../../components/DateDisplay';
@@ -25,6 +24,10 @@ import {
   usePatientConditions,
   useReferenceData,
 } from '../../api/queries';
+import {
+  DisplayValue,
+  LocalisedDisplayValue,
+} from '../../components/PatientPrinting/printouts/reusable/CertificateLabels';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -184,7 +187,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
     endDate,
     location,
     examiner,
-    reasonForEncounter,
+    reasonForEncounter = 'N/A',
   } = encounter;
 
   const visibleDiagnoses = diagnoses.filter(
@@ -205,34 +208,18 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <Header>Patient details</Header>
         <HorizontalLine />
         <Content>
-          <div>
-            <Label>Patient name: </Label>
-            <Text>{`${patient.firstName} ${patient.lastName}`}</Text>
-          </div>
-          <div>
-            <Label>
-              <LocalisedText path="fields.displayId.shortLabel" />:{' '}
-            </Label>
-            <Text>{patient.displayId}</Text>
-          </div>
-          <div>
-            <Label>DOB: </Label>
-            <Text>
-              {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(patient.dateOfBirth)})`}
-            </Text>
-          </div>
-          <div>
-            <Label>Address: </Label>
-            <Text>{`${address}`}</Text>
-          </div>
-          <div>
-            <Label>Sex: </Label>
-            <Text>{`${capitaliseFirstLetter(patient.sex)}`}</Text>
-          </div>
-          <div>
-            <Label>Village: </Label>
-            <Text>{`${village.name || 'N/A'}`}</Text>
-          </div>
+          <DisplayValue name="Patient name">
+            {patient.firstName} {patient.lastName}
+          </DisplayValue>
+          <LocalisedDisplayValue path="fields.displayId.shortLabel">
+            {patient.displayId}
+          </LocalisedDisplayValue>
+          <DisplayValue name="DOB">
+            {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(patient.dateOfBirth)})`}
+          </DisplayValue>
+          <DisplayValue name="Address">{`${address}`} </DisplayValue>
+          <DisplayValue name="Sex">{`${capitaliseFirstLetter(patient.sex)}`} </DisplayValue>
+          <DisplayValue name="Village">{`${village.name || 'N/A'}`} </DisplayValue>
         </Content>
       </Section>
 
@@ -240,40 +227,22 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <Header>Encounter details</Header>
         <HorizontalLine />
         <Content>
-          <div>
-            <Label>Facility: </Label>
-            <Text>{location?.facility?.name || null}</Text>
-          </div>
-          <div>
-            <Label>Department: </Label>
-            <Text>{getFullLocationName(location)}</Text>
-          </div>
-          <div>
-            <Label>Supervising clinician: </Label>
-            <Text>{examiner?.displayName}</Text>
-          </div>
-          <div>
-            <Label>Date of admission: </Label>
-            <Text>{getDateDisplay(startDate, { showTime: true })}</Text>
-          </div>
-          <div>
-            <Label>Discharging physician: </Label>
-            <Text>{discharge?.discharger?.displayName}</Text>
-          </div>
-          <div>
-            <Label>Date of discharge: </Label>
-            <Text>{getDateDisplay(endDate, { showTime: true })}</Text>
-          </div>
+          <DisplayValue name="Facility">{location?.facility?.name || null} </DisplayValue>
+          <DisplayValue name="Department">{getFullLocationName(location)} </DisplayValue>
+          <DisplayValue name="Supervising clinician">{examiner?.displayName} </DisplayValue>
+          <DisplayValue name="Date of admission">
+            {getDateDisplay(startDate, { showTime: true })}
+          </DisplayValue>
+          <DisplayValue name="Discharging physician">
+            {discharge?.discharger?.displayName}
+          </DisplayValue>
+          <DisplayValue name="Date of discharge">
+            {getDateDisplay(endDate, { showTime: true })}
+          </DisplayValue>
           {discharge && dischargeDispositionVisible && (
-            <div>
-              <Label>Discharge disposition: </Label>
-              <Text>{discharge.disposition?.name}</Text>
-            </div>
+            <DisplayValue name="Discharge disposition">{discharge.disposition?.name}</DisplayValue>
           )}
-          <div>
-            <Label>Reason for encounter: </Label>
-            <Text>{reasonForEncounter}</Text>
-          </div>
+          <DisplayValue name="Reason for encounter">{reasonForEncounter}</DisplayValue>
         </Content>
       </Section>
 

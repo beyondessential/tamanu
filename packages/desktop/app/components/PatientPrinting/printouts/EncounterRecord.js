@@ -9,7 +9,7 @@ import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
-import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
+import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
 import {
   noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
@@ -74,19 +74,6 @@ const SummaryHeading = styled(Typography)`
 const TableHeading = styled(SummaryHeading)`
   margin-left: 3px;
   margin-top: 15px;
-  margin-bottom: 5px;
-`;
-
-const LocalisedDisplayValue = styled(LocalisedCertificateLabel)`
-  font-size: 10px;
-  line-height: 12px;
-  margin-bottom: 5px;
-`;
-
-const DisplayValue = styled(CertificateLabel)`
-  font-size: 10px;
-  line-height: 12px;
-  margin-bottom: 9px;
   margin-bottom: 5px;
 `;
 
