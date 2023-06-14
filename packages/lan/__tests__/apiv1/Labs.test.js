@@ -70,7 +70,7 @@ describe('Labs', () => {
 
     const response = await app
       .post('/v1/labRequest')
-      .send({ panelIds: [labTestPanel.id], encounterId: encounter.id, requestFormType: 'panel' });
+      .send({ panelIds: [labTestPanel.id], encounterId: encounter.id });
 
     expect(response).toHaveSucceeded();
 
@@ -107,7 +107,6 @@ describe('Labs', () => {
       panelIds: [labTestPanel.id],
       encounterId: encounter.id,
       sampleDetails,
-      requestFormType: 'panel',
     });
     expect(response).toHaveSucceeded();
 

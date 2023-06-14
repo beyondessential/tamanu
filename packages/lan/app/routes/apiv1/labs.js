@@ -53,10 +53,11 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
-    const { note, requestFormType } = body;
+    const { panelIds } = body;
+    const { note } = body;
     req.checkPermission('create', 'LabRequest');
     const response =
-      requestFormType === 'panel'
+      panelIds && panelIds.length
         ? await createPanelLabRequests(models, body, note, user)
         : await createIndividualLabRequests(models, body, note, user);
 
@@ -393,11 +394,6 @@ labTestPanel.get(
 
 async function createPanelLabRequests(models, body, note, user) {
   const { panelIds, sampleDetails = {}, ...labRequestBody } = body;
-
-  if (!panelIds.length) {
-    throw new InvalidOperationError('A lab request must have at least one panel');
-  }
-
   const panels = await models.LabTestPanel.findAll({
     where: {
       id: panelIds,
@@ -414,30 +410,52 @@ async function createPanelLabRequests(models, body, note, user) {
   const response = await Promise.all(
     panels.map(async panel => {
       const panelId = panel.id;
-      const requestSample = sampleDetails[panelId] || {};
-      const labRequestData = {
-        ...labRequestBody,
-        ...requestSample,
-        specimenAttached: requestSample.specimenTypeId ? 'yes' : 'no',
-        status: requestSample.sampleTime
-          ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
-          : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-
-        labTestTypeIds: panel.labTestTypes?.map(testType => testType.id) || [],
-        labTestCategoryId: panel.categoryId,
-      };
-
-      const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
-      if (note) {
-        const notePage = await newLabRequest.createNotePage({
-          noteType: NOTE_TYPES.OTHER,
-        });
-        await notePage.createNoteItem({ content: note, authorId: user.id });
-      }
+      const requestSampleDetails = sampleDetails[panelId] || {};
+      const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
+      const labTestCategoryId = panel.categoryId;
+      const newLabRequest = await createLabRequest(
+        labRequestBody,
+        requestSampleDetails,
+        labTestTypeIds,
+        labTestCategoryId,
+        models,
+        note,
+        user,
+      );
       return newLabRequest;
     }),
   );
   return response;
+}
+
+async function createLabRequest(
+  labRequestBody,
+  requestSampleDetails,
+  labTestTypeIds,
+  labTestCategoryId,
+  models,
+  note,
+  user,
+) {
+  const labRequestData = {
+    ...labRequestBody,
+    ...requestSampleDetails,
+    specimenAttached: requestSampleDetails.specimenTypeId ? 'yes' : 'no',
+    status: requestSampleDetails.sampleTime
+      ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
+      : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+    labTestTypeIds,
+    labTestCategoryId,
+  };
+
+  const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
+  if (note) {
+    const notePage = await newLabRequest.createNotePage({
+      noteType: NOTE_TYPES.OTHER,
+    });
+    await notePage.createNoteItem({ content: note, authorId: user.id });
+  }
+  return newLabRequest;
 }
 
 async function createIndividualLabRequests(models, body, note, user) {
@@ -476,25 +494,16 @@ async function createIndividualLabRequests(models, body, note, user) {
   const response = await Promise.all(
     categories.map(async category => {
       const categoryId = category.get('lab_test_category_id');
-      const requestSample = sampleDetails[categoryId] || {};
-      const labRequestData = {
-        ...labRequestBody,
-        ...requestSample,
-        specimenAttached: requestSample.specimenTypeId ? 'yes' : 'no',
-        status: requestSample.sampleTime
-          ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
-          : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-        labTestTypeIds: category.get('lab_test_type_ids'),
-        labTestCategoryId: categoryId,
-      };
-
-      const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
-      if (note) {
-        const notePage = await newLabRequest.createNotePage({
-          noteType: NOTE_TYPES.OTHER,
-        });
-        await notePage.createNoteItem({ content: note, authorId: user.id });
-      }
+      const requestSampleDetails = sampleDetails[categoryId] || {};
+      const newLabRequest = await createLabRequest(
+        labRequestBody,
+        requestSampleDetails,
+        labTestTypeIds,
+        categoryId,
+        models,
+        note,
+        user,
+      );
       return newLabRequest;
     }),
   );
