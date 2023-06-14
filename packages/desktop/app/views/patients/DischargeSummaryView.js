@@ -227,7 +227,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <Header>Encounter details</Header>
         <HorizontalLine />
         <Content>
-          <DisplayValue name="Facility">{location?.facility?.name || null} </DisplayValue>
+          <DisplayValue name="Facility">{location?.facility?.name || 'N/A'} </DisplayValue>
           <DisplayValue name="Department">{getFullLocationName(location)} </DisplayValue>
           <DisplayValue name="Supervising clinician">{examiner?.displayName} </DisplayValue>
           <DisplayValue name="Date of admission">
