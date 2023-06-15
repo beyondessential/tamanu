@@ -9,7 +9,8 @@ import { ButtonRow, ConfirmCancelRow } from './ButtonRow';
 const makeModalRow = (Component, includeLeftPadding = true) => {
   const Row = styled(Component)`
     border-top: 1px solid ${Colors.outline};
-    padding: 30px ${MODAL_PADDING_LEFT_AND_RIGHT}px 0 ${includeLeftPadding ? MODAL_PADDING_LEFT_AND_RIGHT : 0}px;
+    padding: 30px ${MODAL_PADDING_LEFT_AND_RIGHT}px 0
+      ${includeLeftPadding ? MODAL_PADDING_LEFT_AND_RIGHT : 0}px;
     grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
@@ -20,7 +21,7 @@ const makeModalRow = (Component, includeLeftPadding = true) => {
       <Row {...props} />
     </FullWidthRow>
   );
-}
+};
 
 export const ModalGenericButtonRow = makeModalRow(ButtonRow);
 

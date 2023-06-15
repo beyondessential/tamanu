@@ -4,7 +4,12 @@ import styled from 'styled-components';
 
 import { Form, Field, TextField, TallMultilineTextField } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
-import { Button, ModalGenericButtonRow, RedOutlinedButton, OutlinedButton } from '../../../components';
+import {
+  Button,
+  ModalGenericButtonRow,
+  RedOutlinedButton,
+  OutlinedButton,
+} from '../../../components';
 
 const DeleteButton = styled(RedOutlinedButton)`
   margin-left: 0px !important;
