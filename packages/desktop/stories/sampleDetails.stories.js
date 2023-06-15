@@ -1,8 +1,8 @@
 import React from 'react';
 import Chance from 'chance';
-import { USERS } from 'shared/demoData/users';
-import { SPECIMEN_TYPES } from 'shared/demoData/specimenTypes';
-import { LAB_SAMPLE_SITES } from 'shared/demoData/labSampleSites';
+import { USERS } from '@tamanu/shared/demoData/users';
+import { SPECIMEN_TYPES } from '@tamanu/shared/demoData/specimenTypes';
+import { LAB_SAMPLE_SITES } from '@tamanu/shared/demoData/labSampleSites';
 import { SampleDetailsField } from '../app/views/labRequest/SampleDetailsField';
 import { createDummySuggester, mapToSuggestions } from './utils';
 import { Form } from '../app/components';
