@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { uniqBy } from 'lodash';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
@@ -57,10 +58,22 @@ const FORM_TYPE_TO_FIELD_CONFIG = {
 export const LabRequestFormScreen2 = props => {
   const {
     values: { requestFormType },
+    onSelectionChange,
   } = props;
 
   const fieldConfig = useMemo(() => FORM_TYPE_TO_FIELD_CONFIG[requestFormType], [requestFormType]);
   const { subheading, instructions, fieldName } = fieldConfig;
+  const handleSelectionChange = ({ selectedObjects }) => {
+    if (!onSelectionChange) return;
+    const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
+    const getKey = ({ category = {}, id }) => (isPanelRequest ? id : category.id);
+    const grouped = uniqBy(selectedObjects, getKey).map(({ category = {}, id, name }) => ({
+      categoryId: category.id,
+      categoryName: category.name,
+      ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
+    }));
+    onSelectionChange(grouped);
+  };
 
   return (
     <>
@@ -74,6 +87,7 @@ export const LabRequestFormScreen2 = props => {
           labelConfig={fieldConfig}
           component={TestSelectorField}
           requestFormType={requestFormType}
+          onChange={handleSelectionChange}
           required
           {...props}
         />

@@ -52,7 +52,7 @@ export const StyledTextField = styled(MuiTextField)`
   }
 
   // Hover state
-  .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
     border-color: ${props => props.theme.palette.grey['400']};
   }
 
