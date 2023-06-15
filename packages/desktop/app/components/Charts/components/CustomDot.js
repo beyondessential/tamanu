@@ -4,6 +4,10 @@ import { Colors } from '../../../constants';
 export const CustomDot = props => {
   // cx, cy is the position of the current dot
   const { cx, cy, payload, size = 7, active } = props;
+  if (!cx || !cy || !payload) {
+    return null;
+  }
+
   const color = payload.dotColor;
 
   return (
