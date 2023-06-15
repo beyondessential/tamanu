@@ -57,7 +57,7 @@ labRequest.post(
     const { note } = body;
     req.checkPermission('create', 'LabRequest');
     const response =
-      panelIds && panelIds.length
+      panelIds?.length
         ? await createPanelLabRequests(models, body, note, user)
         : await createIndividualLabRequests(models, body, note, user);
 
