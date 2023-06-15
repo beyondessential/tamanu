@@ -3,7 +3,6 @@ import { ValidationError } from 'sequelize';
 import { createTestContext } from '../utilities';
 
 
-jest.setTimeout(1000000)
 describe('Patient merge', () => {
   let ctx;
   let models;
