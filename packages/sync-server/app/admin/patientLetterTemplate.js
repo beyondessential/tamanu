@@ -13,7 +13,8 @@ export const patientLetterTemplateRoutes = express.Router();
 patientLetterTemplateRoutes.use(ensurePermissionCheck);
 
 const checkUniqueName = asyncHandler(async (req, res, next) => {
-  const { name, id } = req.body;
+  const { id: paramId } = req.params;
+  const { name, id = paramId } = req.body;
 
   // If we're not trying to change the name, no check needed
   if (!name) {
@@ -26,7 +27,7 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
   });
 
   if (conflictingRecords) {
-    req.flagPermissionChecked();  // the permission safeguard won't let us throw an error otherwise
+    req.flagPermissionChecked(); // the permission safeguard won't let us throw an error otherwise
     throw new ValidationError('Template name must be unique');
   }
 
