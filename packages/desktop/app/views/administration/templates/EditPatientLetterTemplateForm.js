@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { Form, Field, TextField, TallMultilineTextField } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
-import { Button, ModalButtonRow, RedOutlinedButton, OutlinedButton } from '../../../components';
+import { Button, ModalGenericButtonRow, RedOutlinedButton, OutlinedButton } from '../../../components';
 
 const DeleteButton = styled(RedOutlinedButton)`
   margin-left: 0px !important;
@@ -15,20 +15,20 @@ const Gap = styled.div`
 `;
 
 const UneditedActions = ({ onClose, onDelete }) => (
-  <ModalButtonRow>
+  <ModalGenericButtonRow>
     <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
     <Gap />
     <Button onClick={onClose}>Close</Button>
-  </ModalButtonRow>
+  </ModalGenericButtonRow>
 );
 
 const EditedActions = ({ onClose, onDelete, onSave }) => (
-  <ModalButtonRow>
+  <ModalGenericButtonRow>
     <DeleteButton onClick={onDelete}>Delete template</DeleteButton>
     <Gap />
     <OutlinedButton onClick={onClose}>Cancel</OutlinedButton>
     <Button onClick={onSave}>Save</Button>
-  </ModalButtonRow>
+  </ModalGenericButtonRow>
 );
 
 export const EditPatientLetterTemplateForm = memo(
