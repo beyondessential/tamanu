@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { QueryTypes } from 'sequelize';
 
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError } from '../errors';
 import { renameObjectKeys } from './renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
