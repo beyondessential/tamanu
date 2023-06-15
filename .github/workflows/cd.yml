@@ -171,11 +171,13 @@ jobs:
 
   client:
     needs: info
-    # because wine doesn't install on ubuntu
-    # and yarn doesn't work on windows (io latency)
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     name: Build desktop client
     steps:
+      # because that makes is much easier to install wine!
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
       - name: Install wine
         # see https://github.com/actions/runner-images/issues/743
         run: brew install wine-stable
