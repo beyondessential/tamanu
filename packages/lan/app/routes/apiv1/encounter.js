@@ -342,10 +342,6 @@ encounterRelations.get(
         FROM
           survey_response_answers answer
         INNER JOIN
-          survey_screen_components ssc
-        ON
-          ssc.data_element_id = answer.data_element_id
-        INNER JOIN
           (SELECT
             response_id, body
           FROM
