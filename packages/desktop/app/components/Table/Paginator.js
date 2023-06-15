@@ -33,6 +33,7 @@ const StyledPagination = styled(Pagination)`
       &:last-child {
         .MuiPaginationItem-page {
           border: none;
+        }
       }
     }
   }
@@ -146,7 +147,6 @@ export const Paginator = React.memo(
                 return (
                   <PaginationItem
                     {...item}
-                    onClick={event => onPageChange(event, selectedPageNumber - 1)}
                     disabled={selectedPageNumber === 1}
                     component={PreviousButton}
                   />
@@ -156,7 +156,6 @@ export const Paginator = React.memo(
                 return (
                   <PaginationItem
                     {...item}
-                    onClick={event => onPageChange(event, selectedPageNumber + 1)}
                     disabled={selectedPageNumber === numberOfPages}
                     component={NextButton}
                   />
