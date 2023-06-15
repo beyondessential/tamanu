@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { uniqBy } from 'lodash';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
