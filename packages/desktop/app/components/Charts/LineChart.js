@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 import { TooltipContent } from './components/TooltipContent';
 import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
-import { getMeasureData } from './helpers/getMeasureData';
+import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
 import { CustomisedTick } from './components/CustomisedTick';
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
@@ -85,7 +85,7 @@ export const LineChart = props => {
 
       <Line
         type="monotone"
-        dataKey="yValue"
+        dataKey={DISPLAY_VALUE_KEY}
         stroke={Colors.blue}
         strokeWidth={2}
         dot={<CustomDot />}

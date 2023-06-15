@@ -24,13 +24,17 @@ const getDescription = ({ data, isInsideNormalRange, isOutsideGraphRange, yAxis 
   return description;
 };
 
-const getYValue = ({ data, isOutsideGraphRange, yAxis }) => {
-  let yValue = data.value;
+// If the value is outside the graph range, we want to display it within the graph range.
+// https://www.figma.com/file/sy6gyLBPoSXuJNq5lEEOL8/Tamanu---UI-Pattern-(Updated-2022)?type=design&node-id=10539%3A143985&t=kItuRCmZOUi0QwCH-1
+const getDisplayValue = ({ data, isOutsideGraphRange, yAxis }) => {
+  let displayValue = data.value;
   if (isOutsideGraphRange) {
-    yValue = data.value < yAxis.graphRange.min ? yAxis.graphRange.min : yAxis.graphRange.max;
+    displayValue = data.value < yAxis.graphRange.min ? yAxis.graphRange.min : yAxis.graphRange.max;
   }
-  return yValue;
+  return displayValue;
 };
+
+export const DISPLAY_VALUE_KEY = 'displayValue';
 
 export const getMeasureData = (rawData, yAxis) => {
   return rawData
@@ -40,7 +44,7 @@ export const getMeasureData = (rawData, yAxis) => {
       const isOutsideGraphRange = d.value < yAxis.graphRange.min || d.value > yAxis.graphRange.max;
 
       const dotColor = getDotColor({ isInsideNormalRange, isOutsideGraphRange });
-      const yValue = getYValue({ data: d, isOutsideGraphRange, yAxis });
+      const displayValue = getDisplayValue({ data: d, isOutsideGraphRange, yAxis });
       const description = getDescription({
         data: d,
         isInsideNormalRange,
@@ -51,7 +55,7 @@ export const getMeasureData = (rawData, yAxis) => {
       return {
         ...d,
         timestamp: Date.parse(d.name),
-        yValue,
+        [DISPLAY_VALUE_KEY]: displayValue,
         dotColor,
         description,
       };
