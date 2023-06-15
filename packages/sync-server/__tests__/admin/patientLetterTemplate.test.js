@@ -1,5 +1,3 @@
-
-import { ValidationError } from 'sequelize';
 import { createTestContext } from '../utilities';
 
 
@@ -21,11 +19,15 @@ describe('Patient merge', () => {
   });
 
   it('Should create a PatientLetterTemplate', async () => {
+    const { PatientLetterTemplate } = models;
+
     const result = await adminApp.post('/v1/admin/patientLetterTemplate').send({
       name: 'Sick note (1)',
     });
     expect(result).toHaveSucceeded();
-    expect(result.body.name).toEqual('Sick note (1)');
+
+    const createdTemplate = await PatientLetterTemplate.findByPk(result.body.id);
+    expect(createdTemplate.name).toEqual('Sick note (1)');
   });
 
   it('Should change a PatientLetterTemplate', async () => {
@@ -41,7 +43,10 @@ describe('Patient merge', () => {
     });
 
     expect(result).toHaveSucceeded();
-    expect(result.body.name).toEqual('Sick note (2)');
+
+    const createdTemplate = await PatientLetterTemplate.findByPk(result.body.id);
+    expect(createdTemplate.name).toEqual('Sick note (2)');
+    expect(createdTemplate.body).toEqual('Now we have some text');
   });
 
   it('Should require a unique name when editing a PatientLetterTemplate', async () => {
