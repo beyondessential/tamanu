@@ -26,7 +26,7 @@ const CenteredLink = styled(Link)`
   align-self: center;
 `;
 
-export const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
+const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
   <ButtonRow>
     <CenteredLink onClick={onClear}>Clear</CenteredLink>
     <ConfirmButton color="primary" onClick={onConfirm}>
