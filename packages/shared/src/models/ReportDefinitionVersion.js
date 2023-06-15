@@ -122,7 +122,12 @@ export class ReportDefinitionVersion extends Model {
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
+
+    const { LocalSystemFact } = context.models;
+    const currentFacilityId = await LocalSystemFact.get('facilityId');
+
     const replacements = getQueryReplacementsFromParams(
+      currentFacilityId,
       queryOptions.parameters,
       parameters,
       queryOptions.defaultDateRange,
