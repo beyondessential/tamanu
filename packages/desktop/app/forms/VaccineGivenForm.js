@@ -2,8 +2,8 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import { VACCINE_CATEGORIES } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { VACCINE_CATEGORIES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';

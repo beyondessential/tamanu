@@ -7,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ChevronIcon } from '../Icons/ChevronIcon';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
@@ -97,22 +97,19 @@ export const SelectInput = ({
   helperText,
   inputRef,
   form,
+  isClearable = true,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      // As the select field is in a few places on the site we need to account for a range of "empty" values for state
-      // 1. Search fields should be undefined when cleared as they need to be completely detached from the form object when submitted
-      // 2. Form fields should be null as we need to be able to save them as null in the database if we are trying to remove a value when editing a record
-      const clearValue = form?.status.formType === FORM_TYPES.SEARCH_FORM ? undefined : null;
       const userClickedClear = !changedOption;
       if (userClickedClear) {
-        onChange({ target: { value: clearValue, name } });
+        onChange({ target: { value: undefined, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, form],
+    [onChange, name],
   );
 
   const customStyles = {
@@ -202,7 +199,7 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          isClearable={value !== ''}
+          isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}
