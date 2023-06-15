@@ -3,8 +3,8 @@ import {
   getPermissionsForRoles,
   queryPermissionsForRoles,
   getAbilityForUser,
-  isPermissionCacheEmpty,
 } from 'shared/permissions/rolesToPermissions';
+import { permissionCache } from 'shared/permissions/cache';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
@@ -140,13 +140,13 @@ describe('Permissions', () => {
       // Arrange
       await addNewPermission();
       await getPermissionsForRoles('writer');
-      expect(isPermissionCacheEmpty()).toBe(false);
+      expect(permissionCache.isEmpty()).toBe(false);
 
       // Act
       await addNewPermission();
 
       // Assert
-      expect(isPermissionCacheEmpty()).toBe(true);
+      expect(permissionCache.isEmpty()).toBe(true);
     });
 
     it('should reset the permission cache on a bulk update', async () => {
@@ -154,13 +154,13 @@ describe('Permissions', () => {
       const { Permission } = ctx.store.models;
       await addNewPermission();
       await getPermissionsForRoles('writer');
-      expect(isPermissionCacheEmpty()).toBe(false);
+      expect(permissionCache.isEmpty()).toBe(false);
 
       // Act
       await addNewPermission(p => Permission.bulkCreate([p]));
 
       // Assert
-      expect(isPermissionCacheEmpty()).toBe(true);
+      expect(permissionCache.isEmpty()).toBe(true);
     });
   });
 });

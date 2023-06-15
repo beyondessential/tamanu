@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
 
-import { format, getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../constants';
 import { useApi } from '../api';

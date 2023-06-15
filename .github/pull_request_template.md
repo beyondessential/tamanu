@@ -11,7 +11,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 _Upon merging:_
 
-- [ ] Update the changelog (look for the draft release [here](https://github.com/beyondessential/tamanu/releases, or create a new one if it doesn't exist following [the Slab doc](https://beyond-essential.slab.com/posts/merging-a-tamanu-ticket-okxp8s4s#h0y52-creating-a-draft-release)
+- [ ] Update the changelog (find it [here](https://github.com/beyondessential/tamanu/releases) in the appropriate _draft_ release)
   - [ ] with a ticket reference (e.g. `TAN-123: a one line description`, keep the lists sorted)
   - [ ] any config/settings changes and manual deployment steps
   - [ ] any db schema or other changes that could impact downstream data analysis
