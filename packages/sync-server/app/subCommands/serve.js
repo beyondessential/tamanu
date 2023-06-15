@@ -4,14 +4,19 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 
+import { provision } from './provision';
 import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
 const { port } = config;
 
-export const serve = async ({ skipMigrationCheck }) => {
-  log.info(`Starting sync server version ${version}.`);
+export const serve = async ({ skipMigrationCheck, provisioning }) => {
+  if (provisioning) {
+    await provision({ file: provisioning, skipIfNotNeeded: true });
+  }
+
+  log.info(`Starting sync server version ${version}`);
 
   log.info(`Process info`, {
     execArgs: process.execArgs || '<empty>',
@@ -62,4 +67,8 @@ export const serve = async ({ skipMigrationCheck }) => {
 export const serveCommand = new Command('serve')
   .description('Start the Tamanu sync server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .option(
+    '--provisioning <file>',
+    'if provided and no users exist, provision Tamanu from this file',
+  )
   .action(serve);

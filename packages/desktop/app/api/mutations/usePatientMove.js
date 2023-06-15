@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../useApi';
 import { useEncounter } from '../../contexts/Encounter';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
 import {
   ConfirmCancelRow,
   FormGrid,

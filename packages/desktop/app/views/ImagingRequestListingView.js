@@ -1,5 +1,5 @@
 import React from 'react';
-import { IMAGING_TABLE_VERSIONS } from 'shared/constants/imaging';
+import { IMAGING_TABLE_VERSIONS } from '@tamanu/shared/constants/imaging';
 import {
   TopBar,
   PageContainer,
@@ -34,7 +34,7 @@ export const ImagingRequestListingView = () => (
 export const CompletedImagingRequestListingView = () => (
   <PageContainer>
     <TopBar title="Completed imaging requests" />
-    {/* This is the same situation as above. We decided to seperate out the active and completed components as we were 
+    {/* This is the same situation as above. We decided to seperate out the active and completed components as we were
     running into state problems when switching between contexts for the same component */}
     <ImagingRequestListing tableVersion={IMAGING_TABLE_VERSIONS.COMPLETED} />
   </PageContainer>
