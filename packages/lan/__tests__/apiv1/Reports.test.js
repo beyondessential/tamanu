@@ -26,6 +26,7 @@ describe('Reports', () => {
     let adminApp = null;
     let reportDefinition = null;
     let user = null;
+
     beforeAll(async () => {
       adminApp = await baseApp.asRole('admin');
       const { models } = ctx;
@@ -49,12 +50,14 @@ describe('Reports', () => {
           'SELECT id, email from users WHERE CASE WHEN :email IS NOT NULL THEN email = :email ELSE TRUE END;',
       });
     });
+
     it('should run a simple database defined report', async () => {
       const response = await adminApp.post(`/v1/reports/${reportDefinition.id}`);
       expect(response).toHaveSucceeded();
       // There will be more than one user because of the app context
       expect(response.body.length).toBeGreaterThan(1);
     });
+
     it('should apply filters on a database defined report', async () => {
       const response = await adminApp.post(`/v1/reports/${reportDefinition.id}`).send({
         parameters: {
@@ -68,6 +71,22 @@ describe('Reports', () => {
       expect(headerRow[0]).toEqual('id');
       expect(headerRow[1]).toEqual('email');
       expect(firstRow[1]).toEqual(user.email);
+    });
+
+    it('should include the currentFacilityId parameter', async () => {
+      const facilityId = await ctx.models.LocalSystemFact.get('facilityId');
+      const def = await ctx.models.ReportDefinitionVersion.create({
+        versionNumber: 1,
+        status: 'published',
+        userId: user.id,
+        queryOptions: JSON.stringify({
+          defaultDateRange: 'allTime',
+          parameters: [{ parameterField: 'DummyField', name: 'dummy' }],
+        }),
+        query: 'SELECT id FROM facilities WHERE id = :currentFacilityId'
+      });
+      const report = await def.dataGenerator(ctx, {});
+      expect(report).toEqual([['id'], [facilityId]]);
     });
   });
 
@@ -114,12 +133,14 @@ describe('Reports', () => {
       const result = await noPermsApp.post('/v1/reports/incomplete-referrals', {});
       expect(result).toBeForbidden();
     });
+
     it('should fail with 404 and message if report module is not found', async () => {
       jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
       const res = await app.post('/v1/reports/invalid-report', {});
       expect(res).toHaveStatus(404);
       expect(res.body).toMatchObject({ error: { message: 'Report module not found' } });
     });
+
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
       const res = await app.post('/v1/reports/incomplete-referrals').send({
         parameters: {

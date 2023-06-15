@@ -124,20 +124,21 @@ export class ReportDefinitionVersion extends Model {
     const queryOptions = this.getQueryOptions();
 
     const { LocalSystemFact } = context.models;
-    const currentFacilityId = await LocalSystemFact.get('facilityId');
+    const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
 
-    const replacements = getQueryReplacementsFromParams(
+    const replacements = {
       currentFacilityId,
-      queryOptions.parameters,
-      parameters,
-      queryOptions.defaultDateRange,
-    );
+      ...getQueryReplacementsFromParams(
+        queryOptions.parameters,
+        parameters,
+        queryOptions.defaultDateRange,
+      ),
+    };
 
     const queryResults = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements,
     });
-
     return generateReportFromQueryData(queryResults);
   }
 }
