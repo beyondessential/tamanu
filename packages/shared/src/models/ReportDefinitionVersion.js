@@ -124,7 +124,7 @@ export class ReportDefinitionVersion extends Model {
     const queryOptions = this.getQueryOptions();
 
     const { LocalSystemFact } = context.models;
-    const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
+    const currentFacilityId = await LocalSystemFact.get('facilityId') || null;
 
     const replacements = {
       currentFacilityId,
