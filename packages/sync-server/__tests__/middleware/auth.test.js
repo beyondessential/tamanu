@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from 'config';
 import { createTestContext, withDate } from '../utilities';
-import { JWT_TOKEN_TYPES } from '../../../shared-src/src/constants/auth';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';

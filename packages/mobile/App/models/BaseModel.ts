@@ -11,6 +11,9 @@ import {
   Repository,
 } from 'typeorm/browser';
 import { getSyncTick } from '../services/sync/utils';
+import { ObjectType } from 'typeorm/browser/common/ObjectType';
+import { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 export type ModelPojo = {
   id: string;
@@ -121,6 +124,21 @@ export abstract class BaseModel extends BaseEntity {
     const thisModel = this.constructor as typeof BaseModel;
     const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTick');
     this.updatedAtSyncTick = syncTick;
+  }
+
+  static findVisible<T extends BaseEntity>(
+    this: ObjectType<T>,
+    options?: FindManyOptions<T>,
+  ): Promise<T[]> {
+    const repo = this.getRepository<T>();
+
+    if (repo.metadata.columns.find(col => col.propertyName === 'visibilityStatus')) {
+      return repo.find({
+        ...options,
+        where: { ...options.where, visibilityStatus: VisibilityStatus.Current },
+      });
+    }
+    return repo.find(options);
   }
 
   /*
