@@ -53,13 +53,17 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
-    const { panelIds } = body;
+    const { panelIds, labTestTypeIds } = body;
     const { note } = body;
     req.checkPermission('create', 'LabRequest');
-    const response =
-      panelIds?.length
-        ? await createPanelLabRequests(models, body, note, user)
-        : await createIndividualLabRequests(models, body, note, user);
+
+    if (!panelIds?.length && !labTestTypeIds?.length) {
+      throw new InvalidOperationError('A lab request must have at least one test or panel');
+    }
+
+    const response = panelIds?.length
+      ? await createPanelLabRequests(models, body, note, user)
+      : await createIndividualLabRequests(models, body, note, user);
 
     res.send(response);
   }),
@@ -460,10 +464,6 @@ async function createLabRequest(
 
 async function createIndividualLabRequests(models, body, note, user) {
   const { labTestTypeIds } = body;
-
-  if (!labTestTypeIds.length) {
-    throw new InvalidOperationError('A lab request must have at least one test');
-  }
 
   const categories = await models.LabTestType.findAll({
     attributes: [
