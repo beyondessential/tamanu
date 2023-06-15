@@ -39,6 +39,7 @@ jobs:
           result-encoding: string
           script: |
             return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
+              .toLowerCase()
               .replace(/[^a-z0-9-]/g, '-')
               .replace(/-+/g, '-')
               .replace(/^-|-$/g, ''));
