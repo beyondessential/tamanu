@@ -1055,7 +1055,10 @@ describe('Encounter', () => {
               expect.objectContaining({
                 dataElementId: key,
                 records: {
-                  [submissionDate]: value.toString(),
+                  [submissionDate]: expect.objectContaining({
+                    body: value.toString(),
+                    logs: null,
+                  }),
                 },
               }),
             ),
