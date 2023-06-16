@@ -41,6 +41,7 @@ export function createApp(ctx) {
 
   app.use((req, res, next) => {
     req.store = store;
+    req.models = store.models;
     req.emailService = emailService;
     req.ctx = ctx;
 

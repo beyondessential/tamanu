@@ -187,6 +187,11 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/patientMerge',
   },
   {
+    key: 'templates',
+    label: 'Templates',
+    path: '/admin/templates',
+  },
+  {
     key: 'assets',
     label: 'Asset upload',
     path: '/admin/assets',
