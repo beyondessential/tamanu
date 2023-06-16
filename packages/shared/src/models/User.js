@@ -1,6 +1,6 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS, SYSTEM_USER_UUID } from '../constants';
 import { Model } from './Model';
 
 const DEFAULT_SALT_ROUNDS = 10;
@@ -10,6 +10,10 @@ export class User extends Model {
 
   static hashPassword(pw) {
     return hash(pw, User.SALT_ROUNDS ?? DEFAULT_SALT_ROUNDS);
+  }
+
+  static getSystemUser() {
+    return this.findByPk(SYSTEM_USER_UUID);
   }
 
   forResponse() {
