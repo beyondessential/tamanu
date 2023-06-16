@@ -190,7 +190,7 @@ class BaseAutocomplete extends Component {
       suggestions:
         reason === 'input-focused' &&
         searchSuggestions.find(x => x.label.toLowerCase() === value.toLowerCase())
-          ? await this.fetchAllOptions()
+          ? await this.fetchAllOptions(suggester, options)
           : searchSuggestions,
     });
   };
