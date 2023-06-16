@@ -66,6 +66,9 @@ jest.mock('../../../app/database', () => ({
       ReportDefinitionVersion: {
         upsert: jest.fn().mockResolvedValue([{ versionNumber: 3, status: 'draft' }]),
       },
+      LocalSystemFact: {
+        get: jest.fn().mockResolvedValue('dummyFact'),
+      },
     },
     sequelize: {
       query: jest.fn().mockResolvedValue([]),
