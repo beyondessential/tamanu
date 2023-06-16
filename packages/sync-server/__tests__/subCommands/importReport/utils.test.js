@@ -9,6 +9,7 @@ const mockDefinition = {
 };
 
 describe('importReport utils', () => {
+  
   describe('getOrCreateDefinition', () => {
     it('calls the findOrCreate function for ReportDefinition', async () => {
       const mockStore = {
@@ -27,7 +28,9 @@ describe('importReport utils', () => {
       expect(actual).toBe(mockDefinition);
     });
   });
+
   describe('getLatestVersion', () => {
+
     it('returns the latest version if no status is provided', async () => {
       const expected = { versionNumber: 3, status: REPORT_STATUSES.DRAFT };
       const mockVersions = [
@@ -38,6 +41,7 @@ describe('importReport utils', () => {
       const actual = getLatestVersion(mockVersions);
       expect(actual).toEqual(expected);
     });
+
     it('returns the latest version with status provided', async () => {
       const expected = {
         versionNumber: 3,
@@ -52,6 +56,7 @@ describe('importReport utils', () => {
       const actual = getLatestVersion(mockVersions, REPORT_STATUSES.PUBLISHED);
       expect(actual).toEqual(expected);
     });
+
     it('does not return version when none found with status provided', async () => {
       const mockVersions = [
         { versionNumber: 1, status: REPORT_STATUSES.DRAFT },

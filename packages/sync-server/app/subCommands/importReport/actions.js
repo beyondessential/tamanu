@@ -5,8 +5,10 @@ import { format } from 'date-fns';
 import * as reportUtils from './utils';
 
 export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
-export const ACTIVE_TEXT = '\x1b[32mactive\x1b[0m';
-export const OVERWRITING_TEXT = '\x1b[1moverwriting with new data\x1b[0m';
+
+const colorise = (colorCode, text) => `\x1b[${colorCode}m${text}\x1b[0m`;
+export const ACTIVE_TEXT = colorise('32', 'active');
+export const OVERWRITING_TEXT = colorise('1m', 'overwriting with new data');
 
 export const formatUpdatedAt = date => format(date, 'P p');
 export const getVersionError = ({ versionNumber }) =>
@@ -70,22 +72,26 @@ export async function createVersion(versionData, definition, versions, store, ve
 }
 
 export async function listVersions(definition, versions) {
-  const table = new Table({
-    head: ['Version', 'Status', 'Updated'],
-  });
   if (!versions.length) {
     log.info(`No versions found for report definition ${definition.name}`);
     return;
   }
-  const activeVersion = reportUtils.getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
 
-  versions.forEach(({ versionNumber, status, updatedAt }) => {
+  const activeVersion = reportUtils.getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
+  const reportInfo = versions.map(({ versionNumber, status, updatedAt }) => {
     const isActive = activeVersion?.versionNumber === versionNumber;
-    table.push([
+    return [
       versionNumber,
       `${status}${isActive ? ` ${ACTIVE_TEXT}` : ''}`,
       formatUpdatedAt(updatedAt),
-    ]);
+    ];
   });
+
+  const table = new Table({
+    head: ['Version', 'Status', 'Updated'],
+  });
+  // push all rows of the report
+  table.push(...reportInfo);
+
   log.info(`Listing versions for report definition ${definition.name}\n${table.toString()}`);
 }
