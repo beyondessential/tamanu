@@ -31,7 +31,7 @@ const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   if (notes.length === 0) return null;
-  const getMatch = noteItems => noteItems[0].content.match(matcher); 
+  const getMatch = noteItems => noteItems[0].content.match(matcher);
   const match = getMatch(notes[0].noteItems);
   if (!match) return null;
 
@@ -157,7 +157,7 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
     order: 'asc',
     orderBy: 'requestedDate',
   });
-  const imagingRequestsData = (imagingRequestsQuery.data?.data || [])
+  const imagingRequestsData = imagingRequestsQuery.data?.data || [];
   const imagingRequests = imagingRequestsData
     .filter(({ status }) => !imagingStatusesToExclude.includes(status))
     .map(imagingRequest => ({
@@ -177,7 +177,7 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
   const village = villageQuery.data?.name;
 
   const notesQuery = useEncounterNotes(encounter.id);
-  const notes = (notesQuery.data?.data || []);
+  const notes = notesQuery.data?.data || [];
 
   const displayNotes = notes.filter(note => note.noteType !== NOTE_TYPES.SYSTEM);
 
@@ -202,7 +202,7 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
       }
     });
   });
-  
+
   const seenNotes = new Set();
   const filteredNotes = linkedNotes.map(note => {
     const noteCopy = note;
@@ -236,11 +236,23 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
 
   const systemNotes = notes.filter(note => note.noteType === NOTE_TYPES.SYSTEM);
 
-  const locationSystemNotes = systemNotes.filter(note => note.noteItems[0].content.match(locationNoteMatcher));
-  const locationHistory = extractLocationHistory(locationSystemNotes, encounter, locationNoteMatcher);
+  const locationSystemNotes = systemNotes.filter(note =>
+    note.noteItems[0].content.match(locationNoteMatcher),
+  );
+  const locationHistory = extractLocationHistory(
+    locationSystemNotes,
+    encounter,
+    locationNoteMatcher,
+  );
 
-  const encounterTypeSystemNotes = systemNotes.filter(note => note.noteItems[0].content.match(encounterTypeNoteMatcher));
-  const encounterTypeHistory = extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher);
+  const encounterTypeSystemNotes = systemNotes.filter(note =>
+    note.noteItems[0].content.match(encounterTypeNoteMatcher),
+  );
+  const encounterTypeHistory = extractEncounterTypeHistory(
+    encounterTypeSystemNotes,
+    encounter,
+    encounterTypeNoteMatcher,
+  );
 
   const allQueries = combineQueries([
     patientQuery,
@@ -253,20 +265,20 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
   ]);
 
   if (allQueries.isError) {
-    if (allQueries.errors.some(x => x.name === "ForbiddenError")) {
-      return <ForbiddenErrorModalContents onClose={onClose} />
+    if (allQueries.errors.some(x => x.name === 'ForbiddenError')) {
+      return <ForbiddenErrorModalContents onClose={onClose} />;
     }
     // If this next bit ever shows up it means it's a bug - show some detail
     return (
       <>
         <p>An unexpected error occurred. Please contact your system administrator.</p>
         <p>Error details:</p>
-        <pre>{ JSON.stringify(allQueries.errors, null, 2) }</pre>
+        <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
         <ModalActionRow onConfirm={onClose} confirmText="Close" />
       </>
     );
   }
-  
+
   if (allQueries.isFetching) {
     return <LoadingIndicator />;
   }
