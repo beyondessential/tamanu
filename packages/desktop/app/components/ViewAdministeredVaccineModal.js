@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from 'shared/constants';
+import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/shared/constants';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
@@ -306,7 +306,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   if (!vaccineRecord) return null;
   return (
-    <Modal title="View vaccine record" open={open} onClose={onClose} disableHeaderCloseIcon>
+    <Modal title="View vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>

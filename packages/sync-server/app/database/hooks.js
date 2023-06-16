@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
+import { createReferralNotification } from '@tamanu/shared/tasks/CreateReferralNotification';
 
 export async function addHooks(store) {
   if (config.notifications?.referralCreated) {

@@ -1,16 +1,11 @@
 /* eslint-disable no-console */
 
-import { promises as fs } from 'fs';
 import { Command } from 'commander';
-import TOML from '@iarna/toml';
 import { canonicalize } from 'json-canonicalize';
 import { buildSettingsRecords } from 'shared/models/Setting';
 
-// it does work, but eslint doesn't like it
-// eslint-disable-next-line import/no-unresolved
-import { parse as parseJiK } from '@bgotink/kdl/json';
-
 import { initDatabase } from '../database';
+import { loadSettingFile } from '../utils/loadSettingFile';
 
 export async function listSettings(filter = '', { facility } = {}) {
   const {
@@ -92,18 +87,7 @@ export async function loadSettings(key, filepath, { facility, preview } = {}) {
     throw new Error('Key must be specified');
   }
 
-  const file = (await fs.readFile(filepath)).toString();
-  let value;
-  if (filepath.endsWith('.json')) {
-    value = JSON.parse(file);
-  } else if (filepath.endsWith('.toml')) {
-    value = TOML.parse(file);
-  } else if (filepath.endsWith('.kdl')) {
-    value = parseJiK(file);
-  } else {
-    throw new Error('File format not supported');
-  }
-
+  const value = await loadSettingFile(filepath);
   if (preview) {
     return JSON.stringify(value, null, 2);
   }

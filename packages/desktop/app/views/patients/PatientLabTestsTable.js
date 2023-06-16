@@ -5,6 +5,7 @@ import { Table } from '../../components/Table';
 import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
+import { BodyText } from '../../components';
 
 const COLUMNS = {
   1: 150,
@@ -81,6 +82,7 @@ const StyledTable = styled(Table)`
     thead tr th {
       color: ${props => props.theme.palette.text.secondary};
       background: ${Colors.background};
+      white-space: break-spaces;
     }
 
     td {
@@ -140,7 +142,7 @@ export const PatientLabTestsTable = React.memo(
           <CategoryCell>
             {row.testType}
             <br />
-            {row.unit ? `(${row.unit})` : null}
+            <BodyText color="textTertiary">{row.unit ? `(${row.unit})` : null}</BodyText>
           </CategoryCell>
         ),
       },

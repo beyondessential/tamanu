@@ -96,21 +96,20 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  onClear,
+  form,
+  isClearable = true,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      if (!changedOption) {
-        onChange({ target: { value: '', name } });
-        if (onClear) {
-          onClear();
-        }
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
+        onChange({ target: { value: undefined, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear],
+    [onChange, name],
   );
 
   const customStyles = {
@@ -200,7 +199,7 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          isClearable={value !== ''}
+          isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}
