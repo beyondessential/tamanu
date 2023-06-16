@@ -1,5 +1,5 @@
 import React from 'react';
-import { IMAGING_REQUEST_STATUS_CONFIG } from 'shared-src/src/constants/statuses';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
 import {
   TopBar,
   PageContainer,
@@ -9,19 +9,24 @@ import {
 } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 
-export const ImagingRequestListingView = React.memo(({ status = '' }) => {
-  const tableTitle = status
-    ? `${IMAGING_REQUEST_STATUS_CONFIG[status].label} imaging requests`
-    : 'Imaging requests';
+const ImagingRequestListing = ({ status = '' }) => (
+  <ContentPane>
+    <SearchTableTitle>Imaging request search</SearchTableTitle>
+    <ImagingRequestsSearchBar status={status} />
+    <ImagingRequestsTable status={status} />
+  </ContentPane>
+);
 
-  return (
-    <PageContainer>
-      <TopBar title={tableTitle} />
-      <ContentPane>
-        <SearchTableTitle>Imaging request search</SearchTableTitle>
-        <ImagingRequestsSearchBar status={status} />
-        <ImagingRequestsTable status={status} />
-      </ContentPane>
-    </PageContainer>
-  );
-});
+export const ImagingRequestListingView = () => (
+  <PageContainer>
+    <TopBar title="Imaging requests" />
+    <ImagingRequestListing />
+  </PageContainer>
+);
+
+export const CompletedImagingRequestListingView = () => (
+  <PageContainer>
+    <TopBar title="Completed imaging requests" />
+    <ImagingRequestListing status={IMAGING_REQUEST_STATUS_TYPES.COMPLETED} />
+  </PageContainer>
+);

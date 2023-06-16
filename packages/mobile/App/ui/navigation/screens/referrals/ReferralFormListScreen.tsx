@@ -17,7 +17,9 @@ export const ReferralFormListScreen = (): ReactElement => {
 
   const [surveys, error] = useBackendEffect(({ models }) =>
     models.Survey.find({
-      surveyType: SurveyTypes.Referral,
+      where: {
+        surveyType: SurveyTypes.Referral,
+      },
       order: {
         name: 'ASC',
       },
@@ -51,11 +53,7 @@ export const ReferralFormListScreen = (): ReactElement => {
           data={filteredSurveys}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
-            <MenuOptionButton
-              title={item.name}
-              onPress={(): void => onNavigateToSurvey(item)}
-              fontWeight={500}
-            />
+            <MenuOptionButton title={item.name} onPress={(): void => onNavigateToSurvey(item)} />
           )}
           ItemSeparatorComponent={Separator}
         />

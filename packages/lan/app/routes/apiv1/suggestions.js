@@ -7,6 +7,7 @@ import { NotFoundError } from 'shared/errors';
 import {
   SURVEY_TYPES,
   REFERENCE_TYPE_VALUES,
+  REFERENCE_TYPES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
@@ -259,3 +260,66 @@ createSuggester(
   patient => patient,
   'first_name',
 );
+
+// Specifically fetches lab test categories that have a lab request against a patient
+createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  const status = query?.status || 'published';
+
+  if (!query.patientId) {
+    return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
+  }
+
+  return {
+    ...baseWhere,
+    type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(lab_test_category_id)
+          FROM lab_requests
+          INNER JOIN
+            encounters ON encounters.id = lab_requests.encounter_id
+          WHERE lab_requests.status = '${status}'
+            AND encounters.patient_id = '${query.patientId}'
+        )`,
+      ),
+    },
+  };
+});
+
+// Specifically fetches lab panels that have a lab test against a patient
+createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  const status = query?.status || 'published';
+
+  if (!query.patientId) {
+    return baseWhere;
+  }
+
+  return {
+    ...baseWhere,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(lab_test_panel_id)
+          FROM lab_test_panel_lab_test_types
+          INNER JOIN
+            lab_test_types ON lab_test_types.id = lab_test_panel_lab_test_types.lab_test_type_id
+          INNER JOIN
+            lab_tests ON lab_tests.lab_test_type_id = lab_test_types.id
+          INNER JOIN
+            lab_requests ON lab_requests.id = lab_tests.lab_request_id
+          INNER JOIN
+            encounters ON encounters.id = lab_requests.encounter_id
+          WHERE lab_requests.status = '${status}'
+            AND encounters.patient_id = '${query.patientId}'
+        )`,
+      ),
+    },
+  };
+});
+
+// TODO: Use generic LabTest permissions for this suggester
+createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
+createNameSuggester('labTestPanel', 'LabTestPanel');

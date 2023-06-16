@@ -3,7 +3,6 @@ import config from 'config';
 import Chance from 'chance';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
 import { fake } from 'shared/test-helpers/fake';
-
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -34,11 +33,43 @@ describe('Labs', () => {
   afterAll(() => ctx.close());
 
   it('should record a lab request', async () => {
-    const labRequest = await randomLabRequest(models, { patientId });
+    const labRequest = await randomLabRequest(models, {
+      patientId,
+    });
     const response = await app.post('/v1/labRequest').send(labRequest);
     expect(response).toHaveSucceeded();
 
-    const createdRequest = await models.LabRequest.findByPk(response.body.id);
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
+    expect(createdRequest).toBeTruthy();
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+
+    const createdTests = await models.LabTest.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+  });
+
+  it('should record a lab request with a Lab Test Panel', async () => {
+    const LabTestPanel = await models.LabTestPanel.create({
+      name: 'Demo test panel',
+      code: 'demo-test-panel',
+    });
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const labRequest = await randomLabRequest(models, {
+      patientId,
+      labTestPanelId: LabTestPanel.id,
+    });
+    const response = await app
+      .post('/v1/labRequest')
+      .send({ ...labRequest, encounterId: encounter.id });
+    expect(response).toHaveSucceeded();
+
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
     expect(createdRequest).toBeTruthy();
     expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
 

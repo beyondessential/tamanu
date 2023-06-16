@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { LAB_TEST_RESULT_TYPES } from 'shared/constants';
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
 import {
   Form,
   Field,
@@ -45,13 +45,26 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) 
     <Form
       onSubmit={onSubmit}
       render={({ submitForm }) => (
-        <FormGrid columns={1}>
+        <FormGrid columns={2}>
           <Field
             label="Result"
             name="result"
             required
             component={component}
             options={renderOptions(options)}
+            disabled={isReadOnly}
+          />
+          <Field
+            label="Completed"
+            name="completedDate"
+            component={DateTimeField}
+            disabled={isReadOnly}
+            saveDateAsString
+          />
+          <Field
+            label="Laboratory officer"
+            name="laboratoryOfficer"
+            component={TextField}
             disabled={isReadOnly}
           />
           <Field
@@ -63,23 +76,10 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) 
             disabled={isReadOnly}
           />
           <Field
-            label="Laboratory officer"
-            name="laboratoryOfficer"
-            component={TextField}
-            disabled={isReadOnly}
-          />
-          <Field
             label="Verification"
             name="verification"
             component={TextField}
             disabled={isReadOnly}
-          />
-          <Field
-            label="Time of test"
-            name="completedDate"
-            component={DateTimeField}
-            disabled={isReadOnly}
-            saveDateAsString
           />
           <ConfirmCancelRow
             onConfirm={submitForm}

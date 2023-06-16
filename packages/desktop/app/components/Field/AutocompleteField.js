@@ -9,7 +9,7 @@ import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
-import { Tag } from '../Tag';
+import { FormFieldTag } from '../Tag';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -61,11 +61,11 @@ const Icon = styled(InputAdornment)`
   }
 `;
 
-const OptionTag = styled(Tag)`
+const OptionTag = styled(FormFieldTag)`
   position: relative;
 `;
 
-const SelectTag = styled(Tag)`
+const SelectTag = styled(FormFieldTag)`
   position: relative;
   margin-right: 3px;
 `;
@@ -99,7 +99,7 @@ const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
 `;
 
-class BaseAutocomplete extends Component {
+export class AutocompleteInput extends Component {
   constructor() {
     super();
     this.anchorEl = React.createRef();
@@ -234,14 +234,9 @@ class BaseAutocomplete extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, onClear, name, required } = this.props;
-    // use correct error message for required fields by setting to "" but otherwise set to null value to prevent FK errors
-    const clearValue = required ? '' : null;
-    onChange({ target: { value: clearValue, name } });
+    const { onChange, name } = this.props;
+    onChange({ target: { value: undefined, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    if (onClear) {
-      onClear();
-    }
   };
 
   clearOptions = () => {
@@ -289,7 +284,17 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, value, size, ...other } = inputProps;
+    const {
+      label,
+      required,
+      className,
+      infoTooltip,
+      tag,
+      value,
+      size,
+      disabled,
+      ...other
+    } = inputProps;
     const { suggestions } = this.state;
     return (
       <OuterLabelFieldWrapper
@@ -311,7 +316,7 @@ class BaseAutocomplete extends Component {
                     {tag.label}
                   </SelectTag>
                 )}
-                {value && (
+                {value && !disabled && (
                   <StyledIconButton onClick={this.handleClearValue}>
                     <StyledClearIcon />
                   </StyledIconButton>
@@ -330,6 +335,7 @@ class BaseAutocomplete extends Component {
           }}
           fullWidth
           value={value}
+          disabled={disabled}
           {...other}
         />
       </OuterLabelFieldWrapper>
@@ -345,6 +351,7 @@ class BaseAutocomplete extends Component {
       infoTooltip,
       disabled,
       size,
+      className,
       error,
       helperText,
       placeholder = 'Search...',
@@ -363,6 +370,7 @@ class BaseAutocomplete extends Component {
           renderSuggestion={this.renderSuggestion}
           renderInputComponent={this.renderInputComponent}
           inputProps={{
+            className,
             label,
             required,
             disabled,
@@ -384,7 +392,7 @@ class BaseAutocomplete extends Component {
   }
 }
 
-BaseAutocomplete.propTypes = {
+AutocompleteInput.propTypes = {
   label: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
@@ -408,7 +416,7 @@ BaseAutocomplete.propTypes = {
   autofill: PropTypes.bool,
 };
 
-BaseAutocomplete.defaultProps = {
+AutocompleteInput.defaultProps = {
   label: '',
   required: false,
   error: false,
@@ -421,11 +429,6 @@ BaseAutocomplete.defaultProps = {
   suggester: null,
   autofill: false,
 };
-
-export const AutocompleteInput = styled(BaseAutocomplete)`
-  height: 250px;
-  flex-grow: 1;
-`;
 
 export const AutocompleteField = ({ field, ...props }) => (
   <AutocompleteInput

@@ -10,7 +10,7 @@ import { ChevronIcon } from '../Icons/ChevronIcon';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
-import { Tag } from '../Tag';
+import { FormFieldTag } from '../Tag';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -25,11 +25,11 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const SelectTag = styled(Tag)`
+const SelectTag = styled(FormFieldTag)`
   right: 5px;
 `;
 
-const OptionTag = styled(Tag)`
+const OptionTag = styled(FormFieldTag)`
   right: 20px;
 `;
 
@@ -96,22 +96,20 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  onClear,
+  form,
+  isClearable = true,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      // changedOption is empty if Clear indicator is clicked
-      if (!changedOption) {
-        onChange({ target: { value: null, name } });
-        if (onClear) {
-          onClear();
-        }
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
+        onChange({ target: { value: undefined, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear],
+    [onChange, name],
   );
 
   const customStyles = {
@@ -201,7 +199,7 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          isClearable={value !== ''}
+          isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}

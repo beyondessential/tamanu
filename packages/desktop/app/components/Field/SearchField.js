@@ -9,13 +9,16 @@ import { Colors } from '../../constants';
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
     color: ${Colors.softText};
-    font-size: 13px;
+    font-size: 18px;
   }
 `;
 
 const StyledTextField = styled(TextField)`
+  .MuiInputBase-root {
+    padding-left: 10px;
+  }
   .MuiInputBase-input {
-    padding-left: 7px;
+    padding-left: 5px;
   }
 `;
 
@@ -33,7 +36,6 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
     field: { value, name },
     form: { setFieldValue } = {},
     label,
-    onClear,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
 
@@ -45,9 +47,6 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
     setSearchValue('');
     if (setFieldValue) {
       setFieldValue(name, '');
-    }
-    if (onClear) {
-      onClear();
     }
   };
 

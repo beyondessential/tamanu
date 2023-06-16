@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
   LocalisedField,
   SelectField,
   AutocompleteField,
-  DynamicSelectField,
   Field,
   CheckField,
   SearchField,
@@ -150,7 +149,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
         <LocalisedField
           name="requestedById"
           defaultLabel="Requested by"
-          component={DynamicSelectField}
+          component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"
         />

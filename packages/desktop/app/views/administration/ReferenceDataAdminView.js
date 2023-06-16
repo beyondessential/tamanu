@@ -1,5 +1,5 @@
 import React from 'react';
-import { GENERAL_IMPORTABLE_DATA_TYPES } from 'shared/constants/importable';
+import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/shared/constants/importable';
 import { ImportExportView } from './components/ImportExportView';
 
 export const ReferenceDataAdminView = () => (
@@ -8,6 +8,5 @@ export const ReferenceDataAdminView = () => (
     endpoint="referenceData"
     dataTypes={GENERAL_IMPORTABLE_DATA_TYPES}
     dataTypesSelectable
-    disableExport
   />
 );

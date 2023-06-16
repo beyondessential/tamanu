@@ -295,6 +295,12 @@ const validCssAbsoluteLength = yup
 
 const printMeasuresSchema = yup
   .object({
+    labRequestPrintLabel: yup.object({
+      width: yup
+        .number()
+        .required()
+        .positive(),
+    }),
     stickerLabelPage: yup.object({
       pageWidth: validCssAbsoluteLength,
       pageHeight: validCssAbsoluteLength,
@@ -434,6 +440,7 @@ const rootLocalisationSchema = yup
           })
           .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
+        onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
       })

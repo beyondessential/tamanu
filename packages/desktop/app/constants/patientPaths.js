@@ -31,6 +31,7 @@ export const PATIENT_PATHS = {
 export const PATIENT_TABS = {
   HISTORY: 'history',
   DETAILS: 'details',
+  RESULTS: 'results',
   REFERRALS: 'referrals',
   PROGRAMS: 'programs',
   DOCUMENTS: 'documents',

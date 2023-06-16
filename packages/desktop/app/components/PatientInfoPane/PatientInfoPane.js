@@ -25,7 +25,6 @@ import {
   CARE_PLANS_TITLE,
 } from './paneTitles';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
-import { LoadingIndicator } from '../LoadingIndicator';
 import { RecordDeathSection } from '../RecordDeathSection';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
@@ -156,8 +155,6 @@ export const PatientInfoPane = () => {
   const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
   const showRecordDeathActions = !isLoading && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
-
-  if (isLoading) return <LoadingIndicator />;
 
   return (
     <Container>
