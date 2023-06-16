@@ -1,11 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Box, IconButton as IconButtonComponent } from '@material-ui/core';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
 import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { VitalVectorIcon } from './Icons/VitalVectorIcon';
+import { useVitalChartData } from '../contexts/VitalChartData';
 
 const StyledTable = styled(Table)`
   table {
@@ -32,6 +35,31 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const IconButton = styled(IconButtonComponent)`
+  padding: 9px 5px;
+`;
+
+const MeasureCell = React.memo(({ value, data }) => {
+  const { setChartKey, setVitalChartModalOpen } = useVitalChartData();
+
+  return (
+    <>
+      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+        {value}
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKey(data.value);
+            setVitalChartModalOpen(true);
+          }}
+        >
+          <VitalVectorIcon />
+        </IconButton>
+      </Box>
+    </>
+  );
+});
+
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
@@ -39,11 +67,13 @@ export const VitalsTable = React.memo(() => {
   // create a column for each reading
   const columns = [
     {
+      key: 'measure',
       title: 'Measure',
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell value={value} config={config} validationCriteria={validationCriteria} />
       ),
+      CellComponent: MeasureCell,
     },
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))

@@ -3,9 +3,10 @@ import { storiesOf } from '@storybook/react';
 import { addHours, format } from 'date-fns';
 import { Modal } from '../app/components/Modal';
 import { LineChart } from '../app/components/Charts/LineChart';
+import { DateTimeSelector } from '../app/components/Charts/components/DateTimeSelector';
 
 const getDate = amount => format(addHours(new Date(), amount), 'yyyy-MM-dd HH:mm:ss');
-const rawData = [
+const data = [
   {
     name: getDate(-1),
     value: 35,
@@ -57,7 +58,8 @@ const yAxisConfigs = {
 storiesOf('Vitals', module).add('Vital Chart', () => {
   return (
     <Modal title="Vital Chart" open width="lg">
-      <LineChart rawData={rawData} yAxisConfigs={yAxisConfigs} />
+      <DateTimeSelector />
+      <LineChart measureData={{ data, yAxisConfigs }} />
     </Modal>
   );
 });

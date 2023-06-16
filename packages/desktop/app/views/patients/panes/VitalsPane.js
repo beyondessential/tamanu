@@ -7,9 +7,17 @@ import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
 import { getActionsFromData, getAnswersFromData } from '../../../utils';
+import { LineChart } from '../../../components/Charts/LineChart';
+import { useVitalChartData } from '../../../contexts/VitalChartData';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const queryClient = useQueryClient();
+  const {
+    vitalChartModalOpen,
+    setVitalChartModalOpen,
+    measureData,
+    chartKey,
+  } = useVitalChartData();
   const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
@@ -34,6 +42,15 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
     <TabPane>
       <Modal title="Record vitals" open={modalOpen} onClose={handleClose}>
         <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
+      </Modal>
+      <Modal
+        title={chartKey}
+        open={vitalChartModalOpen}
+        onClose={() => {
+          setVitalChartModalOpen(false);
+        }}
+      >
+        <LineChart measureData={measureData} />
       </Modal>
       <TableButtonRow variant="small">
         <Button onClick={() => setModalOpen(true)} disabled={readonly}>
