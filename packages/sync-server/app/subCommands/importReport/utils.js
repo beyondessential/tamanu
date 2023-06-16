@@ -21,10 +21,12 @@ export function getLatestVersion(versions, status) {
 
 export async function verifyQuery(query, paramDefinitions = [], store, verbose) {
   try {
+    const replacements = await getQueryReplacementsFromParams(paramDefinitions);
+
     // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
     const results = await store.sequelize.query(`EXPLAIN ${query}`, {
       type: QueryTypes.SELECT,
-      replacements: getQueryReplacementsFromParams(paramDefinitions),
+      replacements,
     });
     if (verbose) {
       const formattedResults = results.reduce(
