@@ -76,22 +76,18 @@ export async function listVersions(definition, versions) {
     log.info(`No versions found for report definition ${definition.name}`);
     return;
   }
-
   const activeVersion = reportUtils.getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
-  const reportInfo = versions.map(({ versionNumber, status, updatedAt }) => {
-    const isActive = activeVersion?.versionNumber === versionNumber;
-    return [
-      versionNumber,
-      `${status}${isActive ? ` ${ACTIVE_TEXT}` : ''}`,
-      formatUpdatedAt(updatedAt),
-    ];
-  });
-
+  
   const table = new Table({
     head: ['Version', 'Status', 'Updated'],
   });
-  // push all rows of the report
-  table.push(...reportInfo);
-
+  versions.forEach(({ versionNumber, status, updatedAt }) => {
+    const isActive = activeVersion?.versionNumber === versionNumber;
+    table.push([
+      versionNumber,
+      `${status}${isActive ? ` ${ACTIVE_TEXT}` : ''}`,
+      formatUpdatedAt(updatedAt),
+    ]);
+  });
   log.info(`Listing versions for report definition ${definition.name}\n${table.toString()}`);
 }
