@@ -31,50 +31,59 @@ const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   if (notes.length === 0) return null;
-  const getMatch = noteItems => noteItems[0].content.match(matcher);
+
+  const getMatch = noteItems => noteItems[0].content.match(matcher)?.groups;
+  
   const match = getMatch(notes[0].noteItems);
   if (!match) return null;
 
-  const {
-    groups: { from },
-  } = match;
+  const { from } = match;
 
-  const history = [
+  return [
     {
       to: from,
       date: encounterData.startDate,
     },
-    ...notes?.map(({ noteItems }) => {
-      const {
-        groups: { to },
-      } = getMatch(noteItems);
+    ...notes.map(({ noteItems }) => {
+      const { to } = getMatch(noteItems);
       const { date } = noteItems[0];
       return { to, date };
     }),
   ];
-  return history;
 };
 
 // These two functions both take the generated object based on the matcher from the above function and alters the data names to be relavant to the table.
 // It will either loop through the generic history and rename the keys to relevant ones or it will just grab the current encounter details if there is no note history
 const extractEncounterTypeHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, encounterTypeNoteMatcher);
-  const encounterHistory = history?.map(({ to: newEncounterType, ...rest }) => ({
+  if (!history) {
+    return [
+      {
+        newEncounterType: encounterData.encounterType,
+        date: encounterData.startDate,
+      },
+    ];
+  }
+
+  return history.map(({ to: newEncounterType, ...rest }) => ({
     newEncounterType,
     ...rest,
-  }));
-  if (encounterHistory) return encounterHistory;
-  return [
-    {
-      newEncounterType: encounterData.encounterType,
-      date: encounterData.startDate,
-    },
-  ];
+  }));  
 };
 
 const extractLocationHistory = (notes, encounterData) => {
   const history = extractUpdateHistoryFromNoteData(notes, encounterData, locationNoteMatcher);
-  const locationHistory = history?.map(location => {
+  if (!history) {
+    return [
+      {
+        newLocationGroup: encounterData.location.locationGroup?.name,
+        newLocation: encounterData.location.name,
+        date: encounterData.startDate,
+      },
+    ];
+  }
+
+  return history.map(location => {
     const locationArr = location.to?.split(/,\s+/);
     const hasLocationGroup = locationArr.length > 1;
     return {
@@ -83,14 +92,6 @@ const extractLocationHistory = (notes, encounterData) => {
       date: location.date,
     };
   });
-  if (locationHistory) return locationHistory;
-  return [
-    {
-      newLocationGroup: encounterData.location.locationGroup?.name,
-      newLocation: encounterData.location.name,
-      date: encounterData.startDate,
-    },
-  ];
 };
 
 export const EncounterRecordModalContents = ({ encounter, onClose }) => {
