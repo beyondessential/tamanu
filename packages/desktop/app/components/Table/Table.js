@@ -174,7 +174,7 @@ const Row = React.memo(
           >
             <ErrorBoundary ErrorComponent={CellError}>
               {CellComponent ? (
-                <CellComponent value={displayValue} />
+                <CellComponent value={displayValue} data={data} />
               ) : (
                 <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
               )}

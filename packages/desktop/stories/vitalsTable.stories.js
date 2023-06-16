@@ -5,6 +5,9 @@ import { addHours, format } from 'date-fns';
 import { VitalsTable } from '../app/components/VitalsTable';
 import { MockedApi } from './utils/mockedApi';
 import { EncounterContext } from '../app/contexts/Encounter';
+import { VitalChartDataProvider, useVitalChartData } from '../app/contexts/VitalChartData';
+import { Modal } from '../app/components';
+import { LineChart } from '../app/components/Charts/LineChart';
 
 const Container = styled.div`
   max-width: 1300px;
@@ -35,7 +38,7 @@ const endpoints = {
         {
           name: 'DBP',
           config: '',
-          records: { [dateOne]: '666' },
+          records: { [dateOne]: '60' },
           dataElementId: 'pde-PatientVitalsDBP',
         },
         {
@@ -56,7 +59,7 @@ const endpoints = {
         {
           name: 'HeartRate',
           config: '{"unit": "BPM"}',
-          records: { [dateOne]: '555', [dateSix]: '123' },
+          records: { [dateOne]: '85', [dateSix]: '80' },
           dataElementId: 'pde-PatientVitalsHeartRate',
         },
         {
@@ -448,16 +451,33 @@ storiesOf('Vitals', module)
   .addDecorator(Story => (
     <MockedApi endpoints={endpoints}>
       <Container>
-        <EncounterContext.Provider
-          value={{
-            encounter: { id: 'test_id' },
-          }}
-        >
-          <Story />
-        </EncounterContext.Provider>
+        <VitalChartDataProvider>
+          <EncounterContext.Provider
+            value={{
+              encounter: { id: 'test_id' },
+            }}
+          >
+            <Story />
+          </EncounterContext.Provider>
+        </VitalChartDataProvider>
       </Container>
     </MockedApi>
   ))
   .add('Vitals Table', () => {
-    return <VitalsTable />;
+    const { vitalChartModalOpen, setVitalChartModalOpen, measureData } = useVitalChartData();
+
+    return (
+      <>
+        <Modal
+          title="Vital Chart"
+          open={vitalChartModalOpen}
+          onClose={() => {
+            setVitalChartModalOpen(false);
+          }}
+        >
+          <LineChart measureData={measureData} />
+        </Modal>
+        <VitalsTable />
+      </>
+    );
   });
