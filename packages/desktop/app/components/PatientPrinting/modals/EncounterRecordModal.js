@@ -37,11 +37,9 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   const match = getMatch(notes[0].noteItems);
   if (!match) return null;
 
-  const { from } = match;
-
   return [
     {
-      to: from,
+      to: match.from,
       date: encounterData.startDate,
     },
     ...notes.map(({ noteItems }) => {
