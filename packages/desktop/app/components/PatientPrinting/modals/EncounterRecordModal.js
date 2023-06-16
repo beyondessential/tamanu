@@ -33,7 +33,7 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
   if (notes.length === 0) return null;
 
   const getMatch = noteItems => noteItems[0].content.match(matcher)?.groups;
-  
+
   const match = getMatch(notes[0].noteItems);
   if (!match) return null;
 
@@ -68,7 +68,7 @@ const extractEncounterTypeHistory = (notes, encounterData) => {
   return history.map(({ to: newEncounterType, ...rest }) => ({
     newEncounterType,
     ...rest,
-  }));  
+  }));
 };
 
 const extractLocationHistory = (notes, encounterData) => {
