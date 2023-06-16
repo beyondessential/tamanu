@@ -335,14 +335,9 @@ encounterRelations.get(
 
     const result = await db.query(
       `
-        SELECT
-          JSONB_BUILD_OBJECT(
-            'dataElementId', answer.data_element_id,
-            'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
-        FROM
-          survey_response_answers answer
-        INNER JOIN
-          (SELECT
+        WITH
+        date AS (
+          SELECT
             response_id, body
           FROM
             survey_response_answers
@@ -356,7 +351,17 @@ encounterRelations.get(
             body IS NOT NULL
           AND
             response.encounter_id = :encounterId
-            ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
+          ORDER BY body ${order} LIMIT :limit OFFSET :offset
+        )
+
+        SELECT
+          JSONB_BUILD_OBJECT(
+            'dataElementId', answer.data_element_id,
+            'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
+        FROM
+          survey_response_answers answer
+        INNER JOIN
+          date
         ON date.response_id = answer.response_id
         GROUP BY answer.data_element_id
         `,
