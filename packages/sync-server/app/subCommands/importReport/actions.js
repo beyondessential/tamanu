@@ -2,7 +2,7 @@ import { log } from 'shared/services/logging';
 import Table from 'cli-table3';
 import { REPORT_STATUSES } from 'shared/constants';
 import { format } from 'date-fns';
-import * as reportUtils from './utils';
+import { verifyQuery, getLatestVersion } from './utils';
 
 export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
 
@@ -20,7 +20,7 @@ export async function createVersion(versionData, definition, versions, store, ve
   const { ReportDefinitionVersion } = store.models;
 
   log.info('Analyzing query');
-  await reportUtils.verifyQuery(
+  await verifyQuery(
     versionData.query,
     versionData.queryOptions?.parameters,
     store,
@@ -36,7 +36,7 @@ export async function createVersion(versionData, definition, versions, store, ve
     log.warn(`Version ${versionData.versionNumber} already exists, ${OVERWRITING_TEXT}`);
     versionData.id = existingVersion.id;
   } else {
-    const latestVersion = reportUtils.getLatestVersion(versions);
+    const latestVersion = getLatestVersion(versions);
     const versionNumber = (latestVersion?.versionNumber || 0) + 1;
     log.info(`Auto incrementing versionNumber to ${versionNumber}`);
     versionData.versionNumber = versionNumber;
@@ -62,7 +62,7 @@ export async function createVersion(versionData, definition, versions, store, ve
 
   const isActive =
     version.status === REPORT_STATUSES.PUBLISHED &&
-    (created || reportUtils.getLatestVersion(versions).versionNumber === version.versionNumber);
+    (created || getLatestVersion(versions).versionNumber === version.versionNumber);
 
   log.info(
     `${created ? 'Created new' : 'Updated'} ${isActive ? `${ACTIVE_TEXT} ` : ''}version ${
@@ -76,7 +76,7 @@ export async function listVersions(definition, versions) {
     log.info(`No versions found for report definition ${definition.name}`);
     return;
   }
-  const activeVersion = reportUtils.getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
+  const activeVersion = getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
   
   const table = new Table({
     head: ['Version', 'Status', 'Updated'],
