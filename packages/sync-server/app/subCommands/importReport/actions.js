@@ -1,4 +1,3 @@
-import { promises as fs } from 'fs';
 import { log } from 'shared/services/logging';
 import Table from 'cli-table3';
 import { REPORT_STATUSES } from 'shared/constants';
@@ -15,9 +14,7 @@ export const getVersionError = ({ versionNumber }) =>
     `Version ${versionNumber} does not exist, remove versionNumber from JSON and try again to auto increment`,
   );
 
-export async function createVersion(file, definition, versions, store, verbose) {
-  const data = await fs.readFile(file);
-  const versionData = JSON.parse(data);
+export async function createVersion(versionData, definition, versions, store, verbose) {
   const { ReportDefinitionVersion } = store.models;
 
   log.info('Analyzing query');
