@@ -7,7 +7,7 @@ import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
 } from '../constants';
 import { Model } from './Model';
-import { getQueryReplacementsFromParams } from '../utils/getQueryReplacementsFromParams';
+import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';
 
 const optionsValidator = yup.object({
   parameters: yup
@@ -123,7 +123,7 @@ export class ReportDefinitionVersion extends Model {
 
     const queryOptions = this.getQueryOptions();
 
-    const replacements = await getQueryReplacementsFromParams(
+    const replacements = await getReportQueryReplacements(
       context,
       queryOptions.parameters,
       parameters,
