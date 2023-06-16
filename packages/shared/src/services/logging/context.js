@@ -14,6 +14,12 @@ export const SemanticAttributes = {
   DEPLOYMENT_FACILITY: 'deployment.facility',
   SERVICE_TYPE: 'service.type',
   SERVICE_VERSION: 'service.version',
+  SOURCE_BRANCH: 'source.branch',
+  SOURCE_COMMIT_HASH: 'source.commit.hash',
+  SOURCE_COMMIT_SUBJECT: 'source.commit.subject',
+  SOURCE_DATE: 'source.date',
+  SOURCE_DATE_EPOCH: 'source.date.epoch',
+  SOURCE_DATE_ISO: 'source.date.iso',
 };
 
 export function serviceContext() {
@@ -23,7 +29,7 @@ export function serviceContext() {
     deploymentHost && new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
   const facilityId = config?.serverFacilityId?.replace(/([^a-z0-9]+|^(ref\/)?facility[-/])/gi, '');
 
-  return {
+  const context = {
     [SemanticAttributes.NET_HOST_NAME]: HOSTNAME,
     [SemanticAttributes.PROCESS_ID]: PROCESS_ID,
     [SemanticAttributes.DEPLOYMENT_NAME]: deployment,
@@ -32,6 +38,18 @@ export function serviceContext() {
     [SemanticAttributes.SERVICE_TYPE]: serverType,
     [SemanticAttributes.SERVICE_VERSION]: version,
   };
+
+  // These can be set by the container image or runtime in production
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith('OTEL_CONTEXT_')) continue;
+    const contextKey = key
+      .replace(/^OTEL_CONTEXT_/, '')
+      .toLowerCase()
+      .replace(/_/g, '.');
+    context[contextKey] = value;
+  }
+
+  return context;
 }
 
 export function serviceName(context) {
