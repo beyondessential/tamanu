@@ -11,9 +11,19 @@ doWithAllPackages((name, pkg) => {
 
   // Some packages require special handling for lint --fix
   if (process.argv.includes('--fix') && pkg?.scripts?.['lint:fix']) {
-    execFileSync('yarn', ['workspace', pkg.name, 'run', 'lint:fix', ...process.argv.slice(2).filter(arg => arg !== '--fix')], {
-      stdio: 'inherit',
-    });
+    execFileSync(
+      'yarn',
+      [
+        'workspace',
+        pkg.name,
+        'run',
+        'lint:fix',
+        ...process.argv.slice(2).filter(arg => arg !== '--fix'),
+      ],
+      {
+        stdio: 'inherit',
+      },
+    );
     return;
   }
 
