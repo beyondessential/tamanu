@@ -1,5 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { NotFoundError } from 'shared/errors';
+import { SURVEY_TYPES } from 'shared/constants';
 
 export const surveyResponse = express.Router();
 
@@ -106,5 +108,44 @@ surveyResponse.post(
       return models.SurveyResponse.createWithAnswers(updatedBody);
     });
     res.send(responseRecord);
+  }),
+);
+
+surveyResponse.put(
+  '/vital/:id',
+  asyncHandler(async (req, res) => {
+    const { db, models, user, params } = req;
+    const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog } = models;
+    const { id } = params;
+    req.checkPermission('write', 'Vitals');
+    const answerObject = await SurveyResponseAnswer.findByPk(id, {
+      include: [
+        {
+          required: true,
+          model: SurveyResponse,
+          as: 'surveyResponse',
+          include: [
+            {
+              required: true,
+              model: Survey,
+              as: 'survey',
+              where: { surveyType: SURVEY_TYPES.VITALS },
+            },
+          ],
+        },
+      ],
+    });
+    if (!answerObject) throw new NotFoundError();
+
+    await db.transaction(async () => {
+      await VitalLog.create({
+        ...req.body,
+        recordedById: user.id,
+        answerId: id,
+      });
+      await answerObject.update({ body: req.body.newValue }, user);
+    });
+
+    res.send(answerObject);
   }),
 );
