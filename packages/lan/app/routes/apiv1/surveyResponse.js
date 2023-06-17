@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import { SURVEY_TYPES } from 'shared/constants';
 
@@ -115,7 +116,7 @@ surveyResponse.put(
   '/vital/:id',
   asyncHandler(async (req, res) => {
     const { db, models, user, params } = req;
-    const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog } = models;
+    const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     const { id } = params;
     req.checkPermission('write', 'Vitals');
     const answerObject = await SurveyResponseAnswer.findByPk(id, {
@@ -132,6 +133,11 @@ surveyResponse.put(
               where: { surveyType: SURVEY_TYPES.VITALS },
             },
           ],
+        },
+        {
+          required: true,
+          model: ProgramDataElement,
+          where: { type: { [Op.not]: 'CalculatedQuestion' } },
         },
       ],
     });
