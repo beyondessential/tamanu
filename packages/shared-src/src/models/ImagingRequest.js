@@ -1,10 +1,10 @@
+import config from 'config';
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import {
   SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
-  NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { getNotePageWithType } from 'shared/utils/notePages';
@@ -83,6 +83,7 @@ export class ImagingRequest extends Model {
         where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
         include: [{ association: 'noteItems' }],
       }));
+    const noteTypeIds = config?.localisation?.data?.noteTypeIds;
     const extractWithType = async type => {
       const notePage = getNotePageWithType(notePages, type);
       if (!notePage) {
@@ -98,8 +99,8 @@ export class ImagingRequest extends Model {
       return noteItems[0].content;
     };
     return {
-      note: await extractWithType(NOTE_TYPES.OTHER),
-      areaNote: await extractWithType(NOTE_TYPES.AREA_TO_BE_IMAGED),
+      note: await extractWithType(noteTypeIds?.otherNoteTypeId),
+      areaNote: await extractWithType(noteTypeIds?.areaToBeImagedNoteTypeId),
       notePages,
     };
   }

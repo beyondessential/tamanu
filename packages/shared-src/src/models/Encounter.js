@@ -1,12 +1,8 @@
+import config from 'config';
 import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
-import {
-  ENCOUNTER_TYPES,
-  ENCOUNTER_TYPE_VALUES,
-  NOTE_TYPES,
-  SYNC_DIRECTIONS,
-} from 'shared/constants';
+import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { dateTimeType } from './dateTimeTypes';
 
@@ -325,7 +321,7 @@ export class Encounter extends Model {
 
   async addSystemNote(content, date, user) {
     const notePage = await this.createNotePage({
-      noteType: NOTE_TYPES.SYSTEM,
+      noteType: config.localisation.data.noteTypeIds?.systemNoteTypeId,
       date,
     });
     await notePage.createNoteItem({

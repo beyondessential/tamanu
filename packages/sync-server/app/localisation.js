@@ -271,6 +271,39 @@ const imagingTypesSchema = yup
   })
   .required();
 
+const noteTypeIdsSchema = yup
+  .object({
+    areaToBeImagedNoteTypeId: yup
+      .string()
+      .trim()
+      .required(),
+    treatmentPlanNoteTypeId: yup
+      .string()
+      .trim()
+      .required(),
+    clinicalMobileNoteTypeId: yup
+      .string()
+      .trim()
+      .required(),
+    dischargeNoteTypeId: yup
+      .string()
+      .trim()
+      .required(),
+    handoverNoteTypeId: yup
+      .string()
+      .trim()
+      .required(),
+    systemNoteTypeId: yup
+      .string()
+      .trim()
+      .required(),
+    otherNoteTypeId: yup
+      .string()
+      .trim()
+      .required(),
+  })
+  .required();
+
 const validCssAbsoluteLength = yup
   .string()
   .required()
@@ -404,6 +437,7 @@ const rootLocalisationSchema = yup
           return true;
         },
       }),
+    noteTypeIds: noteTypeIdsSchema,
     triageCategories: yup
       .array(
         yup.object({

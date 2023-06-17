@@ -3,12 +3,12 @@ import Chance from 'chance';
 import { DataTypes } from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
+import config from 'config';
 
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
-  NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
@@ -353,7 +353,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
     // It will be fixed properly as part of EPI-160
     id: undefined,
-    noteType: chance.pickone(NOTE_TYPE_VALUES),
+    // This won't select from all possible note types but at least from the mandatory ones
+    noteType: chance.pickone(Object.values(config.localisation.data?.noteTypeIds)),
   }),
   NoteItem: () => ({
     id: undefined,

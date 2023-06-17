@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModal } from '../../../components/CancelModal';
@@ -10,6 +10,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
   const auth = useAuth();
   const { getLocalisation } = useLocalisation();
   const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
+  const otherNoteTypeId = getLocalisation('noteTypeIds.otherNoteTypeId');
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(
@@ -29,7 +30,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
     await api.post(`labRequest/${labRequest.id}/notes`, {
       content: note,
       authorId: auth.currentUser.id,
-      noteType: NOTE_TYPES.OTHER,
+      noteType: otherNoteTypeId,
     });
 
     await updateLabReq({

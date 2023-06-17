@@ -24,8 +24,9 @@ import { Suggester } from '~/ui/helpers/suggester';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
+import { NOTE_RECORD_TYPES } from '~/ui/helpers/constants';
 
 const IllnessFormSchema = Yup.object().shape({
   diagnosis: Yup.string(),
@@ -49,6 +50,8 @@ const styles = StyleSheet.create({
 
 export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
+  const { getLocalisation } = useLocalisation();
+  const clinicalMobileNoteTypeId = getLocalisation('noteTypeIds.clinicalMobileNoteTypeId');
 
   const navigateToHistory = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
@@ -78,7 +81,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
         await models.NotePage.createForRecord({
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          noteType: NOTE_TYPES.CLINICAL_MOBILE,
+          noteType: clinicalMobileNoteTypeId,
           content: clinicalNote,
           author: user.id,
         });

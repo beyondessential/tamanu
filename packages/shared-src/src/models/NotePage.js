@@ -1,11 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { log } from 'shared/services/logging';
-import {
-  NOTE_RECORD_TYPE_VALUES,
-  NOTE_TYPE_VALUES,
-  SYNC_DIRECTIONS,
-  VISIBILITY_STATUSES,
-} from 'shared/constants';
+import { NOTE_RECORD_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
@@ -45,11 +40,6 @@ export class NotePage extends Model {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
               throw new Error(`NotePage: Must have a valid record type (got ${this.recordType})`);
-            }
-          },
-          mustHaveValidType() {
-            if (!NOTE_TYPE_VALUES.includes(this.noteType)) {
-              throw new Error(`NotePage: Must have a valid note type (got ${this.noteType})`);
             }
           },
         },

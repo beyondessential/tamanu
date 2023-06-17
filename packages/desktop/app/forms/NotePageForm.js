@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -6,9 +6,9 @@ import { isEmpty } from 'lodash';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES } from 'shared/constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
+import { useNoteTypes } from '../contexts/NoteTypes';
 import { foreignKey } from '../utils/validation';
 
 import {
@@ -22,24 +22,24 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteItemList } from '../components/NoteItemList';
-import { noteTypes, Colors } from '../constants';
+import { Colors } from '../constants';
 
 /**
  * If there's already a treatment plan note, don't allow users to add another one
  * @param {*} noteTypeCountByType
  * @returns
  */
-const getSelectableNoteTypes = noteTypeCountByType =>
-  noteTypes
+const getSelectableNoteTypes = (noteTypeCountByType, noteTypes, treatmentPlanNoteTypeId) => {
+  return noteTypes
     .filter(x => !x.hideFromDropdown)
     .map(x => ({
       ...x,
       isDisabled:
         noteTypeCountByType &&
-        x.value === NOTE_TYPES.TREATMENT_PLAN &&
+        x.value === treatmentPlanNoteTypeId &&
         !!noteTypeCountByType[x.value],
     }));
-
+};
 const StyledDivider = styled(Divider)`
   margin-top: 30px;
   margin-bottom: 20px;
@@ -63,8 +63,8 @@ const StyledTooltip = styled(props => (
   }
 `;
 
-const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
-  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
+const renderOptionLabel = ({ value, label }, noteTypeCountByType, treatmentPlanNoteTypeId) => {
+  return value === treatmentPlanNoteTypeId && noteTypeCountByType[treatmentPlanNoteTypeId] ? (
     <StyledTooltip
       arrow
       placement="top"
@@ -90,7 +90,27 @@ export const NotePageForm = ({
   contentRef,
 }) => {
   const { currentUser } = useAuth();
+  const { noteTypes } = useNoteTypes();
   const { getLocalisation } = useLocalisation();
+
+  const { treatmentPlanNoteTypeId, clinicalMobileNoteTypeId, systemNoteTypeId } = getLocalisation(
+    'noteTypeIds',
+  );
+  const orderedNoteTypes = useMemo(
+    () =>
+      Array.isArray(noteTypes) && [
+        noteTypes.find(x => x.value === treatmentPlanNoteTypeId),
+        ...noteTypes
+          .filter(x => x.value !== treatmentPlanNoteTypeId)
+          .map(x => ({
+            ...x,
+            ...((x.value === clinicalMobileNoteTypeId || x.value === systemNoteTypeId) && {
+              hideFromDropdown: true,
+            }),
+          })),
+      ],
+    [noteTypes, clinicalMobileNoteTypeId, systemNoteTypeId, treatmentPlanNoteTypeId],
+  );
 
   const creatingNewNotePage = isEmpty(notePage);
 
@@ -123,9 +143,18 @@ export const NotePageForm = ({
           label="Type"
           required
           component={SelectField}
-          options={creatingNewNotePage ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
+          options={
+            creatingNewNotePage
+              ? getSelectableNoteTypes(
+                  noteTypeCountByType,
+                  orderedNoteTypes,
+                  treatmentPlanNoteTypeId,
+                )
+              : orderedNoteTypes
+          }
           disabled={!creatingNewNotePage}
-          formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
+          // prettier-ignore
+          formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType, treatmentPlanNoteTypeId)}
         />
         <Field
           name="writtenById"
@@ -175,7 +204,7 @@ export const NotePageForm = ({
       validationSchema={yup.object().shape({
         noteType: yup
           .string()
-          .oneOf(Object.values(NOTE_TYPES))
+          .oneOf((noteTypes || []).map(type => type.value))
           .required(),
         date: yup.date().required(),
         content: yup.string().required(),

@@ -7,14 +7,11 @@ import { startCase } from 'lodash';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
+import { useNoteTypes } from '../../../contexts/NoteTypes';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
-import {
-  noteTypes,
-  DRUG_ROUTE_VALUE_TO_LABEL,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-} from '../../../constants';
+import { DRUG_ROUTE_VALUE_TO_LABEL, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
 
@@ -303,6 +300,7 @@ export const EncounterRecord = React.memo(
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
+    const { noteTypes } = useNoteTypes();
 
     return (
       <ShiftedCertificateWrapper>

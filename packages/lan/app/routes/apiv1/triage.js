@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 
@@ -18,7 +18,7 @@ triage.put('/:id', simplePut('Triage'));
 triage.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db } = req;
+    const { models, db, getLocalisation } = req;
     const { vitals, notes } = req.body;
 
     req.checkPermission('create', 'Triage');
@@ -42,11 +42,14 @@ triage.post(
       });
     }
 
+    const localisation = await getLocalisation();
+    const otherNoteTypeId = localisation.data?.noteTypeIds?.otherNoteTypeId;
+
     // The triage form groups notes as a single string for submission
     // so put it into a single note record
     if (notes) {
       const notePage = await triageRecord.createNotePage({
-        noteType: NOTE_TYPES.OTHER,
+        noteType: otherNoteTypeId,
       });
       await notePage.createNoteItem({
         content: notes,
@@ -121,7 +124,7 @@ triage.get(
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
           AND encounters.encounter_type IN (:triageEncounterTypes)
-        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
+        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
       `,
       {
         model: Triage,

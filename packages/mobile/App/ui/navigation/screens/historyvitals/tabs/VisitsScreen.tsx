@@ -1,47 +1,27 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
 import { FullView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons';
-import { NOTE_TYPES } from '~/ui/helpers/constants';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { withPatient } from '~/ui/containers/Patient';
 import { IDiagnosis } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
 
-const displayNotes = (notePages): string => notePages
-  .filter(notePage => notePage.noteType === NOTE_TYPES.CLINICAL_MOBILE)
-  // Note: There should only be one noteItem per notePage in production
-  .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
-  .join('\n\n')
-  || DEFAULT_FIELD_VAL;
-
-const visitsHistoryRows = {
-  labRequest: {
-    name: 'Test results',
-    accessor: (): string => DEFAULT_FIELD_VAL,
-  },
-  diagnoses: {
-    name: 'Diagnosis',
-    accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
-      || DEFAULT_FIELD_VAL,
-  },
-  notePages: {
-    name: 'Clinical Note',
-    accessor: displayNotes,
-  },
-};
-
 const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
   const activeFilters = {
     count: 0,
   };
+
+  const { getLocalisation } = useLocalisation();
+  const clinicalMobileNoteTypeId = getLocalisation('noteTypeIds.clinicalMobileNoteTypeId');
 
   const navigateToHistoryFilters = useCallback(() => {
     console.log('going to filters..');
@@ -51,6 +31,30 @@ const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
     ({ models }) => models.Encounter.getForPatient(selectedPatient.id),
     [],
   );
+
+  const displayNotes = useCallback((notePages): string => notePages
+    .filter(notePage => notePage.noteType === clinicalMobileNoteTypeId)
+    // Note: There should only be one noteItem per notePage in production
+    .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
+    .join('\n\n')
+    || DEFAULT_FIELD_VAL;
+  , [clinicalMobileNoteTypeId]);
+
+  const visitsHistoryRows = useMemo(() => ({
+    labRequest: {
+      name: 'Test results',
+      accessor: (): string => DEFAULT_FIELD_VAL,
+    },
+    diagnoses: {
+      name: 'Diagnosis',
+      accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
+        || DEFAULT_FIELD_VAL,
+    },
+    notePages: {
+      name: 'Clinical Note',
+      accessor: displayNotes,
+    },
+  }), [displayNotes]);
 
   if (error) return <ErrorScreen error={error} />;
 

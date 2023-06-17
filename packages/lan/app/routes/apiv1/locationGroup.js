@@ -47,6 +47,8 @@ locationGroup.get(
 locationGroup.get(
   '/:id/handoverNotes',
   asyncHandler(async (req, res) => {
+    const { getLocalisation } = req;
+
     checkHandoverNotesPermissions(req);
 
     if (!config.serverFacilityId) {
@@ -60,6 +62,9 @@ locationGroup.get(
       res.status(404).send({ error: 'Location group not found.' });
       return;
     }
+
+    const localisation = await getLocalisation();
+    const handoverNoteTypeId = localisation.data?.noteTypeIds?.handoverNoteTypeId;
 
     const result = await req.db.query(
       `
@@ -81,25 +86,25 @@ locationGroup.get(
         INNER JOIN patients ON encounters.patient_id = patients.id
         LEFT JOIN encounter_diagnoses ON encounters.id = encounter_diagnoses.encounter_id
         LEFT JOIN (
-          SELECT encounter_id, 
+          SELECT encounter_id,
           STRING_AGG(
-            reference_data.name || 
-            ' (' || 
-            CASE 
+            reference_data.name ||
+            ' (' ||
+            CASE
               WHEN encounter_diagnoses.certainty = 'suspected' THEN 'For investigation'
               ELSE INITCAP(encounter_diagnoses.certainty)
             END ||
-            ')', 
-          ', ') AS name 
-          FROM encounter_diagnoses 
+            ')',
+          ', ') AS name
+          FROM encounter_diagnoses
           LEFT JOIN reference_data ON encounter_diagnoses.diagnosis_id = reference_data.id
-          WHERE encounter_diagnoses.certainty NOT IN ('disproven', 'error') 
+          WHERE encounter_diagnoses.certainty NOT IN ('disproven', 'error')
           GROUP BY encounter_id
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN (
 		      SELECT record_id, MAX(date) AS date
 		      FROM note_pages
-		      WHERE record_type = 'Encounter' AND note_type = 'handover'
+		      WHERE record_type = 'Encounter' AND note_type = '${handoverNoteTypeId}'
 		      GROUP BY record_id
 		    ) AS max_note_pages ON encounters.id = max_note_pages.record_id
 		    LEFT JOIN note_pages ON max_note_pages.record_id = note_pages.record_id

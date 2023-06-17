@@ -15,6 +15,7 @@ import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
+import { NoteTypesProvider } from './contexts/NoteTypes';
 import { ElectronProvider } from './contexts/ElectronProvider';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
@@ -22,13 +23,15 @@ import { PatientSearchProvider } from './contexts/PatientSearch';
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
-      <ImagingRequestsProvider>
-        <LabRequestProvider store={store}>
-          <PatientSearchProvider>
-            <LocalisationProvider store={store}>{children}</LocalisationProvider>
-          </PatientSearchProvider>
-        </LabRequestProvider>
-      </ImagingRequestsProvider>
+      <NoteTypesProvider>
+        <ImagingRequestsProvider>
+          <LabRequestProvider store={store}>
+            <PatientSearchProvider>
+              <LocalisationProvider store={store}>{children}</LocalisationProvider>
+            </PatientSearchProvider>
+          </LabRequestProvider>
+        </ImagingRequestsProvider>
+      </NoteTypesProvider>
     </ReferralProvider>
   </EncounterProvider>
 );

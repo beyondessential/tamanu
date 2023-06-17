@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { NOTE_TYPES } from 'shared/constants/notes';
 import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants/diagnoses';
@@ -90,6 +89,7 @@ const extractLocationHistory = (notes, encounterData) => {
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
+  const systemNoteTypeId = getLocalisation('noteTypeIds.systemNoteTypeId');
   const certificateData = useCertificate();
 
   const patientQuery = usePatientData(encounter.patientId);
@@ -189,11 +189,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notes = notesQuery?.data?.data;
 
   const displayNotes = notes?.filter(note => {
-    return note.noteType !== NOTE_TYPES.SYSTEM;
+    return note.noteType !== systemNoteTypeId;
   });
 
   const systemNotes = notes?.filter(note => {
-    return note.noteType === NOTE_TYPES.SYSTEM;
+    return note.noteType === systemNoteTypeId;
   });
 
   // Add orignal note to each note object linked to an edited note

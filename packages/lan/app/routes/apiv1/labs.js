@@ -6,12 +6,7 @@ import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
-import {
-  LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
-  NOTE_RECORD_TYPES,
-  VISIBILITY_STATUSES,
-} from 'shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
@@ -51,7 +46,7 @@ labRequest.put(
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, user } = req;
+    const { models, body, user, getLocalisation } = req;
     const { note } = body;
     req.checkPermission('create', 'LabRequest');
 
@@ -85,6 +80,8 @@ labRequest.post(
       throw new InvalidOperationError('Invalid test type id');
     }
 
+    const localisation = await getLocalisation();
+
     const response = await Promise.all(
       categories.map(async category => {
         const labRequestData = {
@@ -96,7 +93,7 @@ labRequest.post(
         const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
         if (note) {
           const notePage = await newLabRequest.createNotePage({
-            noteType: NOTE_TYPES.OTHER,
+            noteType: localisation.data?.noteTypeIds?.otherNoteTypeId,
           });
           await notePage.createNoteItem({ content: note, authorId: user.id });
         }
@@ -275,7 +272,7 @@ labRequest.get(
           laboratory.name AS laboratory_name,
           location.facility_id AS facility_id
         ${from}
-        
+
         ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
         LIMIT :limit
         OFFSET :offset

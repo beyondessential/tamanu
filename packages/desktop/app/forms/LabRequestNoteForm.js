@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Button, Box } from '@material-ui/core';
-import { NOTE_TYPES } from 'shared/constants';
 import { useApi } from '../api';
+import { useLocalisation } from '../contexts/Localisation';
 import { Form, Field, TextField, DateDisplay } from '../components';
 
 const Container = styled.div`
@@ -68,6 +68,9 @@ const TextButton = styled(Button)`
 export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getLocalisation } = useLocalisation();
+  const otherNoteTypeId = getLocalisation('noteTypeIds.otherNoteTypeId');
+
   const [active, setActive] = useState(false);
 
   const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>
@@ -79,7 +82,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       return api.post(`labRequest/${labRequestId}/notes`, {
         content: values.content?.trim(),
         authorId: api.user.id,
-        noteType: NOTE_TYPES.OTHER,
+        noteType: otherNoteTypeId,
       });
     },
     {

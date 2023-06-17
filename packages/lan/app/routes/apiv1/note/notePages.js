@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError, ForbiddenError } from 'shared/errors';
+import { NotFoundError, ForbiddenError, InvalidParameterError } from 'shared/errors';
 import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 
 import { noteItems } from './noteItems';
@@ -20,6 +20,16 @@ notePageRoute.post(
     const { models, body: noteData } = req;
 
     await checkNotePermission(req, noteData, 'create');
+
+    const noteTypes = await models.ReferenceData.findAll({
+      where: {
+        type: 'noteType',
+      },
+    });
+
+    if (!noteTypes.find(type => type.id === noteData.noteType)) {
+      throw new InvalidParameterError();
+    }
 
     const notePage = await models.NotePage.create({
       recordType: noteData.recordType,

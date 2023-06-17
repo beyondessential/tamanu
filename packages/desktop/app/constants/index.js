@@ -3,7 +3,6 @@ import { capitalize } from 'lodash';
 import { createValueIndex } from 'shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
-  NOTE_TYPES,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
   REFERRAL_STATUSES,
@@ -157,25 +156,6 @@ export const CERTAINTY_OPTIONS_BY_VALUE = createValueIndex(diagnosisCertaintyOpt
 export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.filter(
   x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value,
 );
-
-// The order here is how they'll show up in the dropdown
-// Treatment plan first and alphabetical after that
-export const noteTypes = [
-  { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
-  { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
-  { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
-  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.HANDOVER, label: 'Handover Notes' },
-  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
-  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
-  { value: NOTE_TYPES.OTHER, label: 'Other' },
-  { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
-  { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
-  { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
-  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
-  { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
-];
 
 export const encounterOptions = [
   { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },

@@ -1,12 +1,8 @@
+import config from 'config';
 import { Op } from 'sequelize';
 import { Location } from 'shared/models/Location';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
-import {
-  ENCOUNTER_TYPES,
-  DIAGNOSIS_CERTAINTY,
-  NOTE_TYPES,
-  VISIBILITY_STATUSES,
-} from 'shared/constants';
+import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, VISIBILITY_STATUSES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
 import { ageInYears } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
@@ -75,6 +71,7 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .join('; ');
 
 const getAllNotes = async (models, encounterIds) => {
+  const systemNoteTypeId = config?.localisation?.data?.noteTypeIds?.systemNoteTypeId;
   const locationChangeNotePages = await models.NotePage.findAll({
     include: [
       {
@@ -89,7 +86,7 @@ const getAllNotes = async (models, encounterIds) => {
     ],
     where: {
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      noteType: systemNoteTypeId,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
@@ -108,7 +105,7 @@ const getAllNotes = async (models, encounterIds) => {
     ],
     where: {
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      noteType: systemNoteTypeId,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });

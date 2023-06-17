@@ -680,6 +680,15 @@
         // e.g.
         // "xRay": { "label": "X-Ray" }
       },
+      "noteTypeIds": {
+        "treatmentPlanNoteTypeId": "NoteType-TreatmentPlan",
+        "clinicalMobileNoteTypeId": "NoteType-ClinicalMobile",
+        "areaToBeImagedNoteTypeId": "NoteType-AreaToBeImaged",
+        "dischargeNoteTypeId": "NoteType-Discharge",
+        "handoverNoteTypeId": "NoteType-Handover",
+        "systemNoteTypeId": "NoteType-System",
+        "otherNoteTypeId": "NoteType-Other",
+      },
       "imagingPriorities": [
         {
           "value": "routine",

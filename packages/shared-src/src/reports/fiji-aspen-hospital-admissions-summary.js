@@ -110,7 +110,7 @@ with
       left join admission_data a on a.start_date between rm.month and (rm.month + interval '1' month - interval '1' day)
       left join note_pages np on a.id = np.record_id
       left join note_items ni on np.id = ni.note_page_id
-    where np.note_type = 'system' and ni.content like 'Changed department%'
+    where np.note_type = '${config?.localisation?.data?.noteTypeIds?.systemNoteTypeId}' and ni.content like 'Changed department%'
     group by rm.month, a.facility_name
   ),
   available_beds as (
@@ -133,7 +133,7 @@ with
           when p_days.month > (current_date - interval '1' month) then current_date - p_days.month
           else (p_days.month + interval '1' month )::date - p_days.month
         end
-        )*100, 2) bed_occupancy    
+        )*100, 2) bed_occupancy
     from
       patient_days p_days
       left join available_beds ab on p_days.facility_name = ab.facility_name

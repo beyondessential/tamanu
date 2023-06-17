@@ -1,13 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { isAfter } from 'date-fns';
 
-import { NOTE_TYPES } from 'shared/constants';
-
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { noteTypes, Colors } from '../constants';
+import { Colors } from '../constants';
+import { useLocalisation } from '../contexts/Localisation';
+import { useNoteTypes } from '../contexts/NoteTypes';
 import { groupRootNoteItems } from '../utils/groupRootNoteItems';
 import { NotePageModal } from './NotePageModal';
 import { withPermissionCheck } from './withPermissionCheck';
@@ -68,7 +68,6 @@ const getDate = ({ noteItems }) => {
   );
   return <DateDisplay date={rootNoteItems[0]?.date} showTime />;
 };
-const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
 const getContent = ({ noteItems }) => {
   const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) =>
     isAfter(new Date(n2.date), new Date(n1.date)) ? 1 : -1,
@@ -80,29 +79,24 @@ const getContent = ({ noteItems }) => {
   );
 };
 
-const COLUMNS = [
-  {
-    key: 'date',
-    title: 'Date',
-    accessor: getDate,
-    sortable: false,
-  },
-  { key: 'noteType', title: 'Type', accessor: getTypeLabel, sortable: false },
-  { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent, sortable: false },
-];
-
 const NotePageTable = ({ encounterId, hasPermission }) => {
+  const { getLocalisation } = useLocalisation();
+  const { noteTypes } = useNoteTypes();
+  const configurationNoteTypeIds = getLocalisation('noteTypeIds');
+  const { treatmentPlanNoteTypeId, systemNoteTypeId } = configurationNoteTypeIds;
+
   const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [refreshCount, setRefreshCount] = useState(0);
   const [notePage, setNotePage] = useState(null);
+
   const handleRowClick = useCallback(
     data => {
       if (!hasPermission) {
         return;
       }
 
-      if (data.noteType === NOTE_TYPES.SYSTEM) {
+      if (data.noteType === systemNoteTypeId) {
         return;
       }
 
@@ -110,19 +104,42 @@ const NotePageTable = ({ encounterId, hasPermission }) => {
       setNotePageModalOpen(true);
       setNotePage(data);
     },
-    [hasPermission, setNotePageModalOpen, setNotePage],
+    [systemNoteTypeId, getTypeLabel, hasPermission, setNotePageModalOpen, setNotePage],
   );
-  const sortNotes = useCallback(notes => {
-    // The sorting rule for Notes is to pin the Treatment Plans to the top
-    // And sort everything chronologically
-    const treatmentPlanNotes = notes
-      .filter(n => n.noteType === 'treatmentPlan')
-      .sort((n1, n2) => n2.date.localeCompare(n1.date));
-    const otherNotes = notes
-      .filter(n => n.noteType !== 'treatmentPlan')
-      .sort((n1, n2) => n2.date.localeCompare(n1.date));
-    return [...treatmentPlanNotes, ...otherNotes];
-  }, []);
+
+  const getTypeLabel = useCallback(
+    ({ noteType }) => noteTypes.find(x => x.value === noteType).label,
+    [noteTypes],
+  );
+
+  const sortNotes = useCallback(
+    notes => {
+      // The sorting rule for Notes is to pin the Treatment Plans to the top
+      // And sort everything chronologically
+      const treatmentPlanNotes = notes
+        .filter(n => n.noteType === treatmentPlanNoteTypeId)
+        .sort((n1, n2) => n2.date.localeCompare(n1.date));
+      const otherNotes = notes
+        .filter(n => n.noteType !== treatmentPlanNoteTypeId)
+        .sort((n1, n2) => n2.date.localeCompare(n1.date));
+      return [...treatmentPlanNotes, ...otherNotes];
+    },
+    [treatmentPlanNoteTypeId],
+  );
+
+  const COLUMNS = useMemo(
+    () => [
+      {
+        key: 'date',
+        title: 'Date',
+        accessor: getDate,
+        sortable: false,
+      },
+      { key: 'noteType', title: 'Type', accessor: getTypeLabel, sortable: false },
+      { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent, sortable: false },
+    ],
+    [getTypeLabel],
+  );
 
   return (
     <>

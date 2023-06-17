@@ -65,6 +65,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'xRayImagingArea',
   'vaccineNotGivenReason',
   'vaccineCircumstance',
+  'noteType',
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
@@ -112,6 +113,7 @@ export const REFERENCE_TYPES = {
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   SPECIMEN_TYPE: 'specimenType',
+  NOTE_TYPE: 'noteType',
   ...IMAGING_AREA_TYPES,
 };
 

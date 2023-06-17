@@ -14,7 +14,6 @@ import {
   FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
 } from '../../../constants';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
@@ -275,7 +274,8 @@ function labAnnotations(upstream) {
 
 function imagingAnnotations(upstream) {
   // See EPI-451: imaging requests can embed notes about the area to image
-  return getNotePagesWithType(upstream.notePages, NOTE_TYPES.OTHER).map(
+  const otherNoteTypeId = config.localisation.data.noteTypeIds?.otherNoteTypeId;
+  return getNotePagesWithType(upstream.notePages, otherNoteTypeId).map(
     np =>
       new FhirAnnotation({
         time: formatFhirDate(np.date),

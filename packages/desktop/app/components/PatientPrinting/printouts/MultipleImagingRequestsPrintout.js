@@ -1,11 +1,10 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { NOTE_TYPES } from 'shared/constants';
-
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
+import { useLocalisation } from '../../../contexts/Localisation';
 import { PRINTOUT_COLUMNS } from '../modals/multipleImagingRequestsColumns';
 
 import { Divider } from './reusable/Divider';
@@ -17,6 +16,8 @@ import { NotesPagesSection } from './reusable/NotesPagesSection';
 import { DateFacilitySection } from './reusable/DateFacilitySection';
 
 export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) => {
+  const { getLocalisation } = useLocalisation();
+  const systemNoteTypeId = getLocalisation('noteTypeIds.systemNoteTypeId');
   const { title, subTitle, logo } = useCertificate();
   const api = useApi();
   const { data: patient, isLoading: isPatientLoading } = useQuery(
@@ -42,7 +43,7 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
   }
   const idsAndNotePages = imagingRequests.map(ir => [
     ir.displayId,
-    ir.notePages.filter(np => np.noteType === NOTE_TYPES.OTHER),
+    ir.notePages.filter(np => np.noteType === systemNoteTypeId),
   ]);
   return (
     <CertificateWrapper>

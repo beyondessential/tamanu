@@ -4,7 +4,6 @@ import asyncHandler from 'express-async-handler';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { Op, literal } from 'sequelize';
 import {
-  NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -144,6 +143,7 @@ imagingRequest.put(
       params: { id },
       user,
       body: { areas, note, areaNote, newResult, ...imagingRequestData },
+      getLocalisation,
     } = req;
     req.checkPermission('read', 'ImagingRequest');
 
@@ -163,8 +163,14 @@ imagingRequest.put(
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
-    const otherNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const localisation = await getLocalisation();
+    const { noteTypeIds } = localisation.data;
+
+    const otherNotePage = getNotePageWithType(relatedNotePages, noteTypeIds?.otherNoteTypeId);
+    const areaNotePage = getNotePageWithType(
+      relatedNotePages,
+      noteTypeIds?.areaToBeImagedNoteTypeId,
+    );
 
     const notes = {
       note: '',
@@ -180,7 +186,7 @@ imagingRequest.put(
         notes.note = otherNoteItem.content;
       } else {
         const notePage = await imagingRequestObject.createNotePage({
-          noteType: NOTE_TYPES.OTHER,
+          noteType: noteTypeIds?.otherNoteTypeId,
         });
         const noteItem = await notePage.createNoteItem({
           content: note,
@@ -199,7 +205,7 @@ imagingRequest.put(
         notes.areaNote = areaNoteItem?.content || '';
       } else {
         const notePage = await imagingRequestObject.createNotePage({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteType: noteTypeIds?.areaToBeImagedNoteTypeId,
         });
         const noteItem = await notePage.createNoteItem({
           content: areaNote,
@@ -237,6 +243,7 @@ imagingRequest.post(
       models: { ImagingRequest },
       user,
       body: { areas, note, areaNote, ...imagingRequestData },
+      getLocalisation,
     } = req;
     req.checkPermission('create', 'ImagingRequest');
 
@@ -245,6 +252,10 @@ imagingRequest.post(
       note: '',
       areaNote: '',
     };
+
+    const localisation = await getLocalisation();
+    const { noteTypeIds } = localisation.data;
+
     await ImagingRequest.sequelize.transaction(async () => {
       newImagingRequest = await ImagingRequest.create(imagingRequestData);
 
@@ -255,7 +266,7 @@ imagingRequest.post(
 
       if (note) {
         const notePage = await newImagingRequest.createNotePage({
-          noteType: NOTE_TYPES.OTHER,
+          noteType: noteTypeIds?.otherNoteTypeId,
         });
         const noteItem = await notePage.createNoteItem({
           content: note,
@@ -266,7 +277,7 @@ imagingRequest.post(
 
       if (areaNote) {
         const notePage = await newImagingRequest.createNotePage({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteType: noteTypeIds?.areaToBeImagedNoteTypeId,
         });
         const noteItem = await notePage.createNoteItem({
           content: areaNote,

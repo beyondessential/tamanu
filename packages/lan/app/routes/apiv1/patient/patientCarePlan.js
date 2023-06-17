@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NOTE_TYPES, NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 
 import { simpleGet, simplePut } from '../crudHelpers';
@@ -14,14 +14,17 @@ patientCarePlan.post(
   asyncHandler(async (req, res) => {
     const {
       models: { PatientCarePlan },
+      getLocalisation,
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
     if (!req.body.content) {
       throw new InvalidParameterError('Content is a required field');
     }
+    const localisation = await getLocalisation();
+
     const newCarePlan = await PatientCarePlan.create(req.body);
     const notePage = await newCarePlan.createNotePage({
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      noteType: localisation.data?.noteTypeIds?.treatmentPlanNoteTypeId,
     });
     await notePage.createNoteItem({
       date: req.body.date,
@@ -37,8 +40,10 @@ patientCarePlan.post(
 patientCarePlan.get(
   '/:id/notes',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, getLocalisation } = req;
     req.checkPermission('read', 'PatientCarePlan');
+
+    const localisation = await getLocalisation();
 
     const notePages = await models.NotePage.findAll({
       include: [
@@ -54,7 +59,7 @@ patientCarePlan.get(
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
+        noteType: localisation.data?.noteTypeIds?.treatmentPlanNoteTypeId,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       // TODO add test to verify this order
@@ -71,13 +76,16 @@ patientCarePlan.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientCarePlan');
 
-    const { models } = req;
+    const { models, getLocalisation } = req;
+
+    const localisation = await getLocalisation();
+    const treatmentPlanNoteTypeId = localisation.data?.noteTypeIds?.treatmentPlanNoteTypeId;
 
     const newNotePage = await req.models.NotePage.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      noteType: treatmentPlanNoteTypeId,
     });
 
     await req.models.NoteItem.create({

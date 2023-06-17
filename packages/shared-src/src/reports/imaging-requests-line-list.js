@@ -1,3 +1,4 @@
+import config from 'config';
 import { subDays } from 'date-fns';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { IMAGING_REQUEST_STATUS_CONFIG } from '../constants';
@@ -60,10 +61,10 @@ const reportColumnTemplate = FIELDS.map(field => {
 });
 
 const query = `
-select 
+select
   p.display_id as "Patient ID",
   p.first_name as "Patient first name" ,
-  p.last_name as "Patient last name", 
+  p.last_name as "Patient last name",
   to_char(p.date_of_birth ::timestamp::date, 'DD/MM/YYYY') as "DOB",
   date_part('year', age(p.date_of_birth::date)) as "Age",
   p.sex as "Sex",
@@ -97,7 +98,7 @@ from
   left join departments d on d.id = e.department_id
   left join users u_supervising on u_supervising.id=e.examiner_id
   left join users u_requesting on u_requesting.id=ir.requested_by_id
-  left join note_pages np on np.record_id = ir.id and np.note_type = 'areaToBeImaged'
+  left join note_pages np on np.record_id = ir.id and np.note_type = '${config?.localisation?.data?.noteTypeIds?.areaToBeImagedNoteTypeId}'
   left join note_items ni on np.id = ni.note_page_id
   left join imaging_request_areas ira on ira.imaging_request_id = ir.id
   left join reference_data rdi on rdi.id = ira.area_id
