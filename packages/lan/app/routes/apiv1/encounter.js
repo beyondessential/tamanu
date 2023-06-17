@@ -387,7 +387,7 @@ encounterRelations.get(
         SELECT
           JSONB_BUILD_OBJECT(
             'dataElementId', answer.data_element_id,
-            'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('body', answer.body, 'logs', history.logs))
+            'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
           ) result
         FROM
           survey_response_answers answer

@@ -45,6 +45,7 @@ export const useVitals = encounterId => {
           (state, date) => ({
             ...state,
             [date]: {
+              answerId: records[date]?.id,
               value: records[date]?.body,
               historyLogs: records[date]?.logs,
               ...configs,

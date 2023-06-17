@@ -1056,6 +1056,7 @@ describe('Encounter', () => {
                 dataElementId: key,
                 records: {
                   [submissionDate]: expect.objectContaining({
+                    id: expect.any(String),
                     body: value.toString(),
                     logs: null,
                   }),
