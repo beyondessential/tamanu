@@ -398,7 +398,7 @@ encounterRelations.get(
           history
         ON history.answer_id = answer.id
         GROUP BY answer.data_element_id
-        `,
+      `,
       {
         replacements: {
           encounterId,
