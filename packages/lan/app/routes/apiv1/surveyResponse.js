@@ -144,12 +144,15 @@ surveyResponse.put(
     if (!answerObject) throw new NotFoundError();
 
     await db.transaction(async () => {
+      const { previousValue = '', newValue = '', reasonForChange } = req.body;
       await VitalLog.create({
-        ...req.body,
+        reasonForChange,
+        previousValue,
+        newValue,
         recordedById: user.id,
         answerId: id,
       });
-      await answerObject.update({ body: req.body.newValue });
+      await answerObject.update({ body: newValue });
     });
 
     res.send(answerObject);
