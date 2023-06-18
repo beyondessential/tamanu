@@ -1,8 +1,8 @@
 import { Command } from 'commander';
+import { promises as fs } from 'fs';
 import { initDatabase } from '../../database';
 import * as importUtils from './utils';
 import * as importActions from './actions';
-import { promises as fs } from 'fs';
 
 export async function importReport(options) {
   const store = await initDatabase({ testMode: false });

@@ -18,8 +18,8 @@ const baseVersionData = {
   query: "test-query", 
   queryOptions: {
     parameters: [ 
-        {
-           parameterField: "TestField", 
+      {
+        parameterField: "TestField", 
         name: "test" 
       }
     ],

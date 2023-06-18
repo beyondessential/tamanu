@@ -20,26 +20,21 @@ export async function createVersion(versionData, definition, versions, store, ve
   const { ReportDefinitionVersion } = store.models;
 
   log.info('Analyzing query');
-  await verifyQuery(
-    versionData.query,
-    versionData.queryOptions?.parameters,
-    store,
-    verbose,
-  );
+  await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store, verbose);
   log.info('Query is valid');
 
+  let { id, versionNumber } = versionData;
   if (Number.isInteger(versionData.versionNumber)) {
     const existingVersion = versions.find(v => v.versionNumber === versionData.versionNumber);
     if (!existingVersion) {
       throw getVersionError(versionData);
     }
     log.warn(`Version ${versionData.versionNumber} already exists, ${OVERWRITING_TEXT}`);
-    versionData.id = existingVersion.id;
+    id = existingVersion.id;
   } else {
     const latestVersion = getLatestVersion(versions);
-    const versionNumber = (latestVersion?.versionNumber || 0) + 1;
+    versionNumber = (latestVersion?.versionNumber || 0) + 1;
     log.info(`Auto incrementing versionNumber to ${versionNumber}`);
-    versionData.versionNumber = versionNumber;
   }
 
   let { userId } = versionData;
@@ -53,9 +48,11 @@ export async function createVersion(versionData, definition, versions, store, ve
   }
 
   const [version] = await ReportDefinitionVersion.upsert({
-    reportDefinitionId: definition.id,
-    userId,
     ...versionData,
+    id,
+    versionNumber,
+    userId,
+    reportDefinitionId: definition.id,
   });
 
   const created = !versionData.id;
@@ -77,7 +74,7 @@ export async function listVersions(definition, versions) {
     return;
   }
   const activeVersion = getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
-  
+
   const table = new Table({
     head: ['Version', 'Status', 'Updated'],
   });
