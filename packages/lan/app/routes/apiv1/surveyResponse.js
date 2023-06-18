@@ -158,10 +158,10 @@ surveyResponse.put(
     const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
 
     await db.transaction(async () => {
-      const { previousValue = '', newValue = '', reasonForChange } = req.body;
+      const { newValue = '', reasonForChange } = req.body;
       await VitalLog.create({
         reasonForChange,
-        previousValue,
+        previousValue: answerObject.body,
         newValue,
         recordedById: user.id,
         answerId: id,
