@@ -149,7 +149,7 @@ surveyResponse.put(
         recordedById: user.id,
         answerId: id,
       });
-      await answerObject.update({ body: req.body.newValue }, user);
+      await answerObject.update({ body: req.body.newValue });
     });
 
     res.send(answerObject);
