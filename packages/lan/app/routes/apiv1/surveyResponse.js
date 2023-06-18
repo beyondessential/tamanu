@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 
 export const surveyResponse = express.Router();
 
@@ -137,7 +137,7 @@ surveyResponse.put(
         {
           required: true,
           model: ProgramDataElement,
-          where: { type: { [Op.not]: 'CalculatedQuestion' } },
+          where: { type: { [Op.not]: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED } },
         },
       ],
     });
