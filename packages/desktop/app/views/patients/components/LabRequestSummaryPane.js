@@ -84,8 +84,8 @@ const getColumns = type => [
     key: 'sampleDate',
     title: 'Sample date',
     sortable: false,
-    accessor: ({ sampleDate }) =>
-      sampleDate ? <DateDisplay date={sampleDate} /> : 'Sample not collected',
+    accessor: ({ sampleTime }) =>
+      sampleTime ? <DateDisplay showTime date={sampleTime} /> : 'Sample not collected',
   },
 ];
 
@@ -109,7 +109,7 @@ export const LabRequestSummaryPane = React.memo(
     return (
       <Container>
         <Heading3 mb="12px">Request finalised</Heading3>
-        <BodyText width="600px" mb="28px" color="textTertiary">
+        <BodyText mb="28px" color="textTertiary">
           Your lab request has been finalised. Please select items from the list below to print
           requests or sample labels.
         </BodyText>
@@ -117,11 +117,11 @@ export const LabRequestSummaryPane = React.memo(
           <StyledInfoCard gridRowGap={10} elevated={false}>
             <InfoCardItem label="Requesting clinician" value={requestedBy?.displayName} />
             <InfoCardItem
-              label="Requested date & time"
+              label="Request date & time"
               value={<DateDisplay date={requestedDate} showTime />}
             />
             <InfoCardItem label="Department" value={department?.name} />
-            <InfoCardItem label="Priority" value={priority?.name} />
+            <InfoCardItem label="Priority" value={priority ? priority.name : '-'} />
           </StyledInfoCard>
           <CardTable
             headerColor={Colors.white}
