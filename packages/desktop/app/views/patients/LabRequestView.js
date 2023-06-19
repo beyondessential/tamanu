@@ -17,7 +17,6 @@ import {
   DateDisplay,
   OutlinedButton,
   TileTag,
-  SmallBodyText,
   MODAL_TRANSITION_DURATION,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -189,12 +188,6 @@ export const LabRequestView = () => {
           main={
             <>
               <DateDisplay date={labRequest.sampleTime} showTime />
-              <Box display="flex" alignItem="center">
-                <SmallBodyText style={{ marginRight: 3 }} color="textTertiary">
-                  Site:
-                </SmallBodyText>
-                <SmallBodyText>{labRequest?.site?.name || '-'}</SmallBodyText>
-              </Box>
             </>
           }
           actions={{
