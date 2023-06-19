@@ -185,7 +185,7 @@ class BaseAutocomplete extends Component {
       if (await this.attemptAutoFill({ suggestions: searchSuggestions })) return;
     }
 
-    // empty formValue means the user has not selected any option for this field
+    // presence of formValue means the user has selected an option for this field
     const fieldClickedWithOptionSelected = reason === 'input-focused' && !!formValue;
 
     // This will show the full suggestions list (or at least the first page) if the user
