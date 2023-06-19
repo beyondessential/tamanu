@@ -1,3 +1,4 @@
+// TODO: Will use localisation in the next ticket
 export const DEFAULT_Y_AXIS_CONFIGS = {
   'Temperature (°C)': {
     graphRange: {
@@ -32,33 +33,7 @@ export const DEFAULT_Y_AXIS_CONFIGS = {
     interval: 5,
   },
 };
-// const exampleData = {
-//   value: 'SBP (mm Hg)',
-//   validationCriteria: {
-//     min: 0,
-//     max: 300,
-//     normalRange: {
-//       min: 90,
-//       max: 120,
-//     },
-//   },
-//   config: {
-//     unit: 'mm Hg',
-//   },
-//   '2022-11-29 10:09:59': {
-//     validationCriteria: {
-//       min: 0,
-//       max: 300,
-//       normalRange: {
-//         min: 90,
-//         max: 120,
-//       },
-//     },
-//     config: {
-//       unit: 'mm Hg',
-//     },
-//   },
-// };
+
 export const getChartDataFromVitalData = (data, chartKey) => {
   if (!data) {
     return {
@@ -82,16 +57,6 @@ export const getChartDataFromVitalData = (data, chartKey) => {
       chartConfigs[key] = dt;
     }
   });
-
-  // const { validationCriteria } = chartConfigs;
-  // const yAxisConfigs = {
-  //   graphRange: {
-  //     min: validationCriteria.min || validationCriteria.normalRange.min,
-  //     max: validationCriteria.max || validationCriteria.normalRange.max,
-  //   },
-  //   normalRange: validationCriteria.normalRange,
-  //   interval: chartConfigs.interval,
-  // };
 
   const yAxisConfigs = DEFAULT_Y_AXIS_CONFIGS[data.value];
 
