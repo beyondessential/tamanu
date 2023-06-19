@@ -201,7 +201,11 @@ surveyResponse.put(
         );
         if (!calculatedAnswer) continue;
 
-        const newCalculatedValue = getStringValue(calculatedValues[component.dataElement.id]) ?? '';
+        const stringValue = getStringValue(
+          component.dataElement.type,
+          calculatedValues[component.dataElement.id],
+        );
+        const newCalculatedValue = stringValue ?? '';
         await VitalLog.create({
           reasonForChange,
           previousValue: calculatedAnswer.body,
