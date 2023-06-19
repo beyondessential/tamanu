@@ -1,7 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { isAfter, isBefore, parse } from 'date-fns';
-import { toDateString, toDateTimeString, format as formatDate } from 'shared/utils/dateTime';
+import {
+  toDateString,
+  toDateTimeString,
+  format as formatDate,
+} from '@tamanu/shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 import { Colors } from '../../constants';
