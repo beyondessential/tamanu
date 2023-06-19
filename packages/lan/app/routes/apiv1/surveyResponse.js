@@ -188,7 +188,10 @@ surveyResponse.put(
             ],
           });
           answers = response.answers;
-          const values = answers.map(answer => ({ [answer.dataElementId]: answer.body }));
+          const values = {};
+          answers.forEach(answer => {
+            values[answer.dataElementId] = answer.body;
+          });
           calculatedValues = runCalculations(screenComponents, values);
         }
 
