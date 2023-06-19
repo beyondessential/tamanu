@@ -25,31 +25,14 @@ export const VitalChartDataProvider = ({ children }) => {
   const { encounter } = useEncounter();
 
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id, startDate, endDate);
+  const dataString = JSON.stringify(data);
 
   useEffect(() => {
-    const newMeasureData = data.find(d => d.value === chartKey);
-    if (newMeasureData) {
-      const { chartData, yAxisConfigs } = getChartDataFromVitalData(newMeasureData);
-      setMeasureData({ data: chartData, yAxisConfigs });
-    } else {
-      // TODO: handle empty data
-      setMeasureData({
-        data: [],
-        yAxisConfigs: {
-          graphRange: {
-            min: 0,
-            max: 20,
-          },
-          normalRange: {
-            min: 0,
-            max: 20,
-          },
-          interval: 2,
-        },
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartKey, encounter.id, startDate, endDate]);
+    const dataArray = JSON.parse(dataString);
+    const newMeasureData = dataArray.find(d => d.value === chartKey);
+    const { chartData, yAxisConfigs } = getChartDataFromVitalData(newMeasureData);
+    setMeasureData({ data: chartData, yAxisConfigs });
+  }, [chartKey, startDate, endDate, dataString]);
 
   return (
     <VitalChartDataContext.Provider
