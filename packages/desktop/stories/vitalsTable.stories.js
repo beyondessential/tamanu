@@ -464,7 +464,7 @@ storiesOf('Vitals', module)
     </MockedApi>
   ))
   .add('Vitals Table', () => {
-    const { vitalChartModalOpen, setVitalChartModalOpen, measureData } = useVitalChartData();
+    const { vitalChartModalOpen, setVitalChartModalOpen, chartData } = useVitalChartData();
 
     return (
       <>
@@ -475,7 +475,7 @@ storiesOf('Vitals', module)
             setVitalChartModalOpen(false);
           }}
         >
-          <LineChart measureData={measureData} />
+          <LineChart chartData={chartData} />
         </Modal>
         <VitalsTable />
       </>

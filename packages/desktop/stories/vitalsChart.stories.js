@@ -69,7 +69,7 @@ storiesOf('Vitals', module)
     return (
       <Modal title="Vital Chart" open width="lg">
         <LineChart
-          measureData={{ data, yAxisConfigs }}
+          chartData={{ data, yAxisConfigs }}
           startDate={format(addDays(new Date(), -2), 'yyyy-MM-dd HH:mm:ss')}
           endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
         />

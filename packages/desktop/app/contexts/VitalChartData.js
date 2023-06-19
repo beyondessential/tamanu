@@ -4,8 +4,8 @@ import { useEncounter } from './Encounter';
 import { useVitals } from '../api/queries/useVitals';
 
 export const VitalChartDataContext = React.createContext({
-  measureData: { data: [], yAxisConfigs: {} },
-  setMeasureData: () => {},
+  chartData: { data: [], yAxisConfigs: {} },
+  setChartData: () => {},
   vitalChartModalOpen: false,
   setVitalChartModalOpen: () => {},
   chartKey: 'Vital Chart',
@@ -17,7 +17,7 @@ export const VitalChartDataContext = React.createContext({
 export const useVitalChartData = () => useContext(VitalChartDataContext);
 
 export const VitalChartDataProvider = ({ children }) => {
-  const [measureData, setMeasureData] = useState({ data: [], yAxisConfigs: {} });
+  const [chartData, setChartData] = useState({ data: [], yAxisConfigs: {} });
   const [chartKey, setChartKey] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -29,16 +29,16 @@ export const VitalChartDataProvider = ({ children }) => {
 
   useEffect(() => {
     const dataArray = JSON.parse(dataString);
-    const newMeasureData = dataArray.find(d => d.value === chartKey);
-    const { chartData, yAxisConfigs } = getChartDataFromVitalData(newMeasureData, chartKey);
-    setMeasureData({ data: chartData, yAxisConfigs });
+    const newRawChartData = dataArray.find(d => d.value === chartKey);
+    const { chartData, yAxisConfigs } = getChartDataFromVitalData(newRawChartData, chartKey);
+    setChartData({ data: chartData, yAxisConfigs });
   }, [chartKey, startDate, endDate, dataString]);
 
   return (
     <VitalChartDataContext.Provider
       value={{
-        measureData,
-        setMeasureData,
+        chartData,
+        setChartData,
         vitalChartModalOpen,
         setVitalChartModalOpen,
         chartKey,
