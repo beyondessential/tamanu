@@ -182,9 +182,7 @@ class BaseAutocomplete extends Component {
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
     if (value === '') {
-      if (await this.attemptAutoFill({ suggestions: searchSuggestions })) {
-        return;
-      }
+      if (await this.attemptAutoFill({ suggestions: searchSuggestions })) return;
     }
 
     // empty formValue means the user has not selected any option for this field
