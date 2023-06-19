@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { toCountryDateString } from 'shared/utils/dateTime';
+import { toCountryDateString } from '@tamanu/shared/utils/dateTime';
 import { addDays, format, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
