@@ -451,15 +451,15 @@ storiesOf('Vitals', module)
   .addDecorator(Story => (
     <MockedApi endpoints={endpoints}>
       <Container>
-        <VitalChartDataProvider>
-          <EncounterContext.Provider
-            value={{
-              encounter: { id: 'test_id' },
-            }}
-          >
+        <EncounterContext.Provider
+          value={{
+            encounter: { id: 'encounter_id' },
+          }}
+        >
+          <VitalChartDataProvider>
             <Story />
-          </EncounterContext.Provider>
-        </VitalChartDataProvider>
+          </VitalChartDataProvider>
+        </EncounterContext.Provider>
       </Container>
     </MockedApi>
   ))
