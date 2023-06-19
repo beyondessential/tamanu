@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HandoverNotesPDF } from 'shared/utils/handoverNotes';
-import { getDisplayDate } from 'shared/utils/patientCertificates/getDisplayDate';
+import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
+import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';

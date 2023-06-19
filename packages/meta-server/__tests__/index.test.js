@@ -1,4 +1,3 @@
-
 import supertest from 'supertest';
 import { createApp } from '../app/createApp';
 
@@ -6,7 +5,6 @@ const app = createApp();
 const testApp = supertest(app);
 
 describe('Meta server', () => {
-
   it('should list active sync servers', async () => {
     const response = await testApp.get('/servers');
     expect(response.statusCode).toEqual(200);
@@ -27,5 +25,4 @@ describe('Meta server', () => {
       expect(response.body).toHaveProperty('version');
     });
   });
-
 });
