@@ -12,7 +12,6 @@ import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
-import { VitalChartDataProvider } from './contexts/VitalChartData';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
@@ -26,9 +25,7 @@ const StateContextProviders = ({ children, store }) => (
       <ImagingRequestsProvider>
         <LabRequestProvider store={store}>
           <PatientSearchProvider>
-            <VitalChartDataProvider>
-              <LocalisationProvider store={store}>{children}</LocalisationProvider>
-            </VitalChartDataProvider>
+            <LocalisationProvider store={store}>{children}</LocalisationProvider>
           </PatientSearchProvider>
         </LabRequestProvider>
       </ImagingRequestsProvider>
