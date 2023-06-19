@@ -53,6 +53,7 @@ const StyledField = styled(Field)`
 
 const HEADERS = ['Category', 'Date & time collected', 'Collected by', 'Specimen type', 'Site'];
 const WITH_PANELS_HEADERS = ['Panel', ...HEADERS];
+export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';
 
 export const SampleDetailsField = ({
   initialSamples,
@@ -121,7 +122,7 @@ export const SampleDetailsField = ({
           </Cell>
           <Cell>
             <StyledField
-              name={`sampleTime-${identifier}`}
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${identifier}`}
               component={DateTimeField}
               max={getCurrentDateTimeString()}
               onChange={({ target: { value } }) => {
@@ -135,7 +136,7 @@ export const SampleDetailsField = ({
           </Cell>
           <Cell>
             <StyledField
-              name={`collectedBy-${identifier}`}
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}collectedBy-${identifier}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={practitionerSuggester}
@@ -147,7 +148,7 @@ export const SampleDetailsField = ({
           </Cell>
           <Cell>
             <StyledField
-              name={`specimenType-${identifier}`}
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${identifier}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={specimenTypeSuggester}
@@ -159,7 +160,7 @@ export const SampleDetailsField = ({
           </Cell>
           <Cell>
             <StyledField
-              name={`labSampleSiteSuggester-${identifier}`}
+              name={`${SAMPLE_DETAILS_FIELD_PREFIX}labSampleSiteSuggester-${identifier}`}
               disabled={!isSampleCollected}
               component={AutocompleteField}
               suggester={labSampleSiteSuggester}
