@@ -21,14 +21,13 @@ export const getReportQueryReplacements = async (
   params = {},
   dateRange = REPORT_DEFAULT_DATE_RANGES.ALL_TIME,
 ) => {
-
   const { LocalSystemFact } = context.models;
   const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
 
   const toDate = params.toDate ? new Date(params.toDate) : new Date();
   const fromDate = getStartDate(dateRange, toDate);
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
-  return { 
+  return {
     ...paramDefaults,
     fromDate,
     toDate: new Date(),
