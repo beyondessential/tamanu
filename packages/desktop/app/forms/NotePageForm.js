@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { VISIBILITY_STATUSES } from '@tamanu/shared/constants';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useLocalisation } from '../contexts/Localisation';
@@ -104,7 +105,9 @@ export const NotePageForm = ({
           .filter(x => x.value !== treatmentPlanNoteTypeId)
           .map(x => ({
             ...x,
-            ...((x.value === clinicalMobileNoteTypeId || x.value === systemNoteTypeId) && {
+            ...((x.value === clinicalMobileNoteTypeId ||
+              x.value === systemNoteTypeId ||
+              x.visibilityStatus === VISIBILITY_STATUSES.HISTORICAL) && {
               hideFromDropdown: true,
             }),
           })),

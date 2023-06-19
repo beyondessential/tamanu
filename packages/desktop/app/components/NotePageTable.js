@@ -89,6 +89,11 @@ const NotePageTable = ({ encounterId, hasPermission }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [notePage, setNotePage] = useState(null);
 
+  const getTypeLabel = useCallback(
+    ({ noteType }) => noteTypes.find(x => x.value === noteType).label,
+    [noteTypes],
+  );
+
   const handleRowClick = useCallback(
     data => {
       if (!hasPermission) {
@@ -104,11 +109,6 @@ const NotePageTable = ({ encounterId, hasPermission }) => {
       setNotePage(data);
     },
     [systemNoteTypeId, getTypeLabel, hasPermission, setNotePageModalOpen, setNotePage],
-  );
-
-  const getTypeLabel = useCallback(
-    ({ noteType }) => noteTypes.find(x => x.value === noteType).label,
-    [noteTypes],
   );
 
   const sortNotes = useCallback(

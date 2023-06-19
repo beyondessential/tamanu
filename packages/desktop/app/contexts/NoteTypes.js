@@ -19,7 +19,13 @@ export const NoteTypesProvider = ({ children }) => {
     noteTypeSuggester
       .fetch('/all')
       .then(types => {
-        setNoteTypes(types.map(type => ({ value: type.id, label: type.name })));
+        setNoteTypes(
+          types.map(type => ({
+            value: type.id,
+            label: type.name,
+            visibilityStatus: type.visibilityStatus,
+          })),
+        );
       })
       .catch(error => {
         // error fetching note types
