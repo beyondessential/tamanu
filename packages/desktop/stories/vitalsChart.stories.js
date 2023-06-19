@@ -1,9 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { addHours, format } from 'date-fns';
+import { addHours, addDays, format } from 'date-fns';
 import { Modal } from '../app/components/Modal';
 import { LineChart } from '../app/components/Charts/LineChart';
-import { DateTimeSelector } from '../app/components/Charts/components/DateTimeSelector';
+import { EncounterContext } from '../app/contexts/Encounter';
 
 const getDate = amount => format(addHours(new Date(), amount), 'yyyy-MM-dd HH:mm:ss');
 const data = [
@@ -55,11 +55,24 @@ const yAxisConfigs = {
   interval: 1,
 };
 
-storiesOf('Vitals', module).add('Vital Chart', () => {
-  return (
-    <Modal title="Vital Chart" open width="lg">
-      <DateTimeSelector />
-      <LineChart measureData={{ data, yAxisConfigs }} />
-    </Modal>
-  );
-});
+storiesOf('Vitals', module)
+  .addDecorator(Story => (
+    <EncounterContext.Provider
+      value={{
+        encounter: { id: 'encounter_id' },
+      }}
+    >
+      <Story />
+    </EncounterContext.Provider>
+  ))
+  .add('Vital Chart', () => {
+    return (
+      <Modal title="Vital Chart" open width="lg">
+        <LineChart
+          measureData={{ data, yAxisConfigs }}
+          startDate={format(addDays(new Date(), -2), 'yyyy-MM-dd HH:mm:ss')}
+          endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
+        />
+      </Modal>
+    );
+  });
