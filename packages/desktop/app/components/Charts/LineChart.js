@@ -45,6 +45,7 @@ export const LineChart = props => {
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
+        interval={0}
         tick={<CustomisedTick />}
         dataKey="timestamp"
         tickLine={false}
@@ -60,8 +61,12 @@ export const LineChart = props => {
         tickLine={false}
         allowDataOverflow
       />
-      <ReferenceLine y={yAxisConfigs.normalRange.min} stroke={Colors.alert} />
-      <ReferenceLine y={yAxisConfigs.normalRange.max} stroke={Colors.alert} />
+      {yAxisConfigs.normalRange.min !== yAxisConfigs.graphRange.min && (
+        <ReferenceLine y={yAxisConfigs.normalRange.min} stroke={Colors.alert} />
+      )}
+      {yAxisConfigs.normalRange.max !== yAxisConfigs.graphRange.max && (
+        <ReferenceLine y={yAxisConfigs.normalRange.max} stroke={Colors.alert} />
+      )}
       <ReferenceArea
         shape={shapeProps => (
           <ReferenceBands

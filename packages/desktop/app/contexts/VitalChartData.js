@@ -30,7 +30,7 @@ export const VitalChartDataProvider = ({ children }) => {
   useEffect(() => {
     const dataArray = JSON.parse(dataString);
     const newMeasureData = dataArray.find(d => d.value === chartKey);
-    const { chartData, yAxisConfigs } = getChartDataFromVitalData(newMeasureData);
+    const { chartData, yAxisConfigs } = getChartDataFromVitalData(newMeasureData, chartKey);
     setMeasureData({ data: chartData, yAxisConfigs });
   }, [chartKey, startDate, endDate, dataString]);
 
