@@ -11,6 +11,7 @@ import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
+import { DEFAULT_Y_AXIS_CONFIGS } from '../utils/getChartDataFromVitalData';
 
 const StyledTable = styled(Table)`
   table {
@@ -43,20 +44,23 @@ const IconButton = styled(IconButtonComponent)`
 
 const MeasureCell = React.memo(({ value, data }) => {
   const { setChartKey, setVitalChartModalOpen } = useVitalChartData();
+  const hasVitalChart = Object.keys(DEFAULT_Y_AXIS_CONFIGS).includes(data.value);
 
   return (
     <>
       <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
         {value}
-        <IconButton
-          size="small"
-          onClick={() => {
-            setChartKey(data.value);
-            setVitalChartModalOpen(true);
-          }}
-        >
-          <VitalVectorIcon />
-        </IconButton>
+        {hasVitalChart && (
+          <IconButton
+            size="small"
+            onClick={() => {
+              setChartKey(data.value);
+              setVitalChartModalOpen(true);
+            }}
+          >
+            <VitalVectorIcon />
+          </IconButton>
+        )}
       </Box>
     </>
   );

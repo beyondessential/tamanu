@@ -9,6 +9,7 @@ import { VitalsForm } from '../../../forms';
 import { getActionsFromData, getAnswersFromData } from '../../../utils';
 import { LineChart } from '../../../components/Charts/LineChart';
 import { useVitalChartData } from '../../../contexts/VitalChartData';
+import { DateTimeSelector } from '../../../components/Charts/components/DateTimeSelector';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const queryClient = useQueryClient();
@@ -16,6 +17,8 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
     vitalChartModalOpen,
     setVitalChartModalOpen,
     measureData,
+    setStartDate,
+    setEndDate,
     chartKey,
   } = useVitalChartData();
   const api = useApi();
@@ -50,6 +53,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
           setVitalChartModalOpen(false);
         }}
       >
+        <DateTimeSelector setStartDate={setStartDate} setEndDate={setEndDate} />
         <LineChart measureData={measureData} />
       </Modal>
       <TableButtonRow variant="small">
