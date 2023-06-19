@@ -11,27 +11,17 @@ export const ReferenceBands = props => {
     yAxisConfigs,
   } = props;
 
-  if (
-    !rangesToHighlight ||
-    rangesToHighlight.length === 0 ||
-    !yAxisConfigs.graphRange ||
-    !yAxisConfigs.graphRange.min ||
-    !yAxisConfigs.graphRange.max ||
-    yAxisConfigs.graphRange.min >= yAxisConfigs.graphRange.max ||
-    yAxisConfigs.interval <= 0
-  ) {
-    console.error('Warning: Invalid props for ReferenceBands');
-    return null;
-  }
-
   const totalGaps =
     (yAxisConfigs.graphRange.max - yAxisConfigs.graphRange.min) / yAxisConfigs.interval;
   const heightPerGap = totalHeight / totalGaps;
 
   const bands = rangesToHighlight.map(([start, end]) => {
     const yFromStartOrEnd = start > end ? start : end;
-    const y = startPointY + Math.abs(yAxisConfigs.graphRange.max - yFromStartOrEnd) * heightPerGap;
-    const height = Math.abs(start - end) * heightPerGap;
+    const y =
+      startPointY +
+      (Math.abs(yAxisConfigs.graphRange.max - yFromStartOrEnd) / yAxisConfigs.interval) *
+        heightPerGap;
+    const height = (Math.abs(start - end) / yAxisConfigs.interval) * heightPerGap;
 
     return { y, height };
   });

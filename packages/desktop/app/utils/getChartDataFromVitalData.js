@@ -59,19 +59,11 @@ export const DEFAULT_Y_AXIS_CONFIGS = {
 //     },
 //   },
 // };
-export const getChartDataFromVitalData = data => {
+export const getChartDataFromVitalData = (data, chartKey) => {
   if (!data) {
-    // TODO: return empty chart data
     return {
       chartData: [],
-      yAxisConfigs: {
-        graphRange: {
-          min: 33,
-          max: 41,
-        },
-        normalRange: { min: 35, max: 39 },
-        interval: 1,
-      },
+      yAxisConfigs: DEFAULT_Y_AXIS_CONFIGS[chartKey],
     };
   }
 
@@ -91,7 +83,15 @@ export const getChartDataFromVitalData = data => {
     }
   });
 
-  // TODO:
+  // const { validationCriteria } = chartConfigs;
+  // const yAxisConfigs = {
+  //   graphRange: {
+  //     min: validationCriteria.min || validationCriteria.normalRange.min,
+  //     max: validationCriteria.max || validationCriteria.normalRange.max,
+  //   },
+  //   normalRange: validationCriteria.normalRange,
+  //   interval: chartConfigs.interval,
+  // };
 
   const yAxisConfigs = DEFAULT_Y_AXIS_CONFIGS[data.value];
 

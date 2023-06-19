@@ -6,7 +6,7 @@ export const getXAxisTicks = (startDate, endDate) => {
   // Get ticks for every 4 hours
   let nextTickTimestamp = getTime(new Date(startDate));
   const lastTickTimestamp = getTime(new Date(endDate));
-  while (nextTickTimestamp < lastTickTimestamp) {
+  while (nextTickTimestamp <= lastTickTimestamp) {
     ticks.push(nextTickTimestamp);
     nextTickTimestamp += 4 * 60 * 60 * 1000;
   }
