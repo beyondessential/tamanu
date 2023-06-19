@@ -83,14 +83,7 @@
     "saltRounds": 12,
     "tokenDuration": "1h",
     "reportNoUserError": false,
-    "allowDummyToken": false,
     "useHardcodedPermissions": true,
-    "initialUser": {
-      "email": "admin@tamanu.io",
-      "displayName": "Initial Admin",
-      "role": "admin",
-      "password": "admin"
-    },
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",
@@ -115,8 +108,8 @@
     // limit == run through N per task run
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
     "outpatientDischarger": {
-      // every day at 11 PM
-      "schedule": "0 23 * * *",
+      // every day at 2 AM
+      "schedule": "0 2 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
@@ -248,6 +241,12 @@
       "worker": {
         "enabled": true, // the materialisation worker
         "concurrency": 100
+      },
+      "parameters": {
+        "_count": {
+          "default": 20,
+          "max": 20
+        }
       }
     },
     "omniLab": {
@@ -303,7 +302,8 @@
         },
         "displayId": {
           "shortLabel": "NHN",
-          "longLabel": "National Health Number"
+          "longLabel": "National Health Number",
+          "pattern": "[\\s\\S]*"
         },
         "firstName": {
           "shortLabel": "First name",

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
-import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
+import { CovidLabCertificate, VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
@@ -229,4 +229,3 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
     </PDFViewer>
   );
 });
-

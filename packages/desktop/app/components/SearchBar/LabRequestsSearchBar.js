@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -9,30 +9,18 @@ import {
   Field,
   SuggesterSelectField,
   SearchField,
-  DisplayIdField,
+  DisplayIdSearchField,
   AutocompleteField,
   CheckField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLabRequest, LabRequestSearchParamKeys } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
+import { useAdvancedFields } from './useAdvancedFields';
 
-const useAdvancedFields = (advancedFields, publishedStatus) => {
-  const { searchParameters, setSearchParameters } = useLabRequest(
-    publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
-  );
-
-  // If one of the advanced fields is filled in when landing on the screen,
-  // show the advanced fields section
-  const defaultIsOpen = Object.keys(searchParameters).some(searchKey =>
-    advancedFields.includes(searchKey),
-  );
-  const [showAdvancedFields, setShowAdvancedFields] = useState(defaultIsOpen);
-
-  return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
-};
-
-const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'laboratory', 'priority'];
+const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
+const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
+const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -42,12 +30,15 @@ const FacilityCheckbox = styled.div`
 
 export const LabRequestsSearchBar = ({ status = '' }) => {
   const publishedStatus = status === LAB_REQUEST_STATUSES.PUBLISHED;
-  const {
-    showAdvancedFields,
-    setShowAdvancedFields,
+  const { searchParameters, setSearchParameters } = useLabRequest(
+    publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
+  );
+
+  const advancedFields = publishedStatus ? PUBLISHED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS;
+  const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
+    advancedFields,
     searchParameters,
-    setSearchParameters,
-  } = useAdvancedFields(ADVANCED_FIELDS, publishedStatus);
+  );
   const locationGroupSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: {
@@ -106,7 +97,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
       }
     >
       <>
-        <DisplayIdField useShortLabel />
+        <DisplayIdSearchField useShortLabel />
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
         <Field name="requestId" label="Test ID" component={SearchField} />

@@ -1,6 +1,6 @@
 import React, { useContext, createContext, useState, useCallback } from 'react';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({

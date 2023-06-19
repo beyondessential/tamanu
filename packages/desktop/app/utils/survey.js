@@ -17,8 +17,8 @@ import {
   UnsupportedPhotoField,
   DateTimeField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
-import { ageInYears, ageInMonths, ageInWeeks } from 'shared/utils/dateTime';
+import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (

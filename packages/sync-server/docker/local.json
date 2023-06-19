@@ -5,9 +5,5 @@
     "username": "tamanu-sync",
     "password": "tamanu-sync",
     "migrateOnStartup": true
-  },
-  "initialUser": {
-    "email": "admin@tamanu.io",
-    "password": "admin"
   }
 }
