@@ -29,9 +29,9 @@ export const getReportQueryReplacements = async (
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
   return {
     ...paramDefaults,
-    fromDate,
-    toDate: new Date(),
-    currentFacilityId,
     ...params,
+    currentFacilityId,
+    fromDate,
+    toDate,
   };
 };
