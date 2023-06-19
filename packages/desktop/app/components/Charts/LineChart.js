@@ -30,9 +30,9 @@ const CustomTooltip = ({ payload, label }) => {
 };
 
 export const LineChart = props => {
-  const { measureData, startDate, endDate } = props;
-  const { data: rawData, yAxisConfigs } = measureData;
-  const data = getMeasureData(rawData, yAxisConfigs);
+  const { chartData, startDate, endDate } = props;
+  const { data: rawData, yAxisConfigs } = chartData;
+  const measureData = getMeasureData(rawData, yAxisConfigs);
   const xAxisTicks = getXAxisTicks(startDate, endDate);
   const yAxisTicks = getYAxisTicks(yAxisConfigs);
 
@@ -40,7 +40,7 @@ export const LineChart = props => {
     <LineChartComponent
       width={1056}
       height={500}
-      data={data}
+      data={measureData}
       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
     >
       <CartesianGrid strokeDasharray="3 3" />
