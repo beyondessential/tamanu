@@ -1,10 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { log } from '../services/logging';
-import {
-  NOTE_RECORD_TYPE_VALUES,
-  SYNC_DIRECTIONS,
-  VISIBILITY_STATUSES,
-} from '../constants';
+import { NOTE_RECORD_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
 
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';

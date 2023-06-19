@@ -4,11 +4,7 @@ import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import upperFirst from 'lodash/upperFirst';
 
 import { Location } from '../models/Location';
-import {
-  ENCOUNTER_TYPES,
-  DIAGNOSIS_CERTAINTY,
-  VISIBILITY_STATUSES,
-} from '../constants';
+import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, VISIBILITY_STATUSES } from '../constants';
 import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
