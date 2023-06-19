@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { addDays, endOfDay, format, startOfDay } from 'date-fns';
+import { toCountryDateString } from 'shared/utils/dateTime';
+import { addDays, format, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
 
@@ -81,10 +82,9 @@ export const DateTimeSelector = props => {
           onChange={newValue => {
             const { value: newDate } = newValue.target;
             if (newDate) {
-              // 2023-06-01T14:00:00.000Z
-              const [dateString] = newDate.split('T');
-              formatAndSetStartDate(new Date(startOfDay(dateString)));
-              formatAndSetEndDate(new Date(endOfDay(dateString)));
+              const dateString = toCountryDateString(newDate);
+              formatAndSetStartDate(startOfDay(new Date(dateString)));
+              formatAndSetEndDate(startOfDay(addDays(new Date(dateString), 1)));
             }
           }}
         />
