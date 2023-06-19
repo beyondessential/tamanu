@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce, isEmpty } from 'lodash';
+import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
 
 import { ChevronIcon } from '../Icons/ChevronIcon';
