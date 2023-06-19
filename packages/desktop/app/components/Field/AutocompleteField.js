@@ -103,7 +103,7 @@ export class AutocompleteInput extends Component {
   constructor() {
     super();
     this.anchorEl = React.createRef();
-    this.debouncedFetchOptions = debounce(this.fetchOptions, 100);
+    this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
 
     this.state = {
       suggestions: [],
@@ -165,6 +165,9 @@ export class AutocompleteInput extends Component {
     return label;
   };
 
+  fetchAllOptions = async (suggester, options) =>
+    suggester ? suggester.fetchSuggestions('') : options;
+
   fetchOptions = async ({ value, reason }) => {
     const { suggester, options } = this.props;
 
@@ -177,8 +180,6 @@ export class AutocompleteInput extends Component {
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
-    const genericSuggestions = suggester ? await suggester.fetchSuggestions('') : options;
-
     if (value === '') {
       if (await this.attemptAutoFill({ searchSuggestions })) return;
     }
@@ -189,7 +190,7 @@ export class AutocompleteInput extends Component {
       suggestions:
         reason === 'input-focused' &&
         searchSuggestions.find(x => x.label.toLowerCase() === value.toLowerCase())
-          ? genericSuggestions
+          ? await this.fetchAllOptions(suggester, options)
           : searchSuggestions,
     });
   };
