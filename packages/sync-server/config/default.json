@@ -302,7 +302,8 @@
         },
         "displayId": {
           "shortLabel": "NHN",
-          "longLabel": "National Health Number"
+          "longLabel": "National Health Number",
+          "pattern": "[\\s\\S]*"
         },
         "firstName": {
           "shortLabel": "First name",
