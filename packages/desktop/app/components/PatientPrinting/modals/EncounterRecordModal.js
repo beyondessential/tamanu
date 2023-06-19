@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
-import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants/diagnoses';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/shared/constants/diagnoses';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';

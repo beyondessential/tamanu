@@ -13,9 +13,3 @@ doWithAllPackages((name, pkg) => {
   console.log(`Building ${name}...`);
   execFileSync('yarn', ['workspace', pkg.name, 'run', 'build'], { stdio: 'inherit' });
 });
-
-console.log('Building shared-src...');
-execFileSync('yarn', ['workspace', 'shared-src', 'run', 'build'], { stdio: 'inherit' });
-
-console.log('Running yarn...');
-execFileSync('yarn', ['install', '--frozen-lockfile'], { stdio: 'inherit' });

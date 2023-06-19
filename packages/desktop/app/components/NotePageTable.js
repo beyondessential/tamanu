@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { isAfter } from 'date-fns';
-
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
