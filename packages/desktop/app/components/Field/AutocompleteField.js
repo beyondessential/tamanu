@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
+
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -169,7 +170,7 @@ class BaseAutocomplete extends Component {
     suggester ? suggester.fetchSuggestions('') : options;
 
   fetchOptions = async ({ value, reason }) => {
-    const { suggester, options } = this.props;
+    const { suggester, options, value: formValue } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -181,17 +182,20 @@ class BaseAutocomplete extends Component {
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
     if (value === '') {
-      if (await this.attemptAutoFill({ searchSuggestions })) return;
+      if (await this.attemptAutoFill({ suggestions: searchSuggestions })) {
+        return;
+      }
     }
+
+    // empty formValue means the user has not selected any option for this field
+    const fieldClickedWithOptionSelected = reason === 'input-focused' && !!formValue;
 
     // This will show the full suggestions list (or at least the first page) if the user
     // has either just clicked the input or if the input does not match a value from list
     this.setState({
-      suggestions:
-        reason === 'input-focused' &&
-        searchSuggestions.find(x => x.label.toLowerCase() === value.toLowerCase())
-          ? await this.fetchAllOptions(suggester, options)
-          : searchSuggestions,
+      suggestions: fieldClickedWithOptionSelected
+        ? await this.fetchAllOptions(suggester, options)
+        : searchSuggestions,
     });
   };
 
