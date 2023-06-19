@@ -34,20 +34,17 @@ interface VitalsTableProps {
 */
 const getNormalRangeByAge = (
   validationCriteria: any = {},
-  patient: any
+  { dateOfBirth },
 ): ValidationCriteriaNormalRange | undefined => {
   const { normalRange = {} } = validationCriteria;
-  const patientDateOfBirth = patient?.dateOfBirth;
   if (Array.isArray(normalRange) === false) {
     return normalRange;
   }
 
-  if (!patientDateOfBirth) return undefined;
-
   const age = {
-    years: differenceInYears(new Date(), parseISO(patientDateOfBirth)),
-    months: differenceInMonths(new Date(), parseISO(patientDateOfBirth)),
-    weeks: differenceInWeeks(new Date(), parseISO(patientDateOfBirth)),
+    years: differenceInYears(new Date(), parseISO(dateOfBirth)),
+    months: differenceInMonths(new Date(), parseISO(dateOfBirth)),
+    weeks: differenceInWeeks(new Date(), parseISO(dateOfBirth)),
   };
 
   const normalRangeByAge = normalRange.find(
@@ -66,7 +63,7 @@ const checkNeedsAttention = (
   validationCriteria: SurveyScreenValidationCriteria = {},
   patient: any,
 ): boolean => {
-  const normalRange = getNormalRangeByAge(validationCriteria, patient?.dateOfBirth);
+  const normalRange = getNormalRangeByAge(validationCriteria, patient);
   const fValue = parseFloat(value);
   if (!normalRange || Number.isNaN(fValue)) return false;
   return fValue > normalRange.max || fValue < normalRange.min;
