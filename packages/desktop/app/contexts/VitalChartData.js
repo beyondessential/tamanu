@@ -45,6 +45,8 @@ export const VitalChartDataProvider = ({ children }) => {
         setChartKey,
         setStartDate,
         setEndDate,
+        startDate,
+        endDate,
       }}
     >
       {children}

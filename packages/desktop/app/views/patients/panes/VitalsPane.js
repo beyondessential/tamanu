@@ -20,6 +20,8 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
     setStartDate,
     setEndDate,
     chartKey,
+    startDate,
+    endDate,
   } = useVitalChartData();
   const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
@@ -49,12 +51,13 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
       <Modal
         title={chartKey}
         open={vitalChartModalOpen}
+        width="lg"
         onClose={() => {
           setVitalChartModalOpen(false);
         }}
       >
         <DateTimeSelector setStartDate={setStartDate} setEndDate={setEndDate} />
-        <LineChart measureData={measureData} />
+        <LineChart measureData={measureData} startDate={startDate} endDate={endDate} />
       </Modal>
       <TableButtonRow variant="small">
         <Button onClick={() => setModalOpen(true)} disabled={readonly}>

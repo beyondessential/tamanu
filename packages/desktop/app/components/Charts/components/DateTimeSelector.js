@@ -83,8 +83,8 @@ export const DateTimeSelector = props => {
             if (newDate) {
               // 2023-06-01T14:00:00.000Z
               const [dateString] = newDate.split('T');
-              setStartDate(new Date(startOfDay(dateString)));
-              setEndDate(new Date(endOfDay(dateString)));
+              formatAndSetStartDate(new Date(startOfDay(dateString)));
+              formatAndSetEndDate(new Date(endOfDay(dateString)));
             }
           }}
         />
