@@ -301,10 +301,19 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/vitals',
   asyncHandler(async (req, res) => {
+    const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
+
     const { db, params, query } = req;
     req.checkPermission('list', 'Vitals');
     const encounterId = params.id;
-    const { order = 'DESC' } = query;
+    const { order = 'DESC', startDate, endDate } = query;
+    const startDateQuery = startDate
+      ? `AND TO_TIMESTAMP(body, '${ISO9075_DATE_TIME_FMT}') >= TO_TIMESTAMP(:startDate, '${ISO9075_DATE_TIME_FMT}')`
+      : '';
+    const endDateQuery = endDate
+      ? `AND TO_TIMESTAMP(body, '${ISO9075_DATE_TIME_FMT}') <= TO_TIMESTAMP(:endDate, '${ISO9075_DATE_TIME_FMT}')`
+      : '';
+
     // The LIMIT and OFFSET occur in an unusual place in this query
     // So we can't run it through the generic runPaginatedQuery function
     const countResult = await db.query(
@@ -322,11 +331,15 @@ encounterRelations.get(
           body IS NOT NULL
         AND
           response.encounter_id = :encounterId
+        ${startDateQuery}
+        ${endDateQuery}
       `,
       {
         replacements: {
           encounterId,
           dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+          startDate,
+          endDate,
         },
         type: QueryTypes.SELECT,
       },
@@ -360,48 +373,9 @@ encounterRelations.get(
             body IS NOT NULL
           AND
             response.encounter_id = :encounterId
-          ORDER BY body ${order} LIMIT :limit OFFSET :offset
-        ),
-        history AS (
-          SELECT
-            vl.answer_id,
-            ARRAY_AGG((
-              JSONB_BUILD_OBJECT(
-                'previousValue', vl.previous_value,
-                'reasonForChange', vl.reason_for_change,
-                'date', vl.date,
-                'userDisplayName', u.display_name
-              )
-            )) logs
-          FROM
-            survey_response_answers sra
-          INNER JOIN
-            survey_responses sr
-          ON
-            sr.id = sra.response_id
-          LEFT JOIN
-            vital_logs vl
-          ON
-            vl.answer_id = sra.id
-          LEFT JOIN
-            users u
-          ON
-            u.id = vl.recorded_by_id
-          WHERE
-            sr.encounter_id = :encounterId
-          GROUP BY
-            vl.answer_id
-        )
-
-        SELECT
-          JSONB_BUILD_OBJECT(
-            'dataElementId', answer.data_element_id,
-            'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
-          ) result
-        FROM
-          survey_response_answers answer
-        INNER JOIN
-          date
+          ${startDateQuery}
+          ${endDateQuery}
+          ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
         LEFT JOIN
           history
@@ -414,6 +388,8 @@ encounterRelations.get(
           limit: rowsPerPage,
           offset: page * rowsPerPage,
           dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+          startDate,
+          endDate,
         },
         type: QueryTypes.SELECT,
       },
