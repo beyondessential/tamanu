@@ -170,13 +170,7 @@ class BaseAutocomplete extends Component {
     suggester ? suggester.fetchSuggestions('') : options;
 
   fetchOptions = async ({ value, reason }) => {
-    const {
-      name,
-      suggester,
-      options,
-      value: existingValue,
-      form: { values: formValues = {} } = {},
-    } = this.props;
+    const { suggester, options, value: formValue } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -191,11 +185,8 @@ class BaseAutocomplete extends Component {
       if (await this.attemptAutoFill({ suggestions: searchSuggestions })) return;
     }
 
-    // Presence of formValue or value in formValues object means the user has selected an option for this field.
-    // When AutocompleteInput is not used inside Formik, existingValue should be checked
-    const optionSelected = !!formValues[name] || !!existingValue;
-
-    const fieldClickedWithOptionSelected = reason === 'input-focused' && optionSelected;
+    // presence of formValue means the user has selected an option for this field
+    const fieldClickedWithOptionSelected = reason === 'input-focused' && !!formValue;
 
     // This will show the full suggestions list (or at least the first page) if the user
     // has either just clicked the input or if the input does not match a value from list
