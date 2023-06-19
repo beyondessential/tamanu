@@ -17,7 +17,7 @@ import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 
-const CustomTooltip = ({ payload, label }) => {
+const CustomTooltip = ({ payload }) => {
   if (payload && payload.length) {
     const { value, name, dotColor, description } = payload[0].payload;
 
