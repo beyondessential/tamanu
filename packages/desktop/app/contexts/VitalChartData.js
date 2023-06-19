@@ -24,14 +24,17 @@ export const VitalChartDataProvider = ({ children }) => {
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
   const { encounter } = useEncounter();
 
-  const { data, recordedDates, error, isLoading } = useVitals(encounter.id, startDate, endDate);
+  const { data } = useVitals(encounter.id, startDate, endDate);
   const dataString = JSON.stringify(data);
 
   useEffect(() => {
     const dataArray = JSON.parse(dataString);
     const newRawChartData = dataArray.find(d => d.value === chartKey);
-    const { chartData, yAxisConfigs } = getChartDataFromVitalData(newRawChartData, chartKey);
-    setChartData({ data: chartData, yAxisConfigs });
+    const { chartData: newChartData, yAxisConfigs } = getChartDataFromVitalData(
+      newRawChartData,
+      chartKey,
+    );
+    setChartData({ data: newChartData, yAxisConfigs });
   }, [chartKey, startDate, endDate, dataString]);
 
   return (
