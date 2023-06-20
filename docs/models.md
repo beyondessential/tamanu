@@ -1,6 +1,6 @@
 # Models
 
-Models implementations can be found in: `packages/shared-src/src/models`
+Models implementations can be found in: `packages/shared/src/models`
 
 ### AdministeredVaccine
 
