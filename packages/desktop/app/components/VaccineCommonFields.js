@@ -7,7 +7,7 @@ import {
   INJECTION_SITE_OPTIONS,
   VACCINE_CATEGORY_OPTIONS,
   VACCINE_CATEGORIES,
-} from 'shared/constants';
+} from '@tamanu/shared/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
