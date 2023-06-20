@@ -26,7 +26,7 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
   </Box>
 );
 
-export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
+export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const handleDeleteEntry = useCallback(setFieldValue => {
     setFieldValue('value', '');
@@ -43,7 +43,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
   const initialValue = cell?.value;
   const showDeleteEntryButton = initialValue !== undefined;
   return (
-    <Modal width="sm" title={title} onClose={handleClose} open={cell !== null}>
+    <Modal width="sm" title={title} onClose={handleClose} open={open}>
       <Form
         onSubmit={onConfirm}
         validationSchema={yup.object().shape({
