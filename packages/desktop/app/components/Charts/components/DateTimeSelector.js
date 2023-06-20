@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { toCountryDateString } from '@tamanu/shared/utils/dateTime';
 import { addDays, format, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
@@ -79,10 +78,10 @@ export const DateTimeSelector = props => {
       {value === CUSTOM_DATE && (
         <DateInput
           size="small"
+          saveDateAsString
           onChange={newValue => {
-            const { value: newDate } = newValue.target;
-            if (newDate) {
-              const dateString = toCountryDateString(newDate);
+            const { value: dateString } = newValue.target;
+            if (dateString) {
               formatAndSetStartDate(startOfDay(new Date(dateString)));
               formatAndSetEndDate(startOfDay(addDays(new Date(dateString), 1)));
             }
