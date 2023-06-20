@@ -31,6 +31,8 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
   const date = formatShortest(cell?.recordedDate);
   const time = formatTime(cell?.recordedDate);
   const title = `${vitalLabel} | ${date} | ${time}`;
+  const initialValue = cell?.value;
+  const showDeleteEntryButton = initialValue !== undefined;
   return (
     <Modal width="sm" title={title} onClose={onClose} open={cell !== null}>
       <Form
@@ -38,14 +40,14 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required('Reason for cancellation is mandatory'),
         })}
-        initialValues={{ value: cell?.value }}
+        initialValues={{ value: initialValue }}
         render={({
           // value: formValue,
           submitForm,
         }) => (
           <FormGrid columns={4}>
             <Field component={TextField} label={vitalLabel} name="value" />
-            <DeleteEntryButton />
+            {showDeleteEntryButton && <DeleteEntryButton />}
             <Field
               required
               component={SelectField}
