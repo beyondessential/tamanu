@@ -789,7 +789,25 @@
       // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
-      "disabledReports": []
+      "disabledReports": [],
+      "vitalEditReasons": [
+        {
+          "value": "incorrect-patient",
+          "label": "Incorrent patient"
+        },
+        {
+          "value": "incorrect-value",
+          "label": "Incorrect value recorded"
+        },
+        {
+          "value": "recorded-in-error",
+          "label": "Recorded in error"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
     }
   },
   "reportProcess": {
