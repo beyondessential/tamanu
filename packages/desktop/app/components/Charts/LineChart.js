@@ -1,5 +1,4 @@
 import React from 'react';
-import * as yup from 'yup';
 import {
   CartesianGrid,
   ReferenceArea,
@@ -38,24 +37,9 @@ const CustomTooltip = ({ payload }) => {
   return null;
 };
 
-const visualisationConfigSchema = yup.object().shape({
-  yAxis: yup.object().shape({
-    graphRange: yup.object().shape({
-      min: yup.number().required(),
-      max: yup.number().required(),
-    }),
-    normalRange: yup.object().shape({
-      min: yup.number().required(),
-      max: yup.number().required(),
-    }),
-    interval: yup.number().required(),
-  }),
-});
-
 export const LineChart = props => {
   const { chartData, visualisationConfig, startDate, endDate } = props;
-  const isValidVizConfig = visualisationConfigSchema.isValidSync(visualisationConfig);
-  if (!isValidVizConfig) {
+  if (!visualisationConfig.hasVitalChart) {
     return null;
   }
 
