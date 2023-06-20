@@ -105,9 +105,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: 'Admit to hospital',
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
-      condition: () =>
-        isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION) ||
-        encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
+      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
     {
       label: 'Discharge without being seen',
@@ -128,6 +126,12 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       label: 'Discharge',
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      // Duplicate "Admit to hospital" as it should display below "Discharge".
+      label: 'Admit to hospital',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
+      condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
       label: 'Move patient',
