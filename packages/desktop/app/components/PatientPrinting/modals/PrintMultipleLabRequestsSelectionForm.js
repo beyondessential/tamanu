@@ -1,16 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
-import { Table, useSelectableColumn } from '../../Table';
-import { OuterLabelFieldWrapper } from '../../Field';
+import { useSelectableColumn } from '../../Table';
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
+import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -89,19 +89,18 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
       />
-
-      <OuterLabelFieldWrapper label="Select the lab requests you would like to print">
-        <Table
-          headerColor={Colors.white}
-          columns={[selectableColumn, ...COLUMNS]}
-          data={labRequestsData || []}
-          elevated={false}
-          isLoading={isLoading}
-          errorMessage={error?.message}
-          noDataMessage="No lab requests found"
-          allowExport={false}
-        />
-      </OuterLabelFieldWrapper>
+      <PrintMultipleSelectionTable
+        label="Select the lab requests you would like to print"
+        headerColor={Colors.white}
+        columns={[selectableColumn, ...COLUMNS]}
+        data={labRequestsData || []}
+        elevated={false}
+        isLoading={isLoading}
+        errorMessage={error?.message}
+        noDataMessage="No lab requests found"
+        allowExport={false}
+      />
+      <FormDivider />
       <ConfirmCancelRow
         cancelText="Close"
         confirmText="Print"

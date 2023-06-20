@@ -125,7 +125,6 @@ describe('Version compatibility', () => {
         'packages/desktop/app/package.json',
         'packages/sync-server/package.json',
         'packages/lan/package.json',
-        'packages/shared-src/package.json',
         'packages/shared/package.json',
         'packages/meta-server/package.json',
         'packages/scripts/package.json',

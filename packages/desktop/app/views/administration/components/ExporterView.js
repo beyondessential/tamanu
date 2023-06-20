@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
-import { getCurrentCountryTimeZoneDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
@@ -32,14 +32,15 @@ const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
 export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
   const api = useApi();
 
-  // date-fns format that date to a string like "2020-01-01 12:34"
   const onSubmit = useCallback(
     async ({ includedDataTypes }) => {
       const blob = await api.download(`admin/export/${endpoint}`, {
         includedDataTypes,
       });
       saveBlobAs(blob, {
-        defaultFileName: `${title} export ${getCurrentCountryTimeZoneDateTimeString()}.xlsx`,
+        defaultFileName: `${title} export ${getCurrentCountryTimeZoneDateTimeString()
+          .replaceAll(':', '-')
+          .replaceAll('/', '-')}.xlsx`,
       });
     },
     [api, title, endpoint],

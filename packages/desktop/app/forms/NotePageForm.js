@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
@@ -92,6 +92,8 @@ export const NotePageForm = ({
   const { currentUser } = useAuth();
   const { getLocalisation } = useLocalisation();
 
+  const creatingNewNotePage = isEmpty(notePage);
+
   const lastNoteItemRef = useCallback(node => {
     if (node !== null) {
       node.scrollIntoView({ behavior: 'smooth' });
@@ -100,7 +102,7 @@ export const NotePageForm = ({
 
   const renderForm = ({ submitForm }) => (
     <>
-      {!isEmpty(notePage) && (
+      {!creatingNewNotePage && (
         <>
           <StyledFormGrid columns={1}>
             <NoteItemList
@@ -121,8 +123,8 @@ export const NotePageForm = ({
           label="Type"
           required
           component={SelectField}
-          options={getSelectableNoteTypes(noteTypeCountByType)}
-          disabled={!isEmpty(notePage)}
+          options={creatingNewNotePage ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
+          disabled={!creatingNewNotePage}
           formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field

@@ -17,6 +17,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    pattern: yup.string(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
   .required()
@@ -27,6 +28,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    pattern: yup.string(),
   })
   .required()
   .noUnknown();
@@ -136,6 +138,23 @@ const templatesSchema = yup
       .noUnknown(),
 
     vaccineCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
+    covidVaccineCertificateEmail: yup
       .object()
       .shape({
         subject: yup
@@ -424,6 +443,8 @@ const rootLocalisationSchema = yup
           .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
         onlyAllowLabPanels: yup.boolean().required(),
+        displayProcedureCodesInDischargeSummary: yup.boolean().required(),
+        displayIcd10CodesInDischargeSummary: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

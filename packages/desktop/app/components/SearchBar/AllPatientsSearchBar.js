@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
@@ -33,7 +33,7 @@ const VillageLocalisedField = styled(LocalisedField)`
 
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const villageSuggester = useSuggester('village');
-  const sexOptions = useSexOptions(true);
+  const sexOptions = useSexOptions(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (

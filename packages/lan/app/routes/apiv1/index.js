@@ -41,6 +41,7 @@ import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
 import { template } from './template';
+import { vaccinationSettings } from './vaccinationSettings';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -103,6 +104,7 @@ referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
 referenceDataRoutes.use('/template', template);
+referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
 
 // sync endpoints
 syncRoutes.use('/sync', sync);

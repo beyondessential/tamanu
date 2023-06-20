@@ -102,10 +102,11 @@ patientLocations.get(
             FROM encounters
           ) previous_encounters
           ON encounters.patient_id = previous_encounters.patient_id
-          AND encounters.start_date::date > previous_encounters.end_date::date - '30 days'::interval
+          AND encounters.start_date::date - '30 days'::interval < previous_encounters.end_date::date
           LEFT JOIN locations
           ON locations.id = encounters.location_id
           WHERE encounters.end_date IS NULL
+          AND encounters.start_date::date > now() - '30 days'::interval
           AND encounters.encounter_type = 'admission'
           AND previous_encounters.encounter_type = 'admission'
           AND previous_encounter_id IS NOT NULL
