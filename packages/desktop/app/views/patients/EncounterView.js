@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/shared/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
@@ -26,6 +26,7 @@ import {
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
+import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
@@ -124,6 +125,7 @@ export const EncounterView = () => {
   const { facility } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
+  const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
   const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
   const disabled = encounter?.endDate || patient.death;
 
@@ -147,7 +149,11 @@ export const EncounterView = () => {
         )}
       </EncounterTopBar>
       <ContentPane>
-        <EncounterInfoPane encounter={encounter} />
+        <EncounterInfoPane
+          encounter={encounter}
+          getLocalisation={getLocalisation}
+          patientBillingType={patientBillingTypeData?.name}
+        />
         <Box mt={4} mb={4}>
           <Divider />
         </Box>

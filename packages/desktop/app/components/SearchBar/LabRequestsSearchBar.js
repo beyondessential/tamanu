@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -9,7 +9,7 @@ import {
   Field,
   SuggesterSelectField,
   SearchField,
-  DisplayIdField,
+  DisplayIdSearchField,
   AutocompleteField,
   CheckField,
 } from '../Field';
@@ -40,11 +40,16 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
     searchParameters,
   );
   const locationGroupSuggester = useSuggester('locationGroup');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: {
+      filterByFacility: true,
+    },
+  });
 
   return (
     <CustomisableSearchBar
-      title="Search lab requests"
-      initialValues={{ displayIdExact: true, ...searchParameters }}
+      initialValues={searchParameters}
+      staticValues={{ displayIdExact: true }}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
@@ -56,6 +61,13 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             label="Area"
             component={AutocompleteField}
             suggester={locationGroupSuggester}
+            size="small"
+          />
+          <Field
+            name="departmentId"
+            label="Department"
+            component={AutocompleteField}
+            suggester={departmentSuggester}
             size="small"
           />
           {publishedStatus ? (
@@ -85,7 +97,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
       }
     >
       <>
-        <DisplayIdField useShortLabel />
+        <DisplayIdSearchField useShortLabel />
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
         <Field name="requestId" label="Test ID" component={SearchField} />
@@ -94,6 +106,13 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           label="Test category"
           component={SuggesterSelectField}
           endpoint="labTestCategory"
+          size="small"
+        />
+        <Field
+          name="labTestPanelId"
+          label="Panel"
+          component={SuggesterSelectField}
+          endpoint="labTestPanel"
           size="small"
         />
         <LocalisedField

@@ -7,7 +7,7 @@ export * from './modals/CovidVaccineCertificateModal';
 export * from './modals/VaccineCertificateModal';
 export * from './modals/DeathCertificateModal';
 
-export * from './printouts/LabRequestPrintout';
+export * from './printouts/MultipleLabRequestsPrintout';
 export * from './printouts/MultipleImagingRequestsPrintout';
 export { PrintLetterhead } from './printouts/reusable/PrintLetterhead';
 export { PrintPortal } from './PrintPortal';

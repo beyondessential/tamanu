@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils/valueIndex';
+import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
   NOTE_TYPES,
@@ -20,7 +20,7 @@ import {
   LAB_REQUEST_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
-} from 'shared/constants';
+} from '@tamanu/shared/constants';
 
 import {
   medicationIcon,
@@ -107,6 +107,13 @@ export const medicationStatuses = {
   FULFILLED: 'Fulfilled',
   REQUESTED: 'Requested',
 };
+
+export const binaryOptions = [
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
+];
+
+export const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
 
 export const locationOptions = [
   {

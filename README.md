@@ -6,18 +6,18 @@
 
 | Package | Runbook | Description |
 | ------- | ------- | ----------- |
-| [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The synchronisation server, which lan server and mobile client instances communicate with to synchronise data |
-| [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The local server, which the app communicates with |
+| [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The central server, which facility server and mobile client instances communicate with to synchronise data |
+| [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The facility server, which the app communicates with |
 | [meta-server](packages/meta-server) | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7) | The metadata server, which serves information about app versions and known sync-server installations |
 | [desktop](packages/desktop) | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The main Electron app |
 | [mobile](packages/mobile) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app  |
-| [shared-src](packages/shared-src) | N/A | Shared code among Tamanu components |
-| [shared](packages/shared) | N/A | The build output of the `shared-src` module (ignored by version control) |
+| [@tamanu/shared](packages/shared) | N/A | Shared code monolith among Tamanu components |
+| [@tamanu/build-tooling](packages/build-tooling) | N/A | Shared build tooling code |
 | [csca](packages/csca) | [csca runbook](https://beyond-essential.slab.com/posts/csca-runbook-be1td5ml), [signer runbook](https://beyond-essential.slab.com/posts/signer-runbook-hcws6er3) | A tool to create and manage a CSCA / ICAO eMRTD PKI |
 
-The latest version for each Tamanu service (Local Area Network Server, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
+The latest version for each Tamanu service (Servers, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
 
-- LAN server: https://meta.tamanu.io/version/lan
+- Facility server: https://meta.tamanu.io/version/lan
 - Desktop client: https://meta.tamanu.io/version/desktop
 - Mobile client: https://meta.tamanu.io/version/mobile
 

@@ -8,7 +8,6 @@ import { theme } from '/styled/theme';
 import { DateFormats } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as Icons from '../Icons';
-import { TextFieldLabel } from '../TextField/TextFieldLabel';
 import { InputContainer } from '../TextField/styles';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
@@ -105,7 +104,6 @@ export const DateField = React.memo(
     const formattedValue = formatValue();
 
     return (
-
       <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
         {!!label && (
           <StyledText
@@ -139,7 +137,11 @@ export const DateField = React.memo(
               >
                 {formattedValue || placeholder}
               </StyledText>
-              <StyledView marginRight={10} height="100%" justifyContent="center">
+              <StyledView
+                marginRight={10}
+                height="100%"
+                width={screenPercentageToDP(2.4, Orientation.Height)}
+              >
                 <IconComponent
                   height={screenPercentageToDP(2.4, Orientation.Height)}
                   width={screenPercentageToDP(2.4, Orientation.Height)}

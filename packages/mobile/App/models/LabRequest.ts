@@ -9,6 +9,7 @@ import { LabTest } from './LabTest';
 import { User } from './User';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
+import { Department } from './Department';
 
 const HIDDEN_STATUSES = ['deleted', 'entered-in-error', 'cancelled'];
 
@@ -44,9 +45,6 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: false })
   displayId: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  note?: string;
-
   @ManyToOne(
     () => Encounter,
     encounter => encounter.labRequests,
@@ -63,10 +61,20 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
 
+  @ManyToOne(() => Department)
+  department?: Department;
+  @RelationId(({ department }) => department)
+  departmentId: string;
+
   @ReferenceDataRelation()
   labTestCategory: ReferenceData;
   @RelationId(({ labTestCategory }) => labTestCategory)
   labTestCategoryId: string;
+
+  @ReferenceDataRelation()
+  labSampleSite: ReferenceData;
+  @RelationId(({ labSampleSite }) => labSampleSite)
+  labSampleSiteId: string;
 
   @ReferenceDataRelation()
   labTestPriority: ReferenceData;
@@ -86,10 +94,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   static async getForPatient(patientId: string): Promise<LabRequest[]> {
     return this.getRepository()
       .createQueryBuilder('labRequest')
+      .orderBy('labRequest.requestedDate', 'DESC')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })
       .andWhere('labRequest.status NOT IN (:...status)', { status: HIDDEN_STATUSES })
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
+      .leftJoinAndSelect('labRequest.labSampleSite', 'labSampleSite')
       .getMany();
   }
 

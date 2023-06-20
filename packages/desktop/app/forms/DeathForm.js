@@ -2,8 +2,8 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
-import { ageInMonths, ageInYears, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from '@tamanu/shared/constants';
+import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   ArrayField,
   Field,
@@ -24,13 +24,7 @@ import {
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-
-const binaryOptions = [
-  { value: 'yes', label: 'Yes' },
-  { value: 'no', label: 'No' },
-];
-
-const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
+import { binaryOptions, binaryUnknownOptions } from '../constants';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;

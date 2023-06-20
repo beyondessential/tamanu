@@ -317,9 +317,6 @@ Patient may need mobility assistance`,
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: expect.any(String),
-        },
         type: 'searchset',
         total: 1,
         link: [
@@ -437,9 +434,6 @@ Patient may need mobility assistance`,
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: expect.any(String),
-        },
         type: 'searchset',
         total: 1,
         link: [
@@ -557,9 +551,6 @@ Patient may need mobility assistance`,
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: expect.any(String),
-        },
         type: 'searchset',
         total: 1,
         link: [

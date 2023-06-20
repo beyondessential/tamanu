@@ -1,14 +1,14 @@
 import React from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { HandoverNotesPDF } from 'shared/utils/handoverNotes';
+import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
 import styled from 'styled-components';
-import { createDummyPatient } from 'shared/demoData';
+import { createDummyPatient } from '@tamanu/shared/demoData';
 import { LabRequestNoteForm } from '../app/forms/LabRequestNoteForm';
 import Logo from './assets/tamanu-logo.png';
 import { MockedApi } from './utils/mockedApi';
 
 const Container = styled.div`
-  max-width: 600px;
+  width: 600px;
   padding: 1rem;
 `;
 
@@ -57,7 +57,22 @@ const handoverNotes = [
 
 const endpoints = {
   'labRequest/:id/notes': () => {
-    return { data: [{ id: '1', content: 'LabRequest Cancelled. Reason: Clinical Reason.' }] };
+    return {
+      data: [
+        {
+          id: '1',
+          content: 'LabRequest Cancelled. Reason: Clinical Reason.',
+          author: { displayName: 'Catherine Jennings' },
+          date: new Date(),
+        },
+        {
+          id: '2',
+          content: 'Patient discharged.',
+          author: { displayName: 'Catherine Jennings' },
+          date: new Date(),
+        },
+      ],
+    };
   },
 };
 
