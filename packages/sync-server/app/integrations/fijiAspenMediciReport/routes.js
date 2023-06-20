@@ -25,7 +25,7 @@ function formatDate(date) {
   ).replace(/Z$/, '+00:00');
 }
 
-const reportQuery = systemNoteTypeId => `
+const reportQuery = `
 with
 
 notes_info as (
@@ -177,7 +177,7 @@ encounter_notes_info as (
     ) "Notes"
   from note_pages np
   join note_items ni on ni.note_page_id = np.id
-  where note_type != '${systemNoteTypeId}'
+  where note_type != :systemNoteTypeId
   group by record_id
 ),
 
@@ -197,7 +197,7 @@ note_history as (
   	from note_items
   ) matched_vals
   on matched_vals.id = ni.id
-  where note_type = '${systemNoteTypeId}'
+  where note_type = :systemNoteTypeId
   and ni.content ~ 'Changed (.*) from (.*) to (.*)'
 ),
 
@@ -421,21 +421,19 @@ routes.get(
     }
     const localisation = await getLocalisation();
 
-    const data = await sequelize.query(
-      reportQuery(localisation.data.noteTypeIds?.systemNoteTypeId),
-      {
-        type: QueryTypes.SELECT,
-        bind: {
-          from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
-          to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
-          input_encounter_ids: encounters?.split(',') ?? [],
-          billing_type: null,
-          limit: parseInt(limit, 10),
-          offset, // Should still be able to offset even with no limit
-          timezone_string: COUNTRY_TIMEZONE,
-        },
+    const data = await sequelize.query(reportQuery, {
+      type: QueryTypes.SELECT,
+      bind: {
+        from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
+        to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
+        input_encounter_ids: encounters?.split(',') ?? [],
+        billing_type: null,
+        limit: parseInt(limit, 10),
+        offset, // Should still be able to offset even with no limit
+        timezone_string: COUNTRY_TIMEZONE,
+        systemNoteTypeId: localisation.data.noteTypeIds?.systemNoteTypeId,
       },
-    );
+    });
 
     const mapNotes = notes =>
       notes?.map(note => ({

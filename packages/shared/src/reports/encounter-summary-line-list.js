@@ -65,7 +65,7 @@ const getReportColumnTemplate = async (sequelize, includedPatientFieldIds) => {
   );
 };
 
-const getQuery = (includedPatientFieldIds, systemNoteTypeId) => `
+const getQuery = includedPatientFieldIds => `
 with
   notes_info as (
     select
@@ -212,7 +212,7 @@ with
       ) "Notes"
     from note_pages np
     join note_items ni on ni.note_page_id = np.id
-    where note_type != '${systemNoteTypeId}'
+    where note_type != :systemNoteTypeId
     group by record_id
   ),
   note_history as (
@@ -232,7 +232,7 @@ with
       from note_items
     ) matched_vals
     on matched_vals.id = ni.id
-    where note_type = '${systemNoteTypeId}'
+    where note_type = :systemNoteTypeId
     and ni.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
   first_from_table as (
@@ -461,7 +461,7 @@ const getData = async (sequelize, parameters, includedPatientFieldIds, systemNot
   const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
-  return sequelize.query(getQuery(includedPatientFieldIds, systemNoteTypeId), {
+  return sequelize.query(getQuery(includedPatientFieldIds), {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
       from_date: queryFromDate ?? null,
@@ -469,6 +469,7 @@ const getData = async (sequelize, parameters, includedPatientFieldIds, systemNot
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
       location_group_id: locationGroup ?? null,
+      systemNoteTypeId: systemNoteTypeId ?? null,
       lab_request_statuses: [
         LAB_REQUEST_STATUSES.DELETED,
         LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,

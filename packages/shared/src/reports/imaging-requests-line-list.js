@@ -98,7 +98,7 @@ from
   left join departments d on d.id = e.department_id
   left join users u_supervising on u_supervising.id=e.examiner_id
   left join users u_requesting on u_requesting.id=ir.requested_by_id
-  left join note_pages np on np.record_id = ir.id and np.note_type = '${config?.localisation?.data?.noteTypeIds?.areaToBeImagedNoteTypeId}'
+  left join note_pages np on np.record_id = ir.id and np.note_type = :areaToBeImagedNoteTypeId
   left join note_items ni on np.id = ni.note_page_id
   left join imaging_request_areas ira on ira.imaging_request_id = ir.id
   left join reference_data rdi on rdi.id = ira.area_id
@@ -131,6 +131,8 @@ const getData = async (sequelize, parameters) => {
       imaging_type: imagingType ?? null,
       statuses: selectedStatuses,
       areStatuses: selectedStatuses ? 'true' : null,
+      areaToBeImagedNoteTypeId:
+        config?.localisation?.data?.noteTypeIds?.areaToBeImagedNoteTypeId ?? null,
     },
   });
 };

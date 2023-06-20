@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useNoteTypes } from '../../../contexts/NoteTypes';
 import { PRINTOUT_COLUMNS } from '../modals/multipleImagingRequestsColumns';
 
 import { Divider } from './reusable/Divider';
@@ -16,8 +16,9 @@ import { NotesPagesSection } from './reusable/NotesPagesSection';
 import { DateFacilitySection } from './reusable/DateFacilitySection';
 
 export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) => {
-  const { getLocalisation } = useLocalisation();
-  const systemNoteTypeId = getLocalisation('noteTypeIds.systemNoteTypeId');
+  const {
+    configurationNoteTypeIds: { systemNoteTypeId },
+  } = useNoteTypes();
   const { title, subTitle, logo } = useCertificate();
   const api = useApi();
   const { data: patient, isLoading: isPatientLoading } = useQuery(

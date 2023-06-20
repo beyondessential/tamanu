@@ -104,7 +104,7 @@ locationGroup.get(
 		    LEFT JOIN (
 		      SELECT record_id, MAX(date) AS date
 		      FROM note_pages
-		      WHERE record_type = 'Encounter' AND note_type = '${handoverNoteTypeId}'
+		      WHERE record_type = 'Encounter' AND note_type = :handoverNoteTypeId
 		      GROUP BY record_id
 		    ) AS max_note_pages ON encounters.id = max_note_pages.record_id
 		    LEFT JOIN note_pages ON max_note_pages.record_id = note_pages.record_id
@@ -128,6 +128,7 @@ locationGroup.get(
         replacements: {
           id: req.params.id,
           facilityId: config.serverFacilityId,
+          handoverNoteTypeId,
         },
         type: QueryTypes.SELECT,
       },

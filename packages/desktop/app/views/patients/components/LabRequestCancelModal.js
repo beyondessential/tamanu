@@ -4,13 +4,16 @@ import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModal } from '../../../components/CancelModal';
 import { useAuth } from '../../../contexts/Auth';
+import { useNoteTypes } from '../../../contexts/NoteTypes';
 
 export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequest }) => {
   const api = useApi();
   const auth = useAuth();
   const { getLocalisation } = useLocalisation();
   const cancellationReasonOptions = getLocalisation('labsCancellationReasons') || [];
-  const otherNoteTypeId = getLocalisation('noteTypeIds.otherNoteTypeId');
+  const {
+    configurationNoteTypeIds: { otherNoteTypeId },
+  } = useNoteTypes();
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(

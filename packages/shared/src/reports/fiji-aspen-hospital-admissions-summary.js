@@ -46,7 +46,7 @@ with
       join facilities f on d.facility_id = f.id
     where
       e.encounter_type = 'admission' and e.patient_id != '5d9043ff-6745-4bca-b1c7-1c7751bad1f0'
-      and f.id = '${config.serverFacilityId}'
+      and f.id = :facilityId
   ),
   admissions as (
     select
@@ -110,7 +110,7 @@ with
       left join admission_data a on a.start_date between rm.month and (rm.month + interval '1' month - interval '1' day)
       left join note_pages np on a.id = np.record_id
       left join note_items ni on np.id = ni.note_page_id
-    where np.note_type = '${config?.localisation?.data?.noteTypeIds?.systemNoteTypeId}' and ni.content like 'Changed department%'
+    where np.note_type = :systemNoteTypeId and ni.content like 'Changed department%'
     group by rm.month, a.facility_name
   ),
   available_beds as (
@@ -167,6 +167,8 @@ const getData = async (sequelize, parameters) => {
     replacements: {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
+      facilityId: config.serverFacilityId ?? null,
+      systemNoteTypeId: config?.localisation?.data?.noteTypeIds?.systemNoteTypeId ?? null,
     },
   });
 };

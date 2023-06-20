@@ -15,6 +15,7 @@ import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarg
 import { useReferenceData } from '../../../api/queries/useReferenceData';
 import { usePatientAdditionalData } from '../../../api/queries/usePatientAdditionalData';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useNoteTypes } from '../../../contexts/NoteTypes';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 
@@ -89,7 +90,9 @@ const extractLocationHistory = (notes, encounterData) => {
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
-  const systemNoteTypeId = getLocalisation('noteTypeIds.systemNoteTypeId');
+  const {
+    configurationNoteTypeIds: { systemNoteTypeId },
+  } = useNoteTypes();
   const certificateData = useCertificate();
 
   const patientQuery = usePatientData(encounter.patientId);

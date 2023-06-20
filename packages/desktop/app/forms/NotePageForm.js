@@ -91,12 +91,15 @@ export const NotePageForm = ({
   contentRef,
 }) => {
   const { currentUser } = useAuth();
-  const { noteTypes } = useNoteTypes();
+  const { configurationNoteTypeIds, noteTypes } = useNoteTypes();
   const { getLocalisation } = useLocalisation();
 
-  const { treatmentPlanNoteTypeId, clinicalMobileNoteTypeId, systemNoteTypeId } = getLocalisation(
-    'noteTypeIds',
-  );
+  const {
+    treatmentPlanNoteTypeId,
+    clinicalMobileNoteTypeId,
+    systemNoteTypeId,
+  } = configurationNoteTypeIds;
+
   const orderedNoteTypes = useMemo(
     () =>
       Array.isArray(noteTypes) && [

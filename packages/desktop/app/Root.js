@@ -23,15 +23,15 @@ import { PatientSearchProvider } from './contexts/PatientSearch';
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
-      <NoteTypesProvider>
-        <ImagingRequestsProvider>
-          <LabRequestProvider store={store}>
-            <PatientSearchProvider>
-              <LocalisationProvider store={store}>{children}</LocalisationProvider>
-            </PatientSearchProvider>
-          </LabRequestProvider>
-        </ImagingRequestsProvider>
-      </NoteTypesProvider>
+      <ImagingRequestsProvider>
+        <LabRequestProvider store={store}>
+          <PatientSearchProvider>
+            <LocalisationProvider store={store}>
+              <NoteTypesProvider>{children}</NoteTypesProvider>
+            </LocalisationProvider>
+          </PatientSearchProvider>
+        </LabRequestProvider>
+      </ImagingRequestsProvider>
     </ReferralProvider>
   </EncounterProvider>
 );

@@ -1,47 +1,38 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useSuggester } from '../api';
+import React, { useContext } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../api';
+import { useLocalisation } from './Localisation';
 
 const NoteTypesContext = React.createContext({
-  noteTypes: null,
+  noteTypes: [],
   isLoadingNoteTypes: false,
+  configurationNoteTypeIds: {},
 });
 
 export const useNoteTypes = () => useContext(NoteTypesContext);
 
 export const NoteTypesProvider = ({ children }) => {
-  const [noteTypes, setNoteTypes] = useState(null);
-  const [isLoadingNoteTypes, setIsLoadingNoteTypes] = useState(false);
+  const { getLocalisation } = useLocalisation();
+  const configurationNoteTypeIds = getLocalisation('noteTypeIds');
 
-  const noteTypeSuggester = useSuggester('noteType');
-
-  useEffect(() => {
-    setIsLoadingNoteTypes(true);
-    noteTypeSuggester
-      .fetch('/all')
-      .then(types => {
-        setNoteTypes(
-          types.map(type => ({
-            value: type.id,
-            label: type.name,
-            visibilityStatus: type.visibilityStatus,
-          })),
-        );
-      })
-      .catch(error => {
-        // error fetching note types
-        // eslint-disable-next-line no-console
-        console.log('There was an error fetching note types', error);
-      })
-      .finally(() => {
-        setIsLoadingNoteTypes(false);
-      });
-  }, [noteTypeSuggester]);
+  const api = useApi();
+  const { data: noteTypes, isLoading: isLoadingNoteTypes } = useQuery({
+    queryKey: ['noteTypesReferenceData'],
+    queryFn: () => api.get('referenceData/noteType/all'),
+    select: ({ data: types }) =>
+      types.map(type => ({
+        value: type.id,
+        label: type.name,
+        visibilityStatus: type.visibilityStatus,
+      })),
+  });
 
   return (
     <NoteTypesContext.Provider
       value={{
         noteTypes,
         isLoadingNoteTypes,
+        configurationNoteTypeIds,
       }}
     >
       {children}

@@ -5,7 +5,6 @@ import { isAfter } from 'date-fns';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
 import { useNoteTypes } from '../contexts/NoteTypes';
 import { groupRootNoteItems } from '../utils/groupRootNoteItems';
 import { NotePageModal } from './NotePageModal';
@@ -79,9 +78,7 @@ const getContent = ({ noteItems }) => {
 };
 
 const NotePageTable = ({ encounterId, hasPermission }) => {
-  const { getLocalisation } = useLocalisation();
-  const { noteTypes } = useNoteTypes();
-  const configurationNoteTypeIds = getLocalisation('noteTypeIds');
+  const { noteTypes, configurationNoteTypeIds } = useNoteTypes();
   const { treatmentPlanNoteTypeId, systemNoteTypeId } = configurationNoteTypeIds;
 
   const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
