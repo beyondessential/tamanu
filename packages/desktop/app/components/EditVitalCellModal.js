@@ -39,6 +39,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
   }, [onClose]);
   const { getLocalisation } = useLocalisation();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
+  const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
   const vitalLabel = cell?.vitalLabel;
   const date = formatShortest(cell?.recordedDate);
   const time = formatTime(cell?.recordedDate);
@@ -67,7 +68,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
               />
             )}
             <Field
-              required
+              required={mandatoryVitalEditReason}
               component={SelectField}
               label="Reason for change to record"
               name="reasonForChange"
