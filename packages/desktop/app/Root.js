@@ -44,13 +44,13 @@ const queryClient = new QueryClient({
 
 export default function Root({ api, store, history }) {
   return (
-    <Provider store={store}>
-      <ApiContext.Provider value={api}>
-        <ConnectedRouter history={history}>
-          <StylesProvider injectFirst>
-            <MuiThemeProvider theme={theme}>
-              <ThemeProvider theme={theme}>
-                <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <ApiContext.Provider value={api}>
+          <ConnectedRouter history={history}>
+            <StylesProvider injectFirst>
+              <MuiThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
                   <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
                     <ElectronProvider>
@@ -69,13 +69,13 @@ export default function Root({ api, store, history }) {
                       <RoutingApp />
                     </ElectronProvider>
                   </StateContextProviders>
-                </QueryClientProvider>
-              </ThemeProvider>
-            </MuiThemeProvider>
-          </StylesProvider>
-        </ConnectedRouter>
-      </ApiContext.Provider>
-    </Provider>
+                </ThemeProvider>
+              </MuiThemeProvider>
+            </StylesProvider>
+          </ConnectedRouter>
+        </ApiContext.Provider>
+      </Provider>
+    </QueryClientProvider>
   );
 }
 
