@@ -105,7 +105,9 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: 'Admit to hospital',
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
-      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
+      condition: () =>
+        isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION) ||
+        encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
       label: 'Discharge without being seen',
