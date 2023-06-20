@@ -29,10 +29,6 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
 
 export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
-  const handleDeleteEntry = useCallback(setFieldValue => {
-    setFieldValue('value', '');
-    setIsDeleted(true);
-  }, []);
   const handleClose = useCallback(() => {
     setIsDeleted(false);
     onClose();
@@ -43,6 +39,15 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
   const title = `${vitalLabel} | ${date} | ${time}`;
   const initialValue = cell?.value;
   const showDeleteEntryButton = initialValue !== undefined;
+  const valueName = cell?.component.dataElement.id;
+  const handleDeleteEntry = useCallback(
+    setFieldValue => {
+      setFieldValue(valueName, '');
+      setIsDeleted(true);
+    },
+    [valueName],
+  );
+
   return (
     <Modal width="sm" title={title} onClose={handleClose} open={open}>
       <Form
@@ -50,7 +55,7 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required('Reason for cancellation is mandatory'),
         })}
-        initialValues={{ [cell?.component.dataElement.id]: initialValue }}
+        initialValues={{ [valueName]: initialValue }}
         render={({
           // value: formValue,
           setFieldValue,
