@@ -1,0 +1,69 @@
+name: Publish Release Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Next version on this release branch
+        required: true
+        default: patch
+
+jobs:
+  run:
+    name: Publish Release Version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - if: "!startsWith(github.ref, 'refs/heads/release/')"
+      run: |
+        echo "This workflow can only be run on a release branch"
+        exit 1
+
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    - name: Push tag for current version
+      id: tagged
+      run: |
+        set -euxo pipefail
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        version=$(jq -r .version package.json)
+        echo "current_version=$version" >> $GITHUB_OUTPUT
+        git tag -a "v$version" -m "Release $version"
+        git push --tags
+
+    - name: Bump version on branch
+      run: node scripts/version.mjs '${{ github.event.inputs.version }}'
+
+    - name: Commit and push
+      id: nextv
+      run: |
+        set -euxo pipefail
+        version=$(jq -r .version package.json)
+        git commit -am "Bump version to $version"
+        echo "next_version=$version" >> $GITHUB_OUTPUT
+        git push
+
+    # do release management after the critical bits above as we care less if those fail
+
+    - name: Publish the draft release if one exists
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const cwd = '${{ github.workspace }}';
+          const { publishRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+          await publishRelease(github, context, '${{ steps.tagged.outputs.current_version }}');
+
+    - name: Create draft for next release
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const cwd = '${{ github.workspace }}';
+          const { createDraftRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+          await createDraftRelease(await import('fs'), github, context, cwd, '${{ steps.nextv.outputs.next_version }}');

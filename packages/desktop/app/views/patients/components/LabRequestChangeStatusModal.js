@@ -1,6 +1,7 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
 import * as yup from 'yup';
+
 import {
   ConfirmCancelRow,
   DateTimeField,
@@ -11,6 +12,7 @@ import {
   Form,
   SelectField,
 } from '../../../components';
+
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../../constants';
 
 const validationSchema = yup.object().shape({
@@ -47,6 +49,7 @@ export const LabRequestChangeStatusModal = React.memo(
                 name="status"
                 options={LAB_REQUEST_STATUS_OPTIONS}
                 component={SelectField}
+                required
               />
               {labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
                 values.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (

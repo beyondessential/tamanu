@@ -1,0 +1,26 @@
+users {
+  "admin@tamanu.io" {
+    role "admin"
+    password "admin"
+  }
+}
+
+facilities {
+  facility-a {
+    name "Facility A"
+    code "a"
+    user "facility-a@tamanu.io"
+    password "facility-a"
+  }
+  
+  facility-b {
+    name "Facility B"
+    code "b"
+    user "facility-b@tamanu.io"
+    password "facility-b"
+  }
+}
+
+referenceData {
+  - file "referenceData.xslx"
+}
