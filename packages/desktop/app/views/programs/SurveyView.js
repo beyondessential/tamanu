@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
-import { checkVisibility, getFormInitialValues } from 'desktop/app/utils';
+import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
-import { SurveyCompletedMessage, SurveyScreenPaginator } from '../../components/Surveys';
+import { SurveyScreenPaginator } from '../../components/Surveys';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -20,19 +20,24 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
 export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser }) => {
   const { components } = survey;
   const initialValues = getFormInitialValues(components, patient, currentUser);
+  const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
 
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
-
-  const onSubmitSurvey = useCallback(
-    async data => {
-      await onSubmit(data);
-      setSurveyCompleted(true);
-    },
-    [onSubmit],
-  );
+  const onSubmitSurvey = data => {
+    onSubmit(data);
+  };
 
   const renderSurvey = props => {
-    const { submitForm, values, setFieldValue, setValues } = props;
+    const {
+      submitForm,
+      values,
+      setFieldValue,
+      setValues,
+      validateForm,
+      setErrors,
+      errors,
+      setStatus,
+      status,
+    } = props;
 
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
@@ -47,7 +52,8 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
       // 3. Set visible values in form state
       setValues(visibleValues);
-      submitForm(event);
+      // The third parameter makes sure only visibleFields are validated against
+      submitForm(event, null, visibleFields);
     };
 
     return (
@@ -58,22 +64,28 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
         setFieldValue={setFieldValue}
         onSurveyComplete={submitVisibleValues}
         onCancel={onCancel}
+        validateForm={validateForm}
+        setErrors={setErrors}
+        errors={errors}
+        setStatus={setStatus}
+        status={status}
       />
     );
   };
-
-  const surveyContents = surveyCompleted ? (
-    <SurveyCompletedMessage onResetClicked={onCancel} />
-  ) : (
-    <Form initialValues={initialValues} onSubmit={onSubmitSurvey} render={renderSurvey} />
-  );
 
   return (
     <ProgramsPane>
       <SurveyPaneHeader>
         <SurveyPaneHeading variant="h6">{survey.name}</SurveyPaneHeading>
       </SurveyPaneHeader>
-      {surveyContents}
+      <Form
+        initialValues={initialValues}
+        onSubmit={onSubmitSurvey}
+        render={renderSurvey}
+        validationSchema={validationSchema}
+        validateOnChange
+        validateOnBlur
+      />
     </ProgramsPane>
   );
 };

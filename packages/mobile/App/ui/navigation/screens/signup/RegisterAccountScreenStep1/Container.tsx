@@ -5,8 +5,9 @@ import { Value } from 'react-native-reanimated';
 import { RegisterAccountScreenProps } from '../../../../interfaces/screens/SignUpStack/RegisterAccountStep1Props';
 // contexts
 import {
-  RegisterAccountFormStep1Props,
+
   RegisterAccountContext,
+  RegisterAccountFormStep1FormValues,
 } from '../../../../contexts/RegisterAccountContext';
 //helpers
 import {
@@ -34,7 +35,7 @@ export const RegisterAccountStep1Container: FC<any> = ({
     new Value(screenPercentageToDP(4.43, Orientation.Height)),
   );
 
-  const step1FormProps = useMemo<RegisterAccountFormStep1Props>(
+  const step1FormValues = useMemo<RegisterAccountFormStep1FormValues>(
     () => ({
       firstName: registerFormState.firstName,
       lastName: registerFormState.lastName,
@@ -87,7 +88,7 @@ export const RegisterAccountStep1Container: FC<any> = ({
       iconSize={iconSize}
       navigateToIntro={navigateToIntro}
       onSubmitForm={onSubmitForm}
-      step1FormProps={step1FormProps}
+      step1FormValues={step1FormValues}
       iconContainerPosition={viewTopPosition}
       titleFont={titleFont}
     />

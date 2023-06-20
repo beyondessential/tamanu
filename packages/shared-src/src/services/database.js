@@ -4,16 +4,15 @@ import pg from 'pg';
 import util from 'util';
 
 import { log } from './logging';
+import { serviceContext, serviceName } from './logging/context';
 
 import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
-import { createFhirTypes } from './fhirTypes';
 import { setupQuote } from '../utils/pgComposite';
 import { SYNC_DIRECTIONS } from '../constants';
 
 createDateTypes();
-createFhirTypes();
 
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
@@ -57,6 +56,7 @@ async function connectToDatabase(dbOptions) {
     host = null,
     port = null,
     verbose = false,
+    pool,
   } = dbOptions;
   let { name } = dbOptions;
 
@@ -78,12 +78,18 @@ async function connectToDatabase(dbOptions) {
           `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
         )
     : null;
-  const options = { dialect: 'postgres' };
+
+  const options = {
+    dialect: 'postgres',
+    dialectOptions: { application_name: serviceName(serviceContext()) ?? 'tamanu' },
+  };
+
   const sequelize = new Sequelize(name, username, password, {
     ...options,
     host,
     port,
     logging,
+    pool,
   });
   setupQuote(sequelize);
   await sequelize.authenticate();

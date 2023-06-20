@@ -5,6 +5,7 @@ import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons';
+import { NOTE_TYPES } from '~/ui/helpers/constants';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -13,6 +14,13 @@ import { withPatient } from '~/ui/containers/Patient';
 import { IDiagnosis } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
+
+const displayNotes = (notePages): string => notePages
+  .filter(notePage => notePage.noteType === NOTE_TYPES.CLINICAL_MOBILE)
+  // Note: There should only be one noteItem per notePage in production
+  .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
+  .join('\n\n')
+  || DEFAULT_FIELD_VAL;
 
 const visitsHistoryRows = {
   labRequest: {
@@ -24,13 +32,13 @@ const visitsHistoryRows = {
     accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
       || DEFAULT_FIELD_VAL,
   },
-  reasonForEncounter: {
-    name: 'Treatment notes',
-    accessor: (): string => DEFAULT_FIELD_VAL,
+  notePages: {
+    name: 'Clinical Note',
+    accessor: displayNotes,
   },
 };
 
-export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
+const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
   const activeFilters = {
     count: 0,
   };
@@ -76,4 +84,4 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
   );
 };
 
-export const VisitsScreen = compose(withPatient)(DumbVisistsScreen);
+export const VisitsScreen = compose(withPatient)(DumbVisitsScreen);

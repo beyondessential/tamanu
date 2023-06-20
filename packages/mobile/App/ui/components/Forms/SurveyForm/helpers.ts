@@ -1,12 +1,11 @@
 import * as Yup from 'yup';
 
-import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
-import { getAgeFromDate } from '~/ui/helpers/date';
+import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
-import { IPatient, ISurveyScreenComponent, IUser } from '~/types';
+import { IPatient, ISurveyScreenComponent, IUser, SurveyScreenValidationCriteria } from '~/types';
 
-function getInitialValue(dataElement): JSX.Element {
+function getInitialValue(dataElement): string {
   switch (dataElement.type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
@@ -25,6 +24,8 @@ function transformPatientData(patient: IPatient, config): string {
   switch (column) {
     case 'age':
       return getAgeFromDate(dateOfBirth).toString();
+    case 'ageWithMonths':
+      return getAgeWithMonthsFromDate(dateOfBirth);
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
@@ -71,7 +72,8 @@ export function getFormInitialValues(
 
 function getFieldValidator(
   dataElement,
-): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema {
+  validationCriteria: SurveyScreenValidationCriteria,
+): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema | Yup.NumberSchema {
   switch (dataElement.type) {
     case FieldTypes.INSTRUCTION:
     case FieldTypes.CALCULATED:
@@ -81,7 +83,18 @@ function getFieldValidator(
       return Yup.date();
     case FieldTypes.BINARY:
       return Yup.bool();
-    case FieldTypes.NUMBER:
+    case FieldTypes.NUMBER: {
+      const { min, max } = validationCriteria;
+      let numberSchema = Yup.number();
+      if (typeof min === 'number' && !Number.isNaN(min)) {
+        numberSchema = numberSchema.min(min, 'Outside accepted range');
+      }
+      if (typeof max === 'number' && !Number.isNaN(max)) {
+        numberSchema = numberSchema.max(max, 'Outside accepted range');
+      }
+      return numberSchema;
+    }
+
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
     default:
@@ -91,13 +104,14 @@ function getFieldValidator(
 
 export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectSchema {
   const objectShapeSchema = components.reduce<{ [key: string]: any }>((acc, component) => {
-    const { dataElement, required } = component;
+    const { dataElement } = component;
     const propName = dataElement.code;
-    const validator = getFieldValidator(dataElement);
+    const validationCriteria = component.getValidationCriteriaObject();
+    const validator = getFieldValidator(dataElement, validationCriteria);
 
     if (!validator) return acc;
-    if (required) {
-      acc[propName] = validator.required();
+    if (validationCriteria.mandatory) {
+      acc[propName] = validator.required('Required');
     } else {
       acc[propName] = validator.nullable();
     }
@@ -105,27 +119,4 @@ export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectS
   }, {});
 
   return Yup.object().shape(objectShapeSchema);
-}
-
-export async function getAutocompleteDisplayAnswer(
-  models,
-  dataElementId,
-  sourceId,
-): Promise<string | null> {
-  const autocompleteComponent = await models.SurveyScreenComponent.findOne({
-    where: {
-      dataElement: dataElementId,
-    },
-  });
-  const autocompleteConfig = autocompleteComponent?.getConfigObject();
-
-  if (autocompleteConfig) {
-    const fullLinkedAnswer = await models[autocompleteConfig.source]
-      .getRepository()
-      .findOne(sourceId);
-    const columnToDisplay = AutocompleteSourceToColumnMap[autocompleteConfig.source];
-    return fullLinkedAnswer[columnToDisplay];
-  }
-
-  return null;
 }

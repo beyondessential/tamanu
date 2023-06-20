@@ -1,3 +1,4 @@
+import _config from 'config';
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
@@ -9,15 +10,22 @@ import {
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
 } from 'shared/sync';
-import { injectConfig } from 'shared/utils/withConfig';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
-export
-@injectConfig
-class FacilitySyncManager {
+export class FacilitySyncManager {
+  static config = _config;
+
+  static overrideConfig(override) {
+    this.config = override;
+  }
+
+  static restoreConfig() {
+    this.config = _config;
+  }
+
   models = null;
 
   sequelize = null;

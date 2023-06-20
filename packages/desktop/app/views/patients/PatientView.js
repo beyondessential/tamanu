@@ -1,17 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
-
 import {
   HistoryPane,
-  ImmunisationsPane,
+  VaccinesPane,
   PatientMedicationPane,
   DocumentsPane,
   PatientProgramsPane,
@@ -20,7 +18,9 @@ import {
   PatientDetailsPane,
 } from './panes';
 import { Colors } from '../../constants';
+import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -35,25 +35,25 @@ const StyledDisplayTabs = styled(TabDisplay)`
 const TABS = [
   {
     label: 'History',
-    key: 'history',
+    key: PATIENT_TABS.HISTORY,
     icon: 'fa fa-calendar-day',
     render: props => <HistoryPane {...props} />,
   },
   {
     label: 'Details',
-    key: 'details',
+    key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
   },
   {
     label: 'Referrals',
-    key: 'Referrals',
+    key: PATIENT_TABS.REFERRALS,
     icon: 'fa fa-hospital',
     render: props => <ReferralPane {...props} />,
   },
   {
     label: 'Programs',
-    key: 'Programs',
+    key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
       <PatientProgramsPane endpoint={`patient/${patient.id}/programResponses`} {...props} />
@@ -61,35 +61,35 @@ const TABS = [
   },
   {
     label: 'Documents',
-    key: 'documents',
+    key: PATIENT_TABS.DOCUMENTS,
     icon: 'fa fa-file-medical-alt',
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Immunisation',
-    key: 'a',
+    label: 'Vaccines',
+    key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
-    render: props => <ImmunisationsPane {...props} />,
+    render: props => <VaccinesPane {...props} />,
   },
   {
     label: 'Medication',
-    key: 'medication',
+    key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
     render: props => <PatientMedicationPane {...props} />,
   },
   {
     label: 'Invoices',
-    key: 'invoices',
+    key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,
-    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];
 
 export const PatientView = () => {
   const { getLocalisation } = useLocalisation();
+  const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
-  const [currentTab, setCurrentTab] = React.useState('history');
+  const [currentTab, setCurrentTab] = useState(query.get('tab') || PATIENT_TABS.HISTORY);
   const disabled = !!patient.death;
   const api = useApi();
   const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
@@ -100,6 +100,10 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+
+  useEffect(() => {
+    api.post(`user/recently-viewed-patients/${patient.id}`);
+  }, [api, patient.id]);
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
