@@ -6,7 +6,7 @@ import {
   INVOICE_LINE_TYPE_LABELS,
   INVOICE_PRICE_CHANGE_TYPES,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
-} from 'shared/constants';
+} from '@tamanu/shared/constants';
 
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';

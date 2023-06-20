@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
