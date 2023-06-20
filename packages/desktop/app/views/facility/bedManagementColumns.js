@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LOCATION_AVAILABILITY_TAG_CONFIG } from 'shared/constants';
+import { LOCATION_AVAILABILITY_TAG_CONFIG } from '@tamanu/shared/constants';
 import { Tag } from '../../components';
 
 const BiggerTag = styled(Tag)`

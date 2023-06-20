@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { VACCINE_RECORDING_TYPES } from '@tamanu/shared/constants';
 
 import { Modal } from './Modal';
 import { VaccineForm } from '../forms/VaccineForm';
