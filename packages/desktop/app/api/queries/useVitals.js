@@ -35,7 +35,8 @@ export const useVitals = encounterId => {
 
     vitalsRecords = surveyData.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .map(({ id, config, validationCriteria, dataElement }) => {
+      .map(component => {
+        const { id, config, validationCriteria, dataElement } = component;
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};
         const configs = {
           validationCriteria: getConfigObject(id, validationCriteria),
@@ -45,7 +46,7 @@ export const useVitals = encounterId => {
           (state, date) => ({
             ...state,
             [date]: {
-              vitalLabel: dataElement.name,
+              component,
               recordedDate: date,
               value: records[date],
               ...configs,

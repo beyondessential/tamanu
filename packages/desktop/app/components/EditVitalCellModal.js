@@ -9,6 +9,7 @@ import { SelectField, Form, Field, TextField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSeparatorLine } from './FormSeparatorLine';
 import { formatShortest, formatTime } from './DateDisplay';
+import { SurveyQuestion } from './Surveys';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -36,7 +37,7 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
     setIsDeleted(false);
     onClose();
   }, [onClose]);
-  const vitalLabel = cell?.vitalLabel;
+  const vitalLabel = cell?.component.dataElement.name;
   const date = formatShortest(cell?.recordedDate);
   const time = formatTime(cell?.recordedDate);
   const title = `${vitalLabel} | ${date} | ${time}`;
@@ -49,14 +50,14 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required('Reason for cancellation is mandatory'),
         })}
-        initialValues={{ value: initialValue }}
+        initialValues={{ [cell?.component.dataElement.id]: initialValue }}
         render={({
           // value: formValue,
           setFieldValue,
           submitForm,
         }) => (
           <FormGrid columns={4}>
-            <Field component={TextField} label={vitalLabel} name="value" disabled={isDeleted} />
+            <SurveyQuestion component={cell?.component} />
             {showDeleteEntryButton && (
               <DeleteEntryButton
                 disabled={isDeleted}
