@@ -38,7 +38,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
     onClose();
   }, [onClose]);
   const { getLocalisation } = useLocalisation();
-  const reasonForChangeToVitals = getLocalisation('reasonForChangeToVitals') || [];
+  const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
   const vitalLabel = cell?.vitalLabel;
   const date = formatShortest(cell?.recordedDate);
   const time = formatTime(cell?.recordedDate);
@@ -71,7 +71,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
               component={SelectField}
               label="Reason for change to record"
               name="reasonForChange"
-              options={reasonForChangeToVitals}
+              options={vitalEditReasons}
               style={{ gridColumn: '1 / 4' }}
             />
             <FormSeparatorLine />
