@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 
 export const useAsset = assetName => {
-  // prettier-ignore
   const api = useApi();
 
   const { data: queryData } = useQuery({
