@@ -1,8 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Field } from '../../components';
 import { Heading3, BodyText } from '../../components/Typography';
-import { SampleDetailsField } from '../../views/labRequest/SampleDetailsField';
+import {
+  SampleDetailsField,
+  SAMPLE_DETAILS_FIELD_PREFIX,
+} from '../../views/labRequest/SampleDetailsField';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
@@ -11,6 +14,7 @@ const StyledBodyText = styled(BodyText)`
 
 export const LabRequestFormScreen3 = props => {
   const {
+    values,
     values: { requestFormType, labTestPanelId },
     setFieldValue,
     initialSamples,
@@ -18,17 +22,23 @@ export const LabRequestFormScreen3 = props => {
     specimenTypeSuggester,
     labSampleSiteSuggester,
   } = props;
-
-  const handleClearPanel = () => {
-    setFieldValue('labTestPanelId', undefined);
-  };
-
   const setSamples = useCallback(
     sampleDetails => {
       setFieldValue('sampleDetails', sampleDetails);
     },
     [setFieldValue],
   );
+
+  // Reset sample details field when loading step
+  useEffect(() => {
+    for (const key of Object.keys(values)) {
+      if (key.startsWith(SAMPLE_DETAILS_FIELD_PREFIX)) {
+        setFieldValue(key, null);
+      }
+    }
+    // Don't want to have it executing every time value is changed, just when the screen is loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div style={{ gridColumn: '1 / -1' }}>
@@ -39,7 +49,6 @@ export const LabRequestFormScreen3 = props => {
       </StyledBodyText>
       <Field
         name="sampleDetails"
-        onClearPanel={handleClearPanel}
         component={SampleDetailsField}
         onSampleChange={setSamples}
         requestFormType={requestFormType}
