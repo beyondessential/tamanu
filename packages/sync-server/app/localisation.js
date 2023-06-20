@@ -443,6 +443,7 @@ const rootLocalisationSchema = yup
         onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
+        mandatoryVitalEditReason: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
