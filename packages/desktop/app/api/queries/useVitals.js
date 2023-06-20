@@ -40,6 +40,7 @@ export const useVitals = encounterId => {
         const configs = {
           validationCriteria: getConfigObject(id, validationCriteria),
           config: getConfigObject(id, config),
+          visualisationConfig: getConfigObject(id, dataElement.visualisationConfig),
         };
         return recordedDates.reduce(
           (state, date) => ({

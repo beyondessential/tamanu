@@ -3,11 +3,12 @@ import { addDays, format } from 'date-fns';
 import { useEncounter } from './Encounter';
 import { useVitalQuery } from '../api/queries/useVitalQuery';
 import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
+import { useVitalsSurvey } from '../api/queries/useVitalsSurvey';
 
 export const VitalChartDataContext = React.createContext({
   chartData: [],
   visualisationConfig: {},
-  visualisationConfigs: {},
+  visualisationConfigs: [],
   vitalChartModalOpen: false,
   setVitalChartModalOpen: () => {},
   chartKey: 'vital-chart',
@@ -20,19 +21,6 @@ export const VitalChartDataContext = React.createContext({
 
 export const useVitalChartData = () => useContext(VitalChartDataContext);
 
-const visualisationConfigs = {
-  'pde-PatientVitalsTemperature': {
-    yAxis: {
-      graphRange: {
-        min: 33,
-        max: 41,
-      },
-      normalRange: { min: 35, max: 39 },
-      interval: 1,
-    },
-  },
-};
-
 export const VitalChartDataProvider = ({ children }) => {
   const [chartKey, setChartKey] = useState(null);
   const [modalTitle, setModalTitle] = useState(null);
@@ -42,12 +30,13 @@ export const VitalChartDataProvider = ({ children }) => {
   const [visualisationConfig, setVisualisationConfig] = useState({});
 
   const { encounter } = useEncounter();
+  const { visualisationConfigs } = useVitalsSurvey();
   const { data: chartData } = useVitalQuery(encounter.id, chartKey, startDate, endDate);
 
   useEffect(() => {
-    const newVisualisationConfig = visualisationConfigs[chartKey];
+    const newVisualisationConfig = visualisationConfigs.find(k => k.key === chartKey);
     setVisualisationConfig(newVisualisationConfig);
-  }, [chartKey]);
+  }, [chartKey, visualisationConfigs]);
 
   return (
     <VitalChartDataContext.Provider
