@@ -2,9 +2,15 @@ import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { uniqBy } from 'lodash';
+import styled from 'styled-components';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
+
+const StyledBodyText = styled(BodyText)`
+  margin-bottom: 28px;
+  white-space: pre-line;
+`;
 
 export const screen2ValidationSchema = yup.object().shape({
   labTestTypeIds: yup
@@ -79,9 +85,7 @@ export const LabRequestFormScreen2 = props => {
     <>
       <div style={{ gridColumn: '1 / -1' }}>
         <Heading3 mb="12px">{subheading}</Heading3>
-        <BodyText width="500px" mb="28px" color="textTertiary">
-          {instructions}
-        </BodyText>
+        <StyledBodyText color="textTertiary">{instructions}</StyledBodyText>
         <Field
           name={fieldName}
           labelConfig={fieldConfig}
