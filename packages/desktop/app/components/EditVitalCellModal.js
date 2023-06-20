@@ -38,7 +38,7 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
   const time = formatTime(cell?.recordedDate);
   const title = `${vitalLabel} | ${date} | ${time}`;
   const initialValue = cell?.value;
-  const showDeleteEntryButton = initialValue !== undefined;
+  const showDeleteEntryButton = initialValue !== '';
   const valueName = cell?.component.dataElement.id;
   const handleDeleteEntry = useCallback(
     setFieldValue => {
