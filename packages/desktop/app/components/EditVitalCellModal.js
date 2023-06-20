@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
@@ -27,6 +27,15 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
 );
 
 export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
+  const [isDeleted, setIsDeleted] = useState(false);
+  const handleDeleteEntry = useCallback(setFieldValue => {
+    setFieldValue('value', '');
+    setIsDeleted(true);
+  }, []);
+  const handleClose = useCallback(() => {
+    setIsDeleted(false);
+    onClose();
+  }, [onClose]);
   const vitalLabel = cell?.vitalLabel;
   const date = formatShortest(cell?.recordedDate);
   const time = formatTime(cell?.recordedDate);
@@ -34,7 +43,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
   const initialValue = cell?.value;
   const showDeleteEntryButton = initialValue !== undefined;
   return (
-    <Modal width="sm" title={title} onClose={onClose} open={cell !== null}>
+    <Modal width="sm" title={title} onClose={handleClose} open={cell !== null}>
       <Form
         onSubmit={onConfirm}
         validationSchema={yup.object().shape({
@@ -43,11 +52,17 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
         initialValues={{ value: initialValue }}
         render={({
           // value: formValue,
+          setFieldValue,
           submitForm,
         }) => (
           <FormGrid columns={4}>
-            <Field component={TextField} label={vitalLabel} name="value" />
-            {showDeleteEntryButton && <DeleteEntryButton />}
+            <Field component={TextField} label={vitalLabel} name="value" disabled={isDeleted} />
+            {showDeleteEntryButton && (
+              <DeleteEntryButton
+                disabled={isDeleted}
+                onClick={() => handleDeleteEntry(setFieldValue)}
+              />
+            )}
             <Field
               required
               component={SelectField}
@@ -65,7 +80,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
               style={{ gridColumn: '1 / -1' }}
               rows={6}
             />
-            <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} confirmText="Save" />
+            <ConfirmCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
           </FormGrid>
         )}
       />
