@@ -135,6 +135,13 @@ export const LabRequestView = () => {
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
+  const actions =
+    labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
+      : {
+          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+        };
 
   return (
     <Container>
@@ -195,16 +202,7 @@ export const LabRequestView = () => {
               />
             </>
           }
-          actions={{
-            'View details': () => {
-              handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS);
-            },
-            [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-              ? 'Record sample'
-              : 'Edit']: () => {
-              handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
-            },
-          }}
+          actions={actions}
         />
         <Tile
           Icon={Business}
