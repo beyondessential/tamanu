@@ -136,6 +136,8 @@ jobs:
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
           path: ops
+      - name: Remove ops/.git so pulumi doesn't get confused
+        run: rm -rf ops/.git
 
       - name: Install Node.js
         uses: actions/setup-node@v3
