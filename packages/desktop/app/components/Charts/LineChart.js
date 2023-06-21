@@ -13,7 +13,7 @@ import {
 import { TooltipContent } from './components/TooltipContent';
 import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
-import { CustomisedTick } from './components/CustomisedTick';
+import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
@@ -59,7 +59,7 @@ export const LineChart = props => {
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
         interval={0}
-        tick={<CustomisedTick />}
+        tick={<CustomisedXAxisTick />}
         dataKey="timestamp"
         tickLine={false}
         ticks={xAxisTicks}
@@ -70,6 +70,7 @@ export const LineChart = props => {
       <YAxis
         domain={[yAxisConfigs.graphRange.min, yAxisConfigs.graphRange.max]}
         interval={0}
+        tick={<CustomisedYAxisTick />}
         ticks={yAxisTicks}
         tickLine={false}
         allowDataOverflow
@@ -92,7 +93,6 @@ export const LineChart = props => {
           />
         )}
       />
-
       <Tooltip
         wrapperStyle={{
           backgroundColor: Colors.white,
@@ -101,7 +101,6 @@ export const LineChart = props => {
         }}
         content={<CustomTooltip />}
       />
-
       <Line
         type="monotone"
         dataKey={DISPLAY_VALUE_KEY}
