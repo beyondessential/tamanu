@@ -40,7 +40,7 @@ const Divider = styled(BaseDivider)`
 
 const ConfirmContent = styled.div`
   text-align: left;
-  padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px 0;
+  padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px ${80 - MODAL_PADDING_LEFT_AND_RIGHT}px;
   h3 {
     color: ${Colors.alert};
     font-size: 16px;
@@ -229,7 +229,7 @@ const EncounterOverview = ({
 };
 
 const DischargeFormScreen = props => {
-  const { validateForm, onStepForward, setStatus, onCancel } = props;
+  const { validateForm, onStepForward, setStatus, status, onCancel } = props;
 
   return (
     <DefaultFormScreen
@@ -240,8 +240,9 @@ const DischargeFormScreen = props => {
             const { isCanceled, ...formErrors } = await validateForm();
             if (Object.keys(formErrors).length > 0) {
               // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
-              // without hitting submit button
-              setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+              // without hitting submit button, it works with one page only. Ideally we should
+              // have Pagination form component to handle this.
+              setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
             } else {
               onStepForward();
             }
@@ -262,12 +263,7 @@ const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
       <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
     </ConfirmContent>
     <Divider />
-    <ConfirmCancelBackRow
-      onBack={onStepBack}
-      onConfirm={submitForm}
-      onCancel={onCancel}
-      confirmText="Save"
-    />
+    <ConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
   </div>
 );
 
