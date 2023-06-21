@@ -73,6 +73,7 @@ jobs:
         with:
           work-dir: ops/pulumi/tamanu-internal
           command: destroy
+          remove: true
           stack-name: bes/${{ steps.ref.outputs.result }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
