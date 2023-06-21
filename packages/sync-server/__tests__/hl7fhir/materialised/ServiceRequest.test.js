@@ -100,7 +100,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a service request by materialised ID', async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest, NoteItem, Note } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, Note } = ctx.store.models;
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
@@ -119,6 +119,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           noteType: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
+          content: 'Suspected adenoma',
         }),
         fake(Note, {
           date: '2022-03-06',
@@ -126,14 +127,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           noteType: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
-        }),
-      ]);
-      await NoteItem.bulkCreate([
-        fake(NoteItem, { noteId: np1.id, content: 'Suspected adenoma' }),
-        fake(NoteItem, { noteId: np1.id, content: 'Patient may need mobility assistance' }),
-        fake(NoteItem, {
-          noteId: np2.id,
-          content: 'Patient may have shrapnel in leg - need to confirm beforehand',
+          content: 'Patient may need mobility assistance',
         }),
       ]);
 

@@ -243,16 +243,11 @@ const fakeAllData = async models => {
       areaId: rightImagingAreaId,
     }),
   );
-  const { id: imagingNoteId } = await models.Note.create(
+  await models.Note.create(
     fake(models.Note, {
       recordId: imagingRequestId,
       noteType: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-    }),
-  );
-  await models.NoteItem.create(
-    fake(models.NoteItem, {
-      noteId: imagingNoteId,
       content: 'Check for fractured knees please',
       date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 6, 4, 54),
     }),
@@ -262,20 +257,16 @@ const fakeAllData = async models => {
     fake(models.LabRequest, { encounterId }),
   );
   await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-  const { id: labsNoteId } = await models.Note.create(
+  await models.Note.create(
     fake(models.Note, {
       recordId: labRequestId,
       noteType: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
-    }),
-  );
-  await models.NoteItem.create(
-    fake(models.NoteItem, {
-      noteId: labsNoteId,
       content: 'Please perform this lab test very carefully',
       date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 2, 4, 54),
     }),
   );
+
   await models.Discharge.create(
     fake(models.Discharge, {
       encounterId,
@@ -284,45 +275,30 @@ const fakeAllData = async models => {
     }),
   );
 
-  const { id: encounterNoteId } = await models.Note.create(
+  await models.Note.create(
     fake(models.Note, {
       recordId: encounterId,
       noteType: NOTE_TYPES.NURSING,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-    }),
-  );
-  await models.NoteItem.create(
-    fake(models.NoteItem, {
-      noteId: encounterNoteId,
       content: 'A\nB\nC\nD\nE\nF\nG\n',
       date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 3, 39, 57),
     }),
   );
-  await models.NoteItem.create(
-    fake(models.NoteItem, {
-      noteId: encounterNoteId,
-      content: 'H\nI\nJ\nK\nL... nopqrstuv',
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 4, 39, 57),
-    }),
-  );
+
   // Location/departments:
   const encounter = await models.Encounter.findByPk(encounterId);
   await encounter.update({
     locationId: location2Id,
   });
 
-  const { id: resultantNoteId } = await models.Note.findOne({
+  const systemNote = await models.Note.findOne({
     where: {
       noteType: NOTE_TYPES.SYSTEM,
     },
   });
-  const systemNoteItem = await models.NoteItem.findOne({
-    where: {
-      noteId: resultantNoteId,
-    },
-  });
-  systemNoteItem.date = createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54);
-  await systemNoteItem.save();
+
+  systemNote.date = createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54);
+  await systemNote.save();
 
   return { patient, encounterId };
 };
