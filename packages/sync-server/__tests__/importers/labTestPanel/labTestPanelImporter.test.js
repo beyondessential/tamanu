@@ -67,7 +67,7 @@ describe('Lab Test Panel import', () => {
   });
 
   describe('Invalid data', () => {
-    it('should validate LabTestPanel data', async () => {
+    it('should validate LabTestPanel mandatory categoryId field', async () => {
       const { didntSendReason, errors } = await doImport({
         file: 'lab-test-panel-no-category-id',
         dryRun: true,
