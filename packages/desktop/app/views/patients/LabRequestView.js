@@ -33,6 +33,7 @@ import { LabRequestRecordSampleModal } from './components/LabRequestRecordSample
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -187,7 +188,11 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           main={
             <>
-              <DateDisplay date={labRequest.sampleTime} showTime />
+              <DateDisplay
+                color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                date={labRequest.sampleTime}
+                showTime
+              />
             </>
           }
           actions={{
