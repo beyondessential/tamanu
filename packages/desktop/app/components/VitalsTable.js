@@ -9,7 +9,6 @@ import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { DEFAULT_Y_AXIS_CONFIGS } from '../utils/getChartDataFromVitalData';
 
 const StyledTable = styled(Table)`
   table {
@@ -41,8 +40,8 @@ const IconButton = styled(IconButtonComponent)`
 `;
 
 const MeasureCell = React.memo(({ value, data }) => {
-  const { setChartKey, setVitalChartModalOpen } = useVitalChartData();
-  const hasVitalChart = Object.keys(DEFAULT_Y_AXIS_CONFIGS).includes(data.value);
+  const { setChartKey, setVitalChartModalOpen, visualisationConfigs } = useVitalChartData();
+  const hasVitalChart = !!visualisationConfigs[data.value];
 
   return (
     <>

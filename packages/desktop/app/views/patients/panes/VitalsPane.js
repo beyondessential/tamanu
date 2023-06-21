@@ -17,6 +17,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
     vitalChartModalOpen,
     setVitalChartModalOpen,
     chartData,
+    visualisationConfig,
     setStartDate,
     setEndDate,
     chartKey,
@@ -57,7 +58,12 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
         }}
       >
         <DateTimeSelector setStartDate={setStartDate} setEndDate={setEndDate} />
-        <LineChart chartData={chartData} startDate={startDate} endDate={endDate} />
+        <LineChart
+          chartData={chartData}
+          visualisationConfig={visualisationConfig}
+          startDate={startDate}
+          endDate={endDate}
+        />
       </Modal>
       <TableButtonRow variant="small">
         <Button onClick={() => setModalOpen(true)} disabled={readonly}>
