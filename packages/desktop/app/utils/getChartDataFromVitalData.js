@@ -12,7 +12,7 @@ export const getChartDataFromVitalData = data => {
     if (dt?.value) {
       chartData.push({
         name: key,
-        value: dt.value,
+        ...dt,
       });
     } else {
       chartConfigs[key] = dt;

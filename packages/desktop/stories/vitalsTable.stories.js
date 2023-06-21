@@ -94,7 +94,7 @@ const endpoints = {
         {
           name: 'Temperature',
           config: '{"unit": "oC"}',
-          records: { [dateOne]: '333' },
+          records: { [dateOne]: '35' },
           dataElementId: 'pde-PatientVitalsTemperature',
         },
         {
@@ -464,18 +464,24 @@ storiesOf('Vitals', module)
     </MockedApi>
   ))
   .add('Vitals Table', () => {
-    const { vitalChartModalOpen, setVitalChartModalOpen, chartData } = useVitalChartData();
+    const {
+      vitalChartModalOpen,
+      setVitalChartModalOpen,
+      chartData,
+      visualisationConfig,
+    } = useVitalChartData();
 
     return (
       <>
         <Modal
           title="Vital Chart"
           open={vitalChartModalOpen}
+          width="lg"
           onClose={() => {
             setVitalChartModalOpen(false);
           }}
         >
-          <LineChart chartData={chartData} />
+          <LineChart chartData={chartData} visualisationConfig={visualisationConfig} />
         </Modal>
         <VitalsTable />
       </>

@@ -37,6 +37,17 @@ const HeadCellWrapper = styled.div`
   }
 `;
 
+export const formatValue = (value, config) => {
+  const { rounding = 0, unit = '' } = config || {};
+  const float = parseFloat(value);
+
+  const formattedValue = isNaN(float)
+    ? capitalize(value) || '-'
+    : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
+
+  return formattedValue;
+};
+
 export const DateHeadCell = React.memo(({ value }) => (
   <TableTooltip title={formatLong(value)}>
     <HeadCellWrapper>
@@ -67,9 +78,7 @@ export const RangeValidatedCell = React.memo(
     const { rounding = 0, unit = '' } = config || {};
     const { normalRange } = validationCriteria || {};
     const float = parseFloat(value);
-    const formattedValue = isNaN(float)
-      ? capitalize(value) || '-'
-      : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
+    const formattedValue = formatValue(value, config);
 
     if (normalRange) {
       const baseTooltip = `Outside normal range\n`;
