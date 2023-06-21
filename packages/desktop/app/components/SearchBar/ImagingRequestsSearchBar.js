@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
   LocalisedField,
   SelectField,
   AutocompleteField,
-  DynamicSelectField,
   Field,
   CheckField,
   SearchField,
@@ -16,6 +15,7 @@ import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
 import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../../contexts/ImagingRequests';
+import { useAdvancedFields } from './useAdvancedFields';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -27,21 +27,14 @@ const Spacer = styled.div`
   width: 100%;
 `;
 
-const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt', 'allFacilities'];
-
-const useAdvancedFields = (advancedFields, completedStatus) => {
-  const { searchParameters, setSearchParameters } = useImagingRequests(
-    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
-  );
-
-  // If one of the advanced fields is filled in when landing on the screen,
-  // show the advanced fields section
-  const defaultIsOpen = Object.keys(searchParameters).some(searchKey =>
-    advancedFields.includes(searchKey),
-  );
-  const [showAdvancedFields, setShowAdvancedFields] = useState(defaultIsOpen);
-  return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
-};
+const BASE_ADVANCED_FIELDS = ['allFacilities'];
+const COMPLETED_ADVANCED_FIELDS = [
+  ...BASE_ADVANCED_FIELDS,
+  'locationGroupId',
+  'departmentId',
+  'completedAt',
+];
+const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS];
 
 export const ImagingRequestsSearchBar = ({ status = '' }) => {
   const { getLocalisation } = useLocalisation();
@@ -51,12 +44,15 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
   const departmentSuggester = useSuggester('department');
   const requesterSuggester = useSuggester('practitioner');
   const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
-  const {
-    showAdvancedFields,
-    setShowAdvancedFields,
+
+  const { searchParameters, setSearchParameters } = useImagingRequests(
+    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
+  );
+
+  const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
+    completedStatus ? COMPLETED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS,
     searchParameters,
-    setSearchParameters,
-  } = useAdvancedFields(ADVANCED_FIELDS, completedStatus);
+  );
   const statusFilter = status ? { status } : {};
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
@@ -153,7 +149,7 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
         <LocalisedField
           name="requestedById"
           defaultLabel="Requested by"
-          component={DynamicSelectField}
+          component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"
         />

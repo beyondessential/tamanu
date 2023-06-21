@@ -35,7 +35,6 @@ export async function verifyQuery(query, paramDefinitions = [], store, verbose) 
       log.info(formattedResults);
     }
   } catch (err) {
-    log.error(`Invalid query: ${err.message}`);
-    process.exit(1);
+    throw new Error(`Invalid query: ${err.message}`);
   }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
-import { LAB_REQUEST_FORM_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { Heading3, BodyText } from '../../components/Typography';
 import {
   AutocompleteField,
@@ -11,7 +11,6 @@ import {
   RadioField,
   SuggesterSelectField,
 } from '../../components';
-import { binaryOptions } from '../../constants';
 import { foreignKey } from '../../utils/validation';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -23,19 +22,6 @@ export const screen1ValidationSchema = yup.object().shape({
     .string()
     .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
     .required('Select type must be selected'),
-  specimenAttached: yup
-    .string()
-    .oneOf(binaryOptions.map(o => o.value))
-    .required(),
-  sampleTime: yup.string().when('specimenAttached', {
-    is: 'yes',
-    then: yup.string().required(),
-    otherwise: yup.string().nullable(),
-  }),
-  status: yup
-    .string()
-    .oneOf([LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED])
-    .required(),
 });
 
 const OPTIONS = {

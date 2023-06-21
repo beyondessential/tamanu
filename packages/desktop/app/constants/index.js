@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils/valueIndex';
+import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
   NOTE_TYPES,
@@ -20,7 +20,7 @@ import {
   LAB_REQUEST_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
-} from 'shared/constants';
+} from '@tamanu/shared/constants';
 
 import {
   medicationIcon,
@@ -452,3 +452,8 @@ export const SUPPORTED_DOCUMENT_TYPES = {
 };
 
 export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
+
+export const FORM_TYPES = {
+  SEARCH_FORM: 'searchForm',
+  DATA_FORM: 'dataForm',
+};

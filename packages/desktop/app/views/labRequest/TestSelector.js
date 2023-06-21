@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, FormHelperText, capitalize } from '@material-ui/core';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
@@ -131,13 +131,13 @@ const queryBySearch = (formType, data, { search, labTestCategoryId }) =>
   data.filter(result => {
     const nameMatch = subStrSearch(search, result.name);
     if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
-      return nameMatch || subStrSearch(search, result.category.name);
+      return nameMatch || subStrSearch(search, result.category?.name);
     }
     return nameMatch && (!labTestCategoryId || result.category.id === labTestCategoryId);
   });
 
 const sortByCategoryAndName = (a, b) =>
-  a.category.name.localeCompare(b.category.name) || a.name.localeCompare(b.name);
+  a.category?.name.localeCompare(b.category?.name) || a.name.localeCompare(b.name);
 
 export const TestSelectorInput = ({
   name,
@@ -168,7 +168,12 @@ export const TestSelectorInput = ({
   const allSelected = queriedData.length && queriedData.every(isSelected);
   const someSelected = queriedData.some(isSelected) && !allSelected;
 
-  const handleChange = newSelected => onChange({ target: { name, value: newSelected } });
+  const handleChange = newSelected => {
+    if (!onChange) return;
+    const selectedObjects = data.filter(({ id }) => newSelected.includes(id));
+    onChange({ target: { name, value: newSelected }, selectedObjects });
+  };
+
   const handleClear = () => {
     handleChange([]);
   };
@@ -236,7 +241,7 @@ export const TestSelectorInput = ({
                     key={`${selectable.id}-checkbox`}
                     label={selectable.name}
                     name={selectable.id}
-                    category={selectable.category.name}
+                    category={selectable.category?.name}
                     checked={isSelected(selectable)}
                     onChange={handleSelect}
                   />
@@ -259,7 +264,7 @@ export const TestSelectorInput = ({
                   key={`${option.id}-selected`}
                   label={option.name}
                   name={option.id}
-                  category={option.category.name}
+                  category={option.category?.name}
                   onRemove={handleSelect}
                 />
               );

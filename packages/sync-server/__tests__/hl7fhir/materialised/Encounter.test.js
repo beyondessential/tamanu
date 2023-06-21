@@ -7,9 +7,9 @@ import { fake } from 'shared/test-helpers';
 import { fakeUUID } from 'shared/utils/generateId';
 import { FHIR_DATETIME_PRECISION } from 'shared/constants';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { toDateTimeString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
-import { toDateTimeString } from '../../../../shared-src/src/utils/dateTime';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -280,15 +280,17 @@ describe(`Materialised FHIR - Encounter`, () => {
 
     describe('filters', () => {
       it('by lastUpdated=gt', async () => {
+        const [newEncounter, newMat] = await makeEncounter({ encounterType: 'emergency' });
+        newMat.update({ lastUpdated: addDays(new Date(), 5) });
         const response = await app.get(
           `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_lastUpdated=gt${encodeURIComponent(
-            formatFhirDate(addDays(originalDate, 6), FHIR_DATETIME_PRECISION.DAYS),
+            formatFhirDate(addDays(new Date(), 4)),
           )}`,
         );
 
-        expect(response.body.total).toBe(6);
+        expect(response.body.total).toBe(1);
         expect(response.body.entry.map(ent => ent.resource.id)).toStrictEqual(
-          encounters.slice(6).map(([, mat]) => mat.id),
+          [[newEncounter, newMat]].map(([, mat]) => mat.id),
         );
         expect(response).toHaveSucceeded();
       });
