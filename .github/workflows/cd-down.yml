@@ -57,6 +57,12 @@ jobs:
         run: npm ci
         working-directory: pulumi
 
+      - name: Connect to Tailscale
+        uses: ./.github/actions/tailscale
+        with:
+          oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+          tags: tag:infra-gha-deploy
+
       - name: Down!
         uses: pulumi/actions@v3
         with:

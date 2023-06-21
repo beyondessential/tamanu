@@ -142,11 +142,17 @@ jobs:
         run: npm ci
         working-directory: pulumi
 
-      - name: Prepare database connection
+      - name: Prepare database credentials
         uses: aws-actions/aws-secretsmanager-get-secrets@v1
         with:
           parse-json-secrets: true
           secret-ids: "INTERNAL_DB, ${{ vars.INTERNAL_DB_SECRET_ARN }}"
+
+      - name: Connect to Tailscale
+        uses: ./.github/actions/tailscale
+        with:
+          oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+          tags: tag:infra-gha-deploy
 
       # a constant secret + a variable plain text, hashed, = a new secret!
       # importantly this needs to remain constant for the lifetime of the stack
@@ -172,7 +178,7 @@ jobs:
           config-map: "{
             tamanu-internal:imageTag: {value: '${{ needs.build.outputs.tag }}', secret: false},
             tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true},
-            tamanu-internal:dbHost: {value: 'tamanu-internal-jumpbox', secret: false},
+            tamanu-internal:dbHost: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
             tamanu-internal:dbUser: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: true},
             tamanu-internal:dbPassword: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
           }"

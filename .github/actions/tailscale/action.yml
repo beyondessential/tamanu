@@ -1,0 +1,90 @@
+# Copied from https://github.com/tailscale/github-action until a PR lands.
+# Specifically: #71 (oauth keys)
+# Original copyright Tailscale, under BSD license.
+name: 'Connect Tailscale'
+description: 'Connect your GitHub Action workflow to Tailscale'
+branding:
+  icon: 'arrow-right-circle'
+  color: 'gray-dark'
+inputs:
+  authkey:
+    description: 'Your Tailscale authentication key, from the admin panel.'
+    required: false
+    deprecationMessage: 'An OAuth API client https://tailscale.com/s/oauth-clients is recommended instead of an authkey'
+  oauth-client-id:
+    description: 'Your Tailscale OAuth Client ID.'
+    required: false
+  oauth-secret:
+    description: 'Your Tailscale OAuth Client Secret.'
+    required: false
+  tags:
+    description: 'Comma separated list of Tags to be applied to nodes. The OAuth client must have permission to apply these tags.'
+    required: false
+  version:
+    description: 'Tailscale version to use.'
+    required: true
+    default: '1.42.0'
+  args:
+    description: 'Optional additional arguments to `tailscale up`'
+    required: false
+    default: ''
+  hostname:
+    description: 'Fixed hostname to use.'
+    required: false
+    default: ''
+runs:
+    using: 'composite'
+    steps:
+      - name: Check Runner OS
+        if: ${{ runner.os != 'Linux' }}
+        shell: bash
+        run: |
+          echo "::error title=⛔ error hint::Support Linux Only"
+          exit 1
+      - name: Check Auth Info Empty
+        if: ${{ inputs.authkey == '' && (inputs['oauth-secret'] == '' || inputs.tags == '') }}
+        shell: bash
+        run: |
+          echo "::error title=⛔ error hint::OAuth identity empty, Maybe you need to populate it in the Secrets for your workflow, see more in https://docs.github.com/en/actions/security-guides/encrypted-secrets and https://tailscale.com/s/oauth-clients"
+          exit 1
+      - name: Download Tailscale
+        shell: bash
+        id: download
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          MINOR=$(echo "$VERSION" | awk -F '.' {'print $2'})
+          if [ $((MINOR % 2)) -eq 0 ]; then
+            URL="https://pkgs.tailscale.com/stable/tailscale_${VERSION}_amd64.tgz"
+          else
+            URL="https://pkgs.tailscale.com/unstable/tailscale_${VERSION}_amd64.tgz"
+          fi
+          curl "$URL" -o tailscale.tgz
+          tar -C /tmp -xzf tailscale.tgz
+          rm tailscale.tgz
+          TSPATH=/tmp/tailscale_${VERSION}_amd64
+          sudo mv "${TSPATH}/tailscale" "${TSPATH}/tailscaled" /usr/bin
+      - name: Start Tailscale Daemon
+        shell: bash
+        run: |
+          sudo -E tailscaled --state=mem: 2>~/tailscaled.log &
+          # And check that tailscaled came up. The CLI will block for a bit waiting
+          # for it. And --json will make it exit with status 0 even if we're logged
+          # out (as we will be). Without --json it returns an error if we're not up.
+          sudo -E tailscale status --json >/dev/null
+      - name: Connect to Tailscale
+        shell: bash
+        env:
+          TAILSCALE_AUTHKEY: ${{ inputs.authkey }}
+          ADDITIONAL_ARGS: ${{ inputs.args }}
+          HOSTNAME: ${{ inputs.hostname }}
+          TS_EXPERIMENT_OAUTH_AUTHKEY: 'true'
+        run: |
+          if [ -z "${HOSTNAME}" ]; then
+            HOSTNAME="github-$(cat /etc/hostname)"
+          fi
+          if [ -n "${{ inputs['oauth-secret'] }}" ]; then
+            TAILSCALE_AUTHKEY="${{ inputs['oauth-secret'] }}?preauthorized=true&ephemeral=true"
+            TAGS_ARG="--advertise-tags=${{ inputs.tags }}"
+          fi
+          sudo -E tailscale up ${TAGS_ARG} --authkey=${TAILSCALE_AUTHKEY} --hostname=${HOSTNAME} --accept-routes ${ADDITIONAL_ARGS}
