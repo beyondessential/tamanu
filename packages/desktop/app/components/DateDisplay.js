@@ -135,6 +135,7 @@ export const DateDisplay = React.memo(
     showExplicitDate = false,
     shortYear = false,
     timeOnlyTooltip = false,
+    className = '',
   }) => {
     const dateObj = parseDate(dateValue);
 
@@ -158,7 +159,7 @@ export const DateDisplay = React.memo(
 
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
-        <span>{parts.join(' ')}</span>
+        <span className={className}>{parts.join(' ')}</span>
       </DateTooltip>
     );
   },

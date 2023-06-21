@@ -33,6 +33,7 @@ import { LabRequestRecordSampleModal } from './components/LabRequestRecordSample
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -40,6 +41,10 @@ const Container = styled.div`
 
 const Rule = styled(Divider)`
   margin: 0 0 20px 0;
+`;
+
+const SampleCollectedDate = styled(DateDisplay)`
+  color: ${props => (!props.date ? Colors.softText : 'unset')};
 `;
 
 const HIDDEN_STATUSES = [
@@ -187,7 +192,7 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           main={
             <>
-              <DateDisplay date={labRequest.sampleTime} showTime />
+              <SampleCollectedDate date={labRequest.sampleTime} showTime />
             </>
           }
           actions={{
