@@ -128,6 +128,7 @@ export const LabTestType = Base.shape({
 export const LabTestPanel = Base.shape({
   name: yup.string().required(),
   code: yup.string().required(),
+  categoryId: yup.string().required(),
   visibilityStatus,
 });
 
