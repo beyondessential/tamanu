@@ -10,6 +10,7 @@ import { getActionsFromData, getAnswersFromData } from '../../../utils';
 import { LineChart } from '../../../components/Charts/LineChart';
 import { useVitalChartData } from '../../../contexts/VitalChartData';
 import { DateTimeSelector } from '../../../components/Charts/components/DateTimeSelector';
+import { Colors } from '../../../constants';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const queryClient = useQueryClient();
@@ -53,6 +54,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
         title={chartKey}
         open={vitalChartModalOpen}
         width="lg"
+        color={Colors.white}
         onClose={() => {
           setVitalChartModalOpen(false);
         }}
