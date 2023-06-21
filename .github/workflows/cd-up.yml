@@ -142,6 +142,12 @@ jobs:
         run: npm ci
         working-directory: pulumi
 
+      - name: Prepare database connection
+        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        with:
+          parse-json-secrets: true
+          secret-ids: "INTERNAL_DB, ${{ vars.INTERNAL_DB_SECRET_ARN }}"
+
       # a constant secret + a variable plain text, hashed, = a new secret!
       # importantly this needs to remain constant for the lifetime of the stack
       - name: Prepare salt
@@ -165,7 +171,10 @@ jobs:
           upsert: true
           config-map: "{
             tamanu-internal:imageTag: {value: '${{ needs.build.outputs.tag }}', secret: false},
-            tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true}
+            tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true},
+            tamanu-internal:dbHost: {value: 'tamanu-internal-jumpbox', secret: false},
+            tamanu-internal:dbUser: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: true},
+            tamanu-internal:dbPassword: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
           }"
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
