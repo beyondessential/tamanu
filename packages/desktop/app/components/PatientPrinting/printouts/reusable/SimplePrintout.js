@@ -54,7 +54,7 @@ export const SimplePrintout = React.memo(
           additionalData={additionalData}
         />
         <GridTable data={tableData} />
-        <NotesSection notes={notes} />
+        <NoteContentSection notes={notes} />
       </CertificateWrapper>
     );
   },
