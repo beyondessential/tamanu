@@ -134,7 +134,19 @@ export const LabRequestView = () => {
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
+  const actions = {
+    [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+      ? 'Record sample'
+      : 'Edit']: () => {
+      handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
+    },
+  };
 
+  if (labRequest.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED) {
+    actions['View details'] = () => {
+      handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS);
+    };
+  }
   return (
     <Container>
       <Heading2 gutterBottom>Labs</Heading2>
@@ -190,16 +202,7 @@ export const LabRequestView = () => {
               <DateDisplay date={labRequest.sampleTime} showTime />
             </>
           }
-          actions={{
-            'View details': () => {
-              handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS);
-            },
-            [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-              ? 'Record sample'
-              : 'Edit']: () => {
-              handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
-            },
-          }}
+          actions={actions}
         />
         <Tile
           Icon={Business}
