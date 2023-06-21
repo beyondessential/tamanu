@@ -8,6 +8,7 @@ import {
   Tooltip,
   Line,
   LineChart as LineChartComponent,
+  Customized,
 } from 'recharts';
 import { TooltipContent } from './components/TooltipContent';
 import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
@@ -16,6 +17,7 @@ import { CustomisedTick } from './components/CustomisedTick';
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
+import { NoDataStateScreen } from './components/NoDataStateScreen';
 
 const CustomTooltip = ({ payload }) => {
   if (payload && payload.length) {
@@ -42,6 +44,7 @@ export const LineChart = props => {
     return null;
   }
 
+  const isNoData = chartData.length === 0;
   const measureData = getMeasureData(chartData, yAxisConfigs);
   const xAxisTicks = getXAxisTicks(startDate, endDate);
   const yAxisTicks = getYAxisTicks(yAxisConfigs);
@@ -108,6 +111,7 @@ export const LineChart = props => {
         activeDot={<CustomDot active />}
         isAnimationActive={false}
       />
+      {isNoData && <Customized component={<NoDataStateScreen />} />}
     </LineChartComponent>
   );
 };

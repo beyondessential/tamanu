@@ -78,4 +78,16 @@ storiesOf('Vitals', module)
         />
       </Modal>
     );
+  })
+  .add('Empty Vital Chart', () => {
+    return (
+      <Modal title="Empty Vital Chart" open width="lg">
+        <LineChart
+          chartData={[]}
+          visualisationConfig={visualisationConfig}
+          startDate={format(addDays(new Date(), -2), 'yyyy-MM-dd HH:mm:ss')}
+          endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
+        />
+      </Modal>
+    );
   });
