@@ -50,9 +50,11 @@ const data = [
 ];
 
 const visualisationConfig = {
-  normalRange: { min: 35, max: 39 },
-  graphRange: { min: 33, max: 41 },
-  interval: 1,
+  yAxis: {
+    normalRange: { min: 35, max: 39 },
+    graphRange: { min: 33, max: 41 },
+    interval: 1,
+  },
 };
 
 storiesOf('Vitals', module)
