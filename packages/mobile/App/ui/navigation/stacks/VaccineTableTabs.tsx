@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import Orientation from 'react-native-orientation';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Routes } from '/helpers/routes';
@@ -16,7 +16,7 @@ export const VaccineTableTabs = (): ReactElement => {
   }, []);
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator swipeEnabled={false}>
       <Tab.Screen
         options={{
           title: 'Routine',

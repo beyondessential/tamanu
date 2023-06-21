@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
+import { NOTE_TYPES, NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 
 import { simpleGet, simplePut } from '../crudHelpers';
@@ -55,6 +55,7 @@ patientCarePlan.get(
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
         noteType: NOTE_TYPES.TREATMENT_PLAN,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       // TODO add test to verify this order
       order: [['createdAt', 'ASC']],

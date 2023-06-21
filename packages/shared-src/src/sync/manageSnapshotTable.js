@@ -25,6 +25,8 @@ export const createSnapshotTable = async (sequelize, sessionId) => {
       data json NOT NULL,
       saved_at_sync_tick bigint, -- saved_at_sync_tick is used to check whether record has been updated between incoming and outgoing phase of a single session
       updated_at_by_field_sum bigint -- updated_at_by_field_sum is used to check whether record has had changes to field during merge and save component of push phase
+    ) WITH (
+      autovacuum_enabled = off
     );
     CREATE INDEX ${tableName
       .replaceAll('.', '_')

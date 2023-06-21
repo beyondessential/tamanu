@@ -8,7 +8,14 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "pool": {
+      "max": 10
+      // "min": 5,
+      // "idle": 10000,
+      // "acquire": 60000,
+      // "evict": 1000
+    }
   },
   "updateUrls": {
     "mobile": ""
@@ -20,7 +27,8 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "dataset": "tamanu-general",
+    "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
+                        // in contrast, logs are always sent
     "enabled": true
   },
   "sync": {
@@ -69,7 +77,7 @@
     ]
   },
   "auth": {
-    // this secret should be set if more than one process of the sync-server is running
+    // these secrets should be set if more than one process of the sync-server is running
     // otherwise, each process will use a different key and tokens won't match
     "secret": null,
     "saltRounds": 12,
@@ -82,6 +90,12 @@
       "displayName": "Initial Admin",
       "role": "admin",
       "password": "admin"
+    },
+    "refreshToken": {
+      "secret": null,
+      "tokenDuration": "30d",
+      "absoluteExpiration": false,
+      "refreshIdLength": 54
     },
     "resetPassword": {
       "tokenLength": 6,
@@ -101,8 +115,8 @@
     // limit == run through N per task run
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
     "outpatientDischarger": {
-      // every day at 11 PM
-      "schedule": "0 11 * * *",
+      // every day at 2 AM
+      "schedule": "0 2 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
@@ -158,16 +172,11 @@
     },
     "covidClearanceCertificatePublisher": {
       "enabled": false,
-      "schedule": "*/30 * * * *",
-      "daysSinceSampleTime": 13,
-      "after": "2022-09-01",
-      "labTestCategories": [],
-      "labTestTypes": []
+      "schedule": "*/30 * * * *"
     },
-    "fhirMaterialiser": {
-      "enabled": true, // only when integrations.fhir is on
-      "schedule": "*/1 * * * *",
-      "limit": 100
+    "fhirMissingResources": {
+      "enabled": true,
+      "schedule": "48 1 * * *" // once a day, time does not matter (better in off hours)
     },
     "plannedMoveTimeout": {
       "enabled": true,
@@ -231,7 +240,21 @@
       "requireClientHeaders": true
     },
     "fhir": {
-      "enabled": false
+      // Enabling the HTTP routes and enabling the worker are completely separate:
+      // one may be enabled without the other and vice versa. The worker is on by
+      // default so that FHIR resources can be used as a target for reports without
+      // the FHIR API being exposed to the public in a deployment that doesn't need it.
+      "enabled": false, // the HTTP routes
+      "worker": {
+        "enabled": true, // the materialisation worker
+        "concurrency": 100
+      },        
+      "parameters": {
+        "_count": {
+          "default": 20,
+          "max": 20
+        }
+      }
     },
     "omniLab": {
       "enabled": false,
@@ -600,9 +623,20 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
+        "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
-        "patientPlannedMove": false
+        "patientPlannedMove": false,
+        "idleTimeout": {
+          "enabled": true,
+          // All values in seconds
+          "timeoutDuration": 600,
+          "warningPromptDuration": 30,
+          "refreshInterval": 150
+        },
+        "fhirNewZealandEthnicity": false,
+        "displayProcedureCodesInDischargeSummary": true,
+        "displayIcd10CodesInDischargeSummary": true
       },
       "templates": {
         "letterhead": {
@@ -614,6 +648,10 @@
           "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
         },
         "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidVaccineCertificateEmail": {
           "subject": "Medical Certificate now available",
           "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
         },
@@ -631,11 +669,16 @@
           "healthFacility": "State level"
         },
         "covidTestCertificate": {
-          "laboratoryName": "Approved test provider"
+          "laboratoryName": "Approved test provider",
+          "clearanceCertRemark": "This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue."
         },
         "plannedMoveTimeoutHours": 24
       },
-      "imagingTypes": {},
+      "imagingTypes": {
+        // keys are taken from IMAGING_TYPES in shared/constants/imaging
+        // e.g.
+        // "xRay": { "label": "X-Ray" }
+      },
       "imagingPriorities": [
         {
           "value": "routine",
@@ -654,6 +697,44 @@
           "label": "STAT"
         }
       ],
+      "imagingCancellationReasons": [{
+        "value": "clinical",
+        "label": "Clinical reason"
+      },{
+        "value": "duplicate",
+        "label": "Duplicate"
+      },{
+        "value": "entered-in-error",
+        "label": "Entered in error"
+      },{
+        "value": "patient-discharged",
+        "label": "Patient discharged"
+      },{
+        "value": "patient-refused",
+        "label": "Patient refused"
+      },{
+        "value": "other",
+        "label": "Other"
+      }],
+      "labsCancellationReasons": [{
+        "value": "clinical",
+        "label": "Clinical reason"
+      },{
+        "value": "duplicate",
+        "label": "Duplicate"
+      },{
+        "value": "entered-in-error",
+        "label": "Entered in error"
+      },{
+        "value": "patient-discharged",
+        "label": "Patient discharged"
+      },{
+        "value": "patient-refused",
+        "label": "Patient refused"
+      },{
+        "value": "other",
+        "label": "Other"
+      }],
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",
@@ -728,7 +809,13 @@
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
       "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
-      "serviceRequestId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html"
+      "encounterClass": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "serviceRequestImagingDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
+      "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
+      "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
+      "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
+      "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
+      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html"
     }
   },
   "s3": {},
@@ -776,7 +863,11 @@
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
   },
+  "validateQuestionConfigs": {
+    "enabled": false
+  },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "countryTimeZone": null
+  "countryTimeZone": "Australia/Melbourne",
+  "allowMismatchedTimeZones": false
 }

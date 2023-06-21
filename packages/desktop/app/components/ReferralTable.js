@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES } from 'shared/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
@@ -8,7 +9,7 @@ import { DropdownButton } from './DropdownButton';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi } from '../api';
+import { useApi, isErrorUnknownAllow404s } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
@@ -22,6 +23,8 @@ const ACTION_MODAL_STATES = {
 const ActionDropdown = React.memo(({ row, refreshTable }) => {
   const [modalStatus, setModalStatus] = useState(ACTION_MODAL_STATES.CLOSED);
   const { loadEncounter } = useEncounter();
+  const patient = useSelector(state => state.patient);
+
   const api = useApi();
 
   // Modal callbacks
@@ -71,6 +74,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
       <EncounterModal
         open={modalStatus === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
         onClose={onCloseModal}
+        patient={patient}
         referral={row}
       />
       <ConfirmModal
@@ -110,10 +114,14 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
       }
 
       try {
-        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
+        const user = await api.get(
+          `user/${encodeURIComponent(referralByAnswer.body)}`,
+          {},
+          { isErrorUnknown: isErrorUnknownAllow404s },
+        );
         setName(user.displayName);
       } catch (e) {
-        if (e.message === '404') {
+        if (e.message === 'Facility server error response: 404') {
           setName(referralByAnswer.body);
         } else {
           setName('Unknown');

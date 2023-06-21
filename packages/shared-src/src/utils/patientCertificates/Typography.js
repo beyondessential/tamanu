@@ -29,11 +29,34 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     marginBottom: 15,
   },
+  certificateAddress: {
+    fontFamily: 'Helvetica-Bold',
+    textAlign: 'right',
+    fontSize: 14,
+    marginBottom: 13,
+  },
+  certificateTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 18,
+    textAlign: 'right',
+    color: '#444444',
+    marginBottom: 14,
+  },
 });
 
-export const H1 = props => <Text style={styles.h1} {...props} />;
-export const H2 = props => <Text style={styles.h2} {...props} />;
-export const H3 = props => <Text style={styles.h3} {...props} />;
-export const P = ({ mt = 0, mb, ...props }) => (
-  <Text {...props} style={[styles.p, { marginTop: mt, marginBottom: mb }]} />
+export const H1 = ({ style, ...props }) => <Text style={{ ...styles.h1, ...style }} {...props} />;
+export const H2 = ({ style, ...props }) => <Text style={{ ...styles.h2, ...style }} {...props} />;
+export const H3 = ({ style, ...props }) => <Text style={{ ...styles.h3, ...style }} {...props} />;
+export const P = ({ mt = 0, mb, bold = false, style = {}, ...props }) => (
+  <Text
+    {...props}
+    style={[
+      styles.p,
+      { marginTop: mt, marginBottom: mb },
+      ...(bold ? [{ fontFamily: 'Helvetica-Bold' }] : []),
+      style,
+    ]}
+  />
 );
+export const CertificateAddress = props => <Text style={styles.certificateAddress} {...props} />;
+export const CertificateTitle = props => <Text style={styles.certificateTitle} {...props} />;

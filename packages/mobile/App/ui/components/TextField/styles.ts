@@ -9,39 +9,39 @@ import { StyledView, StyledViewProps } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { TextFieldProps } from './TextField';
 
-export interface InputContainerProps {
+export interface StyledTextInputProps {
   error?: string;
+  focused?: boolean;
   hasValue?: boolean;
   disabled?: boolean;
 }
 
 export const InputContainer = styled(StyledView)`
-  background-color: ${(props: InputContainerProps): string => {
-    if (props.disabled) return theme.colors.BACKGROUND_GREY;
-    if (!props.hasValue || (props.hasValue && !props.error)) return theme.colors.WHITE;
-    if (props.hasValue && props.error) return theme.colors.ERROR_LIGHT;
-    return theme.colors.WHITE;
-  }};
-  border: 1px solid
-    ${(props: InputContainerProps): string => {
-    if (props.error) return theme.colors.ERROR;
-    return theme.colors.DEFAULT_OFF;
-  }};
-  border-radius: 3px;
-  padding-top: 3px;
   text-align: center;
   width: 100%;
   height: 100%;
 `;
 
 export const StyledTextInput = styled.TextInput<StyledViewProps>`
+  background-color: ${(props: StyledTextInputProps): string => {
+    if (props.disabled) return theme.colors.BACKGROUND_GREY;
+    return theme.colors.WHITE;
+  }};
+  border: 1px solid
+    ${(props: StyledTextInputProps): string => {
+      if (props.error) return theme.colors.ALERT;
+      if (props.focused) return theme.colors.PRIMARY_MAIN;
+      return theme.colors.DEFAULT_OFF;
+    }};
+  border-radius: 5px;
   font-size: ${screenPercentageToDP(2.18, Orientation.Height)};
   line-height: ${screenPercentageToDP(2.58, Orientation.Height)};
   font-weight: 400;
-  height: 100%;
   justify-content: flex-start;
-  top: -5px;
-  color: ${theme.colors.TEXT_MID};
+  color: ${(props: StyledTextInputProps): string => {
+    return props.hasValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT;
+  }};
+  padding-left: ${screenPercentageToDP(3.5, Orientation.Width)};
 `;
 
 export interface MaskedInputProps extends TextFieldProps {

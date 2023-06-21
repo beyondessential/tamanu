@@ -11,7 +11,7 @@ Example of workflows to be tested end-to-end:
 
 - User authentication
 - Add Patient workflow
-- Add sick or injured entry
+- Add diagnosis & treatment entry
 - Add check up
 - Add program entry
 - Add referral

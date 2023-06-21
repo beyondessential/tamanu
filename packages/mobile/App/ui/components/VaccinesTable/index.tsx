@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, {useRef} from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
@@ -11,7 +11,8 @@ import { LoadingScreen } from '../LoadingScreen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
 import { IScheduledVaccine } from '~/types';
-
+import { ScrollView } from 'react-native-gesture-handler';
+import { StyledView } from '~/ui/styled/common';
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
@@ -22,14 +23,24 @@ export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
-}: VaccinesTableProps): ReactElement => {
+}: VaccinesTableProps): JSX.Element => {
+  const scrollViewRef = useRef(null);
+
+  // This manages the horizontal scroll of the header. This handler is passed down
+  // to the scrollview in the generic table. That gets the horizontal scroll coordinate
+  // of the table and feeds this back up to position the header appropriately.
+  const handleScroll = (event: any) => {
+    scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
+  };
+
   const isFocused = useIsFocused();
 
   const [scheduledVaccines, error] = useBackendEffect(
-    ({ models }) => models.ScheduledVaccine.find({
-      order: { index: 'ASC' },
-      where: { category: categoryName },
-    }),
+    ({ models }) =>
+      models.ScheduledVaccine.find({
+        order: { index: 'ASC' },
+        where: { category: categoryName },
+      }),
     [],
   );
 
@@ -45,7 +56,7 @@ export const VaccinesTable = ({
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
     rowTitle: scheduledVaccine.label,
     rowKey: 'label',
-    rowHeader: (): ReactElement => (
+    rowHeader: () => (
       <VaccineRowHeader
         key={scheduledVaccine.id}
         title={scheduledVaccine.label}
@@ -53,10 +64,7 @@ export const VaccinesTable = ({
       />
     ),
     cell: (cellData: VaccineTableCellData) => (
-      <VaccineTableCell
-        onPress={onPressItem}
-        data={cellData}
-      />
+      <VaccineTableCell onPress={onPressItem} data={cellData} />
     ),
   }));
 
@@ -79,7 +87,8 @@ export const VaccinesTable = ({
     cells[scheduledVaccine.schedule] = [
       ...(cells[scheduledVaccine.schedule] || []),
       {
-        scheduledVaccine: scheduledVaccine as IScheduledVaccine, // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
+        scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+        // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
         vaccineStatus,
         administeredVaccine,
         patientAdministeredVaccines,
@@ -90,13 +99,24 @@ export const VaccinesTable = ({
   });
 
   return (
-    <Table
-      onPressItem={onPressItem}
-      rows={rows}
-      columns={columns}
-      cells={cells}
-      Title={VaccinesTableTitle}
-      tableHeader={vaccineTableHeader}
-    />
+    <ScrollView bounces={false} stickyHeaderIndices={[0]}>
+      <StyledView flexDirection="row">
+        <VaccinesTableTitle />
+        <ScrollView ref={scrollViewRef} horizontal scrollEnabled={false}>
+          {columns.map((column: any) => (
+            <StyledView key={`${column}`}>
+              {vaccineTableHeader.accessor(column, onPressItem)}
+            </StyledView>
+          ))}
+        </ScrollView>
+      </StyledView>
+      <Table
+        onPressItem={onPressItem}
+        rows={rows}
+        columns={columns}
+        cells={cells}
+        scrollHandler={handleScroll}
+      />
+    </ScrollView>
   );
 };

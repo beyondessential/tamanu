@@ -1,9 +1,13 @@
 import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
-import { createTestContext } from '../utilities';
+import jwt from 'jsonwebtoken';
+import config from 'config';
+import { createTestContext, withDate } from '../utilities';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
+const TEST_DEVICE_ID = 'test-device-id';
 const TEST_FACILITY = {
   id: 'testfacilityid',
   code: 'testfacilitycode',
@@ -41,20 +45,76 @@ describe('Auth', () => {
   afterAll(async () => close());
 
   describe('Logging in', () => {
-    it('Should get a token for correct credentials', async () => {
+    it('Should get a valid access token for correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('token');
+      const contents = jwt.decode(response.body.token);
+
+      expect(contents).toEqual({
+        aud: JWT_TOKEN_TYPES.ACCESS,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        deviceId: TEST_DEVICE_ID,
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+    });
+
+    it('Should issue a refresh token and save hashed refreshId to the database', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('refreshToken');
+
+      const { refreshToken, user } = response.body;
+
+      const contents = jwt.decode(refreshToken);
+
+      expect(contents).toEqual({
+        aud: JWT_TOKEN_TYPES.REFRESH,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        refreshId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      const refreshTokenRecord = await store.models.RefreshToken.findOne({
+        where: { deviceId: TEST_DEVICE_ID, userId: user.id },
+      });
+      expect(refreshTokenRecord).not.toBeNull();
+      expect(refreshTokenRecord).toHaveProperty('refreshId');
+      expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(true);
+    });
+
+    it('Should not issue a refresh token for external client', async () => {
+      const response = await baseApp
+        .post('/v1/login')
+        .set({ 'X-Tamanu-Client': 'FHIR' })
+        .send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+        });
+      expect(response).toHaveSucceeded();
+      expect(response.body.refreshToken).toBeUndefined();
     });
 
     it('Should respond with user details with correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
 
       expect(response).toHaveSucceeded();
@@ -70,6 +130,7 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
 
       expect(response).toHaveSucceeded();
@@ -83,6 +144,7 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: '',
+        deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
     });
@@ -91,8 +153,160 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: 'not the password',
+        deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
+    });
+  });
+
+  describe('Refresh token', () => {
+    it('Should return a new access token with expiresAt for a valid refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(loginResponse).toHaveSucceeded();
+      const { token, refreshToken } = loginResponse.body;
+
+      // Make sure that Date used in signing new token is different from global mock date
+      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+        baseApp.post('/v1/refresh').send({
+          refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        }),
+      );
+
+      expect(refreshResponse).toHaveSucceeded();
+      expect(refreshResponse.body).toHaveProperty('token');
+
+      const oldTokenContents = jwt.decode(token);
+      const newTokenContents = jwt.decode(refreshResponse.body.token);
+
+      expect(newTokenContents).toEqual({
+        aud: JWT_TOKEN_TYPES.ACCESS,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        deviceId: TEST_DEVICE_ID,
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      expect(newTokenContents.jti).not.toEqual(oldTokenContents.jti);
+      expect(newTokenContents.iat).toBeGreaterThan(oldTokenContents.iat);
+      expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
+    });
+    it('Should return a rotated refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(loginResponse).toHaveSucceeded();
+      const { refreshToken, user } = loginResponse.body;
+
+      // Make sure that Date used in signing new token is different from global mock date
+      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+        baseApp.post('/v1/refresh').send({
+          refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        }),
+      );
+
+      expect(refreshResponse).toHaveSucceeded();
+      expect(refreshResponse.body).toHaveProperty('refreshToken');
+
+      const newRefreshTokenContents = jwt.decode(refreshResponse.body.refreshToken);
+      const oldRefreshTokenContents = jwt.decode(refreshToken);
+
+      expect(newRefreshTokenContents).toEqual({
+        aud: JWT_TOKEN_TYPES.REFRESH,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        refreshId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      expect(newRefreshTokenContents.jti).not.toEqual(oldRefreshTokenContents.jti);
+      expect(newRefreshTokenContents.iat).toBeGreaterThan(oldRefreshTokenContents.iat);
+      expect(newRefreshTokenContents.exp).toBeGreaterThan(oldRefreshTokenContents.exp);
+
+      const refreshTokenRecord = await store.models.RefreshToken.findOne({
+        where: { deviceId: TEST_DEVICE_ID, userId: user.id },
+      });
+      expect(refreshTokenRecord).not.toBeNull();
+      expect(refreshTokenRecord).toHaveProperty('refreshId');
+      expect(
+        bcrypt.compare(newRefreshTokenContents.refreshId, refreshTokenRecord.refreshId),
+      ).resolves.toBe(true);
+    });
+    it('Should reject if external client', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+      const refreshResponse = await baseApp
+        .post('/v1/refresh')
+        .set('X-Tamanu-Client', 'FHIR')
+        .send({
+          refreshToken: loginResponse.refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        });
+      expect(refreshResponse).toHaveRequestError();
+    });
+    it('Should reject invalid refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken: 'invalid-token',
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+    it('Should fail if refresh token requested with a token with aud not of refresh', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const { token } = loginResponse.body;
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        // Incorrectly send token instead
+        refreshToken: token,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+    it('Should fail if refresh token requested from different device', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const { refreshToken } = loginResponse.body;
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken,
+        deviceId: 'different-device',
+      });
+      expect(refreshResponse).toHaveRequestError();
     });
   });
 
@@ -106,6 +320,7 @@ describe('Auth', () => {
     const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
     });
 
     expect(response).toHaveSucceeded();
@@ -125,6 +340,7 @@ describe('Auth', () => {
     const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
     });
 
     expect(response).toHaveSucceeded();
