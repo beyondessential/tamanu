@@ -9,8 +9,7 @@ export const useCertificate = ({ footerAssetName } = {}) => {
   const { getLocalisation } = useLocalisation();
   const logo = useAsset(ASSET_NAMES.LETTERHEAD_LOGO);
   const watermark = useAsset(ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK);
-  const footerImg = useAsset(footerAssetName);
-  const defaultFooterImg = useAsset(ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG);
+  const footerImg = useAsset(footerAssetName || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG);
   const deathCertFooterImg = useAsset(ASSET_NAMES.DEATH_CERTIFICATE_BOTTOM_HALF_IMG);
   const letterhead = useTemplate('templates.letterhead')?.data;
   const title = letterhead?.data?.title || getLocalisation('templates.letterhead.title');
@@ -23,7 +22,7 @@ export const useCertificate = ({ footerAssetName } = {}) => {
     subTitle,
     logo,
     watermark,
-    footerImg: footerImg || defaultFooterImg,
+    footerImg,
     deathCertFooterImg,
     printedBy: currentUser?.displayName,
   };
