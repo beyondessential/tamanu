@@ -186,7 +186,7 @@ jobs:
             postgresql:host: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
             postgresql:username: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: false},
             postgresql:password: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
-            postgresql:superuser: {value: false, secret: false}, # required for RDS
+            postgresql:superuser: {value: false, secret: false}
           }"
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
