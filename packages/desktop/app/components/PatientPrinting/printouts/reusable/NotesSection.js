@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NotesSection } from './SimplePrintout';
+import { NoteContentSection } from './SimplePrintout';
 import { BodyText } from '../../../Typography';
 
 export const StyledNotesSectionWrapper = styled.div`
@@ -13,20 +13,17 @@ const StyledId = styled.b`
   margin-right: 10px;
 `;
 
-export const NotesPagesSection = ({ idsAndNotePages }) => {
-  const notes = idsAndNotePages
-    .map(([id, notePages]) => {
-      const content = notePages
-        ?.filter(np => np?.noteItems?.length > 0)
-        .map(({ noteItems }) => noteItems[0].content)
-        .join(', ');
+export const NotesSection = ({ idsAndNotes }) => {
+  const notes = idsAndNotes
+    .map(([id, noteObjects]) => {
+      const content = noteObjects.map(n => n.content).join(', ');
       if (!content) {
         return null;
       }
       return {
         content: (
           <BodyText key={id} mb={2}>
-            {idsAndNotePages.length > 1 && <StyledId>{id}</StyledId>}
+            {idsAndNotes.length > 1 && <StyledId>{id}</StyledId>}
             {content}
           </BodyText>
         ),
@@ -35,7 +32,7 @@ export const NotesPagesSection = ({ idsAndNotePages }) => {
     .filter(note => !!note);
   return (
     <StyledNotesSectionWrapper>
-      <NotesSection title="Notes" notes={notes} height="auto" separator={null} boldTitle />
+      <NoteContentSection title="Notes" notes={notes} height="auto" separator={null} boldTitle />
     </StyledNotesSectionWrapper>
   );
 };

@@ -3,7 +3,7 @@ import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 
-export const notePageListHandler = recordType =>
+export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { order = 'ASC', orderBy } = query;
@@ -11,21 +11,15 @@ export const notePageListHandler = recordType =>
     const recordId = params.id;
     await checkNotePermission(req, { recordType, recordId }, 'list');
 
-    const rows = await models.NotePage.findAll({
+    const rows = await models.Note.findAll({
       include: [
         {
-          model: models.NoteItem,
-          as: 'noteItems',
-          include: [
-            {
-              model: models.User,
-              as: 'author',
-            },
-            {
-              model: models.User,
-              as: 'onBehalfOf',
-            },
-          ],
+          model: models.User,
+          as: 'author',
+        },
+        {
+          model: models.User,
+          as: 'onBehalfOf',
         },
       ],
       where: { recordType, recordId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
@@ -35,23 +29,17 @@ export const notePageListHandler = recordType =>
     res.send({ data: rows, count: rows.length });
   });
 
-export const notePagesWithSingleItemListHandler = recordType =>
+export const notesWithSingleItemListHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
 
     const recordId = params.id;
     await checkNotePermission(req, { recordType, recordId }, 'list');
 
-    const notePages = await models.NotePage.findAll({
+    const notes = await models.Note.findAll({
       include: [
-        {
-          model: models.NoteItem,
-          as: 'noteItems',
-          include: [
-            { model: models.User, as: 'author' },
-            { model: models.User, as: 'onBehalfOf' },
-          ],
-        },
+        { model: models.User, as: 'author' },
+        { model: models.User, as: 'onBehalfOf' },
       ],
       where: {
         recordId,
@@ -61,12 +49,5 @@ export const notePagesWithSingleItemListHandler = recordType =>
       order: [['date', 'DESC']],
     });
 
-    const notes = [];
-    for (const notePage of notePages) {
-      const combinedNoteObject = await notePage.getCombinedNoteObject(models);
-      notes.push(combinedNoteObject);
-    }
-
-    const resultNotes = notes.filter(n => !!n);
-    res.send({ data: resultNotes, count: resultNotes.length });
+    res.send({ data: notes, count: notes.length });
   });

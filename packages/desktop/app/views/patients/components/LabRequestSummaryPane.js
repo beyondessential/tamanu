@@ -132,7 +132,7 @@ export const LabRequestSummaryPane = React.memo(
       site,
     } = labRequests[0];
 
-    const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(id);
+    const { data: notes, isLoading: areNotesLoading } = useLabRequestNotes(id);
 
     return (
       <Container>
@@ -181,7 +181,7 @@ export const LabRequestSummaryPane = React.memo(
             encounter={encounter}
             labRequests={selectedRows.map(row => ({
               ...row,
-              notePages,
+              notes,
             }))}
             open={isOpen === MODALS.PRINT}
             onClose={() => setIsOpen(false)}

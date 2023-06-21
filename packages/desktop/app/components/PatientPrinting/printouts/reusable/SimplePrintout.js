@@ -23,7 +23,7 @@ const NotesBox = styled(Box)`
   overflow: hidden;
 `;
 
-export const NotesSection = ({
+export const NoteContentSection = ({
   notes = [],
   title = 'Notes:',
   height,

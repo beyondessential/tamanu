@@ -75,50 +75,27 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .join('; ');
 
 const getAllNotes = async (models, encounterIds) => {
-  const locationChangeNotePages = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        where: {
-          content: {
-            [Op.like]: 'Changed location from%',
-          },
-        },
-      },
-    ],
+  const locationChangeNotes = await models.Note.findAll({
     where: {
+      content: {
+        [Op.like]: 'Changed location from%',
+      },
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
 
-  const departmentChangeNotePages = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        where: {
-          content: {
-            [Op.like]: 'Changed department from%',
-          },
-        },
-      },
-    ],
+  const departmentChangeNotes = await models.Note.findAll({
     where: {
+      content: {
+        [Op.like]: 'Changed department from%',
+      },
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
-
-  const locationChangeNotes = await Promise.all(
-    locationChangeNotePages.map(l => l.getCombinedNoteObject(models)),
-  );
-  const departmentChangeNotes = await Promise.all(
-    departmentChangeNotePages.map(d => d.getCombinedNoteObject(models)),
-  );
 
   return { locationChangeNotes, departmentChangeNotes };
 };

@@ -15,8 +15,8 @@ function getParentRecordVerb(verb) {
 
 // Encounter notes have their own permission checks, every other type
 // of note should simply check permissions against their parent record.
-export async function checkNotePermission(req, notePage, verb) {
-  const { recordType, recordId } = notePage;
+export async function checkNotePermission(req, note, verb) {
+  const { recordType, recordId } = note;
   if (recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
     req.checkPermission(verb, 'EncounterNote');
     return;

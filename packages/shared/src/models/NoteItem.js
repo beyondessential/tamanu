@@ -43,9 +43,9 @@ export class NoteItem extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.NotePage, {
-      foreignKey: 'notePageId',
-      as: 'notePage',
+    this.belongsTo(models.Note, {
+      foreignKey: 'noteId',
+      as: 'note',
     });
 
     this.belongsTo(models.User, {

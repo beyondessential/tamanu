@@ -1,5 +1,4 @@
 import { DataTypes } from 'sequelize';
-import { log } from '../services/logging';
 import {
   NOTE_RECORD_TYPE_VALUES,
   NOTE_TYPE_VALUES,
@@ -8,12 +7,11 @@ import {
 } from '../constants';
 
 import { Model } from './Model';
-import { NoteItem } from './NoteItem';
-import { buildNotePageLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
+import { buildNoteLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
-export class NotePage extends Model {
+export class Note extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -33,6 +31,15 @@ export class NotePage extends Model {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         }),
+        content: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+          defaultValue: '',
+        },
+        revisedById: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
@@ -44,12 +51,12 @@ export class NotePage extends Model {
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
-              throw new Error(`NotePage: Must have a valid record type (got ${this.recordType})`);
+              throw new Error(`Note: Must have a valid record type (got ${this.recordType})`);
             }
           },
           mustHaveValidType() {
             if (!NOTE_TYPE_VALUES.includes(this.noteType)) {
-              throw new Error(`NotePage: Must have a valid note type (got ${this.noteType})`);
+              throw new Error(`Note: Must have a valid note type (got ${this.noteType})`);
             }
           },
         },
@@ -66,61 +73,26 @@ export class NotePage extends Model {
       });
     });
 
-    this.hasMany(models.NoteItem, {
-      foreignKey: 'notePageId',
-      as: 'noteItems',
-      constraints: false,
-    });
-  }
-
-  /**
-   * This is a util method that combines the NotePage instance with its single associated NoteItem.
-   * This method should only be used for records that always only have 1 note item attached it.
-   * Eg: LabRequest, PatientCarePlan
-   * @param {*} models
-   * @returns
-   */
-  async getCombinedNoteObject(models) {
-    const noteItem = await models.NoteItem.findOne({
-      include: [
-        { model: models.User, as: 'author' },
-        { model: models.User, as: 'onBehalfOf' },
-      ],
-      where: {
-        notePageId: this.id,
-      },
+    this.belongsTo(models.User, {
+      foreignKey: 'authorId',
+      as: 'author',
     });
 
-    if (!noteItem) {
-      log.warn(`Cannot find note item of note page '${this.id}'`);
-      return null;
-    }
-
-    return {
-      ...noteItem.toJSON(),
-      id: this.id,
-      recordType: this.recordType,
-      recordId: this.recordId,
-      noteType: this.noteType,
-    };
+    this.belongsTo(models.User, {
+      foreignKey: 'onBehalfOfId',
+      as: 'onBehalfOf',
+    });
   }
 
   static async createForRecord(recordId, recordType, noteType, content, authorId) {
-    const notePage = await NotePage.create({
+    return Note.create({
       recordId,
       recordType,
       noteType,
       date: getCurrentDateTimeString(),
-    });
-
-    await NoteItem.create({
-      notePageId: notePage.id,
       content,
-      date: getCurrentDateTimeString(),
       authorId,
     });
-
-    return notePage;
   }
 
   async getParentRecord(options) {
@@ -131,5 +103,5 @@ export class NotePage extends Model {
     return this[parentGetter](options);
   }
 
-  static buildSyncFilter = buildNotePageLinkedSyncFilter;
+  static buildSyncFilter = buildNoteLinkedSyncFilter;
 }

@@ -13,8 +13,7 @@ export function getQueryOptions(models) {
     LabTestType,
     LabTestPanelRequest,
     LabTestPanel,
-    NotePage,
-    NoteItem,
+    Note,
   } = models;
 
   const imagingRequestOptions = {
@@ -68,14 +67,8 @@ export function getQueryOptions(models) {
         ],
       },
       {
-        model: NotePage,
-        as: 'notePages',
-        include: [
-          {
-            model: NoteItem,
-            as: 'noteItems',
-          },
-        ],
+        model: Note,
+        as: 'notes',
       },
     ],
   };
@@ -117,14 +110,8 @@ export function getQueryOptions(models) {
         ],
       },
       {
-        model: NotePage,
-        as: 'notePages',
-        include: [
-          {
-            model: NoteItem,
-            as: 'noteItems',
-          },
-        ],
+        model: Note,
+        as: 'notes',
       },
     ],
   };
