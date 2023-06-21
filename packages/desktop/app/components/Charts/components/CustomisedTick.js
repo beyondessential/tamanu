@@ -8,7 +8,7 @@ const Text = styled.text`
   font-weight: 500;
 `;
 
-export const CustomisedTick = props => {
+export const CustomisedXAxisTick = props => {
   const { x, y, payload } = props;
   const { value } = payload;
 
@@ -19,6 +19,26 @@ export const CustomisedTick = props => {
       </Text>
       <Text x={0} y={23} textAnchor="middle" fill={Colors.midText}>
         {formatTime(value)}
+      </Text>
+    </g>
+  );
+};
+
+export const CustomisedYAxisTick = props => {
+  const { x, y, payload, visibleTicksCount, index } = props;
+  const { value } = payload;
+  let textY = 4;
+  if (index === 0) {
+    textY = 0;
+  }
+  if (visibleTicksCount - 1 === index) {
+    textY = 8;
+  }
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <Text x={0} y={textY} textAnchor="end" fill={Colors.darkText}>
+        {value}
       </Text>
     </g>
   );
