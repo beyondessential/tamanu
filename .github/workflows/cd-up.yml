@@ -157,7 +157,7 @@ jobs:
         uses: ./.github/actions/tailscale
         with:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
-          tags: tag:infra-gha-deploy
+          tags: tag:infra,tag:infra-gha-deploy
 
       # a constant secret + a variable plain text, hashed, = a new secret!
       # importantly this needs to remain constant for the lifetime of the stack
