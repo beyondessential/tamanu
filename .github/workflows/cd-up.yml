@@ -178,9 +178,10 @@ jobs:
           config-map: "{
             tamanu-internal:imageTag: {value: '${{ needs.build.outputs.tag }}', secret: false},
             tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true},
-            tamanu-internal:dbHost: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
-            tamanu-internal:dbUser: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: false},
-            tamanu-internal:dbPassword: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
+            postgresql:host: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
+            postgresql:username: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: false},
+            postgresql:password: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
+            postgresql:superuser: {value: false, secret: false}, # required for RDS
           }"
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
