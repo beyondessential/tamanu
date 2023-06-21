@@ -1,6 +1,8 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
+
 import { findUser } from '../auth/utils';
+
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -14,9 +16,11 @@ import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
-import { FhirMaterialiser } from './FhirMaterialiser';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
+import { FhirMissingResources } from './FhirMissingResources';
+
+export { startFhirWorkerTasks } from './fhir';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -26,6 +30,7 @@ export async function startScheduledTasks(context) {
     ReportRequestProcessor,
     CertificateNotificationProcessor,
     PatientMergeMaintainer,
+    FhirMissingResources,
   ];
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
@@ -42,10 +47,6 @@ export async function startScheduledTasks(context) {
 
   if (config.integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
-  }
-
-  if (config.integrations.fhir.enabled && config.schedules.fhirMaterialiser.enabled) {
-    taskClasses.push(FhirMaterialiser);
   }
 
   if (config.schedules.plannedMoveTimeout.enabled) {

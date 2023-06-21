@@ -116,7 +116,7 @@ export const DumbAddLabRequestScreen = ({
         sampleTime,
         urgent,
         specimenAttached,
-        displayId: generatedDisplayId
+        displayId: generatedDisplayId,
       } = values;
 
       const combinedSampleTime = new Date(

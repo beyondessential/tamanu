@@ -21,12 +21,16 @@ import { Attachment } from './Attachment';
 import { Facility } from './Facility';
 import { Department } from './Department';
 import { Location } from './Location';
+import { LocationGroup } from './LocationGroup';
 import { BaseModel } from './BaseModel';
 import { LabRequest } from './LabRequest';
 import { LabTest } from './LabTest';
 import { LabTestType } from './LabTestType';
 import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
+import { NotePage } from './NotePage';
+import { NoteItem } from './NoteItem';
+import { Setting } from './Setting';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -52,10 +56,14 @@ export const MODELS_MAP = {
   Facility,
   Department,
   Location,
+  LocationGroup,
   LabRequest,
   LabTest,
   LabTestType,
   LocalSystemFact,
   PatientFacility,
+  NotePage,
+  NoteItem,
+  Setting,
 };
 export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);

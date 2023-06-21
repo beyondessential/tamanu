@@ -1,5 +1,5 @@
 import { snakeCase } from 'lodash';
-import { Sequelize, Utils, QueryTypes } from 'sequelize';
+import { Sequelize, Utils, DataTypes, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import {
@@ -8,33 +8,33 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from '../../constants';
-import { objectAsFhir } from '../../utils/pgComposite';
-import { formatDateTime } from '../../utils/fhir';
+import { objectAsFhir } from './utils';
+import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';
 
 const missingRecordsPrivateMethod = Symbol('missingRecords');
 
 export class FhirResource extends Model {
-  static init(attributes, options) {
+  static init(attributes, { primaryKey, ...options }) {
     super.init(
       {
         id: {
-          type: Sequelize.UUID,
+          type: DataTypes.UUID,
           allowNull: false,
           default: Sequelize.fn('uuid_generate_v4'),
           primaryKey: true,
         },
         versionId: {
-          type: Sequelize.UUID,
+          type: DataTypes.UUID,
           allowNull: false,
           default: Sequelize.fn('uuid_generate_v4'),
         },
         upstreamId: {
-          type: this.UPSTREAM_UUID ? Sequelize.UUID : Sequelize.STRING,
+          type: this.UPSTREAM_UUID ? DataTypes.UUID : DataTypes.STRING,
           allowNull: false,
         },
         lastUpdated: {
-          type: Sequelize.DATE,
+          type: DataTypes.TIMESTAMP,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
@@ -59,8 +59,11 @@ export class FhirResource extends Model {
   // see FHIR_INTERACTIONS constant
   static CAN_DO = new Set();
 
-  // main Tamanu model this resource is based on
-  static UpstreamModel;
+  // main Tamanu models this resource is based on
+  static UpstreamModels;
+
+  // list of Tamanu models that are used to materialise this resource
+  static upstreams = [];
 
   // switch to true if the upstream's ID is the UUID pg type
   static UPSTREAM_UUID = false;
@@ -126,19 +129,43 @@ export class FhirResource extends Model {
   }
 
   // fetch (single) upstream with query options (e.g. includes)
-  getUpstream(queryOptions = {}) {
-    return this.constructor.UpstreamModel.findByPk(this.upstreamId, {
-      ...queryOptions,
-      paranoid: false,
-    });
+  // this implies that the PK on every upstream table is unique across all!
+  async getUpstream(queryOptions = {}) {
+    let upstream;
+    for (const UpstreamModel of this.constructor.UpstreamModels) {
+      const upstreamQueryOptions = queryOptions[UpstreamModel.tableName] || {};
+      upstream = await UpstreamModel.findByPk(this.upstreamId, {
+        ...upstreamQueryOptions,
+        paranoid: false,
+      });
+
+      if (upstream) break;
+    }
+    return upstream;
   }
 
   // query to do lookup of non-deleted upstream records that are not present in the FHIR tables
   // does direct sql interpolation, NEVER use with user or variable input
   static [missingRecordsPrivateMethod](select, trail = '') {
+    const tableNames = this.UpstreamModels.map(model => model.tableName);
     return `
+      WITH upstream AS (
+        SELECT
+          coalesce(${tableNames.map(tableName => `${tableName}.id`).join(', ')}) as id,
+          coalesce(${tableNames
+            .map(tableName => `${tableName}.deleted_at`)
+            .join(', ')}) as deleted_at
+        FROM ${tableNames
+          .map((tableName, i) => {
+            return i === 0
+              ? tableName
+              : `FULL OUTER JOIN ${tableName} ON ${tableNames[0]}.id = ${tableName}.id`;
+          })
+          .join(' ')}
+      )
+
       SELECT ${select}
-      FROM ${this.UpstreamModel.tableName} upstream
+      FROM upstream
       LEFT JOIN fhir.${this.tableName} downstream ON downstream.upstream_id = upstream.id
       WHERE upstream.deleted_at IS NULL AND downstream.id IS NULL
       ${trail}
@@ -146,7 +173,7 @@ export class FhirResource extends Model {
   }
 
   static async findMissingRecordsIds(limit = 1000) {
-    if (!this.UpstreamModel) return [];
+    if (!this.UpstreamModels || this.UpstreamModels.length === 0) return [];
 
     const limitValid = yup
       .number()
@@ -164,7 +191,7 @@ export class FhirResource extends Model {
   }
 
   static async countMissingRecords() {
-    if (!this.UpstreamModel) return 0;
+    if (!this.UpstreamModels || this.UpstreamModels.length === 0) return 0;
     const rows = await this.sequelize.query(
       this[missingRecordsPrivateMethod]('count(upstream.*) as count'),
       {
@@ -184,6 +211,22 @@ export class FhirResource extends Model {
     throw new Error('must be overridden');
   }
 
+  /** Reverse-map a table row to a query which returns the right upstream IDs for this resource.
+   *
+   * This is called from the materialisation process to find the upstream ID(s)
+   * for a given row in a related table, based on trigger events.
+   *
+   * @param {string} upstreamTable - the table name of the upstream model
+   * @param {string} table - the table name
+   * @param {string} id - the row ID
+   * @param {null|object} deletedRow - the contents of the row if it was deleted, with field names as in SQL
+   * @returns {object|null} the argument to Sequelize#query, a query which will return the upstreams for this row, or null if the row is not relevant
+   */
+  // eslint-disable-next-line no-unused-vars
+  static async queryToFindUpstreamIdsFromTable(upstreamTable, table, id, deletedRow = null) {
+    return null;
+  }
+
   formatFieldsAsFhir(fields) {
     return objectAsFhir(fields);
   }
@@ -201,7 +244,7 @@ export class FhirResource extends Model {
       meta: {
         // TODO: uncomment when we support versioning
         // versionId: this.versionId,
-        lastUpdated: formatDateTime(
+        lastUpdated: formatFhirDate(
           this.lastUpdated,
           FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
         ),

@@ -1,6 +1,7 @@
 {
   "name": "qr-tester",
-  "version": "1.24.5",
+  "version": "1.26.1",
+  "private": true,
   "description": "BES QR Code Tester App / Website",
   "author": "",
   "license": "UNLICENSED",

@@ -3,16 +3,13 @@ import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
-import {
-  DateDisplay,
-  Button,
-  DeathCertificateModal,
-  ButtonWithPermissionCheck,
-} from '../../../components';
+import { DateDisplay, Button, ButtonWithPermissionCheck } from '../../../components';
+import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { usePatientCurrentEncounter } from '../../../api/queries';
 
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
@@ -113,7 +110,7 @@ const DataStatusMessage = ({ message }) => (
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
   const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`),
+    api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
   );
 
   if (isLoading) {
@@ -161,11 +158,8 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 });
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
-  const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
-    api.get(`patient/${patient.id}/currentEncounter`),
-  );
+  const { data: encounter, error, isLoading } = usePatientCurrentEncounter(patient.id);
   const referralSourcePath = 'fields.referralSourceId';
 
   if (patient.dateOfDeath) {
@@ -202,13 +196,17 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
     id,
     examiner,
   } = encounter;
+
   const patientStatus = getPatientStatus(encounterType);
 
   return (
     <Container patientStatus={patientStatus}>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">Type:</BoldTitle>
-        <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
+        <Title variant="h3">
+          {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
+          {location?.facility?.name ? ` | ${location?.facility?.name}` : ''}
+        </Title>
         <div style={{ flexGrow: 1 }} />
         <Button onClick={() => viewEncounter(id)} size="small">
           View encounter
@@ -216,7 +214,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
       </Header>
       <Content>
         <ContentItem>
-          <ContentLabel>Current Admission:</ContentLabel>
+          <ContentLabel>Current admission:</ContentLabel>
           <ContentText>{patientStatus}</ContentText>
         </ContentItem>
         <ContentItem>

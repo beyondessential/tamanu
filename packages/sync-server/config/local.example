@@ -1,0 +1,17 @@
+{
+  "db": {
+    "name": "",
+    "verbose": false,
+    "username": "",
+    "password": "",
+    "migrateOnStartup": true
+  },
+  "countryTimeZone": "Australia/Sydney",
+  "localisation": {
+    "data": {
+      "imagingTypes": {
+        "xRay": { "label": "X-Ray" }
+      }
+    }
+  }
+}

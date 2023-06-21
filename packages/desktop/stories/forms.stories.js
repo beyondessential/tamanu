@@ -3,6 +3,7 @@ import React from 'react';
 import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+
 import {
   createDummyVisit,
   createDummyPatient,
@@ -13,11 +14,13 @@ import {
   LOCATIONS,
   USERS,
 } from 'shared/demoData';
+import { VACCINE_RECORDING_TYPES } from 'shared/constants';
+
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
-import { ImmunisationForm } from '../app/forms/ImmunisationForm';
+import { VaccineForm } from '../app/forms/VaccineForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
@@ -74,17 +77,14 @@ const getScheduledVaccines = () => {
   return [];
 };
 
-storiesOf('Forms', module).add('ImmunisationForm', () => (
-  <Modal title="Give vaccine" open>
-    <ImmunisationForm
+storiesOf('Forms', module).add('VaccineForm', () => (
+  <Modal title="Record vaccine" open>
+    <VaccineForm
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       practitionerSuggester={practitionerSuggester}
-      icd10Suggester={icd10Suggester}
-      vaccineSuggester={icd10Suggester}
-      departmentSuggester={icd10Suggester}
       getScheduledVaccines={getScheduledVaccines}
-      locationSuggester={locationSuggester}
+      vaccineRecordingType={VACCINE_RECORDING_TYPES.GIVEN}
     />
   </Modal>
 ));
