@@ -7,9 +7,13 @@ import { Appointment } from './Appointment';
 
 const Column = ({ header, appointments, onAppointmentUpdated }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
+  // If header's length is larger than 14 characters, split it into two lines. Width expands if needed.
+  const hasSpace = header.includes(' ');
+  const width = header.length > 14 && hasSpace ? `${(header.length * 15) / 2}px` : '100%';
+
   return (
     <>
-      <ColumnHeader className="location" $headerLength={header.length}>
+      <ColumnHeader className="location" $width={width}>
         {header}
       </ColumnHeader>
       <ColumnBody className="appointments">
@@ -84,12 +88,11 @@ const Container = styled.div`
   width: fit-content;
 `;
 
-// If header is longer than 24 characters, split it into two lines. Width expands if needed.
 const ColumnHeader = styled.div`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  width: ${({ $headerLength }) => ($headerLength > 24 ? `${($headerLength * 15) / 2}px` : '100%')};
+  width: ${({ $width }) => $width}};
   border: 1px solid ${Colors.outline};
   border-right: none;
   font-weight: bold;
