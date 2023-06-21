@@ -42,10 +42,15 @@ jobs:
           role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
           role-session-name: GithubActionsTamanuDestroy
 
-      - uses: actions/checkout@v3
+      - name: Checkout this PR
+        uses: actions/checkout@v3
+
+      - name: Checkout ops
+        uses: actions/checkout@v3
         with:
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          path: ops
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -55,7 +60,7 @@ jobs:
 
       - name: Prepare pulumi
         run: npm ci
-        working-directory: pulumi
+        working-directory: ops/pulumi
 
       - name: Connect to Tailscale
         uses: ./.github/actions/tailscale
@@ -66,7 +71,7 @@ jobs:
       - name: Down!
         uses: pulumi/actions@v3
         with:
-          work-dir: pulumi/tamanu-internal
+          work-dir: ops/pulumi/tamanu-internal
           command: destroy
           stack-name: bes/${{ steps.ref.outputs.result }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
