@@ -1,6 +1,8 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
 
+import { findUser } from '../auth/utils';
+
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -73,12 +75,12 @@ export async function startScheduledTasks(context) {
 }
 
 async function getReportSchedulers(context) {
-  const systemUser = await context.store.models.User.getSystemUser();
+  const initialUser = await findUser(context.store.models, config.auth.initialUser.email);
 
   const schedulers = [];
   for (const options of config.scheduledReports) {
     schedulers.push(
-      new ReportRequestScheduler(context, { ...options, requestedByUserId: systemUser.id }),
+      new ReportRequestScheduler(context, { ...options, requestedByUserId: initialUser.id }),
     );
   }
   return schedulers;

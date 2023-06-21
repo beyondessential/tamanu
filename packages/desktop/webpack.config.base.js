@@ -68,6 +68,9 @@ export default {
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [path.join(__dirname, 'app'), 'node_modules'],
+    alias: {
+      Shared: path.resolve(__dirname, '../shared/'),
+    },
   },
 
   plugins: [

@@ -1,11 +1,9 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
+import { BadAuthenticationError } from 'shared/errors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
 import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
-import { BadAuthenticationError } from 'shared/errors';
-
 import {
   getToken,
   verifyToken,

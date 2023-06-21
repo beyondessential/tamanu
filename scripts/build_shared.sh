@@ -2,4 +2,5 @@
 set -euxo pipefail
 
 yarn install --non-interactive --frozen-lockfile
-yarn workspace @tamanu/shared run build
+yarn workspace shared-src run build
+yarn install --non-interactive --frozen-lockfile

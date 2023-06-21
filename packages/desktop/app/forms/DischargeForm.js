@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
 import Select from 'react-select';
 import styled from 'styled-components';
-import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { format, getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
 import { Colors } from '../constants';

@@ -21,7 +21,6 @@ export * from './SearchField';
 export * from './ArrayField';
 export * from './AutocompleteField';
 export * from './DisplayIdField';
-export * from './DisplayIdSearchField';
 export * from './DOBFields';
 export * from './LocationField';
 export * from './DynamicSelectField';

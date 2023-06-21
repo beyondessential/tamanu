@@ -1,7 +1,7 @@
-import { NODE_WEBPACK_CONFIG_SWC, nodemon } from '@tamanu/build-tooling';
+import baseConfig, { nodemon } from '../../common.webpack.config.mjs';
 
 export default {
-  ...NODE_WEBPACK_CONFIG_SWC,
+  ...baseConfig,
   devtool: 'eval',
   mode: 'development',
   plugins: [nodemon()],

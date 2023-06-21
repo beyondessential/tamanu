@@ -1,26 +1,47 @@
 import React from 'react';
-import { useFormikContext } from 'formik';
-
-import { useLocalisation } from '../../contexts/Localisation';
-import { TextField } from './TextField';
+import styled from 'styled-components';
+import { Tooltip, InputAdornment } from '@material-ui/core';
+import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import { LocalisedField } from './LocalisedField';
+import { Field } from './Field';
+import { SearchField } from './SearchField';
+import { CheckControl } from './CheckField';
 
-export const DisplayIdField = ({ name = 'displayId', required }) => {
-  const { initialValues } = useFormikContext();
-  const { getLocalisation } = useLocalisation();
-  const longLabel = getLocalisation('fields.displayId.longLabel');
-  const pattern = getLocalisation('fields.displayId.pattern') || null;
-  const regex = pattern ? new RegExp(pattern) : null;
+const FieldContainer = styled(LocalisedField)`
+  .MuiOutlinedInput-adornedEnd {
+    padding-right: 0;
+  }
 
-  const validateFn = value => {
-    let errorMessage;
-    if (value !== initialValues[name] && regex && !regex.test(value)) {
-      errorMessage = `Invalid ${longLabel}`;
-    }
-    return errorMessage;
-  };
+  .MuiInputAdornment-positionEnd {
+    margin-left: 1px;
+  }
+`;
 
-  return (
-    <LocalisedField name={name} component={TextField} required={required} validate={validateFn} />
-  );
-};
+const CheckField = ({ field }) => (
+  <Tooltip title="Exact term search">
+    <CheckControl
+      icon={<SpellcheckIcon color="disabled" />}
+      checkedIcon={<SpellcheckIcon />}
+      name={field.name}
+      value={field.value}
+      onChange={field.onChange}
+      color="primary"
+    />
+  </Tooltip>
+);
+
+export const DisplayIdField = props => (
+  <FieldContainer
+    {...props}
+    name="displayId"
+    className="display-field"
+    component={SearchField}
+    InputProps={{
+      endAdornment: (
+        <InputAdornment position="end">
+          <Field name="displayIdExact" component={CheckField} />
+        </InputAdornment>
+      ),
+    }}
+  />
+);

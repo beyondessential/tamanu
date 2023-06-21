@@ -32,14 +32,5 @@
       },
       "plugins": ["jest"]
     }
-  ],
-  "settings": {
-    "import/resolver": {
-      "alias": {
-        "map": [
-          ["shared", "@tamanu/shared"]
-        ]
-      }
-    }
-  }
+  ]
 }

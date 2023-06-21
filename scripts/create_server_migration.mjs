@@ -20,7 +20,7 @@ const timestamp = new Date().getTime();
 const templateFile = join('scripts', 'resources', 'serverMigrationTemplate.js');
 const migrationFile = join(
   'packages',
-  'shared',
+  'shared-src',
   'src',
   'migrations',
   `${timestamp}-${toFilestem(migrationName)}.js`,

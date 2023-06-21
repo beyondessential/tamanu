@@ -26,13 +26,6 @@ export class FacilitySyncManager {
     this.config = _config;
   }
 
-  // This is only used for jest tests. It is a workaround to spies not working
-  // with importing modules in the way that this module is used. See the
-  // FacilitySyncManager.test.js ('edge cases' suite) or SAV-249
-  __testSpyEnabled = false;
-
-  __testOnlyPushChangesSpy = [];
-
   models = null;
 
   sequelize = null;
@@ -140,9 +133,6 @@ export class FacilitySyncManager {
     );
     if (outgoingChanges.length > 0) {
       log.info('Sync: Pushing outgoing changes', { totalPushing: outgoingChanges.length });
-      if (this.__testSpyEnabled) {
-        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
-      }
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
     await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);

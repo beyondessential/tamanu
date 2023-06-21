@@ -1,6 +1,6 @@
-import { NODE_WEBPACK_CONFIG_SWC } from '@tamanu/build-tooling';
+import baseConfig from '../../common.webpack.config.mjs';
 
 export default {
-  ...NODE_WEBPACK_CONFIG_SWC,
+  ...baseConfig,
   mode: 'production',
 };

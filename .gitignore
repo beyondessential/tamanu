@@ -57,6 +57,8 @@ lints.md
 # Output
 /packages/sync-server/tamanu-reports/
 
+packages/shared
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

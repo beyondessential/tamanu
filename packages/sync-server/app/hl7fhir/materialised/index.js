@@ -1,2 +1,2 @@
-export * from '@tamanu/shared/utils/fhir/errors';
+export * from 'shared/utils/fhir/errors';
 export { fhirRoutes } from './handlers';
