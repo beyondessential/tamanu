@@ -100,6 +100,7 @@ export const LineChart = props => {
         strokeWidth={2}
         dot={<CustomDot />}
         activeDot={<CustomDot active />}
+        isAnimationActive={false}
       />
     </LineChartComponent>
   );
