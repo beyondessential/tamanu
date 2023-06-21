@@ -1,6 +1,6 @@
 import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
@@ -278,6 +278,29 @@ describe('PatientLocations', () => {
       patientFirstName: patient2.firstName,
       patientLastName: patient2.lastName,
       status: LOCATION_AVAILABILITY_STATUS.RESERVED,
+    });
+  });
+
+  it('should hide historical and merged locations', async () => {
+    // Arrange
+    const { Location } = models;
+    const createdLocations = await Location.bulkCreate(
+      Object.values(VISIBILITY_STATUSES).map(visibilityStatus =>
+        fake(Location, { visibilityStatus, facilityId: config.serverFacilityId }),
+      ),
+    );
+    const locationIds = createdLocations.map(l => l.id);
+
+    // Act
+    const response = await app.get('/v1/patient/locations/bedManagement');
+
+    // Assert
+    expect(response).toHaveSucceeded();
+    expect(response.body?.data).toBeInstanceOf(Array);
+    const ourLocations = response.body.data.filter(datum => locationIds.includes(datum.locationId));
+    expect(ourLocations).toHaveLength(1);
+    expect(ourLocations[0]).toMatchObject({
+      locationId: createdLocations.find(l => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT).id,
     });
   });
 });
