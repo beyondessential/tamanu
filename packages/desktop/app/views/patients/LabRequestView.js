@@ -134,14 +134,14 @@ export const LabRequestView = () => {
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
-  const actions = {};
+  const actions =
+    labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
+      : {
+          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+        };
 
-  if (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED) {
-      actions['Record sample'] = () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
-    } else {
-     actions['Edit'] = () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
-     actions['View details'] = () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS);
-  }
   return (
     <Container>
       <Heading2 gutterBottom>Labs</Heading2>
