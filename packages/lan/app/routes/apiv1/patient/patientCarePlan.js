@@ -64,7 +64,7 @@ patientCarePlan.post(
 
     const { models } = req;
 
-    const newNote = await req.models.Note.create({
+    const newNote = await models.Note.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,

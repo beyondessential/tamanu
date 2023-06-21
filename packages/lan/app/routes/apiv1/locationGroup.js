@@ -72,8 +72,8 @@ locationGroup.get(
        patients.sex,
        encounters.start_date AS arrival_date,
        diagnosis.name AS diagnosis,
-       note_items.content AS notes,
-       note_pages.created_at
+       notes.content AS notes,
+       notes.created_at
         FROM locations
         INNER JOIN location_groups ON locations.location_group_id = location_groups.id
         INNER JOIN encounters ON locations.id = encounters.location_id
@@ -98,13 +98,14 @@ locationGroup.get(
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN (
 		      SELECT record_id, MAX(date) AS date
-		      FROM note_pages
+		      FROM notes
 		      WHERE record_type = 'Encounter' AND note_type = 'handover'
+          AND revised_by_id IS NULL
 		      GROUP BY record_id
-		    ) AS max_note_pages ON encounters.id = max_note_pages.record_id
-		    LEFT JOIN note_pages ON max_note_pages.record_id = note_pages.record_id
-		      AND max_note_pages.date = note_pages.date
-        LEFT JOIN note_items ON note_items.note_page_id = note_pages.id
+		    ) AS max_notes ON encounters.id = max_notes.record_id
+		    LEFT JOIN notes ON max_notes.record_id = notes.record_id
+		      AND max_notes.date = notes.date
+          AND revised_by_id IS NULL
         WHERE location_groups.id = :id and locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
         GROUP BY location_groups.name,
@@ -115,8 +116,8 @@ locationGroup.get(
           patients.date_of_birth,
           patients.sex,
           encounters.start_date,
-          note_items.content,
-          note_pages.created_at,
+          notes.content,
+          notes.created_at,
           diagnosis.name
       `,
       {
