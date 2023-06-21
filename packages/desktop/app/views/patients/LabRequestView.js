@@ -43,10 +43,6 @@ const Rule = styled(Divider)`
   margin: 0 0 20px 0;
 `;
 
-const SampleCollectedDate = styled(DateDisplay)`
-  color: ${props => (!props.date ? Colors.softText : 'unset')};
-`;
-
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
   LAB_REQUEST_STATUSES.CANCELLED,
@@ -192,7 +188,11 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           main={
             <>
-              <SampleCollectedDate date={labRequest.sampleTime} showTime />
+              <DateDisplay
+                color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                date={labRequest.sampleTime}
+                showTime
+              />
             </>
           }
           actions={{
