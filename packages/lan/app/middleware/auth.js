@@ -74,7 +74,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
   });
 
   const token = getToken(user);
-  const permissions = await getPermissionsForRoles(user.role);
+  const permissions = await getPermissionsForRoles(models, user.role);
   return {
     token,
     central: true,
@@ -98,7 +98,7 @@ async function localLogin(models, email, password) {
   });
 
   const token = getToken(user);
-  const permissions = await getPermissionsForRoles(user.role);
+  const permissions = await getPermissionsForRoles(models, user.role);
   return { token, central: false, localisation, permissions };
 }
 
