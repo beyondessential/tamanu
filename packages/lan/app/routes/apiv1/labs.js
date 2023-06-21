@@ -415,6 +415,12 @@ async function createPanelLabRequests(models, body, note, user) {
   const response = await Promise.all(
     panels.map(async panel => {
       const panelId = panel.id;
+      const testPanelRequest = await models.LabTestPanelRequest.create({
+        labTestPanelId: panelId,
+        encounterId: labRequestBody.encounterId,
+      });
+      labRequestBody.labTestPanelRequestId = testPanelRequest.id;
+
       const requestSampleDetails = sampleDetails[panelId] || {};
       const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
       const labTestCategoryId = panel.categoryId;

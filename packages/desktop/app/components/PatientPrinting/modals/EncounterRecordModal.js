@@ -134,7 +134,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         labRequest.tests.forEach(test => {
           updatedLabRequests.push({
             testType: test.labTestType.name,
-            testCategory: labRequest.category.name,
+            testCategory: labRequest.category?.name,
             requestedByName: labRequest.requestedBy?.displayName,
             requestDate: labRequest.requestedDate,
             completedDate: test.completedDate,
