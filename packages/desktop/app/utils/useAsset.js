@@ -35,7 +35,7 @@ export const useAsset = assetName => {
       setAssetData(Buffer.from(fallbackQueryData.data).toString('base64'));
       setAssetDataType(fallbackQueryData.type);
     }
-  }, [fallbackQueryData]);
+  }, [assetData, fallbackQueryData]);
 
   if (!assetData) {
     return null;
