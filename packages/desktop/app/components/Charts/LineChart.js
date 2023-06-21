@@ -19,10 +19,16 @@ import { CustomDot } from './components/CustomDot';
 
 const CustomTooltip = ({ payload }) => {
   if (payload && payload.length) {
-    const { value, name, dotColor, description } = payload[0].payload;
+    const { value, name, dotColor, description, config } = payload[0].payload;
 
     return (
-      <TooltipContent label={name} value={value} dotColor={dotColor} description={description} />
+      <TooltipContent
+        label={name}
+        value={value}
+        dotColor={dotColor}
+        description={description}
+        config={config}
+      />
     );
   }
 

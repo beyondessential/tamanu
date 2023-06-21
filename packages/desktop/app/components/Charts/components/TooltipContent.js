@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { formatShortest, formatTime } from '../../DateDisplay';
 import { CustomDot } from './CustomDot';
+import { formatValue } from '../../FormattedTableCell';
 
 const FlexColumn = styled.div`
   flex-direction: column;
@@ -30,7 +31,7 @@ const TimeText = styled.span`
   color: ${Colors.midText};
 `;
 
-export const TooltipContent = ({ label, value, description, dotColor }) => {
+export const TooltipContent = ({ label, value, description, dotColor, config }) => {
   return (
     <Wrapper>
       <span>
@@ -39,7 +40,7 @@ export const TooltipContent = ({ label, value, description, dotColor }) => {
       <ValueWrapper>
         <CustomDot payload={{ dotColor }} />
         <FlexColumn>
-          <span>{value}</span>
+          <span>{formatValue(value, config)}</span>
           <span>{description}</span>
         </FlexColumn>
       </ValueWrapper>
