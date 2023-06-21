@@ -30,9 +30,13 @@ const CustomTooltip = ({ payload }) => {
 };
 
 export const LineChart = props => {
-  const { chartData, startDate, endDate } = props;
-  const { data: rawData, yAxisConfigs } = chartData;
-  const measureData = getMeasureData(rawData, yAxisConfigs);
+  const { chartData, visualisationConfig, startDate, endDate } = props;
+  const { yAxis: yAxisConfigs } = visualisationConfig;
+  if (!yAxisConfigs || Object.keys(yAxisConfigs).length === 0) {
+    return null;
+  }
+
+  const measureData = getMeasureData(chartData, yAxisConfigs);
   const xAxisTicks = getXAxisTicks(startDate, endDate);
   const yAxisTicks = getYAxisTicks(yAxisConfigs);
 

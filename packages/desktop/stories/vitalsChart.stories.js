@@ -49,7 +49,7 @@ const data = [
   },
 ];
 
-const yAxisConfigs = {
+const visualisationConfig = {
   normalRange: { min: 35, max: 39 },
   graphRange: { min: 33, max: 41 },
   interval: 1,
@@ -69,7 +69,8 @@ storiesOf('Vitals', module)
     return (
       <Modal title="Vital Chart" open width="lg">
         <LineChart
-          chartData={{ data, yAxisConfigs }}
+          chartData={data}
+          visualisationConfig={visualisationConfig}
           startDate={format(addDays(new Date(), -2), 'yyyy-MM-dd HH:mm:ss')}
           endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
         />
