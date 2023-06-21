@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react';
+import { generateId } from '@tamanu/shared/utils/generateId';
 
 import { Modal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
 import { useApi } from '../../../api';
-
-import { generateId } from '../../../../../shared/utils/generateId';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
