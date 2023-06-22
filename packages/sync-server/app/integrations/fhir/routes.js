@@ -1,3 +1,3 @@
 import { fhirRoutes } from '../../hl7fhir';
 
-export const routes = fhirRoutes();
+export const routes = ctx => fhirRoutes(ctx);

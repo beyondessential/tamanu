@@ -12,7 +12,7 @@ import { readHandler } from './read';
 import { searchHandler } from './search';
 import { createHandler } from './create';
 
-export function fhirRoutes({ requireClientHeaders } = {}) {
+export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   const routes = Router();
 
   routes.use((req, res, next) => {
@@ -35,15 +35,16 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
     routes.use(requireClientHeadersMiddleware);
   }
 
-  for (const Resource of resourcesThatCanDo(FHIR_INTERACTIONS.INSTANCE.READ)) {
+  const { models } = ctx.store;
+  for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.INSTANCE.READ)) {
     routes.get(`/${Resource.fhirName}/:id`, readHandler(Resource));
   }
 
-  for (const Resource of resourcesThatCanDo(FHIR_INTERACTIONS.TYPE.SEARCH)) {
+  for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.TYPE.SEARCH)) {
     routes.get(`/${Resource.fhirName}`, searchHandler(Resource));
   }
 
-  for (const Resource of resourcesThatCanDo(FHIR_INTERACTIONS.TYPE.CREATE)) {
+  for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.TYPE.CREATE)) {
     routes.post(`/${Resource.fhirName}`, createHandler(Resource));
   }
 

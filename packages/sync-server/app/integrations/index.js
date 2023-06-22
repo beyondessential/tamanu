@@ -38,7 +38,9 @@ export const initIntegrations = async ctx => {
         await initAppContext(ctx);
       }
       if (routes) {
-        integrationRoutes.use(`/${key}`, routes);
+        const isRouter = Object.getPrototypeOf(routes) === express.Router;
+        const actualRoutes = isRouter ? routes : routes(ctx);
+        integrationRoutes.use(`/${key}`, actualRoutes);
       }
       if (publicRoutes) {
         publicIntegrationRoutes.use(`/${key}`, publicRoutes);
