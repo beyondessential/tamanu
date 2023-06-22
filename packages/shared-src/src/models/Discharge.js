@@ -12,11 +12,6 @@ export class Discharge extends Model {
           throw new InvalidOperationError('A discharge must have an encounter.');
         }
       },
-      mustHaveDischarger() {
-        if (!this.deletedAt && !this.dischargerId) {
-          throw new InvalidOperationError('A discharge must have a discharger.');
-        }
-      },
     };
     super.init(
       {

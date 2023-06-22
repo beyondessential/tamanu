@@ -3,7 +3,7 @@ import { add, subDays, startOfDay } from 'date-fns';
 import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
 import { fakeUUID } from 'shared/utils/generateId';
 
-import { getCurrentDateString, toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 async function prepopulate(models) {
@@ -202,9 +202,9 @@ describe('Patient', () => {
       const { patientId } = testIds;
       // Act
       const patient = await Patient.findByPk(patientId);
-      const results = await patient.getAdministeredVaccines();
+      const { count } = await patient.getAdministeredVaccines();
       // Assert
-      expect(results.length).toEqual(2);
+      expect(count).toEqual(2);
     });
 
     it('should return the most recent vaccines first', async () => {
@@ -213,8 +213,8 @@ describe('Patient', () => {
       const { patientId } = testIds;
       // Act
       const patient = await Patient.findByPk(patientId);
-      const results = await patient.getAdministeredVaccines();
-      const firstResult = results[0];
+      const { data } = await patient.getAdministeredVaccines();
+      const firstResult = data[0];
 
       // Assert
       expect(firstResult.id).toEqual('last');
@@ -226,8 +226,8 @@ describe('Patient', () => {
       const { patientId, encounterId } = testIds;
       // Act
       const patient = await Patient.findByPk(patientId);
-      const results = await patient.getAdministeredVaccines();
-      const firstResult = results[0];
+      const { data } = await patient.getAdministeredVaccines();
+      const firstResult = data[0];
       // Assert
       expect(firstResult).toHaveProperty('status', 'GIVEN');
       expect(firstResult).toHaveProperty('encounter.id', encounterId);

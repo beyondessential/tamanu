@@ -12,7 +12,6 @@ const StyledErrorMessage = styled(StyledText)`
     color: ${theme.colors.ALERT};
     font-size: ${screenPercentageToDP(1.82, Orientation.Height)};
     font-weight: 400;
-    margin-top: ${screenPercentageToDP(0.5, Orientation.Height)};
     padding-left: ${screenPercentageToDP(1, Orientation.Width)};
 `;
 

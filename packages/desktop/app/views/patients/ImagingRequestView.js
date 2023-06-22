@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Form, Formik } from 'formik';
+import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
@@ -28,24 +28,24 @@ import {
   DateTimeInput,
   DateTimeField,
   TextField,
+  Form,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-import { ImagingRequestPrintout } from '../../components/PatientPrinting';
+import { useEncounterData } from '../../api/queries';
+import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
 const PrintButton = ({ imagingRequest, patient }) => {
-  const api = useApi();
   const { modal } = useParams();
   const certificate = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
-
-  const { data: encounter, isLoading: isEncounterLoading } = useQuery(
-    ['encounter', imagingRequest.encounterId],
-    () => api.get(`encounter/${encodeURIComponent(imagingRequest.encounterId)}`),
+  const api = useApi();
+  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
+    imagingRequest.encounterId,
   );
   const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
     ['additionalData', patient.id],
@@ -76,7 +76,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
           <LoadingIndicator />
         ) : (
           <ImagingRequestPrintout
-            imagingRequest={imagingRequest}
+            imagingRequests={[imagingRequest]}
             patient={patient}
             village={village}
             additionalData={additionalData}
@@ -122,6 +122,8 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
+        isClearable={false}
+        required
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
       {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
@@ -131,7 +133,6 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
-          required
         />
       )}
       <TextInput
@@ -233,7 +234,7 @@ const ImagingRequestInfoPane = React.memo(
     const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
 
     return (
-      <Formik
+      <Form
         // Only submit specific fields for update
         onSubmit={fields => {
           const updateValues = pick(
@@ -246,16 +247,19 @@ const ImagingRequestInfoPane = React.memo(
           onSubmit(updateValues);
         }}
         enableReinitialize // Updates form to reflect changes in initialValues
+        initialStatus={{}}
         initialValues={{
           ...imagingRequest,
           newResult: {
             completedAt: getCurrentDateTimeString(),
           },
         }}
-      >
-        {({ values }) => {
+        validationSchema={yup.object().shape({
+          status: yup.string().required('Status is required'),
+        })}
+        render={({ values }) => {
           return (
-            <Form>
+            <>
               <ImagingRequestSection
                 {...{
                   values,
@@ -275,10 +279,10 @@ const ImagingRequestInfoPane = React.memo(
               <ButtonRow style={{ marginTop: 20 }}>
                 {!isCancelled && <Button type="submit">Save</Button>}
               </ButtonRow>
-            </Form>
+            </>
           );
         }}
-      </Formik>
+      />
     );
   },
 );
