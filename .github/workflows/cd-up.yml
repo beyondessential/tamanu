@@ -15,8 +15,8 @@ on:
       - release/*
 
 concurrency:
-  # only one build at a time, per PR/branch, but don't cancel existing builds
-  group: ${{ github.workflow }}-${{ github.pull_request.id || github.ref }}
+  # only one build or destroy at a time, per PR/branch, but don't cancel existing runs
+  group: cd-${{ github.pull_request.id || github.ref }}
 
 permissions:
   contents: read
@@ -127,10 +127,17 @@ jobs:
           role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
           role-session-name: GithubActionsTamanuDeploy
 
-      - uses: actions/checkout@v3
+      - name: Checkout this PR
+        uses: actions/checkout@v3
+
+      - name: Checkout ops
+        uses: actions/checkout@v3
         with:
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          path: ops
+      - name: Remove ops/.git so pulumi doesn't get confused
+        run: rm -rf ops/.git
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -140,7 +147,19 @@ jobs:
 
       - name: Prepare pulumi
         run: npm ci
-        working-directory: pulumi
+        working-directory: ops/pulumi
+
+      - name: Prepare database credentials
+        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        with:
+          parse-json-secrets: true
+          secret-ids: "INTERNAL_DB, ${{ vars.INTERNAL_DB_SECRET_ARN }}"
+
+      - name: Connect to Tailscale
+        uses: ./.github/actions/tailscale
+        with:
+          oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+          tags: tag:infra,tag:infra-gha-deploy
 
       # a constant secret + a variable plain text, hashed, = a new secret!
       # importantly this needs to remain constant for the lifetime of the stack
@@ -157,7 +176,7 @@ jobs:
       - name: Up!
         uses: pulumi/actions@v3
         with:
-          work-dir: pulumi/tamanu-internal
+          work-dir: ops/pulumi/tamanu-internal
           command: up
           stack-name: bes/${{ needs.info.outputs.branch }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -165,7 +184,11 @@ jobs:
           upsert: true
           config-map: "{
             tamanu-internal:imageTag: {value: '${{ needs.build.outputs.tag }}', secret: false},
-            tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true}
+            tamanu-internal:salt: {value: '${{ steps.salt.outputs.salt }}', secret: true},
+            postgresql:host: {value: '${{ vars.INTERNAL_DB_HOST }}', secret: false},
+            postgresql:username: {value: '${{ env.INTERNAL_DB_USERNAME }}', secret: false},
+            postgresql:password: {value: '${{ env.INTERNAL_DB_PASSWORD }}', secret: true},
+            postgresql:superuser: {value: false, secret: false}
           }"
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

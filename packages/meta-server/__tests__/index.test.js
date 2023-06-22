@@ -25,4 +25,11 @@ describe('Meta server', () => {
       expect(response.body).toHaveProperty('version');
     });
   });
+
+  it('should always have https:// in the server URLs', async () => {
+    const response = await testApp.get('/servers');
+    response.body.forEach(({ host }) => {
+      expect(host).toMatch(/^https:\/\/.*/);
+    });
+  });
 });
