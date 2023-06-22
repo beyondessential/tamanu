@@ -8,8 +8,6 @@ import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTest
 import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
-
 const NoResultContainer = styled.div`
   padding: 30px;
   background: ${Colors.white};
