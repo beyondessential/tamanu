@@ -75,7 +75,7 @@ export function ensurePermissionCheck(req, res, next) {
 
 // eslint-disable-next-line no-unused-vars
 export async function getPermissions(req, res, _next) {
-  const { user, models  } = req;
+  const { user, models } = req;
 
   const permissions = await getPermissionsForRoles(models, user.role);
   res.send({
