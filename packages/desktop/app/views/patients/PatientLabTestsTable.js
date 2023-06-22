@@ -80,7 +80,7 @@ const StyledTable = styled(Table)`
     }
 
     thead tr th {
-      color: ${props => props.theme.palette.text.secondary};
+      color: ${Colors.darkText};
       background: ${Colors.background};
       white-space: break-spaces;
     }
@@ -102,7 +102,7 @@ const StyledTable = styled(Table)`
 
 const CategoryCell = styled.div`
   font-weight: 500;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${Colors.darkText};
 `;
 
 const StyledButton = styled(Button)`
@@ -161,6 +161,7 @@ export const PatientLabTestsTable = React.memo(({ patient, labTests = [], count,
       },
       sortable: false,
     },
+    // TODO: this section somehow breaks the export. It seems to kill all styling done through theme.
     ...allDates
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
