@@ -17,7 +17,7 @@ function getSubjectName(subject) {
 }
 
 export async function constructPermission(req, res, next) {
-  req.ability = await getAbilityForUser(req.store.models, req.user);
+  req.ability = await getAbilityForUser(req.models, req.user);
   next();
 }
 
