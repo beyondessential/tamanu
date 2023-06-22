@@ -57,6 +57,9 @@ lints.md
 # Output
 /packages/sync-server/tamanu-reports/
 
+# cd-up and cd-down workflows
+/ops
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
