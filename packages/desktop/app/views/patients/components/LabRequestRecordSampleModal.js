@@ -77,6 +77,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
             name="sampleTime"
             label="Data & time collected"
             required
+            saveDateAsString
             component={StyledDateTimeField}
           />
           <StyledField
