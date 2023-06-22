@@ -122,25 +122,42 @@ describe('Programs', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should list available programs', async () => {
-    const result = await app.get(`/v1/program`);
-    expect(result).toHaveSucceeded();
+  describe('Listing', () => {
+    it('should list available programs', async () => {
+      const result = await app.get(`/v1/program`);
+      expect(result).toHaveSucceeded();
 
-    const { body } = result;
-    expect(body.count).toEqual(body.data.length);
+      const { body } = result;
+      expect(body.count).toEqual(body.data.length);
 
-    expect(body.data.every(p => p.name));
-  });
+      expect(body.data.every(p => p.name));
+    });
 
-  it('should list surveys within a program', async () => {
-    const result = await app.get(`/v1/program/${testProgram.id}/surveys`);
-    expect(result).toHaveSucceeded();
+    it('should list surveys within a program', async () => {
+      const result = await app.get(`/v1/program/${testProgram.id}/surveys`);
+      expect(result).toHaveSucceeded();
 
-    expect(result.body.count).toEqual(4);
-    expect(result.body.data[0]).toHaveProperty('name', testSurvey.name);
-    expect(result.body.data[1]).toHaveProperty('name', testSurvey2.name);
-    expect(result.body.data[2]).toHaveProperty('name', testSurvey3.name);
-    expect(result.body.data[3]).toHaveProperty('name', testReferralSurvey.name);
+      expect(result.body.count).toEqual(4);
+      expect(result.body.data[0]).toHaveProperty('name', testSurvey.name);
+      expect(result.body.data[1]).toHaveProperty('name', testSurvey2.name);
+      expect(result.body.data[2]).toHaveProperty('name', testSurvey3.name);
+      expect(result.body.data[3]).toHaveProperty('name', testReferralSurvey.name);
+    });
+
+    it('should only suggest relevant surveys', async () => {
+      const [obsolete, vitals, relevant] = await models.Survey.bulkCreate([
+        { programId: testProgram.id, surveyType: SURVEY_TYPES.OBSOLETE, name: 'obsolete' },
+        { programId: testProgram.id, surveyType: SURVEY_TYPES.VITALS, name: 'vitals' },
+        { programId: testProgram.id, surveyType: SURVEY_TYPES.PROGRAM, name: 'relevant' },
+      ]);
+
+      const result = await app.get('/v1/suggestions/survey');
+      expect(result).toHaveSucceeded();
+      const resultIds = result.body.map(x => x.id);
+      expect(resultIds.includes(obsolete.id)).toEqual(false);
+      expect(resultIds.includes(vitals.id)).toEqual(false);
+      expect(resultIds.includes(relevant.id)).toEqual(true);
+    });
   });
 
   it('should fetch a survey', async () => {

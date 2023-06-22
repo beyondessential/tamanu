@@ -31,16 +31,16 @@ const TabLabel = React.memo(
     const Icon: FunctionComponent<IconWithSizeProps> = route.icon;
     return (
       <StyledView
-        height={screenPercentageToDP(13.36, Orientation.Height)}
+        height={screenPercentageToDP(7.36, Orientation.Height)}
         alignItems="center"
-        paddingTop={screenPercentageToDP(3.03, Orientation.Height)}
+        paddingTop={screenPercentageToDP(1.03, Orientation.Height)}
       >
         <StyledView>
           {focused ? (
-            <Icon size={screenPercentageToDP(4.25, Orientation.Height)} />
+            <Icon size={screenPercentageToDP(2.5, Orientation.Height)} />
           ) : (
               <Icons.ScheduledVaccine
-                size={screenPercentageToDP(4.25, Orientation.Height)}
+                size={screenPercentageToDP(2.5, Orientation.Height)}
               />
             )}
         </StyledView>

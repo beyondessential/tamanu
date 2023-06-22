@@ -1,5 +1,6 @@
 import { promises } from 'fs';
 import qs from 'qs';
+import { ipcRenderer } from 'electron';
 
 import { buildAbilityForUser } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
@@ -244,6 +245,12 @@ export class TamanuApi {
     if (response.status === 400 && error) {
       const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
+        if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
+          // If detect that desktop version is lower than facility server version,
+          // communicate with main process to initiate the auto upgrade
+          ipcRenderer.invoke('update-available', this.host);
+        }
+
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
         }
@@ -259,6 +266,12 @@ export class TamanuApi {
 
   async get(endpoint, query, { showUnknownErrorToast = true, ...options } = {}) {
     return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
+  }
+
+  async download(endpoint, query) {
+    const response = await this.fetch(endpoint, query, { returnResponse: true });
+    const blob = await response.blob();
+    return blob;
   }
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {

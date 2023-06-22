@@ -62,6 +62,7 @@ export const FacilitySelectField = ({ options, onChange, value }): ReactElement 
           label="Filter facilities"
           value={currentFilter}
           onChange={setCurrentFilter}
+          labelColor={theme.colors.WHITE}
         />
       </StyledView>
       <ScrollView showsVerticalScrollIndicator>

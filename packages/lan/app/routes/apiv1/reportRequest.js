@@ -3,6 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
+import { checkReportModulePermissions } from 'shared/reports/utilities/checkReportModulePermissions';
+import { NotFoundError } from 'shared/errors';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 export const reportRequest = express.Router();
@@ -20,12 +22,8 @@ reportRequest.post(
       userId: user.id,
     });
 
-    req.checkPermission('create', 'ReportRequest');
     if (!reportId) {
-      const message = 'Report id not specifed';
-      reportRequestLog.error(message);
-      res.status(400).send({ error: { message } });
-      return;
+      throw new NotFoundError('Report id not specified');
     }
 
     const localisation = await getLocalisation();
@@ -34,13 +32,9 @@ reportRequest.post(
     const reportModule = await getReportModule(reportId, models);
 
     if (!reportModule) {
-      const message = 'Report module not found';
-      reportRequestLog.error(message);
-      res.status(400).send({ error: { message } });
-      return;
+      throw new NotFoundError('Report module not found');
     }
-
-    req.checkPermission('read', reportModule.permission);
+    await checkReportModulePermissions(req, reportModule, reportId);
 
     const isDatabaseDefinedReport = reportModule instanceof ReportDefinitionVersion;
 
