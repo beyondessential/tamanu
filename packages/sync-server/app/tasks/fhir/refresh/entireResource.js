@@ -1,9 +1,11 @@
 import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
-
-export async function entireResource({ payload: { resource } }, { log, sequelize }) {
+export async function entireResource({ payload: { resource } }, { log, sequelize, models }) {
+  const materialisableResources = resourcesThatCanDo(
+    models,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  );
   log.debug('Finding resource by name', { resource });
   const Resource = materialisableResources.find(({ fhirName }) => fhirName === resource);
   if (!Resource) {
