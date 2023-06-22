@@ -110,8 +110,14 @@ const StyledButton = styled(Button)`
   font-weight: 400;
   border-radius: 10px;
   padding: 8px 4px;
+  justify-content: left;
+  position: relative;
+  left: -15px;
   & > span > div {
     margin: -8px -4px;
+  }
+  &:hover {
+    background-color: transparent;
   }
 `;
 
