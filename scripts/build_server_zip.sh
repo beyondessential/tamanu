@@ -27,7 +27,7 @@ cp -r "$RELEASE_NODE_JS_DIR" "$WINDOWS_RELEASE_DIR"
 
 # get rid of node_modules from the copied linux release
 pushd "$WINDOWS_RELEASE_DIR"
-mv ./node_modules/shared .
+mv -v ./node_modules/@tamanu .
 rm -rf node_modules
 popd
 
@@ -39,7 +39,7 @@ DIR_NAME="release-v$VERSION"
 SUFFIX="$CI_BRANCH-v$VERSION-${CI_COMMIT_ID:0:10}"
 ZIP_NAME="tamanu-$WORKSPACE-$SUFFIX.zip"
 
-mv "$WINDOWS_RELEASE_FOLDER" "$DIR_NAME" 
+mv "$WINDOWS_RELEASE_FOLDER" "$DIR_NAME"
 zip -r "$ZIP_NAME" "$DIR_NAME"
 rm -rf "$DIR_NAME"
 popd

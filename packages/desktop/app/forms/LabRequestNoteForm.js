@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Button, Box } from '@material-ui/core';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { useApi } from '../api';
 import { Form, Field, TextField, DateDisplay } from '../components';
 

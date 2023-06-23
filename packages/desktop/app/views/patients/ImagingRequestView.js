@@ -8,8 +8,8 @@ import { pick } from 'lodash';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { CancelModal } from '../../components/CancelModal';
 import { IMAGING_REQUEST_STATUS_OPTIONS, Colors } from '../../constants';

@@ -83,14 +83,7 @@
     "saltRounds": 12,
     "tokenDuration": "1h",
     "reportNoUserError": false,
-    "allowDummyToken": false,
     "useHardcodedPermissions": true,
-    "initialUser": {
-      "email": "admin@tamanu.io",
-      "displayName": "Initial Admin",
-      "role": "admin",
-      "password": "admin"
-    },
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",
@@ -309,7 +302,8 @@
         },
         "displayId": {
           "shortLabel": "NHN",
-          "longLabel": "National Health Number"
+          "longLabel": "National Health Number",
+          "pattern": "[\\s\\S]*"
         },
         "firstName": {
           "shortLabel": "First name",
