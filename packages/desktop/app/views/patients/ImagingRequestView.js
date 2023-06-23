@@ -30,37 +30,37 @@ import {
   TextField,
   Form,
 } from '../../components/Field';
-import { useApi, useSuggester } from '../../api';
+import { useApi, useSuggester, combineQueries } from '../../api';
 import { useEncounterData } from '../../api/queries';
 import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { SimpleTopBar } from '../../components';
 
-const PrintButton = ({ imagingRequest, patient }) => {
+const PrintModalButton = ({ imagingRequest, patient }) => {
   const { modal } = useParams();
   const certificate = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
   const api = useApi();
-  const { data: encounter, isLoading: isEncounterLoading } = useEncounterData(
-    imagingRequest.encounterId,
-  );
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = useQuery(
+  const encounterQuery = useEncounterData(imagingRequest.encounterId);
+  const additionalDataQuery = useQuery(
     ['additionalData', patient.id],
     () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
   );
-  const isVillageEnabled = !!patient?.villageId;
-  const { data: village = {}, isLoading: isVillageLoading } = useQuery(
+  const villageQuery = useQuery(
     ['village', patient.villageId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
-      enabled: isVillageEnabled,
+      enabled: !!patient?.villageId,
     },
   );
-  const isLoading =
-    isEncounterLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
+  const isLoading = combineQueries([
+    encounterQuery,
+    additionalDataQuery,
+    villageQuery,
+  ]).isFetching;
 
   return (
     <>
@@ -78,9 +78,9 @@ const PrintButton = ({ imagingRequest, patient }) => {
           <ImagingRequestPrintout
             imagingRequests={[imagingRequest]}
             patient={patient}
-            village={village}
-            additionalData={additionalData}
-            encounter={encounter}
+            village={villageQuery.data}
+            additionalData={additionalDataQuery.data}
+            encounter={encounterQuery.data}
             certificate={certificate}
           />
         )}
@@ -92,7 +92,11 @@ const PrintButton = ({ imagingRequest, patient }) => {
   );
 };
 
-const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
+const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
+  const { getLocalisation } = useLocalisation();
+  const imagingPriorities = getLocalisation('imagingPriorities') || [];
+  const imagingTypes = getLocalisation('imagingTypes') || {};
+    
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   // Just needed for read only state
@@ -102,6 +106,11 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
       value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
     },
   ];
+
+  const allowLocationChange = [
+    IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
+    IMAGING_REQUEST_STATUS_TYPES.COMPLETED
+  ].includes(currentStatus);
 
   return (
     <FormGrid columns={3}>
@@ -126,8 +135,7 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         required
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
-      {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
-        values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
+      {allowLocationChange && (
         <Field
           label="Facility area"
           name="locationGroupId"
@@ -166,14 +174,52 @@ const BottomAlignFormGrid = styled(FormGrid)`
   }
 `;
 
-const ImagingResultsSection = ({ values, practitionerSuggester }) => {
+const NewResultSection = ({ disabled = false }) => {
+  const practitionerSuggester = useSuggester('practitioner');
+  
+  return (
+    <FormGrid columns={2}>
+      <Field
+        label="Completed by"
+        name="newResult.completedById"
+        placeholder="Search"
+        component={AutocompleteField}
+        suggester={practitionerSuggester}
+        disabled={disabled}
+      />
+      <Field
+        label="Completed"
+        name="newResult.completedAt"
+        saveDateAsString
+        component={DateTimeField}
+        disabled={disabled}
+      />
+      <Field
+        label="Result description"
+        name="newResult.description"
+        placeholder="Result description..."
+        multiline
+        component={TextField}
+        style={{ gridColumn: '1 / -1', minHeight: '3em' }}
+        disabled={disabled}
+      />
+    </FormGrid>
+  );
+}
+
+const ImagingResultsSection = ({ results }) => {
   const openExternalUrl = useCallback(url => () => shell.openExternal(url), []);
+
+  if (results.length === 0) return null;
 
   return (
     <>
-      {values.results?.length ? <h3>Results</h3> : null}
-      {values.results?.map(result => (
-        <BottomAlignFormGrid columns={result.externalUrl ? 3 : 2}>
+      <h3>Results</h3>
+      {results.map(result => (
+        <BottomAlignFormGrid 
+          key={result.id} 
+          columns={result.externalUrl ? 3 : 2}
+        >
           <TextInput
             label="Completed by"
             value={
@@ -198,133 +244,93 @@ const ImagingResultsSection = ({ values, practitionerSuggester }) => {
           <hr />
         </BottomAlignFormGrid>
       ))}
-
-      <h4>{values.results?.length > 0 ? 'Add additional result' : 'Add result'}</h4>
-      <FormGrid columns={2}>
-        <Field
-          label="Completed by"
-          name="newResult.completedById"
-          placeholder="Search"
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-        />
-        <Field
-          label="Completed"
-          name="newResult.completedAt"
-          saveDateAsString
-          component={DateTimeField}
-        />
-        <Field
-          label="Result description"
-          name="newResult.description"
-          placeholder="Result description..."
-          multiline
-          component={TextField}
-          style={{ gridColumn: '1 / -1', minHeight: '3em' }}
-        />
-      </FormGrid>
     </>
   );
 };
 
-const ImagingRequestInfoPane = React.memo(
-  ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
-    const { getLocalisation } = useLocalisation();
-    const imagingPriorities = getLocalisation('imagingPriorities') || [];
-    const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
+  const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+  const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
 
-    return (
-      <Form
-        // Only submit specific fields for update
-        onSubmit={fields => {
-          const updateValues = pick(
-            fields,
-            'status',
-            'completedById',
-            'locationGroupId',
-            'newResult',
-          );
-          onSubmit(updateValues);
-        }}
-        enableReinitialize // Updates form to reflect changes in initialValues
-        initialStatus={{}}
-        initialValues={{
-          ...imagingRequest,
-          newResult: {
-            completedAt: getCurrentDateTimeString(),
-          },
-        }}
-        validationSchema={yup.object().shape({
-          status: yup.string().required('Status is required'),
-        })}
-        render={({ values }) => {
-          return (
-            <>
-              <ImagingRequestSection
-                {...{
-                  values,
-                  imagingRequest,
-                  imagingPriorities,
-                  imagingTypes,
-                }}
-              />
-              {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
-                <ImagingResultsSection
-                  {...{
-                    values,
-                    practitionerSuggester,
-                  }}
-                />
-              )}
-              <ButtonRow style={{ marginTop: 20 }}>
-                {!isCancelled && <Button type="submit">Save</Button>}
-              </ButtonRow>
-            </>
-          );
-        }}
-      />
-    );
-  },
-);
+  return (
+    <Form
+      // Only submit specific fields for update
+      onSubmit={values => {
+        const updatedValues = pick(
+          values,
+          'status',
+          'completedById',
+          'locationGroupId',
+        );
+        if (getCanAddResult(values) && (values.newResult?.description?.trim())) {
+          updatedValues.newResult = values.newResult;
+        }
 
-export const ImagingRequestView = () => {
+        onSubmit(updatedValues);
+      }}
+      enableReinitialize // Updates form to reflect changes in initialValues
+      initialStatus={{}}
+      initialValues={{
+        ...imagingRequest,
+        newResult: {
+          completedAt: getCurrentDateTimeString(),
+        },
+      }}
+      validationSchema={yup.object().shape({
+        status: yup.string().required('Status is required'),
+      })}
+      render={({ values }) => {
+        const canAddResult = getCanAddResult(values);
+        return (
+          <>
+            <ImagingRequestSection
+              currentStatus={values.status}
+              imagingRequest={imagingRequest}
+            />
+            <ImagingResultsSection results={imagingRequest.results} />
+            <h4>{imagingRequest.results.length > 0 ? 'Add additional result' : 'Add result'}</h4>
+            <NewResultSection disabled={!canAddResult} />
+            <ButtonRow style={{ marginTop: 20 }}>
+              {!isCancelled && <Button type="submit">Save</Button>}
+            </ButtonRow>
+          </>
+        );
+      }}
+    />
+  );
+});
+
+function getReasonForCancellationStatus(reasonForCancellation) {
+  // these values are set in localisation
+  switch (reasonForCancellation) {
+    case 'duplicate':
+      return IMAGING_REQUEST_STATUS_TYPES.DELETED;
+    case 'entered-in-error':
+      return IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR;
+    default:
+      return IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
+  }
+}
+
+const CancelModalButton = ({ imagingRequest }) => { 
+  const isCancellable = ![
+    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+    IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+  ].includes(imagingRequest.status);
+
+  if (!isCancellable) return null;
+
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
   const api = useApi();
-  const [open, setOpen] = useState(false);
-  const dispatch = useDispatch();
-  const params = useParams();
-  const imagingRequest = useSelector(state => state.imagingRequest);
-  const patient = useSelector(state => state.patient);
-  const practitionerSuggester = useSuggester('practitioner');
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
-
   const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes') || {};
-  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
-
-  const onSubmit = async data => {
-    await api.put(`imagingRequest/${imagingRequest.id}`, data);
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
-      ),
-    );
-  };
+  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];  
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
     const note = `Request cancelled. Reason: ${reasonText}.`;
-
-    let status;
-    if (reasonForCancellation === 'duplicate') {
-      status = IMAGING_REQUEST_STATUS_TYPES.DELETED;
-    } else if (reasonForCancellation === 'entered-in-error') {
-      status = IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR;
-    } else {
-      status = IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-    }
-
+    const status = getReasonForCancellationStatus(reasonForCancellation);
     await api.put(`imagingRequest/${imagingRequest.id}`, {
       status,
       reasonForCancellation,
@@ -337,39 +343,52 @@ export const ImagingRequestView = () => {
     );
   };
 
-  if (patient.loading) return <LoadingIndicator />;
+  return (
+    <>
+      <Button variant="text" onClick={() => setIsCancelModalOpen(true)}>
+        Cancel request
+      </Button>
+      <CancelModal
+        title="Cancel imaging request"
+        helperText="This reason will permanently delete the imaging request record"
+        bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+        options={cancellationReasonOptions}
+        open={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={onConfirmCancel}
+      />
+    </>
+  );
+};
 
-  const isCancellable =
-    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.CANCELLED &&
-    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR &&
-    imagingRequest.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+export const ImagingRequestView = () => {
+  const imagingRequest = useSelector(state => state.imagingRequest);
+  const patient = useSelector(state => state.patient);
+ 
+  const api = useApi();
+  const dispatch = useDispatch();
+  const params = useParams();
+  const onSubmit = async data => {
+    await api.put(`imagingRequest/${imagingRequest.id}`, data);
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
+      ),
+    );
+  };
+
+  if (patient.loading) return <LoadingIndicator />;
 
   return (
     <>
       <SimpleTopBar title="Imaging request">
-        {isCancellable && (
-          <Button variant="text" onClick={() => setOpen(true)}>
-            Cancel request
-          </Button>
-        )}
-        <CancelModal
-          title="Cancel imaging request"
-          helperText="This reason will permanently delete the imaging request record"
-          bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
-          options={cancellationReasonOptions}
-          open={open}
-          onClose={() => setOpen(false)}
-          onConfirm={onConfirmCancel}
-        />
-        <PrintButton imagingRequest={imagingRequest} patient={patient} />
+        <CancelModalButton imagingRequest={imagingRequest} />
+        <PrintModalButton imagingRequest={imagingRequest} patient={patient} />
       </SimpleTopBar>
       <ContentPane>
         <ImagingRequestInfoPane
           imagingRequest={imagingRequest}
           onSubmit={onSubmit}
-          practitionerSuggester={practitionerSuggester}
-          locationSuggester={locationSuggester}
-          imagingTypes={imagingTypes}
         />
       </ContentPane>
     </>
