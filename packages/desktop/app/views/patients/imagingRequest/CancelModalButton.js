@@ -3,6 +3,8 @@ import { push } from 'connected-react-router';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
 
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 import { CancelModal } from '../../../components/CancelModal';
 import { Button } from '../../../components/Button';
 import { useApi } from '../../../api';
@@ -21,21 +23,15 @@ function getReasonForCancellationStatus(reasonForCancellation) {
   }
 }
 
-export const CancelModalButton = ({ imagingRequest }) => { 
-  const isCancellable = ![
-    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-    IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-  ].includes(imagingRequest.status);
-
-  if (!isCancellable) return null;
-
+export const CancelModalButton = ({ imagingRequest }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];  
+  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
 
+  const dispatch = useDispatch();
+  const params = useParams();
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
     const note = `Request cancelled. Reason: ${reasonText}.`;

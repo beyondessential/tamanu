@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -40,7 +40,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const imagingTypes = getLocalisation('imagingTypes') || {};
-    
+
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   // Just needed for read only state
@@ -53,7 +53,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
 
   const allowLocationChange = [
     IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
-    IMAGING_REQUEST_STATUS_TYPES.COMPLETED
+    IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
   ].includes(currentStatus);
 
   return (
@@ -120,7 +120,7 @@ const BottomAlignFormGrid = styled(FormGrid)`
 
 const NewResultSection = ({ disabled = false }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  
+
   return (
     <FormGrid columns={2}>
       <Field
@@ -149,44 +149,48 @@ const NewResultSection = ({ disabled = false }) => {
       />
     </FormGrid>
   );
-}
+};
+
+const ImagingResultRow = ({ result }) => {
+  const { externalUrl, completedAt, completedBy, description } = result;
+
+  const { openUrl } = useElectron();
+  const onOpenUrl = useCallback(() => openUrl(externalUrl), [openUrl, externalUrl]);
+
+  return (
+    <BottomAlignFormGrid columns={externalUrl ? 3 : 2}>
+      <TextInput
+        label="Completed by"
+        value={completedBy?.displayName ?? (externalUrl && 'External provider') ?? ''}
+        disabled
+      />
+      <DateTimeInput label="Completed" value={completedAt} disabled />
+      {externalUrl && (
+        <Button color="secondary" onClick={onOpenUrl}>
+          View image (external link)
+        </Button>
+      )}
+
+      <TextInput
+        label="Result description"
+        value={description}
+        multiline
+        disabled
+        style={{ gridColumn: '1 / -1', minHeight: '3em' }}
+      />
+      <hr />
+    </BottomAlignFormGrid>
+  );
+};
 
 const ImagingResultsSection = ({ results }) => {
   if (results.length === 0) return null;
-
-  const { openUrl } = useElectron();
 
   return (
     <>
       <h3>Results</h3>
       {results.map(result => (
-        <BottomAlignFormGrid 
-          key={result.id} 
-          columns={result.externalUrl ? 3 : 2}
-        >
-          <TextInput
-            label="Completed by"
-            value={
-              result.completedBy?.displayName ?? (result.externalUrl && 'External provider') ?? ''
-            }
-            disabled
-          />
-          <DateTimeInput label="Completed" value={result.completedAt} disabled />
-          {result.externalUrl && (
-            <Button color="secondary" onClick={() => openUrl(result.externalUrl)}>
-              View image (external link)
-            </Button>
-          )}
-
-          <TextInput
-            label="Result description"
-            value={result.description}
-            multiline
-            disabled
-            style={{ gridColumn: '1 / -1', minHeight: '3em' }}
-          />
-          <hr />
-        </BottomAlignFormGrid>
+        <ImagingResultRow key={result.id} result={result} />
       ))}
     </>
   );
@@ -200,13 +204,8 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
     <Form
       // Only submit specific fields for update
       onSubmit={values => {
-        const updatedValues = pick(
-          values,
-          'status',
-          'completedById',
-          'locationGroupId',
-        );
-        if (getCanAddResult(values) && (values.newResult?.description?.trim())) {
+        const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
+        if (getCanAddResult(values) && values.newResult?.description?.trim()) {
           updatedValues.newResult = values.newResult;
         }
 
@@ -227,10 +226,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
         const canAddResult = getCanAddResult(values);
         return (
           <>
-            <ImagingRequestSection
-              currentStatus={values.status}
-              imagingRequest={imagingRequest}
-            />
+            <ImagingRequestSection currentStatus={values.status} imagingRequest={imagingRequest} />
             <ImagingResultsSection results={imagingRequest.results} />
             <h4>{imagingRequest.results.length > 0 ? 'Add additional result' : 'Add result'}</h4>
             <NewResultSection disabled={!canAddResult} />
@@ -247,7 +243,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 export const ImagingRequestView = () => {
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
- 
+
   const api = useApi();
   const dispatch = useDispatch();
   const params = useParams();
@@ -260,19 +256,22 @@ export const ImagingRequestView = () => {
     );
   };
 
+  const isCancellable = ![
+    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+    IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+  ].includes(imagingRequest.status);
+
   if (patient.loading) return <LoadingIndicator />;
 
   return (
     <>
       <SimpleTopBar title="Imaging request">
-        <CancelModalButton imagingRequest={imagingRequest} />
+        {isCancellable && <CancelModalButton imagingRequest={imagingRequest} />}
         <PrintModalButton imagingRequest={imagingRequest} patient={patient} />
       </SimpleTopBar>
       <ContentPane>
-        <ImagingRequestInfoPane
-          imagingRequest={imagingRequest}
-          onSubmit={onSubmit}
-        />
+        <ImagingRequestInfoPane imagingRequest={imagingRequest} onSubmit={onSubmit} />
       </ContentPane>
     </>
   );
