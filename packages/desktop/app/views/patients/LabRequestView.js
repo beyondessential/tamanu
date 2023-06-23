@@ -134,6 +134,7 @@ export const LabRequestView = () => {
   const ActiveModal = MODALS[modalId] || null;
 
   return (
+    // TODO: Likely need to wrap this effect in a flex so that the table expands properly
     <Container>
       <Heading2 gutterBottom>Labs</Heading2>
       <LabRequestCard
