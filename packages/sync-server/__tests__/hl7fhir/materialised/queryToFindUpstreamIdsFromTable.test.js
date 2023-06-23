@@ -74,9 +74,9 @@ describe('queryToFindUpstreamIdsFromTable', () => {
   });
   afterAll(() => ctx.close());
 
-  for (const Resource of materialisableResources) {
-    describe(Resource.name, () => {
-      it("shouldn't return null for a materialisable resource's upstream(s)", async () => {
+  describe('queryToFindUpstreamIds', () => {
+    it("shouldn't return null for a materialisable resource's upstream(s)", async () => {
+      for (const Resource of materialisableResources) {
         for (const DistantUpstreamModel of Resource.upstreams) {
           for (const UpstreamModel of Resource.UpstreamModels) {
             const upstreamTable = UpstreamModel.tableName;
@@ -86,7 +86,7 @@ describe('queryToFindUpstreamIdsFromTable', () => {
             }
           }
         }
-      });
+      }
     });
-  }
+  });
 });
