@@ -7,13 +7,11 @@ import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
 import { getActionsFromData, getAnswersFromData } from '../../../utils';
-import { useVitalChartData } from '../../../contexts/VitalChartData';
-import { Colors } from '../../../constants';
-import { ChartsView } from '../../ChartsView';
+import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
+import { VitalChartsModal } from '../../../components/VitalChartsModal';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const queryClient = useQueryClient();
-  const { vitalChartModalOpen, setVitalChartModalOpen, chartKey } = useVitalChartData();
   const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
@@ -36,26 +34,18 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
 
   return (
     <TabPane>
-      <Modal title="Record vitals" open={modalOpen} onClose={handleClose}>
-        <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
-      </Modal>
-      <Modal
-        title={chartKey}
-        open={vitalChartModalOpen}
-        width="lg"
-        color={Colors.white}
-        onClose={() => {
-          setVitalChartModalOpen(false);
-        }}
-      >
-        <ChartsView />
-      </Modal>
-      <TableButtonRow variant="small">
-        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
-          Record vitals
-        </Button>
-      </TableButtonRow>
-      <VitalsTable />
+      <VitalChartDataProvider>
+        <Modal title="Record vitals" open={modalOpen} onClose={handleClose}>
+          <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
+        </Modal>
+        <VitalChartsModal />
+        <TableButtonRow variant="small">
+          <Button onClick={() => setModalOpen(true)} disabled={readonly}>
+            Record vitals
+          </Button>
+        </TableButtonRow>
+        <VitalsTable />
+      </VitalChartDataProvider>
     </TabPane>
   );
 });
