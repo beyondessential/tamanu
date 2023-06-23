@@ -114,7 +114,7 @@ export const login = ({ secret, refreshSecret }) =>
     const [facility, localisation, permissions] = await Promise.all([
       store.models.Facility.findByPk(facilityId),
       getLocalisation(),
-      getPermissionsForRoles(user.role),
+      getPermissionsForRoles(store.models, user.role),
     ]);
 
     res.send({
