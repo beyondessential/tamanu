@@ -112,7 +112,7 @@ const StyledButton = styled(Button)`
   padding: 8px 4px;
   justify-content: left;
   position: relative;
-  left: -15px;
+  left: -14px;
   & > span > div {
     margin: -8px -4px;
   }
@@ -161,7 +161,6 @@ export const PatientLabTestsTable = React.memo(({ patient, labTests = [], count,
       },
       sortable: false,
     },
-    // TODO: this section somehow breaks the export. It seems to kill all styling done through theme.
     ...allDates
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
