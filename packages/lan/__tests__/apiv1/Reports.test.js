@@ -1,9 +1,5 @@
 import { fake } from 'shared/test-helpers';
-import {
-  setHardcodedPermissionsUseForTestsOnly,
-  unsetUseHardcodedPermissionsUseForTestsOnly,
-} from 'shared/permissions/rolesToPermissions';
-import { createTestContext } from '../utilities';
+import { createTestContext, disableHardcodedPermissionsForSuite } from '../utilities';
 import { testReportPermissions, setupReportPermissionsTest } from './reportsApiCommon';
 
 const reportsUtils = {
@@ -20,6 +16,7 @@ describe('Reports', () => {
     baseApp = ctx.baseApp;
   });
   afterAll(() => ctx.close());
+  disableHardcodedPermissionsForSuite();
 
   describe('database defined reports', () => {
     let adminApp = null;
@@ -71,14 +68,7 @@ describe('Reports', () => {
   });
 
   describe('list', () => {
-    beforeAll(async () => {
-      setHardcodedPermissionsUseForTestsOnly(false);
-    });
-
-    afterAll(() => {
-      unsetUseHardcodedPermissionsUseForTestsOnly();
-    });
-
+    disableHardcodedPermissionsForSuite();
     it('should get permitted db and builtin reports', async () => {
       // Arrange
       const { app, permittedReports } = await setupReportPermissionsTest(baseApp, ctx.models);
@@ -103,12 +93,7 @@ describe('Reports', () => {
   });
 
   describe('post', () => {
-    beforeAll(async () => {
-      setHardcodedPermissionsUseForTestsOnly(false);
-    });
-    afterAll(() => {
-      unsetUseHardcodedPermissionsUseForTestsOnly();
-    });
+    disableHardcodedPermissionsForSuite();
     it('should reject reading a report with insufficient permissions', async () => {
       const app = await baseApp.asRole('base');
       const result = await app.post('/v1/reports/incomplete-referrals', {});
