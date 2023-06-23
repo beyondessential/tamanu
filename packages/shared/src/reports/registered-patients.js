@@ -1,8 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
 
-export const permission = 'Patient';
-
 const parametersToSqlWhere = parameters => {
   if (!parameters || !Object.keys(parameters).length) {
     return undefined;
