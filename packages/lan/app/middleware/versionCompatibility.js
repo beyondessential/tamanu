@@ -5,7 +5,7 @@ import { buildVersionCompatibilityCheck } from 'shared/utils';
 // have updated.
 
 export const MIN_CLIENT_VERSION = '1.26.0';
-export const MAX_CLIENT_VERSION = '1.26.0'; // note that higher patch versions will be allowed to connect
+export const MAX_CLIENT_VERSION = '1.26.2'; // note that higher patch versions will be allowed to connect
 
 export const versionCompatibility = (req, res, next) =>
   buildVersionCompatibilityCheck(MIN_CLIENT_VERSION, MAX_CLIENT_VERSION)(req, res, next);
