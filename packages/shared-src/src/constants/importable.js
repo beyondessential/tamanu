@@ -1,5 +1,71 @@
 import { IMAGING_AREA_TYPES } from './imaging';
 
+export const GENERAL_IMPORTABLE_DATA_TYPES = [
+  'additionalInvoiceLine',
+  'administeredVaccine',
+  'allergy',
+  'angiogramImagingArea',
+  'arrivalMode',
+  'carePlan',
+  'certifiableVaccine',
+  'colonoscopyImagingArea',
+  'country',
+  'ctScanImagingArea',
+  'department',
+  'diagnosis',
+  'dischargeDisposition',
+  'division',
+  'drug',
+  'ecgImagingArea',
+  'echocardiogramImagingArea',
+  'endoscopyImagingArea',
+  'ethnicity',
+  'facility',
+  'fluroscopyImagingArea',
+  'holterMonitorImagingArea',
+  'imagingAreaExternalCode',
+  'imagingType',
+  'invoiceLineType',
+  'invoicePriceChangeType',
+  'labTestCategory',
+  'labTestLaboratory',
+  'labTestMethod',
+  'labTestPriority',
+  'labTestType',
+  'location',
+  'locationGroup',
+  'mammogramImagingArea',
+  'manufacturer',
+  'medicalArea',
+  'mriImagingArea',
+  'nationality',
+  'nursingZone',
+  'occupation',
+  'patient',
+  'patientBillingType',
+  'patientFieldDefinition',
+  'patientFieldDefinitionCategory',
+  'procedureType',
+  'referralSource',
+  'religion',
+  'scheduledVaccine',
+  'secondaryIdType',
+  'settlement',
+  'stressTestImagingArea',
+  'subdivision',
+  'triageReason',
+  'ultrasoundImagingArea',
+  'user',
+  'vaccine',
+  'vascularStudyImagingArea',
+  'village',
+  'xRayImagingArea',
+  'vaccineNotGivenReason',
+  'vaccineCircumstance',
+].sort();
+
+export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
+
 export const REFERENCE_TYPES = {
   ICD10: 'icd10',
   ALLERGY: 'allergy',
@@ -9,7 +75,6 @@ export const REFERENCE_TYPES = {
   PROCEDURE_TYPE: 'procedureType',
   IMAGING_TYPE: 'imagingType',
   LAB_TEST_CATEGORY: 'labTestCategory',
-  LAB_TEST_TYPE: 'labTestType',
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
   LAB_TEST_METHOD: 'labTestMethod',
@@ -39,6 +104,9 @@ export const REFERENCE_TYPES = {
   DISCHARGE_DISPOSITION: 'dischargeDisposition',
   REFERRAL_SOURCE: 'referralSource',
   ARRIVAL_MODE: 'arrivalMode',
+  VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
+  VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
+  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   ...IMAGING_AREA_TYPES,
 };
 
@@ -56,3 +124,15 @@ export const HIDDEN_VISIBILITY_STATUSES = [
   VISIBILITY_STATUSES.HISTORICAL,
   VISIBILITY_STATUSES.MERGED,
 ];
+
+export const ASSET_NAMES = {
+  LETTERHEAD_LOGO: 'letterhead-logo',
+  VACCINE_CERTIFICATE_WATERMARK: 'vaccine-certificate-watermark',
+  CERTIFICATE_BOTTOM_HALF_IMG: 'certificate-bottom-half-img',
+  DEATH_CERTIFICATE_BOTTOM_HALF_IMG: 'death-certificate-bottom-half-img',
+};
+
+export const ASSET_MIME_TYPES = {
+  png: 'image/png',
+  svg: 'image/svg',
+};

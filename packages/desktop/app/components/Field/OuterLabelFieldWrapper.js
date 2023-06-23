@@ -9,7 +9,7 @@ const OuterLabel = styled.div`
   margin-bottom: 4px;
   color: ${Colors.darkText};
   font-weight: 500;
-  font-size: 14px;
+  font-size: ${props => (props.size === 'small' ? '11px' : '14px')};
   line-height: 16px;
   letter-spacing: 0;
 `;
@@ -50,10 +50,10 @@ const StyledTooltip = styled(props => (
 `;
 
 export const OuterLabelFieldWrapper = React.memo(
-  React.forwardRef(({ children, required, label, infoTooltip, style, className }, ref) => (
+  React.forwardRef(({ children, required, label, infoTooltip, style, className, size }, ref) => (
     <div style={style} className={className} ref={ref}>
       {label && (
-        <OuterLabel>
+        <OuterLabel className="label-field" size={size}>
           {label}
           {required && <OuterLabelRequired>*</OuterLabelRequired>}
         </OuterLabel>

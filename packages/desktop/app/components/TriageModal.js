@@ -53,27 +53,34 @@ const DETAILS_FIELD_DEFINITIONS = [
   ['dateOfBirth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
 ];
 
-export const TriageModal = React.memo(({ open, patient, onClose }) => {
-  const { displayId } = patient;
-  const { getLocalisation } = useLocalisation();
+export const TriageModal = React.memo(
+  ({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit }) => {
+    const { displayId } = patient;
+    const { getLocalisation } = useLocalisation();
 
-  const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
-    ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
-  ).map(([name, accessor]) => (
-    <React.Fragment key={name}>
-      <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
-      <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
-    </React.Fragment>
-  ));
+    const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
+      ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+    ).map(([name, accessor]) => (
+      <React.Fragment key={name}>
+        <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
+        <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
+      </React.Fragment>
+    ));
 
-  return (
-    <Modal title="New emergency triage" open={open} width="md" onClose={onClose}>
-      <Header>Patient details</Header>
-      <PatientDetails>
-        <Grid>{detailsFields}</Grid>
-        <DisplayIdLabel>{displayId}</DisplayIdLabel>
-      </PatientDetails>
-      <TriageForm onCancel={onClose} patient={patient} />
-    </Modal>
-  );
-});
+    return (
+      <Modal title="New emergency triage" open={open} width="md" onClose={onClose}>
+        <Header>Patient details</Header>
+        <PatientDetails>
+          <Grid>{detailsFields}</Grid>
+          <DisplayIdLabel>{displayId}</DisplayIdLabel>
+        </PatientDetails>
+        <TriageForm
+          onSubmitEncounter={onSubmitEncounter}
+          noRedirectOnSubmit={noRedirectOnSubmit}
+          onCancel={onClose}
+          patient={patient}
+        />
+      </Modal>
+    );
+  },
+);

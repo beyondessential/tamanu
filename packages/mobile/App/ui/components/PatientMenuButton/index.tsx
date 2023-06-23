@@ -1,15 +1,9 @@
-import React, { FunctionComponent, ComponentClass } from 'react';
+import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
-import { SvgProps } from 'react-native-svg';
 import { theme } from '/styled/theme';
 import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-
-export interface PatientMenuButtonProps {
-  title: string;
-  Icon: FunctionComponent<SvgProps>;
-  onPress: () => void;
-}
+import { MenuOptionButtonProps } from '~types/MenuOptionButtonProps';
 
 const styles = StyleSheet.create({
   buttonContainer: {
@@ -26,7 +20,7 @@ export const PatientMenuButton = ({
   title,
   Icon,
   onPress,
-}: PatientMenuButtonProps): JSX.Element => (
+}: MenuOptionButtonProps): JSX.Element => (
   <TouchableHighlight underlayColor={theme.colors.BOX_OUTLINE} onPress={onPress}>
     <StyledView
       style={styles.buttonContainer}

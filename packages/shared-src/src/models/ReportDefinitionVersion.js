@@ -35,8 +35,6 @@ const generateReportFromQueryData = queryData => {
 };
 
 export class ReportDefinitionVersion extends Model {
-  permission = 'Report';
-
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -64,9 +62,7 @@ export class ReportDefinitionVersion extends Model {
         },
         queryOptions: {
           /**
-           * As of 28/02/22, contains:
-           *  - parameters
-           *  - dataSources
+           * See optionsValidator for exact schema
            * e.g.
            * {
            *   "parameters": [

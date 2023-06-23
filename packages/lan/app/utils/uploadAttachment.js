@@ -11,6 +11,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
   // req.checkPermission('write', 'Attachment'); ??
 
   // Read request and extract file, stats and metadata
+  const { deviceId } = req;
   const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
@@ -25,7 +26,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
 
   // Upload file to sync server
   // CentralServerConnection takes care of adding headers and convert body to JSON
-  const centralServer = new CentralServerConnection();
+  const centralServer = new CentralServerConnection({ deviceId });
   const syncResponse = await centralServer.fetch('attachment', {
     method: 'POST',
     body: {

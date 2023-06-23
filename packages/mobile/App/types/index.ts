@@ -18,9 +18,15 @@ export * from './IAdministeredVaccine';
 export * from './IDiagnosis';
 export * from './IScheduledVaccine';
 export * from './IMedication';
+export * from './INoteItem';
+export * from './INotePage';
 export * from './IReferral';
-export * from './IPatientAditionalData';
+export * from './IPatientAdditionalData';
 export * from './IFacility';
 export * from './ILocation';
+export * from './ILocationGroup';
 export * from './IDepartment';
+
+export * from './ID';
 export * from './DateString';
+export * from './Forms';

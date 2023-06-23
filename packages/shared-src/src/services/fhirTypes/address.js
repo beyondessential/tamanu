@@ -1,28 +1,14 @@
 import { Chance } from 'chance';
 import { sample } from 'lodash';
-import array from 'postgres-array';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirPeriod } from './period';
 
 const USES = ['home', 'work', 'temp', 'old', 'billing'];
 const TYPES = ['postal', 'physical', 'both'];
 
-export class FhirAddress extends Composite {
-  static FIELD_ORDER = [
-    'use',
-    'type',
-    'text',
-    'line',
-    'city',
-    'district',
-    'state',
-    'postalCode',
-    'country',
-    'period',
-  ];
-
+export class FhirAddress extends FhirBaseType {
   static SCHEMA() {
     return yup
       .object({
@@ -79,14 +65,6 @@ export class FhirAddress extends Composite {
   // > included in the text that isn't found in a part.
   // -- https://www.hl7.org/fhir/datatypes.html#Address
 
-  static validateAndTransformFromSql({ line, period, ...fields }) {
-    return new this({
-      line: line && array.parse(line, l => l),
-      period: period && FhirPeriod.fromSql(period),
-      ...fields,
-    });
-  }
-
   static fake() {
     const chance = new Chance();
     return new this({
@@ -95,8 +73,4 @@ export class FhirAddress extends Composite {
       text: chance.address(),
     });
   }
-}
-
-export class FHIR_ADDRESS extends COMPOSITE {
-  static ValueClass = FhirAddress;
 }

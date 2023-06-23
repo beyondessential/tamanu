@@ -43,8 +43,10 @@ const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilt
     } else if (field.name === 'dateOfBirth') {
       const date = format(field.value, 'yyyy-MM-dd');
       activeFilters.filters[field.name] = date;
-    } else {
+    } else if (['firstName', 'lastName'].includes(field.name)) {
       activeFilters.filters[field.name] = Like(`%${field.value}%`);
+    } else {
+      activeFilters.filters[field.name] = field.value; // use equal for any other filters
     }
   }
 

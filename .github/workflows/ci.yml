@@ -17,46 +17,7 @@ env:
   NODE_ENV: test
 
 jobs:
-  build:
-    strategy:
-      fail-fast: true
-      matrix:
-        os:
-          - ubuntu
-        node:
-          - 16.x
-    name: Build shared os=${{ matrix.os }} node=${{ matrix.node }}
-    runs-on: ${{ matrix.os }}-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - uses: ./.github/actions/build-shared
-      with:
-        node: ${{ matrix.node }}
-
-  clean:
-    # ignore lint or storybook failures when deciding whether to run cleanup.
-    # not running it absolutely always lets us retry particular test jobs without
-    # having to re-run the whole workflow!
-    if: always() && needs.test.result == 'success' && needs.migrations.result == 'success'
-    needs:
-      - test
-      - lint
-      - migrations
-      # - storybook
-    runs-on: ubuntu-latest
-    steps:
-    - uses: geekyeggo/delete-artifact@v2
-      with:
-        name: shared_*
-
   test:
-    needs: build
-
     strategy:
       fail-fast: false
       matrix:
@@ -70,7 +31,6 @@ jobs:
           # - '12'
           - '14'
         package:
-          - desktop
           - lan
           - meta-server
           - shared-src
@@ -85,10 +45,8 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
         cache: yarn
-    - name: Get prebuilt shared
-      uses: ./.github/actions/get-shared
-      with:
-        node: ${{ matrix.node }}
+    - run: yarn
+    - run: yarn build-shared
 
     - name: Install and start postgres ${{ matrix.postgres }} if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
@@ -105,7 +63,6 @@ jobs:
       run: yarn workspace ${{ matrix.package }} run test
 
   lint:
-    needs: build
     continue-on-error: true
 
     strategy:
@@ -114,6 +71,7 @@ jobs:
         node:
           - '16.x'
         package:
+          - desktop
           - lan
           - meta-server
           - shared-src
@@ -128,43 +86,39 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
         cache: yarn
-    - name: Get prebuilt shared
-      uses: ./.github/actions/get-shared
-      with:
-        node: ${{ matrix.node }}
+    - run: yarn
+    - run: yarn build-shared
 
     - run: yarn workspace ${{ matrix.package }} run lint
 
-  ## disable for now as it's broken
-  # storybook:
-  #   needs: build
-  #   continue-on-error: true
-  #
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       node:
-  #         - '16.x'
-  #
-  #   name: Test storybook node=${{ matrix.node }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Use Node.js ${{ matrix.node }}
-  #     uses: actions/setup-node@v3
-  #     with:
-  #       node-version: ${{ matrix.node }}
-  #       cache: yarn
-  #   - name: Get prebuilt shared
-  #     uses: ./.github/actions/get-shared
-  #     with:
-  #       node: ${{ matrix.node }}
-  #
-  #   - run: yarn workspace desktop run verify-storybook
+  storybook:
+    # Workaround for define plugin conflict warning
+    env: 
+        NODE_ENV: development
+    continue-on-error: true
+  
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '16.x'
+  
+    name: Test storybook node=${{ matrix.node }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - run: yarn
+      shell: bash
+    - run: yarn build-shared
+      shell: bash
+    - run: yarn workspace desktop run verify-storybook
 
   migrations:
-    needs: build
-
     strategy:
       fail-fast: false
       matrix:
@@ -183,10 +137,8 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
         cache: yarn
-    - name: Get prebuilt shared
-      uses: ./.github/actions/get-shared
-      with:
-        node: ${{ matrix.node }}
+    - run: yarn
+    - run: yarn build-shared
 
     - name: Install and start postgres ${{ matrix.postgres }}
       run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
@@ -215,3 +167,19 @@ jobs:
 
     - run: yarn test
       working-directory: packages/mobile
+
+  # Dummy job to have a stable name for PR requirements
+  tests-pass:
+    if: always() # always run even if dependencies fail
+    name: Tests pass
+    needs:
+      - test
+      - lint
+      - storybook
+      - migrations
+      - test-mobile
+    runs-on: ubuntu-latest
+    steps:
+    # fail if ANY dependency has failed or been skipped or cancelled
+    - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')"
+      run: exit 1

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 
 import { ApiContext } from '../api';
+import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -21,11 +22,14 @@ const Container = styled.div`
 
 export const SyncHealthNotificationComponent = () => {
   const api = useContext(ApiContext);
+  const { currentUser } = useAuth();
   const [message, setMessage] = useState();
 
   useEffect(() => {
     let isMounted = true;
     (async () => {
+      // don't attempt to get syncHealth when not logged in
+      if (!currentUser) return;
       const res = await api.get('syncHealth');
       if (!isMounted) return;
       if (!res.healthy) {
@@ -35,7 +39,7 @@ export const SyncHealthNotificationComponent = () => {
     return () => {
       isMounted = false;
     };
-  }, [api]);
+  }, [api, currentUser]);
 
   // We only set a message if the server is unhealthy, so as long as message is undefined,
   // we don't need to render a warning.

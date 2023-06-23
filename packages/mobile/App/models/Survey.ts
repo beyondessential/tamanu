@@ -6,7 +6,6 @@ import { Database } from '~/infra/db';
 import { VitalsDataElements } from '/helpers/constants';
 import {
   ISurvey,
-  ISurveyResponse,
   ISurveyScreenComponent,
   IVitalsSurvey,
   SurveyTypes,

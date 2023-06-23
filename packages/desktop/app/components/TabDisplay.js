@@ -36,7 +36,7 @@ const Icon = styled.i`
 `;
 
 export const TabDisplay = React.memo(
-  ({ tabs, currentTab, onTabSelect, className, ...tabProps }) => {
+  ({ tabs, currentTab, onTabSelect, className, scrollable = true, ...tabProps }) => {
     const currentTabData = tabs.find(t => t.key === currentTab);
     const buttons = tabs.map(({ key, label, render, icon }) => (
       <StyledTab
@@ -56,7 +56,11 @@ export const TabDisplay = React.memo(
     ));
     return (
       <TabBar className={className}>
-        <TabContainer variant="scrollable" scrollButtons="on" value={currentTab}>
+        <TabContainer
+          variant={scrollable ? 'scrollable' : 'fixed'}
+          scrollButtons={scrollable ? 'on' : 'off'}
+          value={currentTab}
+        >
           {buttons}
         </TabContainer>
         <div>{currentTabData.render({ ...tabProps })}</div>

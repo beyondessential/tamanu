@@ -3,11 +3,10 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';
-import { randomBytes } from 'crypto';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
-import { findUser } from './utils';
+import { findUser, getRandomBase64String } from './utils';
 
 export const resetPassword = express.Router();
 
@@ -44,17 +43,8 @@ resetPassword.post(
   }),
 );
 
-const createToken = async length => {
-  return new Promise((resolve, reject) => {
-    randomBytes(length, (err, buf) => {
-      if (err) reject(err);
-      resolve(buf.toString('base64'));
-    });
-  });
-};
-
 const createOneTimeLogin = async (models, user) => {
-  const token = await createToken(config.auth.resetPassword.tokenLength);
+  const token = await getRandomBase64String(config.auth.resetPassword.tokenLength);
 
   const expiresAt = addMinutes(new Date(), config.auth.resetPassword.tokenExpiry);
 

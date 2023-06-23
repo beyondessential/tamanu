@@ -17,9 +17,11 @@ const snapshotChangesForModel = async (
   sessionConfig,
   config,
 ) => {
-  log.debug(
-    `snapshotChangesForModel: Beginning snapshot for model ${model.tableName} since ${since}, in session ${sessionId}`,
-  );
+  log.debug('snapshotOutgoingChanges.beginCountingModel', {
+    model: model.tableName,
+    since,
+    sessionId,
+  });
 
   const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
   const modelHasSyncFilter = !!model.buildSyncFilter;
@@ -111,9 +113,12 @@ const snapshotChangesForModel = async (
     totalCount += chunkCount;
   }
 
-  log.debug(
-    `snapshotChangesForModel: Found ${totalCount} for model ${model.tableName} since ${since}, in session ${sessionId}`,
-  );
+  log.debug('snapshotOutgoingChanges.countedForModel', {
+    count: totalCount,
+    model: model.tableName,
+    since,
+    sessionId,
+  });
 
   return totalCount;
 };
@@ -161,9 +166,7 @@ export const snapshotOutgoingChanges = withConfig(
       }
     }
 
-    log.debug(
-      `snapshotChangesForModel: Found a total of ${changesCount} for all models since ${since}, in session ${sessionId}`,
-    );
+    log.debug('snapshotOutgoingChanges.countedAll', { count: changesCount, since, sessionId });
 
     return changesCount;
   },

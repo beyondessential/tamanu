@@ -1,9 +1,10 @@
 import Chance from 'chance';
-import { format, formatRFC7231 } from 'date-fns';
+import { formatRFC7231 } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { fakeUUID } from 'shared/utils/generateId';
+import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
@@ -161,7 +162,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
         meta: {
           // TODO: uncomment when we support versioning
           // versionId: expect.any(String),
-          lastUpdated: format(new Date(labTest.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: formatFhirDate(labTest.updatedAt),
         },
         effectiveDateTime: convertISO9075toRFC3339(labRequest.sampleTime),
         issued: convertISO9075toRFC3339(labRequest.requestedDate),
@@ -290,7 +291,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
         resourceType: 'Bundle',
         id: expect.any(String),
         meta: {
-          lastUpdated: format(new Date(labTest.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          lastUpdated: formatFhirDate(labTest.updatedAt),
         },
         type: 'searchset',
         timestamp: expect.any(String),
@@ -313,7 +314,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: format(new Date(labTest.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                lastUpdated: formatFhirDate(labTest.updatedAt),
               },
               code: {
                 coding: [

@@ -27,7 +27,7 @@ interface VitalsFormProps {
 export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
-  const [note, setNote] = useState('Waiting for submission attempt.');
+  const [note, setNote] = useState('');
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,

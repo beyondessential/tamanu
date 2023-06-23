@@ -9,10 +9,10 @@ attachment.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Attachment');
 
-    const { query, params } = req;
+    const { query, params, deviceId } = req;
     const { base64 } = query;
     const { id } = params;
-    const centralServer = new CentralServerConnection();
+    const centralServer = new CentralServerConnection({ deviceId });
     const response = await centralServer.fetch(`attachment/${id}?base64=${base64}`, {
       method: 'GET',
     });

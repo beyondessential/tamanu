@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { PatientMenuButton, PatientMenuButtonProps } from '/components/PatientMenuButton';
+import { PatientMenuButton } from '/components/PatientMenuButton';
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 interface VisitTypeButtonsProps {
-  list: PatientMenuButtonProps[];
+  list: MenuOptionButtonProps[];
 }
 
 export const VisitTypeButtonList = ({

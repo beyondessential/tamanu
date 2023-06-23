@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../store';
+import { logout, idleTimeout } from '../store';
+import { useApi } from '../api';
 
 // This is just a redux selector for now.
 // This should become its own proper context once the auth stuff
@@ -7,6 +8,7 @@ import { logout } from '../store';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
+  const api = useApi();
 
   return {
     ...useSelector(state => ({
@@ -16,5 +18,7 @@ export const useAuth = () => {
       centralHost: state.auth.server?.centralHost,
     })),
     onLogout: () => dispatch(logout()),
+    onTimeout: () => dispatch(idleTimeout()),
+    refreshToken: () => api.refreshToken(),
   };
 };

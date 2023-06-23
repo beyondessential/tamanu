@@ -1,27 +1,26 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { reloadPatient } from '../store/patient';
 import { Modal } from './Modal';
 import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
-export const DeathModal = React.memo(({ open, onClose }) => {
+export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
+  const queryClient = useQueryClient();
   const icd10Suggester = useSuggester('icd10');
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
-  const { data: queryData } = useQuery(['openPatientEncounters', patient.id], () =>
-    api.get(`patient/${patient.id}/encounters?open=true`),
-  );
 
   const recordPatientDeath = async data => {
     const patientId = patient.id;
     await api.post(`patient/${patientId}/death`, data);
+    queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
 
     onClose();
     await dispatch(reloadPatient(patientId));
@@ -34,7 +33,7 @@ export const DeathModal = React.memo(({ open, onClose }) => {
         onSubmit={recordPatientDeath}
         onCancel={onClose}
         patient={patient}
-        hasCurrentEncounter={queryData?.count > 0}
+        deathData={deathData}
         icd10Suggester={icd10Suggester}
         practitionerSuggester={practitionerSuggester}
         facilitySuggester={facilitySuggester}

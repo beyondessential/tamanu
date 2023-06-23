@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useEffect, useCallback } from 'react';
+import React, { ReactElement, useMemo, useEffect, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { Form } from '../Form';
@@ -26,7 +26,13 @@ export const SurveyForm = ({
   const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [
     components,
   ]);
-  const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
+  const [formValues, setFormValues] = useState(initialValues);
+  const formValidationSchema = useMemo(() => getFormSchema(components.filter(c => checkVisibilityCriteria(c, components, formValues))), [
+    checkVisibilityCriteria,
+    components,
+    formValues,
+  ]);
+  
   const submitVisibleValues = useCallback(
     (values: any) => {
       // 1. get a list of visible fields
@@ -49,30 +55,31 @@ export const SurveyForm = ({
 
   return (
     <Form
+      validateOnChange
+      validateOnBlur
       validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setFieldValue, errors }): ReactElement => {
+      {({ values, setFieldValue }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
 
           // write values that have changed back into answers
           Object.entries(calculatedValues)
-            .filter(([k, v]) => values[k] !== v)
-            .map(([k, v]) => setFieldValue(k, v));
+            .filter(([key, value]) => values[key] !== value)
+            .map(([key, value]) => setFieldValue(key, value, false));
+
+          // set parent formValues variable to the values here
+          setFormValues({
+            ...values,
+            ...calculatedValues,
+          });
+
         }, [values]);
-        return (
-          <FormFields
-            components={components}
-            values={values}
-            note={note}
-            patient={patient}
-            errors={errors}
-          />
-        );
+        return <FormFields components={components} note={note} patient={patient} />;
       }}
     </Form>
   );

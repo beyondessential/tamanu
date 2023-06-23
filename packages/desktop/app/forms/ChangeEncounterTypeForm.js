@@ -5,15 +5,13 @@ import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
-export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter }) => {
-  const query = useUrlSearchParams();
+export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initialNewType }) => {
   return (
     <Form
       initialValues={{
-        encounterType: query.get('type'),
+        encounterType: initialNewType,
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}

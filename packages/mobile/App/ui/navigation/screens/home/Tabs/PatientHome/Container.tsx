@@ -45,21 +45,20 @@ const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
   return secondPart
     ? {
-        title: firstPart,
-        textBody: secondPart,
-      }
+      title: firstPart,
+      textBody: secondPart,
+    }
     : {
-        title: '',
-        textBody: firstPart,
-      };
+      title: '',
+      textBody: firstPart,
+    };
 };
 
-const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
-  showPopupChain(
-    issues
-      .filter(({ type }) => type === PatientIssueType.Warning)
-      .map(({ note }) => formatNoteToPopup(note)),
-  );
+const showPatientWarningPopups = (issues: IPatientIssue[]): void => showPopupChain(
+  issues
+    .filter(({ type }) => type === PatientIssueType.Warning)
+    .map(({ note }) => formatNoteToPopup(note)),
+);
 
 const PatientHomeContainer = ({
   navigation,
@@ -69,9 +68,9 @@ const PatientHomeContainer = ({
   const visitTypeButtons = useMemo(
     () => [
       {
-        title: 'Sick \n or Injured',
-        Icon: Icons.SickOrInjuredIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
+        title: 'Diagnosis &\nTreatment',
+        Icon: Icons.DiagnosisAndTreatmentIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
       {
         title: 'Vitals',
@@ -164,7 +163,7 @@ const PatientHomeContainer = ({
 
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);
-  }, [patientIssues?.length ?? 0, selectedPatient.id]);
+  }, [patientIssues]);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
 

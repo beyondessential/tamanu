@@ -1,5 +1,6 @@
 import config from 'config';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -86,7 +87,7 @@ with
       lab_request_id,
       json_agg(ltt.name) tests
     from lab_tests lt
-    join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
+    join lab_test_types ltt on ltt.id = lt.lab_test_type_id
     group by lab_request_id 
   ),
   lab_request_info as (
@@ -99,6 +100,7 @@ with
     from lab_requests lr
     join lab_test_info lti
     on lti.lab_request_id  = lr.id
+    where lr.status NOT IN(:lab_request_statuses) 
     group by encounter_id
   ),
   procedure_info as (
@@ -194,6 +196,7 @@ with
     from imaging_requests ir
     left join notes_info ni on ni.record_id = ir.id
     left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
+    where ir.status NOT IN ('deleted', 'cancelled', 'entered_in_error')
     group by encounter_id
   ),
   encounter_notes_info as (
@@ -466,22 +469,11 @@ const getData = async (sequelize, parameters, includedPatientFieldIds) => {
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
       location_group_id: locationGroup ?? null,
-      imaging_area_labels: JSON.stringify({
-        xRay: 'X-Ray',
-        ctScan: 'CT Scan',
-        ecg: 'Electrocardiogram (ECG)',
-        mri: 'MRI',
-        ultrasound: 'Ultrasound',
-        holterMonitor: 'Holter Monitor',
-        echocardiogram: 'Echocardiogram',
-        mammogram: 'Mammogram',
-        endoscopy: 'Endoscopy',
-        fluroscopy: 'Fluroscopy',
-        angiogram: 'Angiogram',
-        colonoscopy: 'Colonoscopy',
-        vascularStudy: 'Vascular Study',
-        stressTest: 'Treadmill',
-      }),
+      lab_request_statuses: [
+        LAB_REQUEST_STATUSES.DELETED,
+        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        LAB_REQUEST_STATUSES.CANCELLED,
+      ],
     },
   });
 };

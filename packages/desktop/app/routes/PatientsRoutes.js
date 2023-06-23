@@ -14,14 +14,15 @@ export const PatientsRoutes = React.memo(({ match }) => (
     <Route path={PATIENT_PATHS.PATIENT} component={PatientRoutes} />
     <Route
       path={PATIENT_PATHS.CATEGORY}
-      render={props =>
-        ({
+      render={props => {
+        const { category } = props.match.params;
+        return {
           all: <PatientListingView />,
           emergency: <TriageListingView />,
           inpatient: <AdmittedPatientsView />,
           outpatient: <OutpatientsView />,
-        }[props.match.params.category])
-      }
+        }[category];
+      }}
     />
     <Redirect to={`${match.path}/all`} />
   </Switch>

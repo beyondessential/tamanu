@@ -17,6 +17,11 @@ export class PatientCondition extends Model {
           allowNull: false,
         }),
         resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
+        resolutionDate: dateTimeType('resolutionDate', {
+          defaultValue: getCurrentDateTimeString,
+          allowNull: true,
+        }),
+        resolutionNote: Sequelize.TEXT,
       },
       {
         ...options,
@@ -30,6 +35,7 @@ export class PatientCondition extends Model {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
     this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', as: 'condition' });
     this.belongsTo(models.User, { foreignKey: 'examinerId' });
+    this.belongsTo(models.User, { foreignKey: 'resolutionPractitionerId' });
   }
 
   static getListReferenceAssociations() {

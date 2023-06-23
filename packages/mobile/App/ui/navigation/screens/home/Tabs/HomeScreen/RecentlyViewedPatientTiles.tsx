@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { ReactElement } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
-import { IPatient } from '~/types';
+import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { PatientCard } from '/components/PatientCard';
@@ -18,7 +18,7 @@ import {
 } from '/styled/common';
 import { theme } from '/styled/theme';
 
-const PatientCardContainer = compose<React.FC<{displayedPatient: IPatient}>>(
+const PatientCardContainer = compose<React.FC<{displayedPatient: Patient}>>(
   withPatient,
 )(({ displayedPatient, setSelectedPatient }: any): ReactElement => {
   const navigation = useNavigation();
@@ -43,7 +43,7 @@ const NoPatientsCard = (): ReactElement => (
 );
 
 export const RecentlyViewedPatientTiles = (): ReactElement | null => {
-  const [recentlyViewedPatients, error] = useRecentlyViewedPatients();
+  const [recentlyViewedPatients] = useRecentlyViewedPatients();
 
   if (!recentlyViewedPatients) return (
     <StyledView

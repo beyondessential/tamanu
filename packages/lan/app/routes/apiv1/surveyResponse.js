@@ -90,7 +90,9 @@ surveyResponse.post(
   asyncHandler(async (req, res) => {
     const { models, body, db } = req;
 
-    req.checkPermission('create', 'SurveyResponse');
+    // Responses for the vitals survey will check against 'Vitals' create permissions
+    // All others witll check against 'SurveyResponse' create permissions
+    req.checkPermission('create', await models.Survey.getResponsePermissionCheck(body.surveyId));
 
     const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {

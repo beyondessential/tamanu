@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import Select from 'react-select';
 import styled from 'styled-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
-import Checkbox from '@material-ui/core/Checkbox';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
 import { Colors } from '../constants';
@@ -20,6 +19,7 @@ import {
   StyledTextField,
   LocalisedField,
   useLocalisedSchema,
+  CheckControl,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
@@ -120,7 +120,7 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
 const StyledFlexDiv = styled.div`
   display: flex;
 `;
-const StyledCheckbox = styled(Checkbox)`
+const StyledCheckbox = styled(CheckControl)`
   font-size: 16px;
 `;
 const StyledTextSpan = styled.span`
@@ -135,11 +135,8 @@ alongside the checkbox with different stylings.
 const CustomCheckField = ({ field, lineOne, lineTwo }) => (
   <StyledFlexDiv>
     <StyledCheckbox
-      icon={<i className="far fa-square" />}
-      checkedIcon={<i className="far fa-check-square" />}
       color="primary"
-      value="checked"
-      checked={field.value || false}
+      value={field.value}
       name={field.name}
       onChange={field.onChange}
     />

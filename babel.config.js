@@ -1,6 +1,4 @@
-
 module.exports = api => {
-
   // Cache permanently. Safe because this setting only applies per-process.
   // (ie restarting the build will reset the cache)
   api.cache(true);
@@ -10,7 +8,7 @@ module.exports = api => {
       [
         '@babel/preset-env',
         {
-          targets: { node: "current" },
+          targets: { node: 'current' },
           bugfixes: true,
           useBuiltIns: 'usage',
           corejs: 2,

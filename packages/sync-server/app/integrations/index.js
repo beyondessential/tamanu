@@ -14,6 +14,7 @@ import * as omniLab from './omniLab';
 import { checkEuDccConfig } from './EuDcc';
 import { checkSignerConfig } from './Signer';
 import { checkVdsNcConfig } from './VdsNc';
+import { checkFhirConfig } from './fhir/config';
 
 const integrations = {
   fijiVrs,
@@ -52,6 +53,7 @@ export function checkIntegrationsConfig() {
   checkEuDccConfig();
   checkSignerConfig();
   checkVdsNcConfig();
+  checkFhirConfig();
 
   if (
     (config.integrations.euDcc.enabled || config.integrations.vdsNc.enabled) &&

@@ -26,7 +26,7 @@ getUploadedData.mockImplementation(async req => {
 });
 
 describe('UploadAttachment', () => {
-  const mockReq = { name: 'hello world image', type: 'image/jpeg' };
+  const mockReq = { name: 'hello world image', type: 'image/jpeg', deviceId: 'test-device-id' };
 
   it('abort uploading file if its above permitted max file size', async () => {
     await expect(uploadAttachment(mockReq, 1000)).rejects.toThrow(InvalidParameterError);
@@ -54,6 +54,7 @@ describe('UploadAttachment', () => {
     }));
     await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallFailedError);
     expect(CentralServerConnection.mock.calls.length).toBe(1);
+    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 
   it('successfully uploads attachment', async () => {
@@ -82,5 +83,6 @@ describe('UploadAttachment', () => {
       metadata: { name: 'hello world image' },
     });
     expect(CentralServerConnection.mock.calls.length).toBe(2);
+    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 });

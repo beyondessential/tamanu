@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
@@ -17,12 +19,11 @@ export class DocumentMetadata extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        documentCreatedAt: Sequelize.DATE,
-        documentUploadedAt: {
-          type: Sequelize.DATE,
+        documentCreatedAt: dateTimeType('documentCreatedAt'),
+        documentUploadedAt: dateTimeType('documentUploadedAt', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
         documentOwner: Sequelize.TEXT,
         note: Sequelize.STRING,
 
@@ -57,6 +58,10 @@ export class DocumentMetadata extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+  }
+
+  static getListReferenceAssociations() {
+    return ['department'];
   }
 
   static buildSyncFilter(patientIds) {

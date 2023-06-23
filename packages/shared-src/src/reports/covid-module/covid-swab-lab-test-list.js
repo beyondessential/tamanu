@@ -11,7 +11,7 @@ import {
 import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
 
@@ -95,6 +95,15 @@ const getLabTests = async (models, parameters) =>
       {
         model: models.LabRequest,
         as: 'labRequest',
+        where: {
+          status: {
+            [Op.notIn]: [
+              LAB_REQUEST_STATUSES.DELETED,
+              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+              LAB_REQUEST_STATUSES.CANCELLED,
+            ],
+          },
+        },
         include: [
           {
             model: models.Encounter,
@@ -304,7 +313,7 @@ const getLabTestRecords = async (
         labRequestId: labRequest?.displayId,
         labRequestType: labRequest?.category?.name,
         labTestType: labTest?.labTestType?.name,
-        status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
+        status: LAB_REQUEST_STATUS_CONFIG[labRequest?.status]?.label || labRequest?.status,
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
         submittedDate: formatDate(labTest.date),

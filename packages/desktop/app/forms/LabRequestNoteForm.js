@@ -1,29 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import * as yup from 'yup';
-
 import { NOTE_TYPES } from 'shared/constants';
-
 import { useApi } from '../api';
-import { AddButton } from '../components';
-import { Form, Field, TextField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+import { Form, Field, TextField, AddButton, TextInput } from '../components';
 
-const NotesForm = styled.div`
+const Container = styled.div`
   grid-column: 1 / -1;
 `;
 
-const NotesDisplay = styled.ul`
-  grid-column: 1 / -1;
-`;
-
-const StyledFormGrid = styled(FormGrid)`
-  width: 100%;
+const FlexRow = styled.div`
   display: flex;
 `;
 
 const NotesInput = styled(Field)`
-  width: 100%;
+  flex: 1;
   margin-right: 12px;
 `;
 
@@ -32,8 +24,22 @@ const AddNoteButton = styled(AddButton)`
   align-self: flex-end;
 `;
 
-export const LabRequestNoteForm = ({ labRequest, refreshLabRequest }) => {
+const ReadOnlyNotesField = ({ notes }) => {
+  const notesText = notes.map(note => note.content).join('. ');
+  return (
+    <TextInput
+      multiline
+      value={notesText}
+      label="Notes"
+      style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+      disabled
+    />
+  );
+};
+
+export const LabRequestNoteForm = React.memo(({ labRequest, isReadOnly }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const [notes, setNotes] = useState([]);
 
   useEffect(() => {
@@ -43,44 +49,41 @@ export const LabRequestNoteForm = ({ labRequest, refreshLabRequest }) => {
     })();
   }, [api, labRequest.id]);
 
-  const saveNote = useCallback(
-    async ({ content }) => {
-      const newNote = await api.post(`labRequest/${labRequest.id}/notes`, {
-        content,
-        authorId: api.user.id,
-        noteType: NOTE_TYPES.OTHER,
-      });
-      setNotes([newNote, ...notes]);
-      refreshLabRequest();
-    },
-    [notes, labRequest.id, api, refreshLabRequest],
-  );
+  const saveNote = async ({ content }, { resetForm }) => {
+    const newNote = await api.post(`labRequest/${labRequest.id}/notes`, {
+      content,
+      authorId: api.user.id,
+      noteType: NOTE_TYPES.OTHER,
+    });
+    setNotes([...notes, newNote]);
+    resetForm();
+    queryClient.invalidateQueries(['labRequestNotes']);
+  };
 
-  const renderForm = useCallback(
-    ({ submitForm }) => (
-      <StyledFormGrid columns={1}>
-        <NotesInput label="Note" name="content" component={TextField} />
-        <AddNoteButton onClick={submitForm} />
-      </StyledFormGrid>
-    ),
-    [],
-  );
+  if (isReadOnly) {
+    return <ReadOnlyNotesField notes={notes} />;
+  }
 
   return (
-    <NotesForm>
+    <Container>
       <Form
         onSubmit={saveNote}
-        render={renderForm}
+        render={({ submitForm }) => (
+          <FlexRow>
+            <NotesInput label="Note" name="content" component={TextField} />
+            <AddNoteButton onClick={submitForm} />
+          </FlexRow>
+        )}
         initialValues={{}}
         validationSchema={yup.object().shape({
           content: yup.string().required(),
         })}
       />
-      <NotesDisplay>
+      <ul>
         {notes.map(note => (
           <li key={`${note.id}`}>{note.content}</li>
         ))}
-      </NotesDisplay>
-    </NotesForm>
+      </ul>
+    </Container>
   );
-};
+});

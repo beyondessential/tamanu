@@ -12,7 +12,11 @@ export class UserLocalisationCache extends Model {
           allowNull: false,
         },
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        indexes: [{ fields: ['user_id'], unique: true }],
+      },
     );
   }
 

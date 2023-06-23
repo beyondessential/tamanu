@@ -75,6 +75,25 @@ TopBar.defaultProps = {
   className: '',
 };
 
+export const SimpleTopBar = React.memo(({ title, children, className }) => (
+  <AppBar className={className}>
+    <Bar>
+      <TopBarHeading variant="h1">{title}</TopBarHeading>
+      {children}
+    </Bar>
+  </AppBar>
+));
+
+SimpleTopBar.propTypes = {
+  title: PropTypes.string,
+  className: PropTypes.string,
+};
+
+SimpleTopBar.defaultProps = {
+  title: null,
+  className: '',
+};
+
 const Container = styled.div`
   display: flex;
   align-items: center;

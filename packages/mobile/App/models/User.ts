@@ -1,8 +1,9 @@
 import { Entity, Column, Index, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
-import { IUser } from '~/types';
+import { IUser, INoteItem } from '~/types';
 import { AdministeredVaccine } from './AdministeredVaccine';
+import { NoteItem } from './NoteItem';
 import { LabRequest } from './LabRequest';
 import { SYNC_DIRECTIONS } from './types';
 
@@ -33,6 +34,12 @@ export class User extends BaseModel implements IUser {
 
   @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
   recordedVaccines: AdministeredVaccine[];
+
+  @OneToMany(() => NoteItem, noteItem => noteItem.author)
+  authoredNoteItems: NoteItem[];
+
+  @OneToMany(() => NoteItem, noteItem => noteItem.onBehalfOf)
+  onBehalfOfNoteItems: NoteItem[];
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
 }

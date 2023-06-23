@@ -1,24 +1,17 @@
 import React from 'react';
-import styled from 'styled-components';
-
-import { LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
-import { LAB_REQUEST_COLORS } from '../constants';
-
+import { LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
 import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
+import { StatusTag } from '../components/Tag';
 
-const StatusLabel = styled.div`
-  background: ${p => p.color};
-  border-radius: 0.3rem;
-  padding: 0.3rem;
-  width: fit-content;
-`;
-
-export const StatusDisplay = React.memo(({ status }) => (
-  <StatusLabel color={LAB_REQUEST_COLORS[status] || LAB_REQUEST_COLORS.unknown}>
-    {LAB_REQUEST_STATUS_LABELS[status] || 'Unknown'}
-  </StatusLabel>
-));
+const StatusDisplay = React.memo(({ status }) => {
+  const { background, color, label } = LAB_REQUEST_STATUS_CONFIG[status];
+  return (
+    <StatusTag $background={background} $color={color}>
+      {label}
+    </StatusTag>
+  );
+});
 
 export const getRequestId = ({ displayId }) => displayId;
 
@@ -26,6 +19,9 @@ export const getLaboratory = ({ laboratoryName, laboratory }) =>
   laboratoryName || laboratory?.name || 'Unknown';
 
 export const getCompletedDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
+export const getPublishedDate = ({ publishedDate }) => (
+  <DateDisplay date={publishedDate} timeOnlyTooltip />
+);
 export const getMethod = ({ labTestMethod }) => labTestMethod?.name || 'Unknown';
 
 export const getRequestedBy = ({ requestedBy }) =>
@@ -37,4 +33,6 @@ export const getRequestType = ({ categoryName, category }) =>
   categoryName || (category || {}).name || 'Unknown';
 export const getPriority = ({ priorityName, priority }) =>
   priorityName || (priority || {}).name || 'Unknown';
-export const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
+export const getDateWithTimeTooltip = ({ requestedDate }) => (
+  <DateDisplay date={requestedDate} timeOnlyTooltip />
+);

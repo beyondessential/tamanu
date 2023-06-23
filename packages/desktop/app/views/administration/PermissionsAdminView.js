@@ -1,6 +1,12 @@
 import React from 'react';
-import { ImporterView } from './components/ImporterView';
+import { PERMISSION_IMPORTABLE_DATA_TYPES } from 'shared/constants/importable';
+import { ImportExportView } from './components/ImportExportView';
 
 export const PermissionsAdminView = () => (
-  <ImporterView title="Import permissions" endpoint="admin/importRefData" />
+  <ImportExportView
+    title="Permissions"
+    endpoint="referenceData"
+    dataTypes={PERMISSION_IMPORTABLE_DATA_TYPES}
+    disableExport
+  />
 );

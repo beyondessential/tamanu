@@ -6,7 +6,7 @@ import {
 import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { Chance } from 'chance';
 import { fake } from 'shared/test-helpers/fake';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();

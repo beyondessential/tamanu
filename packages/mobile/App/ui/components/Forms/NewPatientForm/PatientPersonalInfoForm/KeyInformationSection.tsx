@@ -5,6 +5,7 @@ import { FormGroup } from '~/ui/components/Forms/NewPatientForm/FormGroup';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { GenderOptions, Gender } from '~/ui/helpers/constants';
 import { Dropdown } from '~/ui/components/Dropdown';
+import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { TextField } from '../../../TextField/TextField';
 
@@ -16,7 +17,7 @@ export const KeyInformationSection = (): ReactElement => {
   }
   return (
     <FormGroup sectionName="KEY INFORMATION" marginTop>
-      <LocalisedField name="sex" options={filteredGenderOptions} component={Dropdown} />
+      <LocalisedField name="sex" options={filteredGenderOptions} component={RadioButtonGroup} />
       <LocalisedField name="dateOfBirth" max={new Date()} component={DateField} />
       <LocalisedField name="email" component={TextField} />
     </FormGroup>

@@ -1,7 +1,12 @@
 import { Op } from 'sequelize';
 import { Location } from 'shared/models/Location';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
-import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  DIAGNOSIS_CERTAINTY,
+  NOTE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
 import { ageInYears } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
@@ -85,6 +90,7 @@ const getAllNotes = async (models, encounterIds) => {
     where: {
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
 
@@ -103,6 +109,7 @@ const getAllNotes = async (models, encounterIds) => {
     where: {
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
 

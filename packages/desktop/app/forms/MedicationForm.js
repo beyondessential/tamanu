@@ -4,8 +4,8 @@ import * as yup from 'yup';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
+import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { DropdownButton } from '../components/DropdownButton';
-import { PrescriptionPrintModal } from '../components/PatientPrinting/PrescriptionPrintModal';
 import {
   FormGrid,
   Button,
@@ -118,6 +118,8 @@ export const MedicationForm = React.memo(
             }
           }}
           initialValues={{
+            medicationId: medication?.medication?.id,
+            prescriberId: medication?.prescriberId,
             note: medication?.note ?? '',
             route: medication?.route ?? '',
             prescription: medication?.prescription ?? '',
@@ -139,7 +141,6 @@ export const MedicationForm = React.memo(
                   component={AutocompleteField}
                   suggester={drugSuggester}
                   disabled={readOnly}
-                  value={medication?.medication?.id}
                   required={!readOnly}
                 />
               </div>
@@ -181,7 +182,6 @@ export const MedicationForm = React.memo(
                 suggester={practitionerSuggester}
                 required={!readOnly}
                 disabled={readOnly}
-                value={medication?.prescriberId}
               />
               <Field
                 name="note"
@@ -226,16 +226,20 @@ export const MedicationForm = React.memo(
                       Discontinue
                     </Button>
                     <div />
-                    <Button variant="outlined" color="primary" onClick={onCancel}>
-                      Close
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => setPrintModalOpen(true)}
-                    >
-                      Print
-                    </Button>
+                    {!shouldDiscontinue && (
+                      <>
+                        <Button variant="outlined" color="primary" onClick={onCancel}>
+                          Close
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => setPrintModalOpen(true)}
+                        >
+                          Print
+                        </Button>
+                      </>
+                    )}
                   </DiscontinuePrintButtonRow>
                 </>
               )}
@@ -263,31 +267,43 @@ export const MedicationForm = React.memo(
                   <Button variant="outlined" color="primary" onClick={onCancel}>
                     Cancel
                   </Button>
-                  <DropdownButton
-                    actions={[
-                      {
-                        label: 'Finalise',
-                        onClick: data => {
-                          setAwaitingPrint(false);
-                          submitForm(data);
+                  {shouldDiscontinue ? (
+                    <Button
+                      color="primary"
+                      onClick={data => {
+                        setAwaitingPrint(false);
+                        submitForm(data);
+                      }}
+                    >
+                      Finalise
+                    </Button>
+                  ) : (
+                    <DropdownButton
+                      actions={[
+                        {
+                          label: 'Finalise',
+                          onClick: data => {
+                            setAwaitingPrint(false);
+                            submitForm(data);
+                          },
                         },
-                      },
-                      {
-                        label: 'Finalise & print',
-                        onClick: data => {
-                          setAwaitingPrint(true);
-                          submitForm(data, true);
+                        {
+                          label: 'Finalise & print',
+                          onClick: data => {
+                            setAwaitingPrint(true);
+                            submitForm(data, true);
+                          },
                         },
-                      },
-                    ]}
-                  />
+                      ]}
+                    />
+                  )}
                 </ButtonRow>
               )}
             </FormGrid>
           )}
         />
         {(submittedMedication || medication) && (
-          <PrescriptionPrintModal
+          <PrintPrescriptionModal
             medication={submittedMedication || medication}
             open={printModalOpen}
             onClose={() => {

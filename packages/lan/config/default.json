@@ -3,6 +3,7 @@
     "allowAdminRoutes": false
   },
   "discovery": {
+    "enabled": true,
     "overrideAddress": "",
     "overridePort": null,
     "protocol": "https"
@@ -14,7 +15,7 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "dataset": "tamanu-general",
+    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
     "enabled": true
   },
   "sync": {
@@ -100,5 +101,6 @@
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "countryTimeZone": null
+  "countryTimeZone": "Australia/Melbourne",
+  "allowMismatchedTimeZones": false
 }

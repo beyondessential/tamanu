@@ -3,6 +3,10 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
+    "secret": "secret",
+    "refreshToken": {
+      "secret": "refreshSecret"
+    },
     "reportNoUserError": true,
     "useHardcodedPermissions": false
   },
@@ -19,6 +23,22 @@
         "name": "Utopia",
         "alpha-2": "UT",
         "alpha-3": "UTO"
+      },
+      "imagingTypes": {
+        "xRay": { "label": "X-Ray" },
+        "ctScan": { "label": "CT Scan" },
+        "ultrasound": { "label": "Ultrasound" },
+        "mri": { "label": "MRI" },
+        "ecg": { "label": "Electrocardiogram (ECG)" },
+        "holterMonitor": { "label": "Holter Monitor" },
+        "echocardiogram": { "label": "Echocardiogram" },
+        "mammogram": { "label": "Mammogram" },
+        "endoscopy": { "label": "Endoscopy" },
+        "fluroscopy": { "label": "Fluroscopy" },
+        "angiogram": { "label": "Angiogram" },
+        "colonoscopy": { "label": "Colonoscopy" },
+        "vascularStudy": { "label": "Vascular Study" },
+        "stressTest": { "label": "Treadmill" }
       }
     }
   },
@@ -65,6 +85,9 @@
         "labTestCategory-COVID"
       ]
     }
+  },
+  "validateQuestionConfigs": {
+    "enabled": true
   },
   "countryTimeZone": "Pacific/Auckland"
 }

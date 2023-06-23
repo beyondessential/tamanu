@@ -1,15 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View } from '@react-pdf/renderer';
 
+const basicBorder = '1 solid black';
+
 const tableStyles = StyleSheet.create({
-  table: {
-    borderTop: '1 solid black',
-    borderLeft: '1 solid black',
-  },
   tr: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    borderBottom: '1 solid black',
+    borderBottom: basicBorder,
+    borderTop: basicBorder,
+    marginBottom: -1,
   },
   th: {
     flex: 1,
@@ -17,7 +17,7 @@ const tableStyles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 500,
     padding: 3,
-    borderRight: '1 solid black',
+    borderRight: basicBorder,
     margin: 0,
   },
   td: {
@@ -25,7 +25,7 @@ const tableStyles = StyleSheet.create({
     padding: 3,
     fontSize: 10,
     margin: 0,
-    borderRight: '1 solid black',
+    borderRight: basicBorder,
   },
 });
 
@@ -34,27 +34,37 @@ const TH = ({ customStyles, ...props }) => (
   <Text {...props} style={[tableStyles.th, customStyles]} />
 );
 const TD = ({ customStyles, ...props }) => (
-  <Text {...props} style={[tableStyles.td, customStyles]} />
+  <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getLocalisation }) => {
+export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
+  const leftColumnStyle = {
+    ...columnStyle,
+    borderLeft: basicBorder,
+  };
   const visibleColumns = columns.filter(
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
     <View style={tableStyles.table}>
-      <TR>
-        {visibleColumns.map(({ title, key, customStyles }) => (
-          <TH key={key} customStyles={customStyles}>
+      <TR fixed>
+        {visibleColumns.map(({ title, key, customStyles }, columnIndex) => (
+          <TH
+            key={key}
+            customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
+          >
             {title}
           </TH>
         ))}
       </TR>
-      {data.map((row, i) => (
+      {data.map((row, rowIndex) => (
         // eslint-disable-next-line react/no-array-index-key
-        <TR key={i}>
-          {visibleColumns.map(({ accessor, key, customStyles }) => (
-            <TD key={key} customStyles={customStyles}>
+        <TR key={rowIndex}>
+          {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
+            <TD
+              key={key}
+              customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
+            >
               {accessor ? accessor(row, getLocalisation) : row[key]}
             </TD>
           ))}

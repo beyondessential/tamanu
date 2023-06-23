@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { runCalculations } from 'shared/utils/calculations';
 import { Typography } from '@material-ui/core';
 import { usePaginatedForm } from '../Field';
 import { SurveyScreen } from './SurveyScreen';
@@ -11,17 +10,6 @@ const COMPLETE_MESSAGE = `
   Press "Complete" to submit your response,
   or use the Back button to review answers.
 `;
-
-const useCalculatedFormValues = (components, values, setFieldValue) => {
-  useEffect(() => {
-    // recalculate dynamic fields
-    const calculatedValues = runCalculations(components, values);
-    // write values that have changed back into answers
-    Object.entries(calculatedValues)
-      .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v));
-  }, [components, values, setFieldValue]);
-};
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -55,11 +43,14 @@ export const SurveyScreenPaginator = ({
   onCancel,
   setFieldValue,
   patient,
+  validateForm,
+  setErrors,
+  errors,
+  status,
+  setStatus,
 }) => {
   const { components } = survey;
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
-
-  useCalculatedFormValues(components, values, setFieldValue);
 
   const maxIndex = components
     .map(x => x.screenIndex)
@@ -71,10 +62,16 @@ export const SurveyScreenPaginator = ({
     return (
       <SurveyScreen
         values={values}
+        setFieldValue={setFieldValue}
         patient={patient}
         components={screenComponents}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
+        validateForm={validateForm}
+        setErrors={setErrors}
+        errors={errors}
+        status={status}
+        setStatus={setStatus}
       />
     );
   }

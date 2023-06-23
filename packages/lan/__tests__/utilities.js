@@ -1,6 +1,7 @@
 import 'jest-expect-message';
 import supertest from 'supertest';
 import Chance from 'chance';
+import config from 'config';
 import http from 'http';
 
 import {
@@ -10,7 +11,7 @@ import {
   seedLocationGroups,
   seedLabTests,
 } from 'shared/demoData';
-import { showError } from 'shared/test-helpers';
+import { fake, showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -125,6 +126,17 @@ export async function createTestContext() {
   await seedLocations(models);
   await seedLocationGroups(models);
 
+  // Create the facility for the current config if it doesn't exist
+  await models.Facility.findOrCreate({
+    where: {
+      id: config.serverFacilityId,
+    },
+    defaults: {
+      code: 'TEST',
+      name: 'Test Facility',
+    },
+  });
+
   const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
@@ -146,6 +158,23 @@ export async function createTestContext() {
     });
 
     return baseApp.asUser(newUser);
+  };
+
+  baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
+    const { Role, Permission } = models;
+    const role = await Role.create(fake(Role), roleOverrides);
+    const app = await baseApp.asRole(role.id);
+    app.role = role;
+    await Permission.bulkCreate(
+      permissions.map(([verb, noun, objectId]) => ({
+        roleId: role.id,
+        userId: app.user.id,
+        verb,
+        noun,
+        objectId,
+      })),
+    );
+    return app;
   };
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy

@@ -1,4 +1,5 @@
 export * from './User';
+export * from './UserRecentlyViewedPatient';
 export * from './LocalSystemFact';
 
 export * from './Patient';
@@ -18,6 +19,7 @@ export * from './PatientFieldValue';
 export * from './PatientDeathData';
 export * from './PatientBirthData';
 export * from './ContributingDeathCause';
+export * from './DeathRevertLog';
 
 export * from './Encounter';
 export * from './Discharge';
@@ -55,7 +57,7 @@ export * from './ReportDefinition';
 export * from './ReportDefinitionVersion';
 export * from './PatientCarePlan';
 
-export * from './Setting';
+export { Setting } from './Setting';
 export * from './PatientCommunication';
 
 export * from './Facility';
@@ -70,6 +72,7 @@ export * from './Appointment';
 export * from './DocumentMetadata';
 
 export * from './OneTimeLogin';
+export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
 
@@ -89,4 +92,3 @@ export * from './NoteItem';
 export * from './SyncSession';
 
 export * from './fhir';
-export * from './FhirMaterialiseJob';

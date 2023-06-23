@@ -13,7 +13,7 @@ import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
-import { SurveyTypes } from '~/types';
+import { SurveyTypes, GenericFormValues } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { authUserSelector } from '~/ui/helpers/selectors';
 
@@ -25,7 +25,7 @@ export const SurveyResponseScreen = ({
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
 
-  const [note, setNote] = useState('Waiting for submission attempt.');
+  const [note, setNote] = useState('');
 
   const [survey, surveyError] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
@@ -40,7 +40,7 @@ export const SurveyResponseScreen = ({
 
   const { models } = useBackend();
   const onSubmit = useCallback(
-    async (values: any) => {
+    async (values: GenericFormValues) => {
       const model = isReferral ? models.Referral : models.SurveyResponse;
       const response = await model.submit(
         selectedPatientId,

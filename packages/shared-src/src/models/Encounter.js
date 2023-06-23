@@ -297,22 +297,27 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  async addLocationChangeNote(contentPrefix, fromLocation, toLocation, submittedTime) {
+  async addLocationChangeNote(contentPrefix, fromLocation, toLocation, submittedTime, user) {
     const { Location } = this.sequelize.models;
     await this.addSystemNote(
       `${contentPrefix} from ${Location.formatFullLocationName(
         fromLocation,
       )} to ${Location.formatFullLocationName(toLocation)}`,
       submittedTime,
+      user,
     );
   }
 
-  async addSystemNote(content, date) {
+  async addSystemNote(content, date, user) {
     const notePage = await this.createNotePage({
       noteType: NOTE_TYPES.SYSTEM,
       date,
     });
-    await notePage.createNoteItem({ content, date });
+    await notePage.createNoteItem({
+      content,
+      date,
+      ...(user?.id && { authorId: user?.id }),
+    });
   }
 
   async getLinkedTriage() {
@@ -324,15 +329,22 @@ export class Encounter extends Model {
     });
   }
 
-  async onDischarge(endDate, submittedTime, note) {
-    await this.addSystemNote(note || `Discharged patient.`, submittedTime);
+  async onDischarge({ endDate, submittedTime, systemNote, discharge }, user) {
+    const { Discharge } = this.sequelize.models;
+    await Discharge.create({
+      ...discharge,
+      encounterId: this.id,
+    });
+
+    await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
     await this.closeTriage(endDate);
   }
 
-  async onEncounterProgression(newEncounterType, submittedTime) {
+  async onEncounterProgression(newEncounterType, submittedTime, user) {
     await this.addSystemNote(
       `Changed type from ${this.encounterType} to ${newEncounterType}`,
       submittedTime,
+      user,
     );
     await this.closeTriage(submittedTime);
   }
@@ -346,18 +358,7 @@ export class Encounter extends Model {
     }
   }
 
-  async dischargeWithDischarger(discharger, endDate) {
-    if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
-
-    const { Discharge } = this.sequelize.models;
-    await Discharge.create({
-      encounterId: this.id,
-      dischargerId: discharger.id,
-    });
-    await this.update({ endDate });
-  }
-
-  async updateClinician(data) {
+  async updateClinician(data, user) {
     const { User } = this.sequelize.models;
     const oldClinician = await User.findOne({ where: { id: this.examinerId } });
     const newClinician = await User.findOne({ where: { id: data.examinerId } });
@@ -369,16 +370,17 @@ export class Encounter extends Model {
     await this.addSystemNote(
       `Changed supervising clinician from ${oldClinician.displayName} to ${newClinician.displayName}`,
       data.submittedTime,
+      user,
     );
   }
 
-  async update(data) {
+  async update(data, user) {
     const { Department, Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
       const additionalChanges = {};
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote);
+        await this.onDischarge(data, user);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
@@ -386,7 +388,7 @@ export class Encounter extends Model {
       }
 
       if (data.encounterType && data.encounterType !== this.encounterType) {
-        await this.onEncounterProgression(data.encounterType, data.submittedTime);
+        await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
@@ -406,6 +408,7 @@ export class Encounter extends Model {
           oldLocation,
           newLocation,
           data.submittedTime,
+          user,
         );
 
         // When we move to a new location, clear the planned location move
@@ -422,6 +425,7 @@ export class Encounter extends Model {
           await this.addSystemNote(
             `Cancelled planned move to ${currentlyPlannedLocation.name}`,
             data.submittedTime,
+            user,
           );
         }
         additionalChanges.plannedLocationStartTime = null;
@@ -452,6 +456,7 @@ export class Encounter extends Model {
           currentLocation,
           plannedLocation,
           data.submittedTime,
+          user,
         );
 
         additionalChanges.plannedLocationStartTime = data.submittedTime;
@@ -466,15 +471,16 @@ export class Encounter extends Model {
         await this.addSystemNote(
           `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
           data.submittedTime,
+          user,
         );
       }
 
       if (data.examinerId && data.examinerId !== this.examinerId) {
-        await this.updateClinician(data);
+        await this.updateClinician(data, user);
       }
 
       const { submittedTime, ...encounterData } = data;
-      return super.update({ ...encounterData, ...additionalChanges });
+      return super.update({ ...encounterData, ...additionalChanges }, user);
     };
 
     if (this.sequelize.isInsideTransaction()) {

@@ -3,6 +3,7 @@ import { groupBy } from 'lodash';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
 import { toDateTimeString, format } from '../../utils/dateTime';
+import { LAB_REQUEST_STATUSES } from '../../constants';
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {
@@ -96,6 +97,15 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
         model: models.LabRequest,
         as: 'labRequest',
         attributes: [],
+        where: {
+          status: {
+            [Op.notIn]: [
+              LAB_REQUEST_STATUSES.DELETED,
+              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+              LAB_REQUEST_STATUSES.CANCELLED,
+            ],
+          },
+        },
         include: [
           {
             model: models.Encounter,

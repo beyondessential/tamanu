@@ -9,3 +9,4 @@ export * from './saveIncomingChanges';
 export * from './adjustDataPostSyncPush';
 export * from './getSyncSnapshotRecordIds';
 export * from './waitForPendingEditsUsingSyncTick';
+export * from './getSyncTicksOfPendingEdits';

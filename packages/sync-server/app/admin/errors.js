@@ -20,21 +20,55 @@ export class DataImportError extends Error {
     this.rowNumber = rowNumber;
   }
 
+  static get kind() {
+    return 'DataImportError';
+  }
+
   toJSON() {
     return {
       sheet: this.sheetName,
       row: this.rowNumber,
-      kind: this.constructor.name,
+      kind: this.constructor.kind,
       message: this.previous.toString(),
     };
   }
 }
 
-export class DataLoaderError extends DataImportError {}
-export class ForeignkeyResolutionError extends DataImportError {}
-export class UpsertionError extends DataImportError {}
-export class ValidationError extends DataImportError {}
-export class WorkSheetError extends DataImportError {}
+export class DataLoaderError extends DataImportError {
+  static get kind() {
+    return 'DataLoaderError';
+  }
+}
+export class ForeignkeyResolutionError extends DataImportError {
+  static get kind() {
+    return 'ForeignkeyResolutionError';
+  }
+}
+export class UpsertionError extends DataImportError {
+  static get kind() {
+    return 'UpsertionError';
+  }
+}
+export class ValidationError extends DataImportError {
+  static get kind() {
+    return 'ValidationError';
+  }
+}
+export class WorkSheetError extends DataImportError {
+  static get kind() {
+    return 'WorkSheetError';
+  }
+}
+
+export class ImporterMetadataError extends DataImportError {
+  constructor(error) {
+    super('metadata', -2, error);
+  }
+
+  static get kind() {
+    return 'ImporterMetadataError';
+  }
+}
 
 export class DryRun extends Error {
   constructor() {

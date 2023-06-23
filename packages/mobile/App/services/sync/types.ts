@@ -35,6 +35,7 @@ export interface SyncRecordData {
 
 export interface LoginResponse {
   token: string;
+  refreshToken: string;
   user: IUser;
   localisation: object;
   permissions: [];
@@ -42,6 +43,7 @@ export interface LoginResponse {
 
 export type FetchOptions = {
   backoff?: callWithBackoffOptions;
+  skipAttemptRefresh?: boolean;
   [key: string]: any;
 };
 

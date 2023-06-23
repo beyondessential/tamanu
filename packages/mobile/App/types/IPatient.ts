@@ -1,4 +1,4 @@
-import { IPatientAdditionalData } from './IPatientAditionalData';
+import { IPatientAdditionalData } from './IPatientAdditionalData';
 import { IPatientSecondaryId } from './IPatientSecondaryId';
 import { IReferenceData } from './IReferenceData';
 

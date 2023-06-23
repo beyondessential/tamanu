@@ -16,7 +16,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
     onSubmit={onSubmit}
     render={({ submitForm }) => (
       <FormGrid columns={1}>
-        <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
+        <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} required />
         <Field name="note" label="Notes" component={TextField} multiline rows={2} />
         <Field
           name="recordedDate"

@@ -4,8 +4,8 @@ import { buildVersionCompatibilityCheck } from 'shared/utils';
 // server, set MIN_CLIENT_VERSION to reflect that, and desktop users will be logged out until they
 // have updated.
 
-export const MIN_CLIENT_VERSION = '1.24.0';
-export const MAX_CLIENT_VERSION = '1.24.5'; // note that higher patch versions will be allowed to connect
+export const MIN_CLIENT_VERSION = '1.26.0';
+export const MAX_CLIENT_VERSION = '1.26.1'; // note that higher patch versions will be allowed to connect
 
 export const versionCompatibility = (req, res, next) =>
   buildVersionCompatibilityCheck(MIN_CLIENT_VERSION, MAX_CLIENT_VERSION)(req, res, next);

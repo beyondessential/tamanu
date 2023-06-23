@@ -8,6 +8,7 @@ const ContentContainer = styled.div`
   padding: 32px 30px;
   border: 1px solid ${Colors.outline};
   background: ${Colors.white};
+  border-radius: 5px;
 `;
 
 export const ReportGenerator = () => (

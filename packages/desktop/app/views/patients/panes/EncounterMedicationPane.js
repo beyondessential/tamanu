@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/MedicationModal';
-import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting/PrintMultipleMedicationSelectionModal';
+import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/MedicationTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
