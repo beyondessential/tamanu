@@ -122,7 +122,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     placeholder="Diagnosis"
                     navigation={navigation}
                     suggester={icd10Suggester}
-                    modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
                   <Spacer height="24px" />

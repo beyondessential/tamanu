@@ -38,7 +38,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     },
   });
 
-  const userSuggester = new Suggester(
+  const practitionerSuggester = new Suggester(
     models.User,
     { column: 'displayName' },
     (model): OptionType => ({ label: model.displayName, value: model.id }),
@@ -65,17 +65,15 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={AutocompleteModalField}
         label="Requesting clinician"
-        name="requestedBy"
+        name="requestedById"
         required
-        suggester={userSuggester}
-        modalRoute={Routes.Autocomplete.Modal}
+        suggester={practitionerSuggester}
       />
       <Field
         component={AutocompleteModalField}
         label="Priority"
         navigation={navigation}
         suggester={labRequestPrioritySuggester}
-        modalRoute={Routes.Autocomplete.Modal}
         name="priorityId"
       />
       <Field component={DateField} label="Sample date" mode="date" name="sampleDate" />
@@ -83,24 +81,21 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={AutocompleteModalField}
         label="Collected by"
-        name="collectedBy"
-        suggester={userSuggester}
-        modalRoute={Routes.Autocomplete.Modal}
+        name="collectedById"
+        suggester={practitionerSuggester}
       />
       <Field
         component={AutocompleteModalField}
         label="Specimen type"
-        name="specimenType"
+        name="specimenTypeId"
         suggester={specimenTypeSuggester}
-        modalRoute={Routes.Autocomplete.Modal}
       />
       <Field
         component={AutocompleteModalField}
         label="Site"
         navigation={navigation}
         suggester={labSampleSiteSuggester}
-        modalRoute={Routes.Autocomplete.Modal}
-        name="labSampleSite"
+        name="labSampleSiteId"
       />
       <Field
         component={AutocompleteModalField}
@@ -109,7 +104,6 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         placeholder="Test category"
         navigation={navigation}
         suggester={labRequestCategorySuggester}
-        modalRoute={Routes.Autocomplete.Modal}
         name="categoryId"
         onChange={handleLabRequestTypeSelected}
       />

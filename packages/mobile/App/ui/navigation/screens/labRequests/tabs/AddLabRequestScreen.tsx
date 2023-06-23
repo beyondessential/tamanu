@@ -23,14 +23,14 @@ interface LabRequestFormData {
   displayId: ID;
   requestedDate: Date;
   requestedTime: Date;
-  requestedBy: string;
+  requestedById: string;
   sampleDate: Date;
   sampleTime: Date;
-  specimenType: string;
-  collectedBy: string;
+  specimenTypeId: string;
+  collectedById: string;
   categoryId: string;
   priorityId: string;
-  labSampleSite: string;
+  labSampleSiteId: string;
   labTestTypes: string[];
 }
 
@@ -40,7 +40,7 @@ const validationSchema = Yup.object().shape({
   sampleDate: Yup.date().required(),
   sampleTime: Yup.date().required(),
   categoryId: Yup.string().required('Required'),
-  requestedBy: Yup.string().required('Required'),
+  requestedById: Yup.string().required('Required'),
   priorityId: Yup.string(),
 });
 
@@ -98,32 +98,29 @@ export const DumbAddLabRequestScreen = ({
       requestedTime,
       sampleDate,
       sampleTime,
-      labSampleSite,
-      requestedBy,
-      collectedBy,
-      specimenType,
+      labSampleSiteId,
+      requestedById,
+      collectedById,
+      specimenTypeId,
       displayId: generatedDisplayId,
     } = values;
 
     // Convert requestedDate and sampleTime to strings
     const requestedDateString = getCombinedDateString(requestedDate, requestedTime);
     const sampleTimeString = getCombinedDateString(sampleDate, sampleTime);
-
     await models.LabRequest.createWithTests({
       displayId: generatedDisplayId,
       requestedDate: requestedDateString,
-      requestedBy,
+      requestedBy: requestedById,
       encounter: encounter.id,
       labTestCategory: values.categoryId,
       labTestPriority: values.priorityId,
       sampleTime: sampleTimeString,
       labTestTypeIds: values.labTestTypes,
-      labSampleSite,
-      collectedBy,
-      specimenType,
+      labSampleSite: labSampleSiteId,
+      collectedBy: collectedById,
+      specimenType: specimenTypeId,
     });
-
-
     navigateToHistory();
   }, []);
 
