@@ -80,7 +80,7 @@ const StyledTable = styled(Table)`
     }
 
     thead tr th {
-      color: ${Colors.darkText};
+      color: ${props => props.theme.palette.text.secondary};
       background: ${Colors.background};
       white-space: break-spaces;
     }
@@ -102,7 +102,7 @@ const StyledTable = styled(Table)`
 
 const CategoryCell = styled.div`
   font-weight: 500;
-  color: ${Colors.darkText};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const StyledButton = styled(Button)`
