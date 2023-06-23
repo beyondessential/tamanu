@@ -9,7 +9,7 @@ export async function checkReportModulePermissions(req, reportModule, reportId) 
     req.checkPermission('run', definition);
   } else {
     // for static reports, check EITHER defined permission OR explicit run permission
-    if (!canRunStaticReport(req.ability, reportId, reportModule.permission)) {
+    if (!canRunStaticReport(req.ability, reportId)) {
       throw new ForbiddenError('User does not have permission to run the report');
     }
     req.flagPermissionChecked(); // flag because we're checking for either of two permissions
