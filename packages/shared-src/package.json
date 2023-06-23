@@ -1,6 +1,6 @@
 {
   "name": "shared-src",
-  "version": "1.26.1",
+  "version": "1.26.2",
   "description": "Common code across Tamanu packages",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
