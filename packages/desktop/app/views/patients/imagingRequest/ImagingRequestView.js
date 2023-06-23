@@ -1,25 +1,26 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
-import { shell } from 'electron';
 import { pick } from 'lodash';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
 
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { CancelModal } from '../../components/CancelModal';
-import { IMAGING_REQUEST_STATUS_OPTIONS, Colors } from '../../constants';
-import { useCertificate } from '../../utils/useCertificate';
-import { Button } from '../../components/Button';
-import { ContentPane } from '../../components/ContentPane';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { ButtonRow } from '../../components/ButtonRow';
-import { FormGrid } from '../../components/FormGrid';
-import { Modal } from '../../components/Modal';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
+
+import { useLocalisation } from '../../../contexts/Localisation';
+import { useElectron } from '../../../contexts/Electron';
+import { useApi, useSuggester } from '../../../api';
+
+import { Button } from '../../../components/Button';
+import { ContentPane } from '../../../components/ContentPane';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { ButtonRow } from '../../../components/ButtonRow';
+import { FormGrid } from '../../../components/FormGrid';
 import {
   TextInput,
   SelectField,
@@ -29,68 +30,11 @@ import {
   DateTimeField,
   TextField,
   Form,
-} from '../../components/Field';
-import { useApi, useSuggester, combineQueries } from '../../api';
-import { useEncounterData } from '../../api/queries';
-import { MultipleImagingRequestsPrintout as ImagingRequestPrintout } from '../../components/PatientPrinting';
-import { useLocalisation } from '../../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
-import { SimpleTopBar } from '../../components';
+} from '../../../components/Field';
+import { SimpleTopBar } from '../../../components';
 
-const PrintModalButton = ({ imagingRequest, patient }) => {
-  const { modal } = useParams();
-  const certificate = useCertificate();
-  const [isModalOpen, setModalOpen] = useState(modal === 'print');
-  const openModal = useCallback(() => setModalOpen(true), []);
-  const closeModal = useCallback(() => setModalOpen(false), []);
-  const api = useApi();
-  const encounterQuery = useEncounterData(imagingRequest.encounterId);
-  const additionalDataQuery = useQuery(
-    ['additionalData', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/additionalData`),
-  );
-  const villageQuery = useQuery(
-    ['village', patient.villageId],
-    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
-    {
-      enabled: !!patient?.villageId,
-    },
-  );
-  const isLoading = combineQueries([
-    encounterQuery,
-    additionalDataQuery,
-    villageQuery,
-  ]).isFetching;
-
-  return (
-    <>
-      <Modal
-        title="Imaging Request"
-        open={isModalOpen}
-        onClose={closeModal}
-        width="md"
-        color={Colors.white}
-        printable
-      >
-        {isLoading ? (
-          <LoadingIndicator />
-        ) : (
-          <ImagingRequestPrintout
-            imagingRequests={[imagingRequest]}
-            patient={patient}
-            village={villageQuery.data}
-            additionalData={additionalDataQuery.data}
-            encounter={encounterQuery.data}
-            certificate={certificate}
-          />
-        )}
-      </Modal>
-      <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
-        Print request
-      </Button>
-    </>
-  );
-};
+import { CancelModalButton } from './CancelModalButton';
+import { PrintModalButton } from './PrintModalButton';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -208,9 +152,9 @@ const NewResultSection = ({ disabled = false }) => {
 }
 
 const ImagingResultsSection = ({ results }) => {
-  const openExternalUrl = useCallback(url => () => shell.openExternal(url), []);
-
   if (results.length === 0) return null;
+
+  const { openUrl } = useElectron();
 
   return (
     <>
@@ -229,7 +173,7 @@ const ImagingResultsSection = ({ results }) => {
           />
           <DateTimeInput label="Completed" value={result.completedAt} disabled />
           {result.externalUrl && (
-            <Button color="secondary" onClick={openExternalUrl(result.externalUrl)}>
+            <Button color="secondary" onClick={() => openUrl(result.externalUrl)}>
               View image (external link)
             </Button>
           )}
@@ -299,67 +243,6 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
     />
   );
 });
-
-function getReasonForCancellationStatus(reasonForCancellation) {
-  // these values are set in localisation
-  switch (reasonForCancellation) {
-    case 'duplicate':
-      return IMAGING_REQUEST_STATUS_TYPES.DELETED;
-    case 'entered-in-error':
-      return IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR;
-    default:
-      return IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-  }
-}
-
-const CancelModalButton = ({ imagingRequest }) => { 
-  const isCancellable = ![
-    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-    IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-  ].includes(imagingRequest.status);
-
-  if (!isCancellable) return null;
-
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-
-  const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];  
-
-  const onConfirmCancel = async ({ reasonForCancellation }) => {
-    const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
-    const note = `Request cancelled. Reason: ${reasonText}.`;
-    const status = getReasonForCancellationStatus(reasonForCancellation);
-    await api.put(`imagingRequest/${imagingRequest.id}`, {
-      status,
-      reasonForCancellation,
-      note,
-    });
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
-      ),
-    );
-  };
-
-  return (
-    <>
-      <Button variant="text" onClick={() => setIsCancelModalOpen(true)}>
-        Cancel request
-      </Button>
-      <CancelModal
-        title="Cancel imaging request"
-        helperText="This reason will permanently delete the imaging request record"
-        bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
-        options={cancellationReasonOptions}
-        open={isCancelModalOpen}
-        onClose={() => setIsCancelModalOpen(false)}
-        onConfirm={onConfirmCancel}
-      />
-    </>
-  );
-};
 
 export const ImagingRequestView = () => {
   const imagingRequest = useSelector(state => state.imagingRequest);
