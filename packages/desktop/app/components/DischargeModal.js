@@ -27,7 +27,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <Modal title="Discharge" open={open} onClose={onClose}>
+    <Modal title="Discharge patient" open={open} onClose={onClose}>
       <DischargeForm
         onSubmit={handleDischarge}
         onCancel={onClose}
