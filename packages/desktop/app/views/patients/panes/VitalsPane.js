@@ -7,24 +7,13 @@ import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
 import { getActionsFromData, getAnswersFromData } from '../../../utils';
-import { LineChart } from '../../../components/Charts/LineChart';
 import { useVitalChartData } from '../../../contexts/VitalChartData';
-import { DateTimeSelector } from '../../../components/Charts/components/DateTimeSelector';
 import { Colors } from '../../../constants';
+import { ChartsView } from '../../ChartsView';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const queryClient = useQueryClient();
-  const {
-    vitalChartModalOpen,
-    setVitalChartModalOpen,
-    chartData,
-    visualisationConfig,
-    setStartDate,
-    setEndDate,
-    chartKey,
-    startDate,
-    endDate,
-  } = useVitalChartData();
+  const { vitalChartModalOpen, setVitalChartModalOpen, chartKey } = useVitalChartData();
   const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
@@ -59,13 +48,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
           setVitalChartModalOpen(false);
         }}
       >
-        <DateTimeSelector setStartDate={setStartDate} setEndDate={setEndDate} />
-        <LineChart
-          chartData={chartData}
-          visualisationConfig={visualisationConfig}
-          startDate={startDate}
-          endDate={endDate}
-        />
+        <ChartsView />
       </Modal>
       <TableButtonRow variant="small">
         <Button onClick={() => setModalOpen(true)} disabled={readonly}>
