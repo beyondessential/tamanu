@@ -22,7 +22,12 @@ const columns = [
   { key: 'startDate', title: 'Date', accessor: getDate },
   { key: 'encounterType', title: 'Type', accessor: getType, sortable: false },
   { key: 'facilityName', title: 'Facility', accessor: getFacility },
-  { key: 'reasonForEncounter', title: 'Description', accessor: getDescription, sortable: false },
+  {
+    key: 'reasonForEncounter',
+    title: 'Reason for encounter',
+    accessor: getDescription,
+    sortable: false,
+  },
 ];
 
 const SyncWarning = styled.p`
