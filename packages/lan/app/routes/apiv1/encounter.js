@@ -404,4 +404,54 @@ encounterRelations.get(
   }),
 );
 
+encounterRelations.get(
+  '/:id/vitals/:dataElementId',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    req.checkPermission('list', 'Vitals');
+    const { id: encounterId, dataElementId } = params;
+    const { startDate, endDate } = query;
+    const { SurveyResponse, SurveyResponseAnswer } = models;
+
+    const dateAnswers = await SurveyResponseAnswer.findAll({
+      include: [
+        {
+          model: SurveyResponse,
+          required: true,
+          as: 'surveyResponse',
+          where: { encounterId },
+        },
+      ],
+      where: {
+        dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+        body: { [Op.gte]: startDate, [Op.lte]: endDate },
+      },
+    });
+
+    const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
+
+    const answers = await SurveyResponseAnswer.findAll({
+      where: { responseId: responseIds, dataElementId },
+    });
+
+    const data = answers
+      .map(answer => {
+        const { responseId } = answer;
+        const recordedDateAnswer = dateAnswers.find(
+          dateAnswer => dateAnswer.responseId === responseId,
+        );
+        const recordedDate = recordedDateAnswer.body;
+        return { ...answer.dataValues, recordedDate };
+      })
+      .sort((a, b) => {
+        return a.recordedDate > b.recordedDate ? 1 : -1;
+      });
+
+    res.send({
+      count: data.length,
+      data,
+    });
+  }),
+);
+
 encounter.use(encounterRelations);
