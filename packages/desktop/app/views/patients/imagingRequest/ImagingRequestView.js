@@ -250,13 +250,13 @@ export const ImagingRequestView = () => {
 
   const dispatch = useDispatch();
   const params = useParams();
-  const onNavigateBackToRequest = (() => {
+  const onNavigateBackToImaging = () => {
     dispatch(
       push(
         `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
       ),
     );
-  });
+  };
 
   const isCancellable = ![
     IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
@@ -269,11 +269,16 @@ export const ImagingRequestView = () => {
   return (
     <>
       <SimpleTopBar title="Imaging request">
-        {isCancellable && <CancelModalButton imagingRequest={imagingRequest} onCancel={onNavigateBackToRequest} />}
+        {isCancellable && (
+          <CancelModalButton imagingRequest={imagingRequest} onCancel={onNavigateBackToImaging} />
+        )}
         <PrintModalButton imagingRequest={imagingRequest} patient={patient} />
       </SimpleTopBar>
       <ContentPane>
-        <ImagingRequestInfoPane imagingRequest={imagingRequest} onSubmit={onNavigateBackToRequest} />
+        <ImagingRequestInfoPane
+          imagingRequest={imagingRequest}
+          onSubmit={onNavigateBackToImaging}
+        />
       </ContentPane>
     </>
   );
