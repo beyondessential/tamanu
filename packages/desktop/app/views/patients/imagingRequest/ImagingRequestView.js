@@ -197,17 +197,21 @@ const ImagingResultsSection = ({ results }) => {
 };
 
 const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
+  const api = useApi();
+
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
 
   return (
     <Form
       // Only submit specific fields for update
-      onSubmit={values => {
+      onSubmit={async values => {
         const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
         if (getCanAddResult(values) && values.newResult?.description?.trim()) {
           updatedValues.newResult = values.newResult;
         }
+
+        await api.put(`imagingRequest/${imagingRequest.id}`, updatedValues);
 
         onSubmit(updatedValues);
       }}
@@ -244,17 +248,15 @@ export const ImagingRequestView = () => {
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
 
-  const api = useApi();
   const dispatch = useDispatch();
   const params = useParams();
-  const onSubmit = async data => {
-    await api.put(`imagingRequest/${imagingRequest.id}`, data);
+  const onNavigateBackToRequest = (() => {
     dispatch(
       push(
         `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
       ),
     );
-  };
+  });
 
   const isCancellable = ![
     IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
@@ -267,11 +269,11 @@ export const ImagingRequestView = () => {
   return (
     <>
       <SimpleTopBar title="Imaging request">
-        {isCancellable && <CancelModalButton imagingRequest={imagingRequest} />}
+        {isCancellable && <CancelModalButton imagingRequest={imagingRequest} onCancel={onNavigateBackToRequest} />}
         <PrintModalButton imagingRequest={imagingRequest} patient={patient} />
       </SimpleTopBar>
       <ContentPane>
-        <ImagingRequestInfoPane imagingRequest={imagingRequest} onSubmit={onSubmit} />
+        <ImagingRequestInfoPane imagingRequest={imagingRequest} onSubmit={onNavigateBackToRequest} />
       </ContentPane>
     </>
   );

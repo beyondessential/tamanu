@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
-import { push } from 'connected-react-router';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
 
-import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 import { CancelModal } from '../../../components/CancelModal';
 import { Button } from '../../../components/Button';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 function getReasonForCancellationStatus(reasonForCancellation) {
   // these values are set in localisation
@@ -23,15 +19,13 @@ function getReasonForCancellationStatus(reasonForCancellation) {
   }
 }
 
-export const CancelModalButton = ({ imagingRequest }) => {
+export const CancelModalButton = ({ imagingRequest, onCancel }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const cancellationReasonOptions = getLocalisation('imagingCancellationReasons') || [];
 
-  const dispatch = useDispatch();
-  const params = useParams();
   const onConfirmCancel = async ({ reasonForCancellation }) => {
     const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
     const note = `Request cancelled. Reason: ${reasonText}.`;
@@ -41,11 +35,7 @@ export const CancelModalButton = ({ imagingRequest }) => {
       reasonForCancellation,
       note,
     });
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
-      ),
-    );
+    onCancel();
   };
 
   return (
