@@ -1,14 +1,12 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
-import Select from 'react-select';
 import styled from 'styled-components';
-import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { Divider as BaseDivider } from '@material-ui/core';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
+import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { Divider as BaseDivider } from '@material-ui/core';
 import { Colors, FORM_STATUSES } from '../constants';
 import { useApi } from '../api';
-
 import { foreignKey } from '../utils/validation';
 
 import {
@@ -20,6 +18,7 @@ import {
   LocalisedField,
   useLocalisedSchema,
   CheckControl,
+  SelectField,
   PaginatedForm,
   DefaultFormScreen,
 } from '../components/Field';
@@ -110,23 +109,6 @@ const ProcedureList = React.memo(({ procedures }) => (
   </StyledUnorderedList>
 ));
 
-const SelectFieldWithoutLabel = ({ field, form, options, ...props }) => {
-  const handleChange = option => form.setFieldValue(field.name, option.value);
-
-  return (
-    <Select
-      name={field.name}
-      value={options.find(option => option.value === field.value)}
-      onChange={handleChange}
-      options={options}
-      menuPlacement="auto"
-      menuPosition="fixed"
-      menuShouldBlockScroll="true"
-      {...props}
-    />
-  );
-};
-
 const NumberFieldWithoutLabel = ({ field, ...props }) => (
   <StyledTextField
     name={field.name}
@@ -183,7 +165,8 @@ const QuantityAccessor = ({ id }) => (
 const RepeatsAccessor = ({ id }) => (
   <Field
     name={`medications.${id}.repeats`}
-    component={SelectFieldWithoutLabel}
+    isClearable={false}
+    component={SelectField}
     options={REPEATS_OPTIONS}
   />
 );
