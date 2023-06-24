@@ -5,6 +5,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import CancelIcon from '@material-ui/icons/Cancel';
 import Tooltip from '@material-ui/core/Tooltip';
+import { Box } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
@@ -51,9 +52,9 @@ export const Appointment = ({ appointment, onUpdated }) => {
         onClick={() => setDetailOpen(open => !open)}
       >
         <div>
-          <div>
+          <Box paddingTop="2px">
             <PatientNameDisplay patient={patient} />
-          </div>
+          </Box>
           <DateDisplay date={startTime} showDate={false} showTime />
         </div>
         <div className="icon">
@@ -71,7 +72,7 @@ const StyledAppointment = styled.div`
   justify-content: space-between;
   column-gap: 1rem;
   cursor: pointer;
-  padding: 0.5em 0.75em;
+  padding: 10px;
   border-bottom: 1px solid ${Colors.outline};
   &:last-child {
     border-bottom: none;

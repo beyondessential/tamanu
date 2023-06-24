@@ -7,8 +7,6 @@ import { FHIR_INTERACTIONS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
 
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
-
 expect.extend({
   async toHaveARegisteredTrigger(tableName, triggerType, triggers) {
     if (typeof tableName !== 'string') {
@@ -51,9 +49,14 @@ describe('databaseTriggers', () => {
   let ctx;
   let tablesWithVersioningTrigger;
   let tablesWithRefreshTrigger;
+  let materialisableResources;
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    materialisableResources = resourcesThatCanDo(
+      ctx.store.models,
+      FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+    );
     const [queryResultOne] = await ctx.store.sequelize.query(`
       SELECT DISTINCT event_object_table
       FROM information_schema.triggers
