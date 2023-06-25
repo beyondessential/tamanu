@@ -118,12 +118,6 @@
             - name: onto pmi uat (Lautoka)
               tag: ^uatpmi-
               command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi-lautoka
-            - name: onto staging A
-              tag: ^(staging-)
-              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16a
-            - name: onto staging B
-              tag: ^(staging-)
-              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
             - name: onto nauru demo
               tag: ^(deploy-nauru-demo$)
               command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo
