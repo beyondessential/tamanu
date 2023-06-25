@@ -56,10 +56,7 @@
           type: serial
           service: deploy
           steps:
-            - name: onto dev
-              tag: ^(dev$|main$|ci-)
-              command: ./scripts/deploy_sync.sh dev tamanu-central-server-dev-16
-            - name: onto uat
+            - name: onto fiji vps uat
               tag: ^uat-
               command: ./scripts/deploy_sync.sh uat-fiji-vps tamanu-sync-server-uat-fiji-vps
             - name: onto rispacs uat
@@ -68,9 +65,6 @@
             - name: onto pmi uat
               tag: ^uatpmi-
               command: ./scripts/deploy_sync.sh uatpmi tamanu-central-server-uat-pmi
-            - name: onto staging
-              tag: ^(staging-)
-              command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
             - name: onto nauru demo
               tag: ^(deploy-nauru-demo$)
               command: ./scripts/deploy_sync.sh nauru-demo tamanu-central-server-nauru-demo
@@ -91,12 +85,6 @@
           type: serial
           service: deploy
           steps:
-            - name: onto dev A
-              tag: ^(dev$|main$|ci-)
-              command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16a
-            - name: onto dev B
-              tag: ^(dev$|main$|ci-)
-              command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16b
             - name: onto klaus A
               tag: ^(klaus-)
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-a
@@ -118,7 +106,7 @@
             - name: onto da B
               tag: ^(da-)
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-b
-            - name: onto uat
+            - name: onto fiji vps uat
               tag: ^uat-
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
             - name: onto rispacs uat
@@ -127,6 +115,9 @@
             - name: onto pmi uat
               tag: ^uatpmi-
               command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi
+            - name: onto pmi uat (Lautoka)
+              tag: ^uatpmi-
+              command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi-lautoka
             - name: onto staging A
               tag: ^(staging-)
               command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16a
@@ -144,10 +135,10 @@
           type: serial
           steps:
             - name: onto dev
-              tag: ^(dev$|main$|ci-)
+              tag: ^(main$|ci-)
               command: ./scripts/deploy_meta.sh dev tamanu-meta-server-dev-16
             - name: onto prod
-              tag: ^(master|deploy-meta)$
+              tag: ^(deploy-meta)$
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
         - name: upload all artefacts to s3
           exclude: ^(release-desktop-|deploy-meta$)
