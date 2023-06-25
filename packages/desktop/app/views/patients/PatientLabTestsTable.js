@@ -5,7 +5,7 @@ import { Table } from '../../components/Table';
 import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText } from '../../components';
+import { BodyText, formatShort, formatTimeWithSeconds } from '../../components';
 
 const COLUMNS = {
   1: 150,
@@ -102,7 +102,7 @@ const StyledTable = styled(Table)`
 
 const CategoryCell = styled.div`
   font-weight: 500;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${Colors.darkText};
 `;
 
 const StyledButton = styled(Button)`
@@ -177,6 +177,10 @@ export const PatientLabTestsTable = React.memo(
             }
 
             return <StyledButton disabled>-</StyledButton>;
+          },
+          exportOverrides: {
+            title: `${formatShort(date)} ${formatTimeWithSeconds(date)}`,
+            accessor: row => row.results[date]?.result || '-',
           },
         })),
     ];
