@@ -55,6 +55,7 @@ export const useVitals = (encounterId, startDate, endDate) => {
             },
           }),
           {
+            dataElementId: dataElement.id,
             value: dataElement.name,
             ...configs,
           },

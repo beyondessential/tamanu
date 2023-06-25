@@ -43,7 +43,7 @@ const IconButton = styled(IconButtonComponent)`
 
 const MeasureCell = React.memo(({ value, data }) => {
   const { setChartKey, setVitalChartModalOpen, visualisationConfigs } = useVitalChartData();
-  const hasVitalChart = !!visualisationConfigs[data.value];
+  const hasVitalChart = !!visualisationConfigs[data.dataElementId];
 
   return (
     <>
@@ -53,7 +53,7 @@ const MeasureCell = React.memo(({ value, data }) => {
           <IconButton
             size="small"
             onClick={() => {
-              setChartKey(data.value);
+              setChartKey(data.dataElementId);
               setVitalChartModalOpen(true);
             }}
           >

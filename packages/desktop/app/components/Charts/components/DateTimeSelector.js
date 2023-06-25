@@ -20,7 +20,7 @@ const DateInput = styled(DateInputComponent)`
 `;
 
 const CUSTOM_DATE = 'Custom Date';
-const DATE_TIME_TIMEZONE_FORMAT = 'yyyy-MM-dd HH:mm:ssX';
+export const DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
 const options = [
   {
@@ -45,13 +45,13 @@ export const DateTimeSelector = props => {
 
   const formatAndSetStartDate = useCallback(
     newStartDate => {
-      setStartDate(format(newStartDate, DATE_TIME_TIMEZONE_FORMAT));
+      setStartDate(format(newStartDate, DATE_TIME_FORMAT));
     },
     [setStartDate],
   );
   const formatAndSetEndDate = useCallback(
     newEndDate => {
-      setEndDate(format(newEndDate, DATE_TIME_TIMEZONE_FORMAT));
+      setEndDate(format(newEndDate, DATE_TIME_FORMAT));
     },
     [setEndDate],
   );
