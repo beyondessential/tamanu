@@ -19,26 +19,15 @@ interface HistoryVitalsStackProps extends BaseAppProps{
   navigation: NavigationProp<any>;
 }
 
-const TabNavigator = ({
-  navigation,
-  selectedPatient,
-}: HistoryVitalsStackProps): ReactElement => {
+const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
 
-  const navigateToPatientActions = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientActions);
-  }, []);
   return (
     <ErrorBoundary>
       <FullView>
-        <StackHeader
-          title="History"
-          subtitle={joinNames(selectedPatient)}
-          onGoBack={goBack}
-          onRightSideIconTap={navigateToPatientActions}
-        />
+        <StackHeader title="History" subtitle={joinNames(selectedPatient)} onGoBack={goBack} />
         <Stack.Navigator headerMode="none">
           <Stack.Screen
             name={Routes.HomeStack.HistoryVitalsStack.Index}

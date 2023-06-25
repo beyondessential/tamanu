@@ -1,12 +1,11 @@
 import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
-
-export async function fromUpstream(
-  { payload: { resource, upstreamId } },
-  { log, models: { FhirJob } },
-) {
+export async function fromUpstream({ payload: { resource, upstreamId } }, { log, models }) {
+  const materialisableResources = resourcesThatCanDo(
+    models,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  );
   log.debug('Finding resource by name', { resource });
   const Resource = materialisableResources.find(({ fhirName }) => fhirName === resource);
   if (!Resource) {
@@ -22,6 +21,7 @@ export async function fromUpstream(
     versionId: result.versionId,
   });
 
+  const { FhirJob } = models;
   await FhirJob.submit(
     JOB_TOPICS.FHIR.RESOLVER,
     {},
