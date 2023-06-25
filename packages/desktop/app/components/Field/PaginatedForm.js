@@ -47,8 +47,8 @@ const DefaultSuccessScreen = ({ onClose }) => (
 );
 
 export const DefaultFormScreen = ({
-  screenComponent,
-  allQuestionComponents,
+  screenReactElement,
+  allQuestionReactElements,
   values,
   onStepForward,
   onStepBack,
@@ -56,24 +56,23 @@ export const DefaultFormScreen = ({
   screenIndex,
   customBottomRow,
 }) => {
-  const { children } = screenComponent.props;
-  const screenQuestionComponents = React.Children.toArray(children);
+  const { children } = screenReactElement.props;
+  const screenQuestionReactElements = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
     values,
-    allQuestionComponents,
-    screenQuestionComponents,
+    allQuestionReactElements,
+    screenQuestionReactElements,
   );
   const hasStepBack = screenIndex > 0;
 
-  // screenComponent is a react element (not a component) so we have to attach the new children manually
-  const updatedScreenComponent = {
-    ...screenComponent,
-    props: { ...screenComponent.props, children: visibleQuestions },
+  const updatedScreenReactElement = {
+    ...screenReactElement,
+    props: { ...screenReactElement.props, children: visibleQuestions },
   };
 
   return (
     <>
-      {updatedScreenComponent}
+      {updatedScreenReactElement}
       {customBottomRow || (
         <Box mt={4} display="flex" justifyContent="space-between">
           <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
@@ -141,13 +140,11 @@ export const PaginatedForm = ({
     return <SuccessScreen onClose={onCancel} />;
   }
 
-  const formScreens = React.Children.toArray(children);
-  // allQuestionComponents means REACT components, not SurveyScreenComponent objects!
-  // There's unfortunately a lot of overlap between the two, in this component and its children
-  const allQuestionComponents = formScreens
+  const formScreenReactElements = React.Children.toArray(children);
+  const allQuestionReactElements = formScreenReactElements
     .map(s => React.Children.toArray(s.props.children))
     .flat();
-  const maxIndex = formScreens.length - 1;
+  const maxIndex = formScreenReactElements.length - 1;
   const isLast = screenIndex === maxIndex;
 
   return (
@@ -157,7 +154,7 @@ export const PaginatedForm = ({
       initialValues={initialValues}
       render={({ submitForm, validateForm, values, setValues, setStatus }) => {
         if (screenIndex <= maxIndex) {
-          const screenComponent = formScreens.find((screen, i) =>
+          const screenReactElement = formScreenReactElements.find((screen, i) =>
             i === screenIndex ? screen : null,
           );
 
@@ -167,12 +164,12 @@ export const PaginatedForm = ({
                 <FormStepper
                   screenIndex={screenIndex}
                   handleStep={handleStep}
-                  screens={formScreens}
+                  screenReactElements={formScreenReactElements}
                 />
               )}
               <FormScreen
-                screenComponent={screenComponent}
-                allQuestionComponents={allQuestionComponents}
+                screenReactElement={screenReactElement}
+                allQuestionReactElements={allQuestionReactElements}
                 values={values}
                 setValues={setValues}
                 submitForm={submitForm}
@@ -191,7 +188,7 @@ export const PaginatedForm = ({
 
         const submitVisibleValues = event => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(values, allQuestionComponents).map(q => q.props.name),
+            getInvisibleQuestions(values, allQuestionReactElements).map(q => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 
