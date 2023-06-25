@@ -10,7 +10,9 @@ export const VitalChartDataContext = React.createContext({
   visualisationConfigs: {},
   vitalChartModalOpen: false,
   setVitalChartModalOpen: () => {},
-  chartKey: 'Vital Chart',
+  chartKey: 'vital-chart',
+  modalTitle: 'Vital Chart',
+  setModalTitle: () => {},
   setChartKey: () => {},
   setStartDate: () => {},
   setEndDate: () => {},
@@ -33,6 +35,7 @@ const visualisationConfigs = {
 
 export const VitalChartDataProvider = ({ children }) => {
   const [chartKey, setChartKey] = useState(null);
+  const [modalTitle, setModalTitle] = useState(null);
   const [startDate, setStartDate] = useState(format(addDays(new Date(), -1), DATE_TIME_FORMAT));
   const [endDate, setEndDate] = useState(format(new Date(), DATE_TIME_FORMAT));
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
@@ -56,6 +59,8 @@ export const VitalChartDataProvider = ({ children }) => {
         setVitalChartModalOpen,
         chartKey,
         setChartKey,
+        modalTitle,
+        setModalTitle,
         setStartDate,
         setEndDate,
         startDate,
