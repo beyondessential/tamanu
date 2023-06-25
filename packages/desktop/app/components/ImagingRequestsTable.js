@@ -13,6 +13,7 @@ import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
 import { useImagingRequests } from '../contexts/ImagingRequests';
+import { capitaliseFirstLetter } from '../utils/capitalise';
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
@@ -29,6 +30,7 @@ const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
 const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
+const getPriority = ({ priority }) => capitaliseFirstLetter(priority);
 
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
@@ -58,7 +60,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
             accessor: getCompletedDate,
           },
         ]
-      : []),
+      : [
+          {
+            key: 'priority',
+            title: 'Priority',
+            accessor: getPriority,
+          },
+        ]),
     { key: 'status', title: 'Status', accessor: getStatus },
   ];
 
