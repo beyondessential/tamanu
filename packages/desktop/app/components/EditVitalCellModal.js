@@ -62,7 +62,7 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
           submitForm,
         }) => (
           <FormGrid columns={4}>
-            <SurveyQuestion component={cell?.component} />
+            <SurveyQuestion component={cell?.component} disabled={isDeleted} />
             {showDeleteEntryButton && (
               <DeleteEntryButton
                 disabled={isDeleted}
