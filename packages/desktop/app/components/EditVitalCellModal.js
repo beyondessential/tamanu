@@ -85,6 +85,7 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
               multiline
               style={{ gridColumn: '1 / -1' }}
               rows={6}
+              value=""
             />
             <ConfirmCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
           </FormGrid>
