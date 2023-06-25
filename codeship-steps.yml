@@ -1,7 +1,7 @@
 - name: tamanu deployment
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
-  tag: ^(master$|main$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
+  tag: ^(main$|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
   steps:
     - name: copy files
       service: build
@@ -28,7 +28,7 @@
                 - name: build linux release
                   command: ./scripts/build_package_release.sh lan
                 - name: package windows release
-                  tag: ^(master$|dev$|main$|release/|staging-|ci-)
+                  tag: ^(main$|release/|ci-)
                   command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
         - name: for sync release
           exclude: ^deploy-meta$
@@ -37,10 +37,10 @@
             - name: build linux release
               command: ./scripts/build_package_release.sh sync-server
             - name: package windows release
-              tag: ^(master$|dev$|main$|release/|staging-|ci-)
+              tag: ^(main$|release/|ci-)
               command: ./scripts/build_server_zip.sh sync-server ./deploy
         - name: for meta release
-          tag: ^(dev$|main$|deploy-meta$|master$|ci-)
+          tag: ^(main$|deploy-meta$|ci-)
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
       type: parallel
