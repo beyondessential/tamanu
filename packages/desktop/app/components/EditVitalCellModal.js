@@ -27,19 +27,19 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
   </Box>
 );
 
-export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
+export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const handleClose = useCallback(() => {
     setIsDeleted(false);
     onClose();
   }, [onClose]);
-  const vitalLabel = cell?.component.dataElement.name;
-  const date = formatShortest(cell?.recordedDate);
-  const time = formatTime(cell?.recordedDate);
+  const vitalLabel = dataPoint?.component.dataElement.name;
+  const date = formatShortest(dataPoint?.recordedDate);
+  const time = formatTime(dataPoint?.recordedDate);
   const title = `${vitalLabel} | ${date} | ${time}`;
-  const initialValue = cell?.value;
+  const initialValue = dataPoint?.value;
   const showDeleteEntryButton = initialValue !== '';
-  const valueName = cell?.component.dataElement.id;
+  const valueName = dataPoint?.component.dataElement.id;
   const handleDeleteEntry = useCallback(
     setFieldValue => {
       setFieldValue(valueName, '');
@@ -62,7 +62,7 @@ export const EditVitalCellModal = ({ open, cell, onConfirm, onClose }) => {
           submitForm,
         }) => (
           <FormGrid columns={4}>
-            <SurveyQuestion component={cell?.component} disabled={isDeleted} />
+            <SurveyQuestion component={dataPoint?.component} disabled={isDeleted} />
             {showDeleteEntryButton && (
               <DeleteEntryButton
                 disabled={isDeleted}
