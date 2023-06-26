@@ -73,16 +73,6 @@ To package apps with options:
 $ yarn package -- --[option]
 ```
 
-To run End-to-End Test
-
-```bash
-$ yarn build
-$ yarn test-e2e
-
-# Running e2e tests in a minimized window
-$ START_MINIMIZED=true yarn build
-$ yarn test-e2e
-```
 
 :bulb: You can debug your production build with devtools by simply setting the `DEBUG_PROD` env variable:
 
@@ -110,6 +100,41 @@ When setting up a new country, just follow the same process as for releasing a b
 
 Tamanu Desktop follows semver. When updating the version, please update both `desktop/package.json` and `desktop/app/package.json` (the latter is used by `electron-builder`).
 
+## Desktop App Codebase Overview
+If you are new to the desktop package, this summary is intended to give an overview of how the app is organised and the main libraries that are used.
+
+### General
+
+- Use or extend material-ui whenever possible for quicker development, better quality and consistency than creating components from scratch or importing other libraries
+- Use styled-components for styling rather than passing in style props or style objects
+
+### Code Organisation
+
+- Use components directory for re-usable components and views directory for one off custom UI
+- Components in the components directory at the very least should be in storybook for testing, maintenance and examples
+- Avoid hasty abstractions. It's ok to repeat some code if it's not conceptually the same (source: https://kentcdodds.com/blog/aha-programming)
+- Keep components focused and compose small components together for complex functionality rather than having 100+ lines of nested JSX
+
+### State Management
+
+- Use local state wherever possible
+- Remove redux in favour of local state, react-query or context
+
+### Data Fetching
+
+- Use react-query for more declarative data fetching, better error and loading state handling and caching
+- Use base DataFetchingTables component when you want a table full of data
+- For complex data manipulation, remember we can just add a new endpoint to the facility server rather than having to fire off many api requests
+
+### Forms
+
+- We use Formik for our forms. Use base Form component whenever possible (see form readme for more details [here](app/components/Field/README.md))
+- Move all form fields (autocomplete, select etc) to use material-ui fields for consistency of apis and quality
+- Use full forms whenever possible rather than standalone form fields and buttons
+
 ## References
 
 - [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
+- [react-query docs](https://tanstack.com/query/v3/)
+- [material-ui docs](https://v4.mui.com/)
+- [formik docs](https://formik.org/docs/overview)

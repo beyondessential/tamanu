@@ -15,7 +15,7 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "dataset": "tamanu-general",
+    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
     "enabled": true
   },
   "sync": {

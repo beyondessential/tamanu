@@ -75,27 +75,47 @@ const IdValue = styled.span`
 `;
 
 const DiagnosesList = ({ diagnoses }) => {
+  const { getLocalisation } = useLocalisation();
+
   if (diagnoses.length === 0) {
     return <span>N/A</span>;
   }
+
+  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
 
   return diagnoses
     .filter(({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty))
     .map(item => (
       <li>
-        {item.diagnosis.name} (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
+        {item.diagnosis.name}
+        {displayIcd10Codes && (
+          <span>
+            {' '}
+            <Label>ICD 10 Code: </Label> {item.diagnosis.code}
+          </span>
+        )}
       </li>
     ));
 };
 
 const ProceduresList = ({ procedures }) => {
+  const { getLocalisation } = useLocalisation();
+
   if (!procedures || procedures.length === 0) {
     return <span>N/A</span>;
   }
 
+  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
+
   return procedures.map(procedure => (
     <li>
-      {procedure.procedureType.name} (<Label>CPT Code: </Label> {procedure.procedureType.code})
+      {procedure.procedureType.name}
+      {displayProcedureCodes && (
+        <span>
+          {' '}
+          (<Label>CPT Code: </Label> {procedure.procedureType.code})
+        </span>
+      )}
     </li>
   ));
 };

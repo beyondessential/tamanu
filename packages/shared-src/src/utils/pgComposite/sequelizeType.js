@@ -1,7 +1,5 @@
 import { object, mixed } from 'yup';
 import { enumerate, parse } from './parse';
-import { formatDateTime } from '../fhir';
-import { FHIR_DATETIME_PRECISION } from '../../constants';
 
 export class Composite {
   static SCHEMA() {
@@ -10,30 +8,22 @@ export class Composite {
 
   static FIELD_ORDER = [];
 
-  static get fhirName() {
-    return this.name.replace(/^Fhir/, '');
-  }
-
   constructor(params) {
     const withoutNulls = Object.fromEntries(
       Object.entries(params).filter(([, value]) => value !== null && value !== undefined),
     );
-    this.params = this.constructor.SCHEMA().validateSync(withoutNulls);
+    const validatedParams = this.constructor.SCHEMA().validateSync(withoutNulls);
 
-    for (const name of Object.keys(this.params)) {
+    for (const [name, value] of Object.entries(validatedParams)) {
       // exclude phantom fields (used only for advanced yup validations)
-      if (name.startsWith('_')) {
-        delete this.params[name];
+      if (name.startsWith('_') === false) {
+        this[name] = value;
       }
     }
   }
 
   sqlFields() {
-    return this.constructor.FIELD_ORDER.map(name => this.params[name]);
-  }
-
-  asFhir() {
-    return objectAsFhir(this.params);
+    return this.constructor.FIELD_ORDER.map(name => this[name]);
   }
 
   /**
@@ -75,37 +65,10 @@ export class Composite {
         if (typeof value === 'object' && !(value instanceof this)) return new this(value);
         return value;
       })
-      .test('is-fhir-type', `must be a ${this.name}`, t => (t ? t instanceof this : true));
+      .test('is-composite-type', `must be a ${this.name}`, t => (t ? t instanceof this : true));
   }
 
   static fake() {
     throw new Error('Must be overridden');
   }
-}
-
-export function objectAsFhir(input) {
-  const obj = {};
-  for (const [name, value] of Object.entries(input)) {
-    const val = valueAsFhir(value);
-    if (val === null || val === undefined) continue;
-    obj[name] = val;
-  }
-  return obj;
-}
-
-export function valueAsFhir(value) {
-  if (Array.isArray(value)) {
-    return value.map(val => valueAsFhir(val));
-  }
-
-  if (value instanceof Composite) {
-    return value.asFhir();
-  }
-
-  if (value instanceof Date) {
-    // to override precision, transform to string before this point!
-    return formatDateTime(value, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE);
-  }
-
-  return value;
 }

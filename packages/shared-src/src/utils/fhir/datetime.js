@@ -160,7 +160,7 @@ export function parseDateTime(str, { ref = new Date(), withTz = null } = {}) {
   return false;
 }
 
-export function formatDateTime(date, precision) {
+export function formatFhirDate(date, precision = FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE) {
   if (date === null || date === undefined) return date;
   const actual = parseDate(date);
   switch (precision) {

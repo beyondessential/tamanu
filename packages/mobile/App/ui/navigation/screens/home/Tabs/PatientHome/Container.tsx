@@ -68,9 +68,9 @@ const PatientHomeContainer = ({
   const visitTypeButtons = useMemo(
     () => [
       {
-        title: 'Sick \n or Injured',
-        Icon: Icons.SickOrInjuredIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
+        title: 'Diagnosis &\nTreatment',
+        Icon: Icons.DiagnosisAndTreatmentIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
       {
         title: 'Vitals',

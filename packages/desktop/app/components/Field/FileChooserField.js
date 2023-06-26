@@ -24,6 +24,7 @@ const HintText = styled.div`
 `;
 
 export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] };
+export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
 
 export const FileChooserInput = ({ value = '', label, name, filters, onChange, ...props }) => {
   const { showOpenDialog } = useElectron();

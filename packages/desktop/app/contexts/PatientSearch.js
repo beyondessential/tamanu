@@ -5,6 +5,7 @@ const PatientSearchContext = createContext({});
 export const PatientSearchKeys = {
   AdmittedPatientsView: 'AdmittedPatientsView',
   OutpatientsView: 'OutpatientsView',
+  BedManagementView: 'BedManagementView',
 };
 
 /**

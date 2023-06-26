@@ -19,13 +19,13 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'All patients',
-        color: '#7EB3E7',
+        color: Colors.blue,
         path: '/patients/all',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
-        color: Colors.safe,
+        color: Colors.green,
         path: '/patients/inpatient',
         ability: { action: 'read' },
       },
@@ -93,6 +93,11 @@ export const FACILITY_MENU_ITEMS = [
         path: '/imaging-requests/all',
         ability: { action: 'read' },
       },
+      {
+        label: 'Completed',
+        path: '/imaging-requests/completed',
+        ability: { action: 'read' },
+      },
     ],
   },
   {
@@ -103,8 +108,13 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'lab' },
     children: [
       {
-        label: 'Requests',
+        label: 'Active requests',
         path: '/lab-requests/all',
+        ability: { action: 'read' },
+      },
+      {
+        label: 'Published',
+        path: '/lab-requests/published',
         ability: { action: 'read' },
       },
     ],
@@ -136,15 +146,19 @@ export const FACILITY_MENU_ITEMS = [
     ],
   },
   {
-    key: 'reports',
-    label: 'Reports',
-    path: '/reports',
-    icon: scheduleIcon,
-    ability: { action: 'read', subject: 'report' },
+    key: 'facilityAdmin',
+    label: 'Facility admin',
+    path: '/facility-admin',
+    ability: { action: 'read', subject: 'patient' },
+    divider: true,
     children: [
       {
-        label: 'Report generator',
-        path: `/reports/new`,
+        label: 'Reports',
+        path: `/facility-admin/reports`,
+      },
+      {
+        label: 'Bed management',
+        path: `/facility-admin/bed-management`,
       },
     ],
   },
@@ -152,9 +166,9 @@ export const FACILITY_MENU_ITEMS = [
 
 export const SYNC_MENU_ITEMS = [
   {
-    key: 'refdata',
-    label: 'Data import',
-    path: '/admin/refdata',
+    key: 'referenceData',
+    label: 'Reference data',
+    path: '/admin/referenceData',
   },
   {
     key: 'permissions',
@@ -171,6 +185,11 @@ export const SYNC_MENU_ITEMS = [
     key: 'patientMerge',
     label: 'Patient merge',
     path: '/admin/patientMerge',
+  },
+  {
+    key: 'assets',
+    label: 'Asset upload',
+    path: '/admin/assets',
   },
   {
     key: 'sync',

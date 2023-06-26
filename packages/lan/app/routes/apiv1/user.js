@@ -65,6 +65,7 @@ user.get(
         patients.display_id,
         patients.first_name,
         patients.last_name,
+        patients.sex,
         patients.date_of_birth,
         encounters.id AS encounter_id,
         encounters.encounter_type,

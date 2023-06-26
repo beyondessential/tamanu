@@ -1,14 +1,20 @@
-import {
-  LAB_TEST_STATUSES,
-  LAB_REQUEST_STATUSES,
-  REFERENCE_TYPES,
-  VISIBILITY_STATUSES,
-} from 'shared/constants';
+import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
 import config from 'config';
+import Chance from 'chance';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
 import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
+
+const chance = new Chance();
+const VALID_LAB_REQUEST_STATUSES = [
+  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+  LAB_REQUEST_STATUSES.RESULTS_PENDING,
+  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+  LAB_REQUEST_STATUSES.VERIFIED,
+  LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+  LAB_REQUEST_STATUSES.PUBLISHED,
+];
 
 describe('Labs', () => {
   let patientId = null;
@@ -123,9 +129,8 @@ describe('Labs', () => {
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
       const location = await models.Location.create({
+        ...fake(models.Location),
         facilityId,
-        name: 'Test Facility Location',
-        code: 'testFacilityLocation',
       });
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
@@ -136,6 +141,7 @@ describe('Labs', () => {
         ...fake(models.LabRequest),
         encounterId: encounter.id,
         requestedById: app.user.id,
+        status: chance.pickone(VALID_LAB_REQUEST_STATUSES),
       });
     };
 

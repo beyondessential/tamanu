@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { remote } from 'electron';
-import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
 import { parseDate } from 'shared/utils/dateTime';
 import { Typography, Box } from '@material-ui/core';
 import styled from 'styled-components';
+import { ThemedTooltip } from './Tooltip';
 
 import { Colors } from '../constants';
 
@@ -15,7 +15,7 @@ const Text = styled(Typography)`
 `;
 
 const SoftText = styled(Text)`
-  color: ${Colors.softText};
+  color: ${Colors.midText};
 `;
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
@@ -56,6 +56,13 @@ const formatShortExplicit = date =>
     dateStyle: 'medium',
   }); // "4 Mar 2019"
 
+const formatShortestExplicit = date =>
+  intlFormatDate(date, {
+    year: '2-digit',
+    month: 'short',
+    day: 'numeric',
+  }); // "4 Mar 19"
+
 // long format date is displayed on hover
 export const formatLong = date =>
   intlFormatDate(
@@ -88,7 +95,7 @@ const DiagnosticInfo = ({ date: rawDate }) => {
 
 // Tooltip that shows the long date or full diagnostic date info if the shift key is held down
 // before mousing over the date display
-const DateTooltip = ({ date, children }) => {
+const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
@@ -104,31 +111,53 @@ const DateTooltip = ({ date, children }) => {
     setDebug(false);
   };
 
-  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : formatLong(date);
+  const dateTooltip = timeOnlyTooltip ? formatTime(date) : formatLong(date);
+
+  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : dateTooltip;
 
   return (
-    <Tooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+    <ThemedTooltip
+      open={tooltipOpen}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      title={tooltipTitle}
+    >
       {children}
-    </Tooltip>
+    </ThemedTooltip>
   );
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
+  ({
+    date: dateValue,
+    showDate = true,
+    showTime = false,
+    showExplicitDate = false,
+    shortYear = false,
+    timeOnlyTooltip = false,
+  }) => {
     const dateObj = parseDate(dateValue);
 
     const parts = [];
     if (showDate) {
-      parts.push(formatShort(dateObj));
+      if (shortYear) {
+        parts.push(formatShortest(dateObj));
+      } else {
+        parts.push(formatShort(dateObj));
+      }
     } else if (showExplicitDate) {
-      parts.push(formatShortExplicit(dateObj));
+      if (shortYear) {
+        parts.push(formatShortestExplicit(dateObj));
+      } else {
+        parts.push(formatShortExplicit(dateObj));
+      }
     }
     if (showTime) {
       parts.push(formatTime(dateObj));
     }
 
     return (
-      <DateTooltip date={dateObj}>
+      <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
         <span>{parts.join(' ')}</span>
       </DateTooltip>
     );

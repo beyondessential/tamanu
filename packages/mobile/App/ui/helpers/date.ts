@@ -24,6 +24,10 @@ export function getAgeWithMonthsFromDate(date: string): string {
 }
 
 export function formatStringDate(date: string, dateFormat: string): string {
+  if (!date) {
+    return '';
+  }
+
   const dateValue: Date = parseISO(date);
   return formatDate(dateValue, dateFormat);
 }

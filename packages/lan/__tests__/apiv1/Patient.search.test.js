@@ -105,6 +105,40 @@ describe('Patient search', () => {
   let models = null;
   let ctx;
 
+  const createTestPatient = async ({ encounters: encountersData, secondaryIds, ...data }, i) => {
+    const patientData = await createDummyPatient(models, {
+      villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
+      ...data,
+    });
+    const patient = await models.Patient.create(patientData);
+    if (encountersData) {
+      for (const encounterData of encountersData) {
+        await models.Encounter.create(
+          await createDummyEncounter(models, {
+            ...encounterData,
+            patientId: patient.id,
+            departmentId:
+              departments[encounterData.departmentIndex || i % departments.length].id,
+            locationId: locations[encounterData.locationIndex || i % locations.length].id,
+          }),
+        );
+      }
+    }
+    if (secondaryIds) {
+      await Promise.all(
+        secondaryIds.map(async secondaryId => {
+          const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
+          await models.PatientSecondaryId.create({
+            value: secondaryId,
+            visibilityStatus: 'historical',
+            typeId: secondaryIdType,
+            patientId: patient.id,
+          });
+        }),
+      );
+    }
+  };
+
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
@@ -117,41 +151,7 @@ describe('Patient search', () => {
     locationGroups = await models.LocationGroup.findAll();
     departments = await models.Department.findAll();
 
-    await Promise.all(
-      searchTestPatients.map(async ({ encounters: encountersData, secondaryIds, ...data }, i) => {
-        const patientData = await createDummyPatient(models, {
-          ...data,
-          villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
-        });
-        const patient = await models.Patient.create(patientData);
-        if (encountersData) {
-          for (const encounterData of encountersData) {
-            await models.Encounter.create(
-              await createDummyEncounter(models, {
-                ...encounterData,
-                patientId: patient.id,
-                departmentId:
-                  departments[encounterData.departmentIndex || i % departments.length].id,
-                locationId: locations[encounterData.locationIndex || i % locations.length].id,
-              }),
-            );
-          }
-        }
-        if (secondaryIds) {
-          await Promise.all(
-            secondaryIds.map(async secondaryId => {
-              const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
-              await models.PatientSecondaryId.create({
-                value: secondaryId,
-                visibilityStatus: 'historical',
-                typeId: secondaryIdType,
-                patientId: patient.id,
-              });
-            }),
-          );
-        }
-      }),
-    );
+    await Promise.all(searchTestPatients.map(createTestPatient));
   });
   afterAll(() => ctx.close());
 
@@ -610,6 +610,137 @@ describe('Patient search', () => {
       expect(count).toEqual(9);
 
       expect(data[0].lastName).toEqual('D');
+    });
+  });
+
+  describe('Filtering sort', () => {
+
+    const filterSortPatients = [
+      { displayId: 'sort-test-1', firstName: 'Mike', lastName: 'Jordan' },
+      { displayId: 'sort-test-1A', firstName: 'Mike', lastName: 'Jo' },
+      { displayId: 'sort-test-1CD', firstName: 'Mik', lastName: 'JJ' },
+      { displayId: 'sort-test-1CA', firstName: 'Mick', lastName: 'Jake' },
+      { displayId: 'sort-test-1C', firstName: 'Mi', lastName: 'Jord' },
+      { displayId: 'sort-test-1CB', firstName: 'Amike', lastName: 'other-last-name' },
+      { displayId: 'sort-test-1G', firstName: 'Michael', lastName: 'Jordan' },
+      { displayId: 'sort-test-1H', firstName: 'ignored-name', lastName: 'Jorda' },
+      { displayId: 'sort-test-2A', firstName: 'Micael', lastName: 'Jak' },
+      { displayId: 'sort-test-1B', firstName: 'BMike', lastName: 'Jajob' },
+    ];
+
+    beforeAll(async () => {
+      // use a separate list of patients here
+      await models.Patient.truncate({ cascade: true });
+      await Promise.all(filterSortPatients.map(createTestPatient));
+    });
+
+    it('Display Id - Exact match on top and rest are sorted alphabetically', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'sort-test-1C',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(4);
+      expect(count).toEqual(4);
+
+      expect(data.map(d => d.displayId)).toEqual([
+        'sort-test-1C',
+        'sort-test-1CA',
+        'sort-test-1CB',
+        'sort-test-1CD',
+      ]);
+    });
+
+    it('First Name - Exact match on top and rest are sorted according to best match', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'Mi',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data, count } = response.body;
+      expect(data.length).toEqual(9);
+      expect(count).toEqual(9);
+
+      expect(data.map(d => d.firstName)).toEqual([
+        'Mi',
+        'Micael',
+        'Michael',
+        'Mick',
+        'Mik',
+        'Mike',
+        'Mike',
+        'Amike',
+        'BMike',
+      ]);
+    });
+
+    it('Last Name - Exact match on top and rest are sorted according to best match', async () => {
+      const response = await app.get('/v1/patient').query({
+        lastName: 'Jo',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data } = response.body;
+      expect(data.length).toEqual(6);
+
+      expect(data.map(d => d.lastName)).toEqual([
+        'Jo',
+        'Jord',
+        'Jorda',
+        'Jordan',
+        'Jordan',
+        'Jajob',
+      ]);
+    });
+
+    // The sort is done by prioritizing Exact match, Starts with and alphabetically sorted.
+    // If we have a condition attended by two or more results, for instance, a exact match for display id and first time.
+    // It should prioritize 1)displayId 2)lastName 3)firstName.
+    it('Should prioritize 1-displayId, 2-lastName, 3-firstName', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'sort-test-1',
+        firstName: 'Mi',
+        lastName: 'Jo',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data } = response.body;
+      expect(data.length).toEqual(5);
+
+      expect(data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
+        'sort-test-1 - Mike - Jordan',
+        'sort-test-1A - Mike - Jo',
+        'sort-test-1C - Mi - Jord',
+        'sort-test-1G - Michael - Jordan',
+        'sort-test-1B - BMike - Jajob',
+      ]);
+    });
+
+    it('Should prioritize Last name in relation to first name', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'Mi',
+        lastName: 'Jo',
+      });
+
+      expect(response).toHaveSucceeded();
+
+      const { data } = response.body;
+      expect(data.every(d => d.firstName.startsWith('Mi')));
+      expect(data.every(d => d.lastName.startsWith('Jo')));
+
+      const concatenated = data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`);
+      expect(concatenated).toEqual([
+        'sort-test-1A - Mike - Jo',
+        'sort-test-1C - Mi - Jord',
+        'sort-test-1G - Michael - Jordan',
+        'sort-test-1 - Mike - Jordan',
+        'sort-test-1B - BMike - Jajob',
+      ]);
     });
   });
 });

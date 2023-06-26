@@ -154,7 +154,7 @@ export const PatientInfoPane = () => {
 
   const readonly = !!patient.death;
   const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
-  const showRecordDeathActions = patientDeathsEnabled && !deathData?.isFinal;
+  const showRecordDeathActions = !isLoading && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 
   if (isLoading) return <LoadingIndicator />;

@@ -20,6 +20,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [referralSurvey, setReferralSurvey] = useState(null);
   const [referralSurveys, setReferralSurveys] = useState(null);
+  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
 
   useEffect(() => {
@@ -63,7 +64,9 @@ const ReferralFlow = ({ patient, currentUser }) => {
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SurveySelector
-            onSelectSurvey={setSelectedReferral}
+            onSubmit={setSelectedReferral}
+            onChange={setSelectedSurveyId}
+            value={selectedSurveyId}
             surveys={referralSurveys}
             buttonText="Begin referral"
           />

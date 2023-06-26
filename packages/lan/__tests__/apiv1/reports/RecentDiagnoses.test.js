@@ -9,7 +9,7 @@ import {
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Recent Diagnoses report', () => {

@@ -15,7 +15,7 @@ const StyledTable = styled(Table)`
       left: 0;
       position: sticky;
       z-index: 1;
-      border-right: 1px solid ${Colors.outline};
+      border-right: 2px solid ${Colors.outline};
     }
     thead tr th:first-child {
       background: ${Colors.background};

@@ -29,6 +29,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signatureText: {
+    fontFamily: 'Helvetica-Bold',
     fontSize: 12,
     fontWeight: 400,
     width: 100,
@@ -62,6 +63,19 @@ export const styles = StyleSheet.create({
     top: -30,
     width: 140,
   },
+  certificateLogo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    height: 'auto',
+    width: 66,
+  },
+  certificateHeader: {
+    margin: '0 18px',
+  },
+  certificateFooter: {
+    margin: '0 18px',
+  },
 });
 
 export const Row = props => <View style={styles.row} {...props} />;
@@ -93,3 +107,10 @@ png or jpg src image
 export const Logo = ({ logoSrc }) => <Image src={logoSrc} style={styles.logo} cache={false} />;
 
 export const VDSImage = ({ src }) => <Image src={src} style={styles.vds} />;
+
+export const CertificateLogo = ({ logoSrc }) => (
+  <Image src={logoSrc} style={styles.certificateLogo} cache={false} />
+);
+
+export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
+export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;

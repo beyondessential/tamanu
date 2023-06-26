@@ -29,6 +29,18 @@ First, clone the repo via git:
 $ git clone git@github.com:beyondessential/tamanu.git
 ```
 
+For MacBook ARM64 users, some dependencies cannot be compiled, it is recommended to switch to X86_64 for python v3. If insist, please install python v2:
+
+```bash
+$ brew install pyenv
+$ pyenv install --list
+$ pyenv install 2.7.18
+$ pyenv versions
+$ pyenv global 2.7.18
+
+Put eval "$(pyenv init --path)" in ~/.zprofile (or ~/.bash_profile or ~/.zshrc)
+```
+
 Install dependencies with yarn:
 
 ```bash
@@ -67,10 +79,69 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 ## Run
 
 <details>
+<summary>Prerequisites</summary>
+
+#### Install postgres
+
+##### OSX
+
+Run:
+```bash
+brew install postgres
+brew services start postgres
+```
+
+##### WSL
+
+Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`
+
+##### Linux
+
+Install PostgreSQL from your package manager
+
+</details>
+
+<details>
+<summary>Sync server</summary>
+
+By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
+
+#### Prerequisite
+1. Duplicate `sync-server/config/local.example` as new file `config/local.json`.
+2. Create db using `tamanu-sync` or any customised name, new db can be with or without owner.
+3. Store db name, root username, password or db owner credentials to `config/local.json` db config.
+
+#### Run
+
+```bash
+yarn install
+yarn workspace sync-server setup-dev # If it doesn't work, go for 'Pull data from remote'
+yarn sync-start-dev
+```
+
+#### Pull data from remote
+1. Ask help for pulling data from tamanu dev
+2. Import data to local by running: 
+
+```
+psql -U [DB_USERNAME] -d tamanu-sync < [Path to tamanu-central-dev.sql]
+```
+
+</details>
+
+<details>
 <summary>LAN server</summary>
 
 The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
+
+#### Prerequisite
+1. Start `sync-server`
+2. Duplicate `lan/config/local.example` as new file `config/local.json`.
+3. Create db using `tamanu-lan` or any customised name, new db can be with or without owner.
+4. Store db name, root username, password or db owner credentials to `config/local.json` db config.
+
+#### Run
 
 ```bash
 $ yarn lan-start-dev
@@ -106,45 +177,6 @@ Note that we also use storybook to develop components in isolation, which you ca
 the desktop directory using `yarn storybook`.
 </details>
 
-<details>
-<summary>Sync server</summary>
-
-By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
-
-#### OSX
-
-Run:
-
-```bash
-brew install postgres
-brew services start postgres
-createdb tamanu-sync
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### WSL
-
-Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then run:
-
-```bash
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### Linux
-
-Install PostgreSQL from your package manager, and create a new database `tamanu-sync`, then run:
-
-```bash
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-</details>
 
 ## Integrations
 

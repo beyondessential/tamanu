@@ -1,0 +1,19 @@
+@syncserver=http://localhost:3000
+@token={{login.response.body.token}}
+
+### ----------------------------------------
+# Obtain a token
+# @name login
+POST {{syncserver}}/v1/login
+Content-Type: application/json
+
+{
+    "email": "admin@tamanu.io",
+    "password": "xxx"
+}
+
+### ----------------------------------------
+# Export reference data
+# @name exportReferenceData
+GET {{syncserver}}/v1/admin/export/referenceData?include=Patient,Facility
+Authorization: Bearer {{token}}

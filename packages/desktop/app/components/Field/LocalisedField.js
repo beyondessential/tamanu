@@ -4,10 +4,21 @@ import * as yup from 'yup';
 import { Field } from './Field';
 import { useLocalisation } from '../../contexts/Localisation';
 
-export const LocalisedField = ({ name, path = `fields.${name}`, defaultLabel, ...props }) => {
+export const LocalisedField = ({
+  name,
+  useShortLabel,
+  path = `fields.${name}`,
+  defaultLabel,
+  ...props
+}) => {
   const { getLocalisation } = useLocalisation();
   const hidden = getLocalisation(`${path}.hidden`);
-  const label = getLocalisation(`${path}.longLabel`) || defaultLabel || path;
+  const label =
+    (useShortLabel
+      ? getLocalisation(`${path}.shortLabel`)
+      : getLocalisation(`${path}.longLabel`)) ||
+    defaultLabel ||
+    path;
   const required = getLocalisation(`${path}.required`) || false;
   if (hidden) {
     return null;

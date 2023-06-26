@@ -146,7 +146,7 @@ android {
         applicationId "com.tamanuapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode patch.toInteger()
+        versionCode major.toInteger() * 1000000 + minor.toInteger() * 1000 + patch.toInteger()
         versionName getAppVersion()
         multiDexEnabled true
     }

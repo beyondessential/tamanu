@@ -1,11 +1,10 @@
 import * as yup from 'yup';
+import { formatFhirDate } from '../../utils/fhir';
 
-import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { FhirBaseType } from './baseType';
 import { FhirReference } from './reference';
 
-export class FhirAnnotation extends Composite {
-  static FIELD_ORDER = ['authorReference', 'authorString', 'time', 'text'];
-
+export class FhirAnnotation extends FhirBaseType {
   static SCHEMA() {
     return yup
       .object({
@@ -17,7 +16,7 @@ export class FhirAnnotation extends Composite {
           .nullable()
           .default(null),
         time: yup
-          .date()
+          .string()
           .nullable()
           .default(null),
         text: yup.string().required(),
@@ -32,23 +31,11 @@ export class FhirAnnotation extends Composite {
       .noUnknown();
   }
 
-  static validateAndTransformFromSql({ authorReference, time, ...fields }) {
-    return new this({
-      authorReference: authorReference && FhirReference.fromSql(authorReference),
-      time: time && new Date(time),
-      ...fields,
-    });
-  }
-
   static fake(model, { fieldName }, id) {
     return new this({
       authorString: `${model.name}.${fieldName}.author.${id}`,
-      time: new Date(),
+      time: formatFhirDate(new Date()),
       text: `${model.name}.${fieldName}.text.${id}`,
     });
   }
-}
-
-export class FHIR_ANNOTATION extends COMPOSITE {
-  static ValueClass = FhirAnnotation;
 }

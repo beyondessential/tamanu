@@ -10,14 +10,14 @@ import {
   getStatus,
   getRequestType,
   getPriority,
-  getDateTime,
+  getDateWithTimeTooltip,
   getRequestId,
 } from '../../utils/lab';
 
 const columns = [
   { key: 'requestId', title: 'Test ID', sortable: false, accessor: getRequestId },
   { key: 'category.name', title: 'Test category', accessor: getRequestType },
-  { key: 'requestedDate', title: 'Requested at time', accessor: getDateTime },
+  { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
   { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
   { key: 'priority.name', title: 'Priority', accessor: getPriority },
   { key: 'status', title: 'Status', accessor: getStatus, maxWidth: 200 },

@@ -2,8 +2,9 @@
 
 import { promises as fs } from 'fs';
 import { Command } from 'commander';
-import { Op } from 'sequelize';
 import TOML from '@iarna/toml';
+import { canonicalize } from 'json-canonicalize';
+import { buildSettingsRecords } from 'shared/models/Setting';
 
 // it does work, but eslint doesn't like it
 // eslint-disable-next-line import/no-unresolved
@@ -11,75 +12,84 @@ import { parse as parseJiK } from '@bgotink/kdl/json';
 
 import { initDatabase } from '../database';
 
-async function listSettings(filter = null) {
+export async function listSettings(filter = '', { facility } = {}) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
-  console.log('---------------------------------\n');
 
-  const settings = await Setting.findAll({
-    where: filter
-      ? {
-          key: {
-            [Op.iLike]: `%${filter}%`,
-          },
-        }
-      : {},
-  });
+  const globalTree = await Setting.get(filter);
+  const globalSettings = buildSettingsRecords(filter, globalTree, null);
 
-  if (settings.length === 0) {
-    console.log('No settings found');
-    return;
+  if (!facility) {
+    if (!globalTree || Object.keys(globalTree).length === 0) {
+      return 'No settings found';
+    }
+
+    return globalSettings
+      .map(({ key }) => key)
+      .sort()
+      .join('\n');
   }
 
-  for (const setting of settings) {
-    console.log(setting.key);
+  const facilityTree = await Setting.get(filter, facility);
+  if (!facilityTree || Object.keys(facilityTree).length === 0) {
+    return 'No settings found';
   }
+
+  const facilitySettings = buildSettingsRecords(filter, facilityTree, facility);
+
+  const globalKeys = new Set(globalSettings.map(({ key }) => key));
+
+  return [...globalSettings, ...facilitySettings]
+    .map(({ facilityId, key }) => {
+      if (facilityId) {
+        if (globalKeys.has(key)) return null;
+        return `${key} (facility only)`;
+      }
+
+      return key;
+    })
+    .filter(Boolean)
+    .sort()
+    .join('\n');
 }
 
-async function getSetting(key, { facility }) {
+export async function getSetting(key, { facility } = {}) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
-  console.log('---------------------------------\n');
 
   const setting = await Setting.get(key, facility);
   if (setting === undefined) {
-    console.log('(no setting found)');
-  } else {
-    console.log(`value: ${JSON.stringify(setting, null, 2)}`);
+    return '(no setting found)';
   }
+
+  return `value:\n${canonicalize(setting)}`;
 }
 
-async function setSetting(key, value, { facility }) {
+export async function setSetting(key, value, { facility } = {}) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
-  console.log('---------------------------------\n');
 
   const setting = await Setting.get(key, facility);
-  if (setting && JSON.stringify(setting) !== '{}') {
-    console.log('current value:');
-    console.log(JSON.stringify(setting, null, 2));
-    console.log('\n');
-  } else {
-    console.log('no current value\n');
-  }
+  const preValue =
+    setting && JSON.stringify(setting) !== '{}'
+      ? `current value:\n${canonicalize(setting)}\n`
+      : 'no current value\n';
 
   const newValue = JSON.parse(value);
   await Setting.set(key, newValue, facility);
-  console.log('new value set');
+  return `${preValue}\nnew value set`;
 }
 
-async function loadSettings(key, filepath, { facility, preview }) {
+export async function loadSettings(key, filepath, { facility, preview } = {}) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
-  console.log('---------------------------------\n');
 
   if (key.length < 1) {
-    console.error('Key must be specified');
-    return;
+    throw new Error('Key must be specified');
   }
 
   const file = (await fs.readFile(filepath)).toString();
@@ -91,20 +101,17 @@ async function loadSettings(key, filepath, { facility, preview }) {
   } else if (filepath.endsWith('.kdl')) {
     value = parseJiK(file);
   } else {
-    console.error('File format not supported');
-    return;
+    throw new Error('File format not supported');
   }
 
   if (preview) {
-    console.log(JSON.stringify(value, null, 2));
-    return;
+    return JSON.stringify(value, null, 2);
   }
 
-  console.log(`Setting ${key}...`);
   await Setting.set(key, value, facility);
 
   const currentValue = await Setting.get(key, facility);
-  console.log(JSON.stringify(currentValue, null, 2));
+  return JSON.stringify(currentValue, null, 2);
 }
 
 export const settingsCommand = new Command('settings')
@@ -113,14 +120,19 @@ export const settingsCommand = new Command('settings')
     new Command('list')
       .description('list all setting keys')
       .argument('[filter]', 'only output keys matching this')
-      .action(listSettings),
+      .option('--facility <facility>', 'ID of facility to scope to')
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await listSettings(...args)}`),
+      ),
   )
   .addCommand(
     new Command('get')
       .description('get a setting')
       .argument('<key>', 'key to retrieve')
       .option('--facility <facility>', 'ID of facility to scope to')
-      .action(getSetting),
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await getSetting(...args)}`),
+      ),
   )
   .addCommand(
     new Command('set')
@@ -128,14 +140,18 @@ export const settingsCommand = new Command('settings')
       .argument('<key>', 'key to create/update')
       .argument('<value>', 'value in JSON')
       .option('--facility <facility>', 'ID of facility to scope to')
-      .action(setSetting),
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await setSetting(...args)}`),
+      ),
   )
   .addCommand(
     new Command('load')
       .description('load settings from a file')
       .argument('<key>', 'key to load to')
-      .argument('<file>', 'JSON or TOML file to load settings from')
+      .argument('<file>', 'JSON, TOML, or KDL file to load settings from')
       .option('--facility <facility>', 'ID of facility to scope to')
       .option('--preview', 'Print the settings that would be loaded in JSON')
-      .action(loadSettings),
+      .action(async (...args) =>
+        console.log(`-------------------------\n${await loadSettings(...args)}`),
+      ),
   );

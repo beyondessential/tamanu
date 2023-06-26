@@ -13,6 +13,12 @@ import { addDefaultLastSuccessfulSyncPull1669160460000 } from './1669160460000-a
 import { resyncPatientAdditionalData1669855692000 } from './1669855692000-resyncPatientAdditionalData';
 import { wipeAllDataAndResync1675907161000 } from './1675907161000-wipeAllDataAndResync';
 import { addLocationGroupTable1673396917000 } from './1673396917000-addLocationGroupTable';
+import { addNoteTables1677554085000 } from './1677554085000-addNoteTables';
+import { addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000 } from './1678061990000-addNotGivenReasonIdColumnToAdministeredVaccineTable';
+import { addSettingTable1678400759000 } from './1678400759000-addSettingTable';
+import { addConsentGivenByToAdministeredVaccine1682923186000 } from './1682923186000-addConsentGivenByToAdministeredVaccine';
+import { addNewColumnsToAdministeredVaccine1683596516000 } from './1683596516000-addNewColumnsToAdministeredVaccine';
+import { changeDateColumnToNullableForAdministeredVaccine1683598923000 } from './1683598923000-changeDateColumnToNullableForAdministeredVaccine';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -29,4 +35,10 @@ export const migrationList = [
   resyncPatientAdditionalData1669855692000,
   wipeAllDataAndResync1675907161000,
   addLocationGroupTable1673396917000,
+  addNoteTables1677554085000,
+  addNotGivenReasonIdColumnToAdministeredVaccineTable1678061990000,
+  addSettingTable1678400759000,
+  addConsentGivenByToAdministeredVaccine1682923186000,
+  addNewColumnsToAdministeredVaccine1683596516000,
+  changeDateColumnToNullableForAdministeredVaccine1683598923000,
 ];

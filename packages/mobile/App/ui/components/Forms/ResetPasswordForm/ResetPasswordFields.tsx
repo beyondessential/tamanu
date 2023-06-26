@@ -35,6 +35,7 @@ export const ResetPasswordFields = ({
         name="email"
         keyboardType="email-address"
         component={TextField}
+        labelColor={theme.colors.WHITE}
         label="Email"
       />
       <Field name="server" component={ServerSelector} label="Select a country" />

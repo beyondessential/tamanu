@@ -1,4 +1,5 @@
 import { REPORT_STATUSES } from 'shared/constants';
+import { spyOnModule } from 'shared/test-helpers/spyOn';
 import { importReport } from '../../../app/subCommands/importReport';
 import * as importUtils from '../../../app/subCommands/importReport/utils';
 import * as importActions from '../../../app/subCommands/importReport/actions';
@@ -6,6 +7,9 @@ import * as importActions from '../../../app/subCommands/importReport/actions';
 jest.mock('../../../app/database', () => ({
   initDatabase: jest.fn().mockResolvedValue('test-store'),
 }));
+
+spyOnModule(jest, '../../../app/subCommands/importReport/utils');
+spyOnModule(jest, '../../../app/subCommands/importReport/actions');
 
 const mockVersions = [
   { versionNumber: 1, status: REPORT_STATUSES.DRAFT },

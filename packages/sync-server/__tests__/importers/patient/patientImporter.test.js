@@ -1,5 +1,5 @@
 import { importerTransaction } from '../../../app/admin/importerEndpoint';
-import { importer } from '../../../app/admin/refdataImporter';
+import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
 import { createTestContext } from '../../utilities';
 import '../matchers';
 
@@ -24,9 +24,10 @@ describe('Patients import', () => {
   function doImport(options) {
     const { file, ...opts } = options;
     return importerTransaction({
-      importer,
+      importer: referenceDataImporter,
       file: `./__tests__/importers/patient/${file}.xlsx`,
       models: ctx.store.models,
+      includedDataTypes: ['patient'],
       ...opts,
     });
   }

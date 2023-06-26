@@ -2,7 +2,15 @@ export const VACCINE_CATEGORIES = {
   ROUTINE: 'Routine',
   CATCHUP: 'Catchup',
   CAMPAIGN: 'Campaign',
+  OTHER: 'Other',
 };
+
+export const VACCINE_CATEGORY_OPTIONS = [
+  { value: VACCINE_CATEGORIES.ROUTINE, label: 'Routine' },
+  { value: VACCINE_CATEGORIES.CATCHUP, label: 'Catch-up' },
+  { value: VACCINE_CATEGORIES.CAMPAIGN, label: 'Campaign' },
+  { value: VACCINE_CATEGORIES.OTHER, label: 'Other' },
+];
 
 export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);
 
@@ -27,6 +35,8 @@ export const ICAO_DOCUMENT_TYPES = {
 };
 
 export const COVID_19_CLEARANCE_CERTIFICATE = 'covid_19_clearance';
+
+export const VACCINATION_CERTIFICATE = 'vaccination_certificate';
 
 export const EUDCC_CERTIFICATE_TYPES = {
   VACCINATION: 'v',
@@ -69,4 +79,23 @@ export const VACCINE_STATUS = {
   UPCOMING: 'UPCOMING',
   OVERDUE: 'OVERDUE',
   RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
+  HISTORICAL: 'HISTORICAL',
+};
+
+export const VACCINE_STATUS_LABELS = {
+  [VACCINE_STATUS.UNKNOWN]: 'Unknown',
+  [VACCINE_STATUS.GIVEN]: 'Given',
+  [VACCINE_STATUS.NOT_GIVEN]: 'Not given',
+  [VACCINE_STATUS.SCHEDULED]: 'Scheduled',
+  [VACCINE_STATUS.MISSED]: 'Missed',
+  [VACCINE_STATUS.DUE]: 'Due',
+  [VACCINE_STATUS.UPCOMING]: 'Upcoming',
+  [VACCINE_STATUS.OVERDUE]: 'Overdue',
+  [VACCINE_STATUS.RECORDED_IN_ERROR]: 'Recorded in error',
+  [VACCINE_STATUS.HISTORICAL]: 'Historical',
+};
+
+export const VACCINE_RECORDING_TYPES = {
+  GIVEN: VACCINE_STATUS.GIVEN,
+  NOT_GIVEN: VACCINE_STATUS.NOT_GIVEN,
 };

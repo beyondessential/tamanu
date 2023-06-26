@@ -1,13 +1,13 @@
 import { writeFileSync, readFileSync } from 'fs';
 
 // Read in desktop's package.json
-const pkgPath = './packages/desktop/package.json'
+const pkgPath = './packages/desktop/package.json';
 const pkgRaw = readFileSync(pkgPath);
 const pkg = JSON.parse(pkgRaw);
 
 // Get which deployment we're going for
 const branch = process.env.CI_BRANCH;
-const deployment = branch.replace("release-desktop-", "");
+const deployment = branch.replace('release-desktop-', '');
 
 // Determine build folder
 const buildFolder = `desktop/${deployment}`;
@@ -17,11 +17,7 @@ pkg.build.publish.path = buildFolder;
 // - omitted in this list: install to appdata
 // - included: install to Program Files
 // Add new deployments here as required.
-const programFilesDeployments = [
-  'aspen-medical-fiji',
-  'aspen-demo',
-  'tuvalu',
-];
+const programFilesDeployments = ['aspen-medical-fiji', 'aspen-demo', 'tuvalu'];
 const isProgramFiles = programFilesDeployments.includes(deployment);
 pkg.build.nsis.perMachine = isProgramFiles;
 

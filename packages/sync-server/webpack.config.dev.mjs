@@ -4,9 +4,9 @@ const watch = !process.env.NOWATCH;
 
 export default {
   ...baseConfig,
+  mode: 'development',
   devtool: 'eval',
   watch,
-  mode: 'development',
   plugins: watch
     ? [
         nodemon({

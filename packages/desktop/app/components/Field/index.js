@@ -23,6 +23,7 @@ export * from './AutocompleteField';
 export * from './DisplayIdField';
 export * from './DOBFields';
 export * from './LocationField';
+export * from './DynamicSelectField';
 
 // form helpers
 export * from './Form';

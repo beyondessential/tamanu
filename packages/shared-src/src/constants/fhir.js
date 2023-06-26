@@ -22,37 +22,6 @@ export const FHIR_INTERACTIONS = {
   },
 };
 
-// The resource:upstreams relationship. Used to set up hooks.
-export const FHIR_UPSTREAMS = {
-  Patient: ['Patient', 'PatientAdditionalData'],
-  ServiceRequest: [
-    'Encounter',
-    'Facility',
-    'ImagingAreaExternalCode',
-    'ImagingRequestArea',
-    'Location',
-    'Patient',
-    'ReferenceData',
-    'User',
-  ],
-  DiagnosticReport: [
-    'LabTest',
-    'LabRequest',
-    'LabTestType',
-    'ReferenceData',
-    'Encounter',
-    'Patient',
-  ],
-  Immunization: [
-    'AdministeredVaccine',
-    'ScheduledVaccine',
-    'Encounter',
-    'Patient',
-    'ReferenceData',
-    'User',
-  ],
-};
-
 // All possible search parameter types
 export const FHIR_SEARCH_PARAMETERS = {
   NUMBER: 'number',
@@ -234,4 +203,54 @@ export const FHIR_REQUEST_PRIORITY = {
   URGENT: 'urgent',
   ASAP: 'asap',
   STAT: 'stat',
+};
+
+export const FHIR_DIAGNOSTIC_REPORT_STATUS = {
+  REGISTERED: 'registered',
+  PARTIAL: {
+    _: 'partial',
+    PRELIMINARY: 'preliminary',
+    MODIFIED: 'modified',
+  },
+  FINAL: 'final',
+  AMENDED: {
+    _: 'amended',
+    CORRECTED: 'corrected',
+    APPENDED: 'appended',
+  },
+  CANCELLED: 'cancelled',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
+
+export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
+  IMP: 'inpatient encounter',
+  AMB: 'ambulatory encounter',
+  OBSENC: 'observation encounter',
+  EMER: 'emergency',
+  HH: 'home health',
+  VR: 'virtual',
+};
+
+export const FHIR_ENCOUNTER_CLASS_CODE = Object.fromEntries(
+  Object.keys(FHIR_ENCOUNTER_CLASS_DISPLAY).map(k => [k, k]),
+);
+
+export const FHIR_ENCOUNTER_STATUS = {
+  PLANNED: 'planned',
+  IN_PROGRESS: 'in-progress',
+  ON_HOLD: 'on-hold',
+  DISCHARGED: 'discharged',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  DISCONTINUED: 'discontinued',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
+
+export const FHIR_ENCOUNTER_LOCATION_STATUS = {
+  PLANNED: 'planned',
+  ACTIVE: 'active',
+  RESERVED: 'reserved',
+  COMPLETED: 'completed',
 };

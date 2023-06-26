@@ -5,7 +5,8 @@ import { action } from '@storybook/addon-actions';
 
 import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
 import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
-import { ImporterView } from '../app/views/administration/components/ImporterView';
+import { ImportExportView } from '../app/views/administration/components/ImportExportView';
+import { AssetUploaderView } from '../app/views/administration/AssetUploaderView';
 
 const sampleResponse = {
   sentData: false,
@@ -27,15 +28,15 @@ const sampleResponse = {
       'referenceData:triageReason': 10,
       'referenceData:imagingType': 4,
       'referenceData:procedureType': 10,
-      'referenceData:labTestCategory': 5
+      'referenceData:labTestCategory': 5,
     },
     errors: {
       referenceData: 4,
       user: 4,
       patient: 2,
       total: 10,
-      'referenceData:drug': 4
-    }
+      'referenceData:drug': 4,
+    },
   },
   errors: [
     {
@@ -66,31 +67,30 @@ const dummySubmit = overrides => async formData => {
   action('submitStart')(formData);
   await new Promise(resolve => setTimeout(resolve, 1000));
   action('submitEnd')();
-  return { 
-    ...sampleResponse, 
+  return {
+    ...sampleResponse,
     duration: Math.random() + 1,
     ...overrides,
   };
 };
 
-storiesOf('Admin/ImporterView', module)
-  .add('Whole view', () => (
-    <ImporterView
-      onSubmit={dummySubmit()}
-      onReceiveResult={action('result')}
-      onCancel={action('cancel')}
-    />
-  ));
+storiesOf('Admin/ImportExportView', module).add('Whole view', () => (
+  <ImportExportView
+    onSubmit={dummySubmit()}
+    onReceiveResult={action('result')}
+    onCancel={action('cancel')}
+    dataTypes={['referenceData', 'user', 'patient']}
+    dataTypesSelectable
+  />
+));
 
-storiesOf('Admin/ImportStats', module)
-  .add('Default', () => (
-    <ImportStatsDisplay stats={sampleResponse.stats} />
-  ));
+storiesOf('Admin/ImportStats', module).add('Default', () => (
+  <ImportStatsDisplay stats={sampleResponse.stats} />
+));
 
 storiesOf('Admin/ErrorTable', module)
-  .add('Default', () => (
-    <ImportErrorsTable errors={sampleResponse.errors} />
-  ))
-  .add('No errors', () => (
-    <ImportErrorsTable errors={[]} />
-  ));
+  .add('Default', () => <ImportErrorsTable errors={sampleResponse.errors} />)
+  .add('No errors', () => <ImportErrorsTable errors={[]} />);
+
+storiesOf('Admin/AssetUploaderView', module)
+  .add('Default', () => <AssetUploaderView />);

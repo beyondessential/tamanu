@@ -1,5 +1,6 @@
 import React, { useEffect, useState, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
@@ -14,19 +15,25 @@ interface AutocompleteModalFieldProps {
   modalRoute: string;
   marginTop?: number;
   error?: string;
+  label?: string;
+  required?: boolean;
+  disabled?: boolean;
 }
 
 export const AutocompleteModalField = ({
+  label: fieldLabel,
   value,
   placeholder,
   onChange,
   suggester,
   modalRoute,
   error,
+  required,
   marginTop = 0,
+  disabled = false,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
-  const [label, setLabel] = useState(placeholder);
+  const [label, setLabel] = useState(null);
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
     setLabel(selectedItem.label);
@@ -42,18 +49,32 @@ export const AutocompleteModalField = ({
     if (!suggester) return;
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
-      if (data) setLabel(data.label);
-      else setLabel(placeholder);
+      if (data) {
+        setLabel(data.label);
+      } else {
+        setLabel(placeholder);
+      }
     })();
   }, [value]);
 
   return (
-    <>
+    <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
+      {!!fieldLabel && (
+        <StyledText
+          fontSize={14}
+          fontWeight={600}
+          marginBottom={2}
+          color={theme.colors.TEXT_SUPER_DARK}
+        >
+          {fieldLabel}
+          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+        </StyledText>
+      )}
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
-        textColor="#888888"
-        buttonText={label}
+        textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
+        buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
         borderRadius={3}
@@ -64,8 +85,9 @@ export const AutocompleteModalField = ({
         fontSize={15}
         padding={10}
         onPress={openModal}
+        disabled={disabled}
       />
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
-    </>
+    </StyledView>
   );
 };

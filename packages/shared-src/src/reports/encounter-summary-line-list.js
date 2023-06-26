@@ -474,22 +474,6 @@ const getData = async (sequelize, parameters, includedPatientFieldIds) => {
         LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
         LAB_REQUEST_STATUSES.CANCELLED,
       ],
-      imaging_area_labels: JSON.stringify({
-        xRay: 'X-Ray',
-        ctScan: 'CT Scan',
-        ecg: 'Electrocardiogram (ECG)',
-        mri: 'MRI',
-        ultrasound: 'Ultrasound',
-        holterMonitor: 'Holter Monitor',
-        echocardiogram: 'Echocardiogram',
-        mammogram: 'Mammogram',
-        endoscopy: 'Endoscopy',
-        fluroscopy: 'Fluroscopy',
-        angiogram: 'Angiogram',
-        colonoscopy: 'Colonoscopy',
-        vascularStudy: 'Vascular Study',
-        stressTest: 'Treadmill',
-      }),
     },
   });
 };

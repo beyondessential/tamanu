@@ -7,7 +7,7 @@ import { MockedApi } from './utils/mockedApi';
 import {
   getCurrentDateString,
   getCurrentDateTimeString,
-} from '../../shared-src/src/utils/dateTime';
+} from 'shared/utils/dateTime';
 
 const patient = createDummyPatient(null, { id: 'test-patient' });
 

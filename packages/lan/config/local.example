@@ -1,0 +1,22 @@
+{
+  "discovery": {
+    "protocol": "http"
+  },
+  "sync": {
+    "host": "http://localhost:3000",
+    "email": "admin@tamanu.io",
+    "password": "admin"
+  },
+  "db": {
+    "name": "",
+    "verbose": false,
+    "username": "",
+    "password": "",
+    "port": "5432",
+    "migrateOnStartup": true
+  },
+  "log": {
+    "consoleLevel": null
+  },
+  "serverFacilityId": "facility-BaHealthCentre"
+}

@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { IconButton } from '@material-ui/core';
+import { ClearIcon } from '../Icons/ClearIcon';
+import { ChevronIcon } from '../Icons/ChevronIcon';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -28,6 +31,22 @@ const SelectTag = styled(Tag)`
 
 const OptionTag = styled(Tag)`
   right: 20px;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+  position: absolute;
+  right: 35px;
+`;
+
+const StyledClearIcon = styled(ClearIcon)`
+  cursor: pointer;
+  color: ${Colors.darkText};
+`;
+
+const StyledChevronIcon = styled(ChevronIcon)`
+  margin-left: 4px;
+  margin-right: 20px;
 `;
 
 const Option = ({ children, ...props }) => {
@@ -58,6 +77,14 @@ const SingleValue = ({ children, ...props }) => {
   );
 };
 
+const ClearIndicator = ({ innerProps }) => {
+  return (
+    <StyledIconButton {...innerProps}>
+      <StyledClearIcon />
+    </StyledIconButton>
+  );
+};
+
 export const SelectInput = ({
   options,
   value,
@@ -69,10 +96,17 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
+  form,
+  isClearable = true,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
+        onChange({ target: { value: undefined, name } });
+        return;
+      }
       onChange({ target: { value: changedOption.value, name } });
     },
     [onChange, name],
@@ -82,19 +116,20 @@ export const SelectInput = ({
     control: (provided, state) => {
       const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
+      const fontSize = props.size === 'small' ? '11px' : '15px';
       return {
         ...provided,
         borderColor,
         boxShadow: 'none',
         borderRadius: '3px',
-        paddingTop: '5px',
-        paddingBottom: '3px',
+        paddingTop: '11px',
+        paddingBottom: '9px',
         paddingLeft: '5px',
+        fontSize,
       };
     },
     dropdownIndicator: provided => ({
       ...provided,
-      color: Colors.midText,
       padding: '4px 16px 6px 6px',
     }),
     placeholder: provided => ({ ...provided, color: Colors.softText }),
@@ -106,16 +141,19 @@ export const SelectInput = ({
       boxShadow: 'none',
       border: `1px solid ${Colors.outline}`,
     }),
-    option: (provided, state) => ({
-      ...provided,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
-      ...(state.isDisabled ? {} : { color: Colors.darkestText }),
-      cursor: 'pointer',
-      fontSize: '14px',
-    }),
+    option: (provided, state) => {
+      const fontSize = props.size === 'small' ? '11px' : '14px';
+      return {
+        ...provided,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
+        ...(state.isDisabled ? {} : { color: Colors.darkestText }),
+        cursor: 'pointer',
+        fontSize,
+      };
+    },
     singleValue: base => ({
       ...base,
       display: 'flex',
@@ -155,13 +193,15 @@ export const SelectInput = ({
         <Select
           value={selectedOption}
           onChange={handleChange}
-          options={options}
+          options={options.filter(option => option.value !== '')}
           menuPlacement="auto"
           menuPosition="fixed"
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          components={{ Option, SingleValue }}
+          isClearable={value !== '' && isClearable && !props.required && !disabled}
+          isSearchable={false}
+          components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}

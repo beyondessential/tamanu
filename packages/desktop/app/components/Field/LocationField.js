@@ -77,6 +77,8 @@ export const LocationInput = React.memo(
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
+      setLocationId('');
+      onChange({ target: { value: '', name } });
     };
 
     const handleChange = async event => {

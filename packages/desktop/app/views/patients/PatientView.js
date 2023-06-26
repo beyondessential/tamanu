@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +9,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import {
   HistoryPane,
-  ImmunisationsPane,
+  VaccinesPane,
   PatientMedicationPane,
   DocumentsPane,
   PatientProgramsPane,
@@ -66,10 +66,10 @@ const TABS = [
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Immunisation',
-    key: PATIENT_TABS.IMMUNISATION,
+    label: 'Vaccines',
+    key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
-    render: props => <ImmunisationsPane {...props} />,
+    render: props => <VaccinesPane {...props} />,
   },
   {
     label: 'Medication',
@@ -100,6 +100,10 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+
+  useEffect(() => {
+    api.post(`user/recently-viewed-patients/${patient.id}`);
+  }, [api, patient.id]);
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;

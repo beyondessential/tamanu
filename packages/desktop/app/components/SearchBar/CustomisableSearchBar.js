@@ -1,21 +1,30 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
-import { LargeButton, LargeOutlineButton } from '../Button';
+import { IconButton } from '@material-ui/core';
+import doubleDown from '../../assets/images/double_down.svg';
+import doubleUp from '../../assets/images/double_up.svg';
+import { Button, TextButton } from '../Button';
 import { Form } from '../Field';
-import { Colors } from '../../constants';
+import { Colors, FORM_TYPES } from '../../constants';
 
 const Container = styled.div`
-  border-bottom: 1px solid ${Colors.outline};
+  border: 1px solid ${Colors.outline};
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   background: ${Colors.white};
-  padding: 16px 30px 28px;
-`;
-
-const SmallContainer = styled(Container)`
+  padding: 16px 25px 10px;
   font-size: 11px;
-  .MuiInputBase-input {
+
+  .MuiInputBase-input,
+  .MuiFormControlLabel-label {
     font-size: 11px;
   }
+
+  .MuiButtonBase-root {
+    font-size: 14px;
+  }
+
   .label-field {
     font-size: 11px;
   }
@@ -27,58 +36,96 @@ const SmallContainer = styled(Container)`
   }
 `;
 
-const SectionLabel = styled.div`
-  font-size: 16px;
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
-  margin-bottom: 10px;
-  letter-spacing: 0;
+const CustomisableSearchBarGrid = styled.div`
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 2fr);
+  gap: 10px;
+  margin-bottom: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(4, 2fr);
+  }
 `;
 
-const SearchInputContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 2fr);
-  gap: 9px;
+const ActionsContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  margin-left: 8px;
+`;
+
+const SearchButton = styled(Button)`
+  margin-right: 20px;
+  margin-left: 6px;
+`;
+
+const ClearButton = styled(TextButton)`
+  text-decoration: underline;
 `;
 
 export const CustomisableSearchBar = ({
-  title,
   onSearch,
   children,
-  renderCheckField,
-  variant = 'normal',
+  showExpandButton = false,
+  isExpanded,
+  setIsExpanded,
   initialValues = {},
+  staticValues = {},
+  hiddenFields,
 }) => {
-  const ParentContainer = variant === 'small' ? SmallContainer : Container;
+  const switchExpandValue = useCallback(() => {
+    setIsExpanded(previous => {
+      setIsExpanded(!previous);
+    });
+  }, [setIsExpanded]);
+
+  const handleSubmit = values => {
+    onSearch({ ...values, ...staticValues });
+  };
 
   return (
-    <ParentContainer>
-      <SectionLabel>{title}</SectionLabel>
-      <Form
-        onSubmit={onSearch}
-        render={({ submitForm, clearForm }) => (
-          <>
-            <SearchInputContainer>{children}</SearchInputContainer>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              style={{ marginTop: 20 }}
-            >
-              {renderCheckField}
-              <Box marginLeft="auto">
-                <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
-                  Clear search
-                </LargeOutlineButton>
-                <LargeButton onClick={submitForm} type="submit">
-                  Search
-                </LargeButton>
-              </Box>
-            </Box>
-          </>
-        )}
-        initialValues={initialValues}
-      />
-    </ParentContainer>
+    <Form
+      onSubmit={handleSubmit}
+      render={({ clearForm, values }) => (
+        <Container>
+          <CustomisableSearchBarGrid>
+            {children}
+            <ActionsContainer>
+              {showExpandButton && (
+                <IconButton
+                  onClick={() => {
+                    switchExpandValue();
+                  }}
+                  color="primary"
+                >
+                  <img
+                    src={isExpanded ? doubleUp : doubleDown}
+                    alt={`${isExpanded ? 'hide' : 'show'} advanced filters`}
+                  />
+                </IconButton>
+              )}
+              <SearchButton type="submit">Search</SearchButton>
+              <ClearButton
+                onClick={() => {
+                  // Cant check for dirty as form is reinitialized with persisted values
+                  if (Object.keys(values).length === 0) return;
+                  onSearch({});
+                  // ClearForm needed to be deferred in order ensure that it re-initializes to an empty
+                  // state rather than the previous state
+                  setTimeout(() => clearForm(), 0);
+                }}
+              >
+                Clear
+              </ClearButton>
+            </ActionsContainer>
+          </CustomisableSearchBarGrid>
+          {isExpanded && <CustomisableSearchBarGrid>{hiddenFields}</CustomisableSearchBarGrid>}
+        </Container>
+      )}
+      initialValues={initialValues}
+      enableReinitialize
+      formType={FORM_TYPES.SEARCH_FORM}
+    />
   );
 };

@@ -1,7 +1,4 @@
-import { last } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
-
-import { FHIR_ISSUE_SEVERITY, FHIR_ISSUE_TYPE } from 'shared/constants';
+import { FHIR_ISSUE_SEVERITY, FHIR_ISSUE_TYPE } from '../../constants/fhir';
 
 export class FhirError extends Error {
   constructor(
@@ -56,7 +53,17 @@ export class Invalid extends FhirError {
   }
 }
 
-export class Unsupported extends FhirError {
+export class Processing extends FhirError {
+  constructor(message, options = {}) {
+    super(message, {
+      status: 500,
+      code: FHIR_ISSUE_TYPE.PROCESSING._,
+      ...options,
+    });
+  }
+}
+
+export class Unsupported extends Processing {
   constructor(message, options = {}) {
     super(message, {
       status: 501,
@@ -66,7 +73,7 @@ export class Unsupported extends FhirError {
   }
 }
 
-export class NotFound extends FhirError {
+export class NotFound extends Processing {
   constructor(message, options = {}) {
     super(message, {
       status: 404,
@@ -76,64 +83,12 @@ export class NotFound extends FhirError {
   }
 }
 
-export class Deleted extends FhirError {
+export class Deleted extends Processing {
   constructor(message, options = {}) {
     super(message, {
       status: 410,
       code: FHIR_ISSUE_TYPE.PROCESSING.NOT_FOUND.DELETED,
       ...options,
     });
-  }
-}
-
-export class OperationOutcome extends Error {
-  constructor(errors) {
-    super('OperationOutcome: one or more errors (THIS SHOULD NEVER BE SEEN)');
-    this.errors = errors.flatMap(err => {
-      if (err instanceof OperationOutcome) {
-        return err.errors;
-      }
-
-      if (err instanceof FhirError) {
-        return [err];
-      }
-
-      return [
-        new FhirError(err.toString(), {
-          diagnostics: err.stack,
-        }),
-      ];
-    });
-  }
-
-  status() {
-    const codes = this.errors.map(err => err.status);
-    codes.sort();
-    return last(codes);
-  }
-
-  asFhir() {
-    return {
-      resourceType: 'OperationOutcome',
-      id: uuidv4(),
-      issue: this.errors.map(err => err.asFhir()),
-    };
-  }
-
-  static fromYupError(validationError /*: ValidationError */, pathPrefix = undefined) {
-    const errors = [];
-    if (validationError.inner.length > 0) {
-      for (const error of validationError.inner) {
-        errors.push(
-          new Invalid(error.message, {
-            expression: [pathPrefix, error.path].filter(x => x).join('.') || undefined,
-          }),
-        );
-      }
-    } else {
-      errors.push(new Invalid(validationError.message, { expression: pathPrefix }));
-    }
-
-    return new this(errors);
   }
 }

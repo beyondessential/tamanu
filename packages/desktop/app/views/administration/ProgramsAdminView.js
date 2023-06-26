@@ -1,6 +1,6 @@
 import React from 'react';
-import { ImporterView } from './components/ImporterView';
+import { ImportExportView } from './components/ImportExportView';
 
 export const ProgramsAdminView = () => (
-  <ImporterView title="Import programs/surveys" endpoint="admin/importProgram" />
+  <ImportExportView title="Programs (aka surveys)" endpoint="program" disableExport /> // TODO: when export is supported in TAN-2029, remove disableExport support everywhere
 );

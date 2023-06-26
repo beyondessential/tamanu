@@ -1,17 +1,16 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useMemo } from 'react';
 import { startCase, sum } from 'lodash';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { useApi } from '../../../api';
-import { ContentPane } from '../../../components';
-import { Form, Field, CheckField } from '../../../components/Field';
+import { Form, Field } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
-import { CheckArrayInput } from '../../../components/Field/CheckArrayInput';
+import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
-import { Button } from '../../../components/Button';
 import { Table } from '../../../components/Table';
+import { LargeButton, LargeOutlineButton } from '../../../components/Button';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -54,9 +53,8 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const UploadForm = ({ isSubmitting, whitelist }) => (
+const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
-    <Field component={CheckField} label="Test run" name="dryRun" required />
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
@@ -64,18 +62,33 @@ const UploadForm = ({ isSubmitting, whitelist }) => (
       name="file"
       required
     />
-    {whitelist && (
+    {dataTypes && dataTypesSelectable && (
       <Field
-        name="whitelist"
-        label="Only import some (select none to import everything)"
-        component={CheckArrayInput}
-        options={whitelist.map(value => ({ value, label: startCase(value) }))}
+        name="includedDataTypes"
+        label="Select data types to import"
+        component={ExpandedMultiSelectField}
+        options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
     <ButtonRow>
-      <Button disabled={isSubmitting} type="submit">
-        Import data
-      </Button>
+      <LargeOutlineButton
+        disabled={isSubmitting}
+        size="large"
+        onClick={event => {
+          submitForm(event, { dryRun: true });
+        }}
+      >
+        Test import
+      </LargeOutlineButton>
+      <LargeButton
+        disabled={isSubmitting}
+        size="large"
+        onClick={event => {
+          submitForm(event);
+        }}
+      >
+        Import
+      </LargeButton>
     </ButtonRow>
   </FormGrid>
 );
@@ -135,7 +148,7 @@ const OutcomeDisplay = ({ result }) => {
   );
 };
 
-export const ImporterView = memo(({ title, endpoint, whitelist }) => {
+export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, setIsLoading }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
 
@@ -143,39 +156,59 @@ export const ImporterView = memo(({ title, endpoint, whitelist }) => {
 
   const onSubmitUpload = useCallback(
     async ({ file, ...data }) => {
-      const intermediateResult = await api.postWithFileUpload(endpoint, file, data);
+      setResult(null);
+      setIsLoading(true);
+      try {
+        const intermediateResult = await api.postWithFileUpload(
+          `admin/import/${endpoint}`,
+          file,
+          data,
+        );
 
-      if (intermediateResult.sentData) {
-        // reset the form
-        setResetKey(Math.random());
+        if (intermediateResult.sentData) {
+          // reset the form
+          setResetKey(Math.random());
+        }
+
+        setResult(intermediateResult);
+        return true;
+      } finally {
+        setIsLoading(false);
       }
-
-      setResult(intermediateResult);
-      return true;
     },
-    [api, endpoint],
+    [api, endpoint, setIsLoading],
   );
 
-  const renderForm = useCallback(props => <UploadForm whitelist={whitelist} {...props} />, [
-    whitelist,
-  ]);
+  const renderForm = useCallback(
+    props => (
+      <ImportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
+    ),
+    [dataTypes, dataTypesSelectable],
+  );
+
+  const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
 
   return (
-    <ContentPane>
-      <h1>{title}</h1>
+    <>
       <Form
         key={resetKey}
         onSubmit={onSubmitUpload}
         validationSchema={yup.object().shape({
-          dryRun: yup.bool(),
-          file: yup.string(),
+          includedDataTypes: dataTypesSelectable
+            ? yup
+                .array()
+                .of(yup.string())
+                .required()
+                .min(1)
+            : undefined,
+          file: yup.string().required(),
         })}
         initialValues={{
-          dryRun: true,
+          includedDataTypes: initialDataTypes,
         }}
         render={renderForm}
       />
       <OutcomeDisplay result={result} />
-    </ContentPane>
+    </>
   );
 });

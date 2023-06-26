@@ -57,7 +57,7 @@ export * from './ReportDefinition';
 export * from './ReportDefinitionVersion';
 export * from './PatientCarePlan';
 
-export * from './Setting';
+export { Setting } from './Setting';
 export * from './PatientCommunication';
 
 export * from './Facility';
@@ -92,4 +92,3 @@ export * from './NoteItem';
 export * from './SyncSession';
 
 export * from './fhir';
-export * from './FhirMaterialiseJob';
