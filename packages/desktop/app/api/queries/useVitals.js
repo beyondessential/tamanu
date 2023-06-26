@@ -4,12 +4,12 @@ import { useApi, isErrorUnknownAllow404s } from '../index';
 import { useVitalsSurvey } from './useVitalsSurvey';
 import { getConfigObject } from '../../utils';
 
-export const useVitals = (encounterId, startDate, endDate) => {
+export const useVitals = encounterId => {
   const api = useApi();
-  const vitalsQuery = useQuery(['encounterVitals', encounterId, startDate, endDate], () =>
+  const vitalsQuery = useQuery(['encounterVitals', encounterId], () =>
     api.get(
       `encounter/${encounterId}/vitals`,
-      { rowsPerPage: 50, startDate, endDate },
+      { rowsPerPage: 50 },
       { isErrorUnknown: isErrorUnknownAllow404s },
     ),
   );
