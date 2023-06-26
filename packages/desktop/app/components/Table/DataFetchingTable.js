@@ -83,6 +83,15 @@ export const DataFetchingTable = memo(
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
       })();
+
+      const tableAutorefresh = setInterval(() => {
+        refreshTable();
+      }, 1 * 10 * 1000); // 5 minutes in milliseconds
+
+      return () => {
+        clearInterval(tableAutorefresh);
+      };
+
       // Needed to compare fetchOptions as a string instead of an object
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
