@@ -2,13 +2,7 @@ import React, { useContext, createContext, useState } from 'react';
 
 const PatientSearchParametersContext = createContext({});
 
-export const usePatientSearchParametersContext = () => {
-  const { labResultParameters, setLabResultParameters } = useContext(
-    PatientSearchParametersContext,
-  );
-
-  return { labResultParameters, setLabResultParameters };
-};
+export const usePatientSearchParameters = () => useContext(PatientSearchParametersContext);
 
 export const PatientSearchParametersProvider = ({ children }) => {
   const [labResultParameters, setLabResultParameters] = useState({});
