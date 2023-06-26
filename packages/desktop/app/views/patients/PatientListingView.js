@@ -48,7 +48,6 @@ const LISTING_COLUMNS = [
 const location = {
   key: 'locationName',
   title: 'Location',
-  minWidth: 100,
   accessor: LocationCell,
 };
 
