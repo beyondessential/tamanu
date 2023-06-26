@@ -68,7 +68,7 @@ const columns = sex => [
   },
   {
     title: 'Units',
-    key: 'unit',
+    key: 'labTestType.unit',
     accessor: ({ labTestType }) => labTestType?.unit || '',
   },
   {
