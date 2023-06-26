@@ -1,27 +1,27 @@
 import React, { useState, useContext } from 'react';
 import { addDays, format } from 'date-fns';
-import { useEncounter } from './Encounter';
-import { useVitalQuery } from '../api/queries/useVitalQuery';
+
 import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
 import { useVitalsSurvey } from '../api/queries/useVitalsSurvey';
 
 export const VitalChartDataContext = React.createContext({
-  chartData: [],
   visualisationConfigs: [],
   vitalChartModalOpen: false,
   setVitalChartModalOpen: () => {},
-  chartKey: 'vital-chart',
+  setChartKeys: () => {},
+  chartKeys: ['vital-chart'],
   modalTitle: 'Vital Chart',
   setModalTitle: () => {},
-  setChartKey: () => {},
   setStartDate: () => {},
   setEndDate: () => {},
+  startDate: '',
+  endDate: '',
 });
 
 export const useVitalChartData = () => useContext(VitalChartDataContext);
 
 export const VitalChartDataProvider = ({ children }) => {
-  const [chartKey, setChartKey] = useState(null);
+  const [chartKeys, setChartKeys] = useState([]);
   const [modalTitle, setModalTitle] = useState(null);
   const [startDate, setStartDate] = useState(format(addDays(new Date(), -1), DATE_TIME_FORMAT));
   const [endDate, setEndDate] = useState(format(new Date(), DATE_TIME_FORMAT));
@@ -34,19 +34,17 @@ export const VitalChartDataProvider = ({ children }) => {
   return (
     <VitalChartDataContext.Provider
       value={{
-        chartData,
         visualisationConfigs,
         vitalChartModalOpen,
         setVitalChartModalOpen,
-        chartKey,
-        setChartKey,
+        chartKeys,
+        setChartKeys,
         modalTitle,
         setModalTitle,
         setStartDate,
         setEndDate,
         startDate,
         endDate,
-        isLoading,
       }}
     >
       {children}

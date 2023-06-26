@@ -6,7 +6,12 @@ import { useVitalChartData } from '../contexts/VitalChartData';
 import { VitalChartView } from '../views/VitalChartView';
 
 export const VitalChartsModal = React.memo(() => {
-  const { vitalChartModalOpen, setVitalChartModalOpen, modalTitle } = useVitalChartData();
+  const {
+    vitalChartModalOpen,
+    setVitalChartModalOpen,
+    modalTitle,
+    chartKeys,
+  } = useVitalChartData();
 
   return (
     <Modal
@@ -18,7 +23,9 @@ export const VitalChartsModal = React.memo(() => {
         setVitalChartModalOpen(false);
       }}
     >
-      <VitalChartView />
+      {chartKeys.map(chartKey => (
+        <VitalChartView chartKey={chartKey} key={chartKey} />
+      ))}
     </Modal>
   );
 });
