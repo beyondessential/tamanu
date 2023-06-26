@@ -5,7 +5,7 @@ const COLUMN_NAME = 'visualisation_config';
 
 export async function up(query) {
   await query.addColumn(TABLE_NAME, COLUMN_NAME, {
-    type: DataTypes.CHAR(255),
+    type: DataTypes.TEXT,
   });
 }
 
