@@ -64,6 +64,7 @@ export const DataFetchingTable = memo(
               showUnknownErrorToast: false,
             },
           );
+          console.log(count)
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
@@ -128,6 +129,10 @@ export const DataFetchingTable = memo(
         orderBy={orderBy}
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         refreshTable={refreshTable}
+        rowStyle={(row) => {
+          console.log('hello', row)
+          return 'background-color: red;'
+        }}
         {...props}
       />
     );
