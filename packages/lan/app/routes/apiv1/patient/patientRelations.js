@@ -325,9 +325,9 @@ patientRelations.get(
       WHERE
         patient_id = :patientId
     )
-  AND lab_requests.status = '${status}'
+  AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
-  ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
+  ${categoryId ? `AND lab_requests.lab_test_category_id = :categoryId` : ''}
   ${
     panelId
       ? `AND lab_test_type_id IN (
@@ -335,7 +335,7 @@ patientRelations.get(
          FROM
            lab_test_panel_lab_test_types
          WHERE
-           lab_test_panel_id = '${panelId}'
+           lab_test_panel_id = :panelId
        )`
       : ''
   }
@@ -344,7 +344,7 @@ patientRelations.get(
   ORDER BY
     test_category`,
       {
-        replacements: { patientId: params.id },
+        replacements: { patientId: params.id, status, categoryId, panelId },
         model: LabTest,
         type: QueryTypes.SELECT,
         mapToModel: true,
