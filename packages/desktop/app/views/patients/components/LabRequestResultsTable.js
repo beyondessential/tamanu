@@ -67,7 +67,12 @@ const columns = sex => [
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
   {
-    title: 'Clinical range',
+    title: 'Units',
+    key: 'labTestType.unit',
+    accessor: ({ labTestType }) => labTestType?.unit || '',
+  },
+  {
+    title: 'Reference',
     key: 'reference',
     accessor: makeRangeStringAccessor(sex),
     sortable: false,
