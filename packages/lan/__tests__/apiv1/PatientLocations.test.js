@@ -1,6 +1,6 @@
 import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
@@ -26,6 +26,9 @@ describe('PatientLocations', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    await models.Location.truncate({
+      cascade: true,
+    });
     patient = await models.Patient.create(await createDummyPatient(models));
     locations = await models.Location.bulkCreate([
       generateFakeLocation(models.Location),
@@ -109,7 +112,8 @@ describe('PatientLocations', () => {
     );
 
     const patient2 = await models.Patient.create(await createDummyPatient(models));
-    const outpatientEncounter = await models.Encounter.create({
+    // Outpatient encounter
+    await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient2.id,
       encounterType: 'clinic',
@@ -139,7 +143,8 @@ describe('PatientLocations', () => {
     await encounter.update({
       endDate: new Date(),
     });
-    const outpatientEncounter = await models.Encounter.create({
+    // Outpatient encounter
+    await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
       encounterType: 'admission',
@@ -160,7 +165,8 @@ describe('PatientLocations', () => {
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
     const patient2 = await models.Patient.create(await createDummyPatient(models));
-    const twoDayEncounter = await models.Encounter.create({
+    // Two day encounter
+    await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient2.id,
       locationId: maxOneOccupancyLocations[1].id,
@@ -177,7 +183,8 @@ describe('PatientLocations', () => {
     fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
 
     const patient3 = await models.Patient.create(await createDummyPatient(models));
-    const fourDayEncounter = await models.Encounter.create({
+    // Four day encounter
+    await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient3.id,
       locationId: maxOneOccupancyLocations[2].id,
@@ -192,8 +199,6 @@ describe('PatientLocations', () => {
   });
 
   it('should return correct bed management table values', async () => {
-    let data, count;
-
     const oneEncounterBedManagementResponse = await app.get('/v1/patient/locations/bedManagement');
     expect(oneEncounterBedManagementResponse).toHaveSucceeded();
     expect(oneEncounterBedManagementResponse.body.count).toEqual(locations.length);
@@ -218,7 +223,8 @@ describe('PatientLocations', () => {
 
     const threeDaysAgo = new Date();
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-    const olderEncounter = await models.Encounter.create({
+    // Older encounter
+    await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
       encounterType: 'admission',
@@ -246,7 +252,8 @@ describe('PatientLocations', () => {
     });
 
     const patient2 = await models.Patient.create(await createDummyPatient(models));
-    const sameLocationOpenEncounter = await models.Encounter.create({
+    // Same location open encounter
+    await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient2.id,
       encounterType: 'admission',
@@ -278,6 +285,29 @@ describe('PatientLocations', () => {
       patientFirstName: patient2.firstName,
       patientLastName: patient2.lastName,
       status: LOCATION_AVAILABILITY_STATUS.RESERVED,
+    });
+  });
+
+  it('should hide historical and merged locations', async () => {
+    // Arrange
+    const { Location } = models;
+    const createdLocations = await Location.bulkCreate(
+      Object.values(VISIBILITY_STATUSES).map(visibilityStatus =>
+        fake(Location, { visibilityStatus, facilityId: config.serverFacilityId }),
+      ),
+    );
+    const locationIds = createdLocations.map(l => l.id);
+
+    // Act
+    const response = await app.get('/v1/patient/locations/bedManagement');
+
+    // Assert
+    expect(response).toHaveSucceeded();
+    expect(response.body?.data).toBeInstanceOf(Array);
+    const ourLocations = response.body.data.filter(datum => locationIds.includes(datum.locationId));
+    expect(ourLocations).toHaveLength(1);
+    expect(ourLocations[0]).toMatchObject({
+      locationId: createdLocations.find(l => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT).id,
     });
   });
 });

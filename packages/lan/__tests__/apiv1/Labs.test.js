@@ -1,8 +1,17 @@
-import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import {
+  LAB_TEST_STATUSES,
+  LAB_REQUEST_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+} from '@tamanu/shared/constants';
 import config from 'config';
 import Chance from 'chance';
-import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  randomLabRequest,
+} from '@tamanu/shared/demoData';
 import { fake } from 'shared/test-helpers/fake';
+import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -41,32 +50,68 @@ describe('Labs', () => {
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
     expect(createdRequest).toBeTruthy();
-    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
 
     const createdTests = await models.LabTest.findAll({
       where: { labRequestId: createdRequest.id },
     });
     expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
   });
 
   it('should record a lab request with a Lab Test Panel', async () => {
-    const LabTestPanel = await models.LabTestPanel.create({
+    const labTestPanel = await models.LabTestPanel.create({
       name: 'Demo test panel',
       code: 'demo-test-panel',
     });
+
+    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId,
     });
 
-    const labRequest = await randomLabRequest(models, {
-      patientId,
-      labTestPanelId: LabTestPanel.id,
-    });
     const response = await app
       .post('/v1/labRequest')
-      .send({ ...labRequest, encounterId: encounter.id });
+      .send({ panelIds: [labTestPanel.id], encounterId: encounter.id });
+
+    expect(response).toHaveSucceeded();
+
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
+    expect(createdRequest).toBeTruthy();
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+
+    const createdTests = await models.LabTest.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdTests).toHaveLength(labTestTypes.length);
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+  });
+
+  it('should record samples for panels', async () => {
+    const labTestPanel = await models.LabTestPanel.create({
+      name: 'Demo test panel',
+      code: 'demo-test-panel',
+    });
+    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const sampleTime = '2023-06-09 00:00:00';
+    const sampleDetails = {
+      [labTestPanel.id]: {
+        sampleTime,
+      },
+    };
+    const response = await app.post('/v1/labRequest').send({
+      panelIds: [labTestPanel.id],
+      encounterId: encounter.id,
+      sampleDetails,
+    });
     expect(response).toHaveSucceeded();
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
@@ -76,8 +121,12 @@ describe('Labs', () => {
     const createdTests = await models.LabTest.findAll({
       where: { labRequestId: createdRequest.id },
     });
-    expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+    expect(createdTests).toHaveLength(labTestTypes.length);
+    expect(
+      createdTests.every(
+        x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
+      ),
+    );
   });
 
   it('should not record a lab request with an invalid testTypeId', async () => {
@@ -156,6 +205,38 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
+  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly"', async () => {
+    const makeLabTestType = async visibilityStatus => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const { id } = category;
+
+      await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        visibilityStatus,
+        labTestCategoryId: id,
+      });
+    };
+
+    await models.LabTestType.truncate({ cascade: true });
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+
+    const result = await app.get('/v1/labTestType');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    expect(body.length).toBe(3);
+    body.forEach(labTestType => {
+      expect(labTestType.visibilityStatus).not.toBe('panelsOnly');
+    });
+  });
+
   describe('Filtering by allFacilities', () => {
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
@@ -207,3 +288,15 @@ describe('Labs', () => {
     });
   });
 });
+async function createTestTypesForPanel(models, labTestPanel) {
+  const labTestTypes = await createLabTestTypes(models);
+  await Promise.all(
+    labTestTypes.map(ltt =>
+      models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: labTestPanel.id,
+        labTestTypeId: ltt.id,
+      }),
+    ),
+  );
+  return labTestTypes;
+}

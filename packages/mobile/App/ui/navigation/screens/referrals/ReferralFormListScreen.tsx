@@ -17,7 +17,9 @@ export const ReferralFormListScreen = (): ReactElement => {
 
   const [surveys, error] = useBackendEffect(({ models }) =>
     models.Survey.find({
-      surveyType: SurveyTypes.Referral,
+      where: {
+        surveyType: SurveyTypes.Referral,
+      },
       order: {
         name: 'ASC',
       },

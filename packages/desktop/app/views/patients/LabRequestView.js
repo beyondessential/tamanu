@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
@@ -17,7 +17,6 @@ import {
   DateDisplay,
   OutlinedButton,
   TileTag,
-  SmallBodyText,
   MODAL_TRANSITION_DURATION,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -34,6 +33,7 @@ import { LabRequestRecordSampleModal } from './components/LabRequestRecordSample
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   padding: 12px 30px;
@@ -135,6 +135,13 @@ export const LabRequestView = () => {
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
+  const actions =
+    labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
+      : {
+          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+        };
 
   return (
     <Container>
@@ -188,25 +195,14 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           main={
             <>
-              <DateDisplay date={labRequest.sampleTime} showTime />
-              <Box display="flex" alignItem="center">
-                <SmallBodyText style={{ marginRight: 3 }} color="textTertiary">
-                  Site:
-                </SmallBodyText>
-                <SmallBodyText>{labRequest?.site?.name || '-'}</SmallBodyText>
-              </Box>
+              <DateDisplay
+                color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                date={labRequest.sampleTime}
+                showTime
+              />
             </>
           }
-          actions={{
-            'View details': () => {
-              handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS);
-            },
-            [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-              ? 'Record sample'
-              : 'Edit']: () => {
-              handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
-            },
-          }}
+          actions={actions}
         />
         <Tile
           Icon={Business}

@@ -1,0 +1,20 @@
+name: Check label
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - labeled
+      - unlabeled
+
+jobs:
+  merge-paused:
+    name: Merge paused
+    runs-on: ubuntu-latest
+    steps:
+    # fail if the merge paused label is present
+    - if: "contains(github.event.pull_request.labels.*.name, 'merge paused')"
+      run: exit 1
+    # else
+    - run: exit 0

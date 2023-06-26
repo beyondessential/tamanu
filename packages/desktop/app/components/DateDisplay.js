@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { remote } from 'electron';
 import { format } from 'date-fns';
-import { parseDate } from 'shared/utils/dateTime';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { Typography, Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
@@ -135,6 +135,7 @@ export const DateDisplay = React.memo(
     showExplicitDate = false,
     shortYear = false,
     timeOnlyTooltip = false,
+    color = 'unset',
   }) => {
     const dateObj = parseDate(dateValue);
 
@@ -158,7 +159,7 @@ export const DateDisplay = React.memo(
 
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
-        <span>{parts.join(' ')}</span>
+        <span style={{ color }}>{parts.join(' ')}</span>
       </DateTooltip>
     );
   },

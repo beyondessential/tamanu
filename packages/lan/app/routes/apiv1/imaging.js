@@ -1,8 +1,8 @@
 import express from 'express';
 import config from 'config';
 import asyncHandler from 'express-async-handler';
-import { startOfDay, endOfDay } from 'date-fns';
-import { Op } from 'sequelize';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import { Op, literal } from 'sequelize';
 import {
   NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -61,14 +61,6 @@ const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
     [Op.iLike]: `${value}%`,
   },
 });
-
-const dateFilter = (fieldName, operator, value) => {
-  return {
-    [fieldName]: {
-      [operator]: toDateString(new Date(value)),
-    },
-  };
-};
 
 export const imagingRequest = express.Router();
 
@@ -303,6 +295,10 @@ globalImagingRequests.get(
     const { models, query } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const nullPosition =
+      orderBy === 'completedAt' && (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
@@ -311,13 +307,6 @@ globalImagingRequests.get(
 
     const encounterFilters = mapQueryFilters(filterParams, [
       { key: 'departmentId', operator: Op.eq },
-    ]);
-    const resultFilters = mapQueryFilters(filterParams, [
-      {
-        key: 'completedAt',
-        operator: Op.startsWith,
-        mapFn: dateFilter,
-      },
     ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
@@ -356,13 +345,6 @@ globalImagingRequests.get(
     const requestedBy = {
       association: 'requestedBy',
     };
-    const areas = {
-      association: 'areas',
-      through: {
-        // Don't include attributes on through table
-        attributes: [],
-      },
-    };
     const patient = {
       association: 'patient',
       where: patientFilters,
@@ -388,18 +370,34 @@ globalImagingRequests.get(
       attributes: ['id', 'departmentId'],
       required: true,
     };
-    const results = {
-      association: 'results',
-      where: resultFilters,
-      required:
-        query.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && !!filterParams.completedAt,
-    };
+
+    const imagingResultFilters = {};
+    const replacements = {};
+
+    // Sequelize does not support FROM sub query, only sub query as field
+    // and alias cannot be used in where clause. So to filter by MAX(imaging_results.completed_at),
+    // the sub query has to be duplicated in the where clause as well in the select part.
+    if (filterParams.completedAt) {
+      imagingResultFilters.id = {
+        [Op.in]: literal(
+          `(
+            SELECT imaging_request_id FROM (SELECT imaging_request_id, MAX(completed_at)
+            FROM imaging_results
+            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
+            GROUP BY imaging_request_id
+            HAVING MAX(completed_at) LIKE :completedAtFilterDate) AS max_completed_at
+          )`,
+        ),
+      };
+      replacements.completedAtFilterDate = `${toDateString(parseISO(filterParams.completedAt))}%`;
+    }
 
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: {
         [Op.and]: {
           ...imagingRequestFilters,
+          ...imagingResultFilters,
           status: {
             [Op.notIn]: [
               IMAGING_REQUEST_STATUS_TYPES.DELETED,
@@ -409,12 +407,29 @@ globalImagingRequests.get(
           },
         },
       },
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
-      include: [requestedBy, encounter, areas, results],
+      order: orderBy
+        ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
+        : undefined,
+      include: [requestedBy, encounter],
+      attributes: {
+        include: [
+          // Aggregate results into a new field using a literal subquery. This avoids Sequelize
+          // including an entry for each ImagingRequest per result & messing up the pagination
+          [
+            literal(`(
+            SELECT MAX(completed_at)
+            FROM imaging_results
+            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
+          )`),
+            'completedAt',
+          ],
+        ],
+      },
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
       subQuery: false,
+      replacements,
     });
 
     // Extract and normalize data calling a base model method

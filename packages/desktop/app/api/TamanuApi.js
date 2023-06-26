@@ -2,9 +2,9 @@ import { promises } from 'fs';
 import qs from 'qs';
 import { ipcRenderer } from 'electron';
 
-import { buildAbilityForUser } from 'shared/permissions/buildAbility';
-import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
-import { ForbiddenError } from 'shared/errors';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/shared/constants';
+import { ForbiddenError } from '@tamanu/shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 

@@ -93,7 +93,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 />
                 <StyledView
                   marginTop={screenPercentageToDP(2.105, Orientation.Height)}
-                  height={screenPercentageToDP(21.87, Orientation.Height)}
                   justifyContent="space-between"
                 >
                   <SectionHeader h3 marginBottom={screenPercentageToDP(2.105, Orientation.Height)}>
@@ -109,7 +108,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   />
                 </StyledView>
                 <StyledView
-                  marginTop={screenPercentageToDP(16.42, Orientation.Height)}
                   marginBottom={screenPercentageToDP(0.605, Orientation.Height)}
                 >
                   <SectionHeader h3>Prescription notes</SectionHeader>
@@ -117,6 +115,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 <Field component={TextField} name="note" multiline />
                 <Button
                   marginTop={screenPercentageToDP(1.22, Orientation.Height)}
+                  marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
                   backgroundColor={theme.colors.PRIMARY_MAIN}
                   onPress={handleSubmit}
                   buttonText="Submit"

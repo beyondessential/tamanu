@@ -123,13 +123,11 @@ describe(`Materialised FHIR - Immunization`, () => {
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
-      expect(response.headers['last-modified']).toBe(
-        formatRFC7231(new Date(administeredVaccine.updatedAt)),
-      );
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response.body).toMatchObject({
         resourceType: 'Immunization',
         meta: {
-          lastUpdated: formatFhirDate(administeredVaccine.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         status: 'completed',
         vaccineCode: {
@@ -181,13 +179,11 @@ describe(`Materialised FHIR - Immunization`, () => {
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
-      expect(response.headers['last-modified']).toBe(
-        formatRFC7231(new Date(administeredVaccine.updatedAt)),
-      );
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response.body).toMatchObject({
         resourceType: 'Immunization',
         meta: {
-          lastUpdated: formatFhirDate(administeredVaccine.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         status: 'completed',
         performer: [],

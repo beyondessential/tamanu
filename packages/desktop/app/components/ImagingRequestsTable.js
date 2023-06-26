@@ -2,7 +2,10 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import {
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+} from '@tamanu/shared/constants';
 import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -28,9 +31,7 @@ const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter
 const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
-const getCompletedDate = ({ results }) => (
-  <DateDisplay date={results[0]?.completedAt} timeOnlyTooltip />
-);
+const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
 
 export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) => {
   const dispatch = useDispatch();
@@ -56,7 +57,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
     ...(status
       ? [
           {
-            key: 'results.completedAt',
+            key: 'completedAt',
             title: 'Completed',
             accessor: getCompletedDate,
           },
@@ -66,7 +67,12 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
   ];
 
   const globalColumns = [
-    { key: 'encounter.patient.displayId', title: 'NHN', accessor: getPatientDisplayId },
+    {
+      key: 'encounter.patient.displayId',
+      title: 'NHN',
+      accessor: getPatientDisplayId,
+      sortable: false,
+    },
     { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
     ...encounterColumns,
   ];
@@ -91,15 +97,20 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
     [loadEncounter, dispatch, params.patientId, params.category, encounterId],
   );
 
+  const globalImagingRequestsFetchOptions = { ...searchParameters, ...statusFilter };
+
   return (
     <SearchTable
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"
       onRowClick={selectImagingRequest}
-      fetchOptions={{ ...searchParameters, ...statusFilter }}
+      fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
       elevated={false}
-      initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+      initialSort={{
+        order: 'desc',
+        orderBy: completedStatus ? 'completedAt' : 'requestedDate',
+      }}
     />
   );
 });

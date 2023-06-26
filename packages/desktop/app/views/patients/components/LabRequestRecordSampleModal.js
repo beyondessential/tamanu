@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
 import styled from 'styled-components';
 import {
   FormGrid,
@@ -77,6 +77,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
             name="sampleTime"
             label="Data & time collected"
             required
+            saveDateAsString
             component={StyledDateTimeField}
           />
           <StyledField

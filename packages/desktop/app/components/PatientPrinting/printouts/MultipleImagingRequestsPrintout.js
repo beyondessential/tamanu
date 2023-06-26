@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/shared/constants';
 
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';

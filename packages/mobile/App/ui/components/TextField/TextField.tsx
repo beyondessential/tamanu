@@ -74,13 +74,6 @@ export const TextField = React.memo(
     const [focused, setFocus] = useState(false);
     const defaultRef: RefObject<any> = useRef(null);
     const ref = inputRef || defaultRef;
-    const onFocusLabel = useCallback((): void => {
-      if (!focused && ref.current) {
-        ref.current.focus();
-      } else if (focused && ref.current) {
-        ref.current.blur();
-      }
-    }, [focused, inputRef]);
     const onFocusInput = useCallback((): void => {
       if (onFocus) onFocus();
       setFocus(true);
@@ -114,10 +107,6 @@ export const TextField = React.memo(
         <InputContainer>
           {!!label && (
             <TextFieldLabel
-              error={error}
-              focus={focused}
-              onFocus={onFocusLabel}
-              isValueEmpty={value !== ''}
               labelColor={labelColor}
               labelFontSize={labelFontSize}
             >

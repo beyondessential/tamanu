@@ -1,14 +1,13 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
-import Select from 'react-select';
 import styled from 'styled-components';
-import { format, getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
-import Checkbox from '@material-ui/core/Checkbox';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
+
+import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { Colors } from '../constants';
 import { useApi } from '../api';
-
 import { foreignKey } from '../utils/validation';
 
 import {
@@ -20,6 +19,8 @@ import {
   StyledTextField,
   LocalisedField,
   useLocalisedSchema,
+  CheckControl,
+  SelectField,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
@@ -89,23 +90,6 @@ const ProcedureList = React.memo(({ procedures }) => (
   </StyledUnorderedList>
 ));
 
-const SelectFieldWithoutLabel = ({ field, form, options, ...props }) => {
-  const handleChange = option => form.setFieldValue(field.name, option.value);
-
-  return (
-    <Select
-      name={field.name}
-      value={options.find(option => option.value === field.value)}
-      onChange={handleChange}
-      options={options}
-      menuPlacement="auto"
-      menuPosition="fixed"
-      menuShouldBlockScroll="true"
-      {...props}
-    />
-  );
-};
-
 const NumberFieldWithoutLabel = ({ field, ...props }) => (
   <StyledTextField
     name={field.name}
@@ -120,7 +104,7 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
 const StyledFlexDiv = styled.div`
   display: flex;
 `;
-const StyledCheckbox = styled(Checkbox)`
+const StyledCheckbox = styled(CheckControl)`
   font-size: 16px;
 `;
 const StyledTextSpan = styled.span`
@@ -135,11 +119,8 @@ alongside the checkbox with different stylings.
 const CustomCheckField = ({ field, lineOne, lineTwo }) => (
   <StyledFlexDiv>
     <StyledCheckbox
-      icon={<i className="far fa-square" />}
-      checkedIcon={<i className="far fa-check-square" />}
       color="primary"
-      value="checked"
-      checked={field.value || false}
+      value={field.value}
       name={field.name}
       onChange={field.onChange}
     />
@@ -165,7 +146,8 @@ const QuantityAccessor = ({ id }) => (
 const RepeatsAccessor = ({ id }) => (
   <Field
     name={`medications.${id}.repeats`}
-    component={SelectFieldWithoutLabel}
+    isClearable={false}
+    component={SelectField}
     options={REPEATS_OPTIONS}
   />
 );
