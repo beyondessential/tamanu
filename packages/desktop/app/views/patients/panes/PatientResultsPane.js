@@ -7,7 +7,7 @@ import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTestResults';
 import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { usePatientLabResultsContext } from '../../../contexts/PatientLabResults';
+import { usePatientSearchParametersContext } from '../../../contexts/PatientViewSearchParameters';
 
 const NoResultContainer = styled.div`
   padding: 30px;
@@ -39,7 +39,10 @@ const NoResultsMessage = () => (
 );
 
 export const PatientResultsPane = React.memo(({ patient }) => {
-  const { searchParameters, setSearchParameters } = usePatientLabResultsContext();
+  const {
+    labResultParameters: searchParameters,
+    setLabResultParameters: setSearchParameters,
+  } = usePatientSearchParametersContext();
 
   const { data, isLoading } = usePatientLabTestResults(patient.id, {
     ...searchParameters,
