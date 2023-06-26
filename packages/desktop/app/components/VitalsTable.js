@@ -70,6 +70,36 @@ const MeasureCell = React.memo(({ value, data }) => {
   );
 });
 
+const TitleCell = React.memo(({ value }) => {
+  const {
+    setChartKeys,
+    setModalTitle,
+    setVitalChartModalOpen,
+    visualisationConfigs,
+  } = useVitalChartData();
+  const allChartKeys = visualisationConfigs
+    .filter(({ hasVitalChart }) => hasVitalChart)
+    .map(({ key }) => key);
+
+  return (
+    <>
+      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+        {value}
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys(allChartKeys);
+            setModalTitle('Vitals');
+            setVitalChartModalOpen(true);
+          }}
+        >
+          <VitalVectorIcon />
+        </IconButton>
+      </Box>
+    </>
+  );
+});
+
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
@@ -84,6 +114,7 @@ export const VitalsTable = React.memo(() => {
         <RangeTooltipCell value={value} config={config} validationCriteria={validationCriteria} />
       ),
       CellComponent: MeasureCell,
+      TitleCellComponent: TitleCell,
     },
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
