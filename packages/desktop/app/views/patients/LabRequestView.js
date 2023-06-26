@@ -38,7 +38,7 @@ const Container = styled.div`
   padding: 12px 30px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 58px);
 `;
 
 const Rule = styled(Divider)`
