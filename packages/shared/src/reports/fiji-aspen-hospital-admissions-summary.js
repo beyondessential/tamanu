@@ -157,7 +157,7 @@ order by a.month;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate, toDate } = parameters;
+  const { fromDate, toDate, configurationNoteTypeIds } = parameters;
 
   const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
@@ -168,7 +168,7 @@ const getData = async (sequelize, parameters) => {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
       facilityId: config.serverFacilityId ?? null,
-      systemNoteTypeId: config?.localisation?.data?.noteTypeIds?.systemNoteTypeId ?? null,
+      systemNoteTypeId: configurationNoteTypeIds?.systemNoteTypeId ?? null,
     },
   });
 };

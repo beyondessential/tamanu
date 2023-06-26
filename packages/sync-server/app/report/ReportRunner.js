@@ -86,7 +86,10 @@ export class ReportRunner {
     try {
       this.log.info('Running report', { parameters: this.parameters });
 
-      reportData = await reportModule.dataGenerator(this.store, this.parameters);
+      reportData = await reportModule.dataGenerator(this.store, {
+        ...this.parameters,
+        configurationNoteTypeIds: config?.localisation?.data?.noteTypeIds,
+      });
       metadata = await this.getMetadata();
 
       this.log.info('Running report finished', {

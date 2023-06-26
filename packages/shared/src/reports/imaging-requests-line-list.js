@@ -1,4 +1,3 @@
-import config from 'config';
 import { subDays } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { IMAGING_REQUEST_STATUS_CONFIG } from '../constants';
@@ -118,6 +117,7 @@ const getData = async (sequelize, parameters) => {
     requestedById,
     imagingType,
     statuses,
+    configurationNoteTypeIds,
   } = parameters;
 
   const selectedStatuses = statuses?.split(', ') ?? null;
@@ -131,8 +131,7 @@ const getData = async (sequelize, parameters) => {
       imaging_type: imagingType ?? null,
       statuses: selectedStatuses,
       areStatuses: selectedStatuses ? 'true' : null,
-      areaToBeImagedNoteTypeId:
-        config?.localisation?.data?.noteTypeIds?.areaToBeImagedNoteTypeId ?? null,
+      areaToBeImagedNoteTypeId: configurationNoteTypeIds?.areaToBeImagedNoteTypeId ?? null,
     },
   });
 };

@@ -10,6 +10,7 @@ import {
 } from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { getLocalisation } from 'sync-server/app/localisation';
 
 import { createTestContext } from '../../utilities';
 
@@ -24,8 +25,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
-    const localisation = await ctx.getLocalisation(app.user);
-    configurationNoteTypeIds = localisation.data.noteTypeIds;
+    const localisationData = await getLocalisation();
+    configurationNoteTypeIds = localisationData.noteTypeIds;
 
     const {
       Department,

@@ -4,6 +4,7 @@ import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { LocalSystemFact } from 'shared/models/LocalSystemFact';
 import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
+import { getLocalisation } from 'sync-server/app/localisation';
 import {
   mergePatient,
   getTablesWithNoMergeCoverage,
@@ -36,8 +37,8 @@ describe('Patient merge', () => {
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
-    const localisation = await ctx.getLocalisation(adminApp.user);
-    configurationNoteTypeIds = localisation.data.noteTypeIds;
+    const localisationData = await getLocalisation();
+    configurationNoteTypeIds = localisationData.noteTypeIds;
   });
 
   afterAll(async () => {
@@ -533,7 +534,9 @@ describe('Patient merge', () => {
       await mergePatient(models, keep.id, merge.id);
 
       const note = await merge.createNotePage({
-        ...fake(NotePage),
+        ...fake(NotePage, {
+          noteTypeIds: Object.values(configurationNoteTypeIds),
+        }),
       });
 
       const results = await maintainerTask.remergePatientRecords();

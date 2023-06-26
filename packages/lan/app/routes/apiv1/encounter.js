@@ -150,6 +150,7 @@ encounterRelations.get(
       page,
       includeNotePages: includeNotePagesStr = 'false',
       status,
+      getLocalisation,
     } = query;
     const includeNotePages = includeNotePagesStr === 'true';
 
@@ -181,11 +182,14 @@ encounterRelations.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
+    const localisation = await getLocalisation();
+    const { noteTypeIds } = localisation.data;
+
     const data = await Promise.all(
       objects.map(async ir => {
         return {
           ...ir.forResponse(),
-          ...(includeNotePages ? await ir.extractNotes() : undefined),
+          ...(includeNotePages ? await ir.extractNotes(noteTypeIds) : undefined),
           areas: ir.areas.map(a => a.forResponse()),
         };
       }),

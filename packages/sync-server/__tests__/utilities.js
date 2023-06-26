@@ -9,7 +9,6 @@ import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
-import { configurationNoteTypeIds } from '@tamanu/shared/demoData';
 
 const chance = new Chance();
 
@@ -59,12 +58,6 @@ export async function createTestContext() {
     });
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
-    await ctx.store.models.UserLocalisationCache.create({
-      userId: user.id,
-      localisation: JSON.stringify({
-        data: { noteTypeIds: configurationNoteTypeIds },
-      }),
-    });
     return agent;
   };
 
@@ -78,12 +71,6 @@ export async function createTestContext() {
 
     return baseApp.asUser(newUser);
   };
-
-  ctx.getLocalisation = async user =>
-    ctx.store.models.UserLocalisationCache.getLocalisation({
-      where: { userId: user.id },
-      order: [['createdAt', 'DESC']],
-    });
 
   ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
   ctx.baseApp = baseApp;

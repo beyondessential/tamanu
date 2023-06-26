@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import upperFirst from 'lodash/upperFirst';
@@ -70,8 +69,8 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .map(({ Diagnosis }) => `${Diagnosis.code} ${Diagnosis.name}`)
     .join('; ');
 
-const getAllNotes = async (models, encounterIds) => {
-  const systemNoteTypeId = config?.localisation?.data?.noteTypeIds?.systemNoteTypeId;
+const getAllNotes = async (models, encounterIds, configurationNoteTypeIds) => {
+  const systemNoteTypeId = configurationNoteTypeIds?.systemNoteTypeId;
   const locationChangeNotePages = await models.NotePage.findAll({
     include: [
       {
@@ -243,7 +242,11 @@ async function queryAdmissionsData(models, parameters) {
   ).map(x => x.get({ plain: true }));
 
   const encounterIds = results.map(({ id }) => id);
-  const { locationChangeNotes, departmentChangeNotes } = await getAllNotes(models, encounterIds);
+  const { locationChangeNotes, departmentChangeNotes } = await getAllNotes(
+    models,
+    encounterIds,
+    parameters?.configurationNoteTypeIds,
+  );
 
   const resultsWithHistory = results.map(result => ({
     ...result,

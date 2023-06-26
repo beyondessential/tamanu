@@ -3,7 +3,6 @@ import Chance from 'chance';
 import { DataTypes } from 'sequelize';
 import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
-import config from 'config';
 
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
@@ -347,14 +346,15 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Encounter: () => ({
     encounterType: sample(ENCOUNTER_TYPE_VALUES),
   }),
-  NotePage: () => ({
+  NotePage: ({ noteTypeIds }) => ({
     // This is a hack because the type of NotePage.id is UUID, whereas tests might create ids of the form:
     // NotePage.id.123e4567-e89b-12d3-a456-426614174000
     // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
     // It will be fixed properly as part of EPI-160
     id: undefined,
-    // This won't select from all possible note types but at least from the mandatory ones
-    noteType: chance.pickone(Object.values(config.localisation.data?.noteTypeIds)),
+    // User must pass possible noteTypeIds (from localisation or from fetching the noteTypeIds from DB)
+    // to the fake function when creating a NotePage unless they pass a specific noteType to use
+    ...(noteTypeIds?.length > 0 && { noteType: chance.pickone(noteTypeIds) }),
   }),
   NoteItem: () => ({
     id: undefined,

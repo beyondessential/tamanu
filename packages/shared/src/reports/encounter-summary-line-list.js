@@ -498,7 +498,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   // Note this could be reading from facility config OR central server config
   const includedPatientFieldIds =
     config?.reportConfig?.['encounter-summary-line-list']?.includedPatientFieldIds;
-  const systemNoteTypeId = config?.localisation?.data?.noteTypeIds?.systemNoteTypeId;
+  const systemNoteTypeId = parameters?.configurationNoteTypeIds?.systemNoteTypeId;
 
   const results = await getData(sequelize, parameters, includedPatientFieldIds, systemNoteTypeId);
   const formattedResults = results.map(formatRow);

@@ -97,6 +97,7 @@ imagingRequest.get(
     const {
       models: { ImagingRequest, ImagingResult, User, ReferenceData },
       params: { id },
+      getLocalisation,
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
@@ -127,9 +128,11 @@ imagingRequest.get(
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
+    const localisation = await getLocalisation();
+
     res.send({
       ...imagingRequestObject.get({ plain: true }),
-      ...(await imagingRequestObject.extractNotes()),
+      ...(await imagingRequestObject.extractNotes(localisation.data?.noteTypeIds)),
       results: await renderResults(req.models, imagingRequestObject),
     });
   }),

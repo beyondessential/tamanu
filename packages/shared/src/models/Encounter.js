@@ -1,4 +1,3 @@
-import config from 'config';
 import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
@@ -320,8 +319,15 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content, date, user) {
+    const { UserLocalisationCache } = this.sequelize.models;
+    const localisation = user?.id
+      ? await UserLocalisationCache.getLocalisation({
+          where: { userId: user.id },
+          order: [['createdAt', 'DESC']],
+        })
+      : null;
     const notePage = await this.createNotePage({
-      noteType: config.localisation.data.noteTypeIds?.systemNoteTypeId,
+      noteType: localisation?.data?.noteTypeIds?.systemNoteTypeId,
       date,
     });
     await notePage.createNoteItem({

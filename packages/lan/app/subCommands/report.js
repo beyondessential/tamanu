@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 import { initDatabase } from '../database';
 
-async function report({ reportId }) {
+async function report({ reportId, configurationNoteTypeIds }) {
   const context = await initDatabase();
   // going via inline import rather than top-level just to keep diff footprint small during a hotfix
   // should be fine to pull to the top level
@@ -11,7 +11,7 @@ async function report({ reportId }) {
 
   const module = await getReportModule(reportId, context.models);
   log.info(`Running report ${reportId} (with empty parameters)`);
-  const result = await module.dataGenerator(context, {});
+  const result = await module.dataGenerator(context, { configurationNoteTypeIds });
   // console.log is fine because this command should return output
   // eslint-disable-next-line no-console
   console.log(result);

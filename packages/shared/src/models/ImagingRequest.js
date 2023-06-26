@@ -1,4 +1,3 @@
-import config from 'config';
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
 import {
@@ -76,14 +75,14 @@ export class ImagingRequest extends Model {
     );
   }
 
-  async extractNotes() {
+  async extractNotes(noteTypeIds) {
     const notePages =
       this.notePages ||
       (await this.getNotePages({
         where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
         include: [{ association: 'noteItems' }],
       }));
-    const noteTypeIds = config?.localisation?.data?.noteTypeIds;
+
     const extractWithType = async type => {
       const notePage = getNotePageWithType(notePages, type);
       if (!notePage) {

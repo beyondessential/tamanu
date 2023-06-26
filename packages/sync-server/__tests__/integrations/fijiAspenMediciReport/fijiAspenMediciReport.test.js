@@ -10,6 +10,7 @@ import {
 } from 'shared/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
+import { getLocalisation } from 'sync-server/app/localisation';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
@@ -337,8 +338,8 @@ describe('fijiAspenMediciReport', () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
-    const localisation = await ctx.getLocalisation(app.user);
-    configurationNoteTypeIds = localisation.data.noteTypeIds;
+    const localisationData = await getLocalisation();
+    configurationNoteTypeIds = localisationData.noteTypeIds;
     fakedata = await fakeAllData(models, configurationNoteTypeIds);
   });
 

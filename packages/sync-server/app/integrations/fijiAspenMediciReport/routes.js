@@ -419,7 +419,7 @@ routes.get(
     if (!COUNTRY_TIMEZONE) {
       throw new Error('A countryTimeZone must be configured in local.json for this report to run');
     }
-    const localisation = await getLocalisation();
+    const localisationData = await getLocalisation();
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
@@ -431,7 +431,7 @@ routes.get(
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
         timezone_string: COUNTRY_TIMEZONE,
-        systemNoteTypeId: localisation.data.noteTypeIds?.systemNoteTypeId,
+        systemNoteTypeId: localisationData.noteTypeIds?.systemNoteTypeId,
       },
     });
 

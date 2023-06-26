@@ -49,7 +49,13 @@ reports.post(
 
     try {
       facilityReportLog.info('Running report', { parameters });
-      const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+      const excelData = await reportModule.dataGenerator(
+        { sequelize: db, models },
+        {
+          ...parameters,
+          configurationNoteTypeIds: localisation?.data?.noteTypeIds,
+        },
+      );
       facilityReportLog.info('Report run successfully');
       res.send(excelData);
     } catch (e) {
