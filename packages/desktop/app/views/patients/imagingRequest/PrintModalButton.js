@@ -10,7 +10,15 @@ import { MultipleImagingRequestsPrintout } from '../../../components/PatientPrin
 const PrintModalInternals = ({ imagingRequest }) => {
   const encounterQuery = useEncounterData(imagingRequest.encounterId);
 
-  if (encounterQuery.isError) return <div>Err</div>;
+  if (encounterQuery.isError) {
+    return (
+      <div>
+        <div>An error occurred</div>
+        <pre>{JSON.stringify(encounterQuery.error?.message, null, 2)}</pre>
+      </div>
+    );
+  }
+
   if (encounterQuery.isFetching) return <LoadingIndicator />;
 
   return (
