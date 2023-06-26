@@ -46,7 +46,7 @@ const Rule = styled(Divider)`
 `;
 
 const FixedTileRow = styled(TileContainer)`
-  min-height: 138px;
+  flex-shrink: 0;
 `;
 
 const HIDDEN_STATUSES = [
