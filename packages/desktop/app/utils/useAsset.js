@@ -6,7 +6,7 @@ import { useApi } from '../api';
 export const useAsset = assetName => {
   const api = useApi();
 
-  const fallbackAssetName = ASSET_FALLBACK_NAMES?.[assetName];
+  const fallbackAssetName = ASSET_FALLBACK_NAMES[assetName];
 
   const { data: queryData, isFetched: assetFetched } = useQuery({
     queryKey: ['asset', assetName],
