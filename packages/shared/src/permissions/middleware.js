@@ -17,8 +17,12 @@ function getSubjectName(subject) {
 }
 
 export async function constructPermission(req, res, next) {
-  req.ability = await getAbilityForUser(req.models, req.user);
-  next();
+  try {
+    req.ability = await getAbilityForUser(req.models, req.user);
+    next();
+  } catch (e) {
+    next(e);
+  }
 }
 
 const checkPermission = (req, action, subject, field = '') => {
