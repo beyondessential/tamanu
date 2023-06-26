@@ -267,13 +267,11 @@ class TableComponent extends React.Component {
       );
     };
 
-    return columns.map(
-      ({ key, title, numeric, noTitle, titleAccessor, sortable = true, tooltip }) => (
-        <HeaderContainer key={key} numeric={numeric}>
-          {getContent(key, sortable, title, titleAccessor, tooltip, noTitle)}
-        </HeaderContainer>
-      ),
-    );
+    return columns.map(({ key, title, numeric, titleAccessor, sortable = true, tooltip }) => (
+      <HeaderContainer key={key} numeric={numeric}>
+        {getContent(key, sortable, title, titleAccessor, tooltip)}
+      </HeaderContainer>
+    ));
   }
 
   renderBodyContent() {
