@@ -1,14 +1,12 @@
-import Chance from 'chance';
 import { formatRFC7231 } from 'date-fns';
 
-import { fake, fakeReferenceData, fakeUser } from 'shared/test-helpers/fake';
+import { fake, chance, fakeReferenceData, fakeUser } from 'shared/test-helpers';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
-const chance = new Chance();
 
 async function destroyDatabaseTables(models) {
   const modelNames = [

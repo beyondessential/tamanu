@@ -10,6 +10,8 @@ const BASE = {
   // workaround for memory leaks
   workerIdleMemoryLimit: '512MB',
 
+  showSeed: true, // helps to reproduce order-dependence bugs
+
   moduleNameMapper: {
     '^shared(/.+)?$': '@tamanu/shared$1',
   },

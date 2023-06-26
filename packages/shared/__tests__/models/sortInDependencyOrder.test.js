@@ -1,6 +1,9 @@
+/* eslint-disable no-param-reassign,no-return-assign */
+
 import * as fc from 'fast-check';
 import { uniq } from 'lodash';
 
+import { chance } from 'shared/test-helpers';
 import { SYNC_DIRECTIONS } from '../../src/constants';
 import { Model } from '../../src/models/Model';
 import { sortInDependencyOrder } from '../../src/models/sortInDependencyOrder';
@@ -16,7 +19,7 @@ function modelTrees() {
     leaf: fc.constant('leaf'),
   }));
 
-  return tree.map(tree => pairsToModels(treeToPairs([tree])));
+  return tree.map(tree2 => pairsToModels(treeToPairs([tree2])));
 }
 
 class BaseSyncingModel extends Model {
@@ -64,11 +67,12 @@ function pairsToModels(pairs) {
           `Model${i}`,
           class extends BaseSyncingModel {
             static name = `Model${i}`;
+
             static associations = {};
           },
         ];
       })
-      .sort(() => Math.random() - 0.5),
+      .sort(() => chance.floating({ min: -0.5, max: 0.5 })),
   );
 
   for (const [child, parent] of pairs) {
@@ -98,7 +102,7 @@ describe('sortInDependencyOrder', () => {
       }),
     );
   });
-  
+
   // in all following examples, `->` means "dependent on"
 
   it('sorts a chain of models', () => {
@@ -183,7 +187,7 @@ describe('sortInDependencyOrder', () => {
 
     expect(sorted.map(model => model.name)).toEqual(['Model3', 'Model4', 'Model1', 'Model2']);
   });
-  
+
   // in these next ones, the node numbers are NM, where N is the depth of the node
   // and M is the number of the node *within that depth*. this makes it a bit easier
   // to figure out the shape of the tree and remind yourself where the models are at
