@@ -4,7 +4,6 @@ import { utcToZonedTime } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
-  NOTE_TYPES,
   ENCOUNTER_TYPES,
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
@@ -31,7 +30,7 @@ const createLocalDateTimeStringFromUTC = (
   return localTimeWithoutTimezone;
 };
 
-const fakeAllData = async models => {
+const fakeAllData = async (models, configurationNoteTypeIds) => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: examinerId } = await models.User.create(fake(models.User));
   const { id: facilityId } = await models.Facility.create(fake(models.Facility));
@@ -246,7 +245,7 @@ const fakeAllData = async models => {
   const { id: imagingNotePageId } = await models.NotePage.create(
     fake(models.NotePage, {
       recordId: imagingRequestId,
-      noteType: NOTE_TYPES.OTHER,
+      noteType: configurationNoteTypeIds.otherNoteTypeId,
       recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
     }),
   );
@@ -265,7 +264,7 @@ const fakeAllData = async models => {
   const { id: labsNotePageId } = await models.NotePage.create(
     fake(models.NotePage, {
       recordId: labRequestId,
-      noteType: NOTE_TYPES.OTHER,
+      noteType: configurationNoteTypeIds.otherNoteTypeId,
       recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
     }),
   );
@@ -287,7 +286,7 @@ const fakeAllData = async models => {
   const { id: encounterNotePageId } = await models.NotePage.create(
     fake(models.NotePage, {
       recordId: encounterId,
-      noteType: NOTE_TYPES.NURSING,
+      noteType: configurationNoteTypeIds.handoverNoteTypeId,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
     }),
   );
@@ -313,7 +312,7 @@ const fakeAllData = async models => {
 
   const { id: resultantNotePageId } = await models.NotePage.findOne({
     where: {
-      noteType: NOTE_TYPES.SYSTEM,
+      noteType: configurationNoteTypeIds.systemNoteTypeId,
     },
   });
   const systemNoteItem = await models.NoteItem.findOne({
@@ -332,12 +331,15 @@ describe('fijiAspenMediciReport', () => {
   let app;
   let models;
   let fakedata;
+  let configurationNoteTypeIds;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
-    fakedata = await fakeAllData(models);
+    const localisation = await ctx.getLocalisation(adminApp.user);
+    configurationNoteTypeIds = localisation.data.noteTypeIds;
+    fakedata = await fakeAllData(models, configurationNoteTypeIds);
   });
 
   afterAll(() => ctx.close());
@@ -526,7 +528,7 @@ describe('fijiAspenMediciReport', () => {
             ],
             notes: [
               {
-                noteType: NOTE_TYPES.OTHER,
+                noteType: configurationNoteTypeIds.otherNoteTypeId,
                 content: 'Please perform this lab test very carefully',
                 noteDate: '2022-06-09T02:04:54+00:00',
               },
@@ -548,12 +550,12 @@ describe('fijiAspenMediciReport', () => {
         ],
         notes: [
           {
-            noteType: NOTE_TYPES.NURSING,
+            noteType: configurationNoteTypeIds.handoverNoteTypeId,
             content: 'H\nI\nJ\nK\nL... nopqrstuv',
             noteDate: '2022-06-10T04:39:57+00:00',
           },
           {
-            noteType: NOTE_TYPES.NURSING,
+            noteType: configurationNoteTypeIds.handoverNoteTypeId,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
           },

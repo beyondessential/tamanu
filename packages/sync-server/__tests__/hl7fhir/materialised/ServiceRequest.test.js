@@ -6,7 +6,6 @@ import { fake, fakeReferenceData } from 'shared/test-helpers';
 import {
   FHIR_DATETIME_PRECISION,
   IMAGING_REQUEST_STATUS_TYPES,
-  NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { fakeUUID } from 'shared/utils/generateId';
@@ -20,10 +19,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   let ctx;
   let app;
   let resources;
+  let configurationNoteTypeIds;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
+    const localisation = await ctx.getLocalisation(app.user);
+    configurationNoteTypeIds = localisation.data.noteTypeIds;
 
     const {
       Department,
@@ -116,14 +118,14 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         fake(NotePage, {
           date: '2022-03-05',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-          noteType: NOTE_TYPES.OTHER,
+          noteType: configurationNoteTypeIds.otherNoteTypeId,
           recordType: ImagingRequest.name,
           recordId: ir.id,
         }),
         fake(NotePage, {
           date: '2022-03-06',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-          noteType: NOTE_TYPES.OTHER,
+          noteType: configurationNoteTypeIds.otherNoteTypeId,
           recordType: ImagingRequest.name,
           recordId: ir.id,
         }),

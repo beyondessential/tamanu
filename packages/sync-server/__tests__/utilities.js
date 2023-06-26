@@ -79,6 +79,12 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
+  ctx.getLocalisation = async user =>
+    ctx.store.models.UserLocalisationCache.getLocalisation({
+      where: { userId: user.id },
+      order: [['createdAt', 'DESC']],
+    });
+
   ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
   ctx.baseApp = baseApp;
 
