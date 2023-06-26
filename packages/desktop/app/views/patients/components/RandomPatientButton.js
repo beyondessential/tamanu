@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Chance } from 'chance';
 import { Button } from '../../../components';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { generate } from 'shortid';
 
 const makeRandomPatient = generateId => {
   const chance = new Chance();
@@ -26,9 +25,9 @@ const makeRandomPatient = generateId => {
 
 const RandomButtonStyled = styled(Button)`
   float: right;
-  opacity: 0.0;
+  opacity: 0;
   &:hover {
-    opacity: 1.0;
+    opacity: 1;
   }
 `;
 
