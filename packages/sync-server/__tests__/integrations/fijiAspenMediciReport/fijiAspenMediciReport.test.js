@@ -337,7 +337,7 @@ describe('fijiAspenMediciReport', () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
-    const localisation = await ctx.getLocalisation(adminApp.user);
+    const localisation = await ctx.getLocalisation(app.user);
     configurationNoteTypeIds = localisation.data.noteTypeIds;
     fakedata = await fakeAllData(models, configurationNoteTypeIds);
   });
