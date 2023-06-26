@@ -55,16 +55,6 @@ const StyledTable = styled(Table)`
       border-right: 2px solid ${Colors.outline};
     }
 
-    tfoot tr td:nth-child(1) {
-      position: sticky;
-      left: 0;
-    }
-
-    tfoot tr td:nth-child(2) {
-      position: sticky;
-      right: 0;
-    }
-
     tfoot {
       inset-inline-end: 0;
     }
@@ -96,6 +86,11 @@ const StyledTable = styled(Table)`
       &:first-child {
         padding-left: 17px;
       }
+    }
+
+    tfoot tr td button.MuiButton-root {
+      position: sticky;
+      left: 16px;
     }
   }
 `;
