@@ -115,7 +115,6 @@ describe('Imaging requests', () => {
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      console.log(body)
       expect(body).toHaveProperty('note', 'test-note');
       expect(body).toHaveProperty('areaNote', 'test-area-note');
     });

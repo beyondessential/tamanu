@@ -59,12 +59,12 @@ export async function createTestContext() {
     });
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
-    console.log(await models.UserLocalisationCache.create({
+    await ctx.store.models.UserLocalisationCache.create({
       userId: user.id,
       localisation: JSON.stringify({
         data: { noteTypeIds: configurationNoteTypeIds },
       }),
-    }));
+    });
     return agent;
   };
 

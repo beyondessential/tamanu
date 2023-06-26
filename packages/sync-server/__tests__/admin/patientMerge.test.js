@@ -37,7 +37,6 @@ describe('Patient merge', () => {
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
     const localisation = await ctx.getLocalisation(adminApp.user);
-    console.log(localisation)
     configurationNoteTypeIds = localisation.data.noteTypeIds;
   });
 
