@@ -10,6 +10,7 @@ import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from './FormGrid';
 import { FormSeparatorLine } from './FormSeparatorLine';
 import { formatShortest, formatTime } from './DateDisplay';
+import { SurveyQuestion } from './Surveys';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -27,12 +28,8 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
   </Box>
 );
 
-export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
+export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
-  const handleDeleteEntry = useCallback(setFieldValue => {
-    setFieldValue('value', '');
-    setIsDeleted(true);
-  }, []);
   const handleClose = useCallback(() => {
     setIsDeleted(false);
     onClose();
@@ -40,27 +37,36 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
   const { getLocalisation } = useLocalisation();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
   const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
-  const vitalLabel = cell?.vitalLabel;
-  const date = formatShortest(cell?.recordedDate);
-  const time = formatTime(cell?.recordedDate);
+  const vitalLabel = dataPoint?.component.dataElement.name;
+  const date = formatShortest(dataPoint?.recordedDate);
+  const time = formatTime(dataPoint?.recordedDate);
   const title = `${vitalLabel} | ${date} | ${time}`;
-  const initialValue = cell?.value;
-  const showDeleteEntryButton = initialValue !== undefined;
+  const initialValue = dataPoint?.value;
+  const showDeleteEntryButton = initialValue !== '';
+  const valueName = dataPoint?.component.dataElement.id;
+  const handleDeleteEntry = useCallback(
+    setFieldValue => {
+      setFieldValue(valueName, '');
+      setIsDeleted(true);
+    },
+    [valueName],
+  );
+
   return (
-    <Modal width="sm" title={title} onClose={handleClose} open={cell !== null}>
+    <Modal width="sm" title={title} onClose={handleClose} open={open}>
       <Form
         onSubmit={onConfirm}
         validationSchema={yup.object().shape({
           reasonForCancellation: yup.string().required('Reason for cancellation is mandatory'),
         })}
-        initialValues={{ value: initialValue }}
+        initialValues={{ [valueName]: initialValue }}
         render={({
           // value: formValue,
           setFieldValue,
           submitForm,
         }) => (
           <FormGrid columns={4}>
-            <Field component={TextField} label={vitalLabel} name="value" disabled={isDeleted} />
+            <SurveyQuestion component={dataPoint?.component} disabled={isDeleted} />
             {showDeleteEntryButton && (
               <DeleteEntryButton
                 disabled={isDeleted}
@@ -83,6 +89,7 @@ export const EditVitalCellModal = ({ cell, onConfirm, onClose }) => {
               multiline
               style={{ gridColumn: '1 / -1' }}
               rows={6}
+              value=""
             />
             <ConfirmCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
           </FormGrid>
