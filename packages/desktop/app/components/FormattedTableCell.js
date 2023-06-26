@@ -34,6 +34,20 @@ export const DateHeadCell = React.memo(({ value }) => (
   </TableTooltip>
 ));
 
+const LimitedLinesCellWrapper = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+`;
+
+export const LimitedLinesCell = React.memo(({ value }) => (
+  <TableTooltip title={value}>
+    <LimitedLinesCellWrapper>{value}</LimitedLinesCellWrapper>
+  </TableTooltip>
+));
+
 export const RangeTooltipCell = React.memo(({ value, config, validationCriteria }) => {
   const { unit = '' } = config || {};
   const { normalRange } = validationCriteria || {};
