@@ -230,6 +230,7 @@ patientDeath.post(
         });
         for (const encounter of activeEncounters) {
           await encounter.update({
+            systemNote: 'Automatically discharged',
             endDate: body.timeOfDeath,
             discharge: {
               dischargerId: doc.id,

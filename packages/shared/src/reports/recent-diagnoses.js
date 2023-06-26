@@ -100,5 +100,3 @@ export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryDiagnosesData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
-
-export const permission = 'EncounterDiagnosis';

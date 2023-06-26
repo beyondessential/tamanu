@@ -4,14 +4,16 @@ import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
-
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.fhirMissingResources;
     super(conf.schedule, log.child({ task: 'FhirMissingResources' }));
     this.config = conf;
     this.context = context;
+    this.materialisableResources = resourcesThatCanDo(
+      this.context.store.models,
+      FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+    );
   }
 
   getName() {
@@ -21,7 +23,7 @@ export class FhirMissingResources extends ScheduledTask {
   async countQueue() {
     let all = 0;
 
-    for (const Resource of materialisableResources) {
+    for (const Resource of this.materialisableResources) {
       const resourceTable = Resource.tableName;
 
       for (const UpstreamModel of Resource.UpstreamModels) {
@@ -40,7 +42,7 @@ export class FhirMissingResources extends ScheduledTask {
   }
 
   async run() {
-    for (const Resource of materialisableResources) {
+    for (const Resource of this.materialisableResources) {
       const resourceTable = Resource.tableName;
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;

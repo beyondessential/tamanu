@@ -50,10 +50,9 @@ const servers = [
   { name: 'Test (Tuvalu)', type: 'demo', host: 'https://clone-sync.tamanu-tuvalu.org' },
 
   // development servers
-  { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
-  { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
+  { name: 'Dev (main)', type: 'dev', host: 'https://central.main.internal.tamanu.io' },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
-  { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
+  { name: 'UAT-VPS', type: 'dev', host: 'https://sync-uat.tamanu.io' },
   { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
   { name: 'UAT-Rispacs', type: 'dev', host: 'https://sync-uat-rispacs.tamanu.io' },
 
