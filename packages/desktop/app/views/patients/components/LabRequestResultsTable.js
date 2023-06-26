@@ -106,6 +106,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadO
         initialSort={{ order: 'asc', orderBy: 'id' }}
         elevated={false}
         disablePagination
+        fixedHeader
       />
     </>
   );

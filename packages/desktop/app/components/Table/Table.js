@@ -118,8 +118,11 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
+  .MuiTableCell-head {
+    background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+    ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
+  }
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -360,13 +363,13 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated, headerColor, optionRow } = this.props;
+    const { className, elevated, headerColor, optionRow, fixedHeader } = this.props;
 
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable>
-          <StyledTableHead $headerColor={headerColor}>
+          <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader}>
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>
