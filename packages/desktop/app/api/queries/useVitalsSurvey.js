@@ -3,6 +3,20 @@ import * as yup from 'yup';
 import { useApi, isErrorUnknownAllow404s } from '../index';
 import { getConfigObject } from '../../utils';
 
+const visualisationConfigSchema = yup.object().shape({
+  yAxis: yup.object().shape({
+    graphRange: yup.object().shape({
+      min: yup.number().required(),
+      max: yup.number().required(),
+    }),
+    normalRange: yup.object().shape({
+      min: yup.number().required(),
+      max: yup.number().required(),
+    }),
+    interval: yup.number().required(),
+  }),
+});
+
 export const useVitalsSurvey = () => {
   const api = useApi();
   const vitalsSurvey = useQuery(['survey', { type: 'vitals' }], () =>
@@ -11,19 +25,6 @@ export const useVitalsSurvey = () => {
 
   const { data: surveyData, isLoading } = vitalsSurvey;
 
-  const visualisationConfigSchema = yup.object().shape({
-    yAxis: yup.object().shape({
-      graphRange: yup.object().shape({
-        min: yup.number().required(),
-        max: yup.number().required(),
-      }),
-      normalRange: yup.object().shape({
-        min: yup.number().required(),
-        max: yup.number().required(),
-      }),
-      interval: yup.number().required(),
-    }),
-  });
   let visualisationConfigs = [];
   if (!isLoading && surveyData) {
     visualisationConfigs = surveyData.components.map(({ id, dataElement }) => {
@@ -31,7 +32,7 @@ export const useVitalsSurvey = () => {
       const hasVitalChart = visualisationConfigSchema.isValidSync(visualisationConfigObject);
 
       return {
-        key: dataElement.name,
+        key: dataElement.id,
         hasVitalChart,
         ...getConfigObject(id, dataElement.visualisationConfig),
       };

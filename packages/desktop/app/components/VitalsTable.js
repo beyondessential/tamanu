@@ -46,17 +46,18 @@ const MeasureCell = React.memo(({ value, data }) => {
     setVitalChartModalOpen,
     visualisationConfigs,
   } = useVitalChartData();
-  const visualisationConfig = visualisationConfigs.find(({ key }) => key === data.value);
+  const visualisationConfig = visualisationConfigs.find(({ key }) => key === data.dataElementId);
+  const { hasVitalChart = false } = visualisationConfig || {};
 
   return (
     <>
       <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
         {value}
-        {visualisationConfig?.hasVitalChart && (
+        {hasVitalChart && (
           <IconButton
             size="small"
             onClick={() => {
-              setChartKey(data.dataElementId);
+              setChartKey(visualisationConfig.key);
               setModalTitle(value);
               setVitalChartModalOpen(true);
             }}

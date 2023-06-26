@@ -6,12 +6,16 @@ import { LineChart } from '../components/Charts/LineChart';
 export const ChartsView = () => {
   const {
     chartData,
-    visualisationConfig,
+    chartKey,
+    visualisationConfigs,
     setStartDate,
     setEndDate,
     startDate,
     endDate,
+    isLoading,
   } = useVitalChartData();
+
+  const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
   return (
     <>
@@ -21,6 +25,7 @@ export const ChartsView = () => {
         visualisationConfig={visualisationConfig}
         startDate={startDate}
         endDate={endDate}
+        isLoading={isLoading}
       />
     </>
   );
