@@ -32,8 +32,9 @@ export const DataFetchingTable = memo(
     const handleChangeOrderBy = useCallback(
       columnKey => {
         const { order, orderBy } = sorting;
-        const isDesc = orderBy === columnKey && order === 'desc';
-        const newSorting = { order: isDesc ? 'asc' : 'desc', orderBy: columnKey };
+        // The first click orders descending, and a second click orders ascending
+        const orderAscending = orderBy === columnKey && order === 'desc';
+        const newSorting = { order: orderAscending ? 'asc' : 'desc', orderBy: columnKey };
         setSorting(newSorting);
       },
       [sorting],
