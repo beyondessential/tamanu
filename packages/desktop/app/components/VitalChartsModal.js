@@ -4,6 +4,7 @@ import { Modal } from './Modal';
 import { Colors } from '../constants';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { VitalChartView } from '../views/VitalChartView';
+import { DateTimeSelector } from './Charts/components/DateTimeSelector';
 
 export const VitalChartsModal = React.memo(() => {
   const {
@@ -11,6 +12,8 @@ export const VitalChartsModal = React.memo(() => {
     setVitalChartModalOpen,
     modalTitle,
     chartKeys,
+    setStartDate,
+    setEndDate,
   } = useVitalChartData();
 
   return (
@@ -23,6 +26,7 @@ export const VitalChartsModal = React.memo(() => {
         setVitalChartModalOpen(false);
       }}
     >
+      <DateTimeSelector setStartDate={setStartDate} setEndDate={setEndDate} />
       {chartKeys.map(chartKey => (
         <VitalChartView chartKey={chartKey} key={chartKey} />
       ))}
