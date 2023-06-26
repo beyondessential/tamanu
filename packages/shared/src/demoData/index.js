@@ -9,6 +9,7 @@ export * from './facilities';
 export * from './icd10';
 export * from './labRequests';
 export * from './labTestTypes';
+export * from './noteTypes';
 export * from './locations';
 export * from './patients';
 export * from './procedureTypes';

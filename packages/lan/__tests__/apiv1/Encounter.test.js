@@ -4,7 +4,7 @@ import {
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
-import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -20,6 +20,7 @@ describe('Encounter', () => {
   let baseApp = null;
   let models = null;
   let ctx;
+  let configurationNoteTypeIds;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -27,6 +28,8 @@ describe('Encounter', () => {
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
+    const localisation = await ctx.getLocalisation(app.user);
+    configurationNoteTypeIds = localisation.data.noteTypeIds;
   });
   afterAll(() => ctx.close());
 
@@ -118,10 +121,10 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
     await Promise.all([
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 1'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 2'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 3'),
-      models.NotePage.createForRecord(otherEncounter.id, 'Encounter', 'treatmentPlan', 'Fail'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', configurationNoteTypeIds.treatmentPlanNoteTypeId, 'Test 1'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', configurationNoteTypeIds.treatmentPlanNoteTypeId, 'Test 2'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', configurationNoteTypeIds.treatmentPlanNoteTypeId, 'Test 3'),
+      models.NotePage.createForRecord(otherEncounter.id, 'Encounter', configurationNoteTypeIds.treatmentPlanNoteTypeId, 'Fail'),
     ]);
 
     const result = await app.get(`/v1/encounter/${encounter.id}/notePages`);
@@ -347,7 +350,7 @@ describe('Encounter', () => {
       });
 
       const notePage = await labRequest1.createNotePage({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        noteType: configurationNoteTypeIds.areaToBeImagedNoteTypeId,
       });
       await notePage.createNoteItem({
         content: 'Testing lab request note',
@@ -379,7 +382,7 @@ describe('Encounter', () => {
       });
 
       const notePage = await labRequest1.createNotePage({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        noteType: configurationNoteTypeIds.areaToBeImagedNoteTypeId,
       });
       const noteItem = await notePage.createNoteItem({
         content: 'Testing lab request note',

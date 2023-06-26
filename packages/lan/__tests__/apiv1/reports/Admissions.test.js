@@ -30,6 +30,7 @@ describe('Admissions report', () => {
   let baseApp = null;
   let models = null;
   let ctx;
+  let configurationNoteTypeIds;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -44,6 +45,8 @@ describe('Admissions report', () => {
       }),
     );
     app = await baseApp.asRole('practitioner');
+    const localisation = await ctx.getLocalisation(app.user);
+    configurationNoteTypeIds = localisation.data.noteTypeIds;
     expectedLocationGroup = await findOneOrCreate(ctx.models, models.LocationGroup, {
       name: 'Test Area',
     });
@@ -190,7 +193,7 @@ describe('Admissions report', () => {
         ],
         where: {
           recordId: expectedEncounter.id,
-          noteType: 'system',
+          noteType: configurationNoteTypeIds.systemNoteTypeId,
         },
       });
 
@@ -208,7 +211,7 @@ describe('Admissions report', () => {
         ],
         where: {
           recordId: expectedEncounter.id,
-          noteType: 'system',
+          noteType: configurationNoteTypeIds.systemNoteTypeId,
         },
       });
 

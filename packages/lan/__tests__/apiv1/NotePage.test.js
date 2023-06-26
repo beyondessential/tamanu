@@ -3,7 +3,7 @@ import {
   createDummyEncounter,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES } from 'shared/constants';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
@@ -24,6 +24,7 @@ describe('Note', () => {
   let models = null;
   let ctx;
   let testUser;
+  let configurationNoteTypeIds;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -37,6 +38,8 @@ describe('Note', () => {
       password: 'abcdefg123456',
       role: 'practitioner',
     });
+    const localisation = await ctx.getLocalisation(app.user);
+    configurationNoteTypeIds = localisation.data.noteTypeIds;
   });
   afterAll(() => ctx.close());
 
@@ -60,7 +63,7 @@ describe('Note', () => {
       const content = chance.paragraph();
       const response = await app.post(`/v1/labRequest/${labRequest.body[0].id}/notes`).send({
         content,
-        noteType: NOTE_TYPES.OTHER,
+        noteType: configurationNoteTypeIds.otherNoteTypeId,
       });
 
       expect(response).toHaveSucceeded();
@@ -95,7 +98,7 @@ describe('Note', () => {
       const content = chance.paragraph();
       const response = await app.post(`/v1/encounter/${encounter.id}/notes`).send({
         content,
-        noteType: NOTE_TYPES.SYSTEM,
+        noteType: configurationNoteTypeIds.systemNoteTypeId,
       });
 
       expect(response).toHaveSucceeded();
@@ -136,7 +139,7 @@ describe('Note', () => {
       it('should forbid writing notes on a forbidden record', async () => {
         const response = await noPermsApp.post(`/v1/encounter/${encounter.id}/notes`).send({
           content: chance.paragraph(),
-          noteType: NOTE_TYPES.SYSTEM,
+          noteType: configurationNoteTypeIds.systemNoteTypeId,
         });
 
         expect(response).toBeForbidden();
@@ -146,7 +149,7 @@ describe('Note', () => {
         const notePage = await models.NotePage.createForRecord(
           encounter.id,
           NOTE_RECORD_TYPES.ENCOUNTER,
-          NOTE_TYPES.SYSTEM,
+          configurationNoteTypeIds.systemNoteTypeId,
           chance.paragraph(),
         );
         await notePage.getNoteItems();
@@ -162,7 +165,7 @@ describe('Note', () => {
         const note = await models.NotePage.createForRecord(
           encounter.id,
           NOTE_RECORD_TYPES.ENCOUNTER,
-          NOTE_TYPES.SYSTEM,
+          configurationNoteTypeIds.systemNoteTypeId,
           chance.paragraph(),
           app.user.id,
         );
@@ -189,7 +192,7 @@ describe('Note', () => {
       const notePage = await models.NotePage.createForRecord(
         patientCarePlan.id,
         NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        NOTE_TYPES.TREATMENT_PLAN,
+        configurationNoteTypeIds.treatmentPlanNoteTypeId,
         chance.paragraph(),
         testUser.id,
       );

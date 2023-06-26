@@ -10,8 +10,10 @@ import {
   seedLocations,
   seedLocationGroups,
   seedLabTests,
-} from 'shared/demoData';
-import { fake, showError } from 'shared/test-helpers';
+  seedNoteTypes,
+  configurationNoteTypeIds,
+} from '@tamanu/shared/demoData';
+import { fake, showError } from '@tamanu/shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -125,6 +127,7 @@ export async function createTestContext() {
   await seedDepartments(models);
   await seedLocations(models);
   await seedLocationGroups(models);
+  await seedNoteTypes(models);
 
   // Create the facility for the current config if it doesn't exist
   await models.Facility.findOrCreate({
@@ -146,6 +149,12 @@ export async function createTestContext() {
     const token = await getToken(user, '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
+    await models.UserLocalisationCache.create({
+      userId: user.id,
+      localisation: JSON.stringify({
+        data: { noteTypeIds: configurationNoteTypeIds },
+      }),
+    });
     return agent;
   };
 
@@ -181,7 +190,13 @@ export async function createTestContext() {
 
   const centralServer = new CentralServerConnection();
 
-  const context = { baseApp, sequelize, models, centralServer };
+  const getLocalisation = async user =>
+    models.UserLocalisationCache.getLocalisation({
+      where: { userId: user.id },
+      order: [['createdAt', 'DESC']],
+    });
+
+  const context = { baseApp, sequelize, models, centralServer, getLocalisation };
 
   context.syncManager = new FacilitySyncManager(context);
 

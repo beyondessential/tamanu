@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { NOTE_TYPES } from 'shared/constants/notes';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { LocalSystemFact } from 'shared/models/LocalSystemFact';
@@ -17,6 +16,7 @@ describe('Patient merge', () => {
   let models;
   let baseApp;
   let adminApp;
+  let configurationNoteTypeIds;
 
   const makeTwoPatients = async (overridesKeep = {}, overridesMerge = {}) => {
     const { Patient } = models;
@@ -36,6 +36,9 @@ describe('Patient merge', () => {
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
+    const localisation = await ctx.getLocalisation(adminApp.user);
+    console.log(localisation)
+    configurationNoteTypeIds = localisation.data.noteTypeIds;
   });
 
   afterAll(async () => {
@@ -202,7 +205,7 @@ describe('Patient merge', () => {
     const [keep, merge] = await makeTwoPatients();
 
     const note = await merge.createNotePage({
-      noteType: NOTE_TYPES.OTHER,
+      noteType: configurationNoteTypeIds.otherNoteTypeId,
     });
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
