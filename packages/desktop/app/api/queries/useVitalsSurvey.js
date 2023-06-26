@@ -33,6 +33,7 @@ export const useVitalsSurvey = () => {
 
       return {
         key: dataElement.id,
+        name: dataElement.name,
         hasVitalChart,
         ...getConfigObject(id, dataElement.visualisationConfig),
       };

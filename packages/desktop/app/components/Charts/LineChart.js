@@ -19,6 +19,8 @@ import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
 
+export const Y_AXIS_WIDTH = 40;
+
 const CustomTooltip = ({ payload }) => {
   if (payload && payload.length) {
     const { value, name, dotColor, description, config } = payload[0].payload;
@@ -55,7 +57,7 @@ export const LineChart = props => {
       width={1056}
       height={500}
       data={measureData}
-      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+      margin={{ top: 7, bottom: 15 }}
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
@@ -69,6 +71,7 @@ export const LineChart = props => {
         domain={[xAxisTicks[0], xAxisTicks[xAxisTicks.length - 1]]}
       />
       <YAxis
+        width={Y_AXIS_WIDTH}
         domain={[yAxisConfigs.graphRange.min, yAxisConfigs.graphRange.max]}
         interval={0}
         tick={<CustomisedYAxisTick />}
