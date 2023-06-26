@@ -22,6 +22,7 @@ export const DataFetchingTable = memo(
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+    const [lastFetchCount, setLastFetchCount] = useState(0);
     const api = useApi();
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -64,7 +65,16 @@ export const DataFetchingTable = memo(
               showUnknownErrorToast: false,
             },
           );
-          console.log(count)
+          if (count > lastFetchCount) {
+            setLastFetchCount(count);
+            const newRows = count - lastFetchCount;
+            data.map((row, i) => {
+              return {
+                ...row,
+                new: i < count - lastFetchCount,
+              };
+            });
+          }
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
@@ -117,7 +127,12 @@ export const DataFetchingTable = memo(
     return (
       <Table
         isLoading={isLoading}
-        data={data}
+        data={data.map((row, i) => {
+          return {
+            ...row,
+            new: i < count - lastFetchCount,
+          };
+        })}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}
         page={disablePagination ? null : page}
@@ -129,9 +144,9 @@ export const DataFetchingTable = memo(
         orderBy={orderBy}
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         refreshTable={refreshTable}
-        rowStyle={(row) => {
-          console.log('hello', row)
-          return 'background-color: red;'
+        rowStyle={row => {
+          console.log('hello', row);
+          return row.new ? 'background-color: red;' : '';
         }}
         {...props}
       />
