@@ -5,6 +5,7 @@ import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
+import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 
 interface AutocompleteModalFieldProps {
@@ -26,7 +27,7 @@ export const AutocompleteModalField = ({
   placeholder,
   onChange,
   suggester,
-  modalRoute,
+  modalRoute = Routes.Autocomplete.Modal,
   error,
   required,
   marginTop = 0,
@@ -39,11 +40,10 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void =>
-    navigation.navigate(modalRoute, {
-      callback: onPress,
-      suggester,
-    });
+  const openModal = (): void => navigation.navigate(modalRoute, {
+    callback: onPress,
+    suggester,
+  });
 
   useEffect(() => {
     if (!suggester) return;
