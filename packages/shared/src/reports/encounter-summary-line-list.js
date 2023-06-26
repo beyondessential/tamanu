@@ -504,5 +504,3 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const reportColumnTemplate = await getReportColumnTemplate(sequelize, includedPatientFieldIds);
   return generateReportFromQueryData(formattedResults, reportColumnTemplate);
 };
-
-export const permission = 'Encounter';

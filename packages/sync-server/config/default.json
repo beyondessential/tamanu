@@ -608,6 +608,10 @@
           "shortLabel": "Discharge disposition",
           "longLabel": "Discharge disposition",
           "hidden": true
+        },
+        "diagnosis": {
+          "shortLabel": "Diagnosis",
+          "longLabel": "Diagnosis"
         }
       },
       "features": {
