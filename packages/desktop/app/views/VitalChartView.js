@@ -3,7 +3,7 @@ import { DateTimeSelector } from '../components/Charts/components/DateTimeSelect
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { LineChart } from '../components/Charts/LineChart';
 
-export const ChartsView = () => {
+export const VitalChartView = () => {
   const {
     chartData,
     chartKey,

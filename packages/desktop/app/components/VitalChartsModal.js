@@ -3,7 +3,7 @@ import React from 'react';
 import { Modal } from './Modal';
 import { Colors } from '../constants';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { ChartsView } from '../views/ChartsView';
+import { VitalChartView } from '../views/VitalChartView';
 
 export const VitalChartsModal = React.memo(() => {
   const { vitalChartModalOpen, setVitalChartModalOpen, modalTitle } = useVitalChartData();
@@ -18,7 +18,7 @@ export const VitalChartsModal = React.memo(() => {
         setVitalChartModalOpen(false);
       }}
     >
-      <ChartsView />
+      <VitalChartView />
     </Modal>
   );
 });
