@@ -344,18 +344,9 @@ encounterRelations.get(
 
     const result = await db.query(
       `
-        SELECT
-          JSONB_BUILD_OBJECT(
-            'dataElementId', answer.data_element_id,
-            'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
-        FROM
-          survey_response_answers answer
-        INNER JOIN
-          survey_screen_components ssc
-        ON
-          ssc.data_element_id = answer.data_element_id
-        INNER JOIN
-          (SELECT
+        WITH
+        date AS (
+          SELECT
             response_id, body
           FROM
             survey_response_answers
@@ -369,10 +360,54 @@ encounterRelations.get(
             body IS NOT NULL
           AND
             response.encounter_id = :encounterId
-            ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
+          ORDER BY body ${order} LIMIT :limit OFFSET :offset
+        ),
+        history AS (
+          SELECT
+            vl.answer_id,
+            ARRAY_AGG((
+              JSONB_BUILD_OBJECT(
+                'previousValue', vl.previous_value,
+                'reasonForChange', vl.reason_for_change,
+                'date', vl.date,
+                'userDisplayName', u.display_name
+              )
+            )) logs
+          FROM
+            survey_response_answers sra
+          INNER JOIN
+            survey_responses sr
+          ON
+            sr.id = sra.response_id
+          LEFT JOIN
+            vital_logs vl
+          ON
+            vl.answer_id = sra.id
+          LEFT JOIN
+            users u
+          ON
+            u.id = vl.recorded_by_id
+          WHERE
+            sr.encounter_id = :encounterId
+          GROUP BY
+            vl.answer_id
+        )
+
+        SELECT
+          JSONB_BUILD_OBJECT(
+            'dataElementId', answer.data_element_id,
+            'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
+          ) result
+        FROM
+          survey_response_answers answer
+        INNER JOIN
+          date
         ON date.response_id = answer.response_id
+        LEFT JOIN
+          history
+        ON history.answer_id = answer.id
         GROUP BY answer.data_element_id
-        `,
+      `,
       {
         replacements: {
           encounterId,
