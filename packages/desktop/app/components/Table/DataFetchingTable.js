@@ -65,17 +65,16 @@ export const DataFetchingTable = memo(
               showUnknownErrorToast: false,
             },
           );
-          if (count > lastFetchCount) {
-            setLastFetchCount(count);
-            const newRows = count - lastFetchCount;
-            data.map((row, i) => {
-              return {
-                ...row,
-                new: i < count - lastFetchCount,
-              };
-            });
-          }
-          const transformedData = transformRow ? data.map(transformRow) : data;
+
+          // Here we add the light green background to new rows since last refresh to give visual feedback
+          const newRows = count - lastFetchCount;
+          const dataWithStyles = data.map((row, i) => ({
+            ...row,
+            new: i < newRows && lastFetchCount > 0,
+          }));
+          setLastFetchCount(count);
+
+          const transformedData = transformRow ? dataWithStyles.map(transformRow) : dataWithStyles;
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
             data: transformedData,
@@ -127,12 +126,7 @@ export const DataFetchingTable = memo(
     return (
       <Table
         isLoading={isLoading}
-        data={data.map((row, i) => {
-          return {
-            ...row,
-            new: i < count - lastFetchCount,
-          };
-        })}
+        data={data}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}
         page={disablePagination ? null : page}
@@ -144,10 +138,7 @@ export const DataFetchingTable = memo(
         orderBy={orderBy}
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         refreshTable={refreshTable}
-        rowStyle={row => {
-          console.log('hello', row);
-          return row.new ? 'background-color: red;' : '';
-        }}
+        rowStyle={row => (row.new ? 'background-color: #F8FFF8;' : '')}
         {...props}
       />
     );
