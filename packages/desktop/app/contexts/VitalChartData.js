@@ -27,9 +27,7 @@ export const VitalChartDataProvider = ({ children }) => {
   const [endDate, setEndDate] = useState(format(new Date(), DATE_TIME_FORMAT));
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
 
-  const { encounter } = useEncounter();
   const { visualisationConfigs } = useVitalsSurvey();
-  const { data: chartData, isLoading } = useVitalQuery(encounter.id, chartKey, startDate, endDate);
 
   return (
     <VitalChartDataContext.Provider
