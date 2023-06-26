@@ -108,25 +108,41 @@ function subjectRef(encounter) {
   });
 }
 
+const { BED, WARD } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
+
 function locationRef(encounter) {
-  const { BED, WARD } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
-  return [BED, WARD].map(
-    code =>
-      new FhirEncounterLocation({
-        location: new FhirReference({
-          display: encounter.location.name,
-          id: encounter.location.id,
-        }),
-        status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
-        physicalType: new FhirCodeableConcept({
-          coding: [
-            {
-              system: config.hl7.dataDictionaries.locationPhysicalType,
-              code,
-              display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[code],
-            },
-          ],
-        }),
+  return [
+    new FhirEncounterLocation({
+      location: new FhirReference({
+        display: encounter.location.locationGroup.name,
+        id: encounter.location.locationGroup.id,
       }),
-  );
+      status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
+      physicalType: new FhirCodeableConcept({
+        coding: [
+          {
+            system: config.hl7.dataDictionaries.locationPhysicalType,
+            code: WARD,
+            display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[WARD],
+          },
+        ],
+      }),
+    }),
+    new FhirEncounterLocation({
+      location: new FhirReference({
+        display: encounter.location.name,
+        id: encounter.location.id,
+      }),
+      status: FHIR_ENCOUNTER_LOCATION_STATUS.ACTIVE,
+      physicalType: new FhirCodeableConcept({
+        coding: [
+          {
+            system: config.hl7.dataDictionaries.locationPhysicalType,
+            code: BED,
+            display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[BED],
+          },
+        ],
+      }),
+    }),
+  ];
 }
