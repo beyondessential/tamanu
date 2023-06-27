@@ -50,6 +50,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
           target: build-desktop
           push: false
+          load: true
           tags: working
 
       - name: Make output folders
