@@ -12,6 +12,10 @@ import {
   seedLabTests,
 } from 'shared/demoData';
 import { fake, showError } from 'shared/test-helpers';
+import {
+  setHardcodedPermissionsUseForTestsOnly,
+  unsetUseHardcodedPermissionsUseForTestsOnly,
+} from 'shared/permissions/rolesToPermissions';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -23,6 +27,15 @@ import { deleteAllTestIds } from './setupUtilities';
 
 import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
+
+export function disableHardcodedPermissionsForSuite() {
+  beforeAll(() => {
+    setHardcodedPermissionsUseForTestsOnly(false);
+  });
+  afterAll(() => {
+    unsetUseHardcodedPermissionsUseForTestsOnly();
+  });
+}
 
 jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');

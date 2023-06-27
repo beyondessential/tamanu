@@ -772,7 +772,7 @@ describe('Encounter', () => {
 
         const notePages = await v.getNotePages();
         const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x => x.content.includes('Discharged');
+        const check = x => x.content.includes('Patient discharged by');
         expect(noteItems.some(check)).toEqual(true);
         expect(noteItems[0].authorId).toEqual(app.user.id);
       });
