@@ -369,10 +369,9 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
 
-        // these should be 0-1-2 instead of 3-4-5, see EPI-202
-        expect(response.body.entry[3].resource.name[0].family).toBe('Carter');
-        expect(response.body.entry[4].resource.name[0].family).toBe('Brown');
-        expect(response.body.entry[5].resource.name[0].family).toBe('Adams');
+        expect(response.body.entry[0].resource.name[0].family).toBe('Carter');
+        expect(response.body.entry[1].resource.name[0].family).toBe('Brown');
+        expect(response.body.entry[2].resource.name[0].family).toBe('Adams');
 
         expect(response.body.entry.length).toBe(6); // should be 3, see EPI-202
       });
