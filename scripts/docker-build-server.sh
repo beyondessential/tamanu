@@ -24,6 +24,13 @@ yarn config set cache-folder /app/packages/.yarn-cache
 # install dependencies
 yarn install --non-interactive --frozen-lockfile
 
+# this is only used to build desktop packages, not for production server images
+if [[ "$package" == "desktop" ]]; then
+  # install the desktop dependencies
+  NODE_ENV=development yarn workspace desktop install --non-interactive --frozen-lockfile
+  exit
+fi
+
 # if we're building a server package, the shared stage will bring in the builds,
 # so we don't need to build shared here, and in the shared stage we don't build
 # the server packages, hence this neat branching logic here
