@@ -15,7 +15,6 @@ RUN apk add --no-cache \
     bash \
     g++ \
     gcc \
-    gcompat \
     git \
     jq \
     make \
@@ -23,7 +22,7 @@ RUN apk add --no-cache \
 COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
 
 FROM base AS run-base
-RUN apk add --no-cache bash curl gcompat jq
+RUN apk add --no-cache bash curl jq
 # set the runtime options
 COPY scripts/docker-entrypoint.sh /entrypoint
 ENTRYPOINT ["/entrypoint"]
