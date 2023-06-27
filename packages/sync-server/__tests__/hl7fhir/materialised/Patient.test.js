@@ -413,11 +413,11 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(3);
 
         // The first order is actually address[].line[] (so streetVillage)
-        expect(
-          response.body.entry
-            .map(x => x.resource.address[0].city)
-            .toEqual(['El Paso', 'Amsterdam', 'Cabo']),
-        );
+        expect(response.body.entry.map(x => x.resource.address[0].city)).toEqual([
+          'El Paso',
+          'Amsterdam',
+          'Cabo',
+        ]);
       });
 
       it('sorts by additionalData.cityTown/streetVillage descending (-address)', async () => {
@@ -702,11 +702,13 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response.body.entry.length).toBe(5);
 
         // Numbers don't repeat so everything else should be in place
-        expect(
-          response.body.entry
-            .map(x => x.resource.telecom[0].value)
-            .toEqual(['123456783', '123456781', '123456782', '123456785', '123456784']),
-        );
+        expect(response.body.entry.map(x => x.resource.telecom[0].value)).toEqual([
+          '123456783',
+          '123456781',
+          '123456782',
+          '123456785',
+          '123456784',
+        ]);
       });
     });
   });
