@@ -7,7 +7,7 @@ import { useVitalQuery } from '../api/queries/useVitalQuery';
 // Fetching and preparing data for vital chart
 export const VitalChartView = props => {
   const { chartKey } = props;
-  const { visualisationConfigs, startDate, endDate } = useVitalChartData();
+  const { visualisationConfigs, startDate, endDate, isInMultiChartsView } = useVitalChartData();
   const { encounter } = useEncounter();
   const { data: chartData, isLoading } = useVitalQuery(encounter.id, chartKey, startDate, endDate);
 
@@ -21,6 +21,7 @@ export const VitalChartView = props => {
         startDate={startDate}
         endDate={endDate}
         isLoading={isLoading}
+        isInMultiChartsView={isInMultiChartsView}
       />
     </>
   );

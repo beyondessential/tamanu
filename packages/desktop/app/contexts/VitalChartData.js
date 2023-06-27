@@ -16,6 +16,7 @@ export const VitalChartDataContext = React.createContext({
   setEndDate: () => {},
   startDate: '',
   endDate: '',
+  isInMultiChartsView: false,
 });
 
 export const useVitalChartData = () => useContext(VitalChartDataContext);
@@ -43,6 +44,7 @@ export const VitalChartDataProvider = ({ children }) => {
         setEndDate,
         startDate,
         endDate,
+        isInMultiChartsView: chartKeys.length > 1,
       }}
     >
       {children}

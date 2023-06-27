@@ -26,15 +26,14 @@ export const VitalChartsModal = React.memo(() => {
     chartKeys,
     setStartDate,
     setEndDate,
+    isInMultiChartsView,
   } = useVitalChartData();
-
-  const showTitleInChart = visualisationConfigs.length > 1;
 
   return (
     <Modal
       title={modalTitle}
       open={vitalChartModalOpen}
-      width="lg"
+      width="xl"
       color={Colors.white}
       onClose={() => {
         setVitalChartModalOpen(false);
@@ -44,7 +43,7 @@ export const VitalChartsModal = React.memo(() => {
       {chartKeys.map(chartKey => (
         <>
           <Divider />
-          {showTitleInChart && (
+          {isInMultiChartsView && (
             <TitleContainer>
               <span>{visualisationConfigs.find(config => config.key === chartKey)?.name}</span>
             </TitleContainer>
