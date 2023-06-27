@@ -12,10 +12,6 @@ const queryFn = (api, encounterId, vitalDataElementId, startDate, endDate) => {
 const transformVitalDataToChartData = vitalQuery => {
   const { data: vitalDataAndCount = {} } = vitalQuery;
   const { data: vitalData = [] } = vitalDataAndCount;
-  const chartData = vitalData.map(({ recordedDate, body }) => ({
-    name: recordedDate,
-    value: body,
-  }));
 
   return chartData;
 };
@@ -32,7 +28,7 @@ export const useVitalQuery = (encounterId, vitalDataElementId, startDate, endDat
 
   return {
     ...vitalQuery,
-    data: chartData,
+    data: vitalData,
   };
 };
 

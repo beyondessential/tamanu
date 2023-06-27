@@ -9,8 +9,12 @@ export const VitalChartView = () => {
   const { chartKeys, visualisationConfigs, startDate, endDate } = useVitalChartData();
   const chartKey = chartKeys[0];
   const { encounter } = useEncounter();
-  const { data: chartData, isLoading } = useVitalQuery(encounter.id, chartKey, startDate, endDate);
+  const { data: vitalData, isLoading } = useVitalQuery(encounter.id, chartKey, startDate, endDate);
 
+  const chartData = vitalData.map(({ recordedDate, body }) => ({
+    name: recordedDate,
+    value: body,
+  }));
   const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
   return (
