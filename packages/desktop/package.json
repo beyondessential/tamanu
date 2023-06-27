@@ -82,7 +82,8 @@
       ]
     },
     "nsis": {
-      "perMachine": true
+      "perMachine": true,
+      "runAfterFinish": false
     },
     "msi": {
       "perMachine": true,
