@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { Table } from './Table';
 import { useApi } from '../../api';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
@@ -15,6 +16,7 @@ export const DataFetchingTable = memo(
     refreshCount = 0,
     onDataFetched,
     disablePagination = false,
+    tableKey,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -24,6 +26,9 @@ export const DataFetchingTable = memo(
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [lastFetchCount, setLastFetchCount] = useState(0);
     const api = useApi();
+    const { getLocalisation } = useLocalisation();
+
+    const autoRefresh = getLocalisation('features.tableAutorefresh');
 
     // This callback will be passed to table cell accessors so they can force a table refresh
     const refreshTable = useCallback(() => {
@@ -68,9 +73,10 @@ export const DataFetchingTable = memo(
 
           // Here we add the light green background to new rows since last refresh to give visual feedback
           const newRows = count - lastFetchCount;
+          const isFirstFetch = lastFetchCount === 0;
           const dataWithStyles = data.map((row, i) => ({
             ...row,
-            new: i < newRows && lastFetchCount > 0,
+            new: i < newRows && !isFirstFetch,
           }));
           setLastFetchCount(count);
 
@@ -94,13 +100,18 @@ export const DataFetchingTable = memo(
         }
       })();
 
-      const tableAutorefresh = setInterval(() => {
-        refreshTable();
-      }, 1 * 10 * 1000); // 5 minutes in milliseconds
+      const isTableRefreshEnabled = autoRefresh?.tables.includes(tableKey);
 
-      return () => {
-        clearInterval(tableAutorefresh);
-      };
+      if (autoRefresh && autoRefresh.enabled && isTableRefreshEnabled) {
+        const tableAutorefresh = setInterval(() => {
+          console.log("Table autorefreshing...")
+          refreshTable();
+        }, autoRefresh.interval);
+
+        return () => {
+          clearInterval(tableAutorefresh);
+        };
+      }
 
       // Needed to compare fetchOptions as a string instead of an object
       // eslint-disable-next-line react-hooks/exhaustive-deps

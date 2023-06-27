@@ -635,7 +635,12 @@
         "fhirNewZealandEthnicity": false,
         "onlyAllowLabPanels": false,
         "displayProcedureCodesInDischargeSummary": true,
-        "displayIcd10CodesInDischargeSummary": true
+        "displayIcd10CodesInDischargeSummary": true,
+        "tableAutorefresh": {
+          "enabled": false,
+          "interval": 300000, // 5 minutes
+          "tables": []
+        }
       },
       "templates": {
         "letterhead": {

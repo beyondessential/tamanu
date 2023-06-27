@@ -103,6 +103,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
 
   return (
     <SearchTable
+      tableKey="imagingRequests"
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"

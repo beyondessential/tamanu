@@ -446,6 +446,14 @@ const rootLocalisationSchema = yup
         onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
+        tableAutorefresh: yup.object().shape({
+          enabled: yup.boolean().required(),
+          interval: yup.number().required(),
+          tables: yup
+            .array()
+            .of(yup.string())
+            .required(),
+        }),
       })
       .required()
       .noUnknown(),
