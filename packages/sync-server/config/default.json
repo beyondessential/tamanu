@@ -638,8 +638,7 @@
         "displayIcd10CodesInDischargeSummary": true,
         "tableAutorefresh": {
           "enabled": false,
-          "interval": 300000, // 5 minutes
-          "tables": []
+          "interval": 300000
         }
       },
       "templates": {

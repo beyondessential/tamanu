@@ -16,7 +16,7 @@ export const DataFetchingTable = memo(
     refreshCount = 0,
     onDataFetched,
     disablePagination = false,
-    tableKey,
+    autoRefresh: isAutoRefreshTable,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -100,9 +100,7 @@ export const DataFetchingTable = memo(
         }
       })();
 
-      const isTableRefreshEnabled = autoRefresh?.tables.includes(tableKey);
-
-      if (autoRefresh && autoRefresh.enabled && isTableRefreshEnabled) {
+      if (autoRefresh && autoRefresh.enabled && isAutoRefreshTable) {
         const tableAutorefresh = setInterval(() => {
           console.log("Table autorefreshing...")
           refreshTable();
