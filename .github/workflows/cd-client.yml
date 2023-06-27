@@ -54,7 +54,7 @@ jobs:
           tags: working
 
       - name: Make output folders
-        run: mkdir -p release/appdata
+        run: mkdir -p release/{appdata,unelevated}
 
       - name: Start container
         run: |
@@ -62,13 +62,21 @@ jobs:
             -v $PWD/release:/project/packages/desktop/release \
             working
 
-      - name: Package for Linux, Windows
-        run: docker exec working yarn run package-only --x64 --linux --win
+      - name: Package for Linux, Mac, Windows
+        run: |
+          docker exec working mv /package-mac.json package.json
+          docker exec working yarn run package-only --x64 --linux --mac --win
 
       - name: Switch to AppData NSIS-only build
         run: docker exec working mv /package-appdata.json package.json
 
       - name: Package for Windows (AppData NSIS)
+        run: docker exec working yarn run package-only --win --x64
+
+      - name: Switch to Unelevated NSIS-only build
+        run: docker exec working mv /package-unelevated.json package.json
+
+      - name: Package for Windows (Unelevated NSIS)
         run: docker exec working yarn run package-only --win --x64
 
       - name: Stop container
@@ -77,11 +85,13 @@ jobs:
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
-          mkdir -p ops/{windown-{appdata,msi,system},linux}
+          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,unelevated}}
           mv release/latest-linux.yml release/*.{AppImage,deb} ops/linux/
+          mv release/*-mac* ops/mac/
           mv release/*.msi ops/windows-msi/
           mv release/latest.yml release/*.exe* ops/windows-system/
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
+          mv release/unelevated/latest.yml release/unelevated/*.exe* ops/windows-unelevated/
           rm -rf release
 
       - name: Upload as artifact
