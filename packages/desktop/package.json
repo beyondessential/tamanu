@@ -84,6 +84,10 @@
     "nsis": {
       "perMachine": true
     },
+    "msi": {
+      "perMachine": true,
+      "runAfterFinish": false
+    },
     "linux": {
       "target": [
         "deb",
