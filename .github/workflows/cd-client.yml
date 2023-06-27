@@ -64,16 +64,21 @@ jobs:
 
       - name: Install build tooling
         run: |
-          docker exec working sh -c "\
+          docker exec working bash -c "\
             wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub; \
             wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk; \
-            apk add tar glibc-2.35-r1.apk wine wine_gecko wine-mono --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing; \
+            apk add tar glibc-2.35-r1.apk libc6-compat 7zip squashfs-tools wine wine_gecko wine-mono --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing; \
+            ln -s /usr/bin/7z{,a}; \
           "
 
-      - name: Package for Linux, MacOS, Windows (NSIS)
+      - name: Package for Linux, Windows (NSIS)
         run: |
-          docker exec -w /app/packages/desktop working \
-            yarn run package-all
+          docker exec \
+            -w /app/packages/desktop \
+            -e USE_SYSTEM_7ZA=true \
+            -e USE_SYSTEM_MKSQUASHFS=true \
+            working \
+              yarn run package-only --x64 --linux --win
 
       - name: Enable AppData install
         run: |
@@ -85,8 +90,11 @@ jobs:
 
       - name: Package for Windows (AppData)
         run: |
-          docker exec -w /app/packages/desktop working \
-            yarn run package-win
+          docker exec \
+            -w /app/packages/desktop \
+            -e USE_SYSTEM_7ZA=true \
+            working \
+              yarn run package-only --win --x64
 
       - name: Stop container
         run: docker kill working
