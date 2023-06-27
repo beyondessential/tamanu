@@ -52,7 +52,6 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      updateFetchState({ isLoading: true });
       (async () => {
         try {
           if (!endpoint) {
