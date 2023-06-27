@@ -82,6 +82,7 @@ jobs:
           cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-${{ matrix.package.name }}
           cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
+          target: server
           push: true
           labels: |
             org.opencontainers.image.vendor=BES

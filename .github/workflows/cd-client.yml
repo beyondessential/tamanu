@@ -48,76 +48,40 @@ jobs:
           context: .
           cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-desktop
           cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
-          build-args: PACKAGE_PATH=desktop
-          target: build-server
+          target: build-desktop
           push: false
           tags: working
 
       - name: Make output folders
-        run: mkdir -p ops/win-{appdata,msi}
+        run: mkdir -p release/appdata
 
       - name: Start container
         run: |
           docker run -dit --rm --name working \
-            -v $PWD/ops:/app/packages/desktop/release \
+            -v $PWD/release:/project/packages/desktop/release \
             working
 
-      - name: Install build tooling
-        run: |
-          docker exec working bash -c "\
-            wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub; \
-            wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk; \
-            apk add tar glibc-2.35-r1.apk libc6-compat gnu-libiconv \
-              7zip mingw-w64-{crt,gcc} scons squashfs-tools \
-              wine wine_gecko wine-mono --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing; \
-            ln -s /usr/bin/7z{,a}; \
-            git clone https://github.com/kichik/nsis /tmp/nsis --depth 1; \
-            cd /tmp/nsis; \
-            scons STRIP=0 SKIPSTUBS=all SKIPPLUGINS=all SKIPUTILS=all SKIPMISC=all NSIS_CONFIG_CONST_DATA_PATH=no NSIS_CONFIG_LOG=yes NSIS_MAX_STRLEN=8192 makensis
-            git clone https://github.com/electron-userland/electron-builder-binaries /tmp/electron-builder-binaries --depth 1; \
-            cd /tmp/electron-builder-binaries/nsis; \
-            rm -r linux; \
-            mv /tmp/nsis/build/urelease/makensis linux; \
-          "
-
       - name: Package for Linux, Windows
-        run: |
-          docker exec \
-            -w /app/packages/desktop \
-            -e USE_SYSTEM_7ZA=true \
-            -e USE_SYSTEM_MKSQUASHFS=true \
-            -e ELECTRON_BUILDER_NSIS_DIR=/tmp/electron-builder-binaries/nsis \
-            -e LD_PRELOAD=/usr/lib/preloadable_libiconv.so \
-            working \
-              yarn run package-only --x64 --linux --win
+        run: docker exec working yarn run package-only --x64 --linux --win
 
-      - name: Enable AppData install
-        run: |
-          docker exec -w /app/packages/desktop working \
-            cp packages/desktop/app/package.json{,.orig}
-          docker exec -w /app/packages/desktop working \
-            sh -c 'jq \'build.win.targets = ["nsis"] | build.nsis.perMachine = true | build.directories.output = "release/win-appdata"\' \
-              packages/desktop/app/package.json.orig > packages/desktop/app/package.json'
+      - name: Switch to AppData NSIS-only build
+        run: docker exec working mv /package-appdata.json package.json
 
       - name: Package for Windows (AppData NSIS)
-        run: |
-          docker exec \
-            -w /app/packages/desktop \
-            -e USE_SYSTEM_7ZA=true \
-            -e ELECTRON_BUILDER_NSIS_DIR=/tmp/electron-builder-binaries/nsis \
-            -e LD_PRELOAD=/usr/lib/preloadable_libiconv.so \
-            working \
-              yarn run package-only --win --x64
+        run: docker exec working yarn run package-only --win --x64
 
       - name: Stop container
         run: docker kill working
 
-      - name: Remove unpacked outputs
+      - name: Prepare final outputs
         run: |
-          sudo chown -R $USER:$USER ops
-          mv ops/{win-appdata/,AppData-}Tamanu*.exe
-          mv ops/{win-appdata/,AppData-}latest*.yml
-          rm -rf ops/win-appdata ops/*-unpacked
+          sudo chown -R $USER:$USER release
+          mkdir -p ops/{windown-{appdata,msi,system},linux}
+          mv release/latest-linux.yml release/*.{AppImage,deb} ops/linux/
+          mv release/*.msi ops/windows-msi/
+          mv release/latest.yml release/*.exe* ops/windows-system/
+          mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
+          rm -rf release
 
       - name: Upload as artifact
         uses: actions/upload-artifact@v3
@@ -127,5 +91,5 @@ jobs:
           retention-days: 14
 
       - name: Push to S3
-        working-directory: packages/desktop
-        run: aws s3 cp tamanu-*.zip s3://${{ vars.DESKTOP_S3_BUCKET }}/${{ needs.info.outputs.branch }} --no-progress
+        working-directory: ops
+        run: aws s3 sync . s3://${{ vars.DESKTOP_S3_BUCKET }}/${{ needs.info.outputs.branch }} --no-progress
