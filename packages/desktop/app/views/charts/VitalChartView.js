@@ -1,8 +1,8 @@
 import React from 'react';
-import { useVitalChartData } from '../contexts/VitalChartData';
-import { LineChart } from '../components/Charts/LineChart';
-import { useEncounter } from '../contexts/Encounter';
-import { useVitalQuery } from '../api/queries/useVitalQuery';
+import { useVitalChartData } from '../../contexts/VitalChartData';
+import { LineChart } from '../../components/Charts/LineChart';
+import { useEncounter } from '../../contexts/Encounter';
+import { useVitalQuery } from '../../api/queries/useVitalQuery';
 
 // Fetching and preparing data for vital chart
 export const VitalChartView = () => {
