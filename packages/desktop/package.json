@@ -76,7 +76,8 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "msi"
       ]
     },
     "nsis": {
