@@ -12,17 +12,18 @@ COPY package.json license ./
 FROM base AS build-base
 RUN apk add --no-cache \
     --virtual .build-deps \
-    make \
-    gcc \
-    git \
-    g++ \
-    python3 \
     bash \
-    jq
+    g++ \
+    gcc \
+    gcompat \
+    git \
+    jq \
+    make \
+    python3
 COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
 
 FROM base AS run-base
-RUN apk add --no-cache bash curl jq
+RUN apk add --no-cache bash curl gcompat jq
 # set the runtime options
 COPY scripts/docker-entrypoint.sh /entrypoint
 ENTRYPOINT ["/entrypoint"]
