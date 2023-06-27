@@ -411,7 +411,7 @@ encounterRelations.get(
     const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
 
     const answers = await SurveyResponseAnswer.findAll({
-      where: { responseId: responseIds, dataElementId },
+      where: { responseId: responseIds, dataElementId, body: { [Op.ne]: '' } },
     });
 
     const data = answers
