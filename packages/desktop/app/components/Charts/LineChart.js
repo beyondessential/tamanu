@@ -22,9 +22,7 @@ import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
-
-export const Y_AXIS_WIDTH = 40;
-const INTERVAL_HEIGHT = 20;
+import { CHART_MARGIN, MULTI_CHARTS_VIEW_INTERVAL_HEIGHT, Y_AXIS_WIDTH } from './constants';
 
 const CustomTooltip = ({ payload }) => {
   if (payload && payload.length) {
@@ -64,16 +62,11 @@ export const LineChart = props => {
   const xAxisTicks = getXAxisTicks(startDate, endDate);
   const yAxisTicks = getYAxisTicks(yAxisConfigs);
   const height = isInMultiChartsView
-    ? (yAxisTicks.length - 1) * INTERVAL_HEIGHT + XAxisTickHeight
+    ? (yAxisTicks.length - 1) * MULTI_CHARTS_VIEW_INTERVAL_HEIGHT + XAxisTickHeight
     : 500;
 
   return (
-    <LineChartComponent
-      width={1556}
-      height={height}
-      data={measureData}
-      margin={{ top: 7, bottom: 15, left: 0, right: 30 }}
-    >
+    <LineChartComponent width={1856} height={height} data={measureData} margin={CHART_MARGIN}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
         interval={0}
