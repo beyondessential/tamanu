@@ -449,10 +449,6 @@ const rootLocalisationSchema = yup
         tableAutorefresh: yup.object().shape({
           enabled: yup.boolean().required(),
           interval: yup.number().required(),
-          tables: yup
-            .array()
-            .of(yup.string())
-            .required(),
         }),
       })
       .required()
