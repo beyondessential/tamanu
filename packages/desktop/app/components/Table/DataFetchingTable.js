@@ -25,6 +25,7 @@ export const DataFetchingTable = memo(
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [lastFetchCount, setLastFetchCount] = useState(0);
+    const [newRowCount, setNewRowCount] = useState(0);
     const api = useApi();
     const { getLocalisation } = useLocalisation();
 
@@ -71,12 +72,15 @@ export const DataFetchingTable = memo(
           );
 
           // Here we add the light green background to new rows since last refresh to give visual feedback
-          const newRows = count - lastFetchCount;
           const isFirstFetch = lastFetchCount === 0;
+          const rowsSinceRefresh = count - lastFetchCount;
+          const rowsSinceInteraction = rowsSinceRefresh + newRowCount;
           const dataWithStyles = data.map((row, i) => ({
             ...row,
-            new: i < newRows && !isFirstFetch,
+            new: i < rowsSinceInteraction && !isFirstFetch,
           }));
+
+          if (!isFirstFetch) setNewRowCount(rowsSinceInteraction);
           setLastFetchCount(count);
 
           const transformedData = transformRow ? dataWithStyles.map(transformRow) : dataWithStyles;
@@ -101,7 +105,7 @@ export const DataFetchingTable = memo(
 
       if (autoRefresh && autoRefresh.enabled && isAutoRefreshTable) {
         const tableAutorefresh = setInterval(() => {
-          console.log("Table autorefreshing...")
+          console.log('Table autorefreshing...');
           refreshTable();
         }, autoRefresh.interval);
 
