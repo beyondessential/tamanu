@@ -76,7 +76,7 @@ ENV NODE_ENV=production
 WORKDIR /project/packages/desktop
 RUN jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.directories.output = "release/appdata"' \
     package.json > /package-appdata.json
-RUN jq '.build.win.target = ["nsis"] | .build.nsis.allowElevation = false | .build.directories.output = "release/unelevated"' \
+RUN jq '.build.win.target = ["nsis"] | .build.nsis.oneClick = false | .build.nsis.allowElevation = false | .build.directories.output = "release/unelevated"' \
     package.json > /package-unelevated.json
 RUN jq '.build.mac.target = "tar.xz"' \
     package.json > /package-mac.json
