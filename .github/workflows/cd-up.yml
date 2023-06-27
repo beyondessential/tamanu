@@ -195,15 +195,9 @@ jobs:
 
   client:
     needs: info
-    # because wine doesn't install on ubuntu
-    # and yarn doesn't work on windows (io latency)
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     name: Build desktop client
     steps:
-      - name: Install wine
-        # see https://github.com/actions/runner-images/issues/743
-        run: brew install wine-stable
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -212,30 +206,27 @@ jobs:
           role-session-name: GithubActionsTamanuS3
 
       - uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
         with:
-          node-version: 16
-          cache: yarn
+          # in PRs, use the actual PR branch, not the merge branch
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
 
-      - name: Install Python 3.10 (for node-gyp)
-        uses: actions/setup-python@v4
+      - name: Setup buildkit
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build container
+        uses: docker/build-push-action@v4
         with:
-          python-version: '3.10'
+          context: .
+          platforms: ${{ matrix.platform.arch }}
+          cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-desktop
+          cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
+          build-args: PACKAGE_PATH=desktop
+          target: build-server
+          push: false
+        tags: working
 
-      - name: Prepare yarn
-        run: yarn && yarn build-shared
-        env:
-          PYTHON: /opt/homebrew/bin/python3.10
-
-      - name: Build desktop client
-        working-directory: packages/desktop
-        run: yarn package-win
-
-      - name: Pack desktop client
-        working-directory: packages/desktop/release
-        run: zip -q -r ../tamanu-$(jq .version ../package.json -r)-${{ github.sha }}.zip .
+      - name: Package for Linux
+        uses: # TODO
 
       - name: Upload as artifact
         uses: actions/upload-artifact@v3
