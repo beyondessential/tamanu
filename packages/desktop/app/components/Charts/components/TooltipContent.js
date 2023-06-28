@@ -4,6 +4,7 @@ import { Colors } from '../../../constants';
 import { formatShortest, formatTime } from '../../DateDisplay';
 import { CustomDot } from './CustomDot';
 import { formatValue } from '../../FormattedTableCell';
+import { InwardArrowVectorIcon } from '../../Icons/VitalVectorIcon';
 
 const FlexColumn = styled.div`
   flex-direction: column;
@@ -37,8 +38,35 @@ export const TooltipContent = ({ label, value, description, dotColor, config }) 
       <span>
         {formatShortest(label)} <TimeText>{formatTime(label)}</TimeText>
       </span>
-      <ValueWrapper>
-        <CustomDot payload={{ dotColor }} />
+      <ValueWrapper $alignItem="baseline">
+        <CustomDotWrapper>
+          <CustomDot payload={{ dotColor }} />
+        </CustomDotWrapper>
+        <FlexColumn>
+          <span>{formatValue(value, config)}</span>
+          <span>{description}</span>
+        </FlexColumn>
+      </ValueWrapper>
+    </Wrapper>
+  );
+};
+
+export const InwardArrowVectorTooltipContent = ({
+  label,
+  value,
+  description,
+  config,
+  dotColor,
+}) => {
+  return (
+    <Wrapper>
+      <span>
+        {formatShortest(label)} <TimeText>{formatTime(label)}</TimeText>
+      </span>
+      <ValueWrapper $alignItem="center">
+        <CustomDotWrapper>
+          <InwardArrowVectorIcon color={dotColor} />
+        </CustomDotWrapper>
         <FlexColumn>
           <span>{formatValue(value, config)}</span>
           <span>{description}</span>

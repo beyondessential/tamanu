@@ -10,7 +10,6 @@ import {
   LineChart as LineChartComponent,
   Customized,
 } from 'recharts';
-import { TooltipContent } from './components/TooltipContent';
 import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
 import {
@@ -24,24 +23,7 @@ import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
 import { CHART_MARGIN, Y_AXIS_WIDTH } from './constants';
 import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
-
-const CustomTooltip = ({ payload }) => {
-  if (payload && payload.length) {
-    const { value, name, dotColor, description, config } = payload[0].payload;
-
-    return (
-      <TooltipContent
-        label={name}
-        value={value}
-        dotColor={dotColor}
-        description={description}
-        config={config}
-      />
-    );
-  }
-
-  return null;
-};
+import { CustomTooltip } from './components/CustomTooltip';
 
 export const LineChart = props => {
   const {
@@ -60,7 +42,7 @@ export const LineChart = props => {
 
   const { yAxis: yAxisConfigs } = visualisationConfig;
   const isNoData = chartData.length === 0 && !isLoading;
-  const measureData = getMeasureData(chartData, visualisationConfig);
+  const measureData = getMeasureData(chartData, visualisationConfig, useInwardArrowVector);
   const DotComponent = useInwardArrowVector ? InwardArrowVectorDot : CustomDot;
 
   return (
@@ -109,7 +91,7 @@ export const LineChart = props => {
           boxShadow: `0px 4px 20px rgba(0, 0, 0, 0.1)`,
           borderRadius: '5px',
         }}
-        content={<CustomTooltip />}
+        content={<CustomTooltip useInwardArrowVector={useInwardArrowVector} />}
       />
       <Line
         type="monotone"
