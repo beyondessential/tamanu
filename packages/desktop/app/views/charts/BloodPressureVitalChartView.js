@@ -1,5 +1,5 @@
 import React from 'react';
-import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
 import { useVitalChartData } from '../../contexts/VitalChartData';
 import { LineChart } from '../../components/Charts/LineChart';
 import { useEncounter } from '../../contexts/Encounter';

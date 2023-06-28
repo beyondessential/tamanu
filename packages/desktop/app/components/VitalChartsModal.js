@@ -3,9 +3,9 @@ import React from 'react';
 import { Modal } from './Modal';
 import { Colors } from '../constants';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { VitalChartView } from '../views/VitalChartView';
 import { DateTimeSelector } from './Charts/components/DateTimeSelector';
 import { MultiVitalChartsView } from '../views/MultiVitalChartsView';
+import { VitalChartView } from '../views/charts/VitalChartView';
 
 export const VitalChartsModal = React.memo(() => {
   const {
