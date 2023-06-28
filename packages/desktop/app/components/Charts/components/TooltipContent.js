@@ -35,7 +35,10 @@ const CustomDotWrapper = styled.div`
   padding: 1px;
 `;
 
-export const TooltipContent = ({ name, value, description, dotColor, config }) => {
+export const TooltipContent = props => {
+  const { name, description, visualisationConfig, dotColor, value } = props;
+  const { config = {} } = visualisationConfig;
+
   return (
     <Wrapper>
       <span>
@@ -55,8 +58,9 @@ export const TooltipContent = ({ name, value, description, dotColor, config }) =
 };
 
 export const InwardArrowVectorTooltipContent = props => {
-  const { name, description, config, dotColor, inwardArrowVector } = props;
-  const { unit = '' } = config || {};
+  const { name, description, visualisationConfig, dotColor, inwardArrowVector } = props;
+  const { config = {} } = visualisationConfig;
+  const { unit = '' } = config;
 
   return (
     <Wrapper>

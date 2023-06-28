@@ -8,7 +8,7 @@ import { useVitalQuery } from '../../api/queries/useVitalQuery';
 // Fetching and preparing blood pressure data for vital chart
 export const BloodPressureVitalChartView = props => {
   const { chartKey } = props;
-  const { visualisationConfigs, startDate, endDate, isInMultiChartsView } = useVitalChartData();
+  const { visualisationConfigs, startDate, endDate } = useVitalChartData();
   const { encounter } = useEncounter();
 
   const { data: SBPChartData, isLoading: isSBPLoading } = useVitalQuery(
@@ -27,14 +27,14 @@ export const BloodPressureVitalChartView = props => {
 
   const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
   const chartData = SBPChartData.map(SBPData => {
-    const { recordedDate, value } = SBPData;
+    const { recordedDate, body } = SBPData;
     const relatedDBPChartData = DBPChartData.find(
       ({ recordedDate: DBPRecordedDate }) => DBPRecordedDate === recordedDate,
     );
     return {
       name: recordedDate,
-      value,
-      inwardArrowVector: { top: value, bottom: relatedDBPChartData?.value },
+      value: body,
+      inwardArrowVector: { top: body, bottom: relatedDBPChartData?.body },
     };
   });
 
@@ -46,7 +46,6 @@ export const BloodPressureVitalChartView = props => {
         startDate={startDate}
         endDate={endDate}
         isLoading={isSBPLoading || isDBPLoading}
-        isInMultiChartsView={isInMultiChartsView}
         useInwardArrowVector
       />
     </>
