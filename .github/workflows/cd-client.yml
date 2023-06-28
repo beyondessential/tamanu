@@ -97,14 +97,14 @@ jobs:
       - name: Use release bucket
         if: startsWith(github.ref, 'refs/heads/release/')
         run: |
-          echo S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }} | tee -a $GITHUB_ENV
-          echo S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }} | tee -a $GITHUB_ENV
+          echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
+          echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
 
       - name: Use dev bucket
         if: "!startsWith(github.ref, 'refs/heads/release/')"
         run: |
-          echo S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }} | tee -a $GITHUB_ENV
-          echo S3_URL=https://s3.console.aws.amazon.com/s3/buckets/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }} | tee -a $GITHUB_ENV
+          echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
+          echo "S3_URL=https://s3.console.aws.amazon.com/s3/buckets/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
 
       - name: Push to S3
         working-directory: ops
@@ -116,7 +116,7 @@ jobs:
         with:
           script: |
             const body = [
-              '### :package: Desktop clients uploaded to S3.',
+              '### :package: Desktop clients',
               '',
               `- :penguin: [Linux](${process.env.S3_URL}/linux/)`,
               `- :apple: [macOS](${process.env.S3_URL}/mac/)`,
@@ -142,7 +142,7 @@ jobs:
               repo: context.repo.repo,
               pr: context.issue?.number ?? context.pull_request?.number,
             });
-            const existing = comments.nodes.find(({body}) => body.includes('### :package: Desktop clients uploaded to S3.'));
+            const existing = comments.nodes.find(({body}) => body.includes('### :package: Desktop clients'));
 
             if (existing) {
               console.log('Updating existing comment', existing.id);
