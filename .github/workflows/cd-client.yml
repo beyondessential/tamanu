@@ -118,12 +118,12 @@ jobs:
             const body = [
               '### :package: Desktop clients uploaded to S3.',
               '',
-              `- :linux: [Linux](${process.env.S3_URL}/linux/)`,
+              `- :penguin: [Linux](${process.env.S3_URL}/linux/)`,
               `- :apple: [macOS](${process.env.S3_URL}/mac/)`,
-              `- :windows: **[Windows (System)](${process.env.S3_URL}/windows-system/)**`,
-              `- :windows: [Windows (AppData)](${process.env.S3_URL}/windows-appdata/)`,
-              `- :windows: [Windows (Unelevated)](${process.env.S3_URL}/windows-unelevated/)`,
-              `- :windows: [Windows (MSI)](${process.env.S3_URL}/windows-msi/)`,
+              `- :window: **[Windows (System)](${process.env.S3_URL}/windows-system/)**`,
+              `- :window: [Windows (AppData)](${process.env.S3_URL}/windows-appdata/)`,
+              `- :window: [Windows (Unelevated)](${process.env.S3_URL}/windows-unelevated/)`,
+              `- :window: [Windows (MSI)](${process.env.S3_URL}/windows-msi/)`,
             ].join('\n');
 
             const {repository:{pullRequest:{comments}}} = await github.graphql(`query($owner:String!, $repo:String!, $pr:Int!) {
