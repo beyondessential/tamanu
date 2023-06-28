@@ -176,5 +176,3 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
 
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
-
-export const permission = 'Encounter';

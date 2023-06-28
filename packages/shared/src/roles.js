@@ -209,7 +209,7 @@ export const practitioner = [
   { verb: 'write', noun: 'PatientSecondaryId' },
   { verb: 'create', noun: 'PatientSecondaryId' },
 
-  { verb: 'run', noun: 'Report' },
+  { verb: 'run', noun: 'StaticReport' },
 
   { verb: 'write', noun: 'OtherPractitionerEncounterNote' },
 
