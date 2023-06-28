@@ -136,15 +136,13 @@ jobs:
           rm -rf release
 
       - name: Use release bucket
-        if: true
-        # startsWith(github.ref, 'refs/heads/release/')
+        if: startsWith(github.ref, 'refs/heads/release/')
         run: |
           echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
 
       - name: Use dev bucket
-        if: false
-        # "!startsWith(github.ref, 'refs/heads/release/')"
+        if: "!startsWith(github.ref, 'refs/heads/release/')"
         run: |
           echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
