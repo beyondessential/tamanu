@@ -32,7 +32,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
-          JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}?pr=${{ github.event.pull_request.number }}
+          JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}?pr=${{ github.event.pull_request.number }}
         with:
           result-encoding: string
           script: |
