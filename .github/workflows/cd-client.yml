@@ -28,7 +28,7 @@ jobs:
     name: Build desktop client
     steps:
       - name: Edit PR comment to show build status
-        id: comment
+        id: existing-comment
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
@@ -153,14 +153,13 @@ jobs:
         working-directory: ops
         run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
+      - name: Prepare comment
+        id: comment
         uses: actions/github-script@v6
-        env:
-          EXISTING_COMMENT_ID: ${{ steps.comment.outputs.result }}
         with:
+          result-encoding: string
           script: |
-            const body = [
+            return [
               '### :package: Desktop clients',
               '',
               `- :window: **[Windows (System)](${process.env.S3_URL}/windows-system/)**`,
@@ -171,6 +170,15 @@ jobs:
               `- :penguin: [Linux](${process.env.S3_URL}/linux/)`,
             ].join('\n');
 
+      # TODO: for releases, post comment elsewhere? on draft/release? slack?
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        env:
+          EXISTING_COMMENT_ID: ${{ steps.existing-comment.outputs.result }}
+          COMMENT_BODY: ${{ steps.comment.outputs.result }}
+        with:
+          script: |
             if (process.env.EXISTING_COMMENT_ID) {
               console.log('Updating existing comment', process.env.EXISTING_COMMENT_ID);
               github.rest.issues.updateComment({
