@@ -46,8 +46,9 @@ export const MultiVitalChartsView = () => {
         const { yAxis: yAxisConfigs } = visualisationConfig;
 
         const yAxisTicks = getYAxisTicks(yAxisConfigs);
+        const tableHeight = (yAxisTicks.length - 1) * MULTI_CHARTS_VIEW_INTERVAL_HEIGHT;
         const height =
-          (yAxisTicks.length - 1) * MULTI_CHARTS_VIEW_INTERVAL_HEIGHT + customisedXAxisTickHeight;
+          tableHeight + customisedXAxisTickHeight + CHART_MARGIN.top + CHART_MARGIN.bottom;
 
         return (
           <>
@@ -61,6 +62,8 @@ export const MultiVitalChartsView = () => {
               startDate={startDate}
               endDate={endDate}
               isLoading={isLoading}
+              margin={CHART_MARGIN}
+              tableHeight={tableHeight}
               height={height}
               yAxisTicks={yAxisTicks}
             />

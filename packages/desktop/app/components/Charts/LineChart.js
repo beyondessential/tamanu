@@ -13,12 +13,17 @@ import {
 import { TooltipContent } from './components/TooltipContent';
 import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
-import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
+import {
+  CustomisedXAxisTick,
+  CustomisedYAxisTick,
+  customisedXAxisTickHeight,
+} from './components/CustomisedTick';
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
 import { CHART_MARGIN, Y_AXIS_WIDTH } from './constants';
+import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
 
 const CustomTooltip = ({ payload }) => {
   if (payload && payload.length) {
@@ -46,16 +51,20 @@ export const LineChart = props => {
     endDate,
     xAxisTicks = getXAxisTicks(startDate, endDate),
     yAxisTicks = getYAxisTicks(visualisationConfig.yAxis),
+    margin = CHART_MARGIN,
     height = 500,
+    tableHeight = height - margin.top - margin.bottom - customisedXAxisTickHeight, // height minor the margin and the x-axis ticks
     isLoading,
+    useInwardArrowVector,
   } = props;
 
   const { yAxis: yAxisConfigs } = visualisationConfig;
   const isNoData = chartData.length === 0 && !isLoading;
-  const measureData = getMeasureData(chartData, yAxisConfigs);
+  const measureData = getMeasureData(chartData, visualisationConfig);
+  const DotComponent = useInwardArrowVector ? InwardArrowVectorDot : CustomDot;
 
   return (
-    <LineChartComponent width={1856} height={height} data={measureData} margin={CHART_MARGIN}>
+    <LineChartComponent width={1856} height={height} data={measureData} margin={margin}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
         interval={0}
@@ -107,8 +116,8 @@ export const LineChart = props => {
         dataKey={DISPLAY_VALUE_KEY}
         stroke={Colors.blue}
         strokeWidth={2}
-        dot={<CustomDot />}
-        activeDot={<CustomDot active />}
+        dot={<DotComponent tableHeight={tableHeight} />}
+        activeDot={<DotComponent active tableHeight={tableHeight} />}
         isAnimationActive={false}
       />
       {isNoData && <Customized component={<NoDataStateScreen />} />}

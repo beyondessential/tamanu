@@ -48,8 +48,15 @@ const data = [
     value: 35,
   },
 ];
-
+const inwardArrowData = data.map(item => ({
+  ...item,
+  inwardArrowVector: {
+    top: item.value,
+    bottom: item.value - (Math.random() * 2).toFixed(2),
+  },
+}));
 const visualisationConfig = {
+  hasVitalChart: true,
   yAxis: {
     normalRange: { min: 35, max: 39 },
     graphRange: { min: 33, max: 41 },
@@ -69,11 +76,11 @@ storiesOf('Vitals', module)
   ))
   .add('Vital Chart', () => {
     return (
-      <Modal title="Vital Chart" open width="lg">
+      <Modal title="Vital Chart" open width="xl">
         <LineChart
           chartData={data}
           visualisationConfig={visualisationConfig}
-          startDate={format(addDays(new Date(), -2), 'yyyy-MM-dd HH:mm:ss')}
+          startDate={format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss')}
           endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
         />
       </Modal>
@@ -81,12 +88,25 @@ storiesOf('Vitals', module)
   })
   .add('Empty Vital Chart', () => {
     return (
-      <Modal title="Empty Vital Chart" open width="lg">
+      <Modal title="Empty Vital Chart" open width="xl">
         <LineChart
           chartData={[]}
           visualisationConfig={visualisationConfig}
-          startDate={format(addDays(new Date(), -2), 'yyyy-MM-dd HH:mm:ss')}
+          startDate={format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss')}
           endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
+        />
+      </Modal>
+    );
+  })
+  .add('Inward Arrow Vital Chart', () => {
+    return (
+      <Modal title="Inward Arrow Vital Chart" open width="xl">
+        <LineChart
+          chartData={inwardArrowData}
+          visualisationConfig={visualisationConfig}
+          startDate={format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss')}
+          endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
+          useInwardArrowVector
         />
       </Modal>
     );

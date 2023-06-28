@@ -36,7 +36,9 @@ const getDisplayValue = ({ data, isOutsideGraphRange, yAxis }) => {
 
 export const DISPLAY_VALUE_KEY = 'displayValue';
 
-export const getMeasureData = (rawData, yAxis) => {
+export const getMeasureData = (rawData, visualisationConfig) => {
+  const { yAxis } = visualisationConfig;
+
   return rawData
     .map(d => {
       const isInsideNormalRange =
@@ -58,6 +60,7 @@ export const getMeasureData = (rawData, yAxis) => {
         [DISPLAY_VALUE_KEY]: displayValue,
         dotColor,
         description,
+        visualisationConfig,
       };
     })
     .sort((a, b) => {
