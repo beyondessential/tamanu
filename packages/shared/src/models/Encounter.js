@@ -307,12 +307,38 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  async addLocationChangeNote(contentPrefix, fromLocation, toLocation, submittedTime, user) {
+  async addLocationChangeNote(contentPrefix, newLocationId, submittedTime, user) {
     const { Location } = this.sequelize.models;
+    const oldLocation = await Location.findOne({
+      where: { id: this.locationId },
+      include: 'locationGroup',
+    });
+    const newLocation = await Location.findOne({
+      where: { id: newLocationId },
+      include: 'locationGroup',
+    });
+    if (!newLocation) {
+      throw new InvalidOperationError('Invalid location specified');
+    }
+
     await this.addSystemNote(
       `${contentPrefix} from ${Location.formatFullLocationName(
-        fromLocation,
-      )} to ${Location.formatFullLocationName(toLocation)}`,
+        oldLocation,
+      )} to ${Location.formatFullLocationName(newLocation)}`,
+      submittedTime,
+      user,
+    );
+  }
+
+  async addDepartmentChangeNote(toDepartmentId, submittedTime, user) {
+    const { Department } = this.sequelize.models;
+    const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
+    const newDepartment = await Department.findOne({ where: { id: toDepartmentId } });
+    if (!newDepartment) {
+      throw new InvalidOperationError('Invalid department specified');
+    }
+    await this.addSystemNote(
+      `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
       submittedTime,
       user,
     );
@@ -336,6 +362,17 @@ export class Encounter extends Model {
       where: {
         encounterId: this.id,
       },
+    });
+  }
+
+  async logEncounterHistory() {
+    const { EncounterHistory } = this.sequelize.models;
+    await EncounterHistory.create({
+      encounterId: this.id,
+      encounterType: this.encounterType,
+      locationId: this.locationId,
+      departmentId: this.departmentId,
+      examinerId: this.examinerId,
     });
   }
 
@@ -368,10 +405,10 @@ export class Encounter extends Model {
     }
   }
 
-  async updateClinician(data, user) {
+  async updateClinician(newClinicianId, submittedTime, user) {
     const { User } = this.sequelize.models;
     const oldClinician = await User.findOne({ where: { id: this.examinerId } });
-    const newClinician = await User.findOne({ where: { id: data.examinerId } });
+    const newClinician = await User.findOne({ where: { id: newClinicianId } });
 
     if (!newClinician) {
       throw new InvalidOperationError('Invalid clinician specified');
@@ -379,13 +416,13 @@ export class Encounter extends Model {
 
     await this.addSystemNote(
       `Changed supervising clinician from ${oldClinician.displayName} to ${newClinician.displayName}`,
-      data.submittedTime,
+      submittedTime,
       user,
     );
   }
 
   async update(data, user) {
-    const { Department, Location } = this.sequelize.models;
+    const { Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
       const additionalChanges = {};
@@ -397,26 +434,17 @@ export class Encounter extends Model {
         throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
 
-      if (data.encounterType && data.encounterType !== this.encounterType) {
+      const isEncounterTypeChanged =
+        data.encounterType && data.encounterType !== this.encounterType;
+      if (isEncounterTypeChanged) {
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
-      if (data.locationId && data.locationId !== this.locationId) {
-        const oldLocation = await Location.findOne({
-          where: { id: this.locationId },
-          include: 'locationGroup',
-        });
-        const newLocation = await Location.findOne({
-          where: { id: data.locationId },
-          include: 'locationGroup',
-        });
-        if (!newLocation) {
-          throw new InvalidOperationError('Invalid location specified');
-        }
+      const isLocationChanged = data.locationId && data.locationId !== this.locationId;
+      if (isLocationChanged) {
         await this.addLocationChangeNote(
           'Changed location',
-          oldLocation,
-          newLocation,
+          data.locationId,
           data.submittedTime,
           user,
         );
@@ -448,23 +476,9 @@ export class Encounter extends Model {
           );
         }
 
-        const currentLocation = await Location.findOne({
-          where: { id: this.locationId },
-          include: 'locationGroup',
-        });
-        const plannedLocation = await Location.findOne({
-          where: { id: data.plannedLocationId },
-          include: 'locationGroup',
-        });
-
-        if (!plannedLocation) {
-          throw new InvalidOperationError('Invalid location specified');
-        }
-
         await this.addLocationChangeNote(
           'Added a planned location change',
-          currentLocation,
-          plannedLocation,
+          data.plannedLocationId,
           data.submittedTime,
           user,
         );
@@ -472,21 +486,23 @@ export class Encounter extends Model {
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
-      if (data.departmentId && data.departmentId !== this.departmentId) {
-        const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
-        const newDepartment = await Department.findOne({ where: { id: data.departmentId } });
-        if (!newDepartment) {
-          throw new InvalidOperationError('Invalid department specified');
-        }
-        await this.addSystemNote(
-          `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
-          data.submittedTime,
-          user,
-        );
+      const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
+      if (isDepartmentChanged) {
+        await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
-      if (data.examinerId && data.examinerId !== this.examinerId) {
-        await this.updateClinician(data, user);
+      const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
+      if (isClinicianChanged) {
+        await this.updateClinician(data.examinerId, data.submittedTime, user);
+      }
+
+      if (
+        isEncounterTypeChanged ||
+        isDepartmentChanged ||
+        isLocationChanged ||
+        isClinicianChanged
+      ) {
+        await this.logEncounterHistory();
       }
 
       const { submittedTime, ...encounterData } = data;
