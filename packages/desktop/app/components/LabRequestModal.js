@@ -10,7 +10,7 @@ import { useEncounter } from '../contexts/Encounter';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
-    max-width: 926px;
+    max-width: 1200px;
   }
 `;
 
@@ -40,6 +40,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const { loadEncounter } = useEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
+  const specimenTypeSuggester = useSuggester('specimenType');
+  const labSampleSiteSuggester = useSuggester('labSampleSite');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -73,6 +75,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
       departmentSuggester={departmentSuggester}
+      specimenTypeSuggester={specimenTypeSuggester}
+      labSampleSiteSuggester={labSampleSiteSuggester}
     />
   );
 
@@ -89,11 +93,10 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
 
   return (
     <StyledModal
-      maxWidth="md"
       title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
       open={open}
       onClose={handleClose}
-      minHeight={500}
+      minHeight={800}
     >
       {ModalBody}
     </StyledModal>
