@@ -48,6 +48,7 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
           description="(Outside normal range >39°C) (Outside graph range)"
         />
       </TooltipWrapper>
+
       <TooltipWrapper>
         <InwardArrowVectorTooltipContent label={name} value="36°C" dotColor={Colors.darkestText} />
       </TooltipWrapper>
