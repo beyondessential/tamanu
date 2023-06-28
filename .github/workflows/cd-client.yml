@@ -94,28 +94,39 @@ jobs:
           mv release/unelevated/latest.yml release/unelevated/*.exe* ops/windows-unelevated/
           rm -rf release
 
+      - name: Use release bucket
+        if: startsWith(github.ref, 'refs/heads/release/')
+        run: |
+          echo S3_BUCKET=bes-tamanu-release-clients | tee -a $GITHUB_ENV
+          echo S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.branch }} | tee -a $GITHUB_ENV
+
+      - name: Use dev bucket
+        if: ! startsWith(github.ref, 'refs/heads/release/')
+        run: |
+          echo S3_BUCKET=bes-tamanu-dev-desktop-clients | tee -a $GITHUB_ENV
+          echo S3_URL=https://s3.console.aws.amazon.com/s3/buckets/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }} | tee -a $GITHUB_ENV
+
       - name: Push to S3
         working-directory: ops
-        run: aws s3 sync . s3://${{ vars.DESKTOP_S3_BUCKET }}/${{ needs.info.outputs.branch }} --no-progress
+        run: aws s3 sync . s3://${{ env.S3_BUCKET }}/${{ needs.info.outputs.branch }} --no-progress
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
         with:
           script: |
-            const base = 'https://s3.console.aws.amazon.com/s3/buckets/${{ vars.DESKTOP_S3_BUCKET }}?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}';
             const body = [
               '### :package: Desktop clients uploaded to S3.',
               '',
-              `- :linux: [Linux](${base}/linux/)`,
-              `- :apple: [macOS](${base}/mac/)`,
-              `- :windows: **[Windows (System)](${base}/windows-system/)**`,
-              `- :windows: [Windows (AppData)](${base}/windows-appdata/)`,
-              `- :windows: [Windows (Unelevated)](${base}/windows-unelevated/)`,
-              `- :windows: [Windows (MSI)](${base}/windows-msi/)`,
+              `- :linux: [Linux](${process.env.S3_URL}/linux/)`,
+              `- :apple: [macOS](${process.env.S3_URL}/mac/)`,
+              `- :windows: **[Windows (System)](${process.env.S3_URL}/windows-system/)**`,
+              `- :windows: [Windows (AppData)](${process.env.S3_URL}/windows-appdata/)`,
+              `- :windows: [Windows (Unelevated)](${process.env.S3_URL}/windows-unelevated/)`,
+              `- :windows: [Windows (MSI)](${process.env.S3_URL}/windows-msi/)`,
             ].join('\n');
 
-            const {data:{repository:{pullRequest:{comments}}}} = await github.graphql(`query($owner:String!, $repo:String!, $pr:Int!) {
+            const {repository:{pullRequest:{comments}}} = await github.graphql(`query($owner:String!, $repo:String!, $pr:Int!) {
               repository(owner:$owner, name:$repo){
                 pullRequest(number:$pr) {
                   comments(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
