@@ -1,7 +1,7 @@
 import { Suggester } from '../utils/suggester';
 import { useApi } from './useApi';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
-import { formatShort } from '../components/DateDisplay';
+import { DateDisplay } from '../components/DateDisplay';
 
 export const useSuggester = (type, options) => {
   const api = useApi();
@@ -14,7 +14,7 @@ export const usePatientSuggester = () => {
     formatter: ({ id, ...patient }) => ({
       label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
         patient.sex
-      } - ${formatShort(patient.dateOfBirth)}`,
+      } - ${DateDisplay.rawFormat(patient.dateOfBirth)}`,
       value: id,
     }),
   });

@@ -20,7 +20,7 @@ import {
   Field,
   Form,
   RadioField,
-  formatShort,
+  DateDisplay,
 } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
@@ -142,7 +142,7 @@ export const ReportGeneratorForm = () => {
 
         const reportName = reportsById[reportId].name;
 
-        const date = formatShort(new Date());
+        const date = DateDisplay.rawFormat(new Date());
 
         const metadata = [
           ['Report Name:', reportName],

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { formatShort } from '../../../components';
+import { DateDisplay } from '../../../components';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 
@@ -89,7 +89,7 @@ export const EncounterInfoPane = React.memo(
         )}
         <CardItem label="Encounter type" value={getEncounterType(encounter)} />
         {encounter.endDate && (
-          <CardItem label="Discharge date" value={formatShort(encounter.endDate)} />
+          <CardItem label="Discharge date" value={DateDisplay.rawFormat(encounter.endDate)} />
         )}
         <CardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
       </CardBody>
