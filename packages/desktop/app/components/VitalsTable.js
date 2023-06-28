@@ -5,7 +5,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
 import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
-import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDisplay';
 
 const StyledTable = styled(Table)`
   table {
@@ -62,7 +62,7 @@ export const VitalsTable = React.memo(() => {
           );
         },
         exportOverrides: {
-          title: `${formatShortest(date)} ${formatTimeWithSeconds(date)}`,
+          title: `${DateDisplay.rawFormat(date, formatShortest)} ${DateDisplay.rawFormat(date, formatTimeWithSeconds)}`,
         },
       })),
   ];

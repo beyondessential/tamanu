@@ -2,7 +2,7 @@ import { capitalize } from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { formatLong, formatShortest, formatTime } from './DateDisplay';
+import { DateDisplay, formatLong, formatShortest, formatTime } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 const CellWrapper = styled.div`
@@ -26,10 +26,10 @@ const HeadCellWrapper = styled.div`
 `;
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={formatLong(value)}>
+  <TableTooltip title={DateDisplay.rawFormat(value, formatLong)}>
     <HeadCellWrapper>
-      <div>{formatShortest(value)}</div>
-      <div>{formatTime(value)}</div>
+      <div>{DateDisplay.rawFormat(value, formatShortest)}</div>
+      <div>{DateDisplay.rawFormat(value, formatTime)}</div>
     </HeadCellWrapper>
   </TableTooltip>
 ));

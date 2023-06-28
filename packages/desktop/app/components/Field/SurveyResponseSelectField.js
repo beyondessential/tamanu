@@ -16,7 +16,7 @@ export const SurveyResponseSelectField = ({ field, patient, options: _, config, 
           .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
           .map(({ id, endTime, surveyName }) => ({
             value: id,
-            label: `${DateDisplay.rawFormat(endTime)} ${formatTime(endTime)} ${surveyName}`,
+            label: `${DateDisplay.rawFormat(endTime)} ${DateDisplay.rawFormat(endTime, formatTime)} ${surveyName}`,
           })),
       );
     });
