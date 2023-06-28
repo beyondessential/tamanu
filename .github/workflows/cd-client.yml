@@ -94,13 +94,59 @@ jobs:
           mv release/unelevated/latest.yml release/unelevated/*.exe* ops/windows-unelevated/
           rm -rf release
 
-      - name: Upload as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: tamanu-desktop
-          path: ops/*
-          retention-days: 14
-
       - name: Push to S3
         working-directory: ops
         run: aws s3 sync . s3://${{ vars.DESKTOP_S3_BUCKET }}/${{ needs.info.outputs.branch }} --no-progress
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const base = 'https://s3.console.aws.amazon.com/s3/buckets/${{ vars.DESKTOP_S3_BUCKET }}?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}';
+            const body = [
+              '### :package: Desktop clients uploaded to S3.',
+              '',
+              `- :linux: [Linux](${base}/linux/)`,
+              `- :apple: [macOS](${base}/mac/)`,
+              `- :windows: **[Windows (System)](${base}/windows-system/)**`,
+              `- :windows: [Windows (AppData)](${base}/windows-appdata/)`,
+              `- :windows: [Windows (Unelevated)](${base}/windows-unelevated/)`,
+              `- :windows: [Windows (MSI)](${base}/windows-msi/)`,
+            ].join('\n');
+
+            const {data:{repository:{pullRequest:{comments}}}} = await github.graphql(`query($owner:String!, $repo:String!, $pr:Int!) {
+              repository(owner:$owner, name:$repo){
+                pullRequest(number:$pr) {
+                  comments(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                    nodes {
+                      id
+                      body
+                    }
+                  }
+                }
+              }
+            }`, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pr: context.issue?.number ?? context.pull_request?.number,
+            });
+            const existing = comments.nodes.find(({body}) => body.includes('### :package: Desktop clients uploaded to S3.'));
+
+            if (existing) {
+              console.log('Updating existing comment', existing.id);
+              github.rest.issues.updateComment({
+                comment_id: existing.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body
+              });
+            } else {
+              console.log('Creating new comment');
+              github.rest.issues.createComment({
+                issue_number: context.issue?.number ?? context.pull_request?.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body
+              });
+            }
