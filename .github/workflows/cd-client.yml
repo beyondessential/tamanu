@@ -31,6 +31,8 @@ jobs:
         id: comment
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
+        env:
+          JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}?pr=${{ github.event.pull_request.number }}
         with:
           result-encoding: string
           script: |
@@ -60,7 +62,7 @@ jobs:
                 comment_id: existing.fullDatabaseId,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: existing.body.replace(REGEX, '$1 (⏳ rebuilding)\n'),
+                body: existing.body.replace(REGEX, '$1 (⏳ [rebuilding](${process.env.JOB_URL}))\n'),
               });
             }
 
