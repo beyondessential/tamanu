@@ -4,6 +4,12 @@ import { DateDisplay, formatTime } from '../DateDisplay';
 import { SelectInput } from './SelectField';
 import { useApi } from '../../api';
 
+const getDataLabel = (endTime, surveyName) => {
+  const shortDate = DateDisplay.rawFormat(endTime);
+  const time = DateDisplay.rawFormat(endTime, formatTime);
+  return `${shortDate} ${time} ${surveyName}`;
+};
+
 export const SurveyResponseSelectField = ({ field, patient, options: _, config, ...props }) => {
   const api = useApi();
   const [options, setOptions] = useState([]);
@@ -16,7 +22,7 @@ export const SurveyResponseSelectField = ({ field, patient, options: _, config, 
           .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
           .map(({ id, endTime, surveyName }) => ({
             value: id,
-            label: `${DateDisplay.rawFormat(endTime)} ${DateDisplay.rawFormat(endTime, formatTime)} ${surveyName}`,
+            label: getDataLabel(endTime, surveyName),
           })),
       );
     });

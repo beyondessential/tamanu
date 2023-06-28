@@ -32,6 +32,12 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const getExportOverrideTitle = date => {
+  const shortestDate = DateDisplay.rawFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.rawFormat(date, formatTimeWithSeconds);
+  return `${shortestDate} ${timeWithSeconds}`;
+};
+
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
@@ -62,7 +68,7 @@ export const VitalsTable = React.memo(() => {
           );
         },
         exportOverrides: {
-          title: `${DateDisplay.rawFormat(date, formatShortest)} ${DateDisplay.rawFormat(date, formatTimeWithSeconds)}`,
+          title: getExportOverrideTitle(date),
         },
       })),
   ];
