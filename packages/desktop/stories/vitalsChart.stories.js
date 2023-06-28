@@ -54,6 +54,7 @@ const inwardArrowData = data.map(item => ({
     top: item.value,
     bottom: item.value - (Math.random() * 2).toFixed(2),
   },
+  config: { unit: 'mmHg' },
 }));
 const visualisationConfig = {
   hasVitalChart: true,

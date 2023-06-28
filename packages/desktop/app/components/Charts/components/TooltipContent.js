@@ -54,24 +54,21 @@ export const TooltipContent = ({ name, value, description, dotColor, config }) =
   );
 };
 
-export const InwardArrowVectorTooltipContent = ({
-  label,
-  value,
-  description,
-  config,
-  dotColor,
-}) => {
+export const InwardArrowVectorTooltipContent = props => {
+  const { name, description, config, dotColor, inwardArrowVector } = props;
+  const { unit = '' } = config || {};
+
   return (
     <Wrapper>
       <span>
-        {formatShortest(label)} <TimeText>{formatTime(label)}</TimeText>
+        {formatShortest(name)} <TimeText>{formatTime(name)}</TimeText>
       </span>
       <ValueWrapper $alignItem="center">
         <CustomDotWrapper>
           <InwardArrowVectorIcon color={dotColor} />
         </CustomDotWrapper>
         <FlexColumn>
-          <span>{formatValue(value, config)}</span>
+          <span>{`${inwardArrowVector.top}/${inwardArrowVector.bottom} ${unit}`}</span>
           <span>{description}</span>
         </FlexColumn>
       </ValueWrapper>
