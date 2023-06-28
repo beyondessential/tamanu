@@ -39,7 +39,7 @@ jobs:
                 pullRequest(number:$pr) {
                   comments(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
                     nodes {
-                      id
+                      fullDatabaseId
                       body
                     }
                   }
@@ -53,16 +53,16 @@ jobs:
             const existing = comments.nodes.find(({body}) => body.includes('### :package: Desktop clients'));
 
             if (existing) {
-              console.log('Updating existing comment', existing.id);
+              console.log('Updating existing comment', existing.fullDatabaseId);
               github.rest.issues.updateComment({
-                comment_id: existing.id,
+                comment_id: existing.fullDatabaseId,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: existing.body.replace(/(### :package: Desktop clients.*)\n/, `$1 (⏳ rebuilding)\n`)
               });
             }
 
-            return existing?.id;
+            return existing?.fullDatabaseId;
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
