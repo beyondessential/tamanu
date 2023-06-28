@@ -113,7 +113,7 @@ export const DataFetchingTable = memo(
           const rowsSinceRefresh = count - lastFetchCount;
           // Rows added since last clicked out of page or into imaging request
           const rowsSinceInteraction = rowsSinceRefresh + newRowCount;
-          // Add new key that determines if the row is highlighted green or now
+          // Add new key that determines if the row is highlighted green or not
           const dataWithStyles = data.map((row, i) => {
             const actualIndex = i + page * rowsPerPage;
             const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
