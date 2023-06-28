@@ -185,7 +185,7 @@ jobs:
                 comment_id: process.env.EXISTING_COMMENT_ID,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body
+                body: process.env.COMMENT_BODY,
               });
             } else {
               console.log('Creating new comment');
@@ -193,6 +193,6 @@ jobs:
                 issue_number: context.issue?.number ?? context.pull_request?.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body
+                body: process.env.COMMENT_BODY,
               });
             }
