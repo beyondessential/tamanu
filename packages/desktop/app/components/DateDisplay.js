@@ -176,7 +176,7 @@ export const MultilineDatetimeDisplay = React.memo(
   },
 );
 
-DateDisplay.rawFormat = dateValue => {
+DateDisplay.rawFormat = (dateValue, formatFn = formatShort) => {
   const dateObj = parseDate(dateValue);
-  return formatShort(dateObj);
+  return formatFn(dateObj);
 };
