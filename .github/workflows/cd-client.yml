@@ -50,7 +50,9 @@ jobs:
               repo: context.repo.repo,
               pr: context.issue?.number ?? context.pull_request?.number,
             });
-            const existing = comments.nodes.find(({body}) => body.includes('### :package: Desktop clients'));
+
+            const REGEX = /(#.* Desktop clients.*)\n/;
+            const existing = comments.nodes.find(({body}) => REGEX.test(body));
 
             if (existing) {
               console.log('Updating existing comment', existing.fullDatabaseId);
@@ -58,7 +60,7 @@ jobs:
                 comment_id: existing.fullDatabaseId,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: existing.body.replace(/(### :package: Desktop clients.*)\n/, `$1 (⏳ rebuilding)\n`)
+                body: existing.body.replace(REGEX, '$1 (⏳ rebuilding)\n'),
               });
             }
 
