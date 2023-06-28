@@ -39,7 +39,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   // Allows to check internet connection and set error modal from child components
   const canInvokeDocumentAction = useCallback(() => {
-    if (!hasInternetConnection) {
+    if (!hasInternetConnection()) {
       setModalStatus(MODAL_STATES.ALERT_NO_INTERNET_OPEN);
       return false;
     }
