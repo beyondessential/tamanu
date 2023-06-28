@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { formatShortest, formatTime } from '../../DateDisplay';
-import { CustomDot } from './CustomDot';
 import { formatValue } from '../../FormattedTableCell';
 import { InwardArrowVectorIcon } from '../../Icons/VitalVectorIcon';
+import { CustomDot } from './CustomDot';
 
 const FlexColumn = styled.div`
   flex-direction: column;
@@ -17,7 +17,7 @@ const FlexRow = styled.div`
 `;
 
 const ValueWrapper = styled(FlexRow)`
-  align-items: baseline;
+  align-items: ${props => (props.$alignItem ? props.$alignItem : 'center')}};
   gap: 5px;
   font-size: 11px;
 `;
@@ -30,6 +30,9 @@ const Wrapper = styled(FlexColumn)`
 
 const TimeText = styled.span`
   color: ${Colors.midText};
+`;
+const CustomDotWrapper = styled.div`
+  padding: 1px;
 `;
 
 export const TooltipContent = ({ label, value, description, dotColor, config }) => {
