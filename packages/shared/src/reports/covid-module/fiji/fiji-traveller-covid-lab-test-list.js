@@ -123,5 +123,3 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     reportColumnTemplate,
   });
 };
-
-export const permission = 'LabTest';

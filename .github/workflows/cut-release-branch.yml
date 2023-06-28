@@ -27,7 +27,7 @@ jobs:
     - name: Create new release branch
       uses: actions/github-script@v6
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
           const cwd = '${{ github.workspace }}';
           const { createReleaseBranch } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
