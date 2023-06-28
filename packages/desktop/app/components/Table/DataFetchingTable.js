@@ -1,7 +1,37 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
+import styled from 'styled-components';
 import { Table } from './Table';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
+import { Colors } from '../../constants';
+import { ClearIcon } from '../Icons/ClearIcon';
+
+const Notification = styled.div`
+  background-color: ${Colors.primary}10;
+  border: 1px solid ${Colors.primary}1a;
+  border-radius: 4px;
+  color: ${Colors.primary};
+
+  height: 48px;
+  line-height: 48px;
+  width: 320px;
+  padding-left: 15px;
+
+  position: absolute;
+  top: 28px;
+  right: 35px;
+  z-index: 9;
+`;
+
+const NotificationClearIcon = styled(ClearIcon)`
+  position: absolute;
+  right: 20px;
+  top: 19px;
+  cursor: pointer;
+  path {
+    fill: ${Colors.primary};
+  }
+`;
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
@@ -26,6 +56,7 @@ export const DataFetchingTable = memo(
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [lastFetchCount, setLastFetchCount] = useState(0);
     const [newRowCount, setNewRowCount] = useState(0);
+    const [showNotification, setShowNotification] = useState(false);
     const api = useApi();
     const { getLocalisation } = useLocalisation();
 
@@ -49,6 +80,10 @@ export const DataFetchingTable = memo(
     const updateFetchState = useCallback(newFetchState => {
       setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
     }, []);
+
+    const clearNotification = () => {
+      setShowNotification(false);
+    };
 
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
@@ -74,14 +109,24 @@ export const DataFetchingTable = memo(
 
           // Here we add the light green background to new rows since last refresh to give visual feedback
           const isFirstFetch = lastFetchCount === 0;
+          // Rows since the last autorefresh
           const rowsSinceRefresh = count - lastFetchCount;
+          // Rows added since last clicked out of page or into imaging request
           const rowsSinceInteraction = rowsSinceRefresh + newRowCount;
-          const dataWithStyles = data.map((row, i) => ({
-            ...row,
-            new: i < rowsSinceInteraction && !isFirstFetch,
-          }));
+          // Add new key that determines if the row is highlighted green or now
+          const dataWithStyles = data.map((row, i) => {
+            const actualIndex = i + page * rowsPerPage;
+            const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
+            return {
+              ...row,
+              new: isNewRow,
+            };
+          });
 
-          if (!isFirstFetch) setNewRowCount(rowsSinceInteraction);
+          if (!isFirstFetch) {
+            setNewRowCount(rowsSinceInteraction);
+            setShowNotification(rowsSinceInteraction > 0 && page !== 0);
+          }
           setLastFetchCount(count);
 
           const transformedData = transformRow ? dataWithStyles.map(transformRow) : dataWithStyles;
@@ -104,9 +149,9 @@ export const DataFetchingTable = memo(
         }
       })();
 
+      // Check if autoregresh is enabled in config and that the autorefresh prop is added to table
       if (autoRefresh && autoRefresh.enabled && isAutoRefreshTable) {
         const tableAutorefresh = setInterval(() => {
-          console.log('Table autorefreshing...');
           refreshTable();
         }, autoRefresh.interval);
 
@@ -137,23 +182,30 @@ export const DataFetchingTable = memo(
     const { data, count, isLoading, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
     return (
-      <Table
-        isLoading={isLoading}
-        data={data}
-        errorMessage={errorMessage}
-        rowsPerPage={rowsPerPage}
-        page={disablePagination ? null : page}
-        count={count}
-        onChangePage={setPage}
-        onChangeRowsPerPage={setRowsPerPage}
-        onChangeOrderBy={handleChangeOrderBy}
-        order={order}
-        orderBy={orderBy}
-        rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-        refreshTable={refreshTable}
-        rowStyle={row => (row.new ? 'background-color: #F8FFF8;' : '')}
-        {...props}
-      />
+      <>
+        {showNotification && (
+          <Notification>
+            New requests available to view <NotificationClearIcon onClick={clearNotification} />
+          </Notification>
+        )}
+        <Table
+          isLoading={isLoading}
+          data={data}
+          errorMessage={errorMessage}
+          rowsPerPage={rowsPerPage}
+          page={disablePagination ? null : page}
+          count={count}
+          onChangePage={setPage}
+          onChangeRowsPerPage={setRowsPerPage}
+          onChangeOrderBy={handleChangeOrderBy}
+          order={order}
+          orderBy={orderBy}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          refreshTable={refreshTable}
+          rowStyle={row => (row.new ? 'background-color: #F8FFF8;' : '')}
+          {...props}
+        />
+      </>
     );
   },
 );
