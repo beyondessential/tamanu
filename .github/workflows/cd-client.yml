@@ -62,7 +62,7 @@ jobs:
                 comment_id: existing.fullDatabaseId,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: existing.body.replace(REGEX, '$1 (⏳ [rebuilding](${process.env.JOB_URL}))\n'),
+                body: existing.body.replace(REGEX, `$1 (⏳ [rebuilding](${process.env.JOB_URL}))\n`),
               });
             }
 
