@@ -6,20 +6,12 @@ import {
 
 export const CustomTooltip = ({ payload, useInwardArrowVector }) => {
   if (payload && payload.length) {
-    const { value, name, dotColor, description, config } = payload[0].payload;
+    const { payload: measureConfigs } = payload[0];
     const TooltipContent = useInwardArrowVector
       ? InwardArrowVectorTooltipContent
       : DefaultTooltipContent;
 
-    return (
-      <TooltipContent
-        label={name}
-        value={value}
-        dotColor={dotColor}
-        description={description}
-        config={config}
-      />
-    );
+    return <TooltipContent {...measureConfigs} />;
   }
 
   return null;

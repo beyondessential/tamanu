@@ -35,11 +35,11 @@ const CustomDotWrapper = styled.div`
   padding: 1px;
 `;
 
-export const TooltipContent = ({ label, value, description, dotColor, config }) => {
+export const TooltipContent = ({ name, value, description, dotColor, config }) => {
   return (
     <Wrapper>
       <span>
-        {formatShortest(label)} <TimeText>{formatTime(label)}</TimeText>
+        {formatShortest(name)} <TimeText>{formatTime(name)}</TimeText>
       </span>
       <ValueWrapper $alignItem="baseline">
         <CustomDotWrapper>

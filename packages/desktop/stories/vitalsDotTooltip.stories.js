@@ -28,12 +28,12 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
   return (
     <Wrapper>
       <TooltipWrapper>
-        <TooltipContent label={name} value="36.4°C" dotColor={Colors.blue} />
+        <TooltipContent name={name} value="36.4°C" dotColor={Colors.blue} />
       </TooltipWrapper>
 
       <TooltipWrapper>
         <TooltipContent
-          label={name}
+          name={name}
           value="39.1°C"
           dotColor={Colors.alert}
           description="(Outside normal range >39°C)"
@@ -42,7 +42,7 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
 
       <TooltipWrapper>
         <TooltipContent
-          label={name}
+          name={name}
           value="42.2°C"
           dotColor={Colors.darkestText}
           description="(Outside normal range >39°C) (Outside graph range)"
@@ -50,12 +50,12 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
       </TooltipWrapper>
 
       <TooltipWrapper>
-        <InwardArrowVectorTooltipContent label={name} value="36°C" dotColor={Colors.darkestText} />
+        <InwardArrowVectorTooltipContent name={name} value="36°C" dotColor={Colors.darkestText} />
       </TooltipWrapper>
 
       <TooltipWrapper>
         <InwardArrowVectorTooltipContent
-          label={name}
+          name={name}
           value="42.2°C"
           dotColor={Colors.alert}
           description="(Outside normal range >39°C) (Outside graph range)"
