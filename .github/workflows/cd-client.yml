@@ -147,7 +147,7 @@ jobs:
         # "!startsWith(github.ref, 'refs/heads/release/')"
         run: |
           echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
-          echo "S3_URL=https://s3.console.aws.amazon.com/s3/buckets/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
+          echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
 
       - name: Push to S3
         working-directory: ops
@@ -156,18 +156,22 @@ jobs:
       - name: Prepare comment
         id: comment
         uses: actions/github-script@v6
+        env:
+          VERSION: ${{ needs.info.outputs.version }}
         with:
           result-encoding: string
           script: |
+            const {S3_URL, VERSION} = process.env;
             return [
               '### :package: Desktop clients',
               '',
-              `- :window: **[Windows (System)](${process.env.S3_URL}/windows-system/)**`,
-              `- :window: [Windows (AppData)](${process.env.S3_URL}/windows-appdata/)`,
-              `- :window: [Windows (Unelevated)](${process.env.S3_URL}/windows-unelevated/)`,
-              `- :window: [Windows (MSI)](${process.env.S3_URL}/windows-msi/)`,
-              `- :apple: [macOS](${process.env.S3_URL}/mac/)`,
-              `- :penguin: [Linux](${process.env.S3_URL}/linux/)`,
+              `- :window: **[Windows (System)](${S3_URL}/windows-system/Tamanu+Setup+${VERSION}.exe)**`,
+              `- :window:   [Windows (AppData)](${S3_URL}/windows-appdata/Tamanu+Setup+${VERSION}.exe)`,
+              `- :window:   [Windows (Unelevated)](${S3_URL}/windows-unelevated/Tamanu+Setup+${VERSION}.exe)`,
+              `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
+              `- :apple:    [macOS (Tar)](${S3_URL}/mac/Tamanu-${VERSION}-mac.tar.xz)`,
+              `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
+              `- :penguin:  [Linux (Deb)](${S3_URL}/linux/Tamanu_${VERSION}_amd64.deb)`,
             ].join('\n');
 
       # TODO: for releases, post comment elsewhere? on draft/release? slack?
