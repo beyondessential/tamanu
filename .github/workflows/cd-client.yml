@@ -97,18 +97,18 @@ jobs:
       - name: Use release bucket
         if: startsWith(github.ref, 'refs/heads/release/')
         run: |
-          echo S3_BUCKET=bes-tamanu-release-clients | tee -a $GITHUB_ENV
-          echo S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.branch }} | tee -a $GITHUB_ENV
+          echo S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }} | tee -a $GITHUB_ENV
+          echo S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }} | tee -a $GITHUB_ENV
 
       - name: Use dev bucket
         if: ! startsWith(github.ref, 'refs/heads/release/')
         run: |
-          echo S3_BUCKET=bes-tamanu-dev-desktop-clients | tee -a $GITHUB_ENV
+          echo S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }} | tee -a $GITHUB_ENV
           echo S3_URL=https://s3.console.aws.amazon.com/s3/buckets/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }} | tee -a $GITHUB_ENV
 
       - name: Push to S3
         working-directory: ops
-        run: aws s3 sync . s3://${{ env.S3_BUCKET }}/${{ needs.info.outputs.branch }} --no-progress
+        run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'

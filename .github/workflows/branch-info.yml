@@ -7,6 +7,8 @@ on:
         value: ${{ jobs.run.outputs.branch }}
       actual_ref:
         value: ${{ github.event.pull_request.head.ref || github.ref }}
+      version:
+        value: ${{ jobs.version.outputs.version }}
 
 jobs:
   run:
@@ -29,3 +31,19 @@ jobs:
               .replace(/^-|-$/g, ''));
     outputs:
       branch: ${{ steps.ref.outputs.result }}
+
+  version:
+    name: Version
+    needs: run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+      - uses: actions/github-script@v6
+        id: version
+        with:
+          result-encoding: string
+          script: return require('./package.json').version;
+    outputs:
+      version: ${{ steps.version.outputs.result }}
