@@ -85,7 +85,6 @@ export async function migrateChangelogNotesToEncounterHistory({
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
             left join users u on u.id = e.examiner_id
-            where n.content like 'Changed%'
             window w as (partition by e.id order by n.date)
         ),
 
@@ -97,6 +96,8 @@ export async function migrateChangelogNotesToEncounterHistory({
                 start_datetime,
                 l.facility_id as encounter_facility_id,
                 case when log.encounter_type notnull then log.encounter_type
+                    -- Fill in empty encounter_type by working out the next non null encounter type in the subsequent changelog records,
+                    -- Or the previous non null encounter_type in the previous changelog records
                     else coalesce(
                             -- Would have used last_value(ignore nulls) if Postgres supports it
                             -- So have to do this hack (array_remove(nulls)) to get the last non null value from the the range
