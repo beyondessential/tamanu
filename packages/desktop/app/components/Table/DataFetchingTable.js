@@ -57,6 +57,7 @@ export const DataFetchingTable = memo(
 
     const [lastFetchCount, setLastFetchCount] = useState(0);
     const [lastPage, setLastPage] = useState(0);
+    const [staticData, setStaticData] = useState([]);
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
 
@@ -85,12 +86,8 @@ export const DataFetchingTable = memo(
     }, []);
 
     const clearNewRowStyles = () => {
-      setNewRowCount(0);
-    };
-
-    const clearNotification = () => {
       setShowNotification(false);
-      clearNewRowStyles();
+      setNewRowCount(0);
     };
 
     const fetchOptionsString = JSON.stringify(fetchOptions);
@@ -133,23 +130,24 @@ export const DataFetchingTable = memo(
             };
           });
 
+          const transformedData = transformRow ? dataWithStyles.map(transformRow) : dataWithStyles;
+
           // If its the first fetch, we dont want to highlight the new rows green or show a notification
           if (!isFirstFetch) {
-            if (page === 1 && lastPage === 0) {
-              clearNotification();
+            // Clear notification and green rows when leaving page one. Otherwise persist while navigating between pages
+            if (lastPage === 0) {
+              clearNewRowStyles();
             } else {
               setNewRowCount(rowsSinceInteraction);
               setShowNotification(rowsSinceInteraction > 0 && page !== 0);
             }
           }
 
-          setLastFetchCount(count);
-          setLastPage(page);
-
-          const transformedData = transformRow ? dataWithStyles.map(transformRow) : dataWithStyles;
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
-            data: transformedData,
+            // When past page one, we dont want to move rows down as it updates. Only if you are on
+            // page one should it live update, otherwise the updates come through when navigating
+            ...(page !== lastPage || page === 0 ? { data: transformedData } : { data: staticData }),
             count,
             isLoading: false,
           });
@@ -159,6 +157,10 @@ export const DataFetchingTable = memo(
               count,
             });
           }
+
+          setLastFetchCount(count);
+          setLastPage(page);
+          setStaticData(transformedData);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
@@ -202,7 +204,7 @@ export const DataFetchingTable = memo(
       <>
         {showNotification && (
           <Notification>
-            New requests available to view <NotificationClearIcon onClick={clearNotification} />
+            New requests available to view <NotificationClearIcon onClick={clearNewRowStyles} />
           </Notification>
         )}
         <Table
