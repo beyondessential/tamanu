@@ -3,6 +3,11 @@ import styled from 'styled-components';
 
 import { Button, OutlinedButton } from './Button';
 
+const FlexSpaceBetween = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
 const Row = styled.div`
   display: flex;
   align-items: stretch;
@@ -48,4 +53,25 @@ export const ConfirmCancelRow = React.memo(
       )}
     </ButtonRow>
   ),
+);
+
+const GoBackButtonContainer = styled(ButtonRow)`
+  align-items: stretch;
+  justify-content: flex-start;
+
+  > button,
+  > div {
+    margin-left: 0px;
+  }
+`;
+
+export const ConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...props }) => (
+  <FlexSpaceBetween>
+    {onBack && (
+      <GoBackButtonContainer>
+        <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+      </GoBackButtonContainer>
+    )}
+    <ConfirmCancelRow {...props} />
+  </FlexSpaceBetween>
 );

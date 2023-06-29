@@ -187,5 +187,3 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE,
   );
 };
-
-export const permission = 'SurveyResponse';

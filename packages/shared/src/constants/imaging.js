@@ -1,3 +1,5 @@
+import { IMAGING_REQUEST_STATUS_TYPES } from './statuses';
+
 export const IMAGING_AREA_TYPES = {
   X_RAY_IMAGING_AREA: 'xRayImagingArea',
   ULTRASOUND_IMAGING_AREA: 'ultrasoundImagingArea',
@@ -50,3 +52,24 @@ export const AREA_TYPE_TO_IMAGING_TYPE = {
   [IMAGING_AREA_TYPES.VASCULAR_STUDY_IMAGING_AREA]: IMAGING_TYPES.VASCULAR_STUDY,
   [IMAGING_AREA_TYPES.STRESS_TEST_IMAGING_AREA]: IMAGING_TYPES.STRESS_TEST,
 };
+
+// These are the status groupings for the versions of imaging request table that filter by different statuses
+// This object is used to store the grouping for filtering but also to generate a code from the statuses
+export const IMAGING_TABLE_STATUS_GROUPINGS = {
+  ACTIVE: [IMAGING_REQUEST_STATUS_TYPES.PENDING, IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS],
+  COMPLETED: [IMAGING_REQUEST_STATUS_TYPES.COMPLETED],
+};
+
+// Here we create an object constant that contains the code and statuses for each version of the imaging request table
+// This is used for tracking the search memory of each table and also containing the statuses to be filtered by
+export const IMAGING_TABLE_VERSIONS = Object.keys(IMAGING_TABLE_STATUS_GROUPINGS).reduce(
+  (acc, key) => {
+    const value = IMAGING_TABLE_STATUS_GROUPINGS[key];
+    acc[key] = {
+      memoryKey: value.join('-'),
+      statuses: value,
+    };
+    return acc;
+  },
+  {},
+);
