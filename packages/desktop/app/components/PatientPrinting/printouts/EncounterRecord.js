@@ -341,7 +341,7 @@ export const EncounterRecord = React.memo(
               {examiner.displayName}
             </DisplayValue>
             <DisplayValue name="Discharging clinician" size="10px">
-              {discharge?.discharger.displayName}
+              {discharge?.discharger?.displayName}
             </DisplayValue>
             <DisplayValue name="Reason for encounter" size="10px">
               {reasonForEncounter}

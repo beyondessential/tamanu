@@ -55,7 +55,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const pad = await PatientAdditionalData.findOne({ where: { patientId } });
   const passport = pad?.passport;
 
-  const vaccinations = await patient.getAdministeredVaccines({
+  const { data: vaccinations } = await patient.getAdministeredVaccines({
     order: [['date', 'ASC']],
     include: [
       {

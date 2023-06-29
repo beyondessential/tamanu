@@ -17,6 +17,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    pattern: yup.string(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
   .required()
@@ -27,6 +28,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    pattern: yup.string(),
   })
   .required()
   .noUnknown();
@@ -47,6 +49,7 @@ const UNHIDEABLE_FIELDS = [
   'emergencyContactNumber',
   'locationId',
   'locationGroupId',
+  'diagnosis',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -136,6 +139,23 @@ const templatesSchema = yup
       .noUnknown(),
 
     vaccineCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
+    covidVaccineCertificateEmail: yup
       .object()
       .shape({
         subject: yup
@@ -409,6 +429,7 @@ const rootLocalisationSchema = yup
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
+        enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         editDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
@@ -422,6 +443,9 @@ const rootLocalisationSchema = yup
           })
           .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
+        onlyAllowLabPanels: yup.boolean().required(),
+        displayProcedureCodesInDischargeSummary: yup.boolean().required(),
+        displayIcd10CodesInDischargeSummary: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

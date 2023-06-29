@@ -1,22 +1,21 @@
 import { buildVersionCompatibilityCheck } from 'shared/utils';
 import { InvalidClientHeadersError } from 'shared/errors';
 
-// If a new version of the mobile app is being released in conjunction with an update to the sync
-// server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
-// they have updated. Similarly with the LAN server, it won't be able to sync if its version is
-// not supported.
+// only works via webpack, not direct nodejs
+import pkgjson from '../../package.json';
+
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
-    min: '1.25.0',
-    max: '1.25.2', // note that higher patch versions will be allowed to connect
+    min: pkgjson.version,
+    max: pkgjson.version, // note that higher patch versions will be allowed to connect
   },
   'Tamanu Desktop': {
-    min: '1.25.0',
-    max: '1.25.2', // note that higher patch versions will be allowed to connect
+    min: pkgjson.version,
+    max: pkgjson.version, // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
-    min: '1.25.59',
-    max: '1.25.59', // note that higher patch versions will be allowed to connect
+    min: pkgjson.version,
+    max: pkgjson.version, // note that higher patch versions will be allowed to connect
   },
   'fiji-vps': {
     min: null,

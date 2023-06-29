@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
+import { useAdvancedFields } from './useAdvancedFields';
+
+const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];
 
 export const PatientSearchBar = React.memo(
   ({ onSearch, searchParameters, suggestByFacility = true }) => {
@@ -12,7 +15,11 @@ export const PatientSearchBar = React.memo(
       baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
     });
 
-    const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+    const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
+      ADVANCED_FIELDS,
+      searchParameters,
+    );
+
     const practitionerSuggester = useSuggester('practitioner');
     return (
       <CustomisableSearchBar
@@ -25,7 +32,13 @@ export const PatientSearchBar = React.memo(
         staticValues={{ displayIdExact: true }}
         hiddenFields={
           <>
-            <LocalisedField useShortLabel component={SearchField} name="displayId" keepLetterCase />
+            <LocalisedField
+              name="departmentId"
+              defaultLabel="Department"
+              size="small"
+              component={AutocompleteField}
+              suggester={departmentSuggester}
+            />
             <LocalisedField
               name="clinicianId"
               defaultLabel="Clinician"
@@ -36,6 +49,7 @@ export const PatientSearchBar = React.memo(
           </>
         }
       >
+        <LocalisedField useShortLabel component={SearchField} name="displayId" keepLetterCase />
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
         <LocalisedField
@@ -44,13 +58,6 @@ export const PatientSearchBar = React.memo(
           component={AutocompleteField}
           size="small"
           suggester={locationGroupSuggester}
-        />
-        <LocalisedField
-          name="departmentId"
-          defaultLabel="Department"
-          size="small"
-          component={AutocompleteField}
-          suggester={departmentSuggester}
         />
       </CustomisableSearchBar>
     );

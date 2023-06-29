@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import {
   Text,
   View,
+  ScrollView,
   TextInput,
   TouchableWithoutFeedback,
   TouchableOpacity,
@@ -227,7 +228,7 @@ export class MultiSelect extends Component {
       tagTextColor,
       selectedItems,
       displayKey,
-      styleTextTag
+      styleTextTag,
     } = this.props;
     const actualSelectedItems = optionalSelectedItems || selectedItems;
     return actualSelectedItems.map(singleSelectedItem => {
@@ -241,9 +242,9 @@ export class MultiSelect extends Component {
               width: item[displayKey].length * 8 + 60,
               justifyContent: 'center',
               height: 40,
-              borderColor: tagBorderColor
+              borderColor: tagBorderColor,
             },
-            tagContainerStyle || {}
+            tagContainerStyle || {},
           ]}
           key={item[uniqueKey]}
         >
@@ -252,10 +253,10 @@ export class MultiSelect extends Component {
               {
                 flex: 1,
                 color: tagTextColor,
-                fontSize: 15
+                fontSize: 15,
               },
               styleTextTag && styleTextTag,
-              fontFamily ? { fontFamily } : {}
+              fontFamily ? { fontFamily } : {},
             ]}
             numberOfLines={1}
           >
@@ -271,7 +272,7 @@ export class MultiSelect extends Component {
               style={{
                 color: tagRemoveIconColor,
                 fontSize: 22,
-                marginLeft: 10
+                marginLeft: 10,
               }}
             />
           </TouchableOpacity>
@@ -282,10 +283,7 @@ export class MultiSelect extends Component {
 
   _removeItem = item => {
     const { uniqueKey, selectedItems, onSelectedItemsChange } = this.props;
-    const newItems = reject(
-      selectedItems,
-      singleItem => item[uniqueKey] === singleItem
-    );
+    const newItems = reject(selectedItems, singleItem => item[uniqueKey] === singleItem);
     // broadcast new selected items state to parent component
     onSelectedItemsChange(newItems);
   };
@@ -298,7 +296,7 @@ export class MultiSelect extends Component {
 
   _clearSelector = () => {
     this.setState({
-      selector: false
+      selector: false,
     });
   };
 
@@ -315,7 +313,7 @@ export class MultiSelect extends Component {
     if (disabled) return;
 
     this.setState({
-      selector: !this.state.selector
+      selector: !this.state.selector,
     });
     if (onToggleList) {
       onToggleList();
@@ -324,7 +322,7 @@ export class MultiSelect extends Component {
 
   _clearSearchTerm = () => {
     this.setState({
-      searchTerm: ''
+      searchTerm: '',
     });
   };
 
@@ -340,13 +338,7 @@ export class MultiSelect extends Component {
   };
 
   _addItem = () => {
-    const {
-      uniqueKey,
-      items,
-      selectedItems,
-      onSelectedItemsChange,
-      onAddItem
-    } = this.props;
+    const { uniqueKey, items, selectedItems, onSelectedItemsChange, onAddItem } = this.props;
     let newItems = [];
     let newSelectedItems = [];
     const newItemName = this.state.searchTerm;
@@ -364,12 +356,7 @@ export class MultiSelect extends Component {
   };
 
   _toggleItem = item => {
-    const {
-      single,
-      uniqueKey,
-      selectedItems,
-      onSelectedItemsChange
-    } = this.props;
+    const { single, uniqueKey, selectedItems, onSelectedItemsChange } = this.props;
     if (single) {
       this._submitSelection();
       onSelectedItemsChange([item[uniqueKey]]);
@@ -377,10 +364,7 @@ export class MultiSelect extends Component {
       const status = this._itemSelected(item);
       let newItems = [];
       if (status) {
-        newItems = reject(
-          selectedItems,
-          singleItem => item[uniqueKey] === singleItem
-        );
+        newItems = reject(selectedItems, singleItem => item[uniqueKey] === singleItem);
       } else {
         newItems = [...selectedItems, item[uniqueKey]];
       }
@@ -395,7 +379,7 @@ export class MultiSelect extends Component {
       selectedItemTextColor,
       itemFontFamily,
       itemTextColor,
-      itemFontSize
+      itemFontSize,
     } = this.props;
     const isSelected = this._itemSelected(item);
     const fontFamily = {};
@@ -404,13 +388,11 @@ export class MultiSelect extends Component {
     } else if (!isSelected && itemFontFamily) {
       fontFamily.fontFamily = itemFontFamily;
     }
-    const color = isSelected
-      ? { color: selectedItemTextColor }
-      : { color: itemTextColor };
+    const color = isSelected ? { color: selectedItemTextColor } : { color: itemTextColor };
     return {
       ...fontFamily,
       ...color,
-      fontSize: itemFontSize
+      fontSize: itemFontSize,
     };
   };
 
@@ -420,10 +402,7 @@ export class MultiSelect extends Component {
       <TouchableOpacity
         disabled={item.disabled}
         onPress={() => this._toggleItem(item)}
-        style={[
-          styleRowList && styleRowList,
-          { paddingLeft: 20, paddingRight: 20 }
-        ]}
+        style={[styleRowList && styleRowList, { paddingLeft: 20, paddingRight: 20 }]}
       >
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -433,10 +412,10 @@ export class MultiSelect extends Component {
                   flex: 1,
                   fontSize: 16,
                   paddingTop: 5,
-                  paddingBottom: 5
+                  paddingBottom: 5,
                 },
                 this._itemStyle(item),
-                item.disabled ? { color: 'grey' } : {}
+                item.disabled ? { color: 'grey' } : {},
               ]}
             >
               {item[displayKey]}
@@ -446,7 +425,8 @@ export class MultiSelect extends Component {
                 name="check"
                 style={{
                   fontSize: 20,
-                  color: selectedItemIconColor
+                  marginRight: -5,
+                  color: selectedItemIconColor,
                 }}
               />
             ) : null}
@@ -470,10 +450,10 @@ export class MultiSelect extends Component {
                 flex: 1,
                 fontSize: 16,
                 paddingTop: 5,
-                paddingBottom: 5
+                paddingBottom: 5,
               },
               this._itemStyle(item),
-              item.disabled ? { color: 'grey' } : {}
+              item.disabled ? { color: 'grey' } : {},
             ]}
           >
             Add {item.name} (tap or press return)
@@ -509,11 +489,7 @@ export class MultiSelect extends Component {
     const { items, displayKey } = this.props;
     const filteredItems = [];
     items.forEach(item => {
-      if (
-        item[displayKey]
-          .toLowerCase()
-          .indexOf(searchTerm.trim().toLowerCase()) >= 0
-      ) {
+      if (item[displayKey].toLowerCase().indexOf(searchTerm.trim().toLowerCase()) >= 0) {
         filteredItems.push(item);
       }
     });
@@ -530,7 +506,7 @@ export class MultiSelect extends Component {
       flatListProps,
       styleListContainer,
       removeSelected,
-      noItemsText
+      noItemsText,
     } = this.props;
     const { searchTerm } = this.state;
     let component = null;
@@ -542,9 +518,7 @@ export class MultiSelect extends Component {
     let renderItems = searchTerm ? this._filterItems(searchTerm) : items;
     // Filtering already selected items
     if (removeSelected) {
-      renderItems = renderItems.filter(
-        item => !selectedItems.includes(item[uniqueKey])
-      );
+      renderItems = renderItems.filter(item => !selectedItems.includes(item[uniqueKey]));
     }
     if (renderItems.length) {
       itemList = (
@@ -558,8 +532,7 @@ export class MultiSelect extends Component {
           nestedScrollEnabled
         />
       );
-      searchTermMatch = renderItems.filter(item => item.name === searchTerm)
-        .length;
+      searchTermMatch = renderItems.filter(item => item.name === searchTerm).length;
     } else if (!canAddItems) {
       itemList = (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -569,9 +542,9 @@ export class MultiSelect extends Component {
                 flex: 1,
                 marginTop: 20,
                 textAlign: 'center',
-                color: colorPack.danger
+                color: colorPack.danger,
               },
-              fontFamily ? { fontFamily } : {}
+              fontFamily ? { fontFamily } : {},
             ]}
           >
             {noItemsText}
@@ -622,33 +595,33 @@ export class MultiSelect extends Component {
       disabled,
     } = this.props;
     const { searchTerm, selector } = this.state;
+    const selectedLabel = this._getSelectLabel();
     return (
       <View
         style={[
           {
-            flexDirection: 'column'
+            flexDirection: 'column',
           } &&
             styleMainWrapper &&
-            styleMainWrapper
+            styleMainWrapper,
         ]}
       >
         {selector && !disabled ? (
           <View
             style={[
-              styles.selectorView(fixedHeight),
-              styleSelectorContainer && styleSelectorContainer
+              // height should be dynamic when there is search text
+              styles.selectorView(fixedHeight && !searchTerm.length),
+              styleSelectorContainer && styleSelectorContainer,
             ]}
           >
-            <View
-              style={[styles.inputGroup, styleInputGroup && styleInputGroup]}
-            >
+            <View style={[styles.inputGroup, styleInputGroup && styleInputGroup]}>
               {searchIcon}
               <TextInput
                 autoFocus
                 onChangeText={this._onChangeInput}
                 onSubmitEditing={this._addItem}
-                placeholder={searchInputPlaceholderText}
-                placeholderTextColor={colorPack.placeholderTextColor}
+                placeholder={selectedLabel || searchInputPlaceholderText}
+                placeholderTextColor={selectedLabel ? textColor : colorPack.placeholderTextColor}
                 underlineColorAndroid="transparent"
                 style={[searchInputStyle, { flex: 1 }]}
                 value={searchTerm}
@@ -657,7 +630,7 @@ export class MultiSelect extends Component {
               {hideSubmitButton && (
                 <TouchableOpacity onPress={this._submitSelection}>
                   <Icon
-                    name="menu-down"
+                    name="chevron-down"
                     style={[
                       styles.indicator,
                       { paddingLeft: 15, paddingRight: 15 },
@@ -668,37 +641,27 @@ export class MultiSelect extends Component {
               )}
               {!hideDropdown && (
                 <Icon
-                  name="arrow-left"
+                  name="chevron-down"
                   size={20}
                   onPress={this._clearSelectorCallback}
                   color={colorPack.placeholderTextColor}
-                  style={{ marginLeft: 5 }}
+                  style={[{ marginRight: 10 }, styles.indicator, styleIndicator && styleIndicator]}
                 />
               )}
             </View>
             <View
               style={{
                 flexDirection: 'column',
-                backgroundColor: '#fafafa'
+                backgroundColor: '#fafafa',
               }}
             >
-              <View style={styleItemsContainer && styleItemsContainer}>
-                {this._renderItems()}
-              </View>
+              <View style={styleItemsContainer && styleItemsContainer}>{this._renderItems()}</View>
               {!single && !hideSubmitButton && (
                 <TouchableOpacity
                   onPress={() => this._submitSelection()}
-                  style={[
-                    styles.button,
-                    { backgroundColor: submitButtonColor }
-                  ]}
+                  style={[styles.button, { backgroundColor: submitButtonColor }]}
                 >
-                  <Text
-                    style={[
-                      styles.buttonText,
-                      fontFamily ? { fontFamily } : {}
-                    ]}
-                  >
+                  <Text style={[styles.buttonText, fontFamily ? { fontFamily } : {}]}>
                     {submitButtonText}
                   </Text>
                 </TouchableOpacity>
@@ -707,17 +670,12 @@ export class MultiSelect extends Component {
           </View>
         ) : (
           <View>
-            <View
-              style={[
-                styles.dropdownView,
-                styleDropdownMenu && styleDropdownMenu
-              ]}
-            >
+            <View style={[styles.dropdownView, styleDropdownMenu && styleDropdownMenu]}>
               <View
                 style={[
                   styles.subSection,
                   { paddingTop: 10, paddingBottom: 10 },
-                  styleDropdownMenuSubsection && styleDropdownMenuSubsection
+                  styleDropdownMenuSubsection && styleDropdownMenuSubsection,
                 ]}
               >
                 <TouchableWithoutFeedback onPress={this._toggleSelector}>
@@ -725,7 +683,7 @@ export class MultiSelect extends Component {
                     style={{
                       flex: 1,
                       flexDirection: 'row',
-                      alignItems: 'center'
+                      alignItems: 'center',
                     }}
                   >
                     <Text
@@ -735,34 +693,41 @@ export class MultiSelect extends Component {
                               {
                                 flex: 1,
                                 fontSize: fontSize || 16,
-                                color:
-                                  textColor || colorPack.placeholderTextColor
+                                color: textColor || colorPack.placeholderTextColor,
                               },
                               styleTextDropdown && styleTextDropdown,
                               altFontFamily
                                 ? { fontFamily: altFontFamily }
                                 : fontFamily
                                 ? { fontFamily }
-                                : {}
+                                : {},
                             ]
                           : [
                               {
                                 flex: 1,
                                 fontSize: fontSize || 16,
-                                color:
-                                  textColor || colorPack.placeholderTextColor
+                                color: textColor || colorPack.placeholderTextColor,
                               },
-                              styleTextDropdownSelected &&
-                                styleTextDropdownSelected
+                              styleTextDropdownSelected && styleTextDropdownSelected,
                             ]
                       }
                       numberOfLines={1}
                     >
                       {this._getSelectLabel()}
                     </Text>
+                    {single && selectedItems.length ? (
+                      <TouchableWithoutFeedback onPress={this._removeAllItems}>
+                        <Icon
+                          name={hideSubmitButton ? 'menu-right' : 'close'}
+                          style={[styles.removeIndicator, styleIndicator && styleIndicator]}
+                        />
+                      </TouchableWithoutFeedback>
+                    ) : null}
+
                     <Icon
-                      name={hideSubmitButton ? 'menu-right' : 'menu-down'}
+                      name="chevron-down"
                       style={[
+                        { marginRight: -7 },
                         styles.indicator,
                         styleIndicator && styleIndicator,
                       ]}
@@ -775,7 +740,7 @@ export class MultiSelect extends Component {
               <View
                 style={{
                   flexDirection: 'row',
-                  flexWrap: 'wrap'
+                  flexWrap: 'wrap',
                 }}
               >
                 {this._displaySelectedItems()}

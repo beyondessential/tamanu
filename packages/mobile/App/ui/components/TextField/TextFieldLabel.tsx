@@ -1,53 +1,32 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import posed from 'react-native-pose';
 import { theme } from '/styled/theme';
 import { StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-const AnimatedLabel = posed.Text({
-  open: {
-    fontSize: screenPercentageToDP(2.1, Orientation.Height),
-  }
-});
-
-interface AnimatedText {
-  pose: string;
-}
-
-const StyledAnimatedLabel = styled(StyledText) <AnimatedText>`
-  font-size: ${screenPercentageToDP(2.1, Orientation.Height)};
+const StyledLabel = styled(StyledText)`
+  font-size: ${(props): string => props.$fontSize || screenPercentageToDP(2.1, Orientation.Height)};
   font-weight: 600;
-  padding-left: ${screenPercentageToDP(1, Orientation.Width)};
   margin-bottom: ${screenPercentageToDP(0.5, Orientation.Width)};
 `;
 
 interface LabelProps {
   children: string;
-  focus: boolean;
-  isValueEmpty: boolean;
-  error: string;
-  onFocus: Function;
   labelColor?: string;
+  labelFontSize?: string;
 }
 
 export const TextFieldLabel = ({
   children,
-  focus,
-  onFocus,
-  isValueEmpty,
-  error,
   labelColor,
-}: LabelProps): JSX.Element => {
-
-  return (
-    <StyledAnimatedLabel
-      as={AnimatedLabel}
-      onPress={(): void => onFocus(!focus)}
-      pose="open"
-      style={{color: labelColor || theme.colors.TEXT_SUPER_DARK}}
-    >
-      {children}
-    </StyledAnimatedLabel>
-  );
-};
+  labelFontSize,
+}: LabelProps): JSX.Element => (
+  <StyledLabel
+    style={{
+      color: labelColor || theme.colors.TEXT_SUPER_DARK,
+    }}
+    $fontSize={labelFontSize}
+  >
+    {children}
+  </StyledLabel>
+);

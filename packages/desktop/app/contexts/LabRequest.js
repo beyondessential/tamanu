@@ -1,6 +1,6 @@
 import React, { useContext, createContext, useState, useCallback } from 'react';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -46,12 +46,15 @@ export const LabRequestProvider = ({ children }) => {
 
   const api = useApi();
 
-  const loadLabRequest = async labRequestId => {
-    setIsLoading(true);
-    const data = await api.get(`labRequest/${labRequestId}`);
-    setLabRequest({ ...data });
-    setIsLoading(false);
-  };
+  const loadLabRequest = useCallback(
+    async labRequestId => {
+      setIsLoading(true);
+      const data = await api.get(`labRequest/${labRequestId}`);
+      setLabRequest({ ...data });
+      setIsLoading(false);
+    },
+    [api],
+  );
 
   const updateLabRequest = async (labRequestId, data) => {
     const update = { ...data };

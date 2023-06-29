@@ -9,6 +9,7 @@ import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { usePatientCurrentEncounter } from '../../../api/queries';
 
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
@@ -157,11 +158,8 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 });
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
-  const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
-    api.get(`patient/${patient.id}/currentEncounter`),
-  );
+  const { data: encounter, error, isLoading } = usePatientCurrentEncounter(patient.id);
   const referralSourcePath = 'fields.referralSourceId';
 
   if (patient.dateOfDeath) {

@@ -2,7 +2,10 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
-import { parseDateTime } from 'shared/utils/fhir/datetime';
+import { parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
@@ -10,6 +13,16 @@ import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 export const routes = express.Router();
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
+
+// Workaround for this test changing from a hotfix, see EPI-483/484
+function formatDate(date) {
+  if (!date) return date;
+  return formatInTimeZone(
+    parseISO(formatFhirDate(date, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE)),
+    '+00:00',
+    "yyyy-MM-dd'T'HH:mm:ssXXX",
+  ).replace(/Z$/, '+00:00');
+}
 
 const reportQuery = `
 with
@@ -419,11 +432,38 @@ routes.get(
       },
     });
 
+    const mapNotes = notes =>
+      notes?.map(note => ({
+        ...note,
+        noteDate: formatDate(note.noteDate),
+      }));
+
     const mappedData = data.map(encounter => ({
       ...encounter,
       age: parseInt(encounter.age),
       weight: parseFloat(encounter.weight),
       sex: upperFirst(encounter.sex),
+      departments: encounter.departments?.map(department => ({
+        ...department,
+        assignedTime: formatDate(department.assignedTime),
+      })),
+      locations: encounter.locations?.map(location => ({
+        ...location,
+        assignedTime: formatDate(location.assignedTime),
+      })),
+      imagingRequests: encounter.imagingRequests?.map(ir => ({
+        ...ir,
+        notes: mapNotes(ir.notes),
+      })),
+      labRequests: encounter.labRequests?.map(lr => ({
+        ...lr,
+        notes: mapNotes(lr.notes),
+      })),
+      procedures: encounter.procedures?.map(procedure => ({
+        ...procedure,
+        date: formatDate(procedure.date),
+      })),
+      notes: mapNotes(encounter.notes),
     }));
 
     res.status(200).send({ data: mappedData });

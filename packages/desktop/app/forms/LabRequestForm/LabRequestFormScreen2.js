@@ -1,11 +1,17 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import styled from 'styled-components';
 import { useApi } from '../../api';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { Heading3, BodyText } from '../../components/Typography';
+
+const StyledBodyText = styled(BodyText)`
+  margin-bottom: 28px;
+  white-space: pre-line;
+`;
 
 export const screen2ValidationSchema = yup.object().shape({
   labTestTypeIds: yup
@@ -15,11 +21,12 @@ export const screen2ValidationSchema = yup.object().shape({
   labTestPanelId: yup.string(),
   notes: yup.string(),
 });
+
 const SECTION_LABELS = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: 'Select tests',
     instructions:
-      'Please select the test or tests you would like to request below and add any relevant notes. You can filter test by category using the field below.',
+      'Please select the test or tests you would like to request below and add any relevant notes. \nYou can filter test by category using the field below.',
     testSelectorFieldLabel: 'Select tests',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
@@ -31,7 +38,7 @@ const SECTION_LABELS = {
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: 'Select superset',
     instructions:
-      'Please select the superset you would like to request below and add any relevant notes. You can also remove or add additional panels to your request.',
+      'Please select the superset you would like to request below and add any relevant notes. \nYou can also remove or add additional panels to your request.',
     testSelectorFieldLabel: 'Select superset',
   },
 };
@@ -61,9 +68,9 @@ export const LabRequestFormScreen2 = props => {
           <Heading3 mb="12px">{formTypeToLabelConfig.subheading}</Heading3>
         )}
         {formTypeToLabelConfig.instructions && (
-          <BodyText mb="28px" color="textTertiary">
+          <StyledBodyText mb="28px" color="textTertiary">
             {formTypeToLabelConfig.instructions}
-          </BodyText>
+          </StyledBodyText>
         )}
         <Field
           name="labTestTypeIds"

@@ -1,7 +1,13 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
+import {
+  DateTimeField,
+  AutocompleteField,
+  LocalisedField,
+  SelectField,
+  SearchField,
+} from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
 
@@ -29,8 +35,8 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         displayIdExact: true,
       }}
     >
-      <LocalisedField name="firstName" />
-      <LocalisedField name="lastName" />
+      <LocalisedField name="firstName" component={SearchField} />
+      <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField
         name="clinicianId"
         defaultLabel="Clinician"
@@ -48,12 +54,14 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         defaultLabel="Appointment Type"
         component={SelectField}
         options={appointmentTypeOptions}
+        size="small"
       />
       <LocalisedField
         name="status"
         defaultLabel="Appointment Status"
         component={SelectField}
         options={appointmentStatusOptions}
+        size="small"
       />
       <LocalisedField
         saveDateAsString
@@ -67,7 +75,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         defaultLabel="Until"
         component={DateTimeField}
       />
-      <LocalisedField name="displayId" />
+      <LocalisedField name="displayId" component={SearchField} />
     </CustomisableSearchBar>
   );
 };

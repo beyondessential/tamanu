@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box, FormHelperText } from '@material-ui/core';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
@@ -28,12 +28,17 @@ const Wrapper = styled.div`
   height: 359px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
+  background: white;
 `;
 
 const LabelText = styled(BodyText)`
   color: ${({ theme }) => theme.palette.text.secondary};
   margin-bottom: 10px;
   font-weight: 500;
+`;
+
+const TextTypeLabel = styled(LabelText)`
+  margin: 4px 0px;
 `;
 
 const SelectorTable = styled.div`
@@ -220,6 +225,9 @@ export const TestSelectorInput = ({
             />
           )}
           <FormSeparatorLine />
+          {requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL && (
+            <TextTypeLabel>Test type</TextTypeLabel>
+          )}
           <Box display="flex" alignItems="center">
             <SelectableTestItem
               name="selectAll"

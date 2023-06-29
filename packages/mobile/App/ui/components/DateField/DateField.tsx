@@ -74,6 +74,7 @@ export const DateField = React.memo(
     mode = 'date',
     disabled = false,
     required = false,
+    placeholder = 'dd/mm/yyyy',
   }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
@@ -100,12 +101,21 @@ export const DateField = React.memo(
 
     const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
+    const formattedValue = formatValue();
+
     return (
       <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
-        <StyledText fontSize={14} marginBottom={2} color={theme.colors.TEXT_SUPER_DARK}>
-          {label}
-          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
-        </StyledText>
+        {!!label && (
+          <StyledText
+            fontSize={14}
+            fontWeight={600}
+            marginBottom={2}
+            color={theme.colors.TEXT_SUPER_DARK}
+          >
+            {label}
+            {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+          </StyledText>
+        )}
         <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
           <TouchableWithoutFeedback onPress={showDatePicker}>
             <InputContainer
@@ -116,13 +126,16 @@ export const DateField = React.memo(
               justifyContent="space-between"
               paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
               backgroundColor={theme.colors.WHITE}
+              borderWidth={1}
+              borderRadius={5}
+              borderColor={error ? theme.colors.ERROR : theme.colors.DEFAULT_OFF}
             >
               <StyledText
                 fontSize={screenPercentageToDP(2.18, Orientation.Height)}
-                color={theme.colors.TEXT_DARK}
-                marginTop={screenPercentageToDP(1.2, Orientation.Height)}
+                color={formattedValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT}
+                marginTop={screenPercentageToDP(1.5, Orientation.Height)}
               >
-                {formatValue()}
+                {formattedValue || placeholder}
               </StyledText>
               <StyledView
                 marginRight={10}
@@ -132,7 +145,7 @@ export const DateField = React.memo(
                 <IconComponent
                   height={screenPercentageToDP(2.4, Orientation.Height)}
                   width={screenPercentageToDP(2.4, Orientation.Height)}
-                  fill={error ? theme.colors.ERROR : theme.colors.PRIMARY_MAIN}
+                  fill={theme.colors.PRIMARY_MAIN}
                 />
               </StyledView>
             </InputContainer>

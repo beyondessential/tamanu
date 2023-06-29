@@ -9,7 +9,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_EXPORT_FORMATS,
-} from 'shared/constants';
+} from '@tamanu/shared/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -191,7 +191,9 @@ export const ReportGeneratorForm = () => {
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
-        reportId: Yup.string().required('Report id is required'),
+        reportId: Yup.string().required(
+          "Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator.",
+        ),
         ...parameters.reduce(
           (schema, field) => ({
             ...schema,

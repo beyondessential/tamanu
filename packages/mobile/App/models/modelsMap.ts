@@ -30,6 +30,7 @@ import { LabTestPanelRequest } from './LabTestPanelRequest';
 import { LabTestPanel } from './LabTestPanel';
 import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
+import { Setting } from './Setting';
 import { NotePage } from './NotePage';
 import { NoteItem } from './NoteItem';
 
@@ -65,6 +66,7 @@ export const MODELS_MAP = {
   LabTestPanelRequest,
   LocalSystemFact,
   PatientFacility,
+  Setting,
   NotePage,
   NoteItem,
 };

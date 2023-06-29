@@ -51,7 +51,7 @@ describe(`Materialised FHIR - Patient`, () => {
         meta: {
           // TODO: uncomment when we support versioning
           // versionId: expect.any(String),
-          lastUpdated: formatFhirDate(additionalData.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         active: true,
         address: [
@@ -105,9 +105,7 @@ describe(`Materialised FHIR - Patient`, () => {
           },
         ],
       });
-      expect(response.headers['last-modified']).toBe(
-        formatRFC7231(new Date(additionalData.updatedAt)),
-      );
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
 
@@ -120,7 +118,7 @@ describe(`Materialised FHIR - Patient`, () => {
         patientId: patient.id,
       });
       await patient.reload(); // saving PatientAdditionalData updates the patient too
-      await FhirPatient.materialiseFromUpstream(patient.id);
+      const mat = await FhirPatient.materialiseFromUpstream(patient.id);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
@@ -133,9 +131,6 @@ describe(`Materialised FHIR - Patient`, () => {
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: formatFhirDate(additionalData.updatedAt),
-        },
         type: 'searchset',
         total: 1,
         link: [
@@ -152,7 +147,7 @@ describe(`Materialised FHIR - Patient`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: formatFhirDate(additionalData.updatedAt),
+                lastUpdated: formatFhirDate(mat.lastUpdated),
               },
               active: true,
               address: [
@@ -228,6 +223,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       // assert
       expect(response.body.total).toBe(2);
+      expect(response.body.entry).toHaveLength(2);
       expect(response).toHaveSucceeded();
     });
   });
@@ -255,6 +251,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(4);
+      expect(response.body.entry).toHaveLength(4);
       expect(response.body.entry[0].resource.birthDate).toBe('1984-10-20');
       expect(response.body.entry[1].resource.birthDate).toBe('1985-02-20');
       expect(response.body.entry[2].resource.birthDate).toBe('1985-03-20');
@@ -276,6 +273,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(4);
+      expect(response.body.entry).toHaveLength(4);
       expect(response.body.entry[0].resource.birthDate).toBe('1985-03-21');
       expect(response.body.entry[1].resource.birthDate).toBe('1985-03-20');
       expect(response.body.entry[2].resource.birthDate).toBe('1985-02-20');
@@ -283,8 +281,7 @@ describe(`Materialised FHIR - Patient`, () => {
     });
 
     // TODO (EPI-202)
-    // the code *does* support nested arrays, but it results in inconsistent
-    // ordering from run to run so it's disabled in query.js.
+    // See the comment in query.js for details
     describe.skip('in fields with nested arrays', () => {
       beforeEach(async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
@@ -307,9 +304,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.name[0].given[0]).toBe('Alice');
-        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Ernst');
-        expect(response.body.entry[2].resource.name[0].given[0]).toBe('Charlie');
+        expect(
+          response.body.entry
+            .map(x => x.resource.name[0].given[0])
+            .toEqual(['Alice', 'Ernst', 'Charlie']),
+        );
       });
 
       it('sorts by firstName/middleName descending (-given)', async () => {
@@ -326,10 +325,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry[0].resource.name[0].given[0]).toBe('Charlie');
-        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Ernst');
-        expect(response.body.entry[2].resource.name[0].given[0]).toBe('Alice');
+        expect(
+          response.body.entry
+            .map(x => x.resource.name[0].given[0])
+            .toEqual(['Charlie', 'Ernst', 'Alice']),
+        );
       });
 
       it('sorts by lastName ascending (family)', async () => {
@@ -346,9 +346,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.name[0].family).toBe('Adams');
-        expect(response.body.entry[1].resource.name[0].family).toBe('Brown');
-        expect(response.body.entry[2].resource.name[0].family).toBe('Carter');
+        expect(
+          response.body.entry
+            .map(x => x.resource.name[0].given[0])
+            .toEqual(['Adams', 'Browns', 'Carter']),
+        );
       });
 
       it('sorts by lastName descending (-family)', async () => {
@@ -365,9 +367,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.name[0].family).toBe('Carter');
-        expect(response.body.entry[1].resource.name[0].family).toBe('Brown');
-        expect(response.body.entry[2].resource.name[0].family).toBe('Adams');
+        expect(
+          response.body.entry
+            .map(x => x.resource.name[0].family)
+            .toEqual(['Carter', 'Browns', 'Adams']),
+        );
       });
 
       it('sorts by additionalData.cityTown/streetVillage ascending (address)', async () => {
@@ -404,9 +408,11 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         // The first order is actually address[].line[] (so streetVillage)
-        expect(response.body.entry[0].resource.address[0].city).toBe('El Paso');
-        expect(response.body.entry[1].resource.address[0].city).toBe('Amsterdam');
-        expect(response.body.entry[2].resource.address[0].city).toBe('Cabo');
+        expect(
+          response.body.entry
+            .map(x => x.resource.address[0].city)
+            .toEqual(['El Paso', 'Amsterdam', 'Cabo']),
+        );
       });
 
       it('sorts by additionalData.cityTown/streetVillage descending (-address)', async () => {
@@ -442,9 +448,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.address[0].city).toBe('Cabo');
-        expect(response.body.entry[1].resource.address[0].city).toBe('Amsterdam');
-        expect(response.body.entry[2].resource.address[0].city).toBe('El Paso');
+        expect(
+          response.body.entry
+            .map(x => x.resource.address[0].city)
+            .toEqual(['Cabo', 'Amsterdam', 'El Paso']),
+        );
       });
 
       it('sorts by additionalData.cityTown ascending (address-city)', async () => {
@@ -480,9 +488,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.address[0].city).toBe('Amsterdam');
-        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
-        expect(response.body.entry[2].resource.address[0].city).toBe('Cabo');
+        expect(
+          response.body.entry
+            .map(x => x.resource.address[0].city)
+            .toEqual(['Amsterdam', 'Berlin', 'Cabo']),
+        );
       });
 
       it('sorts by additionalData.cityTown descending (-address-city)', async () => {
@@ -518,9 +528,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.address[0].city).toBe('Cabo');
-        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
-        expect(response.body.entry[2].resource.address[0].city).toBe('Amsterdam');
+        expect(
+          response.body.entry
+            .map(x => x.resource.address[0].city)
+            .toEqual(['Cabo', 'Berlin', 'Amsterdam']),
+        );
       });
 
       it('sorts by additionalData.primaryContactNumber/secondaryContactNumber ascending (telecom)', async () => {
@@ -565,9 +577,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.telecom[0].value).toBe('123456781');
-        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456785');
-        expect(response.body.entry[2].resource.telecom[0].value).toBe('123456783');
+        expect(
+          response.body.entry
+            .map(x => x.resource.telecom[0].value)
+            .toEqual(['123456781', '123456785', '123456783']),
+        );
       });
 
       it('sorts by additionalData.primaryContactNumber/secondaryContactNumber descending (-telecom)', async () => {
@@ -612,9 +626,11 @@ describe(`Materialised FHIR - Patient`, () => {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].resource.telecom[0].value).toBe('123456783');
-        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456785');
-        expect(response.body.entry[2].resource.telecom[0].value).toBe('123456781');
+        expect(
+          response.body.entry
+            .map(x => x.resource.telecom[0].value)
+            .toEqual(['123456783', '123456785', '123456781']),
+        );
       });
 
       it('sorts by multiple fields', async () => {
@@ -677,11 +693,11 @@ describe(`Materialised FHIR - Patient`, () => {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(5);
         // Numbers don't repeat so everything else should be in place
-        expect(response.body.entry[0].resource.telecom[0].value).toBe('123456783');
-        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456781');
-        expect(response.body.entry[2].resource.telecom[0].value).toBe('123456782');
-        expect(response.body.entry[3].resource.telecom[0].value).toBe('123456785');
-        expect(response.body.entry[4].resource.telecom[0].value).toBe('123456784');
+        expect(
+          response.body.entry
+            .map(x => x.resource.telecom[0].value)
+            .toEqual(['123456783', '123456781', '123456782', '123456785', '123456784']),
+        );
       });
     });
   });
@@ -710,6 +726,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(1);
+      expect(response.body.entry).toHaveLength(1);
     });
 
     it('filters patients by firstName (given)', async () => {
@@ -725,8 +742,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given=${firstName}`;
       const response = await app.get(path);
 
-      expect(response.body.total).toBe(2);
       expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry).toHaveLength(2);
     });
 
     it('filters patients by firstName (case-insensitive)', async () => {
@@ -737,8 +755,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given=bob`;
       const response = await app.get(path);
 
-      expect(response.body.total).toBe(1);
       expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry).toHaveLength(1);
     });
 
     it('filters patients by firstName (starts with)', async () => {
@@ -749,8 +768,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:starts-with=bo`;
       const response = await app.get(path);
 
-      expect(response.body.total).toBe(1);
       expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry).toHaveLength(1);
     });
 
     it('filters patients by firstName (ends with)', async () => {
@@ -761,8 +781,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:ends-with=ob`;
       const response = await app.get(path);
 
-      expect(response.body.total).toBe(1);
       expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry).toHaveLength(1);
     });
 
     it('filters patients by firstName (contains)', async () => {
@@ -773,8 +794,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:contains=o`;
       const response = await app.get(path);
 
-      expect(response.body.total).toBe(1);
       expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry).toHaveLength(1);
     });
 
     it('filters patients by lastName (family)', async () => {
@@ -790,8 +812,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?family=${lastName}`;
       const response = await app.get(path);
 
-      expect(response.body.total).toBe(2);
       expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry).toHaveLength(2);
     });
 
     it('filters patients by sex (gender)', async () => {
@@ -807,8 +830,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?gender=${sex}`;
       const response = await app.get(path);
 
-      expect(response.body.total).toBe(2);
       expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry).toHaveLength(2);
     });
 
     it('filters patients by dateOfBirth (birthdate)', async () => {
@@ -826,6 +850,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(2);
+      expect(response.body.entry).toHaveLength(2);
     });
 
     it('filters patients by being deceased or not (deceased)', async () => {
@@ -841,8 +866,9 @@ describe(`Materialised FHIR - Patient`, () => {
       const pathTrue = `/v1/integration/${INTEGRATION_ROUTE}/Patient?deceased=true`;
       const responseTrue = await app.get(pathTrue);
 
-      expect(responseTrue.body.total).toBe(1);
       expect(responseTrue).toHaveSucceeded();
+      expect(responseTrue.body.total).toBe(1);
+      expect(responseTrue.body.entry.length).toBe(1);
 
       // Query deceased=false
       const pathFalse = `/v1/integration/${INTEGRATION_ROUTE}/Patient?deceased=false`;
@@ -850,6 +876,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       expect(responseFalse).toHaveSucceeded();
       expect(responseFalse.body.total).toBe(2);
+      expect(responseFalse.body.entry.length).toBe(2);
     });
 
     it('filters patients by additionalData.cityTown (address-city)', async () => {
@@ -886,6 +913,7 @@ describe(`Materialised FHIR - Patient`, () => {
 
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(2);
+      expect(response.body.entry).toHaveLength(2);
     });
 
     it('filtering by address looks up a bunch of fields', async () => {

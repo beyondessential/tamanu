@@ -7,7 +7,7 @@ import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { APPOINTMENT_STATUSES } from 'shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
 import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
@@ -19,6 +19,7 @@ import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
 import { EncounterModal } from '../EncounterModal';
+import { usePatientCurrentEncounter } from '../../api/queries';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -183,9 +184,8 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     data: currentEncounter,
     error: currentEncounterError,
     isLoading: currentEncounterLoading,
-  } = useQuery(['currentEncounter', patient.id], () =>
-    api.get(`patient/${patient.id}/currentEncounter`),
-  );
+  } = usePatientCurrentEncounter(patient.id);
+
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
     ['additionalData', patient.id],
     () => api.get(`patient/${patient.id}/additionalData`),

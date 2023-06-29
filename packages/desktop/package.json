@@ -1,18 +1,13 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.25.2",
+  "version": "1.28.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "pkg": {
-    "assets": [
-      "../shared/**/*"
-    ]
-  },
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
@@ -200,9 +195,9 @@
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@tamanu/shared": "*",
     "@tanstack/react-query": "^4.0.10",
     "@types/react-autosuggest": "^9.3.7",
-    "await-to-js": "^2.0.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
     "bulma": "^0.7.1",
@@ -214,7 +209,7 @@
     "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
     "electron-debug": "^2.0.0",
-    "formik": "^1.5.2",
+    "formik": "^2.2.9",
     "fs-jetpack": "^2.2.2",
     "history": "^4.7.2",
     "iso-lang-codes": "^2.1.1",

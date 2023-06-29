@@ -7,28 +7,10 @@ import {
   SearchTableTitle,
   SearchTable,
 } from '../../components';
-import {
-  displayId,
-  firstName,
-  lastName,
-  culturalName,
-  village,
-  sex,
-  dateOfBirth,
-  vaccinationStatus,
-} from './columns';
+import { displayId, firstName, lastName, culturalName, village, sex, dateOfBirth } from './columns';
 import { PatientImmunisationsModal } from './components';
 
-const COLUMNS = [
-  displayId,
-  firstName,
-  lastName,
-  culturalName,
-  village,
-  sex,
-  dateOfBirth,
-  vaccinationStatus,
-];
+const COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
 
 export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});

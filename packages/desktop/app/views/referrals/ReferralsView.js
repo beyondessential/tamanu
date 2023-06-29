@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { PatientListingView } from 'desktop/app/views';
 import { FormGrid } from 'desktop/app/components/FormGrid';
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES } from '@tamanu/shared/constants';
 
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
@@ -20,6 +20,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [referralSurvey, setReferralSurvey] = useState(null);
   const [referralSurveys, setReferralSurveys] = useState(null);
+  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
 
   useEffect(() => {
@@ -63,7 +64,9 @@ const ReferralFlow = ({ patient, currentUser }) => {
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SurveySelector
-            onSelectSurvey={setSelectedReferral}
+            onSubmit={setSelectedReferral}
+            onChange={setSelectedSurveyId}
+            value={selectedSurveyId}
             surveys={referralSurveys}
             buttonText="Begin referral"
           />

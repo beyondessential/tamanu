@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { objectToCamelCase } from 'shared/utils';
-import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from 'shared/constants';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
@@ -58,11 +58,17 @@ patientLocations.get(
         SELECT
           (SUM(EXTRACT(epoch from age(end_date::date, start_date::date)) / 86400) / COUNT(1))::float as alos
         FROM encounters
+        LEFT JOIN locations
+        ON encounters.location_id = locations.id
         WHERE end_date::date > now() - '30 days'::interval
         AND encounters.encounter_type = 'admission'
+        AND locations.facility_id = $facilityId
       `,
       {
         type: QueryTypes.SELECT,
+        bind: {
+          facilityId: config.serverFacilityId,
+        },
       },
     );
 
@@ -85,7 +91,7 @@ patientLocations.get(
           (
           SELECT
             encounters.patient_id as id,
-            COUNT(id)
+            COUNT(encounters.patient_id)
           FROM encounters
           LEFT JOIN (
             SELECT
@@ -96,17 +102,24 @@ patientLocations.get(
             FROM encounters
           ) previous_encounters
           ON encounters.patient_id = previous_encounters.patient_id
-          AND encounters.start_date::date > previous_encounters.end_date::date - '30 days'::interval
+          AND encounters.start_date::date - '30 days'::interval < previous_encounters.end_date::date
+          LEFT JOIN locations
+          ON locations.id = encounters.location_id
           WHERE encounters.end_date IS NULL
+          AND encounters.start_date::date > now() - '30 days'::interval
           AND encounters.encounter_type = 'admission'
           AND previous_encounters.encounter_type = 'admission'
           AND previous_encounter_id IS NOT NULL
+          AND locations.facility_id = $facilityId
           GROUP BY encounters.patient_id
           ORDER BY encounters.patient_id
           ) readmitted_patients
       `,
       {
         type: QueryTypes.SELECT,
+        bind: {
+          facilityId: config.serverFacilityId,
+        },
       },
     );
 
@@ -214,7 +227,7 @@ patientLocations.get(
         FROM locations
         LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
         LEFT JOIN open_encounters ON locations.id = open_encounters.location_id
-        WHERE locations.facility_id = $facilityId
+        WHERE locations.facility_id = $facilityId AND locations.visibility_status = $visibilityStatusCurrent
         GROUP BY locations.id, location_groups.id
       ) locations
       LEFT JOIN (
@@ -296,6 +309,14 @@ patientLocations.get(
       OFFSET $offset
     `;
 
+    const bindParams = {
+      ...(filterParams.status && { status: filterParams.status }),
+      ...(filterParams.area && { area: filterParams.area }),
+      ...(filterParams.location && { location: filterParams.location }),
+      facilityId: config.serverFacilityId,
+      visibilityStatusCurrent: VISIBILITY_STATUSES.CURRENT,
+    };
+
     const data = await req.db.query(
       `
         ${withClauses}
@@ -321,10 +342,7 @@ patientLocations.get(
       {
         type: QueryTypes.SELECT,
         bind: {
-          ...(filterParams.status && { status: filterParams.status }),
-          ...(filterParams.area && { area: filterParams.area }),
-          ...(filterParams.location && { location: filterParams.location }),
-          facilityId: config.serverFacilityId,
+          ...bindParams,
           limit,
           offset,
         },
@@ -341,12 +359,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
-        bind: {
-          ...(filterParams.status && { status: filterParams.status }),
-          ...(filterParams.area && { area: filterParams.area }),
-          ...(filterParams.location && { location: filterParams.location }),
-          facilityId: config.serverFacilityId,
-        },
+        bind: bindParams,
       },
     );
 

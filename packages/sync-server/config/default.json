@@ -83,14 +83,7 @@
     "saltRounds": 12,
     "tokenDuration": "1h",
     "reportNoUserError": false,
-    "allowDummyToken": false,
     "useHardcodedPermissions": true,
-    "initialUser": {
-      "email": "admin@tamanu.io",
-      "displayName": "Initial Admin",
-      "role": "admin",
-      "password": "admin"
-    },
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",
@@ -115,8 +108,8 @@
     // limit == run through N per task run
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
     "outpatientDischarger": {
-      // every day at 11 PM
-      "schedule": "0 23 * * *",
+      // every day at 2 AM
+      "schedule": "0 2 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
@@ -248,6 +241,12 @@
       "worker": {
         "enabled": true, // the materialisation worker
         "concurrency": 100
+      },
+      "parameters": {
+        "_count": {
+          "default": 20,
+          "max": 20
+        }
       }
     },
     "omniLab": {
@@ -303,7 +302,8 @@
         },
         "displayId": {
           "shortLabel": "NHN",
-          "longLabel": "National Health Number"
+          "longLabel": "National Health Number",
+          "pattern": "[\\s\\S]*"
         },
         "firstName": {
           "shortLabel": "First name",
@@ -608,6 +608,10 @@
           "shortLabel": "Discharge disposition",
           "longLabel": "Discharge disposition",
           "hidden": true
+        },
+        "diagnosis": {
+          "shortLabel": "Diagnosis",
+          "longLabel": "Diagnosis"
         }
       },
       "features": {
@@ -617,6 +621,7 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
+        "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
         "patientPlannedMove": false,
@@ -627,7 +632,10 @@
           "warningPromptDuration": 30,
           "refreshInterval": 150
         },
-        "fhirNewZealandEthnicity": false
+        "fhirNewZealandEthnicity": false,
+        "onlyAllowLabPanels": false,
+        "displayProcedureCodesInDischargeSummary": true,
+        "displayIcd10CodesInDischargeSummary": true
       },
       "templates": {
         "letterhead": {
@@ -639,6 +647,10 @@
           "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
         },
         "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidVaccineCertificateEmail": {
           "subject": "Medical Certificate now available",
           "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
         },

@@ -14,6 +14,9 @@ interface CheckboxProps extends BaseInputProps {
   value: boolean;
   background?: string;
   color?: string;
+  error?: string;
+  required?: boolean;
+  label?: string;
 }
 
 export const Checkbox = ({
@@ -22,9 +25,10 @@ export const Checkbox = ({
   id,
   text,
   error,
-  required,
+  required = false,
   background,
   color,
+  label,
 }: CheckboxProps): JSX.Element => {
   const ChangeCallback = useCallback(() => onChange(!value, id), [onChange, value]);
 
@@ -34,7 +38,18 @@ export const Checkbox = ({
     return theme.colors.PRIMARY_MAIN;
   }, [error, value]);
   return (
-    <StyledView>
+    <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)}>
+      {!!label && (
+        <StyledText
+          fontSize={14}
+          fontWeight={600}
+          marginBottom={2}
+          color={theme.colors.TEXT_SUPER_DARK}
+        >
+          {label}
+          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+        </StyledText>
+      )}
       <RowView alignItems="center">
         <TouchableHighlight onPress={ChangeCallback} underlayColor="rgba(0,0,0,0.1)">
           <StyledView
@@ -63,7 +78,7 @@ export const Checkbox = ({
             fontSize={screenPercentageToDP('1.70', Orientation.Height)}
             color={theme.colors.TEXT_MID}
           >
-            {`${text}${required ? '*' : ''}`}
+            {`${text}${required && !label ? '*' : ''}`}
           </StyledText>
         )}
       </RowView>

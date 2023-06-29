@@ -5,8 +5,8 @@ import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
-import { toDateTimeString } from 'shared/utils/dateTime';
-import { PageContainer, TopBar } from '../../components';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
@@ -17,12 +17,18 @@ import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 
 const LeftContainer = styled.div`
-  min-height: 100vh;
+  min-height: 100%;
   border-right: 1px solid ${Colors.outline};
 `;
 
 const RightContainer = styled.div`
-  overflow: hidden;
+  position: relative;
+`;
+
+const TopBar = styled(TopBarBase)`
+  position: sticky;
+  top: 0;
+  height: ${TOP_BAR_HEIGHT}px;
 `;
 
 const DateHeader = styled.div`
@@ -40,9 +46,10 @@ const DateDisplay = styled.span`
 `;
 
 const CalendarContainer = styled.div`
-  margin-left: calc(25px + 3.5rem);
-  margin-right: 25px;
   overflow: auto;
+  height: calc(100vh - ${TOP_BAR_HEIGHT}px - 1px);
+  width: 100%;
+  position: absolute;
 `;
 
 const Section = styled.div`
@@ -86,7 +93,7 @@ export const AppointmentsCalendar = () => {
   const updateCalendar = () => {
     setRefreshCount(refreshCount + 1);
   };
-  const updateFilterValue = e => setFilterValue(e.target.value);
+  const updateFilterValue = e => setFilterValue(e.target.value || '');
 
   const filters = {
     locationGroup: {
@@ -126,7 +133,7 @@ export const AppointmentsCalendar = () => {
     <PageContainer>
       <TwoColumnDisplay>
         <LeftContainer>
-          <TopBar title="Calendar" />
+          <TopBarBase title="Calendar" />
           <Section>
             <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
             <FilterSwitch>

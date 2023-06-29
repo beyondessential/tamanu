@@ -102,7 +102,7 @@ export const VaccinesTable = ({
     <ScrollView bounces={false} stickyHeaderIndices={[0]}>
       <StyledView flexDirection="row">
         <VaccinesTableTitle />
-        <ScrollView ref={scrollViewRef} horizontal>
+        <ScrollView ref={scrollViewRef} horizontal scrollEnabled={false}>
           {columns.map((column: any) => (
             <StyledView key={`${column}`}>
               {vaccineTableHeader.accessor(column, onPressItem)}

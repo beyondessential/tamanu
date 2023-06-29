@@ -27,10 +27,12 @@ export const VaccineHistoryTabComponent = ({
     if (item.status === VaccineStatus.SCHEDULED) {
       navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
         vaccine: item,
+        patient: selectedPatient,
       });
     } else {
       navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
         vaccine: item,
+        patient: selectedPatient,
       });
     }
   }, []);

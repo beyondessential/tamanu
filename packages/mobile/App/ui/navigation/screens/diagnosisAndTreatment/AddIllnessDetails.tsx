@@ -119,6 +119,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 <StyledView justifyContent="space-between">
                   <Field
                     component={AutocompleteModalField}
+                    label="Select"
                     placeholder="Diagnosis"
                     navigation={navigation}
                     suggester={icd10Suggester}
@@ -139,6 +140,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   <CurrentUserField name="examiner" label="Recorded By" />
                   <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
+                    marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
                     backgroundColor={theme.colors.PRIMARY_MAIN}
                     onPress={handleSubmit}
                     buttonText="Submit"

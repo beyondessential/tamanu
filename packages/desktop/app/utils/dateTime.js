@@ -1,8 +1,8 @@
 import { formatDuration } from 'date-fns';
-import { getAgeDurationFromDate } from 'shared/utils/date';
+import { getAgeDurationFromDate } from '@tamanu/shared/utils/date';
 
 // Import all the shared date time utils here for backwards compatibility
-export * from 'shared/utils/dateTime';
+export * from '@tamanu/shared/utils/dateTime';
 
 /**
  * Display age in days if patient is less than 1 month old

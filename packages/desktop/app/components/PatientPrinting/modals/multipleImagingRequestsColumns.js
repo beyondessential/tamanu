@@ -31,7 +31,7 @@ const COMMON_COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REQUESTED_DATE,
-    title: 'Requested date & time',
+    title: 'Request date & time',
     sortable: false,
     form: {
       accessor: ({ requestedDate }) => <MultilineDatetimeDisplay date={requestedDate} />,

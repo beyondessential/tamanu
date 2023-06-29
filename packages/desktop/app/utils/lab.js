@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
 import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
@@ -20,7 +20,7 @@ export const getLaboratory = ({ laboratoryName, laboratory }) =>
 
 export const getCompletedDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
 export const getPublishedDate = ({ publishedDate }) => (
-  <DateDisplay date={publishedDate} customTooltipFormat="HH:mm a" />
+  <DateDisplay date={publishedDate} timeOnlyTooltip />
 );
 export const getMethod = ({ labTestMethod }) => labTestMethod?.name || 'Unknown';
 
@@ -33,5 +33,6 @@ export const getRequestType = ({ categoryName, category }) =>
   categoryName || (category || {}).name || 'Unknown';
 export const getPriority = ({ priorityName, priority }) =>
   priorityName || (priority || {}).name || 'Unknown';
-export const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
-export const getDateTime = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
+export const getDateWithTimeTooltip = ({ requestedDate }) => (
+  <DateDisplay date={requestedDate} timeOnlyTooltip />
+);

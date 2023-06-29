@@ -26,6 +26,13 @@ export class FacilitySyncManager {
     this.config = _config;
   }
 
+  // This is only used for jest tests. It is a workaround to spies not working
+  // with importing modules in the way that this module is used. See the
+  // FacilitySyncManager.test.js ('edge cases' suite) or SAV-249
+  __testSpyEnabled = false;
+
+  __testOnlyPushChangesSpy = [];
+
   models = null;
 
   sequelize = null;
@@ -84,7 +91,6 @@ export class FacilitySyncManager {
     await dropAllSnapshotTables(this.sequelize);
 
     const startTime = new Date();
-    const getElapsedTime = () => Date.now() - startTime.getTime();
 
     // the first step of sync is to start a session and retrieve the session id
     const {
@@ -97,8 +103,19 @@ export class FacilitySyncManager {
       startedAtTick: newSyncClockTime,
     });
 
-    // ~~~ Push phase ~~~ //
+    await this.pushChanges(sessionId, newSyncClockTime);
+    await this.pullChanges(sessionId);
 
+    await this.centralServer.endSyncSession(sessionId);
+
+    const elapsedTimeMs = Date.now() - startTime.getTime();
+    log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
+
+    // clear temp data stored for persist
+    await dropSnapshotTable(this.sequelize, sessionId);
+  }
+
+  async pushChanges(sessionId, newSyncClockTime) {
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncClockTime = await this.models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
 
@@ -123,13 +140,16 @@ export class FacilitySyncManager {
     );
     if (outgoingChanges.length > 0) {
       log.info('Sync: Pushing outgoing changes', { totalPushing: outgoingChanges.length });
+      if (this.__testSpyEnabled) {
+        this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
+      }
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
     await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);
     log.debug('Sync: Updated last successful push', { currentSyncClockTime });
+  }
 
-    // ~~~ Pull phase ~~~ //
-
+  async pullChanges(sessionId) {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
@@ -161,11 +181,5 @@ export class FacilitySyncManager {
       log.debug('Sync: Updating last successful sync pull', { pullUntil });
       await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullUntil);
     });
-    await this.centralServer.endSyncSession(sessionId);
-
-    log.info('Sync: Succeeded', { durationMs: getElapsedTime() });
-
-    // clear temp data stored for persist
-    await dropSnapshotTable(this.sequelize, sessionId);
   }
 }
