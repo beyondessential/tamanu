@@ -125,7 +125,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       const location = await createLocation('location');
       const oldDepartment = await createDepartment('oldDepartment');
       const newDepartment = await createDepartment('newDepartment');
-      const clinician = await createUser('testUser2');
+      const clinician = await createUser('testUser');
       const encounter = await createEncounter(patient, {
         departmentId: oldDepartment.id,
         locationId: location.id,
