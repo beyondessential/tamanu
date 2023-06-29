@@ -10,15 +10,15 @@ const Column = ({ header, appointments, onAppointmentUpdated }) => {
   // If header's length is larger than 14 characters, split it into two lines. Width expands if needed.
   const hasSpace = header.includes(' ');
   let width = '100%';
-  let midWidth = null;
+  let minWidth = null;
   if (header.length > 14 && hasSpace) {
     width = `${(header.length * 15) / 2}px`; // shrink width to make text becomes two lines
-    midWidth = '100%'; // expand width if it is smaller than the appointment content below it
+    minWidth = '100%'; // expand width if it is smaller than the appointment content below it
   }
 
   return (
     <>
-      <ColumnHeader className="location" $width={width} $midWidth={midWidth}>
+      <ColumnHeader className="location" $width={width} $minWidth={minWidth}>
         {header}
       </ColumnHeader>
       <ColumnBody className="appointments">
@@ -98,7 +98,7 @@ const ColumnHeader = styled.div`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   width: ${({ $width }) => $width};
-  min-width: ${({ $midWidth }) => $midWidth};
+  min-width: ${({ $minWidth }) => $minWidth};
   border: 1px solid ${Colors.outline};
   border-right: none;
   font-weight: bold;
