@@ -268,6 +268,8 @@ export async function migrateChangelogNotesToEncounterHistory({
 
       fromId = maxId;
 
+      log.info(`Migrated changelog for ${limit} encounters...`);
+
       sleepAsync(50);
     }
 
