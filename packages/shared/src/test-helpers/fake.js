@@ -30,7 +30,7 @@ import {
   FhirImmunizationProtocolApplied,
 } from '../services/fhirTypes';
 
-export const chance = new Chance(jest.getSeed());
+export const chance = new Chance(global.jest ? jest.getSeed() : null);
 
 export function fakeStringFields(prefix, fields) {
   return fields.reduce(
