@@ -139,5 +139,3 @@ export async function generateCovidVaccineSummaryDose2Report(context, parameters
   parameters.schedule = 'Dose 2';
   return generateCovidVaccineSummaryReport(context, parameters);
 }
-
-export const permission = 'PatientVaccine';
