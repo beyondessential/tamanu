@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Modal } from './Modal';
 import { ConfirmCancelRow } from './ButtonRow';
 import { SelectField, Form, Field, TextField } from './Field';
@@ -11,6 +11,7 @@ import { FormGrid } from './FormGrid';
 import { FormSeparatorLine } from './FormSeparatorLine';
 import { formatShortest, formatTime } from './DateDisplay';
 import { SurveyQuestion } from './Surveys';
+import { getValidationSchema } from '../utils';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -28,6 +29,17 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
   </Box>
 );
 
+const getEditVitalData = (vitalComponent, mandatoryVitalEditReason) => {
+  const reasonForChangeMockComponent = {
+    dataElement: { type: PROGRAM_DATA_ELEMENT_TYPES.SELECT },
+    validationCriteria: JSON.stringify({ mandatory: mandatoryVitalEditReason || true }),
+    dataElementId: 'reasonForChange',
+  };
+  const editVitalData = [reasonForChangeMockComponent];
+  if (vitalComponent) editVitalData.push(vitalComponent);
+  return { components: editVitalData };
+};
+
 export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const handleClose = useCallback(() => {
@@ -44,6 +56,8 @@ export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
   const initialValue = dataPoint?.value;
   const showDeleteEntryButton = initialValue !== '';
   const valueName = dataPoint?.component.dataElement.id;
+  const editVitalData = getEditVitalData(dataPoint?.component, mandatoryVitalEditReason);
+  const validationSchema = getValidationSchema(editVitalData);
   const handleDeleteEntry = useCallback(
     setFieldValue => {
       setFieldValue(valueName, '');
@@ -56,9 +70,7 @@ export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
     <Modal width="sm" title={title} onClose={handleClose} open={open}>
       <Form
         onSubmit={onConfirm}
-        validationSchema={yup.object().shape({
-          reasonForCancellation: yup.string().required('Reason for cancellation is mandatory'),
-        })}
+        validationSchema={validationSchema}
         initialValues={{ [valueName]: initialValue }}
         render={({
           // value: formValue,
