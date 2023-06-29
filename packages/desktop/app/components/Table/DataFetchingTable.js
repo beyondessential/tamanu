@@ -54,9 +54,11 @@ export const DataFetchingTable = memo(
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+
     const [lastFetchCount, setLastFetchCount] = useState(0);
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
+
     const api = useApi();
     const { getLocalisation } = useLocalisation();
 
@@ -81,8 +83,13 @@ export const DataFetchingTable = memo(
       setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
     }, []);
 
+    const clearNewRowStyles = () => {
+      setNewRowCount(0);
+    };
+
     const clearNotification = () => {
       setShowNotification(false);
+      clearNewRowStyles();
     };
 
     const fetchOptionsString = JSON.stringify(fetchOptions);
@@ -115,7 +122,9 @@ export const DataFetchingTable = memo(
           const rowsSinceInteraction = rowsSinceRefresh + newRowCount;
           // Add new key that determines if the row is highlighted green or not
           const dataWithStyles = data.map((row, i) => {
+            // Offset the indexes based on pagination
             const actualIndex = i + page * rowsPerPage;
+            // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
             const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
             return {
               ...row,
