@@ -27,14 +27,9 @@ const Spacer = styled.div`
   width: 100%;
 `;
 
-const BASE_ADVANCED_FIELDS = ['allFacilities'];
-const COMPLETED_ADVANCED_FIELDS = [
-  ...BASE_ADVANCED_FIELDS,
-  'locationGroupId',
-  'departmentId',
-  'completedAt',
-];
-const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS];
+const BASE_ADVANCED_FIELDS = ['allFacilities', 'locationGroupId', 'departmentId'];
+const ACTIVE_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'requestedById'];
+const COMPLETED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'completedAt'];
 
 export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
   const { getLocalisation } = useLocalisation();
@@ -48,7 +43,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
   const { searchParameters, setSearchParameters } = useImagingRequests(memoryKey);
 
   const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
-    isCompletedTable ? COMPLETED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS,
+    isCompletedTable ? COMPLETED_ADVANCED_FIELDS : ACTIVE_ADVANCED_FIELDS,
     searchParameters,
   );
   const statusFilter = statuses ? { status: statuses } : {};
