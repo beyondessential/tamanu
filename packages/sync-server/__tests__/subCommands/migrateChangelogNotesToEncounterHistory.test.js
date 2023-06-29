@@ -292,25 +292,25 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       expect(encounterHistoryRecords[0].examinerId).toEqual(oldUser.id);
       expect(encounterHistoryRecords[0].encounterType).toEqual(oldEncounterType);
 
-      // Change location
+      // Location change history
       expect(encounterHistoryRecords[1].locationId).toEqual(newLocation.id);
       expect(encounterHistoryRecords[1].departmentId).toEqual(oldDepartment.id);
       expect(encounterHistoryRecords[1].examinerId).toEqual(oldUser.id);
       expect(encounterHistoryRecords[1].encounterType).toEqual(oldEncounterType);
 
-      // Change department
+      // Department change history
       expect(encounterHistoryRecords[2].locationId).toEqual(newLocation.id);
       expect(encounterHistoryRecords[2].departmentId).toEqual(newDepartment.id);
       expect(encounterHistoryRecords[2].examinerId).toEqual(oldUser.id);
       expect(encounterHistoryRecords[2].encounterType).toEqual(oldEncounterType);
 
-      // Change clinician
+      // Clinician change history
       expect(encounterHistoryRecords[3].locationId).toEqual(newLocation.id);
       expect(encounterHistoryRecords[3].departmentId).toEqual(newDepartment.id);
       expect(encounterHistoryRecords[3].examinerId).toEqual(newUser.id);
       expect(encounterHistoryRecords[3].encounterType).toEqual(oldEncounterType);
 
-      // Change encounter type
+      // Encounter type change history
       expect(encounterHistoryRecords[4].locationId).toEqual(newLocation.id);
       expect(encounterHistoryRecords[4].departmentId).toEqual(newDepartment.id);
       expect(encounterHistoryRecords[4].examinerId).toEqual(newUser.id);
@@ -376,19 +376,19 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType);
 
-      // Change location 1
+      // Location change history 1
       expect(encounterHistoryRecords[1].locationId).toEqual(location2.id);
       expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType);
 
-      // Change location 2
+      // Location change history 2
       expect(encounterHistoryRecords[2].locationId).toEqual(location3.id);
       expect(encounterHistoryRecords[2].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[2].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType);
 
-      // Change location 3
+      // Location change history 3
       expect(encounterHistoryRecords[3].locationId).toEqual(location4.id);
       expect(encounterHistoryRecords[3].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[3].examinerId).toEqual(clinician.id);
@@ -450,19 +450,19 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType);
 
-      // Change department 1
+      // Department change history 1
       expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[1].departmentId).toEqual(department2.id);
       expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType);
 
-      // Change department 2
+      // Department change history 2
       expect(encounterHistoryRecords[2].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[2].departmentId).toEqual(department3.id);
       expect(encounterHistoryRecords[2].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType);
 
-      // Change department 3
+      // Department change history 3
       expect(encounterHistoryRecords[3].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[3].departmentId).toEqual(department4.id);
       expect(encounterHistoryRecords[3].examinerId).toEqual(clinician.id);
@@ -524,19 +524,19 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       expect(encounterHistoryRecords[0].examinerId).toEqual(clinician1.id);
       expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType);
 
-      // Change clinician 1
+      // Clinician change history 1
       expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[1].examinerId).toEqual(clinician2.id);
       expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType);
 
-      // Change clinician 2
+      // Clinician change history 2
       expect(encounterHistoryRecords[2].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[2].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[2].examinerId).toEqual(clinician3.id);
       expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType);
 
-      // Change clinician 3
+      // Clinician change history 3
       expect(encounterHistoryRecords[3].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[3].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[3].examinerId).toEqual(clinician4.id);
@@ -598,19 +598,19 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType1);
 
-      // Change encounter type 1
+      // Encounter type change history 1
       expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType2);
 
-      // Change encounter type 2
+      // Encounter type change history 2
       expect(encounterHistoryRecords[2].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[2].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[2].examinerId).toEqual(clinician.id);
       expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType3);
 
-      // Change encounter type 3
+      // Encounter type change history 3
       expect(encounterHistoryRecords[3].locationId).toEqual(location.id);
       expect(encounterHistoryRecords[3].departmentId).toEqual(department.id);
       expect(encounterHistoryRecords[3].examinerId).toEqual(clinician.id);
