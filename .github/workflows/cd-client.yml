@@ -53,7 +53,7 @@ jobs:
               pr: context.issue?.number ?? context.pull_request?.number,
             });
 
-            const REGEX = /(#.* Desktop clients.*)\n/;
+            const REGEX = /(^#+ .* Desktop clients.*)\n/;
             const existing = comments.nodes.find(({body}) => REGEX.test(body));
 
             if (existing) {
