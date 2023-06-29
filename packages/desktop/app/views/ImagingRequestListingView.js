@@ -24,7 +24,7 @@ const ImagingRequestListing = ({ tableVersion }) => {
 
 export const ImagingRequestListingView = () => (
   <PageContainer>
-    <TopBar title="Imaging requests" />
+    <TopBar title="Active imaging requests" />
     {/* Here we give the listing an object containing the code for tracking the search state and also an array
     of statuses to be filtered by for each table */}
     <ImagingRequestListing tableVersion={IMAGING_TABLE_VERSIONS.ACTIVE} />
