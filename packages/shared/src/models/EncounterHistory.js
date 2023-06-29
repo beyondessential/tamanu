@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { SYNC_DIRECTIONS } from '../constants';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class EncounterHistory extends Model {
   static init({ primaryKey, ...options }) {
@@ -15,6 +16,7 @@ export class EncounterHistory extends Model {
         },
         date: dateTimeType('startDate', {
           allowNull: false,
+          defaultValue: getCurrentDateTimeString,
         }),
       },
       {

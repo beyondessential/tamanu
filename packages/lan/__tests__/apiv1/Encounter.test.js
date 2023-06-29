@@ -1101,6 +1101,125 @@ describe('Encounter', () => {
       });
     });
 
+    describe('encounter history', () => {
+      it('should record an encounter history for a location change', async () => {
+        const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
+        const submittedTime = getCurrentDateTimeString();
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: oldLocation.id,
+        });
+
+        await app.put(`/v1/encounter/${encounter.id}`).send({
+          locationId: newLocation.id,
+          submittedTime,
+        });
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          where: {
+            encounterId: encounter.id,
+          },
+        });
+
+        expect(encounterHistoryRecords).toHaveLength(1);
+        expect(encounterHistoryRecords[0].date).toEqual(submittedTime);
+        expect(encounterHistoryRecords[0].encounterId).toEqual(encounter.id);
+        expect(encounterHistoryRecords[0].departmentId).toEqual(encounter.departmentId);
+        expect(encounterHistoryRecords[0].locationId).toEqual(oldLocation.id);
+        expect(encounterHistoryRecords[0].examinerId).toEqual(encounter.examinerId);
+        expect(encounterHistoryRecords[0].encounterType).toEqual(encounter.encounterType);
+      });
+
+      it('should record an encounter history for a department change', async () => {
+        const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
+        const submittedTime = getCurrentDateTimeString();
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          departmentId: oldDepartment.id,
+        });
+
+        await app.put(`/v1/encounter/${encounter.id}`).send({
+          departmentId: newDepartment.id,
+          submittedTime,
+        });
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          where: {
+            encounterId: encounter.id,
+          },
+        });
+
+        expect(encounterHistoryRecords).toHaveLength(1);
+        expect(encounterHistoryRecords[0].date).toEqual(submittedTime);
+        expect(encounterHistoryRecords[0].encounterId).toEqual(encounter.id);
+        expect(encounterHistoryRecords[0].departmentId).toEqual(oldDepartment.id);
+        expect(encounterHistoryRecords[0].locationId).toEqual(encounter.locationId);
+        expect(encounterHistoryRecords[0].examinerId).toEqual(encounter.examinerId);
+        expect(encounterHistoryRecords[0].encounterType).toEqual(encounter.encounterType);
+      });
+
+      it('should record an encounter history for a clinician change', async () => {
+        const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
+        const submittedTime = getCurrentDateTimeString();
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          examinerId: oldClinician.id,
+        });
+
+        await app.put(`/v1/encounter/${encounter.id}`).send({
+          examinerId: newClinician.id,
+          submittedTime,
+        });
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          where: {
+            encounterId: encounter.id,
+          },
+        });
+
+        expect(encounterHistoryRecords).toHaveLength(1);
+        expect(encounterHistoryRecords[0].date).toEqual(submittedTime);
+        expect(encounterHistoryRecords[0].encounterId).toEqual(encounter.id);
+        expect(encounterHistoryRecords[0].departmentId).toEqual(encounter.departmentId);
+        expect(encounterHistoryRecords[0].locationId).toEqual(encounter.locationId);
+        expect(encounterHistoryRecords[0].examinerId).toEqual(oldClinician.id);
+        expect(encounterHistoryRecords[0].encounterType).toEqual(encounter.encounterType);
+      });
+
+      it('should record an encounter history for an encounter type change', async () => {
+        const oldEncounterType = 'admission';
+        const newEncounterType = 'clinic';
+        const submittedTime = getCurrentDateTimeString();
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          encounterType: oldEncounterType,
+        });
+
+        await app.put(`/v1/encounter/${encounter.id}`).send({
+          encounterType: newEncounterType,
+          submittedTime,
+        });
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          where: {
+            encounterId: encounter.id,
+          },
+        });
+
+        expect(encounterHistoryRecords).toHaveLength(1);
+        expect(encounterHistoryRecords[0].date).toEqual(submittedTime);
+        expect(encounterHistoryRecords[0].encounterId).toEqual(encounter.id);
+        expect(encounterHistoryRecords[0].departmentId).toEqual(encounter.departmentId);
+        expect(encounterHistoryRecords[0].locationId).toEqual(encounter.locationId);
+        expect(encounterHistoryRecords[0].examinerId).toEqual(encounter.examinerId);
+        expect(encounterHistoryRecords[0].encounterType).toEqual(oldEncounterType);
+      });
+    });
+
     test.todo('should record a note');
     test.todo('should update a note');
 
