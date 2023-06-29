@@ -176,7 +176,20 @@ export const MultilineDatetimeDisplay = React.memo(
   },
 );
 
+const VALID_FORMAT_FUNCTIONS = [
+  formatShortest,
+  formatShort,
+  formatTime,
+  formatTimeWithSeconds,
+  formatShortExplicit,
+  formatShortestExplicit,
+  formatLong,
+];
+
 DateDisplay.rawFormat = (dateValue, formatFn = formatShort) => {
+  if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {
+    throw new Error('Invalid format function used, check DateDisplay component for options');
+  }
   const dateObj = parseDate(dateValue);
   return formatFn(dateObj);
 };
