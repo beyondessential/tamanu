@@ -6,7 +6,13 @@ import { useVitalChartData } from '../contexts/VitalChartData';
 import { LineChart } from '../components/Charts/LineChart';
 import { useEncounter } from '../contexts/Encounter';
 import { useVitalQueries } from '../api/queries/useVitalQuery';
-import { CHART_MARGIN, Y_AXIS_WIDTH } from '../components/Charts/constants';
+import {
+  CHART_MARGIN,
+  MULTI_CHARTS_VIEW_INTERVAL_HEIGHT,
+  Y_AXIS_WIDTH,
+} from '../components/Charts/constants';
+import { getYAxisTicks } from '../components/Charts/helpers/axisTicks';
+import { customisedXAxisTickHeight } from '../components/Charts/components/CustomisedTick';
 
 const Divider = styled(DividerBase)`
   margin-left: ${Y_AXIS_WIDTH}px;
@@ -35,8 +41,13 @@ export const MultiVitalChartsView = () => {
   return (
     <>
       {chartKeys.map((chartKey, index) => {
-        const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
         const chartData = chartsData[index];
+        const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
+        const { yAxis: yAxisConfigs } = visualisationConfig;
+
+        const yAxisTicks = getYAxisTicks(yAxisConfigs);
+        const height =
+          (yAxisTicks.length - 1) * MULTI_CHARTS_VIEW_INTERVAL_HEIGHT + customisedXAxisTickHeight;
 
         return (
           <>
@@ -50,6 +61,8 @@ export const MultiVitalChartsView = () => {
               startDate={startDate}
               endDate={endDate}
               isLoading={isLoading}
+              height={height}
+              yAxisTicks={yAxisTicks}
             />
           </>
         );

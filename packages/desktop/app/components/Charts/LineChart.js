@@ -13,16 +13,12 @@ import {
 import { TooltipContent } from './components/TooltipContent';
 import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
-import {
-  CustomisedXAxisTick,
-  CustomisedYAxisTick,
-  XAxisTickHeight,
-} from './components/CustomisedTick';
+import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
-import { CHART_MARGIN, MULTI_CHARTS_VIEW_INTERVAL_HEIGHT, Y_AXIS_WIDTH } from './constants';
+import { CHART_MARGIN, Y_AXIS_WIDTH } from './constants';
 
 const CustomTooltip = ({ payload }) => {
   if (payload && payload.length) {
@@ -48,22 +44,15 @@ export const LineChart = props => {
     visualisationConfig,
     startDate,
     endDate,
+    xAxisTicks = getXAxisTicks(startDate, endDate),
+    yAxisTicks = getYAxisTicks(visualisationConfig.yAxis),
+    height = 500,
     isLoading,
-    isInMultiChartsView,
   } = props;
-  if (!visualisationConfig.hasVitalChart) {
-    return null;
-  }
 
   const { yAxis: yAxisConfigs } = visualisationConfig;
-
   const isNoData = chartData.length === 0 && !isLoading;
   const measureData = getMeasureData(chartData, yAxisConfigs);
-  const xAxisTicks = getXAxisTicks(startDate, endDate);
-  const yAxisTicks = getYAxisTicks(yAxisConfigs);
-  const height = isInMultiChartsView
-    ? (yAxisTicks.length - 1) * MULTI_CHARTS_VIEW_INTERVAL_HEIGHT + XAxisTickHeight
-    : 500;
 
   return (
     <LineChartComponent width={1856} height={height} data={measureData} margin={CHART_MARGIN}>
