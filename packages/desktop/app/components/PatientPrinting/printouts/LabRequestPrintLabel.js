@@ -81,9 +81,9 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
           <svg viewBox="0 0 200 120">
             <Item x="0" y="10" label="Patient Name" value={patientName} />
             <Item x="0" y="30" label="Patient ID" value={patientId} />
-            <Item x="0" y="50" label="DOB" value={DateDisplay.rawFormat(patientDateOfBirth)} />
+            <Item x="0" y="50" label="DOB" value={DateDisplay.stringFormat(patientDateOfBirth)} />
             <Item x="0" y="70" label="Test ID" value={testId} />
-            <Item x="0" y="90" label="Date collected" value={DateDisplay.rawFormat(date)} />
+            <Item x="0" y="90" label="Date collected" value={DateDisplay.stringFormat(date)} />
             <Item x="0" y="110" label="Lab category" value={labCategory} />
           </svg>
         </TextContainer>

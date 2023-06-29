@@ -33,8 +33,8 @@ const StyledTable = styled(Table)`
 `;
 
 const getExportOverrideTitle = date => {
-  const shortestDate = DateDisplay.rawFormat(date, formatShortest);
-  const timeWithSeconds = DateDisplay.rawFormat(date, formatTimeWithSeconds);
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
   return `${shortestDate} ${timeWithSeconds}`;
 };
 

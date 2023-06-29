@@ -26,10 +26,10 @@ const HeadCellWrapper = styled.div`
 `;
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={DateDisplay.rawFormat(value, formatLong)}>
+  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)}>
     <HeadCellWrapper>
-      <div>{DateDisplay.rawFormat(value, formatShortest)}</div>
-      <div>{DateDisplay.rawFormat(value, formatTime)}</div>
+      <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
+      <div>{DateDisplay.stringFormat(value, formatTime)}</div>
     </HeadCellWrapper>
   </TableTooltip>
 ));

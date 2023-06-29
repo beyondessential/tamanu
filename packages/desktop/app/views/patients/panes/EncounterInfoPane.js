@@ -89,7 +89,7 @@ export const EncounterInfoPane = React.memo(
         )}
         <CardItem label="Encounter type" value={getEncounterType(encounter)} />
         {encounter.endDate && (
-          <CardItem label="Discharge date" value={DateDisplay.rawFormat(encounter.endDate)} />
+          <CardItem label="Discharge date" value={DateDisplay.stringFormat(encounter.endDate)} />
         )}
         <CardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
       </CardBody>

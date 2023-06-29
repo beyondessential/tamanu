@@ -5,8 +5,8 @@ import { SelectInput } from './SelectField';
 import { useApi } from '../../api';
 
 const getDataLabel = (endTime, surveyName) => {
-  const shortDate = DateDisplay.rawFormat(endTime);
-  const time = DateDisplay.rawFormat(endTime, formatTime);
+  const shortDate = DateDisplay.stringFormat(endTime);
+  const time = DateDisplay.stringFormat(endTime, formatTime);
   return `${shortDate} ${time} ${surveyName}`;
 };
 

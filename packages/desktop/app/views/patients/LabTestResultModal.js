@@ -67,7 +67,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
         </div>
         <VerticalDivider />
         <div>
-          <ValueDisplay title="Completed" value={DateDisplay.rawFormat(labTest?.completedDate)} />
+          <ValueDisplay title="Completed" value={DateDisplay.stringFormat(labTest?.completedDate)} />
           <ValueDisplay title="Test Method" value={labTest?.labTestMethod?.name} />
         </div>
       </ModalBody>

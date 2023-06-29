@@ -142,7 +142,7 @@ export const ReportGeneratorForm = () => {
 
         const reportName = reportsById[reportId].name;
 
-        const date = DateDisplay.rawFormat(new Date());
+        const date = DateDisplay.stringFormat(new Date());
 
         const metadata = [
           ['Report Name:', reportName],

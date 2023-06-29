@@ -186,7 +186,7 @@ const VALID_FORMAT_FUNCTIONS = [
   formatLong,
 ];
 
-DateDisplay.rawFormat = (dateValue, formatFn = formatShort) => {
+DateDisplay.stringFormat = (dateValue, formatFn = formatShort) => {
   if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {
     throw new Error('Invalid format function used, check DateDisplay component for options');
   }
