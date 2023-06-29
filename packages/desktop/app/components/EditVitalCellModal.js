@@ -6,6 +6,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { Modal } from './Modal';
 import { ConfirmCancelRow } from './ButtonRow';
 import { SelectField, Form, Field, TextField } from './Field';
+import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from './FormGrid';
 import { FormSeparatorLine } from './FormSeparatorLine';
 import { formatShortest, formatTime } from './DateDisplay';
@@ -33,6 +34,9 @@ export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
     setIsDeleted(false);
     onClose();
   }, [onClose]);
+  const { getLocalisation } = useLocalisation();
+  const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
+  const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
   const vitalLabel = dataPoint?.component.dataElement.name;
   const date = formatShortest(dataPoint?.recordedDate);
   const time = formatTime(dataPoint?.recordedDate);
@@ -70,11 +74,11 @@ export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
               />
             )}
             <Field
-              required
+              required={mandatoryVitalEditReason}
               component={SelectField}
               label="Reason for change to record"
               name="reasonForChange"
-              // options={options}
+              options={vitalEditReasons}
               style={{ gridColumn: '1 / 4' }}
             />
             <FormSeparatorLine />
