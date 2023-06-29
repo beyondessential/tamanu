@@ -31,7 +31,7 @@ interface LabRequestFormData {
   categoryId: string;
   priorityId: string;
   labSampleSiteId: string;
-  labTestTypes: string[];
+  labTestTypeIds: string[];
 }
 
 const validationSchema = Yup.object().shape({
@@ -67,10 +67,10 @@ export const DumbAddLabRequestScreen = ({
   const { models } = useBackend();
 
   const validate = useCallback(values => {
-    const { categoryId, labTestTypes = [] } = values;
+    const { categoryId, labTestTypeIds = [] } = values;
 
     if (categoryId) {
-      if (!labTestTypes || labTestTypes.length === 0) {
+      if (!labTestTypeIds || labTestTypeIds.length === 0) {
         return {
           form: 'At least one lab test type must be selected',
         };
@@ -102,6 +102,7 @@ export const DumbAddLabRequestScreen = ({
       requestedById,
       collectedById,
       specimenTypeId,
+      labTestTypeIds,
       displayId: generatedDisplayId,
     } = values;
 
@@ -116,7 +117,7 @@ export const DumbAddLabRequestScreen = ({
       labTestCategory: values.categoryId,
       labTestPriority: values.priorityId,
       sampleTime: sampleTimeString,
-      labTestTypeIds: values.labTestTypes,
+      labTestTypeIds,
       labSampleSite: labSampleSiteId,
       collectedBy: collectedById,
       specimenType: specimenTypeId,

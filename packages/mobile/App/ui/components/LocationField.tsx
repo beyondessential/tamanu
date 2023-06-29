@@ -64,6 +64,7 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
       />
 
       <Field
+        component={AutocompleteModalField}
         navigation={navigation}
         suggester={locationSuggester}
         name="locationId"
