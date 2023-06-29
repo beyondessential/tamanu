@@ -92,7 +92,13 @@ const PrintButton = ({ imagingRequest, patient }) => {
   );
 };
 
-const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imagingTypes }) => {
+const ImagingRequestSection = ({
+  values,
+  setFieldValue,
+  imagingRequest,
+  imagingPriorities,
+  imagingTypes,
+}) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   // Just needed for read only state
@@ -123,6 +129,17 @@ const ImagingRequestSection = ({ values, imagingRequest, imagingPriorities, imag
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
         isClearable={false}
+        onChange={e => {
+          if (e.target.value === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+            setFieldValue('newResult', {
+              completedAt: getCurrentDateTimeString(),
+            });
+
+            return;
+          }
+
+          setFieldValue('newResult', undefined);
+        }}
         required
       />
       <DateTimeInput value={imagingRequest.requestedDate} label="Request date and time" disabled />
@@ -250,14 +267,18 @@ const ImagingRequestInfoPane = React.memo(
         initialStatus={{}}
         initialValues={{
           ...imagingRequest,
-          newResult: {
-            completedAt: getCurrentDateTimeString(),
-          },
+          ...(imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED
+            ? {
+                newResult: {
+                  completedAt: getCurrentDateTimeString(),
+                },
+              }
+            : {}),
         }}
         validationSchema={yup.object().shape({
           status: yup.string().required('Status is required'),
         })}
-        render={({ values }) => {
+        render={({ values, setFieldValue }) => {
           return (
             <>
               <ImagingRequestSection
@@ -266,6 +287,7 @@ const ImagingRequestInfoPane = React.memo(
                   imagingRequest,
                   imagingPriorities,
                   imagingTypes,
+                  setFieldValue,
                 }}
               />
               {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
