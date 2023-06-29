@@ -30,6 +30,8 @@ import {
   FhirImmunizationProtocolApplied,
 } from '../services/fhirTypes';
 
+// this file is most commonly used within tests, but also outside them
+// jest wom't always be defined, in which case we can use a random seed
 export const chance = new Chance(global.jest ? jest.getSeed() : null);
 
 export function fakeStringFields(prefix, fields) {
