@@ -37,6 +37,7 @@ export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedCell, setSelectedCell] = useState(null);
 
   // create a column for each reading
   const columns = [
@@ -62,6 +63,7 @@ export const VitalsTable = React.memo(() => {
               validationCriteria={validationCriteria}
               onClick={() => {
                 setOpenEditModal(true);
+                setSelectedCell(cells[date]);
               }}
             />
           );
@@ -76,6 +78,7 @@ export const VitalsTable = React.memo(() => {
     <>
       <EditVitalCellModal
         open={openEditModal}
+        dataPoint={selectedCell}
         onClose={() => {
           setOpenEditModal(false);
         }}
