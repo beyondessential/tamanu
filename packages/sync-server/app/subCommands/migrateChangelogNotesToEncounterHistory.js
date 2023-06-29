@@ -31,6 +31,7 @@ export async function migrateChangelogNotesToEncounterHistory({
             from note_pages np
             left join note_items ni on ni.note_page_id = np.id
             where note_type = 'system'
+            and record_type = 'Encounter'
             and ni.content like 'Changed%'
             and np.record_id > :fromId
             order by np.record_id, ni.date
