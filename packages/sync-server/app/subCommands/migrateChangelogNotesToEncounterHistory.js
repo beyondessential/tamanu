@@ -3,15 +3,22 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
+import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
-export async function migrateSystemNotesToEncounterHistory() {
-  log.info('Migrating imaging requests...');
+export async function migrateChangelogNotesToEncounterHistory({
+  limit = Number.MAX_SAFE_INTEGER,
+} = {}) {
+  log.info(`Migrating system notes with batching size ${limit} ...`);
 
   const store = await initDatabase({ testMode: false });
   const { sequelize } = store;
 
   try {
-    await sequelize.query(`
+    let fromId = '';
+
+    while (fromId != null) {
+      const [[{ maxId }]] = await sequelize.query(
+        `
         with
         notes_system as (
             select
@@ -23,7 +30,10 @@ export async function migrateSystemNotesToEncounterHistory() {
             from note_pages np
             left join note_items ni on ni.note_page_id = np.id
             where note_type = 'system'
+            and ni.content like 'Changed%'
+            and np.record_id > :fromId
             order by np.record_id, ni.date
+            limit :limit
         ),
         change_log_historical_partial as (
             select
@@ -69,13 +79,13 @@ export async function migrateSystemNotesToEncounterHistory() {
                 l.facility_id as encounter_facility_id,
                 case when log.encounter_type notnull then log.encounter_type
                     else coalesce(
-                            (ARRAY_REMOVE(array_agg(log.encounter_type) 
+                            (array_remove(array_agg(log.encounter_type) 
                                 over (partition by encounter_id
                                     order by start_datetime desc
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            (ARRAY_REMOVE(array_agg(log.encounter_type)
+                            (array_remove(array_agg(log.encounter_type)
                                 over (partition by encounter_id
                                     order by start_datetime
                                     rows between
@@ -86,13 +96,13 @@ export async function migrateSystemNotesToEncounterHistory() {
 
                 case when location notnull then location
                     else coalesce(
-                            (ARRAY_REMOVE(array_agg(location) 
+                            (array_remove(array_agg(location) 
                                 over (partition by encounter_id
                                     order by start_datetime desc
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            (ARRAY_REMOVE(array_agg(location)
+                            (array_remove(array_agg(location)
                                 over (partition by encounter_id
                                     order by start_datetime
                                     rows between
@@ -103,13 +113,13 @@ export async function migrateSystemNotesToEncounterHistory() {
 
                 case when department notnull then department
                     else coalesce(
-                            (ARRAY_REMOVE(array_agg(department) 
+                            (array_remove(array_agg(department) 
                                 over (partition by encounter_id
                                     order by start_datetime desc
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            (ARRAY_REMOVE(array_agg(department)
+                            (array_remove(array_agg(department)
                                 over (partition by encounter_id
                                     order by start_datetime
                                     rows between
@@ -120,13 +130,13 @@ export async function migrateSystemNotesToEncounterHistory() {
 
                 case when examiner notnull then examiner
                     else coalesce(
-                            (ARRAY_REMOVE(array_agg(examiner) 
+                            (array_remove(array_agg(examiner) 
                                 over (partition by encounter_id
                                     order by start_datetime desc
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            (ARRAY_REMOVE(array_agg(examiner)
+                            (array_remove(array_agg(examiner)
                                 over (partition by encounter_id
                                     order by start_datetime
                                     rows between
@@ -199,36 +209,53 @@ export async function migrateSystemNotesToEncounterHistory() {
                 group by display_name
                 having count(*) = 1)
             order by record_id, date
-        )
-        insert into encounter_history(
+        ),
+        inserted as (
+            insert into encounter_history(
             encounter_id,
             date,
             department_id,
             location_id,
             examiner_id,
             encounter_type
+            )
+            select
+                record_id,
+                date,
+                department_id,
+                location_id,
+                examiner_id,
+                encounter_type
+            from change_log_with_id
+            where record_id not in (select encounter_id from encounter_history)
+            returning encounter_id
         )
-        select
-            record_id,
-            date,
-            department_id,
-            location_id,
-            examiner_id,
-            encounter_type
-        from change_log_with_id
-        where record_id not in (select encounter_id from encounter_history);
-    `);
+        select max(encounter_id) as "maxId"
+        from inserted;
+    `,
+        {
+          replacements: {
+            fromId,
+            limit,
+          },
+        },
+      );
+
+      fromId = maxId;
+
+      sleepAsync(50);
+    }
 
     process.exit(0);
   } catch (error) {
-    console.log(`Command failed: ${error.stack}\n`);
     log.info(`Command failed: ${error.stack}\n`);
     process.exit(1);
   }
 }
 
-export const migrateSystemNotesToEncounterHistoryCommand = new Command(
-  'migrateSystemNotesToEncounterHistory',
+export const migrateChangelogNotesToEncounterHistoryCommand = new Command(
+  'migrateChangelogNotesToEncounterHistory',
 )
-  .description('Migrates system notes to encounter history')
-  .action(migrateSystemNotesToEncounterHistory);
+  .description('Migrates changelog notes to encounter history')
+  .option('-l, --limit <number>', 'Batching size for migrating changelog notes')
+  .action(migrateChangelogNotesToEncounterHistory);

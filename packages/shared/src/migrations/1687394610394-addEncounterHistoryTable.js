@@ -24,7 +24,7 @@ export async function up(query) {
     },
     date: {
       type: DataTypes.DATETIMESTRING,
-      allowNull: true,
+      allowNull: false,
     },
     encounter_id: {
       type: DataTypes.STRING,

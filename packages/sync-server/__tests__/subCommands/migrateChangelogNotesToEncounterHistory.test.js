@@ -4,10 +4,10 @@ import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patien
 import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
-import { migrateSystemNotesToEncounterHistory } from '../../app/subCommands';
+import { migrateChangelogNotesToEncounterHistory } from '../../app/subCommands';
 import { toDateTimeString, getCurrentDateTimeString } from '../../../shared/src/utils/dateTime';
 
-describe('migrateSystemNotesToEncounterHistory', () => {
+describe('migrateChangelogNotesToEncounterHistory', () => {
   let ctx;
   let models;
   let patient;
@@ -101,7 +101,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.locationId = newLocation.id;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -136,7 +136,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.departmentId = newDepartment.id;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -171,7 +171,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.examinerId = newClinician.id;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -205,7 +205,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.encounterType = 'clinic';
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -278,7 +278,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.encounterType = newEncounterType;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -362,7 +362,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.locationId = location4.id;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -436,7 +436,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.departmentId = department4.id;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -510,7 +510,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.examinerId = clinician4.id;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -584,7 +584,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -700,7 +700,7 @@ describe('migrateSystemNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateSystemNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
 
