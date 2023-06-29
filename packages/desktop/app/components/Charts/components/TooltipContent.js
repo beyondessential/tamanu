@@ -35,15 +35,21 @@ const CustomDotWrapper = styled.div`
   padding: 1px;
 `;
 
+const DateTimeHeader = ({ name }) => {
+  return (
+    <span>
+      {formatShortest(name)} <TimeText>{formatTime(name)}</TimeText>
+    </span>
+  );
+};
+
 export const TooltipContent = props => {
   const { name, description, visualisationConfig, dotColor, value } = props;
   const { config = {} } = visualisationConfig;
 
   return (
     <Wrapper>
-      <span>
-        {formatShortest(name)} <TimeText>{formatTime(name)}</TimeText>
-      </span>
+      <DateTimeHeader name={name} />
       <ValueWrapper $alignItem="baseline">
         <CustomDotWrapper>
           <CustomDot payload={{ dotColor }} />
@@ -64,9 +70,7 @@ export const InwardArrowVectorTooltipContent = props => {
 
   return (
     <Wrapper>
-      <span>
-        {formatShortest(name)} <TimeText>{formatTime(name)}</TimeText>
-      </span>
+      <DateTimeHeader name={name} />
       <ValueWrapper $alignItem="center">
         <CustomDotWrapper>
           <InwardArrowVectorIcon color={dotColor} />
