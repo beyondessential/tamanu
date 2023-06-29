@@ -56,6 +56,7 @@ export const DataFetchingTable = memo(
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
 
     const [lastFetchCount, setLastFetchCount] = useState(0);
+    const [lastPage, setLastPage] = useState(0);
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
 
@@ -132,11 +133,18 @@ export const DataFetchingTable = memo(
             };
           });
 
+          // If its the first fetch, we dont want to highlight the new rows green or show a notification
           if (!isFirstFetch) {
-            setNewRowCount(rowsSinceInteraction);
-            setShowNotification(rowsSinceInteraction > 0 && page !== 0);
+            if (page === 1 && lastPage === 0) {
+              clearNotification();
+            } else {
+              setNewRowCount(rowsSinceInteraction);
+              setShowNotification(rowsSinceInteraction > 0 && page !== 0);
+            }
           }
+
           setLastFetchCount(count);
+          setLastPage(page);
 
           const transformedData = transformRow ? dataWithStyles.map(transformRow) : dataWithStyles;
           updateFetchState({
