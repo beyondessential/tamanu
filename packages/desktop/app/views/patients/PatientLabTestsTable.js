@@ -110,6 +110,7 @@ const StyledButton = styled(Button)`
   left: -14px;
   & > span > div {
     margin: -8px -4px;
+    padding: 8px 14px;
   }
   &:hover {
     background-color: transparent;
@@ -177,7 +178,11 @@ export const PatientLabTestsTable = React.memo(({ patient, labTests = [], count,
             );
           }
 
-          return <StyledButton disabled>-</StyledButton>;
+          return (
+            <StyledButton disabled>
+              <div>-</div>
+            </StyledButton>
+          );
         },
         exportOverrides: {
           title: `${formatShort(date)} ${formatTimeWithSeconds(date)}`,

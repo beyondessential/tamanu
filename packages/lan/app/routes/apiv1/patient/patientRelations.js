@@ -327,7 +327,7 @@ patientRelations.get(
     )
   AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
-  ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
+  ${categoryId ? 'AND lab_test_types.lab_test_category_id = :categoryId' : ''}
   ${
     panelId
       ? `AND lab_test_type_id IN (
