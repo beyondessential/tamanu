@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import styled from 'styled-components';
-import { useApi, useSuggester } from '../api';
-import { combineQueries } from '../api/combineQueries';
+import { useApi, useSuggester, combineQueries } from '../api';
 import { Modal } from './Modal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
@@ -11,7 +10,7 @@ import { useEncounter } from '../contexts/Encounter';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
-    max-width: 926px;
+    max-width: 1200px;
   }
 `;
 
@@ -41,6 +40,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const { loadEncounter } = useEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
+  const specimenTypeSuggester = useSuggester('specimenType');
+  const labSampleSiteSuggester = useSuggester('labSampleSite');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -74,6 +75,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
       departmentSuggester={departmentSuggester}
+      specimenTypeSuggester={specimenTypeSuggester}
+      labSampleSiteSuggester={labSampleSiteSuggester}
     />
   );
 
@@ -90,11 +93,10 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
 
   return (
     <StyledModal
-      maxWidth="md"
       title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
       open={open}
       onClose={handleClose}
-      minHeight={500}
+      minHeight={800}
     >
       {ModalBody}
     </StyledModal>
