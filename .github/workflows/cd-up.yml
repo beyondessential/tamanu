@@ -140,7 +140,7 @@ jobs:
           secret-ids: "INTERNAL_DB, ${{ vars.INTERNAL_DB_SECRET_ARN }}"
 
       - name: Connect to Tailscale
-        uses: ./.github/actions/tailscale
+        uses: tailscale/github-action@v2
         with:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           tags: tag:infra,tag:infra-gha-deploy
