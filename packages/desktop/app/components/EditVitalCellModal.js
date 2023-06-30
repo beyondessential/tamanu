@@ -5,13 +5,14 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Modal } from './Modal';
 import { ConfirmCancelRow } from './ButtonRow';
-import { SelectField, Form, Field, TextField } from './Field';
+import { SelectField, Form, Field, OuterLabelFieldWrapper } from './Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from './FormGrid';
 import { FormSeparatorLine } from './FormSeparatorLine';
 import { formatShortest, formatTime } from './DateDisplay';
 import { SurveyQuestion } from './Surveys';
 import { getValidationSchema } from '../utils';
+import { Colors } from '../constants';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -38,6 +39,41 @@ const getEditVitalData = (vitalComponent, mandatoryVitalEditReason) => {
   const editVitalData = [reasonForChangeMockComponent];
   if (vitalComponent) editVitalData.push(vitalComponent);
   return { components: editVitalData };
+};
+
+const LogContainer = styled(Box)`
+  & + & {
+    margin-top: 10px;
+  }
+`;
+const LogText = styled(Typography)`
+  font-size: 14px;
+  line-height: 18px;
+`;
+
+const LogTextSmall = styled(Typography)`
+  font-size: 11px;
+  line-height: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: ${Colors.softText};
+`;
+
+const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
+  const { date, previousValue, reasonForChange, userDisplayName } = logData;
+  const reasonForChangeOption = vitalEditReasons.find(option => option.value === reasonForChange);
+  const reasonForChangeLabel = reasonForChangeOption?.label ?? 'N/A';
+  return (
+    <LogContainer>
+      <LogText>
+        {vitalLabel}: {previousValue}
+      </LogText>
+      <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>
+      <LogTextSmall>
+        {userDisplayName} {date}
+      </LogTextSmall>
+    </LogContainer>
+  );
 };
 
 export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
@@ -94,15 +130,25 @@ export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
               style={{ gridColumn: '1 / 4' }}
             />
             <FormSeparatorLine />
-            <Field
-              name="history"
-              label="History"
-              component={TextField}
-              multiline
-              style={{ gridColumn: '1 / -1' }}
-              rows={6}
-              value=""
-            />
+            <OuterLabelFieldWrapper label="History" style={{ gridColumn: '1 / -1' }}>
+              <Box
+                height="162px"
+                overflow="auto"
+                padding="13px 12px 13px 15px"
+                bgcolor="white"
+                border="1px solid #dedede"
+                borderRadius="3px"
+              >
+                {dataPoint?.historyLogs.map(log => (
+                  <HistoryLog
+                    key={log.date}
+                    vitalLabel={vitalLabel}
+                    vitalEditReasons={vitalEditReasons}
+                    logData={log}
+                  />
+                ))}
+              </Box>
+            </OuterLabelFieldWrapper>
             <ConfirmCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
           </FormGrid>
         )}
