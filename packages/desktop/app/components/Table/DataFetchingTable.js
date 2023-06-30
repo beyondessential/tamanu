@@ -135,7 +135,7 @@ export const DataFetchingTable = memo(
           // If its the first fetch, we dont want to highlight the new rows green or show a notification
           if (!isFirstFetch) {
             // Clear notification and green rows when leaving page one. Otherwise persist while navigating between pages
-            if (lastPage === 0) {
+            if (page !== lastPage && lastPage === 0) {
               clearNewRowStyles();
             } else {
               setNewRowCount(rowsSinceInteraction);
