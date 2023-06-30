@@ -55,17 +55,19 @@ export const VitalsTable = React.memo(() => {
         sortable: false,
         key: date,
         accessor: cells => {
-          const { value, config, validationCriteria, historyLogs } = cells[date];
+          const { value, config, validationCriteria, historyLogs, component } = cells[date];
+          const isCalculatedQuestion = component.dataElement.type === 'CalculatedQuestion';
+          const handleCellClick = () => {
+            setOpenEditModal(true);
+            setSelectedCell(cells[date]);
+          };
           return (
             <RangeValidatedCell
               value={value}
               config={config}
               validationCriteria={validationCriteria}
               isEdited={historyLogs.length !== 0}
-              onClick={() => {
-                setOpenEditModal(true);
-                setSelectedCell(cells[date]);
-              }}
+              onClick={isCalculatedQuestion === false && handleCellClick}
             />
           );
         },
