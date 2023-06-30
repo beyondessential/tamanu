@@ -39,7 +39,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref || 'main' }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+
+      # if the checkout fails, we're most likely on a workflow from a deleted
+      # branch from a merged PR, so checkout main instead. This could yield
+      # wrong version information but the only workflow where this can happen
+      # at writing is "CD Down", which doesn't use version info.
+      - if: failure()
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
       - uses: actions/github-script@v6
         id: version
         with:
