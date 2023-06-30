@@ -116,93 +116,102 @@ const StyledButton = styled(Button)`
   }
 `;
 
-export const PatientLabTestsTable = React.memo(({ patient, labTests = [], count, isLoading }) => {
-  const [modalLabTestId, setModalLabTestId] = useState();
-  const [modalOpen, setModalOpen] = useState(false);
-  const openModal = id => {
-    if (id) {
-      setModalLabTestId(id);
-      setModalOpen(true);
-    }
-  };
+export const PatientLabTestsTable = React.memo(
+  ({ patient, labTests = [], count, isLoading, searchParameters }) => {
+    const [modalLabTestId, setModalLabTestId] = useState();
+    const [modalOpen, setModalOpen] = useState(false);
+    const openModal = id => {
+      if (id) {
+        setModalLabTestId(id);
+        setModalOpen(true);
+      }
+    };
 
-  const allDates = isLoading ? [] : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
-  const columns = [
-    {
-      key: 'testCategory.id',
-      title: 'Test category',
-      accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
-      sortable: false,
-    },
-    {
-      key: 'testType',
-      title: 'Test type',
-      accessor: row => (
-        <CategoryCell>
-          {row.testType}
-          <br />
-          <BodyText color="textTertiary">{row.unit ? `(${row.unit})` : null}</BodyText>
-        </CategoryCell>
-      ),
-      sortable: false,
-    },
-    {
-      key: 'normalRange',
-      title: 'Normal range',
-      accessor: row => {
-        const range = row.normalRanges[patient?.sex];
-        const value = !range.min ? '-' : `${range.min}-${range.max}`;
-        return <CategoryCell>{value}</CategoryCell>;
-      },
-      sortable: false,
-    },
-    ...allDates
-      .sort((a, b) => b.localeCompare(a))
-      .map(date => ({
-        title: <DateHeadCell value={date} />,
+    const allDates = isLoading
+      ? []
+      : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
+    const columns = [
+      // Only include category column if not filtering by category
+      ...(!searchParameters.categoryId
+        ? [
+            {
+              key: 'testCategory.id',
+              title: 'Test category',
+              accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
+              sortable: false,
+            },
+          ]
+        : []),
+      {
+        key: 'testType',
+        title: 'Test type',
+        accessor: row => (
+          <CategoryCell>
+            {row.testType}
+            <br />
+            <BodyText color="textTertiary">{row.unit ? `(${row.unit})` : null}</BodyText>
+          </CategoryCell>
+        ),
         sortable: false,
-        key: date,
+      },
+      {
+        key: 'normalRange',
+        title: 'Normal range',
         accessor: row => {
-          const normalRange = row.normalRanges[patient?.sex];
-          const cellData = row.results[date];
-          if (cellData) {
-            return (
-              <StyledButton onClick={() => openModal(cellData.id)}>
-                <RangeValidatedCell
-                  value={cellData.result}
-                  config={{ unit: row.unit }}
-                  validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
-                />
-              </StyledButton>
-            );
-          }
-
-          return <StyledButton disabled>-</StyledButton>;
+          const range = row.normalRanges[patient?.sex];
+          const value = !range.min ? '-' : `${range.min}-${range.max}`;
+          return <CategoryCell>{value}</CategoryCell>;
         },
-        exportOverrides: {
-          title: `${formatShort(date)} ${formatTimeWithSeconds(date)}`,
-          accessor: row => row.results[date]?.result || '-',
-        },
-      })),
-  ];
+        sortable: false,
+      },
+      ...allDates
+        .sort((a, b) => b.localeCompare(a))
+        .map(date => ({
+          title: <DateHeadCell value={date} />,
+          sortable: false,
+          key: date,
+          accessor: row => {
+            const normalRange = row.normalRanges[patient?.sex];
+            const cellData = row.results[date];
+            if (cellData) {
+              return (
+                <StyledButton onClick={() => openModal(cellData.id)}>
+                  <RangeValidatedCell
+                    value={cellData.result}
+                    config={{ unit: row.unit }}
+                    validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
+                  />
+                </StyledButton>
+              );
+            }
 
-  return (
-    <>
-      <StyledTable
-        elevated={false}
-        columns={columns}
-        data={labTests}
-        isLoading={isLoading}
-        noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
-        count={count}
-        allowExport
-        exportName="PatientResults"
-      />
-      <LabTestResultModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        labTestId={modalLabTestId}
-      />
-    </>
-  );
-});
+            return <StyledButton disabled>-</StyledButton>;
+          },
+          exportOverrides: {
+            title: `${formatShort(date)} ${formatTimeWithSeconds(date)}`,
+            accessor: row => row.results[date]?.result || '-',
+          },
+        })),
+    ];
+
+    return (
+      <>
+        <StyledTable
+          elevated={false}
+          columns={columns}
+          data={labTests}
+          isLoading={isLoading}
+          noDataMessage="This patient has no lab results to display. Once lab results are available they will be displayed here."
+          count={count}
+          allowExport
+          exportName="PatientResults"
+        />
+        <LabTestResultModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          labTestId={modalLabTestId}
+        />
+      </>
+    );
+  },
+);
