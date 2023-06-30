@@ -69,7 +69,7 @@ export const VitalsTable = React.memo(() => {
               config={config}
               validationCriteria={validationCriteria}
               isEdited={historyLogs.length !== 0}
-              onClick={isCalculatedQuestion === false && handleCellClick}
+              onClick={isCalculatedQuestion ? null : handleCellClick}
             />
           );
         },
