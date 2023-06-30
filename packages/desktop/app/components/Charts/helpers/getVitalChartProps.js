@@ -1,4 +1,4 @@
-import { customisedXAxisTickHeight } from '../components/CustomisedTick';
+import { customisedXAxisLabelHeight } from '../components/CustomisedTick';
 import { CHART_MARGIN, MULTI_CHARTS_VIEW_INTERVAL_HEIGHT } from '../constants';
 import { getXAxisTicks, getYAxisTicks } from './axisTicks';
 
@@ -17,7 +17,7 @@ export const getVitalChartProps = ({
   const tableHeight = isInMultiChartsView
     ? (yAxisTicks.length - 1) * MULTI_CHARTS_VIEW_INTERVAL_HEIGHT
     : defaultTableHeight;
-  const height = tableHeight + customisedXAxisTickHeight + margin.top + margin.bottom;
+  const height = tableHeight + customisedXAxisLabelHeight + margin.top + margin.bottom;
 
   return { xAxisTicks, yAxisTicks, tableHeight, height, margin };
 };
