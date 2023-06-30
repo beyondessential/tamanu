@@ -65,7 +65,7 @@ const LogTextSmall = styled(Typography)`
 const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   const { date, previousValue, reasonForChange, userDisplayName } = logData;
   const reasonForChangeOption = vitalEditReasons.find(option => option.value === reasonForChange);
-  const reasonForChangeLabel = reasonForChangeOption?.label ?? 'N/A';
+  const reasonForChangeLabel = reasonForChangeOption?.label ?? 'Unknown';
   return (
     <LogContainer>
       <LogText>
