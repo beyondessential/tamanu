@@ -51,7 +51,7 @@ export function validateVisualisationConfigs(surveyInfo, questionRecords) {
 
   questionRecords.forEach(record => {
     const { model, values } = record;
-    const { visualisationConfig: visualisationConfigString, id } = values;
+    const { visualisationConfig: visualisationConfigString } = values;
     if (model === 'ProgramDataElement' && visualisationConfigString) {
       const visualisationConfig = JSON.parse(visualisationConfigString);
       visualisationConfigSchema.validateSync(visualisationConfig);
