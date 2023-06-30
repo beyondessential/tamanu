@@ -55,6 +55,8 @@ export const DataFetchingTable = memo(
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
 
+    // This group of states are for tracking the previous state of fetches and comparing to
+    // the most recent one to determine which rows to highlight and when table data should update
     const [lastFetchCount, setLastFetchCount] = useState(0);
     const [lastPage, setLastPage] = useState(0);
     const [staticData, setStaticData] = useState([]);
@@ -65,6 +67,8 @@ export const DataFetchingTable = memo(
     const { getLocalisation } = useLocalisation();
 
     const autoRefresh = getLocalisation('features.tableAutorefresh');
+
+    const enableAutoRefresh = autoRefresh && autoRefresh.enabled && isAutoRefreshTable;
 
     // This callback will be passed to table cell accessors so they can force a table refresh
     const refreshTable = useCallback(() => {
@@ -112,14 +116,10 @@ export const DataFetchingTable = memo(
             },
           );
 
-          // Here we add the light green background to new rows since last refresh to give visual feedback
-          const isFirstFetch = lastFetchCount === 0;
-          // Rows since the last autorefresh
-          const rowsSinceRefresh = count - lastFetchCount;
-          // Rows added since last clicked out of page or into imaging request
-          const rowsSinceInteraction = rowsSinceRefresh + newRowCount;
-          // Add new key that determines if the row is highlighted green or not
-          const dataWithStyles = data.map((row, i) => {
+          const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
+          const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
+          const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
+          const dataWithNewKey = data.map((row, i) => {
             // Offset the indexes based on pagination
             const actualIndex = i + page * rowsPerPage;
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
@@ -130,7 +130,7 @@ export const DataFetchingTable = memo(
             };
           });
 
-          const transformedData = transformRow ? dataWithStyles.map(transformRow) : dataWithStyles;
+          const transformedData = transformRow ? dataWithNewKey.map(transformRow) : dataWithNewKey;
 
           // If its the first fetch, we dont want to highlight the new rows green or show a notification
           if (!isFirstFetch) {
@@ -143,29 +143,32 @@ export const DataFetchingTable = memo(
             }
           }
 
-          // const isInitialSort =
-          //   sorting.order === initialSort.order && sorting.orderBy === initialSort.orderBy;
-          // const isDataToBeUpdated = isInitialSort && (page !== lastPage || page === 0);
+          // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
+          // page one should it live update, otherwise the updates come through when navigating
           const isDataToBeUpdated = page !== lastPage || page === 0;
+          const displayData = isDataToBeUpdated ? transformedData : staticData;
 
+          // Update the table with the rows to display
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
-            // When past page one, we dont want to move rows down as it updates. Only if you are on
-            // page one should it live update, otherwise the updates come through when navigating
-            data: isDataToBeUpdated ? transformedData : staticData,
+            data: displayData,
             count,
             isLoading: false,
           });
+
+          // Use custom function on data if provided
           if (onDataFetched) {
             onDataFetched({
-              data: transformedData,
+              data: displayData,
               count,
             });
           }
 
+          // Record page and count of last fetch to compare to the next fetch
           setLastFetchCount(count);
           setLastPage(page);
-          setStaticData(isDataToBeUpdated ? transformedData : staticData);
+          // Save a copy of this fetch to show on next fetch if we are past page 1
+          setStaticData(displayData);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
@@ -174,7 +177,7 @@ export const DataFetchingTable = memo(
       })();
 
       // Check if autoregresh is enabled in config and that the autorefresh prop is added to table
-      if (autoRefresh && autoRefresh.enabled && isAutoRefreshTable) {
+      if (enableAutoRefresh) {
         const tableAutorefresh = setInterval(() => {
           refreshTable();
         }, autoRefresh.interval);
