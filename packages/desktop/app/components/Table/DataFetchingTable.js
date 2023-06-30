@@ -143,11 +143,16 @@ export const DataFetchingTable = memo(
             }
           }
 
+          // const isInitialSort =
+          //   sorting.order === initialSort.order && sorting.orderBy === initialSort.orderBy;
+          // const isDataToBeUpdated = isInitialSort && (page !== lastPage || page === 0);
+          const isDataToBeUpdated = page !== lastPage || page === 0;
+
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
             // When past page one, we dont want to move rows down as it updates. Only if you are on
             // page one should it live update, otherwise the updates come through when navigating
-            ...(page !== lastPage || page === 0 ? { data: transformedData } : { data: staticData }),
+            data: isDataToBeUpdated ? transformedData : staticData,
             count,
             isLoading: false,
           });
@@ -160,7 +165,7 @@ export const DataFetchingTable = memo(
 
           setLastFetchCount(count);
           setLastPage(page);
-          setStaticData(transformedData);
+          setStaticData(isDataToBeUpdated ? transformedData : staticData);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
