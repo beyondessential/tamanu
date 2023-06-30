@@ -1,9 +1,8 @@
 /* eslint-disable no-unused-expressions */
 
 import { addDays, getYear } from 'date-fns';
-import { random } from 'lodash';
 
-import { fake } from 'shared/test-helpers';
+import { fake, chance } from 'shared/test-helpers';
 import { fakeUUID } from 'shared/utils/generateId';
 import { FHIR_DATETIME_PRECISION } from 'shared/constants';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
@@ -71,8 +70,8 @@ describe(`Materialised FHIR - Encounter`, () => {
   async function makeEncounter(overrides = {}, beforeMaterialising = () => {}) {
     const { Encounter, FhirEncounter } = ctx.store.models;
 
-    const startDate = new Date(random(0, Date.now()));
-    const endDate = new Date(random(startDate + 1, Date.now()));
+    const startDate = new Date(chance.integer({ min: 0, max: Date.now() }));
+    const endDate = new Date(chance.integer({ min: startDate.getTime() + 1, max: Date.now() }));
 
     const encounter = await Encounter.create(
       fake(Encounter, {
