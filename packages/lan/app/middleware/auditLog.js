@@ -6,15 +6,20 @@ class AuditLogItem {
 
   permissionChecks = [];
 
-  shouldDiscard() {
-    return false;
+  shouldPersist() {
+    // user only accessed publicly-accessible data, no permissions checked
+    if (this.permissionChecks.length === 0) return false;
+    return true;
   }
 
   resolve() {
-    if (this.shouldDiscard()) return;
+    if (this.shouldPersist()) return;
+    if (this.resolved) {
+      throw new Error("Audit log entry resolved twice somehow");
+    }
+    this.resolved = true;
 
-    // TODO: persist somewhere
-    console.log('AUDIT', {
+    log.info('auditLogEntry', {
       userId: this.userId,
       data: this.data,
       perms: this.permissionChecks,
@@ -34,14 +39,13 @@ const auditMiddleware = (req, res, next) => {
   const audit = new AuditLogItem();
   req.audit = audit;
 
-  const oldSend = res.send;
-  res.send = (...args) => {
-    // TODO: temporary line to hunt down why this is getting called twice sometimes
-    res.send = () => { throw new Error("double send??") };
-    audit.userId = req.user?.id;
-    audit.resolve();
-    oldSend.call(res, ...args);
-  };
+  const localisation = await req.getLocalisation();
+  if (localisation.features.enableAuditLogs) {
+    res.on('finish', (...args) => {
+      audit.userId = req.user?.id;
+      audit.resolve();
+    });
+  }
 
   next();
 };
