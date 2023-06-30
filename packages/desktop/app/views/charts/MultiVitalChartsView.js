@@ -3,16 +3,8 @@ import styled from 'styled-components';
 import { Divider as DividerBase } from '@material-ui/core';
 
 import { useVitalChartData } from '../../contexts/VitalChartData';
-import { LineChart } from '../../components/Charts/LineChart';
-import { useEncounter } from '../../contexts/Encounter';
-import { useVitalQueries } from '../../api/queries/useVitalQuery';
-import {
-  CHART_MARGIN,
-  MULTI_CHARTS_VIEW_INTERVAL_HEIGHT,
-  Y_AXIS_WIDTH,
-} from '../../components/Charts/constants';
-import { getYAxisTicks } from '../../components/Charts/helpers/axisTicks';
-import { customisedXAxisTickHeight } from '../../components/Charts/components/CustomisedTick';
+import { CHART_MARGIN, Y_AXIS_WIDTH } from '../../components/Charts/constants';
+import { getVitalChartComponent } from './getVitalChartComponent';
 
 const Divider = styled(DividerBase)`
   margin-left: ${Y_AXIS_WIDTH}px;
@@ -40,8 +32,8 @@ export const MultiVitalChartsView = () => {
 
   return (
     <>
-      {chartKeys.map((chartKey, index) => {
-        const chartData = chartsData[index];
+      {chartKeys.map(chartKey => {
+        const VitalChartComponent = getVitalChartComponent(chartKey);
         const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
         const { yAxis: yAxisConfigs } = visualisationConfig;
 
@@ -56,8 +48,8 @@ export const MultiVitalChartsView = () => {
             <TitleContainer>
               <span>{visualisationConfigs.find(config => config.key === chartKey)?.name}</span>
             </TitleContainer>
-            <LineChart
-              chartData={chartData}
+            <VitalChartComponent
+              chartKey={chartKey}
               visualisationConfig={visualisationConfig}
               startDate={startDate}
               endDate={endDate}
