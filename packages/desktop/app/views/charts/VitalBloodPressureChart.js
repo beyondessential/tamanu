@@ -6,7 +6,7 @@ import { useVitalQuery } from '../../api/queries/useVitalQuery';
 import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
 
 // Fetching and preparing blood pressure data for vital chart
-export const BloodPressureVitalChartView = props => {
+export const VitalBloodPressureChart = props => {
   const { visualisationConfig, startDate, endDate, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
 

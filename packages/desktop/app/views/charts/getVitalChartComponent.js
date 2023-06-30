@@ -1,10 +1,10 @@
 import { VITAL_CHARTS, BLOOD_PRESSURE, LINE } from '@tamanu/shared/constants';
-import { BloodPressureVitalChartView } from './BloodPressureVitalChartView';
-import { VitalLineChartView } from './VitalLineChartView';
+import { VitalBloodPressureChart } from './VitalBloodPressureChart';
+import { VitalLineChart } from './VitalLineChart';
 
 const VITAL_CHARTS_MAPPING = {
-  [BLOOD_PRESSURE]: BloodPressureVitalChartView,
-  [LINE]: VitalLineChartView,
+  [BLOOD_PRESSURE]: VitalBloodPressureChart,
+  [LINE]: VitalLineChart,
 };
 
 export const getVitalChartComponent = chartKey => {
