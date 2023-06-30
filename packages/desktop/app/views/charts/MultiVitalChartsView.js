@@ -2,17 +2,17 @@ import React from 'react';
 import styled from 'styled-components';
 import { Divider as DividerBase } from '@material-ui/core';
 
-import { useVitalChartData } from '../contexts/VitalChartData';
-import { LineChart } from '../components/Charts/LineChart';
-import { useEncounter } from '../contexts/Encounter';
-import { useVitalQueries } from '../api/queries/useVitalQuery';
+import { useVitalChartData } from '../../contexts/VitalChartData';
+import { LineChart } from '../../components/Charts/LineChart';
+import { useEncounter } from '../../contexts/Encounter';
+import { useVitalQueries } from '../../api/queries/useVitalQuery';
 import {
   CHART_MARGIN,
   MULTI_CHARTS_VIEW_INTERVAL_HEIGHT,
   Y_AXIS_WIDTH,
-} from '../components/Charts/constants';
-import { getYAxisTicks } from '../components/Charts/helpers/axisTicks';
-import { customisedXAxisTickHeight } from '../components/Charts/components/CustomisedTick';
+} from '../../components/Charts/constants';
+import { getYAxisTicks } from '../../components/Charts/helpers/axisTicks';
+import { customisedXAxisTickHeight } from '../../components/Charts/components/CustomisedTick';
 
 const Divider = styled(DividerBase)`
   margin-left: ${Y_AXIS_WIDTH}px;
