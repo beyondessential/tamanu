@@ -5,7 +5,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useVitalQuery } from '../../api/queries/useVitalQuery';
 
 // Fetching and preparing data for vital chart
-export const VitalChartView = () => {
+export const VitalLineChartView = () => {
   const { chartKeys, visualisationConfigs, startDate, endDate } = useVitalChartData();
   const chartKey = chartKeys[0];
   const { encounter } = useEncounter();
