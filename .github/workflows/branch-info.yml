@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref || 'main' }}
       - uses: actions/github-script@v6
         id: version
         with:
