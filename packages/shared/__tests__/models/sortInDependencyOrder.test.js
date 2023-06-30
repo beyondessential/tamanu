@@ -19,7 +19,7 @@ function modelTrees() {
     leaf: fc.constant('leaf'),
   }));
 
-  return tree.map(tree2 => pairsToModels(treeToPairs([tree2])));
+  return tree.map(subTree => pairsToModels(treeToPairs([subTree])));
 }
 
 class BaseSyncingModel extends Model {
