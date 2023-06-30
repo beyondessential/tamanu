@@ -31,7 +31,7 @@ const servers = [
   { name: 'Demo (Aspen)', type: 'demo', host: 'https://central-demo.aspen-dev.tamanu.io' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
   { name: 'Demo (Fiji Tourism)', type: 'demo', host: 'https://sync.demo-tourism.tamanu-fiji.org' },
-  { name: 'Demo (Kiribati)', type: 'demo', host: 'https://sync-demo.tamanu-kiribati.org' },
+  { name: 'Demo (Kiribati)', type: 'demo', host: 'https://central-demo.kiribati-dev.tamanu.io' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
   { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo.tamanu-palau.org' },
   { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
@@ -42,7 +42,7 @@ const servers = [
   // test servers
   { name: 'Test (Aspen)', type: 'demo', host: 'https://central-clone.aspen-dev.tamanu.io' },
   { name: 'Test (Fiji)', type: 'demo', host: 'https://central-clone.tamanu-fiji.org' },
-  { name: 'Test (Kiribati)', type: 'demo', host: 'https://central-clone.tamanu-kiribati.org' },
+  { name: 'Test (Kiribati)', type: 'demo', host: 'https://central-clone.kiribati-dev.tamanu.io' },
   { name: 'Test (Nauru)', type: 'demo', host: 'https://central-clone.tamanu-nauru.org' },
   { name: 'Test (Palau)', type: 'demo', host: 'https://central-clone.tamanu-palau.org' },
   { name: 'Test (Samoa)', type: 'demo', host: 'https://central-samoa-clone.tamanu.io' },
