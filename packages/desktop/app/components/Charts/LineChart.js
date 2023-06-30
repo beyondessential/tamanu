@@ -10,36 +10,20 @@ import {
   LineChart as LineChartComponent,
   Customized,
 } from 'recharts';
-import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
-import {
-  CustomisedXAxisTick,
-  CustomisedYAxisTick,
-  customisedXAxisTickHeight,
-} from './components/CustomisedTick';
+import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
-import { CHART_MARGIN, Y_AXIS_WIDTH } from './constants';
+import { Y_AXIS_WIDTH } from './constants';
 import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
 import { CustomTooltip } from './components/CustomTooltip';
 
 export const LineChart = props => {
-  const {
-    chartData,
-    visualisationConfig,
-    startDate,
-    endDate,
-    xAxisTicks = getXAxisTicks(startDate, endDate),
-    yAxisTicks = getYAxisTicks(visualisationConfig.yAxis),
-    margin = CHART_MARGIN,
-    height = 500,
-    tableHeight = height - margin.top - margin.bottom - customisedXAxisTickHeight, // height minor the margin and the x-axis ticks
-    isLoading,
-    useInwardArrowVector,
-  } = props;
+  const { chartData, visualisationConfig, isLoading, useInwardArrowVector, chartProps } = props;
 
+  const { margin, tableHeight, height, xAxisTicks, yAxisTicks } = chartProps;
   const { yAxis: yAxisConfigs } = visualisationConfig;
   const isNoData = chartData.length === 0 && !isLoading;
   const measureData = getMeasureData(chartData, visualisationConfig, useInwardArrowVector);

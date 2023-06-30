@@ -1,25 +1,27 @@
 import React from 'react';
-import { useVitalChartData } from '../../contexts/VitalChartData';
 import { LineChart } from '../../components/Charts/LineChart';
+import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
 import { useEncounter } from '../../contexts/Encounter';
 import { useVitalQuery } from '../../api/queries/useVitalQuery';
 
 // Fetching and preparing data for vital chart
-export const VitalLineChartView = () => {
-  const { chartKeys, visualisationConfigs, startDate, endDate } = useVitalChartData();
-  const chartKey = chartKeys[0];
+export const VitalLineChartView = props => {
+  const { chartKey, visualisationConfig, startDate, endDate, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
   const { data: chartData, isLoading } = useVitalQuery(encounter.id, chartKey, startDate, endDate);
-
-  const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
+  const chartProps = getVitalChartProps({
+    visualisationConfig,
+    startDate,
+    endDate,
+    isInMultiChartsView,
+  });
 
   return (
     <LineChart
       chartData={chartData}
       visualisationConfig={visualisationConfig}
-      startDate={startDate}
-      endDate={endDate}
       isLoading={isLoading}
+      chartProps={chartProps}
     />
   );
 };

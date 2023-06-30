@@ -1,14 +1,13 @@
 import React from 'react';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
-import { useVitalChartData } from '../../contexts/VitalChartData';
 import { LineChart } from '../../components/Charts/LineChart';
 import { useEncounter } from '../../contexts/Encounter';
 import { useVitalQuery } from '../../api/queries/useVitalQuery';
+import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
 
 // Fetching and preparing blood pressure data for vital chart
 export const BloodPressureVitalChartView = props => {
-  const { chartKey } = props;
-  const { visualisationConfigs, startDate, endDate } = useVitalChartData();
+  const { visualisationConfig, startDate, endDate, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
 
   const { data: SBPChartData, isLoading: isSBPLoading } = useVitalQuery(
@@ -25,7 +24,6 @@ export const BloodPressureVitalChartView = props => {
     endDate,
   );
 
-  const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
   const chartData = SBPChartData.map(SBPData => {
     const { recordedDate, body } = SBPData;
     const relatedDBPChartData = DBPChartData.find(
@@ -38,14 +36,20 @@ export const BloodPressureVitalChartView = props => {
     };
   });
 
+  const chartProps = getVitalChartProps({
+    visualisationConfig,
+    startDate,
+    endDate,
+    isInMultiChartsView,
+  });
+
   return (
     <>
       <LineChart
         chartData={chartData}
         visualisationConfig={visualisationConfig}
-        startDate={startDate}
-        endDate={endDate}
         isLoading={isSBPLoading || isDBPLoading}
+        chartProps={chartProps}
         useInwardArrowVector
       />
     </>
