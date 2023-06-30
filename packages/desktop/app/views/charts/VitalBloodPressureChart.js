@@ -10,29 +10,29 @@ export const VitalBloodPressureChart = props => {
   const { visualisationConfig, startDate, endDate, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
 
-  const { data: SBPChartData, isLoading: isSBPLoading } = useVitalQuery(
+  const { data: sbpChartData, isLoading: isSbpLoading } = useVitalQuery(
     encounter.id,
     VITALS_DATA_ELEMENT_IDS.sbp,
     startDate,
     endDate,
   );
 
-  const { data: DBPChartData, isLoading: isDBPLoading } = useVitalQuery(
+  const { data: dbpChartData, isLoading: isDbpLoading } = useVitalQuery(
     encounter.id,
     VITALS_DATA_ELEMENT_IDS.dbp,
     startDate,
     endDate,
   );
 
-  const chartData = SBPChartData.map(SBPData => {
-    const { name: recordedDate, value } = SBPData;
-    const relatedDBPChartData = DBPChartData.find(
-      ({ name: DBPRecordedDate }) => DBPRecordedDate === recordedDate,
+  const chartData = sbpChartData.map(sbpData => {
+    const { name: recordedDate, value } = sbpData;
+    const relatedDbpChartData = dbpChartData.find(
+      ({ name: dbpRecordedDate }) => dbpRecordedDate === recordedDate,
     );
     return {
       name: recordedDate,
       value,
-      inwardArrowVector: { top: value, bottom: relatedDBPChartData?.value },
+      inwardArrowVector: { top: value, bottom: relatedDbpChartData?.value },
     };
   });
 
@@ -48,7 +48,7 @@ export const VitalBloodPressureChart = props => {
       <LineChart
         chartData={chartData}
         visualisationConfig={visualisationConfig}
-        isLoading={isSBPLoading || isDBPLoading}
+        isLoading={isSbpLoading || isDbpLoading}
         chartProps={chartProps}
         useInwardArrowVector
       />
