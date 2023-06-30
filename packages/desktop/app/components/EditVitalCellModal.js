@@ -33,7 +33,7 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
 const getEditVitalData = (vitalComponent, mandatoryVitalEditReason) => {
   const reasonForChangeMockComponent = {
     dataElement: { type: PROGRAM_DATA_ELEMENT_TYPES.SELECT },
-    validationCriteria: JSON.stringify({ mandatory: mandatoryVitalEditReason || true }),
+    validationCriteria: JSON.stringify({ mandatory: mandatoryVitalEditReason }),
     dataElementId: 'reasonForChange',
   };
   const editVitalData = [reasonForChangeMockComponent];
