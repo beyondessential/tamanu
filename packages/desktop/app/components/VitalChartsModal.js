@@ -5,7 +5,7 @@ import { Colors } from '../constants';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { DateTimeSelector } from './Charts/components/DateTimeSelector';
 import { MultiVitalChartsView } from '../views/charts/MultiVitalChartsView';
-import { VitalLineChart } from '../views/charts/VitalLineChart';
+import { SingleVitalChartView } from '../views/charts/SingleVitalChartView';
 
 export const VitalChartsModal = React.memo(() => {
   const {
@@ -17,7 +17,7 @@ export const VitalChartsModal = React.memo(() => {
     isInMultiChartsView,
   } = useVitalChartData();
 
-  const ViewComponent = isInMultiChartsView ? MultiVitalChartsView : VitalLineChart;
+  const ViewComponent = isInMultiChartsView ? MultiVitalChartsView : SingleVitalChartView;
 
   return (
     <Modal

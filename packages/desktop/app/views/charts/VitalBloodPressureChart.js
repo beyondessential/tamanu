@@ -25,14 +25,14 @@ export const VitalBloodPressureChart = props => {
   );
 
   const chartData = SBPChartData.map(SBPData => {
-    const { recordedDate, body } = SBPData;
+    const { name: recordedDate, value } = SBPData;
     const relatedDBPChartData = DBPChartData.find(
-      ({ recordedDate: DBPRecordedDate }) => DBPRecordedDate === recordedDate,
+      ({ name: DBPRecordedDate }) => DBPRecordedDate === recordedDate,
     );
     return {
       name: recordedDate,
-      value: body,
-      inwardArrowVector: { top: body, bottom: relatedDBPChartData?.body },
+      value,
+      inwardArrowVector: { top: value, bottom: relatedDBPChartData?.value },
     };
   });
 
