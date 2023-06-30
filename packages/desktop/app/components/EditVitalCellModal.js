@@ -79,26 +79,18 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   );
 };
 
-export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
+const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
-  const handleClose = useCallback(() => {
-    setIsDeleted(false);
-    onClose();
-  }, [onClose]);
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
   const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
-  const vitalLabel = dataPoint?.component.dataElement.name;
-  const date = formatShortest(dataPoint?.recordedDate);
-  const time = formatTime(dataPoint?.recordedDate);
-  const title = `${vitalLabel} | ${date} | ${time}`;
-  const initialValue = dataPoint?.value;
+  const initialValue = dataPoint.value;
   const showDeleteEntryButton = initialValue !== '';
-  const valueName = dataPoint?.component.dataElement.id;
-  const editVitalData = getEditVitalData(dataPoint?.component, mandatoryVitalEditReason);
+  const valueName = dataPoint.component.dataElement.id;
+  const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
   const validationSchema = getValidationSchema(editVitalData);
   const handleDeleteEntry = useCallback(
     setFieldValue => {
@@ -113,62 +105,76 @@ export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
       if (key === valueName) newShapeData.newValue = value;
       else newShapeData[key] = value;
     });
-    await api.put(`surveyResponseAnswer/vital/${dataPoint?.answerId}`, newShapeData);
+    await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
   };
 
   return (
-    <Modal width="sm" title={title} onClose={handleClose} open={open}>
-      <Form
-        onSubmit={handleSubmit}
-        validationSchema={validationSchema}
-        initialValues={{ [valueName]: initialValue }}
-        render={({
-          // value: formValue,
-          setFieldValue,
-          submitForm,
-        }) => (
-          <FormGrid columns={4}>
-            <SurveyQuestion component={dataPoint?.component} disabled={isDeleted} />
-            {showDeleteEntryButton && (
-              <DeleteEntryButton
-                disabled={isDeleted}
-                onClick={() => handleDeleteEntry(setFieldValue)}
-              />
-            )}
-            <Field
-              required={mandatoryVitalEditReason}
-              component={SelectField}
-              label="Reason for change to record"
-              name="reasonForChange"
-              options={vitalEditReasons}
-              style={{ gridColumn: '1 / 4' }}
+    <Form
+      onSubmit={handleSubmit}
+      validationSchema={validationSchema}
+      initialValues={{ [valueName]: initialValue }}
+      render={({
+        // value: formValue,
+        setFieldValue,
+        submitForm,
+      }) => (
+        <FormGrid columns={4}>
+          <SurveyQuestion component={dataPoint.component} disabled={isDeleted} />
+          {showDeleteEntryButton && (
+            <DeleteEntryButton
+              disabled={isDeleted}
+              onClick={() => handleDeleteEntry(setFieldValue)}
             />
-            <FormSeparatorLine />
-            <OuterLabelFieldWrapper label="History" style={{ gridColumn: '1 / -1' }}>
-              <Box
-                height="162px"
-                overflow="auto"
-                padding="13px 12px 13px 15px"
-                bgcolor="white"
-                border="1px solid #dedede"
-                borderRadius="3px"
-              >
-                {dataPoint?.historyLogs.map(log => (
-                  <HistoryLog
-                    key={log.date}
-                    vitalLabel={vitalLabel}
-                    vitalEditReasons={vitalEditReasons}
-                    logData={log}
-                  />
-                ))}
-              </Box>
-            </OuterLabelFieldWrapper>
-            <ConfirmCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
-          </FormGrid>
-        )}
-      />
+          )}
+          <Field
+            required={mandatoryVitalEditReason}
+            component={SelectField}
+            label="Reason for change to record"
+            name="reasonForChange"
+            options={vitalEditReasons}
+            style={{ gridColumn: '1 / 4' }}
+          />
+          <FormSeparatorLine />
+          <OuterLabelFieldWrapper label="History" style={{ gridColumn: '1 / -1' }}>
+            <Box
+              height="162px"
+              overflow="auto"
+              padding="13px 12px 13px 15px"
+              bgcolor="white"
+              border="1px solid #dedede"
+              borderRadius="3px"
+            >
+              {dataPoint.historyLogs.map(log => (
+                <HistoryLog
+                  key={log.date}
+                  vitalLabel={vitalLabel}
+                  vitalEditReasons={vitalEditReasons}
+                  logData={log}
+                />
+              ))}
+            </Box>
+          </OuterLabelFieldWrapper>
+          <ConfirmCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
+        </FormGrid>
+      )}
+    />
+  );
+};
+
+export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
+  const vitalLabel = dataPoint?.component.dataElement.name;
+  const date = formatShortest(dataPoint?.recordedDate);
+  const time = formatTime(dataPoint?.recordedDate);
+  const title = `${vitalLabel} | ${date} | ${time}`;
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  return (
+    <Modal width="sm" title={title} onClose={handleClose} open={open}>
+      <EditVitalCellForm vitalLabel={vitalLabel} dataPoint={dataPoint} handleClose={handleClose} />
     </Modal>
   );
 };
