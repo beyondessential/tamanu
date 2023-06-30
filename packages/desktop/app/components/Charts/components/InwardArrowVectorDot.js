@@ -24,7 +24,7 @@ export const InwardArrowVectorDot = props => {
   const verticalLine = {
     bottom: { x: 6, y: 7.5 + vectorHeight },
   };
-  const startAndEndPointOfBottomInWardArrow = {
+  const startAndEndPointOfBottomInwardArrow = {
     y: verticalLine.bottom.y + 6,
   };
   return (
@@ -32,12 +32,12 @@ export const InwardArrowVectorDot = props => {
       x={x}
       y={y}
       width="12"
-      height={startAndEndPointOfBottomInWardArrow + 2}
-      viewBox={`0 0 12 ${startAndEndPointOfBottomInWardArrow + 2}`}
+      height={startAndEndPointOfBottomInwardArrow + 2}
+      viewBox={`0 0 12 ${startAndEndPointOfBottomInwardArrow + 2}`}
       fill="none"
     >
       <path
-        d={`M1 1L${centerPoint.x} ${centerPoint.y}L11 1M6 7V${verticalLine.bottom.y}M1 ${startAndEndPointOfBottomInWardArrow.y}L${verticalLine.bottom.x} ${verticalLine.bottom.y}L11 ${startAndEndPointOfBottomInWardArrow.y}`}
+        d={`M1 1L${centerPoint.x} ${centerPoint.y}L11 1M6 7V${verticalLine.bottom.y}M1 ${startAndEndPointOfBottomInwardArrow.y}L${verticalLine.bottom.x} ${verticalLine.bottom.y}L11 ${startAndEndPointOfBottomInwardArrow.y}`}
         stroke={active ? Colors.midText : Colors.darkestText}
         strokeWidth="2"
         strokeLinecap="round"
