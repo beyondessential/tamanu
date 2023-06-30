@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
@@ -56,7 +57,8 @@ export const VitalsTable = React.memo(() => {
         key: date,
         accessor: cells => {
           const { value, config, validationCriteria, historyLogs, component } = cells[date];
-          const isCalculatedQuestion = component.dataElement.type === 'CalculatedQuestion';
+          const isCalculatedQuestion =
+            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
           const handleCellClick = () => {
             setOpenEditModal(true);
             setSelectedCell(cells[date]);
