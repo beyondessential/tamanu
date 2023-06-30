@@ -115,11 +115,7 @@ const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
       initialValues={{ [valueName]: initialValue }}
-      render={({
-        // value: formValue,
-        setFieldValue,
-        submitForm,
-      }) => (
+      render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>
           <SurveyQuestion component={dataPoint.component} disabled={isDeleted} />
           {showDeleteEntryButton && (
