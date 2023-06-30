@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Modal } from './Modal';
 import { ConfirmCancelRow } from './ButtonRow';
@@ -13,6 +14,8 @@ import { formatShortest, formatTime } from './DateDisplay';
 import { SurveyQuestion } from './Surveys';
 import { getValidationSchema } from '../utils';
 import { Colors } from '../constants';
+import { useApi } from '../api';
+import { useEncounter } from '../contexts/Encounter';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -76,12 +79,15 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   );
 };
 
-export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
+export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const handleClose = useCallback(() => {
     setIsDeleted(false);
     onClose();
   }, [onClose]);
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
   const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
@@ -101,11 +107,21 @@ export const EditVitalCellModal = ({ open, dataPoint, onConfirm, onClose }) => {
     },
     [valueName],
   );
+  const handleSubmit = async data => {
+    const newShapeData = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === valueName) newShapeData.newValue = value;
+      else newShapeData[key] = value;
+    });
+    await api.put(`surveyResponseAnswer/vital/${dataPoint?.answerId}`, newShapeData);
+    queryClient.invalidateQueries(['encounterVitals', encounter.id]);
+    handleClose();
+  };
 
   return (
     <Modal width="sm" title={title} onClose={handleClose} open={open}>
       <Form
-        onSubmit={onConfirm}
+        onSubmit={handleSubmit}
         validationSchema={validationSchema}
         initialValues={{ [valueName]: initialValue }}
         render={({
