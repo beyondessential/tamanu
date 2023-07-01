@@ -83,9 +83,7 @@ describe('Labs', () => {
         where: { labRequestId: createdRequest.id },
       });
       expect(createdTests).toHaveLength(requests[i].labTestTypeIds.length);
-      expect(
-        createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED),
-      ).toBeTruthy();
+      expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
     }
   });
 
