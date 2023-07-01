@@ -505,7 +505,7 @@ async function createIndividualLabRequests(models, body, note, user) {
       const newLabRequest = await createLabRequest(
         labRequestBody,
         requestSampleDetails,
-        labTestTypeIds,
+        category.get('lab_test_type_ids'),
         categoryId,
         models,
         note,

@@ -59,6 +59,34 @@ describe('Labs', () => {
     expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
   });
 
+  it('should record two lab requests with one test type each', async () => {
+    const labRequest = await randomLabRequest(models, {
+      patientId,
+    });
+    const labRequest2 = await randomLabRequest(models, {
+      patientId,
+    });
+
+    const response = await app.post('/v1/labRequest').send({
+      ...labRequest,
+      labTestTypeIds: [...labRequest.labTestTypeIds, ...labRequest2.labTestTypeIds],
+    });
+    expect(response).toHaveSucceeded();
+
+    const requests = [labRequest, labRequest2];
+    for (let i = 0; i < requests.length; i++) {
+      const createdRequest = await models.LabRequest.findByPk(response.body[i].id);
+      expect(createdRequest).toBeTruthy();
+      expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+
+      const createdTests = await models.LabTest.findAll({
+        where: { labRequestId: createdRequest.id },
+      });
+      expect(createdTests).toHaveLength(requests[i].labTestTypeIds.length);
+      expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+    }
+  });
+
   it('should record a lab request with a Lab Test Panel', async () => {
     const labTestPanel = await models.LabTestPanel.create({
       name: 'Demo test panel',
