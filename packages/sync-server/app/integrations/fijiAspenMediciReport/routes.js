@@ -173,7 +173,7 @@ encounter_notes_info as (
         'noteDate', "date"::timestamp at time zone $timezone_string
       ) order by n.date desc
     ) "Notes"
-  from notes
+  from notes n
   where note_type != 'system'
   group by record_id
 ),

@@ -112,7 +112,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           imagingType: 'xRay',
         }),
       );
-      const [np1, np2] = await Note.bulkCreate([
+      await Note.bulkCreate([
         fake(Note, {
           date: '2022-03-05',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
@@ -216,13 +216,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         note: [
           {
             time: formatFhirDate('2022-03-05'),
-            text: `Suspected adenoma
-
-Patient may need mobility assistance`,
+            text: 'Suspected adenoma',
           },
           {
             time: formatFhirDate('2022-03-06'),
-            text: 'Patient may have shrapnel in leg - need to confirm beforehand',
+            text: 'Patient may need mobility assistance',
           },
         ],
       });

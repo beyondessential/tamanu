@@ -525,11 +525,6 @@ describe('fijiAspenMediciReport', () => {
         notes: [
           {
             noteType: NOTE_TYPES.NURSING,
-            content: 'H\nI\nJ\nK\nL... nopqrstuv',
-            noteDate: '2022-06-10T04:39:57+00:00',
-          },
-          {
-            noteType: NOTE_TYPES.NURSING,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
           },

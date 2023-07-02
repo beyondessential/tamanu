@@ -276,10 +276,10 @@ function labAnnotations(upstream) {
 function imagingAnnotations(upstream) {
   // See EPI-451: imaging requests can embed notes about the area to image
   return getNotesWithType(upstream.notes, NOTE_TYPES.OTHER).map(
-    np =>
+    note =>
       new FhirAnnotation({
-        time: formatFhirDate(np.date),
-        text: np.content,
+        time: formatFhirDate(note.date),
+        text: note.content,
       }),
   );
 }
