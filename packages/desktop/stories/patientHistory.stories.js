@@ -2,11 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 
-import {
-  createDummyPatient,
-  createDummyPatientAdditionalData,
-  createDummyEncounter,
-} from '@tamanu/shared/demoData';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
 import { fakeEncounter } from '@tamanu/shared/test-helpers';
 
 import { PatientHistory } from '../app/components/PatientHistory';
@@ -14,7 +10,6 @@ import { MockedApi } from './utils/mockedApi';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
-const dummyEncounter = fakeEncounter();
 
 const patient = {
   ...dummyPatient,
@@ -22,19 +17,27 @@ const patient = {
   markedForSync: true,
 };
 
-const encounter = {
-  ...dummyEncounter,
-  locationGroupName: 'Central hospital waiting room',
-  reasonForEncounter:
-    'Point 3: I think youre right in a way... and the clever solution would be to have a tree structure so that its moving forward for a clinic to go to an admission, however to be honest I think this is the cleanest most minimal change at the moment, and to be honest its probably also easier to understand (at least for me). We can think of encounter progression maybe as something like ED encounter progression, if that makes more sense to you we can change the naming?',
-  reasonForEncounter1:
-    'Point 3: I think youre right in a way... and the clever solution would be to have a tree structure so that its moving forward for a clinic to go to an admission, however to be honest I think this is the cleanest most minimal change at the moment, and to be honest its probably also easier to understand (at least for me). We can think of encounter progression maybe as something like ED encounter progression, if that makes more sense to you we can change the naming?',
-};
+const encounters = [
+  {
+    ...fakeEncounter(),
+    endDate: null,
+    facilityName: 'Colonial War Memorial Division Hospital',
+    locationGroupName: 'Outpatients Department - Wing 1',
+    reasonForEncounter: 'Routine tests for a visa, plus a sore eye',
+  },
+  {
+    ...fakeEncounter(),
+    facilityName: 'Colonial War Memorial Division Hospital',
+    locationGroupName: 'ACU',
+    reasonForEncounter:
+      'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil, totam. This is roman text for a second time: Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil, totam.',
+  },
+];
 
 const endpoints = {
   'patient/:id/encounters': () => {
     return {
-      data: [encounter],
+      data: encounters,
     };
   },
 };
