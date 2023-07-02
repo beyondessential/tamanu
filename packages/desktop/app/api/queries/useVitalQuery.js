@@ -1,6 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi, isErrorUnknownAllow404s } from '../index';
 
+const transformVitalDataToChartData = vitalQuery => {
+  const { data: vitalDataAndCount = {} } = vitalQuery;
+  const { data: vitalData = [] } = vitalDataAndCount;
+
+  const chartData = vitalData.map(({ recordedDate, body }) => ({
+    name: recordedDate,
+    value: body,
+  }));
+
+  return chartData;
+};
+
 export const useVitalQuery = (encounterId, vitalDataElementId, startDate, endDate) => {
   const api = useApi();
 
@@ -15,12 +27,7 @@ export const useVitalQuery = (encounterId, vitalDataElementId, startDate, endDat
     },
   );
 
-  const { data: vitalDataAndCount = {} } = vitalQuery;
-  const { data: vitalData = [] } = vitalDataAndCount;
-  const chartData = vitalData.map(({ recordedDate, body }) => ({
-    name: recordedDate,
-    value: body,
-  }));
+  const chartData = transformVitalDataToChartData(vitalQuery);
 
   return {
     ...vitalQuery,

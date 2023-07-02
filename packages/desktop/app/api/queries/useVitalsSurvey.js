@@ -1,21 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import * as yup from 'yup';
+
 import { useApi, isErrorUnknownAllow404s } from '../index';
 import { getConfigObject } from '../../utils';
-
-const visualisationConfigSchema = yup.object().shape({
-  yAxis: yup.object().shape({
-    graphRange: yup.object().shape({
-      min: yup.number().required(),
-      max: yup.number().required(),
-    }),
-    normalRange: yup.object().shape({
-      min: yup.number().required(),
-      max: yup.number().required(),
-    }),
-    interval: yup.number().required(),
-  }),
-});
+import { BLOOD_PRESSURE, LINE, bloodPressureChartKeys } from '../../components/Charts/constants';
 
 export const useVitalsSurvey = () => {
   const api = useApi();
@@ -27,13 +14,18 @@ export const useVitalsSurvey = () => {
 
   let visualisationConfigs = [];
   if (!isLoading && surveyData) {
-    visualisationConfigs = surveyData.components.map(({ id, dataElement }) => {
-      const visualisationConfigObject = getConfigObject(id, dataElement.visualisationConfig);
-      const hasVitalChart = visualisationConfigSchema.isValidSync(visualisationConfigObject);
+    visualisationConfigs = surveyData.components.map(({ id, dataElement, config }) => {
+      const hasVitalChart = !!dataElement.visualisationConfig;
+      const isBloodPressureChart = bloodPressureChartKeys.includes(dataElement.id);
 
       return {
+        chartType: isBloodPressureChart ? BLOOD_PRESSURE : LINE,
         key: dataElement.id,
+        name: bloodPressureChartKeys.includes(dataElement.id)
+          ? 'Blood pressure (mm Hg)'
+          : dataElement.name,
         hasVitalChart,
+        config: getConfigObject(id, config),
         ...getConfigObject(id, dataElement.visualisationConfig),
       };
     });

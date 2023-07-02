@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
 import { Box, IconButton as IconButtonComponent } from '@material-ui/core';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
@@ -41,7 +42,7 @@ const IconButton = styled(IconButtonComponent)`
 
 const MeasureCell = React.memo(({ value, data }) => {
   const {
-    setChartKey,
+    setChartKeys,
     setModalTitle,
     setVitalChartModalOpen,
     visualisationConfigs,
@@ -57,7 +58,7 @@ const MeasureCell = React.memo(({ value, data }) => {
           <IconButton
             size="small"
             onClick={() => {
-              setChartKey(visualisationConfig.key);
+              setChartKeys([visualisationConfig.key]);
               setModalTitle(value);
               setVitalChartModalOpen(true);
             }}
@@ -65,6 +66,36 @@ const MeasureCell = React.memo(({ value, data }) => {
             <VitalVectorIcon />
           </IconButton>
         )}
+      </Box>
+    </>
+  );
+});
+
+const TitleCell = React.memo(({ value }) => {
+  const {
+    setChartKeys,
+    setModalTitle,
+    setVitalChartModalOpen,
+    visualisationConfigs,
+  } = useVitalChartData();
+  const allChartKeys = visualisationConfigs
+    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.sbp) // Only show one blood pressure chart on multi vital charts
+    .map(({ key }) => key);
+
+  return (
+    <>
+      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+        {value}
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys(allChartKeys);
+            setModalTitle('Vitals');
+            setVitalChartModalOpen(true);
+          }}
+        >
+          <VitalVectorIcon />
+        </IconButton>
       </Box>
     </>
   );
@@ -84,6 +115,7 @@ export const VitalsTable = React.memo(() => {
         <RangeTooltipCell value={value} config={config} validationCriteria={validationCriteria} />
       ),
       CellComponent: MeasureCell,
+      TitleCellComponent: TitleCell,
     },
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))

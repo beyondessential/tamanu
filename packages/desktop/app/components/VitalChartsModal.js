@@ -3,22 +3,34 @@ import React from 'react';
 import { Modal } from './Modal';
 import { Colors } from '../constants';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { ChartsView } from '../views/ChartsView';
+import { DateTimeSelector } from './Charts/components/DateTimeSelector';
+import { MultiVitalChartsView } from '../views/charts/MultiVitalChartsView';
+import { SingleVitalChartView } from '../views/charts/SingleVitalChartView';
 
 export const VitalChartsModal = React.memo(() => {
-  const { vitalChartModalOpen, setVitalChartModalOpen, modalTitle } = useVitalChartData();
+  const {
+    vitalChartModalOpen,
+    setVitalChartModalOpen,
+    modalTitle,
+    setStartDate,
+    setEndDate,
+    isInMultiChartsView,
+  } = useVitalChartData();
+
+  const ViewComponent = isInMultiChartsView ? MultiVitalChartsView : SingleVitalChartView;
 
   return (
     <Modal
       title={modalTitle}
       open={vitalChartModalOpen}
-      width="lg"
+      width="xl"
       color={Colors.white}
       onClose={() => {
         setVitalChartModalOpen(false);
       }}
     >
-      <ChartsView />
+      <DateTimeSelector setStartDate={setStartDate} setEndDate={setEndDate} />
+      <ViewComponent />
     </Modal>
   );
 });

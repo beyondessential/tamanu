@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { formatShortest, formatTime } from '../../DateDisplay';
-import { CustomDot } from './CustomDot';
 import { formatValue } from '../../FormattedTableCell';
+import { InwardArrowVectorIcon } from '../../Icons/VitalVectorIcon';
+import { CustomDot } from './CustomDot';
 
 const FlexColumn = styled.div`
   flex-direction: column;
@@ -16,7 +17,7 @@ const FlexRow = styled.div`
 `;
 
 const ValueWrapper = styled(FlexRow)`
-  align-items: baseline;
+  align-items: ${props => (props.$alignItem ? props.$alignItem : 'center')}};
   gap: 5px;
   font-size: 11px;
 `;
@@ -30,17 +31,52 @@ const Wrapper = styled(FlexColumn)`
 const TimeText = styled.span`
   color: ${Colors.midText};
 `;
+const CustomDotWrapper = styled.div`
+  padding: 1px;
+`;
 
-export const TooltipContent = ({ label, value, description, dotColor, config }) => {
+const DateTimeHeader = ({ name }) => {
+  return (
+    <span>
+      {formatShortest(name)} <TimeText>{formatTime(name)}</TimeText>
+    </span>
+  );
+};
+
+export const TooltipContent = props => {
+  const { name, description, visualisationConfig, dotColor, value } = props;
+  const { config = {} } = visualisationConfig;
+
   return (
     <Wrapper>
-      <span>
-        {formatShortest(label)} <TimeText>{formatTime(label)}</TimeText>
-      </span>
-      <ValueWrapper>
-        <CustomDot payload={{ dotColor }} />
+      <DateTimeHeader name={name} />
+      <ValueWrapper $alignItem="baseline">
+        <CustomDotWrapper>
+          <CustomDot payload={{ dotColor }} />
+        </CustomDotWrapper>
         <FlexColumn>
           <span>{formatValue(value, config)}</span>
+          <span>{description}</span>
+        </FlexColumn>
+      </ValueWrapper>
+    </Wrapper>
+  );
+};
+
+export const InwardArrowVectorTooltipContent = props => {
+  const { name, description, visualisationConfig, dotColor, inwardArrowVector } = props;
+  const { config = {} } = visualisationConfig;
+  const { unit = '' } = config;
+
+  return (
+    <Wrapper>
+      <DateTimeHeader name={name} />
+      <ValueWrapper $alignItem="center">
+        <CustomDotWrapper>
+          <InwardArrowVectorIcon color={dotColor} />
+        </CustomDotWrapper>
+        <FlexColumn>
+          <span>{`${inwardArrowVector.top}/${inwardArrowVector.bottom} ${unit}`}</span>
           <span>{description}</span>
         </FlexColumn>
       </ValueWrapper>

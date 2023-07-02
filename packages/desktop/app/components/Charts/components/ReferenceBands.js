@@ -1,5 +1,24 @@
 import React from 'react';
 import { Colors } from '../../../constants';
+import { getHeightPerYAxisInterval } from '../helpers/getHeightPerYAxisInterval';
+
+const calculateBandsStartPointAndHeight = ({
+  startPointY,
+  yAxisConfigs,
+  rangesToHighlight,
+  heightPerInterval,
+}) => {
+  return rangesToHighlight.map(([start, end]) => {
+    const yFromStartOrEnd = start > end ? start : end;
+    const y =
+      startPointY +
+      (Math.abs(yAxisConfigs.graphRange.max - yFromStartOrEnd) / yAxisConfigs.interval) *
+        heightPerInterval;
+    const height = (Math.abs(start - end) / yAxisConfigs.interval) * heightPerInterval;
+
+    return { y, height };
+  });
+};
 
 export const ReferenceBands = props => {
   const {
@@ -11,19 +30,12 @@ export const ReferenceBands = props => {
     yAxisConfigs,
   } = props;
 
-  const totalGaps =
-    (yAxisConfigs.graphRange.max - yAxisConfigs.graphRange.min) / yAxisConfigs.interval;
-  const heightPerGap = totalHeight / totalGaps;
-
-  const bands = rangesToHighlight.map(([start, end]) => {
-    const yFromStartOrEnd = start > end ? start : end;
-    const y =
-      startPointY +
-      (Math.abs(yAxisConfigs.graphRange.max - yFromStartOrEnd) / yAxisConfigs.interval) *
-        heightPerGap;
-    const height = (Math.abs(start - end) / yAxisConfigs.interval) * heightPerGap;
-
-    return { y, height };
+  const heightPerInterval = getHeightPerYAxisInterval(yAxisConfigs, totalHeight);
+  const bands = calculateBandsStartPointAndHeight({
+    startPointY,
+    yAxisConfigs,
+    rangesToHighlight,
+    heightPerInterval,
   });
 
   return (
