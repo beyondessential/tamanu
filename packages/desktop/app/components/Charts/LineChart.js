@@ -10,52 +10,27 @@ import {
   LineChart as LineChartComponent,
   Customized,
 } from 'recharts';
-import { TooltipContent } from './components/TooltipContent';
-import { getXAxisTicks, getYAxisTicks } from './helpers/axisTicks';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
 import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
-import { CHART_MARGIN, Y_AXIS_WIDTH } from './constants';
-
-const CustomTooltip = ({ payload }) => {
-  if (payload && payload.length) {
-    const { value, name, dotColor, description, config } = payload[0].payload;
-
-    return (
-      <TooltipContent
-        label={name}
-        value={value}
-        dotColor={dotColor}
-        description={description}
-        config={config}
-      />
-    );
-  }
-
-  return null;
-};
+import { Y_AXIS_WIDTH } from './constants';
+import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
+import { CustomTooltip } from './components/CustomTooltip';
 
 export const LineChart = props => {
-  const {
-    chartData,
-    visualisationConfig,
-    startDate,
-    endDate,
-    xAxisTicks = getXAxisTicks(startDate, endDate),
-    yAxisTicks = getYAxisTicks(visualisationConfig.yAxis),
-    height = 500,
-    isLoading,
-  } = props;
+  const { chartData, visualisationConfig, isLoading, useInwardArrowVector, chartProps } = props;
 
+  const { margin, tableHeight, height, xAxisTicks, yAxisTicks } = chartProps;
   const { yAxis: yAxisConfigs } = visualisationConfig;
   const isNoData = chartData.length === 0 && !isLoading;
-  const measureData = getMeasureData(chartData, yAxisConfigs);
+  const measureData = getMeasureData(chartData, visualisationConfig, useInwardArrowVector);
+  const DotComponent = useInwardArrowVector ? InwardArrowVectorDot : CustomDot;
 
   return (
-    <LineChartComponent width={1856} height={height} data={measureData} margin={CHART_MARGIN}>
+    <LineChartComponent width={1856} height={height} data={measureData} margin={margin}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
         interval={0}
@@ -100,15 +75,15 @@ export const LineChart = props => {
           boxShadow: `0px 4px 20px rgba(0, 0, 0, 0.1)`,
           borderRadius: '5px',
         }}
-        content={<CustomTooltip />}
+        content={<CustomTooltip useInwardArrowVector={useInwardArrowVector} />}
       />
       <Line
         type="monotone"
         dataKey={DISPLAY_VALUE_KEY}
         stroke={Colors.blue}
         strokeWidth={2}
-        dot={<CustomDot />}
-        activeDot={<CustomDot active />}
+        dot={<DotComponent tableHeight={tableHeight} />}
+        activeDot={<DotComponent active tableHeight={tableHeight} />}
         isAnimationActive={false}
       />
       {isNoData && <Customized component={<NoDataStateScreen />} />}

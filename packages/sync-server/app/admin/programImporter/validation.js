@@ -1,7 +1,21 @@
 import { Op } from 'sequelize';
+import * as yup from 'yup';
 import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
-
 import { ImporterMetadataError, ValidationError } from '../errors';
+
+const visualisationConfigSchema = yup.object().shape({
+  yAxis: yup.object().shape({
+    graphRange: yup.object().shape({
+      min: yup.number().required(),
+      max: yup.number().required(),
+    }),
+    normalRange: yup.object().shape({
+      min: yup.number().required(),
+      max: yup.number().required(),
+    }),
+    interval: yup.number().required(),
+  }),
+});
 
 const REQUIRED_QUESTION_IDS = {
   [SURVEY_TYPES.VITALS]: Object.values(VITALS_DATA_ELEMENT_IDS),
@@ -25,6 +39,24 @@ export function ensureRequiredQuestionsPresent(surveyInfo, questionRecords) {
       `Survey missing required questions: ${missingQuestions.join(', ')}`,
     );
   }
+}
+
+export function validateVisualisationConfigs(surveyInfo, questionRecords) {
+  const { surveyType } = surveyInfo;
+
+  const requiredQuestions = REQUIRED_QUESTION_IDS[surveyType];
+  if (!requiredQuestions) {
+    return;
+  }
+
+  questionRecords.forEach(record => {
+    const { model, values } = record;
+    const { visualisationConfig: visualisationConfigString } = values;
+    if (model === 'ProgramDataElement' && visualisationConfigString) {
+      const visualisationConfig = JSON.parse(visualisationConfigString);
+      visualisationConfigSchema.validateSync(visualisationConfig);
+    }
+  });
 }
 
 async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {

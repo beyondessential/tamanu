@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
 import { Box, IconButton as IconButtonComponent } from '@material-ui/core';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
@@ -78,7 +79,7 @@ const TitleCell = React.memo(({ value }) => {
     visualisationConfigs,
   } = useVitalChartData();
   const allChartKeys = visualisationConfigs
-    .filter(({ hasVitalChart }) => hasVitalChart)
+    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.sbp) // Only show one blood pressure chart on multi vital charts
     .map(({ key }) => key);
 
   return (

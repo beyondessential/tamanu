@@ -5,7 +5,7 @@ import { formatShortest, formatTime } from '../../DateDisplay';
 
 const TextFontSize = 11;
 const xAxisTickTimeY = 23;
-export const customisedXAxisTickHeight = xAxisTickTimeY + TextFontSize - 0.5;
+export const customisedXAxisLabelHeight = xAxisTickTimeY + TextFontSize - 0.5;
 
 const Text = styled.text`
   font-size: ${TextFontSize}px;
