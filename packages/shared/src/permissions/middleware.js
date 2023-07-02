@@ -17,8 +17,12 @@ function getSubjectName(subject) {
 }
 
 export async function constructPermission(req, res, next) {
-  req.ability = await getAbilityForUser(req.user);
-  next();
+  try {
+    req.ability = await getAbilityForUser(req.models, req.user);
+    next();
+  } catch (e) {
+    next(e);
+  }
 }
 
 const checkPermission = (req, action, subject, field = '') => {
@@ -75,9 +79,9 @@ export function ensurePermissionCheck(req, res, next) {
 
 // eslint-disable-next-line no-unused-vars
 export async function getPermissions(req, res, _next) {
-  const { user } = req;
+  const { user, models } = req;
 
-  const permissions = await getPermissionsForRoles(user.role);
+  const permissions = await getPermissionsForRoles(models, user.role);
   res.send({
     permissions,
   });

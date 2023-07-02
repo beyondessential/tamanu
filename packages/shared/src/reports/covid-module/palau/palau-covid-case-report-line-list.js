@@ -244,5 +244,3 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
-
-export const permission = 'SurveyResponse';

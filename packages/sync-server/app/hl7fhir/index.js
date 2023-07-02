@@ -12,7 +12,7 @@ import { fhirRoutes as matRoutes } from './materialised';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../middleware/requireClientHeaders';
 
-export function fhirRoutes({ requireClientHeaders } = {}) {
+export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   const routes = Router();
 
   if (requireClientHeaders) {
@@ -20,7 +20,7 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
   }
 
   // temporary: will replace this entire route once done
-  routes.use('/mat', matRoutes());
+  routes.use('/mat', matRoutes(ctx));
 
   routes.get('/Patient', patientHandler());
   routes.get('/DiagnosticReport', diagnosticReportHandler());

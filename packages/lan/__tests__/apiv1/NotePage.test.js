@@ -4,10 +4,8 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
-import Chance from 'chance';
+import { chance } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
 
 const randomLabTests = (models, labTestCategoryId, amount) =>
   models.LabTestType.findAll({

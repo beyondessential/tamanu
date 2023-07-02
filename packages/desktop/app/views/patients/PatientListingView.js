@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { LocationGroupCell } from '../../components/LocationCell';
+import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
 import {
@@ -45,6 +45,12 @@ const LISTING_COLUMNS = [
   status,
 ];
 
+const location = {
+  key: 'locationName',
+  title: 'Location',
+  accessor: LocationCell,
+};
+
 const locationGroup = {
   key: 'locationGroupName',
   title: 'Area',
@@ -52,7 +58,7 @@ const locationGroup = {
 };
 
 const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
-  [locationGroup, department, clinician].map(column => ({
+  [locationGroup, location, department, clinician].map(column => ({
     ...column,
     sortable: false,
   })),
