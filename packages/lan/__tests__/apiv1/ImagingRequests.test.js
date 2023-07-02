@@ -154,7 +154,7 @@ describe('Imaging requests', () => {
       });
       expect(
         retrievedImgReq.notes
-          .map(np => np.id)
+          .map(note => note.id)
           .sort()
           .join(','),
       ).toBe([n1.id, n2.id].sort().join(','));

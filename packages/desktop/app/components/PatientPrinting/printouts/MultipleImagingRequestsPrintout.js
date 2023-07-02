@@ -42,7 +42,7 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
   }
   const idsAndNotes = imagingRequests.map(ir => [
     ir.displayId,
-    ir.notes.filter(np => np.noteType === NOTE_TYPES.OTHER),
+    ir.notes.filter(note => note.noteType === NOTE_TYPES.OTHER),
   ]);
   return (
     <CertificateWrapper>
