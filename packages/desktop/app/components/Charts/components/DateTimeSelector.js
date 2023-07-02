@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import { addDays, format, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
+import { Y_AXIS_WIDTH } from '../constants';
 
 const Wrapper = styled.div`
   display: flex;
   gap: 24px;
-  padding-left: 79px;
-  padding-bottom: 10px;
+  padding-left: ${Y_AXIS_WIDTH}px;
+  padding-bottom: 16px;
 `;
 
 const SelectInput = styled(SelectInputComponent)`

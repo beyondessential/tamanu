@@ -1,7 +1,7 @@
 import { Colors } from '../../../constants';
 
-const getDotColor = ({ isInsideNormalRange, isOutsideGraphRange }) => {
-  let color = Colors.blue;
+const getDotColor = ({ isInsideNormalRange, isOutsideGraphRange, useInwardArrowVector }) => {
+  let color = useInwardArrowVector ? Colors.darkestText : Colors.blue;
   if (!isInsideNormalRange) {
     color = Colors.alert;
   }
@@ -36,14 +36,20 @@ const getDisplayValue = ({ data, isOutsideGraphRange, yAxis }) => {
 
 export const DISPLAY_VALUE_KEY = 'displayValue';
 
-export const getMeasureData = (rawData, yAxis) => {
+export const getMeasureData = (rawData, visualisationConfig, useInwardArrowVector) => {
+  const { yAxis } = visualisationConfig;
+
   return rawData
     .map(d => {
       const isInsideNormalRange =
         d.value >= yAxis.normalRange.min && d.value <= yAxis.normalRange.max;
       const isOutsideGraphRange = d.value < yAxis.graphRange.min || d.value > yAxis.graphRange.max;
 
-      const dotColor = getDotColor({ isInsideNormalRange, isOutsideGraphRange });
+      const dotColor = getDotColor({
+        isInsideNormalRange,
+        isOutsideGraphRange,
+        useInwardArrowVector,
+      });
       const displayValue = getDisplayValue({ data: d, isOutsideGraphRange, yAxis });
       const description = getDescription({
         data: d,
@@ -58,6 +64,7 @@ export const getMeasureData = (rawData, yAxis) => {
         [DISPLAY_VALUE_KEY]: displayValue,
         dotColor,
         description,
+        visualisationConfig,
       };
     })
     .sort((a, b) => {

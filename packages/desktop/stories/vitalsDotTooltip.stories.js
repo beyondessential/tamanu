@@ -2,7 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { Colors } from '../app/constants';
-import { TooltipContent } from '../app/components/Charts/components/TooltipContent';
+import {
+  InwardArrowVectorTooltipContent,
+  TooltipContent,
+} from '../app/components/Charts/components/TooltipContent';
 
 const FlexColumn = styled.div`
   flex-direction: column;
@@ -22,16 +25,15 @@ const TooltipWrapper = styled.div`
 
 storiesOf('Vitals', module).add('Vital Tooltip', () => {
   const name = '2023-05-30 10:04:52';
-
   return (
     <Wrapper>
       <TooltipWrapper>
-        <TooltipContent label={name} value="36.4°C" dotColor={Colors.blue} />
+        <TooltipContent name={name} value="36.4°C" dotColor={Colors.blue} />
       </TooltipWrapper>
 
       <TooltipWrapper>
         <TooltipContent
-          label={name}
+          name={name}
           value="39.1°C"
           dotColor={Colors.alert}
           description="(Outside normal range >39°C)"
@@ -40,9 +42,22 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
 
       <TooltipWrapper>
         <TooltipContent
-          label={name}
+          name={name}
           value="42.2°C"
           dotColor={Colors.darkestText}
+          description="(Outside normal range >39°C) (Outside graph range)"
+        />
+      </TooltipWrapper>
+
+      <TooltipWrapper>
+        <InwardArrowVectorTooltipContent name={name} value="36°C" dotColor={Colors.darkestText} />
+      </TooltipWrapper>
+
+      <TooltipWrapper>
+        <InwardArrowVectorTooltipContent
+          name={name}
+          value="42.2°C"
+          dotColor={Colors.alert}
           description="(Outside normal range >39°C) (Outside graph range)"
         />
       </TooltipWrapper>
