@@ -24,7 +24,15 @@ describe(`Materialised FHIR - Encounter`, () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
 
-    const { Department, Facility, Location, Patient, User, FhirPatient } = ctx.store.models;
+    const {
+      Department,
+      Facility,
+      Location,
+      LocationGroup,
+      Patient,
+      User,
+      FhirPatient,
+    } = ctx.store.models;
 
     const [practitioner, patient, facility] = await Promise.all([
       User.create(fake(User)),
@@ -32,8 +40,14 @@ describe(`Materialised FHIR - Encounter`, () => {
       Facility.create(fake(Facility)),
     ]);
 
+    const locationGroup = await LocationGroup.create(
+      fake(LocationGroup, { facilityId: facility.id }),
+    );
+
     const [location, matPatient] = await Promise.all([
-      Location.create(fake(Location, { facilityId: facility.id })),
+      Location.create(
+        fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
+      ),
       FhirPatient.materialiseFromUpstream(patient.id),
     ]);
 
@@ -47,6 +61,7 @@ describe(`Materialised FHIR - Encounter`, () => {
       patient,
       facility,
       location,
+      locationGroup,
       matPatient,
     };
   });
@@ -144,6 +159,40 @@ describe(`Materialised FHIR - Encounter`, () => {
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
+        location: [
+          {
+            location: {
+              display: resources.locationGroup.name,
+              id: resources.locationGroup.id,
+            },
+            status: 'active',
+            physicalType: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+                  code: 'wa',
+                  display: 'Ward',
+                },
+              ],
+            },
+          },
+          {
+            location: {
+              display: resources.location.name,
+              id: resources.location.id,
+            },
+            status: 'active',
+            physicalType: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+                  code: 'bd',
+                  display: 'Bed',
+                },
+              ],
+            },
+          },
+        ],
       });
       expect(response).toHaveSucceeded();
     });
