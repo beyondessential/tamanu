@@ -78,7 +78,7 @@ export const LineChart = props => {
         content={<CustomTooltip useInwardArrowVector={useInwardArrowVector} />}
       />
       <Line
-        type="monotone"
+        type="linear"
         dataKey={DISPLAY_VALUE_KEY}
         stroke={Colors.blue}
         strokeWidth={2}
