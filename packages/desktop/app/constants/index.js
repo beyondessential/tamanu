@@ -21,6 +21,7 @@ import {
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
   DOCUMENT_SOURCES,
+  TEMPLATE_TYPES,
 } from '@tamanu/shared/constants';
 
 import {
@@ -418,6 +419,10 @@ export const ATTENDANT_OF_BIRTH_OPTIONS = [
 export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
+];
+
+export const TEMPLATE_TYPE_OPTIONS = [
+  { value: TEMPLATE_TYPES.PATIENT_LETTER, label: 'Patient Letter' },
 ];
 
 export const PATIENT_STATUS = {

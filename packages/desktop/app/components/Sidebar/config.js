@@ -89,8 +89,8 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'imaging' },
     children: [
       {
-        label: 'Requests',
-        path: '/imaging-requests/all',
+        label: 'Active requests',
+        path: '/imaging-requests/active',
         ability: { action: 'read' },
       },
       {
@@ -185,6 +185,11 @@ export const SYNC_MENU_ITEMS = [
     key: 'patientMerge',
     label: 'Patient merge',
     path: '/admin/patientMerge',
+  },
+  {
+    key: 'templates',
+    label: 'Templates',
+    path: '/admin/templates',
   },
   {
     key: 'assets',

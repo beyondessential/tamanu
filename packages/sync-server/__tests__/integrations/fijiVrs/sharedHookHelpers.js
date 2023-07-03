@@ -1,7 +1,5 @@
-import Chance from 'chance';
 import { REFERENCE_TYPES } from 'shared/constants';
-
-const chance = new Chance();
+import { chance } from 'shared/test-helpers';
 
 export const fakeVRSPatient = async ({ ReferenceData }) => {
   const village = await ReferenceData.create(fakeVillage());
