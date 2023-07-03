@@ -5,7 +5,7 @@ import { extension } from 'mime-types';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { IconButton } from '@material-ui/core';
 
-import { DOCUMENT_SOURCES } from 'shared/constants';
+import { DOCUMENT_SOURCES } from '@tamanu/shared/constants';
 import { DOCUMENT_SOURCE_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';

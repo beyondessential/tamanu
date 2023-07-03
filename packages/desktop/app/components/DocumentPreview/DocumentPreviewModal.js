@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Typography } from '@material-ui/core';
-import { DOCUMENT_SOURCES } from 'shared/constants';
+import { DOCUMENT_SOURCES } from '@tamanu/shared/constants';
 
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
