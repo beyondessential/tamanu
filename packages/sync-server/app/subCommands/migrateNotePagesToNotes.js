@@ -52,7 +52,7 @@ export async function migrateNotePagesToNotes({ limit = Number.MAX_SAFE_INTEGER 
                 note_items.content
             FROM note_items JOIN note_pages on note_items.note_page_id = note_pages.id
             WHERE note_items.id > :fromId
-            AND note_items.id NOT IN (SELECT id FROM notes)
+            AND NOT EXISTS (SELECT id FROM notes WHERE id = note_items.id)
             ORDER BY note_items.id
             LIMIT :limit
             RETURNING id
