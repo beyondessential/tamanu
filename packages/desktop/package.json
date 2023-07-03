@@ -1,18 +1,13 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
-  "author": "Beyond Essential Systems Pty. Ltd.",
+  "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
   "license": "SEE LICENSE IN license",
-  "pkg": {
-    "assets": [
-      "../shared/**/*"
-    ]
-  },
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
@@ -21,6 +16,7 @@
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
     "lint": "eslint app",
     "package": "npm run build && electron-builder --publish never",
+    "package-only": "electron-builder --publish never",
     "package-all": "npm run build && electron-builder -mwl --publish never",
     "package-linux": "npm run build && electron-builder --linux --publish never",
     "package-win": "npm run build && electron-builder --win --x64 --publish never",
@@ -81,11 +77,17 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "msi"
       ]
     },
     "nsis": {
-      "perMachine": true
+      "perMachine": true,
+      "runAfterFinish": false
+    },
+    "msi": {
+      "perMachine": true,
+      "runAfterFinish": false
     },
     "linux": {
       "target": [
@@ -201,10 +203,10 @@
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@tamanu/shared": "*",
     "@tanstack/react-query": "^4.0.10",
     "@uiw/react-textarea-code-editor":"^2.1.1",
     "@types/react-autosuggest": "^9.3.7",
-    "await-to-js": "^2.0.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
     "bulma": "^0.7.1",

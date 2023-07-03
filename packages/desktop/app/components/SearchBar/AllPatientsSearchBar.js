@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';

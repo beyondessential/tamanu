@@ -27,7 +27,7 @@ const servers = [
 
   // demo servers
   { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
-  { name: 'Demo 2', type: 'demo', host: 'https://sync-demo-2.tamanu.io' },
+  { name: 'Demo 2', type: 'demo', host: 'https://central-demo2.internal.tamanu.io' },
   { name: 'Demo (Aspen)', type: 'demo', host: 'https://aspen-demo-sync.tamanu-fiji.org' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
   { name: 'Demo (Fiji Tourism)', type: 'demo', host: 'https://sync.demo-tourism.tamanu-fiji.org' },
@@ -41,7 +41,7 @@ const servers = [
 
   // test servers
   { name: 'Test (Aspen)', type: 'demo', host: 'https://central-aspen-clone.tamanu.io' },
-  { name: 'Test (Fiji)', type: 'demo', host: 'http://central-clone.tamanu-fiji.org' },
+  { name: 'Test (Fiji)', type: 'demo', host: 'https://central-clone.tamanu-fiji.org' },
   { name: 'Test (Kiribati)', type: 'demo', host: 'https://central-clone.tamanu-kiribati.org' },
   { name: 'Test (Nauru)', type: 'demo', host: 'https://central-clone.tamanu-nauru.org' },
   { name: 'Test (Palau)', type: 'demo', host: 'https://central-clone.tamanu-palau.org' },
@@ -50,10 +50,9 @@ const servers = [
   { name: 'Test (Tuvalu)', type: 'demo', host: 'https://clone-sync.tamanu-tuvalu.org' },
 
   // development servers
-  { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
-  { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
+  { name: 'Dev (main)', type: 'dev', host: 'https://central.main.internal.tamanu.io' },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
-  { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
+  { name: 'UAT-VPS', type: 'dev', host: 'https://sync-uat.tamanu.io' },
   { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
   { name: 'UAT-Rispacs', type: 'dev', host: 'https://sync-uat-rispacs.tamanu.io' },
 

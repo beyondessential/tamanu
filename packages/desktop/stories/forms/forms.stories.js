@@ -13,9 +13,8 @@ import {
   LOCATIONS,
   USERS,
   DEPARTMENTS,
-} from 'shared/demoData';
-import { VACCINE_RECORDING_TYPES } from 'shared/constants';
-
+} from '@tamanu/shared/demoData';
+import { VACCINE_RECORDING_TYPES } from '@tamanu/shared/constants';
 import { MockedApi } from '../utils/mockedApi';
 import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
 import { EncounterForm } from '../../app/forms/EncounterForm';
