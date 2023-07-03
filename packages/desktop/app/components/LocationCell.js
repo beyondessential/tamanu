@@ -13,10 +13,11 @@ export const LocationCell = ({ locationName, plannedLocationName, style }) => (
   </div>
 );
 
-export const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName }) => (
+export const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName, ...props }) => (
   <LocationCell
     locationName={locationGroupName}
     plannedLocationName={plannedLocationGroupName}
     style={{ minWidth: 150 }}
+    {...props}
   />
 );
