@@ -73,9 +73,8 @@ export async function migrateNotePagesToNotes({ limit = Number.MAX_SAFE_INTEGER 
       sleepAsync(50);
 
       fromId = maxId;
-      const chunkCount = parseInt(count, 10) + 0;
+      const chunkCount = parseInt(count, 10);
       total += chunkCount;
-      // console.log('chunkCount', chunkCount);
 
       log.info(`Migrated batch with ${chunkCount} notes...`);
     }
