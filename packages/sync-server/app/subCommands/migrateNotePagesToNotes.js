@@ -76,10 +76,10 @@ export async function migrateNotePagesToNotes({ limit = Number.MAX_SAFE_INTEGER 
       const chunkCount = parseInt(count, 10);
       total += chunkCount;
 
-      log.info(`Migrated batch with ${chunkCount} notes...`);
+      log.info(`Migrated batch with ${chunkCount} note_pages to notes...`);
     }
 
-    log.info(`Successfully migrated ${total} notes...`);
+    log.info(`Successfully migrated ${total} note_pages to notes...`);
 
     process.exit(0);
   } catch (error) {
@@ -90,5 +90,5 @@ export async function migrateNotePagesToNotes({ limit = Number.MAX_SAFE_INTEGER 
 
 export const migrateNotePagesToNotesCommand = new Command('migrateNotePagesToNotes')
   .description('Migrates note pages to notes')
-  .option('-l, --limit <number>', 'Batching size for migrating notes')
+  .option('-l, --limit <number>', 'Batching size for migrating note_pages to notes')
   .action(migrateNotePagesToNotes);
