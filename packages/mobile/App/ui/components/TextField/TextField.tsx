@@ -7,6 +7,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
+import { RequiredIndicator } from '../RequiredIndicator';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -35,6 +36,7 @@ export interface TextFieldProps extends BaseInputProps {
   labelColor?: string;
   labelFontWeight?: string;
   labelFontSize?: string;
+  required?: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -49,6 +51,7 @@ export const TextField = React.memo(
     onChange,
     label,
     labelColor,
+    required = false,
     error,
     keyboardType,
     multiline = false,
@@ -103,11 +106,9 @@ export const TextField = React.memo(
       >
         <InputContainer>
           {!!label && (
-            <TextFieldLabel
-              labelColor={labelColor}
-              labelFontSize={labelFontSize}
-            >
+            <TextFieldLabel labelColor={labelColor} labelFontSize={labelFontSize}>
               {label}
+              {required && <RequiredIndicator />}
             </TextFieldLabel>
           )}
           <StyledTextInput
