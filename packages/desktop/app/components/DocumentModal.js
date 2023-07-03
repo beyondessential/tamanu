@@ -72,7 +72,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
           throw e; // allow error to be caught by error boundary
         } else {
           // eslint-disable-next-line no-console
-          setError(e);
+          setError(e.message);
           setIsSubmitting(false);
           return;
         }
