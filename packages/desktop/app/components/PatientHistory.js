@@ -36,7 +36,7 @@ const columns = [
   {
     key: 'locationGroupName',
     title: 'Area',
-    accessor: props => <LocationGroupCell style={{ minWidth: undefined }} {...props} />,
+    accessor: LocationGroupCell,
     CellComponent: LimitedLinesCell,
   },
   {
