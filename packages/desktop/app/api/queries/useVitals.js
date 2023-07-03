@@ -55,6 +55,7 @@ export const useVitals = encounterId => {
             },
           }),
           {
+            dataElementId: dataElement.id,
             value: dataElement.name,
             ...configs,
           },

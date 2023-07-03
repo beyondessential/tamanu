@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
+import { Box, IconButton as IconButtonComponent } from '@material-ui/core';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
@@ -8,6 +10,8 @@ import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedT
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
+import { VitalVectorIcon } from './Icons/VitalVectorIcon';
+import { useVitalChartData } from '../contexts/VitalChartData';
 
 const StyledTable = styled(Table)`
   table {
@@ -34,6 +38,73 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const IconButton = styled(IconButtonComponent)`
+  padding: 9px 5px;
+`;
+
+const MeasureCell = React.memo(({ value, data }) => {
+  const {
+    setChartKeys,
+    setModalTitle,
+    setVitalChartModalOpen,
+    visualisationConfigs,
+  } = useVitalChartData();
+  const visualisationConfig = visualisationConfigs.find(({ key }) => key === data.dataElementId);
+  const { hasVitalChart = false } = visualisationConfig || {};
+
+  return (
+    <>
+      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+        {value}
+        {hasVitalChart && (
+          <IconButton
+            size="small"
+            onClick={() => {
+              setChartKeys([visualisationConfig.key]);
+              setModalTitle(value);
+              setVitalChartModalOpen(true);
+            }}
+          >
+            <VitalVectorIcon />
+          </IconButton>
+        )}
+      </Box>
+    </>
+  );
+});
+
+const TitleCell = React.memo(({ value }) => {
+  const {
+    setChartKeys,
+    setModalTitle,
+    setVitalChartModalOpen,
+    visualisationConfigs,
+  } = useVitalChartData();
+  const allChartKeys = visualisationConfigs
+    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.sbp) // Only show one blood pressure chart on multi vital charts
+    .map(({ key }) => key);
+
+  return (
+    <>
+      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+        {value}
+        {allChartKeys.length > 0 && (
+          <IconButton
+            size="small"
+            onClick={() => {
+              setChartKeys(allChartKeys);
+              setModalTitle('Vitals');
+              setVitalChartModalOpen(true);
+            }}
+          >
+            <VitalVectorIcon />
+          </IconButton>
+        )}
+      </Box>
+    </>
+  );
+});
+
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
@@ -43,11 +114,14 @@ export const VitalsTable = React.memo(() => {
   // create a column for each reading
   const columns = [
     {
+      key: 'measure',
       title: 'Measure',
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell value={value} config={config} validationCriteria={validationCriteria} />
       ),
+      CellComponent: MeasureCell,
+      TitleCellComponent: TitleCell,
     },
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
