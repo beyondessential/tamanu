@@ -5,11 +5,20 @@ export const NoDataStateScreen = props => {
   const { height, width, offset } = props;
   const { height: offsetHeight, width: offsetWidth, top: offsetTop, left: offsetLeft } = offset; // height and width without Axis
 
+  const screenMarginTopAndBottom = 10;
   const screenWidth = 488;
-  const screenHeight = 160;
+  let screenHeight = 160;
   const startPointX = (offsetWidth - screenWidth) / 2 + offsetLeft;
-  const startPointY = (offsetHeight - screenHeight) / 2 + offsetTop;
+  let startPointY = (offsetHeight - screenHeight) / 2 + offsetTop;
 
+  // Chart is too small for the default no data state screen height
+  if (
+    startPointY <= offsetTop + screenMarginTopAndBottom ||
+    startPointY + screenHeight >= offsetHeight + offsetTop
+  ) {
+    startPointY = offsetTop + screenMarginTopAndBottom;
+    screenHeight = offsetHeight - screenMarginTopAndBottom * 2 - 5;
+  }
   const textProps = {
     x: offsetWidth / 2 + offsetLeft,
     y: offsetHeight / 2 + offsetTop,
@@ -17,9 +26,8 @@ export const NoDataStateScreen = props => {
     textAnchor: 'middle',
   };
   const lineHeight = 18;
-  const lineOne = `No recorded vitals to display. To record vitals,`;
-  const lineTwo = `please click the 'Record vitals' button from the`;
-  const lineThree = `vitals table`;
+  const lineOne = `No recorded vitals to display. To record vitals, please click the`;
+  const lineTwo = `'Record vitals' button from the vitals table`;
 
   return (
     <svg width={width} height={height}>
@@ -32,9 +40,6 @@ export const NoDataStateScreen = props => {
       <text {...textProps}>{lineOne}</text>
       <text {...textProps} dy={lineHeight}>
         {lineTwo}
-      </text>
-      <text {...textProps} dy={lineHeight * 2}>
-        {lineThree}
       </text>
     </svg>
   );
