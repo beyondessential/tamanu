@@ -53,5 +53,3 @@ storiesOf('PatientHistory', module)
     </Container>
   ))
   .add('Basic Example', () => <PatientHistory patient={patient} onItemClick={console.log} />);
-
-// Add Dipstick and Machine

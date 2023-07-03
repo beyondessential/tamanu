@@ -45,7 +45,6 @@ const columns = [
     accessor: getReasonForEncounter,
     sortable: false,
     CellComponent: LimitedLinesCell,
-    maxWidth: 150,
   },
 ];
 
