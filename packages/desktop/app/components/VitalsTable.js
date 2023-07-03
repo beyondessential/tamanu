@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
 import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { EditVitalCellModal } from './EditVitalCellModal';
 
 const StyledTable = styled(Table)`
   table {
@@ -35,6 +37,8 @@ const StyledTable = styled(Table)`
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedCell, setSelectedCell] = useState(null);
 
   // create a column for each reading
   const columns = [
@@ -52,12 +56,20 @@ export const VitalsTable = React.memo(() => {
         sortable: false,
         key: date,
         accessor: cells => {
-          const { value, config, validationCriteria } = cells[date];
+          const { value, config, validationCriteria, historyLogs, component } = cells[date];
+          const isCalculatedQuestion =
+            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+          const handleCellClick = () => {
+            setOpenEditModal(true);
+            setSelectedCell(cells[date]);
+          };
           return (
             <RangeValidatedCell
               value={value}
               config={config}
               validationCriteria={validationCriteria}
+              isEdited={historyLogs.length !== 0}
+              onClick={isCalculatedQuestion ? null : handleCellClick}
             />
           );
         },
@@ -68,12 +80,21 @@ export const VitalsTable = React.memo(() => {
   ];
 
   return (
-    <StyledTable
-      columns={columns}
-      data={data}
-      elevated={false}
-      isLoading={isLoading}
-      errorMessage={error?.message}
-    />
+    <>
+      <EditVitalCellModal
+        open={openEditModal}
+        dataPoint={selectedCell}
+        onClose={() => {
+          setOpenEditModal(false);
+        }}
+      />
+      <StyledTable
+        columns={columns}
+        data={data}
+        elevated={false}
+        isLoading={isLoading}
+        errorMessage={error?.message}
+      />
+    </>
   );
 });
