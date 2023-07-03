@@ -4,6 +4,7 @@ import { QueryTypes, Sequelize } from 'sequelize';
 import { getPatientAdditionalData } from 'shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
 
+import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
   simpleGetList,
   permissionCheckingRouter,
@@ -12,7 +13,6 @@ import {
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
-import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
