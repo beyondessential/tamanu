@@ -4,6 +4,7 @@ import { addHours, addDays, format } from 'date-fns';
 import { Modal } from '../app/components/Modal';
 import { LineChart } from '../app/components/Charts/LineChart';
 import { EncounterContext } from '../app/contexts/Encounter';
+import { getVitalChartProps } from '../app/components/Charts/helpers/getVitalChartProps';
 
 const getDate = amount => format(addHours(new Date(), amount), 'yyyy-MM-dd HH:mm:ss');
 const data = [
@@ -65,6 +66,12 @@ const visualisationConfig = {
   },
 };
 
+const chartProps = getVitalChartProps({
+  visualisationConfig,
+  startDate: format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss'),
+  endDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+});
+
 storiesOf('Vitals', module)
   .addDecorator(Story => (
     <EncounterContext.Provider
@@ -81,8 +88,7 @@ storiesOf('Vitals', module)
         <LineChart
           chartData={data}
           visualisationConfig={visualisationConfig}
-          startDate={format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss')}
-          endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
+          chartProps={chartProps}
         />
       </Modal>
     );
@@ -93,8 +99,7 @@ storiesOf('Vitals', module)
         <LineChart
           chartData={[]}
           visualisationConfig={visualisationConfig}
-          startDate={format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss')}
-          endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
+          chartProps={chartProps}
         />
       </Modal>
     );
@@ -105,8 +110,7 @@ storiesOf('Vitals', module)
         <LineChart
           chartData={inwardArrowData}
           visualisationConfig={visualisationConfig}
-          startDate={format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss')}
-          endDate={format(new Date(), 'yyyy-MM-dd HH:mm:ss')}
+          chartProps={chartProps}
           useInwardArrowVector
         />
       </Modal>

@@ -28,37 +28,52 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
   return (
     <Wrapper>
       <TooltipWrapper>
-        <TooltipContent name={name} value="36.4°C" dotColor={Colors.blue} />
+        <TooltipContent
+          name={name}
+          value="36.4"
+          dotColor={Colors.blue}
+          visualisationConfig={{ config: { unit: '°C' } }}
+        />
       </TooltipWrapper>
 
       <TooltipWrapper>
         <TooltipContent
           name={name}
-          value="39.1°C"
+          value="39.1"
           dotColor={Colors.alert}
           description="(Outside normal range >39°C)"
+          visualisationConfig={{ config: { unit: '°C' } }}
         />
       </TooltipWrapper>
 
       <TooltipWrapper>
         <TooltipContent
           name={name}
-          value="42.2°C"
+          value="42.2"
           dotColor={Colors.darkestText}
           description="(Outside normal range >39°C) (Outside graph range)"
+          visualisationConfig={{ config: { unit: '°C' } }}
         />
-      </TooltipWrapper>
-
-      <TooltipWrapper>
-        <InwardArrowVectorTooltipContent name={name} value="36°C" dotColor={Colors.darkestText} />
       </TooltipWrapper>
 
       <TooltipWrapper>
         <InwardArrowVectorTooltipContent
           name={name}
-          value="42.2°C"
+          value="36"
+          dotColor={Colors.darkestText}
+          inwardArrowVector={{ top: 36, bottom: 30 }}
+          visualisationConfig={{ config: { unit: 'mm Hg' } }}
+        />
+      </TooltipWrapper>
+
+      <TooltipWrapper>
+        <InwardArrowVectorTooltipContent
+          name={name}
+          value="42.2"
           dotColor={Colors.alert}
-          description="(Outside normal range >39°C) (Outside graph range)"
+          inwardArrowVector={{ top: 42.2, bottom: 30 }}
+          description="(Outside normal range >39) (Outside graph range)"
+          visualisationConfig={{ config: { unit: 'mm Hg' } }}
         />
       </TooltipWrapper>
     </Wrapper>

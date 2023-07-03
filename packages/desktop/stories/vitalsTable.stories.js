@@ -5,9 +5,8 @@ import { addHours, format } from 'date-fns';
 import { VitalsTable } from '../app/components/VitalsTable';
 import { MockedApi } from './utils/mockedApi';
 import { EncounterContext } from '../app/contexts/Encounter';
-import { VitalChartDataProvider, useVitalChartData } from '../app/contexts/VitalChartData';
-import { Modal } from '../app/components';
-import { LineChart } from '../app/components/Charts/LineChart';
+import { VitalChartDataProvider } from '../app/contexts/VitalChartData';
+import { VitalChartsModal } from '../app/components/VitalChartsModal';
 
 const Container = styled.div`
   max-width: 1300px;
@@ -260,6 +259,7 @@ const endpoints = {
             createdAt: '2023-01-05T04:28:02.095Z',
             updatedAt: '2023-01-26T21:52:01.778Z',
             defaultOptions: null,
+            visualisationConfig: `{"yAxis":{"graphRange":{"min":30,"max":240},"normalRange":{"min":90,"max":200},"interval":10}}`,
           },
           options: null,
         },
@@ -289,6 +289,7 @@ const endpoints = {
             createdAt: '2023-01-05T04:28:02.095Z',
             updatedAt: '2023-01-26T21:52:01.779Z',
             defaultOptions: null,
+            visualisationConfig: `{"yAxis":{"graphRange":{"min":30,"max":240},"normalRange":{"min":90,"max":200},"interval":10}}`,
           },
           options: null,
         },
@@ -405,6 +406,7 @@ const endpoints = {
             createdAt: '2023-01-05T04:28:02.095Z',
             updatedAt: '2023-03-02T21:52:14.274Z',
             defaultOptions: null,
+            visualisationConfig: `{"yAxis":{"graphRange":{"min":80,"max":100},"normalRange":{"min":85,"max":100},"interval":5}}`,
           },
           options: null,
         },
@@ -464,25 +466,9 @@ storiesOf('Vitals', module)
     </MockedApi>
   ))
   .add('Vitals Table', () => {
-    const {
-      vitalChartModalOpen,
-      setVitalChartModalOpen,
-      chartData,
-      visualisationConfig,
-    } = useVitalChartData();
-
     return (
       <>
-        <Modal
-          title="Vital Chart"
-          open={vitalChartModalOpen}
-          width="lg"
-          onClose={() => {
-            setVitalChartModalOpen(false);
-          }}
-        >
-          <LineChart chartData={chartData} visualisationConfig={visualisationConfig} />
-        </Modal>
+        <VitalChartsModal />
         <VitalsTable />
       </>
     );
