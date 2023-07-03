@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { REPORT_STATUSES } from 'shared/constants';
+import { REPORT_STATUSES } from '@tamanu/shared/constants';
 import { formatShort, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
 import { Colors } from '../../../constants';

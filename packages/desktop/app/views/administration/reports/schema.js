@@ -2,8 +2,8 @@ import {
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_DATA_SOURCE_VALUES,
-} from 'shared/constants';
-import { REFERENCE_TYPE_VALUES } from 'shared/constants/importable';
+} from '@tamanu/shared/constants';
+import { REFERENCE_TYPE_VALUES } from '@tamanu/shared/constants/importable';
 import { PARAMETER_FIELD_COMPONENTS } from '../../reports/ParameterField';
 
 const parameterFieldOptions = Object.keys(PARAMETER_FIELD_COMPONENTS);
