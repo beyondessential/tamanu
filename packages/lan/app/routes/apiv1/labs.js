@@ -94,7 +94,7 @@ labRequest.post(
         };
 
         const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
-        if (note.content) {
+        if (note?.content) {
           const notePage = await newLabRequest.createNotePage({
             noteType: NOTE_TYPES.OTHER,
             date: note.date,
