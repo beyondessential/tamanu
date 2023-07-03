@@ -43,7 +43,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClose = useCallback(() => {
-    setError(false);
+    setError(null);
     // Prevent user from navigating away if we're submitting a document
     if (!isSubmitting) {
       onClose();
@@ -72,8 +72,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
           throw e; // allow error to be caught by error boundary
         } else {
           // eslint-disable-next-line no-console
-          console.error(e);
-          setError(true);
+          setError(e);
           setIsSubmitting(false);
           return;
         }
@@ -124,6 +123,10 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
             File cannot be uploaded at this time. This may be due to network problems or
             insufficient storage space on your server. Please try again in a few minutes or contact
             your system administrator.
+            <br />
+            Error message details:
+            <br />
+            {error}
           </Message>
         </MessageContainer>
         <ConfirmCancelRow cancelText="Close" onCancel={handleClose} />
