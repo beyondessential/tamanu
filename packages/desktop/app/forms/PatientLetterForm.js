@@ -18,7 +18,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalLoader } from '../components/Modal';
 import { OutlinedButton, Button } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
-import { ModalButtonRow } from '../components/ModalActionRow';
+import { ModalGenericButtonRow } from '../components/ModalActionRow';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
@@ -86,14 +86,14 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           disabled={templateLoading}
         />
       </FormGrid>
-      <ModalButtonRow>
+      <ModalGenericButtonRow>
         <FinaliseAndPrintButton onClick={e => submitForm(e, { printRequested: true })}>
           Finalise & Print
         </FinaliseAndPrintButton>
         <Gap />
         <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
         <Button onClick={submitForm}>Finalise</Button>
-      </ModalButtonRow>
+      </ModalGenericButtonRow>
     </>
   );
 };
