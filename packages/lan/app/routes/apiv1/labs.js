@@ -53,8 +53,7 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
-    const { panelIds, labTestTypeIds } = body;
-    const { note } = body;
+    const { panelIds, labTestTypeIds, note } = body;
     req.checkPermission('create', 'LabRequest');
 
     if (!panelIds?.length && !labTestTypeIds?.length) {
@@ -460,7 +459,7 @@ async function createLabRequest(
   };
 
   const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
-  if (note) {
+  if (note?.content) {
     const notePage = await newLabRequest.createNotePage({
       noteType: NOTE_TYPES.OTHER,
     });
