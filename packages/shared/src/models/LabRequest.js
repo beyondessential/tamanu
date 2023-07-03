@@ -77,14 +77,13 @@ export class LabRequest extends Model {
         newLabRequest = await this.create(requestData);
       }
 
-      const { date } = labTest;
       // then create tests
       await Promise.all(
         labTestTypeIds.map(t =>
           LabTest.create({
             labTestTypeId: t,
             labRequestId: newLabRequest.id,
-            date,
+            date: labTest?.date,
           }),
         ),
       );
