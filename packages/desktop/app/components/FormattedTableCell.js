@@ -39,12 +39,12 @@ const LimitedLinesCellWrapper = styled.div`
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: ${props => props.maxLines};
 `;
 
-export const LimitedLinesCell = React.memo(({ value }) => (
+export const LimitedLinesCell = React.memo(({ value, maxLines = 2 }) => (
   <TableTooltip title={value}>
-    <LimitedLinesCellWrapper>{value}</LimitedLinesCellWrapper>
+    <LimitedLinesCellWrapper maxLines={maxLines}>{value}</LimitedLinesCellWrapper>
   </TableTooltip>
 ));
 
