@@ -4,11 +4,16 @@ import {
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
-import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
+} from 'shared/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { subWeeks } from 'date-fns';
+import { addHours, formatISO9075, subWeeks } from 'date-fns';
 import { isEqual } from 'lodash';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
@@ -1006,17 +1011,21 @@ describe('Encounter', () => {
               name: 'PatientVitalsHeartRate',
               type: 'Number',
             },
+            {
+              name: 'PatientVitalsSBP',
+              type: 'Number',
+            },
           ],
         });
       });
 
       afterEach(async () => {
-        models.SurveyResponseAnswer.destroy({
+        await models.SurveyResponseAnswer.destroy({
           where: {
             response_id: surveyResponseId,
           },
         });
-        models.SurveyResponse.destroy({
+        await models.SurveyResponse.destroy({
           where: {
             id: surveyResponseId,
           },
@@ -1081,6 +1090,126 @@ describe('Encounter', () => {
             ),
           ),
         );
+      });
+
+      describe('vitals data by data element id', () => {
+        const answers = [
+          {
+            responseId: 'response_id_1',
+            submissionDate: formatISO9075(addHours(new Date(), -1)),
+            value: 122,
+          },
+          {
+            responseId: 'response_id_2',
+            submissionDate: formatISO9075(addHours(new Date(), -3)),
+            value: 155,
+          },
+          {
+            responseId: 'response_id_3',
+            submissionDate: formatISO9075(addHours(new Date(), -2)),
+            value: 133,
+          },
+          {
+            responseId: 'response_id_4',
+            submissionDate: formatISO9075(addHours(new Date(), -4)),
+            value: '',
+          },
+          {
+            responseId: 'response_id_5',
+            submissionDate: formatISO9075(addHours(new Date(), -5)),
+            value: null,
+          },
+        ];
+        const patientVitalSbpKey = VITALS_DATA_ELEMENT_IDS.sbp;
+
+        beforeAll(async () => {
+          for (let i = 0; i < answers.length; i++) {
+            const { submissionDate, value, responseId } = answers[i];
+            const surveyResponseAnswersBody = {
+              'pde-PatientVitalsDate': submissionDate,
+              [patientVitalSbpKey]: value,
+            };
+            await app.post('/v1/surveyResponse').send({
+              id: responseId,
+              surveyId: 'vitals-survey',
+              patientId: vitalsPatient.id,
+              startTime: submissionDate,
+              endTime: submissionDate,
+              answers: surveyResponseAnswersBody,
+            });
+          }
+        });
+
+        afterAll(async () => {
+          for (const answer of answers) {
+            await models.SurveyResponseAnswer.destroy({
+              where: {
+                response_id: answer.responseId,
+              },
+            });
+            await models.SurveyResponse.destroy({
+              where: {
+                id: answer.responseId,
+              },
+            });
+          }
+        });
+
+        it('should get all specific vital data by data element id', async () => {
+          const startDateString = formatISO9075(addHours(new Date(), -4));
+          const endDateString = formatISO9075(new Date());
+          const expectedAnswers = answers.filter(
+            answer => answer.value !== '' && answer.value !== null,
+          );
+
+          const result = await app.get(
+            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+          );
+          expect(result).toHaveSucceeded();
+          const { body } = result;
+          expect(body).toHaveProperty('count');
+          expect(body.count).toEqual(expectedAnswers.length);
+          expect(body).toHaveProperty('data');
+          expect(body.data).toEqual(
+            expect.arrayContaining(
+              expectedAnswers.map(answer =>
+                expect.objectContaining({
+                  dataElementId: patientVitalSbpKey,
+                  body: answer.value.toString(),
+                  recordedDate: answer.submissionDate,
+                }),
+              ),
+            ),
+          );
+
+          const expectedRecordedDate = [...expectedAnswers]
+            .sort((a, b) => (a.submissionDate > b.submissionDate ? 1 : -1))
+            .map(answer => answer.submissionDate);
+          const resultRecordedDate = body.data.map(data => data.recordedDate);
+          expect(resultRecordedDate).toEqual(expectedRecordedDate);
+        });
+
+        it('should get vital data within time frame', async () => {
+          const startDateString = answers[0].submissionDate;
+          const endDateString = formatISO9075(new Date());
+          const result = await app.get(
+            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+          );
+          expect(result).toHaveSucceeded();
+          const { body } = result;
+          expect(body).toHaveProperty('count');
+          expect(body.count).toEqual(1);
+          expect(body).toHaveProperty('data');
+          expect(body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                dataElementId: patientVitalSbpKey,
+                body: answers[0].value.toString(),
+                recordedDate: answers[0].submissionDate,
+              }),
+            ]),
+          );
+        });
       });
     });
 
