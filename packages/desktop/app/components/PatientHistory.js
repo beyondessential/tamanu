@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip } from '@material-ui/core';
 
 import { OutlinedButton } from './Button';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 
@@ -26,17 +25,8 @@ const getReasonForEncounter = ({ reasonForEncounter }) => <div>{reasonForEncount
 const getFacility = ({ facilityName }) => <div>{facilityName}</div>;
 
 const columns = [
-  {
-    key: 'startDate',
-    title: 'Date',
-    accessor: getDate,
-  },
-  {
-    key: 'encounterType',
-    title: 'Type',
-    accessor: getType,
-    sortable: false,
-  },
+  { key: 'startDate', title: 'Date', accessor: getDate },
+  { key: 'encounterType', title: 'Type', accessor: getType, sortable: false },
   {
     key: 'facilityName',
     title: 'Facility',
