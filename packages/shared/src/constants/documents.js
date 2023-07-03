@@ -1,4 +1,4 @@
 export const DOCUMENT_SOURCES = {
-  PATIENT_LETTER: 'PATIENT_LETTER',
-  UPLOADED: 'UPLOADED',
+  PATIENT_LETTER: 'patient_letter',
+  UPLOADED: 'uploaded',
 };

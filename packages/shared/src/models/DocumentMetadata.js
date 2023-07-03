@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS, DOCUMENT_SOURCES } from '../constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -19,7 +19,11 @@ export class DocumentMetadata extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        source: Sequelize.STRING,
+        source: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: DOCUMENT_SOURCES.UPLOADED,
+        },
         documentCreatedAt: dateTimeType('documentCreatedAt'),
         documentUploadedAt: dateTimeType('documentUploadedAt', {
           allowNull: false,
