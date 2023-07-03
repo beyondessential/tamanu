@@ -90,48 +90,6 @@ exports[`settings load a KDL file to global namespace 1`] = `
 }"
 `;
 
-exports[`settings load a TOML file preview only 1`] = `
-"{
-  "name": {
-    "first": "Mozzie",
-    "aliases": [
-      "Haversham",
-      "The Dentist of Detroit"
-    ]
-  }
-}"
-`;
-
-exports[`settings load a TOML file to a facility 1`] = `
-"{
-  "name": {
-    "aliases": [
-      "Leed",
-      "Morris",
-      "Nevins",
-      "Satchmo"
-    ],
-    "first": "Peter",
-    "last": "Burke"
-  }
-}"
-`;
-
-exports[`settings load a TOML file to global namespace 1`] = `
-"{
-  "name": {
-    "aliases": [
-      "Halden",
-      "Bennett",
-      "Monroe",
-      "Dietrick"
-    ],
-    "first": "Neil",
-    "last": "Caffrey"
-  }
-}"
-`;
-
 exports[`settings load a json file preview only 1`] = `
 "{
   "really": {

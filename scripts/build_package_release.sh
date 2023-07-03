@@ -59,6 +59,7 @@ mv -v node_modules   packages/$pkg_name/node_modules
 
 # move shared into the package
 mkdir -p packages/$pkg_name/node_modules/@tamanu
+rm -rf packages/$pkg_name/node_modules/@tamanu/shared
 mv -v packages/shared   packages/$pkg_name/node_modules/@tamanu/shared
 
 # out of build

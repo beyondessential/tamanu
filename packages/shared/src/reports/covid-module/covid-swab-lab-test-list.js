@@ -372,5 +372,3 @@ export const baseDataGenerator = async (
   });
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
-
-export const permission = 'LabTest';

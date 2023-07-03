@@ -1,5 +1,5 @@
 export function fromEncounters(models, table, id, deletedRow) {
-  const { Encounter, Discharge, Patient, Location } = models;
+  const { Encounter, Discharge, Patient, Location, LocationGroup } = models;
 
   switch (table) {
     case Encounter.tableName:
@@ -41,6 +41,25 @@ export function fromEncounters(models, table, id, deletedRow) {
             as: 'location',
             required: true,
             where: { id },
+          },
+        ],
+      };
+
+    case LocationGroup.tableName:
+      return {
+        include: [
+          {
+            model: Location,
+            as: 'location',
+            required: true,
+            include: [
+              {
+                model: LocationGroup,
+                as: 'locationGroup',
+                required: true,
+                where: { id },
+              },
+            ],
           },
         ],
       };

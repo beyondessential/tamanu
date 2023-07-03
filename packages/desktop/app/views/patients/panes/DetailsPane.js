@@ -7,6 +7,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
+import { notifyError } from '../../../utils';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
@@ -27,7 +28,13 @@ export const PatientDetailsPane = React.memo(
     const { ability } = useAuth();
 
     const handleSubmit = async data => {
-      await api.put(`patient/${patient.id}`, data);
+      try {
+        await api.put(`patient/${patient.id}`, data);
+      } catch (e) {
+        notifyError(e.message);
+        return;
+      }
+
       queryClient.invalidateQueries(['additionalData', patient.id]);
       queryClient.invalidateQueries(['birthData', patient.id]);
       queryClient.invalidateQueries(['patientFields', patient.id]);
