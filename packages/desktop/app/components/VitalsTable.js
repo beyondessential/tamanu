@@ -88,16 +88,18 @@ const TitleCell = React.memo(({ value }) => {
     <>
       <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
         {value}
-        <IconButton
-          size="small"
-          onClick={() => {
-            setChartKeys(allChartKeys);
-            setModalTitle('Vitals');
-            setVitalChartModalOpen(true);
-          }}
-        >
-          <VitalVectorIcon />
-        </IconButton>
+        {allChartKeys.length > 0 && (
+          <IconButton
+            size="small"
+            onClick={() => {
+              setChartKeys(allChartKeys);
+              setModalTitle('Vitals');
+              setVitalChartModalOpen(true);
+            }}
+          >
+            <VitalVectorIcon />
+          </IconButton>
+        )}
       </Box>
     </>
   );
