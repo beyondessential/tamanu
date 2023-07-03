@@ -50,7 +50,7 @@ export const useVitals = encounterId => {
               recordedDate: date,
               answerId: records[date]?.id,
               value: records[date]?.body,
-              historyLogs: records[date]?.logs,
+              historyLogs: records[date]?.logs ?? [],
               ...configs,
             },
           }),

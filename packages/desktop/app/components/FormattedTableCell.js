@@ -61,7 +61,7 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
 });
 
 export const RangeValidatedCell = React.memo(
-  ({ value, config, validationCriteria, onClick, ...props }) => {
+  ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
     let tooltip = '';
     let severity = INFO;
     const { rounding = 0, unit = '' } = config || {};
@@ -98,6 +98,7 @@ export const RangeValidatedCell = React.memo(
     ) : (
       <CellContainer onClick={onClick} {...props}>
         {formattedValue}
+        {isEdited && '*'}
       </CellContainer>
     );
   },

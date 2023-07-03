@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
@@ -55,16 +56,20 @@ export const VitalsTable = React.memo(() => {
         sortable: false,
         key: date,
         accessor: cells => {
-          const { value, config, validationCriteria } = cells[date];
+          const { value, config, validationCriteria, historyLogs, component } = cells[date];
+          const isCalculatedQuestion =
+            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+          const handleCellClick = () => {
+            setOpenEditModal(true);
+            setSelectedCell(cells[date]);
+          };
           return (
             <RangeValidatedCell
               value={value}
               config={config}
               validationCriteria={validationCriteria}
-              onClick={() => {
-                setOpenEditModal(true);
-                setSelectedCell(cells[date]);
-              }}
+              isEdited={historyLogs.length !== 0}
+              onClick={isCalculatedQuestion ? null : handleCellClick}
             />
           );
         },

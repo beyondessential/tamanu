@@ -109,8 +109,6 @@ surveyResponseAnswer.put(
         });
         await calculatedAnswer.update({ body: newCalculatedValue });
       }
-
-      // TODO: Figure out if we should update the whole survey response for sync purposes
     });
 
     res.send(answerObject);
