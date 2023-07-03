@@ -1,10 +1,12 @@
 import Sequelize from 'sequelize';
 
 export async function up(query) {
+  // Deep clone note_pages table
   await query.sequelize.query(`
-    CREATE TABLE notes AS (SELECT * FROM note_pages) WITH NO DATA;
+    CREATE TABLE notes (LIKE note_pages INCLUDING ALL);
   `);
 
+  // Add extra columns
   await query.addColumn('notes', 'author_id', {
     type: Sequelize.STRING,
     references: {
@@ -32,6 +34,13 @@ export async function up(query) {
     type: Sequelize.TEXT,
     allowNull: false,
     defaultValue: '',
+  });
+
+  await query.addIndex('notes', {
+    fields: ['record_id'],
+  });
+  await query.addIndex('notes', {
+    fields: ['date'],
   });
 }
 
