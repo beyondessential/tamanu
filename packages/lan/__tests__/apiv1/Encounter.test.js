@@ -969,6 +969,7 @@ describe('Encounter', () => {
     describe('vitals', () => {
       let vitalsEncounter = null;
       let vitalsPatient = null;
+      const surveyResponseId = 'vitals-survey-response';
 
       beforeAll(async () => {
         // The original patient may or may not have a current encounter
@@ -1009,9 +1010,23 @@ describe('Encounter', () => {
         });
       });
 
+      afterEach(async () => {
+        models.SurveyResponseAnswer.destroy({
+          where: {
+            response_id: surveyResponseId,
+          },
+        });
+        models.SurveyResponse.destroy({
+          where: {
+            id: surveyResponseId,
+          },
+        });
+      });
+
       it('should record a new vitals reading', async () => {
         const submissionDate = getCurrentDateTimeString();
         const result = await app.post('/v1/surveyResponse').send({
+          id: surveyResponseId,
           surveyId: 'vitals-survey',
           patientId: vitalsPatient.id,
           startTime: submissionDate,
@@ -1037,6 +1052,7 @@ describe('Encounter', () => {
           'pde-PatientVitalsWeight': 789,
         };
         await app.post('/v1/surveyResponse').send({
+          id: surveyResponseId,
           surveyId: 'vitals-survey',
           patientId: vitalsPatient.id,
           startTime: submissionDate,
