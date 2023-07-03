@@ -35,13 +35,6 @@ export async function up(query) {
     allowNull: false,
     defaultValue: '',
   });
-
-  await query.addIndex('notes', {
-    fields: ['record_id'],
-  });
-  await query.addIndex('notes', {
-    fields: ['date'],
-  });
 }
 
 export async function down(query) {
