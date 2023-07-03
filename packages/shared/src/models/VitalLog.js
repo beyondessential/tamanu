@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/shared/constants';
 
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';

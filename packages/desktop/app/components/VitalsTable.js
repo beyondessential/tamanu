@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
