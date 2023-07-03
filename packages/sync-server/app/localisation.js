@@ -446,11 +446,18 @@ const rootLocalisationSchema = yup
         onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
+        mandatoryVitalEditReason: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
+    vitalEditReasons: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
   })
   .required()
   .noUnknown();

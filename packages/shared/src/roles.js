@@ -58,6 +58,7 @@ export const practitioner = [
   { verb: 'list', noun: 'Vitals' },
   { verb: 'read', noun: 'Vitals' },
   { verb: 'create', noun: 'Vitals' },
+  { verb: 'write', noun: 'Vitals' },
 
   { verb: 'read', noun: 'EncounterDiagnosis' },
   { verb: 'write', noun: 'EncounterDiagnosis' },
