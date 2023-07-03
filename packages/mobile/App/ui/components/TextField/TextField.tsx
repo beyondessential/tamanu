@@ -41,9 +41,6 @@ const styles = StyleSheet.create({
   multiLineText: {
     textAlignVertical: 'top',
   },
-  singleLineText: {
-    fontSize: 15,
-  },
 });
 
 export const TextField = React.memo(
