@@ -188,6 +188,8 @@ const VALID_FORMAT_FUNCTIONS = [
 
 DateDisplay.stringFormat = (dateValue, formatFn = formatShort) => {
   if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {
+    // If you're seeing this error, you probably need to move your format function to this file and add it to VALID_FORMAT_FUNCTIONS
+    // This is done to ensure our date formats live in one central place in the code
     throw new Error('Invalid format function used, check DateDisplay component for options');
   }
   const dateObj = parseDate(dateValue);
