@@ -27,18 +27,18 @@ const options = [
   {
     value: 'Last 24 hours',
     label: 'Last 24 hours',
-    getStartDate: () => addDays(new Date(), -1),
+    getDefaultStartDate: () => addDays(new Date(), -1),
   },
   {
     value: 'Last 48 hours',
     label: 'Last 48 hours',
-    getStartDate: () => addDays(new Date(), -2),
+    getDefaultStartDate: () => addDays(new Date(), -2),
   },
   {
     value: CUSTOM_DATE,
     label: 'Custom Date',
-    getStartDate: () => startOfDay(new Date()),
-    getEndDate: () => startOfDay(addDays(new Date(), 1)),
+    getDefaultStartDate: () => startOfDay(new Date()),
+    getDefaultEndDate: () => startOfDay(addDays(new Date(), 1)),
   },
 ];
 
@@ -60,9 +60,11 @@ export const DateTimeSelector = props => {
   );
 
   useEffect(() => {
-    const { getStartDate, getEndDate } = options.find(option => option.value === value);
-    const newStartDate = getStartDate ? getStartDate() : new Date();
-    const newEndDate = getEndDate ? getEndDate() : new Date();
+    const { getDefaultStartDate, getDefaultEndDate } = options.find(
+      option => option.value === value,
+    );
+    const newStartDate = getDefaultStartDate ? getDefaultStartDate() : new Date();
+    const newEndDate = getDefaultEndDate ? getDefaultEndDate() : new Date();
 
     formatAndSetStartDate(newStartDate);
     formatAndSetEndDate(newEndDate);
