@@ -23,6 +23,7 @@ import {
 } from 'shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
+import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
 
@@ -128,6 +129,8 @@ encounter.post(
     res.send(documentMetadataObject);
   }),
 );
+
+encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));

@@ -6,6 +6,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
+import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -93,7 +94,7 @@ patientDocumentMetadataRoutes.post(
     // TODO: Figure out permissions with Attachment and DocumentMetadata.
     // Presumably, they should be the same as they depend on each other.
     // After it has been figured out, modify the POST /documentMetadata route
-    // inside encounter.js
+    // inside encounter.js and also /createPatientLetter.
     req.checkPermission('write', 'DocumentMetadata');
 
     // Make sure the specified patient exists
@@ -116,4 +117,9 @@ patientDocumentMetadataRoutes.post(
 
     res.send(documentMetadataObject);
   }),
+);
+
+patientDocumentMetadataRoutes.post(
+  '/:id/createPatientLetter',
+  createPatientLetter('Patient', 'patientId'),
 );
