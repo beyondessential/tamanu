@@ -1,4 +1,5 @@
 - name: tamanu does
+  tag: not-this
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
   steps:
