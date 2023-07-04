@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import { lookup as lookupMimeType } from 'mime-types';
 import { Typography } from '@material-ui/core';
 import { ForbiddenError } from '@tamanu/shared/errors';
-import { DOCUMENT_SOURCES } from '@tamanu/shared/constants';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';
 import { useElectron } from '../contexts/Electron';
