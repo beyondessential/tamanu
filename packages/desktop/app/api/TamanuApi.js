@@ -113,11 +113,12 @@ export class TamanuApi {
   }
 
   setHost(host) {
-    this.host = host;
-    this.prefix = `${host}/v1`;
+    const canonicalHost = host.endsWith('/') ? host.slice(0, -1) : host;
+    this.host = canonicalHost;
+    this.prefix = `${canonicalHost}/v1`;
 
     // save host in local storage
-    window.localStorage.setItem(HOST, host);
+    window.localStorage.setItem(HOST, canonicalHost);
   }
 
   setAuthFailureHandler(handler) {
