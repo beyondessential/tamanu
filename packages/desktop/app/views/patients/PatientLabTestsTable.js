@@ -178,7 +178,7 @@ export const PatientLabTestsTable = React.memo(
                 <StyledButton onClick={() => openModal(cellData.id)}>
                   <RangeValidatedCell
                     value={cellData.result}
-                    config={{ unit: row.unit }}
+                    config={{ unit: row.unit, rounding: null }}
                     validationCriteria={{ normalRange: normalRange?.min ? normalRange : null }}
                   />
                 </StyledButton>

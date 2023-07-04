@@ -22,7 +22,7 @@ const validationSchema = yup.object().shape({
     .required(),
   sampleTime: yup.string().when('status', {
     is: LAB_REQUEST_STATUSES.PUBLISHED,
-    then: yup.string().required(),
+    then: yup.string().required('Sample date & time is required'),
     otherwise: yup.string().nullable(),
   }),
   labSampleSiteId: yup.string(),

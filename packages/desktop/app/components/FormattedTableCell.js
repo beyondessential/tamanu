@@ -53,10 +53,12 @@ export const RangeValidatedCell = React.memo(({ value, config, validationCriteri
   let severity = 'info';
   const { rounding = 0, unit = '' } = config || {};
   const { normalRange } = validationCriteria || {};
+  const shouldRound = rounding !== null;
+
   const float = parseFloat(value);
   const formattedValue = isNaN(float)
     ? capitalize(value) || '-'
-    : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
+    : `${shouldRound ? float.toFixed(rounding) : float}${unit && unit.length <= 2 ? unit : ''}`;
 
   if (normalRange) {
     const baseTooltip = `Outside normal range\n`;
@@ -71,7 +73,7 @@ export const RangeValidatedCell = React.memo(({ value, config, validationCriteri
 
   if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
     // Show full unit in tooltip as its not displayed on table
-    tooltip = `${float.toFixed(rounding)}${unit}`;
+    tooltip = `${shouldRound ? float.toFixed(rounding) : float}${unit}`;
   }
   return tooltip ? (
     <TableTooltip title={tooltip}>
