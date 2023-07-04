@@ -247,7 +247,7 @@ export const DischargeSummaryView = React.memo(() => {
           variant="outlined"
           color="primary"
           size="small"
-          // onClick={() => printPage()}
+          // onClick={() => printPage()} // TODO(web)
           startIcon={<PrintIcon />}
         >
           Print Summary

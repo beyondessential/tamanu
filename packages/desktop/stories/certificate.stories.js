@@ -126,6 +126,7 @@ storiesOf('Certificates', module).add('DeathCertificate', () => {
 });
 
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
+  // TODO(web)
   // <PDFViewer width={800} height={1000} showToolbar={false}>
     <CovidLabCertificate
       patient={patient}

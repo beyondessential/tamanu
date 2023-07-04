@@ -2,7 +2,7 @@ import React from 'react';
 import { inRange } from 'lodash';
 
 import { getAgeFromDate } from 'shared/utils/date';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
 import {
   LimitedTextField,
   MultilineTextField,

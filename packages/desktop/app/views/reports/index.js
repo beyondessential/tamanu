@@ -65,7 +65,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
   const onWrite = useCallback(
     async params => {
       try {
-        // TODO
+        // TODO(web)
         // const path = await showFileDialog(xlsxFilters, '');
         const path = '';
 

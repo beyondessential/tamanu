@@ -233,7 +233,7 @@ export class TamanuApi {
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {
     // const fileData = await promises.readFile(filePath);
-    // TODO web fix:
+    // TODO(web)
     const fileData = {};
     const blob = new Blob([fileData]);
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import format from 'date-fns/format';
 
+// TODO(web)
 const getLocale = () => 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {

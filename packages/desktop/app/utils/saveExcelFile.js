@@ -5,7 +5,7 @@ const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
-// eslint-disable-next-line no-unused-vars
+// TODO(web)
 export async function saveExcelFile(data, { promptForFilePath, filePath, defaultFileName }) {
   let path;
   if (promptForFilePath) {

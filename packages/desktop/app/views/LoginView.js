@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
 
-import { HTTP_METHOD_TO_ACTION } from 'shared/constants';
-
 import { TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { splashImages } from '../constants/images';

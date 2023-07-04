@@ -1,4 +1,4 @@
-// TODO
+// TODO(web)
 export const PRINT_EVENT = 'print-page';
 
 export const printPage = (options = {}) => {
