@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import MuiTextField from '@material-ui/core/TextField';
 import PublishIcon from '@material-ui/icons/Publish';
 import { Button } from '../Button';
-import { useElectron } from '../../contexts/Electron';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 // this import means that file chooser can't be previewed in storybook
@@ -27,8 +26,8 @@ export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions:
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
 
 export const FileChooserInput = ({ value = '', label, name, filters, onChange, ...props }) => {
-  const { showOpenDialog } = useElectron();
   const browseForFile = useCallback(async () => {
+    /*
     const { filePaths, canceled } = await showOpenDialog(null, {
       filters,
     });
@@ -41,6 +40,7 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
     if (!result) return;
 
     onChange({ target: { name, value: result } });
+    */ // TODO(web)
   }, [showOpenDialog, filters, name, onChange]);
 
   return (

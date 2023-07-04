@@ -59,12 +59,11 @@ const LabelPage = styled.div`
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => {
-  // const { printPage } = useElectron();
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.stickerLabelPage');
-  useEffect(() => {
-    printPage();
-  }, [printPage]);
+  // useEffect(() => {
+  //   printPage();
+  // }, [printPage]);
 
   return (
     <PrintPortal>
