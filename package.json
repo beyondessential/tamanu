@@ -44,13 +44,13 @@
       "packages/csca",
       "packages/scripts",
       "packages/qr-tester",
+      "packages/desktop",
       "packages/lan",
       "packages/server",
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/shared-src",
-      "packages/desktop"
+      "packages/shared-src"
     ],
     "nohoist": [
       "**/webpack",
