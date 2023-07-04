@@ -98,8 +98,24 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   );
 };
 
-export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, patient }) => {
+export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, patient }) => {
   const { currentUser } = useAuth();
+  const api = useApi();
+
+  const handleSubmit = useCallback(
+    async ({ printRequested, ...data }) => {
+      const document = await api.post(endpoint, {
+        patientLetterData: {
+          todo: 'TODO: will pass through in the next PR',
+        },
+        name: data.title,
+        clinicianId: data.clinicianId,
+      });
+      const documentToOpen = printRequested ? document : null;
+      onSubmit(documentToOpen);
+    },
+    [api, endpoint, onSubmit],
+  );
 
   const renderForm = props =>
     props.isSubmitting ? (
@@ -113,7 +129,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, patient })
 
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       render={renderForm}
       initialValues={{
         date: getCurrentDateString(),
