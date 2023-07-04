@@ -126,13 +126,14 @@ jobs:
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
-          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,unelevated}}
+          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,unelevated,zip}}
           mv release/latest-linux.yml release/*.{AppImage,deb} ops/linux/
           mv release/*-mac* ops/mac/
           mv release/*.msi ops/windows-msi/
           mv release/latest.yml release/*.exe* ops/windows-system/
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
           mv release/unelevated/latest.yml release/unelevated/*.exe* ops/windows-unelevated/
+          mv release/*.{zip,7z}* ops/windows-zip/
           rm -rf release
 
       - name: Use release bucket
@@ -167,6 +168,8 @@ jobs:
               `- :window:   [Windows (AppData)](${S3_URL}/windows-appdata/Tamanu+Setup+${VERSION}.exe)`,
               `- :window:   [Windows (Unelevated)](${S3_URL}/windows-unelevated/Tamanu+Setup+${VERSION}.exe)`,
               `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
+              `- :window:   [Windows (Zip)](${S3_URL}/windows-zip/Tamanu+${VERSION}.zip)`,
+              `- :window:   [Windows (7z)](${S3_URL}/windows-zip/Tamanu+${VERSION}.7z)`,
               `- :apple:    [macOS (Tar)](${S3_URL}/mac/Tamanu-${VERSION}-mac.tar.xz)`,
               `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
               `- :penguin:  [Linux (Deb)](${S3_URL}/linux/Tamanu_${VERSION}_amd64.deb)`,
