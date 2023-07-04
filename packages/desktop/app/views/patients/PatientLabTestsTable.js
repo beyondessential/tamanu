@@ -19,15 +19,16 @@ const StyledTable = styled(Table)`
     position: relative;
     width: initial;
 
-    thead tr th:nth-child(1),
-    tbody tr td:nth-child(1),
-    thead tr th:nth-child(2),
-    tbody tr td:nth-child(2),
-    thead tr th:nth-child(3),
-    tbody tr td:nth-child(3) {
+    thead tr th:nth-child(-n + ${props => props.$stickyColumns}),
+    tbody tr td:nth-child(-n + ${props => props.$stickyColumns}) {
       position: sticky;
       z-index: 1;
       border-right: 1px solid ${Colors.outline};
+    }
+
+    thead tr th:nth-child(${props => props.$stickyColumns}),
+    tbody tr td:nth-child(${props => props.$stickyColumns}) {
+      border-right: 2px solid ${Colors.outline};
     }
 
     thead tr th:nth-child(1),
@@ -46,14 +47,17 @@ const StyledTable = styled(Table)`
       left: ${COLUMNS[1]}px;
     }
 
+    ${props =>
+      props.$stickyColumns === 3 &&
+      `
     thead tr th:nth-child(3),
     tbody tr td:nth-child(3) {
       width: ${COLUMNS[3]}px;
       min-width: ${COLUMNS[3]}px;
       max-width: ${COLUMNS[3]}px;
       left: ${COLUMNS[1] + COLUMNS[2]}px;
-      border-right: 2px solid ${Colors.outline};
     }
+    `}
 
     tfoot {
       inset-inline-end: 0;
@@ -205,6 +209,7 @@ export const PatientLabTestsTable = React.memo(
           count={count}
           allowExport
           exportName="PatientResults"
+          $stickyColumns={searchParameters.categoryId ? 2 : 3}
         />
         <LabTestResultModal
           open={modalOpen}
