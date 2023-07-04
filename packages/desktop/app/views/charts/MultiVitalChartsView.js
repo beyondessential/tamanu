@@ -30,7 +30,7 @@ export const MultiVitalChartsView = () => {
         const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
         return (
-          <>
+          <div key={chartKey}>
             <Divider />
             <TitleContainer>
               <span>{visualisationConfigs.find(config => config.key === chartKey)?.name}</span>
@@ -42,7 +42,7 @@ export const MultiVitalChartsView = () => {
               visualisationConfig={visualisationConfig}
               isInMultiChartsView
             />
-          </>
+          </div>
         );
       })}
     </>

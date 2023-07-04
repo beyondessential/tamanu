@@ -32,8 +32,8 @@ export const InwardArrowVectorDot = props => {
       x={x}
       y={y}
       width="12"
-      height={startAndEndPointOfBottomInwardArrow + 2}
-      viewBox={`0 0 12 ${startAndEndPointOfBottomInwardArrow + 2}`}
+      height={startAndEndPointOfBottomInwardArrow.y + 2}
+      viewBox={`0 0 12 ${startAndEndPointOfBottomInwardArrow.y + 2}`}
       fill="none"
     >
       <path
