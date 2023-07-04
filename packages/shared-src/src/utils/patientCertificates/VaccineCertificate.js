@@ -1,5 +1,5 @@
 import React from 'react';
-// import { Document, div } from '@react-pdf/renderer';
+import { Document, Page } from '@react-pdf/renderer';
 
 import { generateUVCI } from 'shared/utils/uvci';
 
@@ -87,8 +87,8 @@ export const VaccineCertificate = ({
   }
 
   return (
-    <div>
-      <div size="A4" style={styles.page}>
+    <Document>
+      <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>Vaccination Certification</H3>
@@ -118,7 +118,7 @@ export const VaccineCertificate = ({
           {contactEmail ? <P>Email address: {contactEmail}</P> : null}
           {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
         </Box>
-      </div>
-    </div>
+      </Page>
+    </Document>
   );
 };

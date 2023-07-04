@@ -29,16 +29,20 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const TR = props => <View {...props} style={tableStyles} />;
-const TH = ({ customStyles, ...props }) => <Text {...props} style={[{}, customStyles]} />;
-const TD = ({ customStyles, ...props }) => <Text {...props} style={[{}, customStyles]} />;
+const TR = props => <View {...props} style={tableStyles.tr} />;
+const TH = ({ customStyles, ...props }) => (
+  <Text {...props} style={[tableStyles.th, customStyles]} />
+);
+const TD = ({ customStyles, ...props }) => (
+  <Text {...props} style={[tableStyles.td, customStyles]} />
+);
 
 export const Table = ({ data, columns, getLocalisation }) => {
   const visibleColumns = columns.filter(
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
-    <View style={{}.table}>
+    <View style={tableStyles.table}>
       <TR>
         {visibleColumns.map(({ title, key, customStyles }) => (
           <TH key={key} customStyles={customStyles}>
