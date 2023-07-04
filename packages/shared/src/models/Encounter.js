@@ -8,6 +8,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -307,6 +308,21 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
+  static async create(data) {
+    const { EncounterHistory } = this.sequelize.models;
+    const encounter = await super.create(data);
+    await EncounterHistory.createSnapshot({
+      encounterId: encounter.id,
+      encounterType: encounter.encounterType,
+      locationId: encounter.locationId,
+      departmentId: encounter.departmentId,
+      examinerId: encounter.examinerId,
+      date: getCurrentDateTimeString(),
+    });
+
+    return encounter;
+  }
+
   async addLocationChangeNote(contentPrefix, newLocationId, submittedTime, user) {
     const { Location } = this.sequelize.models;
     const oldLocation = await Location.findOne({
@@ -365,17 +381,6 @@ export class Encounter extends Model {
     });
   }
 
-  async logEncounterHistory() {
-    const { EncounterHistory } = this.sequelize.models;
-    await EncounterHistory.create({
-      encounterId: this.id,
-      encounterType: this.encounterType,
-      locationId: this.locationId,
-      departmentId: this.departmentId,
-      examinerId: this.examinerId,
-    });
-  }
-
   async onDischarge({ endDate, submittedTime, systemNote, discharge }, user) {
     const { Discharge } = this.sequelize.models;
     await Discharge.create({
@@ -422,7 +427,7 @@ export class Encounter extends Model {
   }
 
   async update(data, user) {
-    const { Location } = this.sequelize.models;
+    const { Location, EncounterHistory } = this.sequelize.models;
 
     const updateEncounter = async () => {
       const additionalChanges = {};
@@ -502,7 +507,15 @@ export class Encounter extends Model {
         isLocationChanged ||
         isClinicianChanged
       ) {
-        await this.logEncounterHistory();
+        await EncounterHistory.createSnapshot({
+          encounterId: this.id,
+          encounterType: this.encounterType,
+          locationId: this.locationId,
+          departmentId: this.departmentId,
+          examinerId: this.examinerId,
+          date: data.submittedTime || getCurrentDateTimeString(),
+          ...data,
+        });
       }
 
       const { submittedTime, ...encounterData } = data;
