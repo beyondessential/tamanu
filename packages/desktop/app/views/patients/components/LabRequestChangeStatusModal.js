@@ -21,7 +21,7 @@ const validationSchema = yup.object().shape({
     .oneOf(Object.values(LAB_REQUEST_STATUSES))
     .required(),
   sampleTime: yup.string().when('status', {
-    is: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+    is: LAB_REQUEST_STATUSES.PUBLISHED,
     then: yup.string().required(),
     otherwise: yup.string().nullable(),
   }),
