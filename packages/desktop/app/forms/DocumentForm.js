@@ -39,6 +39,24 @@ const Message = styled(Typography)`
   margin-bottom: 30px;
 `;
 
+const ErrorMessageContents = ({ error, onCancel }) => (
+  <div>
+    <MessageContainer>
+      <MessageTitle>Unable to upload file</MessageTitle>
+      <Message>
+        File cannot be uploaded at this time. This may be due to network problems or insufficient
+        storage space on your server. Please try again in a few minutes or contact your system
+        administrator.
+        <br />
+        Error message details:
+        <br />
+        {error}
+      </Message>
+    </MessageContainer>
+    <ConfirmCancelRow cancelText="Close" onCancel={onCancel} />
+  </div>
+);
+
 export const FILE_FILTERS = [
   { name: 'PDF (.pdf)', extensions: ['pdf'] },
   { name: 'JPEG (.jpeg - .jpg)', extensions: ['jpeg', 'jpg'] },
@@ -46,15 +64,38 @@ export const FILE_FILTERS = [
   // { name: 'Excel', extensions: ['xls', 'xlsx', 'xlsm'] },
 ];
 
-export const DocumentForm = ({
-  actionText,
-  onStart,
-  onSubmit,
-  onError,
-  onCancel,
-  editedObject,
-  endpoint,
-}) => {
+const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => {
+  return (
+    <FormGrid>
+      <Field
+        component={FileChooserField}
+        filters={FILE_FILTERS}
+        label="Select file"
+        name="file"
+        required
+        style={{ gridColumn: '1 / -1' }}
+      />
+      <Field
+        name="name"
+        label="File name"
+        required
+        component={TextField}
+        style={{ gridColumn: '1 / -1' }}
+      />
+      <Field name="documentOwner" label="Document owner" component={TextField} />
+      <Field
+        name="departmentId"
+        label="Department"
+        component={AutocompleteField}
+        suggester={departmentSuggester}
+      />
+      <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
+      <ConfirmCancelRow confirmText="Add" onConfirm={submitForm} onCancel={onCancel} />
+    </FormGrid>
+  );
+};
+
+export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObject, endpoint }) => {
   const api = useApi();
   const { getFileStatus } = useElectron();
   const [error, setError] = useState(false);
@@ -98,52 +139,13 @@ export const DocumentForm = ({
     if (isSubmitting) {
       return <ModalLoader loadingText="Please wait while we upload your document" />;
     }
-    if (error) {
-      return (
-        <div>
-          <MessageContainer>
-            <MessageTitle>Unable to upload file</MessageTitle>
-            <Message>
-              File cannot be uploaded at this time. This may be due to network problems or
-              insufficient storage space on your server. Please try again in a few minutes or
-              contact your system administrator.
-              <br />
-              Error message details:
-              <br />
-              {error}
-            </Message>
-          </MessageContainer>
-          <ConfirmCancelRow cancelText="Close" onCancel={onCancel} />
-        </div>
-      );
-    }
+    if (error) return <ErrorMessageContents error={error} onCancel={onCancel} />;
     return (
-      <FormGrid>
-        <Field
-          component={FileChooserField}
-          filters={FILE_FILTERS}
-          label="Select file"
-          name="file"
-          required
-          style={{ gridColumn: '1 / -1' }}
-        />
-        <Field
-          name="name"
-          label="File name"
-          required
-          component={TextField}
-          style={{ gridColumn: '1 / -1' }}
-        />
-        <Field name="documentOwner" label="Document owner" component={TextField} />
-        <Field
-          name="departmentId"
-          label="Department"
-          component={AutocompleteField}
-          suggester={departmentSuggester}
-        />
-        <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
-        <ConfirmCancelRow confirmText={actionText} onConfirm={submitForm} onCancel={onCancel} />
-      </FormGrid>
+      <DocumentFormContents
+        submitForm={submitForm}
+        departmentSuggester={departmentSuggester}
+        onCancel={onCancel}
+      />
     );
   };
 

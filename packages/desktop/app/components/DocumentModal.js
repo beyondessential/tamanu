@@ -43,7 +43,6 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
   return (
     <Modal width="md" title="Add document" open={open} onClose={handleClose}>
       <DocumentForm
-        actionText="Add"
         onSubmit={onSubmit}
         onStart={onStart}
         onError={onError}
