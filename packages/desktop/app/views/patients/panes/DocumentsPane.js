@@ -31,7 +31,9 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const isFromEncounter = !!encounter?.id;
 
-  const endpoint = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
+  const baseRoute = isFromEncounter ? `encounter/${encounter.id}` : `patient/${patient.id}`;
+  const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
+  const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
 
   const onDownload = useCallback(
     async document => {
@@ -89,7 +91,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable
-          endpoint={endpoint}
+          endpoint={documentMetadataEndpoint}
           searchParameters={searchParameters}
           refreshCount={refreshCount}
           onDownload={onDownload}
@@ -99,7 +101,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <PatientLetterModal
         open={modalStatus === MODAL_STATES.PATIENT_LETTER_OPEN}
         onClose={closeModal}
-        endpoint={endpoint}
+        endpoint={createPatientLetterEndpoint}
         refreshTable={refreshTable}
         openDocumentPreview={openDocumentPreview}
         patient={patient}
@@ -107,7 +109,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <DocumentModal
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={closeModal}
-        endpoint={endpoint}
+        endpoint={documentMetadataEndpoint}
         refreshTable={refreshTable}
       />
       <DocumentPreviewModal

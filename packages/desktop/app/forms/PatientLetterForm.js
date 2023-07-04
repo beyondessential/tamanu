@@ -104,7 +104,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
 
   const handleSubmit = useCallback(
     async ({ printRequested, ...data }) => {
-      const document = await api.post(`${endpoint}/createPatientLetter`, {
+      const document = await api.post(endpoint, {
         patientLetterData: {
           todo: 'TODO: will pass through in the next PR',
         },
