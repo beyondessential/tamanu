@@ -62,9 +62,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
         await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
           ...data,
           type: attachmentType,
-          source: DOCUMENT_SOURCES.UPLOADED,
           documentCreatedAt: toDateTimeString(birthtime),
-          documentUploadedAt: getCurrentDateTimeString(),
         });
       } catch (e) {
         // Assume that if submission fails is because of lack of storage

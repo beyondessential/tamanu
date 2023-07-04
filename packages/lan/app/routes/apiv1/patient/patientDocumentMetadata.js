@@ -1,7 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { DOCUMENT_SIZE_LIMIT } from 'shared/constants';
+import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from 'shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
@@ -109,6 +110,8 @@ patientDocumentMetadataRoutes.post(
       attachmentId,
       type,
       patientId: params.id,
+      documentUploadedAt: getCurrentDateTimeString(),
+      source: DOCUMENT_SOURCES.UPLOADED,
     });
 
     res.send(documentMetadataObject);
