@@ -1,15 +1,16 @@
 import React, { useCallback, useState, useMemo } from 'react';
-// import { extension } from 'mime-types';
-// import { promises as asyncFs } from 'fs';
+import { extension } from 'mime-types';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
-// import { useApi } from '../api';
+import { useApi } from '../api';
+import { notify, notifySuccess, notifyError } from '../utils';
 
-const ActionDropdown = React.memo(({ row, onDownload }) => {
+// eslint-disable-next-line no-unused-vars
+const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
   // { row, onDownload, onClickDelete }
   const actions = [
     {
@@ -32,8 +33,8 @@ const ActionDropdown = React.memo(({ row, onDownload }) => {
   return <DropdownButton actions={actions} variant="outlined" size="small" />;
 });
 
-const getType = () => {
-  const fileExtension = 'TEST';
+const getType = ({ type }) => {
+  const fileExtension = extension(type);
   if (typeof fileExtension === 'string') return fileExtension.toUpperCase();
   return 'Unknown';
 };
@@ -43,8 +44,7 @@ const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, canInvokeDocumentAction, elevated }) => {
-    // const { showSaveDialog, openPath } = useElectron();
-    // const api = useApi();
+    const api = useApi();
 
     // Confirm delete modal will be open/close if it has a document ID
     const [selectedDocumentId, setSelectedDocumentId] = useState(null);
@@ -63,30 +63,40 @@ export const DocumentsTable = React.memo(
 
     // Callbacks invoked inside getActions
     const onClickDelete = useCallback(id => setSelectedDocumentId(id), []);
-    const onDownload = useCallback(async () => {
-      // // Modal error will be set and shouldn't continue download
-      // if (!canInvokeDocumentAction()) {
-      //   return;
-      // }
-      // // Suggest a filename that matches the document name
-      // const path = await showSaveDialog({ defaultPath: row.name });
-      // if (path.canceled) return;
-      // // If the extension is unknown, save it without extension
-      // const fileExtension = extension(row.type);
-      // const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
-      // try {
-      //   // Give feedback to user that download is starting
-      //   notify('Your download has started, please wait.', { type: 'info' });
-      //   // Download attachment (*currently the API only supports base64 responses)
-      //   const { data } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
-      //   // Create file and open it
-      //   await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
-      //   notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
-      //   openPath(fullFilePath);
-      // } catch (error) {
-      //   notifyError(error.message);
-      // }
-    }, []);
+    const onDownload = useCallback(
+      async row => {
+        /*
+        // Modal error will be set and shouldn't continue download
+        if (!canInvokeDocumentAction()) {
+          return;
+        }
+
+        // Suggest a filename that matches the document name
+        const path = await showSaveDialog({ defaultPath: row.name });
+        if (path.canceled) return;
+
+        // If the extension is unknown, save it without extension
+        const fileExtension = extension(row.type);
+        const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
+
+        try {
+          // Give feedback to user that download is starting
+          notify('Your download has started, please wait.', { type: 'info' });
+
+          // Download attachment (*currently the API only supports base64 responses)
+          const { data } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
+
+          // Create file and open it
+          await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
+          notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
+          openPath(fullFilePath);
+        } catch (error) {
+          notifyError(error.message);
+        }
+        */ // TODO(web)
+      },
+      [api, canInvokeDocumentAction],
+    );
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = useMemo(

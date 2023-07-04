@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { INVOICE_STATUS_TYPES } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../api';
 import { getInvoiceTotal, calculateInvoiceTotal } from '../utils';
 import { Modal } from './Modal';
 import { InvoiceDetailForm } from '../forms/InvoiceDetailForm';
-import { INVOICE_STATUS_LABELS } from '../constants';
 
 export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId }) => {
   const [invoice, setInvoice] = useState({});
@@ -14,7 +14,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
     // LOCK IN the total when FINALISING an invoice
     const total = await getInvoiceTotal(api, invoiceId);
     await api.put(`invoices/${invoiceId}`, {
-      status: INVOICE_STATUS_LABELS.FINALISED,
+      status: INVOICE_STATUS_TYPES.FINALISED,
       total,
       date: getCurrentDateTimeString(),
     });
@@ -26,7 +26,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
     // LOCK IN the total when CANCELLING an invoice
     const total = await getInvoiceTotal(api, invoiceId);
     await api.put(`invoices/${invoiceId}`, {
-      status: INVOICE_STATUS_LABELS.CANCELLED,
+      status: INVOICE_STATUS_TYPES.CANCELLED,
       total,
     });
     onUpdated();

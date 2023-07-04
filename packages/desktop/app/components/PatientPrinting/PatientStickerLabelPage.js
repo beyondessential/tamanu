@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { SEX_VALUE_INDEX } from '../../constants';
-import { useElectron } from '../../contexts/Electron';
-
 import { PrintPortal } from './PrintPortal';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
@@ -59,12 +57,11 @@ const LabelPage = styled.div`
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => {
-  // const { printPage } = useElectron();
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.stickerLabelPage');
-  // useEffect(() => {
-  //   printPage();
-  // });
+  useEffect(() => {
+    window.print();
+  });
 
   return (
     <PrintPortal>

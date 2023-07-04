@@ -5,7 +5,6 @@ import cheerio from 'cheerio';
 import XLSX from 'xlsx';
 
 import { GreyOutlinedButton } from '../Button';
-import { useElectron } from '../../contexts/Electron';
 
 function getHeaderValue(column) {
   if (!column.title) {
@@ -23,7 +22,6 @@ function getHeaderValue(column) {
 }
 
 export function DownloadDataButton({ exportName, columns, data }) {
-  // const { showSaveDialog, openPath } = useElectron();
   const onDownloadData = async () => {
     const header = columns.map(getHeaderValue);
     const rows = await Promise.all(
@@ -73,7 +71,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
     // show a file-save dialog and write the workbook
-    // const path = await showSaveDialog();
+    // const path = await showSaveDialog(); // TODO(web)
     const path = {};
     if (path.canceled) return; // Dialog was cancelled - don't write file.
     XLSX.writeFile(wb, `${path.filePath}.xlsx`);

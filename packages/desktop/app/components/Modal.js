@@ -12,7 +12,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
 import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
-import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
 
 export const MODAL_PADDING = 32;
@@ -96,11 +95,11 @@ export const Modal = memo(
   }) => {
     const handlePrint = () => {
       // If a custom print handler has been passed use that. For example for printing the contents
-      // of an iframe. Otherwise use the default electron print page
+      // of an iframe. Otherwise use the default print page
       if (onPrint) {
         onPrint();
       } else {
-        // printPage();
+        window.print();
       }
     };
 

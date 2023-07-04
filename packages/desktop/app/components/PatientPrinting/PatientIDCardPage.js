@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useElectron } from '../../contexts/Electron';
 import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
@@ -136,19 +135,18 @@ const PatientPhoto = ({ imageData }) => (
 );
 
 export const PatientIDCardPage = ({ patient, imageData }) => {
-  // const { printPage } = useElectron();
   useEffect(() => {
-    // printPage({
-    //   landscape: true,
-    //   margins: {
-    //     marginType: 'none',
-    //   },
-    //   pageSize: {
-    //     // it expects dimensions in microns
-    //     height: cardDimensions.width * 1000,
-    //     width: cardDimensions.height * 1000,
-    //   },
-    // });
+    window.print({ // TODO(web)
+      landscape: true,
+      margins: {
+        marginType: 'none',
+      },
+      pageSize: {
+        // it expects dimensions in microns
+        height: cardDimensions.width * 1000,
+        width: cardDimensions.height * 1000,
+      },
+    });
   });
 
   return (
