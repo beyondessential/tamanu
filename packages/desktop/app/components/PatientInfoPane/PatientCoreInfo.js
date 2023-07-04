@@ -114,7 +114,7 @@ const HealthIdDisplay = ({ displayId }) => (
   <HealthIdContainer>
     <HealthId>
       <HealthIdText>
-        <LocalisedText path="fields.displayId.longLabel" />
+        <LocalisedText path="fields.patientDisplayId.longLabel" />
       </HealthIdText>
       <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
     </HealthId>

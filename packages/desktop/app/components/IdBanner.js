@@ -24,7 +24,7 @@ const IdFieldTitle = styled.div`
 export const IdBanner = ({ children }) => (
   <IdFieldContainer>
     <IdFieldTitle>
-      <LocalisedText path="fields.displayId.longLabel" />
+      <LocalisedText path="fields.patientDisplayId.longLabel" />
     </IdFieldTitle>
 
     {children}

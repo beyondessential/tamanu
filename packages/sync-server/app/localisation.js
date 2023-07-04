@@ -35,7 +35,7 @@ const unhideableFieldSchema = yup
 
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
-  'displayId',
+  'patientDisplayId',
   'firstName',
   'lastName',
   'dateOfBirth',
@@ -106,6 +106,7 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
+  'userDisplayId',
 ];
 
 const templatesSchema = yup
@@ -431,7 +432,7 @@ const rootLocalisationSchema = yup
         mergePopulatedPADRecords: yup.boolean().required(),
         enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
-        editDisplayId: yup.boolean().required(),
+        editPatientDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
         idleTimeout: yup
           .object()

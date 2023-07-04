@@ -134,7 +134,7 @@ describe('Auth', () => {
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('localisation.fields.displayId', {
+      expect(response.body).toHaveProperty('localisation.fields.patientDisplayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
         pattern: '[\\s\\S]*',

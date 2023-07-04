@@ -8,8 +8,8 @@ import { LocalisedField } from './LocalisedField';
 export const DisplayIdField = ({ name = 'displayId', required }) => {
   const { initialValues } = useFormikContext();
   const { getLocalisation } = useLocalisation();
-  const longLabel = getLocalisation('fields.displayId.longLabel');
-  const pattern = getLocalisation('fields.displayId.pattern') || null;
+  const longLabel = getLocalisation('fields.patientDisplayId.longLabel');
+  const pattern = getLocalisation('fields.patientDisplayId.pattern') || null;
   const regex = pattern ? new RegExp(pattern) : null;
 
   const validateFn = value => {

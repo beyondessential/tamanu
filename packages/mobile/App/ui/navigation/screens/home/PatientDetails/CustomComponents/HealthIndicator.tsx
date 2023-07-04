@@ -21,7 +21,7 @@ export const HealthIdentificationRow = ({
         fontWeight={500}
         color={theme.colors.WHITE}
       >
-        <LocalisedText path="fields.displayId.longLabel" />
+        <LocalisedText path="fields.patientDisplayId.longLabel" />
       </StyledText>
     </StyledView>
     <CenterView

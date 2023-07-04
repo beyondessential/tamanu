@@ -300,7 +300,7 @@
           "shortLabel": "Sync",
           "longLabel": "Marked for sync"
         },
-        "displayId": {
+        "patientDisplayId": {
           "shortLabel": "NHN",
           "longLabel": "National Health Number",
           "pattern": "[\\s\\S]*"
@@ -612,6 +612,11 @@
         "diagnosis": {
           "shortLabel": "Diagnosis",
           "longLabel": "Diagnosis"
+        },
+        "userDisplayId": {
+          "shortLabel": "Registration number",
+          "longLabel": "Registration number",
+          "hidden": false
         }
       },
       "features": {
@@ -623,7 +628,7 @@
         "mergePopulatedPADRecords": true,
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
-        "editDisplayId": false,
+        "editPatientDisplayId": false,
         "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,
