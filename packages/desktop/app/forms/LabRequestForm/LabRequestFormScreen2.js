@@ -97,7 +97,7 @@ export const LabRequestFormScreen2 = props => {
         />
       </div>
       <div style={{ gridColumn: '1 / -1' }}>
-        <Field name="note" label="Notes" component={TextField} multiline rows={3} />
+        <Field name="notes" label="Notes" component={TextField} multiline rows={3} />
       </div>
     </>
   );
