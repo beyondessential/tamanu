@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { useAuth } from '../../contexts/Auth';
 
@@ -40,8 +40,6 @@ export const LabRequestMultiStepForm = ({
         labTestTypeIds: [],
         panelIds: [],
         notes: '',
-        // LabTest date
-        date: getCurrentDateString(),
         ...editedObject,
       }}
       validationSchema={combinedValidationSchema}

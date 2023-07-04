@@ -7,11 +7,7 @@ import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
 import { BodyText, formatShort, formatTimeWithSeconds } from '../../components';
 
-const COLUMNS = {
-  1: 150,
-  2: 120,
-  3: 120,
-};
+const COLUMN_WIDTHS = [150, 120, 120];
 
 const StyledTable = styled(Table)`
   table {
@@ -31,33 +27,20 @@ const StyledTable = styled(Table)`
       border-right: 2px solid ${Colors.outline};
     }
 
-    thead tr th:nth-child(1),
-    tbody tr td:nth-child(1) {
-      left: 0;
-      width: ${COLUMNS[1]}px;
-      min-width: ${COLUMNS[1]}px;
-      max-width: ${COLUMNS[1]}px;
-    }
-
-    thead tr th:nth-child(2),
-    tbody tr td:nth-child(2) {
-      width: ${COLUMNS[2]}px;
-      min-width: ${COLUMNS[2]}px;
-      max-width: ${COLUMNS[2]}px;
-      left: ${COLUMNS[1]}px;
-    }
-
     ${props =>
-      props.$stickyColumns === 3 &&
-      `
-    thead tr th:nth-child(3),
-    tbody tr td:nth-child(3) {
-      width: ${COLUMNS[3]}px;
-      min-width: ${COLUMNS[3]}px;
-      max-width: ${COLUMNS[3]}px;
-      left: ${COLUMNS[1] + COLUMNS[2]}px;
-    }
-    `}
+      COLUMN_WIDTHS.slice(0, props.$stickyColumns)
+        .map(
+          (width, index) => `
+      thead tr th:nth-child(${index + 1}),
+      tbody tr td:nth-child(${index + 1}) {
+        width: ${width}px;
+        min-width: ${width}px;
+        max-width: ${width}px;
+        left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
+      }
+    `,
+        )
+        .join('\n')}
 
     tfoot {
       inset-inline-end: 0;
@@ -134,7 +117,8 @@ export const PatientLabTestsTable = React.memo(
     const allDates = isLoading
       ? []
       : Object.keys(Object.assign({}, ...labTests.map(x => x.results)));
-    const columns = [
+
+    const stickyColumns = [
       // Only include category column if not filtering by category
       ...(!searchParameters.categoryId
         ? [
@@ -168,6 +152,10 @@ export const PatientLabTestsTable = React.memo(
         },
         sortable: false,
       },
+    ];
+
+    const columns = [
+      ...stickyColumns,
       ...allDates
         .sort((a, b) => b.localeCompare(a))
         .map(date => ({
@@ -209,7 +197,7 @@ export const PatientLabTestsTable = React.memo(
           count={count}
           allowExport
           exportName="PatientResults"
-          $stickyColumns={searchParameters.categoryId ? 2 : 3}
+          $stickyColumns={stickyColumns.length}
         />
         <LabTestResultModal
           open={modalOpen}

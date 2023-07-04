@@ -1,5 +1,5 @@
-import { capitalize } from 'lodash';
-import React from 'react';
+import { capitalize, isNumber } from 'lodash';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { formatLong, formatShortest, formatTime } from './DateDisplay';
@@ -25,6 +25,39 @@ const HeadCellWrapper = styled.div`
   }
 `;
 
+function round(float, { rounding } = {}) {
+  if (isNaN(float) || !isNumber(rounding)) {
+    return float;
+  }
+  return float.toFixed(rounding);
+}
+
+function getTooltip(float, config = {}, visibilityCriteria = {}) {
+  const { unit } = config;
+  const { normalRange } = visibilityCriteria;
+  if (normalRange && float < normalRange.min) {
+    return {
+      tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
+      severity: 'alert',
+    };
+  }
+  if (normalRange && float > normalRange.max) {
+    return {
+      tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
+      severity: 'alert',
+    };
+  }
+  if (unit?.length > 2 && !isNaN(float)) {
+    return {
+      tooltip: `${round(float, config)}${unit}`,
+      severity: 'info',
+    };
+  }
+  return {
+    severity: 'info',
+  };
+}
+
 export const DateHeadCell = React.memo(({ value }) => (
   <TableTooltip title={formatLong(value)}>
     <HeadCellWrapper>
@@ -49,32 +82,13 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
 });
 
 export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, ...props }) => {
-  let tooltip = '';
-  let severity = 'info';
-  const { rounding = 0, unit = '' } = config || {};
-  const { normalRange } = validationCriteria || {};
-  const shouldRound = rounding !== null;
-
-  const float = parseFloat(value);
-  const formattedValue = isNaN(float)
-    ? capitalize(value) || '-'
-    : `${shouldRound ? float.toFixed(rounding) : float}${unit && unit.length <= 2 ? unit : ''}`;
-
-  if (normalRange) {
-    const baseTooltip = `Outside normal range\n`;
-    if (float < normalRange.min) {
-      tooltip = `${baseTooltip} <${normalRange.min}${unit}`;
-      severity = 'alert';
-    } else if (float > normalRange.max) {
-      tooltip = `${baseTooltip} >${normalRange.max}${unit}`;
-      severity = 'alert';
-    }
-  }
-
-  if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
-    // Show full unit in tooltip as its not displayed on table
-    tooltip = `${shouldRound ? float.toFixed(rounding) : float}${unit}`;
-  }
+  const float = round(parseFloat(value), config);
+  const formattedValue = isNaN(float) ? capitalize(value) : float;
+  const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
+    float,
+    config,
+    validationCriteria,
+  ]);
   return tooltip ? (
     <TableTooltip title={tooltip}>
       <CellWrapper severity={severity} {...props}>
