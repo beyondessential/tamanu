@@ -1,19 +1,27 @@
-import React, { memo } from 'react';
+import React, { useCallback } from 'react';
+import { generateId } from '@tamanu/shared/utils/generateId';
 
-import { generateId } from 'shared/utils/generateId';
 import { Modal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
-import { connectApi } from '../../../api';
+import { useApi } from '../../../api';
 
-const DumbNewPatientModal = memo(({ open, onCancel, ...formProps }) => (
-  <Modal title="Add new patient" onClose={onCancel} open={open}>
-    <NewPatientForm generateId={generateId} onCancel={onCancel} {...formProps} />
-  </Modal>
-));
-
-export const NewPatientModal = connectApi((api, dispatch, { onCreateNewPatient }) => ({
-  onSubmit: async data => {
-    const newPatient = await api.post('patient', { ...data, registeredById: api.user.id });
-    onCreateNewPatient(newPatient);
-  },
-}))(DumbNewPatientModal);
+export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
+  const api = useApi();
+  const onSubmit = useCallback(
+    async data => {
+      const newPatient = await api.post('patient', { ...data, registeredById: api.user.id });
+      onCreateNewPatient(newPatient);
+    },
+    [api, onCreateNewPatient],
+  );
+  return (
+    <Modal title="Add new patient" onClose={onCancel} open={open}>
+      <NewPatientForm
+        generateId={generateId}
+        onCancel={onCancel}
+        onSubmit={onSubmit}
+        {...formProps}
+      />
+    </Modal>
+  );
+};

@@ -3,7 +3,6 @@ import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 
 interface VaccineRowHeaderProps {
-  key: string;
   title: string;
   subtitle?: string;
 }

@@ -15,6 +15,7 @@ import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { Patient } from '../../../../../../models/Patient';
 
 interface IPopup {
   title: string;
@@ -44,20 +45,21 @@ const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
   return secondPart
     ? {
-      title: firstPart,
-      textBody: secondPart,
-    }
+        title: firstPart,
+        textBody: secondPart,
+      }
     : {
-      title: '',
-      textBody: firstPart,
-    };
+        title: '',
+        textBody: firstPart,
+      };
 };
 
-const showPatientWarningPopups = (issues: IPatientIssue[]): void => showPopupChain(
-  issues
-    .filter(({ type }) => type === PatientIssueType.Warning)
-    .map(({ note }) => formatNoteToPopup(note)),
-);
+const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
+  showPopupChain(
+    issues
+      .filter(({ type }) => type === PatientIssueType.Warning)
+      .map(({ note }) => formatNoteToPopup(note)),
+  );
 
 const PatientHomeContainer = ({
   navigation,
@@ -67,14 +69,14 @@ const PatientHomeContainer = ({
   const visitTypeButtons = useMemo(
     () => [
       {
-        title: 'Sick \n or Injured',
-        Icon: Icons.SickOrInjuredIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
+        title: 'Diagnosis &\nTreatment',
+        Icon: Icons.DiagnosisAndTreatmentIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
       {
-        title: 'Check up',
-        Icon: Icons.CheckUpIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.CheckUpStack.Index),
+        title: 'Vitals',
+        Icon: Icons.VitalsIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VitalsStack.Index),
       },
       {
         title: 'Programs',
@@ -92,7 +94,7 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
-        title: 'Lab Request',
+        title: 'Tests',
         Icon: Icons.LabRequestIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
@@ -104,12 +106,10 @@ const PatientHomeContainer = ({
     () => [
       {
         title: 'View patient details',
-        Icon: Icons.PatientDetailsIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
       },
       {
-        title: 'View History',
-        Icon: Icons.HistoryIcon,
+        title: 'View history',
         onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
     ],
@@ -123,8 +123,8 @@ const PatientHomeContainer = ({
   const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(async (): Promise<void> => {
     try {
-      await models.Patient.markForSync(selectedPatient.id);
-      syncManager.runScheduledSync();
+      await Patient.markForSync(selectedPatient.id);
+      syncManager.triggerSync();
       navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
     } catch (error) {
       setErrorMessage(error.message);
@@ -160,11 +160,11 @@ const PatientHomeContainer = ({
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
-  if (errorMessage) return <ErrorScreen error={errorMessage} />;
-
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);
-  }, [patientIssues?.length ?? 0, selectedPatient.id]);
+  }, [patientIssues]);
+
+  if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
   return (
     <Screen

@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Popup } from 'popup-ui';
 import {
   StyledView,
@@ -13,26 +13,23 @@ import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
 
-interface VaccineCellMetadata {
-  index?: number;
-  weeksFromBirthDue?: number;
-  weeksFromLastVaccinationDue?: number;
-  scheduledVaccineId?: string;
+export interface VaccineTableCellData {
+  administeredVaccine: IAdministeredVaccine;
+  patientAdministeredVaccines: IAdministeredVaccine[];
+  scheduledVaccine: IScheduledVaccine;
   vaccineStatus: VaccineStatus;
-  schedule: ReactElement;
-  vaccine: IScheduledVaccine;
   patient: IPatient;
-  administeredData: IAdministeredVaccine[];
+  label: string;
 }
 
 interface VaccineTableCellProps {
-  data: IAdministeredVaccine & VaccineCellMetadata;
+  data: VaccineTableCellData;
   onPress?: (item: any) => void;
 }
 
 const CellContent = ({
   cellStatus, status,
-}: { status?: string; cellStatus?: string }): ReactElement => {
+}: { status?: string; cellStatus?: string }): JSX.Element => {
   const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
   const Icon = cellData.Icon;
 
@@ -63,27 +60,20 @@ export const VaccineTableCell = ({
 }: VaccineTableCellProps): JSX.Element => {
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
   const {
-    vaccine,
+    scheduledVaccine,
+    administeredVaccine,
+    patient,
+    patientAdministeredVaccines,
     vaccineStatus,
-    weeksFromBirthDue,
-    weeksFromLastVaccinationDue,
-    id,
-    index,
-    patient,
-    administeredData,
   } = data;
+  const {
+    vaccine,
+    id,
+  } = scheduledVaccine;
   const dueStatus = getVaccineStatus(
-    { weeksFromBirthDue, weeksFromLastVaccinationDue, id, index, vaccine },
+    scheduledVaccine,
     patient,
-    administeredData,
-  );
-  const administeredVaccine = administeredData && administeredData.find(
-    v => {
-      if (typeof v.scheduledVaccine === "string") {
-        return v.scheduledVaccine === id;
-      }
-      return v.scheduledVaccine.id === id;
-    }
+    patientAdministeredVaccines,
   );
 
   let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
@@ -95,7 +85,7 @@ export const VaccineTableCell = ({
   }, [data]);
 
   const onPressItem = useCallback(() => {
-    if (dueStatus.warningMessage) {
+    if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
       Popup.show({
         type: 'Warning',
         title: 'Vaccination Warning',

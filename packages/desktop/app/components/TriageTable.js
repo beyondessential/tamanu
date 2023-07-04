@@ -5,9 +5,12 @@ import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
+
+const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
 const useColumns = () => {
   const { getLocalisation } = useLocalisation();
@@ -19,8 +22,16 @@ const useColumns = () => {
       title: 'Wait time',
       // Cell color cannot be set on the component due to the way table cells are configured so the
       // cell color must be calculated and set in the table config separately
-      cellColor: ({ score }) => triageCategories.find(c => c.level === parseInt(score))?.color,
+      cellColor: ({ score, encounterType }) => {
+        switch (encounterType) {
+          case 'triage':
+            return triageCategories.find(c => c.level === parseInt(score))?.color;
+          default:
+            return ADMITTED_PRIORITY_COLOR;
+        }
+      },
       accessor: TriageWaitTimeCell,
+      isExportable: false,
     },
     { key: 'chiefComplaint', title: 'Chief complaint' },
     { key: 'displayId' },
@@ -30,7 +41,8 @@ const useColumns = () => {
       key: 'sex',
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
     },
-    { key: 'locationName', title: 'Location' },
+    { key: 'locationGroupName', title: 'Area', accessor: LocationGroupCell },
+    { key: 'locationName', title: 'Location', accessor: LocationCell },
   ];
 };
 

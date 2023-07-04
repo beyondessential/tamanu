@@ -3,11 +3,19 @@ import { PureAbility } from '@casl/ability';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
-
-import { ISurvey, ISurveyResponse, ISurveyScreenComponent, SurveyTypes } from '~/types';
+import { VitalsDataElements } from '/helpers/constants';
+import {
+  ISurvey,
+  ISurveyScreenComponent,
+  IVitalsSurvey,
+  SurveyTypes,
+} from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column({ type: 'varchar', default: SurveyTypes.Programs, nullable: true })
   surveyType?: SurveyTypes;
 
@@ -19,7 +27,10 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: true })
   name?: string;
 
-  @ManyToOne(() => Program, program => program.surveys)
+  @ManyToOne(
+    () => Program,
+    program => program.surveys,
+  )
   program: Program;
 
   components: any;
@@ -42,13 +53,22 @@ export class Survey extends BaseModel implements ISurvey {
     return ability.can('submit', this);
   }
 
-  static async getResponses(surveyId: string): Promise<ISurveyResponse[]> {
-    const responses = await Database.models.SurveyResponse.find({
-      where: {
-        survey: surveyId,
-      },
-      relations: ['encounter', 'survey', 'encounter.patient'],
+  static async getVitalsSurvey(): Promise<IVitalsSurvey> {
+    const surveyRepo = Database.models.Survey.getRepository();
+    const vitalsSurvey = await surveyRepo.findOne({ where: { surveyType: SurveyTypes.Vitals } });
+
+    const repo = Database.models.SurveyScreenComponent.getRepository();
+    const components = await repo.find({
+      where: { survey: { id: vitalsSurvey.id } },
+      relations: ['dataElement'],
+      order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
-    return responses;
+
+    return {
+      dateComponent: components.find(c => c.dataElementId === VitalsDataElements.dateRecorded),
+      components,
+      name: vitalsSurvey.name,
+      id: vitalsSurvey.id,
+    };
   }
 }

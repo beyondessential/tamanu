@@ -4,9 +4,10 @@ import {
   TopBar,
   DateDisplay,
   PageContainer,
-  DataFetchingTable,
   AppointmentsSearchBar,
   ContentPane,
+  SearchTableTitle,
+  SearchTable,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 
@@ -42,7 +43,11 @@ const COLUMNS = [
     title: 'Clinician',
     accessor: row => `${row.clinician && row.clinician.displayName}`,
   },
-  { key: 'locationId', title: 'Location', accessor: row => row.location.name },
+  {
+    key: 'locationGroupId',
+    title: 'Area',
+    accessor: row => row.locationGroup.name,
+  },
   { key: 'type', title: 'Type' },
   { key: 'status', title: 'Status' },
 ];
@@ -55,9 +60,10 @@ export const AppointmentListingView = () => {
       <TopBar title="Appointments">
         <NewAppointmentButton onSuccess={() => setRefreshCount(refreshCount + 1)} />
       </TopBar>
-      <AppointmentsSearchBar onSearch={setSearchParams} />
       <ContentPane>
-        <DataFetchingTable
+        <SearchTableTitle>Appointment search</SearchTableTitle>
+        <AppointmentsSearchBar onSearch={setSearchParams} />
+        <SearchTable
           endpoint="appointments"
           columns={COLUMNS}
           noDataMessage="No appointments found"

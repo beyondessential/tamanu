@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { InvalidParameterError } from 'shared/errors';
 import * as yup from 'yup';
 
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
 
 // Import directly from file instead of index to avoid dependency cycle
@@ -110,6 +111,23 @@ export const hl7PatientFields = {
         return Op.is;
       }
       throw new InvalidParameterError(`Invalid value for deceased parameter: ${value}`);
+    },
+  },
+  active: {
+    parameterType: hl7ParameterTypes.token,
+    fieldName: 'visibilityStatus',
+    columnName: 'visibility_status',
+    supportedModifiers: [],
+    validationSchema: yup.string().oneOf(['true', 'false']),
+    getValue: () => VISIBILITY_STATUSES.CURRENT,
+    getOperator: value => {
+      if (value === 'true') {
+        return Op.eq;
+      }
+      if (value === 'false') {
+        return Op.ne;
+      }
+      throw new InvalidParameterError(`Invalid value for active parameter: ${value}`);
     },
   },
 };

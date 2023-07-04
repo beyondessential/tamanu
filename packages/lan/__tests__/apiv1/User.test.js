@@ -1,10 +1,9 @@
-import { getToken, remoteLogin } from 'lan/app/middleware/auth';
-import Chance from 'chance';
+import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
-import { WebRemote } from '../../app/sync/WebRemote';
+import { fake, chance } from 'shared/test-helpers';
+import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
-const chance = new Chance();
 const createUser = overrides => ({
   email: chance.email(),
   displayName: chance.name(),
@@ -12,20 +11,22 @@ const createUser = overrides => ({
   ...overrides,
 });
 
+// N.B. there were formerly a well written extra suite of tests here for functionality like creating
+// users and changing passwords, which is functionality that isn't supported on the facility server
+// If reimplementing the same functionality on the facility or central server, see this file at
+// commit 51f66c9
 describe('User', () => {
-  let adminApp = null;
   let baseApp = null;
   let models = null;
-  let remote = null;
+  let centralServer = null;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
-    remote = ctx.remote;
-    WebRemote.mockImplementation(() => remote);
-    adminApp = await baseApp.asRole('admin');
+    centralServer = ctx.centralServer;
+    CentralServerConnection.mockImplementation(() => centralServer);
   });
   afterAll(() => ctx.close());
 
@@ -111,12 +112,12 @@ describe('User', () => {
       expect(result.body.localisation).toEqual(localisation);
     });
 
-    it('should pass feature flags through from a remote login request', async () => {
-      remote.fetch.mockResolvedValueOnce({
+    it('should pass feature flags through from a central server login request', async () => {
+      centralServer.fetch.mockResolvedValueOnce({
         user: pick(authUser, ['id', 'role', 'email', 'displayName']),
         localisation,
       });
-      const result = await remoteLogin(models, authUser.email, rawPassword);
+      const result = await centralServerLogin(models, authUser.email, rawPassword);
       expect(result).toHaveProperty('localisation', localisation);
       const cache = await models.UserLocalisationCache.findOne({
         where: {
@@ -137,123 +138,60 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('permissions');
     });
-  });
 
-  it('should create a new user', async () => {
-    const details = createUser();
-    const result = await adminApp.post('/v1/user').send(details);
-    expect(result).toHaveSucceeded();
-
-    const { id, password } = result.body;
-    expect(id).not.toBeNull();
-    expect(password).toBeUndefined();
-
-    const createdUser = await models.User.findByPk(id);
-    expect(createdUser).toHaveProperty('displayName', details.displayName);
-    expect(createdUser).not.toHaveProperty('password', details.password);
-  });
-
-  it('should not allow a non-admin to create a new user', async () => {
-    const userApp = await baseApp.asRole('practitioner');
-    const details = createUser();
-    const result = await userApp.post('/v1/user').send(details);
-    expect(result).toBeForbidden();
-
-    const createdUser = await models.User.findOne({ where: { email: details.email } });
-    expect(createdUser).toBeFalsy();
-  });
-
-  it('should change a name', async () => {
-    const newUser = await models.User.create(
-      createUser({
-        displayName: 'Alan',
-      }),
-    );
-    const { id } = newUser;
-
-    const result = await adminApp.put(`/v1/user/${id}`).send({
-      displayName: 'Brian',
+    it('should create a new recently viewed patient on first post from user', async () => {
+      await models.UserRecentlyViewedPatient.destroy({
+        where: {},
+        truncate: true,
+      });
+      await authUser.update({
+        role: 'practitioner',
+      });
+      const userAgent = await baseApp.asUser(authUser);
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const postResult = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
+      expect(postResult).toHaveSucceeded();
+      expect(postResult.body).toHaveProperty('userId', authUser.id);
+      expect(postResult.body).toHaveProperty('patientId', newPatient.id);
+      const getResult = await userAgent.get('/v1/user/recently-viewed-patients');
+      expect(getResult).toHaveSucceeded();
+      expect(getResult.body.data).toHaveLength(1);
+      expect(getResult.body.count).toBe(1);
     });
-    expect(result).toHaveSucceeded();
-    expect(result.body).toHaveProperty('displayName', 'Brian');
-    const updatedUser = await models.User.findByPk(id);
-    expect(updatedUser).toHaveProperty('displayName', 'Brian');
-  });
 
-  it('should allow an admin to change a password', async () => {
-    const details = createUser();
-    const newUser = await models.User.create(details);
-    const { id } = newUser;
-
-    const user = await models.User.scope('withPassword').findByPk(id);
-    const oldHashedPW = user.password;
-    expect(oldHashedPW).toBeTruthy();
-    expect(oldHashedPW).not.toEqual(details.password);
-
-    const newPassword = '000';
-    const result = await adminApp.put(`/v1/user/${id}`).send({ password: newPassword });
-    expect(result).toHaveSucceeded();
-    expect(result.body).not.toHaveProperty('password');
-    const updatedUser = await models.User.scope('withPassword').findByPk(id);
-    expect(updatedUser).toHaveProperty('displayName', details.displayName);
-    expect(updatedUser.password).toBeTruthy();
-    expect(updatedUser.password).not.toEqual(details.newPassword);
-    expect(updatedUser.password).not.toEqual(oldHashedPW);
-  });
-
-  it('should allow a non-admin user to change their own password', async () => {
-    const details = createUser();
-    const newUser = await models.User.create(details);
-    const { id } = newUser;
-
-    const user = await models.User.scope('withPassword').findByPk(id);
-    const oldHashedPW = user.password;
-    expect(oldHashedPW).toBeTruthy();
-    expect(oldHashedPW).not.toEqual(details.password);
-
-    const userAgent = await baseApp.asUser(newUser);
-    const newPassword = '000';
-    const result = await userAgent.put(`/v1/user/${id}`).send({ password: newPassword });
-    expect(result).toHaveSucceeded();
-    expect(result.body).not.toHaveProperty('password');
-
-    const updatedUser = await models.User.scope('withPassword').findByPk(id);
-    expect(updatedUser).toHaveProperty('displayName', details.displayName);
-    expect(updatedUser.password).toBeTruthy();
-    expect(updatedUser.password).not.toEqual(details.newPassword);
-    expect(updatedUser.password).not.toEqual(oldHashedPW);
-  });
-
-  it("should not allow a non-admin user to change someone else's password", async () => {
-    const details = createUser();
-    const newUser = await models.User.create(details);
-
-    const userAgent = await baseApp.asUser(newUser);
-
-    const otherUser = await models.User.create(createUser());
-
-    const result = await userAgent.put(`/v1/user/${otherUser.id}`).send({ password: '123' });
-    expect(result).toBeForbidden();
-  });
-
-  it('should fail to create a user without an email', async () => {
-    const result = await adminApp.post('/v1/user').send({});
-    expect(result).toHaveRequestError();
-  });
-
-  it('should fail to create a user with a duplicate email', async () => {
-    const baseUserResult = await adminApp.post('/v1/user').send({
-      displayName: 'Test Dupe',
-      email: 'duplicate@user.com',
-      password: 'abc',
+    it('should update updatedAt when posting with id of an already recently viewed patient', async () => {
+      await models.UserRecentlyViewedPatient.destroy({
+        where: {},
+        truncate: true,
+      });
+      await authUser.update({
+        role: 'practitioner',
+      });
+      const userAgent = await baseApp.asUser(authUser);
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const result = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('userId', authUser.id);
+      expect(result.body).toHaveProperty('patientId', newPatient.id);
+      const result2 = await userAgent.post(`/v1/user/recently-viewed-patients/${newPatient.id}`);
+      expect(result2).toHaveSucceeded();
+      expect(result2.body).toHaveProperty('userId', authUser.id);
+      expect(result2.body).toHaveProperty('patientId', newPatient.id);
+      const resultDate = new Date(result.body.updatedAt);
+      const result2Date = new Date(result2.body.updatedAt);
+      expect(result2Date.getTime()).toBeGreaterThan(resultDate.getTime());
+      const getResult = await userAgent.get('/v1/user/recently-viewed-patients');
+      expect(getResult).toHaveSucceeded();
+      expect(getResult.body.data).toHaveLength(1);
+      expect(getResult.body.count).toBe(1);
+      const getResultDate = new Date(getResult.body.data[0].last_accessed_on);
+      expect(getResultDate.getTime()).toBe(result2Date.getTime());
     });
-    expect(baseUserResult.body.id).not.toBeNull();
 
-    const result = await adminApp.post('/v1/user').send({
-      displayName: 'Test Dupe II',
-      email: 'duplicate@user.com',
-      password: 'abc',
-    });
-    expect(result).toHaveRequestError();
+
   });
 });

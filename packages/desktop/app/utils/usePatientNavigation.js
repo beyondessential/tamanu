@@ -1,10 +1,11 @@
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
-import { generatePath, matchPath, useLocation } from 'react-router-dom';
+import { generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
   const dispatch = useDispatch();
+  const params = useParams();
   const location = useLocation();
 
   const navigate = url => dispatch(push(url));
@@ -24,23 +25,20 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToPatient = (patientId, modal) => {
+  const navigateToPatient = (patientId, search) => {
     const existingParams = getParams(PATIENT_PATHS.CATEGORY);
-    navigate(
-      generatePath(`${PATIENT_PATHS.PATIENT}/:modal?`, {
-        ...existingParams,
-        patientId,
-        modal,
-      }),
-    );
+    const patientRoute = generatePath(PATIENT_PATHS.PATIENT, {
+      ...existingParams,
+      patientId,
+    });
+    navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
-  const navigateToEncounter = (encounterId, modal, search) => {
+  const navigateToEncounter = (encounterId, search) => {
     const existingParams = getParams(PATIENT_PATHS.PATIENT);
-    const encounterRoute = generatePath(`${PATIENT_PATHS.ENCOUNTER}/:modal?`, {
+    const encounterRoute = generatePath(PATIENT_PATHS.ENCOUNTER, {
       ...existingParams,
       encounterId,
-      modal,
     });
     navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
@@ -54,17 +52,15 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToLabRequest = (labRequestId, modal) => {
-    const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
-    navigate(
-      generatePath(`${PATIENT_PATHS.LAB_REQUEST}/:modal?`, {
-        ...existingParams,
-        labRequestId,
-        modal,
-      }),
-    );
+  const navigateToLabRequest = (labRequestId, search) => {
+    const labRequestRoute = generatePath(PATIENT_PATHS.LAB_REQUEST, {
+      ...params,
+      labRequestId,
+    });
+    navigate(`${labRequestRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
+  // @todo: refactor modal that is used in imaging request printing
   const navigateToImagingRequest = (imagingRequestId, modal) => {
     const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
     navigate(

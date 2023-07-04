@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-
 import { red } from '@material-ui/core/colors';
 import {
   Icon,
@@ -14,11 +13,9 @@ import {
   AddBoxOutlined,
   IndeterminateCheckBox,
   ChevronLeft,
-  ChevronRight,
   Refresh,
   Lock,
 } from '@material-ui/icons';
-
 import { Colors } from '../constants';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
@@ -33,13 +30,22 @@ const StyledButton = styled(MuiButton)`
   font-size: 14px;
   line-height: 16px;
   text-transform: none;
-  padding: 12px 20px;
+  padding: 11px 18px 12px 18px;
   box-shadow: none;
 
   .MuiSvgIcon-root {
     width: 19.5px;
     height: auto;
     margin-right: 10px;
+  }
+
+  &.MuiButton-sizeSmall {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  &.MuiButton-outlinedPrimary {
+    border-color: ${props => props.theme.palette.primary.main};
   }
 `;
 
@@ -103,18 +109,6 @@ export const LargeOutlineButton = props => (
   <StyledLargeButton variant="outlined" color="primary" {...props} />
 );
 
-export const ClearButton = props => (
-  <Button variant="outlined" {...props}>
-    Clear
-  </Button>
-);
-
-export const CancelButton = props => (
-  <Button variant="contained" {...props}>
-    Cancel
-  </Button>
-);
-
 const StyledDeleteButton = styled(Button)`
   background: ${red[600]};
   color: ${Colors.white};
@@ -132,60 +126,6 @@ export const DeleteButton = props => {
     </StyledDeleteButton>
   );
 };
-
-export const SearchButton = props => (
-  <Button variant="contained" color="primary" {...props}>
-    Search
-  </Button>
-);
-
-export const CheckInButton = props => (
-  <Button variant="contained" color="secondary" {...props}>
-    Check-in
-  </Button>
-);
-
-export const CheckOutButton = props => (
-  <Button variant="contained" color="secondary" {...props}>
-    Check-out
-  </Button>
-);
-
-export const AddButton = props => (
-  <Button variant="contained" color="primary" {...props}>
-    Add
-  </Button>
-);
-
-export const EditButton = props => (
-  <Button variant="contained" color="secondary" {...props}>
-    Edit
-  </Button>
-);
-
-export const FilterButton = props => (
-  <Button variant="contained" color="primary" {...props}>
-    Filter
-  </Button>
-);
-
-export const UpdateButton = props => (
-  <Button variant="contained" color="primary" {...props}>
-    Update
-  </Button>
-);
-
-export const NewButton = ({ children, ...props }) => (
-  <Button variant="outlined" {...props}>
-    {children}
-  </Button>
-);
-
-export const ViewButton = props => (
-  <Button variant="contained" color="primary" {...props}>
-    View
-  </Button>
-);
 
 const StyledTextButton = styled(Button)`
   font-size: 16px;
@@ -216,35 +156,11 @@ const StyledNavButton = styled(TextButton)`
   }
 `;
 
-export const ForwardButton = ({ children, ...props }) => (
-  <StyledNavButton {...props}>
-    {children}
-    <ChevronRight />
-  </StyledNavButton>
-);
-
 export const BackButton = ({ to, text = true, ...props }) => (
   <StyledNavButton to={to} {...props}>
     <ChevronLeft />
     {text && ' Back'}
   </StyledNavButton>
-);
-
-const StyledImageButton = styled(Button)`
-  background: ${Colors.white};
-  padding: 16px;
-  img {
-    max-width: 52px;
-    max-height: 52px;
-    padding-right: 10px;
-  }
-`;
-
-export const ImageButton = ({ children, alt, src, ...props }) => (
-  <StyledImageButton variant="contained" {...props}>
-    <img alt={alt ?? 'Button with an unspecified image'} src={src} />
-    {children}
-  </StyledImageButton>
 );
 
 export const PlusIconButton = ({ ...props }) => (

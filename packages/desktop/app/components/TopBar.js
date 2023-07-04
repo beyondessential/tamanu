@@ -5,6 +5,9 @@ import { Typography, Toolbar } from '@material-ui/core';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 
+// Default height of the top bar
+export const TOP_BAR_HEIGHT = 97;
+
 const TopBarHeading = styled(Typography)`
   flex-grow: 1;
   font-size: 24px;
@@ -30,6 +33,7 @@ const TopBarSubHeading = styled(Typography)`
 
 const AppBar = styled.div`
   position: sticky;
+  height: ${TOP_BAR_HEIGHT}px;
   top: 0;
   z-index: 9;
   flex-grow: 1;
@@ -72,6 +76,25 @@ TopBar.propTypes = {
 TopBar.defaultProps = {
   title: null,
   subTitle: null,
+  className: '',
+};
+
+export const SimpleTopBar = React.memo(({ title, children, className }) => (
+  <AppBar className={className}>
+    <Bar>
+      <TopBarHeading variant="h1">{title}</TopBarHeading>
+      {children}
+    </Bar>
+  </AppBar>
+));
+
+SimpleTopBar.propTypes = {
+  title: PropTypes.string,
+  className: PropTypes.string,
+};
+
+SimpleTopBar.defaultProps = {
+  title: null,
   className: '',
 };
 
@@ -120,7 +143,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
           </Value>
         </Cell>
         <Cell>
-          <Label>Doctor/Nurse:</Label>
+          <Label>Supervising clinician:</Label>
           <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
         </Cell>
       </div>

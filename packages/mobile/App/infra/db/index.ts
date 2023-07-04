@@ -1,19 +1,16 @@
-import {
-  Connection,
-  createConnection,
-  getConnectionManager,
-  ConnectionOptions,
-} from 'typeorm';
+import { Connection, createConnection, getConnectionManager, ConnectionOptions } from 'typeorm';
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
 
-const LOG_LEVELS = __DEV__ ? [
-  'error' as const,
-  // 'query' as const,
-  'schema' as const,
-] : [];
+const LOG_LEVELS = __DEV__
+  ? [
+      'error' as const,
+      // 'query' as const,
+      'schema' as const,
+    ]
+  : [];
 
 const CONNECTION_CONFIG = {
   type: 'react-native',
@@ -40,7 +37,7 @@ const getConnectionConfig = (): ConnectionOptions => {
     return TEST_CONNECTION_CONFIG;
   }
   return CONNECTION_CONFIG;
-}
+};
 
 class DatabaseHelper {
   client: Connection = null;
@@ -49,25 +46,47 @@ class DatabaseHelper {
 
   syncError = null;
 
+  constructor() {
+    MODELS_ARRAY.forEach(m => m.injectAllModels(this.models));
+  }
+
   async forceSync(): Promise<any> {
     try {
-      console.log("Synchronising database schema to model definitions");
+      console.log('Updating database schema');
       if (this.syncError) {
-        console.log("Last seen error from schema sync was:", this.syncError);
+        console.log('Last seen error from schema sync was:', this.syncError);
       }
 
       // Turn FK constraints off to allow schema changes during migration
       // (sqlite has to fully delete and recreate a table to alter a column;
-      // it preserves data fine but if any other tables have a FK constraint 
+      // it preserves data fine but if any other tables have a FK constraint
       // pointed to the table being altered, the query will fail)
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
 
+      // TODO: Remove this once all supported deployments are >= v1.21.0
+      // Get the list of tables named 'migrations' and tables named 'patient'
+      const migrationsTable = await this.client.query(
+        "SELECT * FROM sqlite_master WHERE type='table' AND name='migrations';",
+      );
+      const patientTable = await this.client.query(
+        "SELECT * FROM sqlite_master WHERE type='table' AND name='patient';",
+      );
+
+      if (!migrationsTable.length && patientTable.length) {
+        // If this device has already been running an earlier version of Tamanu
+        // (i.e. the patients table exists)
+        // but we've never run migrations on this device
+        // (i.e. the migrations table does not exist
+        // attempt a synchronize
+        console.log('No migrations table found, running final sync from models');
+        await this.client.synchronize();
+      }
       await this.client.runMigrations();
-      console.log("Synchronising database schema: OK");
+      console.log('Migrations run: OK');
       this.syncError = null;
-    } catch(e) {
+    } catch (e) {
       this.syncError = e;
-      console.log("Error encountered during schema sync:", this.syncError);
+      console.log('Error encountered during schema sync:', this.syncError);
       throw e;
     } finally {
       // Restore FK constraint checks once everything is done
@@ -114,8 +133,18 @@ if (__DEV__) {
   DevSettings.addMenuItem('DB schema sync', async () => {
     try {
       await Database.forceSync();
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
+  });
+}
+
+// Add a dev menu item to drop database and rerun migrations
+if (__DEV__) {
+  DevSettings.addMenuItem('Drop database', async () => {
+    await Database.client.dropDatabase();
+    await Database.forceSync();
+    await clear();
+    DevSettings.reload();
   });
 }

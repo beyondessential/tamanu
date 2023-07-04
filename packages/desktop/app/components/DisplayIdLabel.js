@@ -8,6 +8,10 @@ export const DisplayIdLabel = styled.span`
   border-radius: 3px;
 `;
 
+export const TextDisplayIdLabel = styled.span`
+  color: ${Colors.primary};
+`;
+
 export const InvertedDisplayIdLabel = styled(DisplayIdLabel)`
   background: ${Colors.primary};
   color: ${Colors.white};

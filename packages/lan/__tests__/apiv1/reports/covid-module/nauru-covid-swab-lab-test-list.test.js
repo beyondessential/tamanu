@@ -4,8 +4,9 @@ import {
   randomReferenceData,
 } from 'shared/demoData/patients';
 import { randomRecord } from 'shared/demoData/utilities';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
-import { format } from 'date-fns';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { toDateTimeString } from 'shared/utils/dateTime';
+import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -17,7 +18,6 @@ import {
 const REPORT_URL = '/v1/reports/nauru-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-naurucovid19';
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
-const timePart = 'T00:00:00.000Z';
 
 async function createNauruSurveys(models) {
   await models.Program.create({
@@ -32,11 +32,11 @@ async function createNauruSurveys(models) {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002' },
-    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003' },
-    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005' },
-    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006' },
-    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007' },
+    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002', type: 'FreeText' },
+    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003', type: 'FreeText' },
+    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005', type: 'FreeText' },
+    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006', type: 'FreeText' },
+    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007', type: 'FreeText' },
     {
       id: 'pde-NauCOVTest008',
       code: 'NauCOVTest008',
@@ -104,7 +104,42 @@ describe('Nauru covid case report tests', () => {
     });
 
     beforeEach(async () => {
+      // Note: can't use cascade here or it'll delete the data created in beforeAll
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.SurveyResponse.destroy({ where: {} });
+      await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.LabRequest.destroy({ where: {} });
+    });
+
+    it('should filter by sample time', async () => {
+      await submitInitialFormForPatient(app, models, expectedPatient, new Date(2022, 3, 10, 4), {
+        'pde-NauCOVTest002': 435355781, // 'Patient contact number'
+        'pde-NauCOVTest003': 'Community', // 'Test location'
+        'pde-NauCOVTest005': 'Yes', // 'Does patient have symptoms'
+        'pde-NauCOVTest006': 'dateOfFirstSymptom', // 'If Yes, date of first symptom onset'
+        'pde-NauCOVTest007': 'Loss of smell or taste', // Symptoms
+        'pde-NauCOVTest008': facility.id, // 'Health Clinic'
+      });
+
+      await createCovidTestForPatient(
+        models,
+        expectedPatient,
+        new Date(2022, 3, 10, 5),
+        {
+          laboratoryOfficer: 'Officer Number 8',
+          result: 'Positive',
+        },
+        { sampleTime: toDateTimeString(new Date(2022, 3, 15, 5)) },
+      );
+
+      const reportResult = await app.post(REPORT_URL).send({
+        parameters: {
+          fromDate: new Date(2022, 3, 1, 4),
+          toDate: new Date(2022, 3, 12, 4),
+        },
+      });
+      expect(reportResult).toHaveSucceeded();
+      expect(reportResult.body).toMatchTabularReport([]);
     });
 
     it('should return only one line per patient', async () => {
@@ -125,13 +160,16 @@ describe('Nauru covid case report tests', () => {
           laboratoryOfficer: 'Officer Number 8',
           result: 'Positive',
         },
+        {
+          sampleTime: toDateTimeString(new Date(2022, 3, 15, 5)),
+        },
       );
 
       const labTestType = await models.LabTestType.findByPk(labTest.labTestTypeId);
 
       const reportResult = await app
         .post(REPORT_URL)
-        .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
+        .send({ parameters: { fromDate: new Date(2022, 3, 12, 4) } });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toMatchTabularReport([
         {
@@ -145,17 +183,17 @@ describe('Nauru covid case report tests', () => {
           'Lab request type': LAB_CATEGORY_NAME,
           'Lab test type': labTestType.name,
           'Lab test method': LAB_METHOD_NAME,
-          Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
+          Status: LAB_REQUEST_STATUS_CONFIG[LAB_REQUEST_STATUSES.RECEPTION_PENDING]?.label,
           Result: 'Positive',
           'Requested by': null,
-          'Requested date': format(new Date(labRequest.requestedDate), 'yyyy/MM/dd'),
+          'Requested date': format(labRequest.requestedDate, 'yyyy/MM/dd'),
           'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
           'Testing date': format(labTest.completedDate, 'yyyy/MM/dd'),
           'Laboratory officer': 'Officer Number 8',
-          'Sample collection date': format(new Date(labRequest.sampleTime), 'yyyy/MM/dd'),
-          'Sample collection time': format(new Date(labRequest.sampleTime), 'hh:mm a'),
+          'Sample collection date': format(labRequest.sampleTime, 'yyyy/MM/dd'),
+          'Sample collection time': format(labRequest.sampleTime, 'hh:mm a'),
           'Patient contact number': '435355781',
           'Test location': 'Community',
           'Does patient have symptoms': 'Yes',

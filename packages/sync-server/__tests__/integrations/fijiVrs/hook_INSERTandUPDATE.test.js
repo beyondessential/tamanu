@@ -2,6 +2,7 @@ import { parseISO } from 'date-fns';
 import config from 'config';
 
 import { fake } from 'shared/test-helpers/fake';
+import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
 
@@ -86,7 +87,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           displayId: vrsPatient.individual_refno,
           firstName: vrsPatient.fname,
           lastName: vrsPatient.lname,
-          dateOfBirth: parseISO(vrsPatient.dob),
+          dateOfBirth: toDateString(parseISO(vrsPatient.dob)),
           sex: vrsPatient.sex.toLowerCase(),
           villageId: expectedVillage.id,
           email: vrsPatient.email,
@@ -95,7 +96,6 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
           deletedAt: null,
-          markedForSync: expect.anything(),
         });
         const foundAdditionalData = await PatientAdditionalData.findOne({
           where: { patientId: foundPatient.id },

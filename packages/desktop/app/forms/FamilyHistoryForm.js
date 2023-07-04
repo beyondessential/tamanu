@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-import { foreignKey } from '../utils/validation';
+import { foreignKey, optionalForeignKey } from '../utils/validation';
 
 export const FamilyHistoryForm = ({
   onCancel,
@@ -26,12 +26,17 @@ export const FamilyHistoryForm = ({
           component={AutocompleteField}
           suggester={icd10Suggester}
         />
-        <Field name="recordedDate" label="Date recorded" required component={DateField} />
+        <Field
+          name="recordedDate"
+          label="Date recorded"
+          required
+          component={DateField}
+          saveDateAsString
+        />
         <Field name="relationship" label="Relation to patient" component={TextField} />
         <Field
           name="practitionerId"
           label="Doctor/nurse"
-          required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
@@ -44,12 +49,12 @@ export const FamilyHistoryForm = ({
       </FormGrid>
     )}
     initialValues={{
-      recordedDate: new Date(),
+      recordedDate: getCurrentDateTimeString(),
       ...editedObject,
     }}
     validationSchema={yup.object().shape({
       diagnosisId: foreignKey('Diagnosis is required'),
-      practitionerId: foreignKey('Doctor/nurse is required'),
+      practitionerId: optionalForeignKey(),
       recordedDate: yup.date().required(),
     })}
   />

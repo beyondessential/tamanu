@@ -3,8 +3,8 @@ import { ThemeProvider } from 'styled-components';
 import { RowView, StyledView, themeSystem } from '/styled/common';
 import { PatientMenuButton } from './index';
 import {
-  SickOrInjuredIcon,
-  CheckUpIcon,
+  DiagnosisAndTreatmentIcon,
+  VitalsIcon,
   PregnancyIcon,
   FamilyPlanningIcon,
   VaccineIcon,
@@ -16,14 +16,14 @@ export const BaseStory = (): JSX.Element => (
     <StyledView width="100%">
       <RowView width="100%" paddingLeft={15} paddingRight={15}>
         <PatientMenuButton
-          title={'Sick \n or Injured'}
-          Icon={SickOrInjuredIcon}
+          title={'Diagnosis &\nTreatment'}
+          Icon={DiagnosisAndTreatmentIcon}
           onPress={(): void => console.log('here')}
         />
         <StyledView marginLeft={8} marginRight={8}>
           <PatientMenuButton
-            title="Check up"
-            Icon={CheckUpIcon}
+            title="Vitals"
+            Icon={VitalsIcon}
             onPress={(): void => console.log('here')}
           />
         </StyledView>

@@ -3,11 +3,13 @@ import { BaseModel } from './BaseModel';
 
 import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
-import { ISurveyScreenComponent } from '~/types';
+import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey_screen_component')
-export class SurveyScreenComponent extends BaseModel
-  implements ISurveyScreenComponent {
+export class SurveyScreenComponent extends BaseModel implements ISurveyScreenComponent {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   required: boolean;
 
   @Column({ type: 'int', nullable: true })
@@ -34,7 +36,10 @@ export class SurveyScreenComponent extends BaseModel
   @Column({ nullable: true, type: 'text' })
   options?: string;
 
-  @ManyToOne(() => Survey, survey => survey.components)
+  @ManyToOne(
+    () => Survey,
+    survey => survey.components,
+  )
   survey: Survey;
 
   @RelationId(({ survey }) => survey)
@@ -51,7 +56,7 @@ export class SurveyScreenComponent extends BaseModel
 
   getOptions(): any {
     try {
-      const optionString = (this.options || this.dataElement.defaultOptions || '');
+      const optionString = this.options || this.dataElement.defaultOptions || '';
       if (!optionString) {
         return [];
       }
@@ -71,6 +76,18 @@ export class SurveyScreenComponent extends BaseModel
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn(`Invalid config in survey screen component ${this.id}`);
+      return {};
+    }
+  }
+
+  getValidationCriteriaObject(): SurveyScreenValidationCriteria {
+    if (!this.validationCriteria) return {};
+
+    try {
+      return JSON.parse(this.validationCriteria);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn(`Invalid validationCriteria in survey screen component ${this.id}`);
       return {};
     }
   }

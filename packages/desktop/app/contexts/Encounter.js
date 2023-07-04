@@ -1,5 +1,22 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { useApi } from '../api';
+
+/*
+  When loading an encounter, the user can't access the encounter view
+  if they have permission to see related records (diagnoses, procedures, medications).
+
+  This is a try/catch block wrapper that returns records or a default value.
+*/
+async function getDataOrDefaultOnError(getDataFn, defaultData) {
+  try {
+    const data = await getDataFn();
+    return data;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return defaultData;
+  }
+}
 
 const EncounterContext = React.createContext({
   encounter: null,
@@ -25,16 +42,27 @@ export const EncounterProvider = ({ children }) => {
   };
 
   // get encounter data from the sync server and save it to state.
-  const loadEncounter = async encounterId => {
-    setIsLoadingEncounter(true);
-    const data = await api.get(`encounter/${encounterId}`);
-    const { data: diagnoses } = await api.get(`encounter/${encounterId}/diagnoses`);
-    const { data: procedures } = await api.get(`encounter/${encounterId}/procedures`);
-    const { data: medications } = await api.get(`encounter/${encounterId}/medications`);
-    setEncounterData({ ...data, diagnoses, procedures, medications });
-    setIsLoadingEncounter(false);
-    window.encounter = encounter;
-  };
+  const loadEncounter = useCallback(
+    async encounterId => {
+      setIsLoadingEncounter(true);
+      const data = await api.get(`encounter/${encounterId}`);
+      const { data: diagnoses } = await getDataOrDefaultOnError(
+        () => api.get(`encounter/${encounterId}/diagnoses`),
+        { data: [] },
+      );
+      const { data: procedures } = await getDataOrDefaultOnError(
+        () => api.get(`encounter/${encounterId}/procedures`),
+        { data: [] },
+      );
+      const { data: medications } = await getDataOrDefaultOnError(
+        () => api.get(`encounter/${encounterId}/medications`),
+        { data: [] },
+      );
+      setEncounterData({ ...data, diagnoses, procedures, medications });
+      setIsLoadingEncounter(false);
+    },
+    [api],
+  );
 
   // write, fetch and set encounter.
   const writeAndViewEncounter = async (encounterId, data) => {

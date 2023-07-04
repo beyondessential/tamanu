@@ -4,7 +4,7 @@ import { IEncounter } from './IEncounter';
 import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
 import { IUser } from './IUser';
-import { DateString } from './DateString';
+import { IDepartment } from './IDepartment';
 
 export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',
@@ -25,7 +25,6 @@ export interface ILabRequest {
   status?: LabRequestStatus;
   senaiteId?: string;
   sampleId?: string;
-  note?: string;
   displayId: string;
 
   encounter: IEncounter;
@@ -34,11 +33,17 @@ export interface ILabRequest {
   requestedBy: IUser;
   requestedById?: string;
 
+  department?: IDepartment;
+  departmentId?: string;
+
   labTestCategory: IReferenceData;
   labTestCategoryId?: string;
 
   labTestPriority?: IReferenceData;
   labTestPriorityId?: string;
+
+  labSampleSite?: IReferenceData;
+  labSampleSiteId?: string;
 
   tests: ILabTest[];
 }

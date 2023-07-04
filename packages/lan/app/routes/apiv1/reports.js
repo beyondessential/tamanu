@@ -1,49 +1,66 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getReportModule, REPORT_DEFINITIONS, REPORT_OBJECTS } from 'shared/reports';
+import * as reportUtils from 'shared/reports';
+import { checkReportModulePermissions } from 'shared/reports/utilities/checkReportModulePermissions';
+import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
+import { getAvailableReports } from 'shared/reports/utilities/getAvailableReports';
+import { NotFoundError } from 'shared/errors';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
+const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
+
 export const reports = express.Router();
+
 reports.get(
   '/$',
   asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
+    req.flagPermissionChecked(); // check happens in getAvailableReports
     const { models, user, ability } = req;
-    const localisation = await models.UserLocalisationCache.getLocalisation({
-      where: { userId: user.id },
-      order: [['createdAt', 'DESC']],
-    });
-
-    const disabledReports = localisation?.disabledReports || [];
-    const availableReports = REPORT_DEFINITIONS.filter(
-      ({ id }) => !disabledReports.includes(id) && ability.can('run', REPORT_OBJECTS[id]),
-    );
+    const availableReports = await getAvailableReports(ability, models, user.id);
     res.send(availableReports);
   }),
 );
 
 reports.post(
-  '/:reportType',
+  '/:reportId',
   asyncHandler(async (req, res) => {
     const {
       db,
       models,
-      body: { parameters },
+      body: { parameters = {} },
+      user,
+      params,
       getLocalisation,
     } = req;
-    const { reportType } = req.params;
-
+    const { reportId } = params;
+    const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
+      userId: user.id,
+      reportId,
+    });
     const localisation = await getLocalisation();
-    assertReportEnabled(localisation, reportType);
+    assertReportEnabled(localisation, reportId);
 
-    const reportModule = getReportModule(req.params.reportType);
+    const reportModule = await reportUtils.getReportModule(reportId, models);
+
     if (!reportModule) {
-      res.status(400).send({ message: 'invalid reportType' });
-      return;
+      throw new NotFoundError('Report module not found');
     }
-    req.checkPermission('read', reportModule.permission);
+    await checkReportModulePermissions(req, reportModule, reportId);
 
-    const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
-    res.send(excelData);
+    try {
+      facilityReportLog.info('Running report', { parameters });
+      const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+      facilityReportLog.info('Report run successfully');
+      res.send(excelData);
+    } catch (e) {
+      facilityReportLog.error('Report module failed to generate data', {
+        stack: e.stack,
+      });
+      res.status(400).send({
+        error: {
+          message: e.message,
+        },
+      });
+    }
   }),
 );

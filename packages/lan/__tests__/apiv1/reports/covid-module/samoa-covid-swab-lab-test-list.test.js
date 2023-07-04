@@ -1,4 +1,6 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import { subMinutes } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -60,11 +62,13 @@ async function createSampleCollectionSurvey(models) {
       id: 'pde-samcovidsamp02',
       code: 'samcovidsamp02',
       name: 'Phone Number',
+      type: 'FreeText',
     },
     {
       id: 'pde-samcovidsamp03',
       code: 'samcovidsamp03',
       name: 'Village',
+      type: 'FreeText',
     },
   ]);
 
@@ -76,12 +80,12 @@ async function createSampleCollectionSurvey(models) {
 
 async function createFormAnswerForPatient(app, models, patient, formData) {
   if (!formData.formDate) {
-    formData.formDate = new Date().toISOString();
+    formData.formDate = getCurrentDateTimeString();
   }
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return await app.post('/v1/surveyResponse').send({
+  return app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: formData.formDate,
     patientId: patient.id,
@@ -124,8 +128,9 @@ describe('Samoa covid lab test report', () => {
     });
 
     afterEach(async () => {
-      await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
+      await testContext.models.LabRequest.destroy({ where: {} });
     });
 
     it('should produce the right columns', async () => {
@@ -145,28 +150,23 @@ describe('Samoa covid lab test report', () => {
 
     it('should pick the latest answer between the current and the next lab request', async () => {
       const phoneNumber = '123-456-7890';
-      const timePart = 'T00:00:00.000Z';
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        '2022-03-01' + timePart,
-      );
+      await createCovidTestForPatient(testContext.models, expectedPatient1, '2022-03-01');
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: '2022-03-01' + timePart,
+        formDate: '2022-03-01 10:50:28',
         phoneNumber,
         village: 'village 1',
       });
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: '2022-03-02' + timePart,
+        formDate: '2022-03-02 10:50:28',
         phoneNumber,
         village: 'village 2',
       });
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        '2022-03-03' + timePart,
-      );
-      const reportResult = await app.post(REPORT_URL).send({});
+      await createCovidTestForPatient(testContext.models, expectedPatient1, '2022-03-03 10:50:28');
+      const reportResult = await app.post(REPORT_URL).send({
+        parameters: {
+          fromDate: '2022-03-01',
+        },
+      });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(3);
       expect(reportResult.body[0]).toStrictEqual(REPORT_COLUMNS);
@@ -179,14 +179,19 @@ describe('Samoa covid lab test report', () => {
     it('should return results for multiple patients', async () => {
       const phoneNumber = '123-456-7890';
       await createCovidTestForPatient(testContext.models, expectedPatient1);
+
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village',
+        formDate: toDateTimeString(subMinutes(new Date(), 1)),
       });
+
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village 2',
+        formDate: getCurrentDateTimeString(),
       });
+
       await createCovidTestForPatient(testContext.models, expectedPatient2);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient2, {
         phoneNumber,

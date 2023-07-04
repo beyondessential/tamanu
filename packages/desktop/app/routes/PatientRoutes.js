@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch, Route } from 'react-router-dom';
+import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
@@ -25,7 +26,7 @@ export const usePatientRoutes = () => {
   const { encounter } = useEncounter();
   return [
     {
-      path: `${PATIENT_PATHS.PATIENT}/:modal?`,
+      path: PATIENT_PATHS.PATIENT,
       component: PatientView,
       navigateTo: () => navigateToPatient(patient.id),
       title: getPatientNameAsString(patient || {}),
@@ -50,6 +51,11 @@ export const usePatientRoutes = () => {
               path: `${PATIENT_PATHS.SUMMARY}/view`,
               component: DischargeSummaryView,
               title: 'Discharge Summary',
+            },
+            {
+              path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
+              component: ProgramsView,
+              title: 'New Survey',
             },
             {
               path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
@@ -79,6 +85,19 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
   </>
 );
 
+const PatientPane = styled.div`
+  // contain size needs to be set for the tabs to work correctly
+  contain: size;
+  overflow: auto;
+`;
+
+const PATIENT_PANE_WIDTH = '650px';
+const PatientPaneInner = styled.div`
+  // We don't support mobile devices.
+  // Set a minimum width to stop layouts breaking on small screens
+  min-width: ${PATIENT_PANE_WIDTH};
+`;
+
 export const PatientRoutes = React.memo(() => {
   const patientRoutes = usePatientRoutes();
   return (
@@ -86,14 +105,16 @@ export const PatientRoutes = React.memo(() => {
       <PatientInfoPane />
       {/* Using contain:size along with overflow: auto here allows sticky navigation section
       to have correct scrollable behavior in relation to the patient info pane and switch components */}
-      <div style={{ contain: 'size', overflow: 'auto' }}>
-        <PatientNavigation patientRoutes={patientRoutes} />
-        <Switch>
-          {patientRoutes.map(route => (
-            <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
-          ))}
-        </Switch>
-      </div>
+      <PatientPane>
+        <PatientPaneInner>
+          <PatientNavigation patientRoutes={patientRoutes} />
+          <Switch>
+            {patientRoutes.map(route => (
+              <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
+            ))}
+          </Switch>
+        </PatientPaneInner>
+      </PatientPane>
     </TwoColumnDisplay>
   );
 }, isPathUnchanged);

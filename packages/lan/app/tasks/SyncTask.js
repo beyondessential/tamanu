@@ -17,6 +17,6 @@ export class SyncTask extends ScheduledTask {
   }
 
   async run() {
-    return this.context.syncManager.runSync();
+    return this.context.syncManager.triggerSync('scheduled');
   }
 }

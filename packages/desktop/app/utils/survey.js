@@ -1,8 +1,9 @@
 import React from 'react';
+import * as yup from 'yup';
 import { inRange } from 'lodash';
+import { intervalToDuration, parseISO } from 'date-fns';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
 
-import { getAgeFromDate } from 'shared/utils/date';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -10,11 +11,12 @@ import {
   MultiselectField,
   DateField,
   NullableBooleanField,
-  SurveyQuestionAutocomplete,
+  SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
+  DateTimeField,
 } from '../components/Field';
 import { joinNames } from './user';
 
@@ -30,9 +32,10 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
-  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: props => <DateTimeField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: props => <DateField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
@@ -102,10 +105,18 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
+      const isMultiSelect =
+        matchingComponent.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'
@@ -163,11 +174,10 @@ function getInitialValue(dataElement) {
   }
 }
 
-export function getConfigObject(componentId, configString) {
-  if (!configString) return {};
-
+export function getConfigObject(componentId, config) {
+  if (!config) return {};
   try {
-    return JSON.parse(configString);
+    return JSON.parse(config);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn(`Invalid config in survey screen component ${componentId}`);
@@ -179,9 +189,22 @@ function transformPatientData(patient, config) {
   const { column = 'fullName' } = config;
   const { dateOfBirth, firstName, lastName } = patient;
 
+  const { months, years } = intervalToDuration({
+    start: parseISO(dateOfBirth),
+    end: new Date(),
+  });
+
+  const yearPlural = years !== 1 ? 's' : '';
+  const monthPlural = months !== 1 ? 's' : '';
+
   switch (column) {
     case 'age':
-      return getAgeFromDate(dateOfBirth).toString();
+      return years.toString();
+    case 'ageWithMonths':
+      if (!years) {
+        return `${months} month${monthPlural}`;
+      }
+      return `${years} year${yearPlural}, ${months} month${monthPlural}`;
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
@@ -218,7 +241,6 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }
-
   return initialValues;
 }
 
@@ -243,3 +265,60 @@ export const getActionsFromData = (data, survey) =>
     }
     return acc;
   }, {});
+
+export const getValidationSchema = surveyData => {
+  if (!surveyData) return {};
+  const { components } = surveyData;
+  const schema = components.reduce(
+    (
+      acc,
+      {
+        id: componentId,
+        dataElement,
+        validationCriteria,
+        config,
+        dataElementId,
+        text: componentText,
+      },
+    ) => {
+      const { unit = '' } = getConfigObject(componentId, config);
+      const { min, max, mandatory } = getConfigObject(componentId, validationCriteria);
+      const { type, defaultText } = dataElement;
+      const text = componentText || defaultText;
+      let valueSchema;
+      switch (type) {
+        case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
+          valueSchema = yup.number().nullable();
+          if (typeof min === 'number' && !isNaN(min)) {
+            valueSchema = valueSchema.min(min, `${text} must be at least ${min}${unit}`);
+          }
+          if (typeof max === 'number' && !isNaN(max)) {
+            valueSchema = valueSchema.max(max, `${text} can not exceed ${max}${unit}`);
+          }
+          break;
+        }
+        case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+        case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
+        case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
+          valueSchema = yup.string();
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+        case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
+        case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
+          valueSchema = yup.date();
+          break;
+        default:
+          valueSchema = yup.mixed();
+          break;
+      }
+      return {
+        ...acc,
+        [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
+          mandatory ? 'Required' : null,
+        ),
+      };
+    },
+    {},
+  );
+  return yup.object().shape(schema);
+};

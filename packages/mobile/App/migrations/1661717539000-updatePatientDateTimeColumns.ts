@@ -1,9 +1,10 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
-const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+
+const ISO9075_FORMAT = 'YYYY-MM-DD';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
-async function createDateTimeStringUpMigration(
+async function createDateStringUpMigration(
   queryRunner: QueryRunner,
   tableName: string,
   columnName: string,
@@ -15,7 +16,7 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: `${columnName}_legacy`,
-      type: 'date',
+      type: 'datetime',
       isNullable: true,
     }),
   );
@@ -33,35 +34,43 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: columnName,
-      type: 'string',
+      type: 'varchar',
       length: `${ISO9075_FORMAT_LENGTH}`,
       isNullable: true,
     }),
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+      SET ${columnName} = date(${columnName}_legacy, 'localtime')
+      WHERE ${columnName}_legacy IS NOT NULL`,
   );
 }
 
-async function createDateTimeStringDownMigration(
+async function createDateStringDownMigration(
   queryRunner: QueryRunner,
   tableName: string,
   columnName: string,
 ): Promise<void> {
   // 1. Drop the string column
-  await queryRunner.query(`ALTER TABLE ${tableName} DROP COLUMN ${columnName}`);
+  await queryRunner.dropColumn(tableName, columnName);
 
   // 2. Move legacy data back to main column
-  await queryRunner.query(`ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`);
+  await queryRunner.renameColumn(
+    tableName,
+    `${columnName}_legacy`,
+    new TableColumn({
+      name: columnName,
+      type: 'datetime',
+    }),
+  );
 }
 
 export class updatePatientDateTimeColumns1661717539000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringUpMigration(queryRunner, 'patient', 'dateOfBirth');
+    await createDateStringUpMigration(queryRunner, 'patient', 'dateOfBirth');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringDownMigration(queryRunner, 'patient', 'dateOfBirth');
+    await createDateStringDownMigration(queryRunner, 'patient', 'dateOfBirth');
   }
 }

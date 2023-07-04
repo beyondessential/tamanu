@@ -8,8 +8,9 @@ import {
   randomReferenceIds,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
-import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { toDateTimeString } from 'shared/utils/dateTime';
+import { createTestContext } from '../../utilities';
 
 describe('Recent Diagnoses report', () => {
   let baseApp = null;
@@ -49,7 +50,7 @@ describe('Recent Diagnoses report', () => {
       const encounter = await models.Encounter.create(
         await createDummyEncounter(models, {
           encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: subDays(new Date(), 1).toISOString(),
+          startDate: toDateTimeString(subDays(new Date(), 1)),
           patientId: patient1.dataValues.id,
           locationId: expectedLocation,
         }),
@@ -86,7 +87,7 @@ describe('Recent Diagnoses report', () => {
       const encounter = await models.Encounter.create(
         await createDummyEncounter(models, {
           encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: subDays(new Date(), 1).toISOString(),
+          startDate: toDateTimeString(subDays(new Date(), 1)),
           patientId: patient1.dataValues.id,
           locationId: expectedLocation,
         }),

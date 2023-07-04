@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePDF } from '@react-pdf/renderer';
-import { CircularProgress, Typography } from '@material-ui/core';
+import { CircularProgress, Typography, Box } from '@material-ui/core';
 import styled from 'styled-components';
 
 const FullIframe = styled.iframe`
@@ -44,12 +44,25 @@ export const PDFViewer = ({ id, children }) => {
     }, 2000);
   });
 
-  if (!instance.url || !loaded) {
+  if (!loaded) {
     return (
       <Loader>
         <CircularProgress size="5rem" />
         <Typography>Loading...</Typography>
       </Loader>
+    );
+  }
+
+  if (!instance.url) {
+    return (
+      <Box p={5} my={5}>
+        <Typography variant="h5" gutterBottom>
+          Error
+        </Typography>
+        <Typography>
+          Error loading document. Please try logging in again to view the document.
+        </Typography>
+      </Box>
     );
   }
 

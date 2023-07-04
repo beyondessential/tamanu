@@ -9,6 +9,7 @@ import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
@@ -97,6 +98,7 @@ describe('Certificate', () => {
       labTestType1,
       labTestType2,
       lab,
+      department,
       location,
       pfVaxDrug,
     } = await prepopulate(models);
@@ -133,6 +135,8 @@ describe('Certificate', () => {
             ...fake(models.Encounter),
             patientId: patient.id,
             locationId: location.id,
+            departmentId: department.id,
+            examinerId: user.id,
           })
         ).id,
         batch: '001',
@@ -154,14 +158,14 @@ describe('Certificate', () => {
         labTestTypeId: labTestType1.id,
         labRequestId: labRequest.id,
         labTestMethodId: method.id,
-        completedDate: new Date().toISOString(),
+        completedDate: getCurrentDateString(),
       });
       await models.LabTest.create({
         result: 'Positive',
         labTestTypeId: labTestType2.id,
         labRequestId: labRequest.id,
         labTestMethodId: method.id,
-        completedDate: new Date().toISOString(),
+        completedDate: getCurrentDateString(),
       });
     };
   });
@@ -182,9 +186,15 @@ describe('Certificate', () => {
     await createVaccines();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeVaccineCertificate(patientRecord, printedBy, models, 'TEST UVCI', [
-      { foo: 'bar' },
-    ]);
+    const printedAt = new Date();
+    const result = await makeVaccineCertificate(
+      patientRecord,
+      printedBy,
+      printedAt,
+      models,
+      'TEST UVCI',
+      [{ foo: 'bar' }],
+    );
     expect(result.status).toEqual('success');
   });
 });

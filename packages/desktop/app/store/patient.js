@@ -24,14 +24,13 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
-export const syncPatient = () => async (dispatch, getState, { api }) => {
-  const { patient } = getState();
+export const syncPatient = patientId => async (dispatch, getState, { api }) => {
   dispatch({
     type: PATIENT_SYNCING,
     data: true,
   });
-  await api.put(`patient/${patient.id}`, { markedForSync: true });
-  dispatch(reloadPatient(patient.id));
+  await api.post(`patientFacility`, { patientId });
+  dispatch(reloadPatient(patientId));
 
   // typically it takes a while for sync to complete
   // so wait for about 30 seconds till removing syncing state

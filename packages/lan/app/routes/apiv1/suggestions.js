@@ -7,6 +7,7 @@ import { NotFoundError } from 'shared/errors';
 import {
   SURVEY_TYPES,
   REFERENCE_TYPE_VALUES,
+  REFERENCE_TYPES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
@@ -25,7 +26,7 @@ function createSuggesterRoute(
   searchColumn = 'name',
 ) {
   suggestions.get(
-    `/${endpoint}`,
+    `/${endpoint}$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
@@ -40,14 +41,15 @@ function createSuggesterRoute(
       const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
         where,
-        order: [positionQuery, searchColumn],
+        order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
         },
         limit: defaultLimit,
       });
 
-      res.send(results.map(mapper));
+      // Allow for async mapping functions (currently only used by location suggester)
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -64,21 +66,30 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
       req.checkPermission('read', record);
-      res.send(mapper(record));
+      res.send(await mapper(record));
     }),
   );
 }
 
-function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = defaultMapper) {
+function createAllRecordsSuggesterRoute(
+  endpoint,
+  modelName,
+  baseWhere,
+  mapper = defaultMapper,
+  orderColumn = 'name',
+) {
   suggestions.get(
-    `/${endpoint}/all`,
+    `/${endpoint}/all$`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
-      const { models } = req;
+      const { models, query } = req;
+
       const model = models[modelName];
       const results = await model.findAll({
-        where,
-        limit: defaultLimit,
+        where: query.filterByFacility
+          ? { ...baseWhere, facilityId: config.serverFacilityId }
+          : baseWhere,
+        order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
       const listing = results.map(mapper);
@@ -102,19 +113,24 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-REFERENCE_TYPE_VALUES.map(typeName =>
+REFERENCE_TYPE_VALUES.forEach(typeName => {
   createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  }),
-);
+  });
 
-REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(typeName, 'ReferenceData', search => ({
     name: { [Op.iLike]: search },
     type: typeName,
     ...VISIBILITY_CRITERIA,
-  })),
+  }));
+});
+
+createAllRecordsSuggesterRoute(
+  'labTestType',
+  'LabTestType',
+  VISIBILITY_CRITERIA,
+  ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 );
 
 const DEFAULT_WHERE_BUILDER = search => ({
@@ -127,6 +143,7 @@ const filterByFacilityWhereBuilder = (search, query) => {
   if (!query.filterByFacility) {
     return baseWhere;
   }
+
   return {
     ...baseWhere,
     facilityId: config.serverFacilityId,
@@ -144,8 +161,54 @@ const createNameSuggester = (
   }));
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
-createNameSuggester('location', 'Location', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
+
+// Calculate the availability of the location before passing on to the front end
+createSuggester(
+  'location',
+  'Location',
+  // Allow filtering by parent location group
+  (search, query) => {
+    const baseWhere = filterByFacilityWhereBuilder(search, query);
+
+    const { q, filterByFacility, ...filters } = query;
+
+    if (!query.parentId) {
+      return { ...baseWhere, ...filters };
+    }
+
+    return {
+      ...baseWhere,
+      parentId: query.parentId,
+    };
+  },
+  async location => {
+    const availability = await location.getAvailability();
+    const { name, code, id, maxOccupancy, facilityId } = location;
+
+    const lg = await location.getLocationGroup();
+    const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+    return {
+      name,
+      code,
+      maxOccupancy,
+      id,
+      availability,
+      facilityId,
+      ...(locationGroup && { locationGroup }),
+    };
+  },
+  'name',
+);
+
+createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
+
+createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
+
+// Location groups filtered by facility. Used in the survey form autocomplete
+createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
+  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+);
 
 createSuggester(
   'survey',
@@ -153,7 +216,7 @@ createSuggester(
   search => ({
     name: { [Op.iLike]: search },
     surveyType: {
-      [Op.ne]: SURVEY_TYPES.OBSOLETE,
+      [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
     },
   }),
   ({ id, name }) => ({ id, name }),
@@ -197,3 +260,66 @@ createSuggester(
   patient => patient,
   'first_name',
 );
+
+// Specifically fetches lab test categories that have a lab request against a patient
+createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  const status = query?.status || 'published';
+
+  if (!query.patientId) {
+    return { ...baseWhere, type: REFERENCE_TYPES.LAB_TEST_CATEGORY };
+  }
+
+  return {
+    ...baseWhere,
+    type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(lab_test_category_id)
+          FROM lab_requests
+          INNER JOIN
+            encounters ON encounters.id = lab_requests.encounter_id
+          WHERE lab_requests.status = '${status}'
+            AND encounters.patient_id = '${query.patientId}'
+        )`,
+      ),
+    },
+  };
+});
+
+// Specifically fetches lab panels that have a lab test against a patient
+createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  const status = query?.status || 'published';
+
+  if (!query.patientId) {
+    return baseWhere;
+  }
+
+  return {
+    ...baseWhere,
+    id: {
+      [Op.in]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(lab_test_panel_id)
+          FROM lab_test_panel_lab_test_types
+          INNER JOIN
+            lab_test_types ON lab_test_types.id = lab_test_panel_lab_test_types.lab_test_type_id
+          INNER JOIN
+            lab_tests ON lab_tests.lab_test_type_id = lab_test_types.id
+          INNER JOIN
+            lab_requests ON lab_requests.id = lab_tests.lab_request_id
+          INNER JOIN
+            encounters ON encounters.id = lab_requests.encounter_id
+          WHERE lab_requests.status = '${status}'
+            AND encounters.patient_id = '${query.patientId}'
+        )`,
+      ),
+    },
+  };
+});
+
+// TODO: Use generic LabTest permissions for this suggester
+createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
+createNameSuggester('labTestPanel', 'LabTestPanel');

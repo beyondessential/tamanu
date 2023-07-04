@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
-
+import React from 'react';
 import * as yup from 'yup';
-import { LAB_TEST_RESULT_TYPES } from 'shared/constants';
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
 import {
   Form,
   Field,
@@ -37,41 +36,58 @@ function renderOptions(options) {
     }));
 }
 
-export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {
+export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) => {
   const { resultType, options } = labTest.labTestType;
   const component = getComponentForTest(resultType, options);
   const methodSuggester = useSuggester('labTestMethod');
 
-  const renderForm = useCallback(
-    ({ submitForm }) => (
-      <FormGrid columns={1}>
-        <Field
-          label="Result"
-          name="result"
-          required
-          component={component}
-          options={renderOptions(options)}
-        />
-        <Field
-          label="Test method"
-          name="labTestMethodId"
-          placeholder="Search methods"
-          component={AutocompleteField}
-          suggester={methodSuggester}
-        />
-        <Field label="Laboratory officer" name="laboratoryOfficer" component={TextField} />
-        <Field label="Verification" name="verification" component={TextField} />
-        <Field label="Time of test" name="completedDate" component={DateTimeField} />
-        <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
-      </FormGrid>
-    ),
-    [onClose, component, methodSuggester, options],
-  );
-
   return (
     <Form
       onSubmit={onSubmit}
-      render={renderForm}
+      render={({ submitForm }) => (
+        <FormGrid columns={2}>
+          <Field
+            label="Result"
+            name="result"
+            required
+            component={component}
+            options={renderOptions(options)}
+            disabled={isReadOnly}
+          />
+          <Field
+            label="Completed"
+            name="completedDate"
+            component={DateTimeField}
+            disabled={isReadOnly}
+            saveDateAsString
+          />
+          <Field
+            label="Laboratory officer"
+            name="laboratoryOfficer"
+            component={TextField}
+            disabled={isReadOnly}
+          />
+          <Field
+            label="Test method"
+            name="labTestMethodId"
+            placeholder="Search methods"
+            component={AutocompleteField}
+            suggester={methodSuggester}
+            disabled={isReadOnly}
+          />
+          <Field
+            label="Verification"
+            name="verification"
+            component={TextField}
+            disabled={isReadOnly}
+          />
+          <ConfirmCancelRow
+            onConfirm={submitForm}
+            onCancel={onClose}
+            confirmDisabled={isReadOnly}
+          />
+        </FormGrid>
+      )}
       initialValues={labTest}
       validationSchema={yup.object().shape({
         result: yup.mixed().required(),

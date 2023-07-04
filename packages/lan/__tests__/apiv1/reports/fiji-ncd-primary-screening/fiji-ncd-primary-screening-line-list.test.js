@@ -123,16 +123,16 @@ describe('Fiji NCD Primary Screening line list', () => {
 
     await setupProgramAndSurvey(models);
 
-    await createCVDFormSurveyResponse(app, expectedPatient1, '2021-03-12T01:00:00.133Z');
-    await createCVDReferral(app, expectedPatient1, '2021-03-12T02:00:00.133Z');
+    await createCVDFormSurveyResponse(app, expectedPatient1, '2021-03-12 01:00:00');
+    await createCVDReferral(app, expectedPatient1, '2021-03-12 02:00:00');
 
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12T01:00:00.133Z');
-    await createBreastCancerReferral(app, expectedPatient1, '2021-03-12T02:00:00.133Z');
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12 01:00:00');
+    await createBreastCancerReferral(app, expectedPatient1, '2021-03-12 02:00:00');
 
     // Submit another Breast Cancer form and referral on the same date,
     // should pick the latest one per date when generating report
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12T03:00:00.133Z');
-    await createBreastCancerReferral(app, expectedPatient1, '2021-03-12T04:00:00.133Z');
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12 03:00:00');
+    await createBreastCancerReferral(app, expectedPatient1, '2021-03-12 04:00:00');
 
     const mostRecentBreastCancerReferral = await models.Referral.findOne({
       include: [
@@ -144,7 +144,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         {
           model: models.SurveyResponse,
           as: 'surveyResponse',
-          where: { endTime: '2021-03-12T04:00:00.133Z' },
+          where: { endTime: '2021-03-12 04:00:00' },
         },
       ],
     });
@@ -154,7 +154,7 @@ describe('Fiji NCD Primary Screening line list', () => {
     );
 
     // No referral submitted for this
-    await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14T01:00:00.133Z', {
+    await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14 01:00:00', {
       resultText: undefined,
     });
   });
@@ -196,17 +196,17 @@ describe('Fiji NCD Primary Screening line list', () => {
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
         screeningCompleted: 'Breast Cancer Primary Screening',
-        dateOfScreening: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningLocation: `pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningHealthFacility: `pde-FijBS07-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-        nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningEligibility: `pde-FijBS14-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
+        dateOfScreening: `pde-FijBS02-on-2021-03-12 03:00:00-${expectedPatient1.firstName}`,
+        screeningLocation: `pde-FijBS04-on-2021-03-12 03:00:00-${expectedPatient1.firstName}`,
+        screeningHealthFacility: `pde-FijBS07-on-2021-03-12 03:00:00-${expectedPatient1.firstName}`,
+        nameOfCso: `pde-FijBS10-on-2021-03-12 03:00:00-${expectedPatient1.firstName}`,
+        screeningEligibility: `pde-FijBS14-on-2021-03-12 03:00:00-${expectedPatient1.firstName}`,
         cvdRiskLevel: null,
         breastCancerRiskLevel: 'High risk',
         referralCreated: `Yes`,
-        dateOfReferral: `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
-        referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
-        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        dateOfReferral: `pde-FijBCRef04-on-2021-03-12 04:00:00-${expectedPatient1.firstName}`,
+        referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12 04:00:00-${expectedPatient1.firstName}`,
+        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12 04:00:00-${expectedPatient1.firstName}`,
         referralStatus: 'Completed',
       };
       for (const entry of Object.entries(expectedDetails1)) {
@@ -232,17 +232,17 @@ describe('Fiji NCD Primary Screening line list', () => {
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
         screeningCompleted: 'CVD Primary Screening',
-        dateOfScreening: `pde-FijCVD002-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningLocation: `pde-FijCVD004-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningHealthFacility: `pde-FijCVD007-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-        nameOfCso: `pde-FijCVD010-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningEligibility: `pde-FijCVD021-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        dateOfScreening: `pde-FijCVD002-on-2021-03-12 01:00:00-${expectedPatient1.firstName}`,
+        screeningLocation: `pde-FijCVD004-on-2021-03-12 01:00:00-${expectedPatient1.firstName}`,
+        screeningHealthFacility: `pde-FijCVD007-on-2021-03-12 01:00:00-${expectedPatient1.firstName}`,
+        nameOfCso: `pde-FijCVD010-on-2021-03-12 01:00:00-${expectedPatient1.firstName}`,
+        screeningEligibility: `pde-FijCVD021-on-2021-03-12 01:00:00-${expectedPatient1.firstName}`,
         cvdRiskLevel: '3% GREEN',
         breastCancerRiskLevel: null,
         referralCreated: 'Yes',
-        dateOfReferral: `pde-FijCVDRef4-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
-        referredToHealthFacility: `pde-FijCVDRef6-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
-        expectedAttendanceDate: `pde-FijCVDRef7-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
+        dateOfReferral: `pde-FijCVDRef4-on-2021-03-12 02:00:00-${expectedPatient1.firstName}`,
+        referredToHealthFacility: `pde-FijCVDRef6-on-2021-03-12 02:00:00-${expectedPatient1.firstName}`,
+        expectedAttendanceDate: `pde-FijCVDRef7-on-2021-03-12 02:00:00-${expectedPatient1.firstName}`,
         referralStatus: 'Pending',
       };
       for (const entry of Object.entries(expectedDetails2)) {
@@ -269,11 +269,11 @@ describe('Fiji NCD Primary Screening line list', () => {
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData2.primaryContactNumber,
         screeningCompleted: 'Breast Cancer Primary Screening',
-        dateOfScreening: `pde-FijBS02-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
-        screeningLocation: `pde-FijBS04-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
-        screeningHealthFacility: `pde-FijBS07-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
-        nameOfCso: `pde-FijBS10-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
-        screeningEligibility: `pde-FijBS14-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
+        dateOfScreening: `pde-FijBS02-on-2021-03-14 01:00:00-${expectedPatient2.firstName}`,
+        screeningLocation: `pde-FijBS04-on-2021-03-14 01:00:00-${expectedPatient2.firstName}`,
+        screeningHealthFacility: `pde-FijBS07-on-2021-03-14 01:00:00-${expectedPatient2.firstName}`,
+        nameOfCso: `pde-FijBS10-on-2021-03-14 01:00:00-${expectedPatient2.firstName}`,
+        screeningEligibility: `pde-FijBS14-on-2021-03-14 01:00:00-${expectedPatient2.firstName}`,
         cvdRiskLevel: null,
         breastCancerRiskLevel: 'Not high risk',
         referralCreated: 'No',

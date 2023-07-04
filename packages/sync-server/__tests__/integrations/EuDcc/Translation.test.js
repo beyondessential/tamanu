@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fake } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { createEuDccVaccinationData } from '../../../app/integrations/EuDcc';
 
@@ -48,19 +48,21 @@ describe('EU DCC: Vaccination', () => {
   it('translates a vaccine to EU DCC format', async () => {
     // Arrange
     const {
-      Patient,
+      AdministeredVaccine,
+      Department,
       Encounter,
       Facility,
       Location,
+      Patient,
       ScheduledVaccine,
-      AdministeredVaccine,
+      User,
     } = ctx.store.models;
 
     const patient = await Patient.create({
       ...fake(Patient),
       firstName: 'Fiamē Naomi',
       lastName: 'Mataʻafa',
-      dateOfBirth: new Date(Date.parse('29 April 1957, UTC')),
+      dateOfBirth: '1957-04-29',
       sex: 'female',
     });
 
@@ -81,10 +83,19 @@ describe('EU DCC: Vaccination', () => {
       facilityId: facility.id,
     });
 
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+
+    const examiner = await User.create(fakeUser());
+
     const vaccineEncounter = await Encounter.create({
       ...fake(Encounter),
       patientId: patient.id,
       locationId: location.id,
+      departmentId: department.id,
+      examinerId: examiner.id,
     });
 
     const vax = await AdministeredVaccine.create({
@@ -103,6 +114,7 @@ describe('EU DCC: Vaccination', () => {
     });
 
     // Assert
+    expect(msg.dob).to.be.oneOf(['1957-04-28', '1957-04-29', '1957-04-30']); // due to testing timezones :/
     expect(msg).to.deep.equal({
       ver: '1.3.0',
       nam: {
@@ -111,7 +123,7 @@ describe('EU DCC: Vaccination', () => {
         gn: 'Fiamē Naomi',
         gnt: 'FIAME<NAOMI',
       },
-      dob: '1957-04-29',
+      dob: msg.dob, // checked above
       v: [
         {
           ci: 'URN:UVCI:01:UT:2038D06025A74DB1AA335C7E0307B0D4#E',

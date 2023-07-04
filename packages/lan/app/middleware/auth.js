@@ -1,3 +1,4 @@
+import { trace, propagation, context } from '@opentelemetry/api';
 import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
@@ -7,7 +8,7 @@ import { BadAuthenticationError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 
-import { WebRemote } from '../sync';
+import { CentralServerConnection } from '../sync';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -39,35 +40,33 @@ async function comparePassword(user, password) {
   }
 }
 
-export async function remoteLogin(models, email, password) {
+export async function centralServerLogin(models, email, password, deviceId) {
   // try logging in to sync server
-  const remote = new WebRemote();
-  const response = await remote.fetch('login', {
+  const centralServer = new CentralServerConnection({ deviceId });
+  const response = await centralServer.fetch('login', {
     awaitConnection: false,
     retryAuth: false,
     method: 'POST',
     body: {
       email,
       password,
+      deviceId,
     },
     backoff: {
       maxAttempts: 1,
     },
   });
 
-  // we've logged in as a valid remote user - update local database to match
+  // we've logged in as a valid central user - update local database to match
   const { user, localisation } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
-    await models.User.upsert(
-      {
-        id,
-        ...userDetails,
-        password,
-      },
-      { where: { id } },
-    );
+    await models.User.upsert({
+      id,
+      ...userDetails,
+      password,
+    });
     await models.UserLocalisationCache.upsert({
       userId: id,
       localisation: JSON.stringify(localisation),
@@ -75,10 +74,10 @@ export async function remoteLogin(models, email, password) {
   });
 
   const token = getToken(user);
-  const permissions = await getPermissionsForRoles(user.role);
+  const permissions = await getPermissionsForRoles(models, user.role);
   return {
     token,
-    remote: true,
+    central: true,
     localisation,
     permissions,
   };
@@ -95,41 +94,47 @@ async function localLogin(models, email, password) {
 
   const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
+    order: [['createdAt', 'DESC']],
   });
 
   const token = getToken(user);
-  const permissions = await getPermissionsForRoles(user.role);
-  return { token, remote: false, localisation, permissions };
+  const permissions = await getPermissionsForRoles(models, user.role);
+  return { token, central: false, localisation, permissions };
 }
 
-async function remoteLoginWithLocalFallback(models, email, password) {
+async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test') {
     return localLogin(models, email, password);
   }
 
   try {
-    return await remoteLogin(models, email, password);
+    return await centralServerLogin(models, email, password, deviceId);
   } catch (e) {
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
-    log.warn(`remoteLoginWithLocalFallback: remote login failed: ${e}`);
+    log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
     return localLogin(models, email, password);
   }
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models } = req;
+  const { body, models, deviceId } = req;
   const { email, password } = body;
 
   // no permission needed for login
   req.flagPermissionChecked();
 
   try {
-    const responseData = await remoteLoginWithLocalFallback(models, email, password);
+    const responseData = await centralServerLoginWithLocalFallback(
+      models,
+      email,
+      password,
+      deviceId,
+    );
     const facility = await models.Facility.findByPk(config.serverFacilityId);
     res.send({
       ...responseData,
@@ -144,6 +149,9 @@ export async function loginHandler(req, res, next) {
 
 export async function refreshHandler(req, res) {
   const { user } = req;
+
+  // Run after auth middleware, requires valid token but no other permission
+  req.flagPermissionChecked();
 
   const token = getToken(user);
   res.send({ token });
@@ -182,7 +190,20 @@ export const authMiddleware = async (req, res, next) => {
         where: { userId: req.user.id },
         order: [['createdAt', 'DESC']],
       });
-    next();
+
+    const spanAttributes = req.user
+      ? {
+          'enduser.id': req.user.id,
+          'enduser.role': req.user.role,
+        }
+      : {};
+
+    // eslint-disable-next-line no-unused-expressions
+    trace.getActiveSpan()?.setAttributes(spanAttributes);
+    context.with(
+      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+      () => next(),
+    );
   } catch (e) {
     next(e);
   }

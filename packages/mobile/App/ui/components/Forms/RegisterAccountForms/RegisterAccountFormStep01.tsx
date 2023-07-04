@@ -1,4 +1,4 @@
-import React, { FunctionComponent as FC, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { Formik, FormikHandlers } from 'formik';
 import * as Yup from 'yup';
 import { TextField } from '../../TextField/TextField';
@@ -9,15 +9,15 @@ import { MaskedTextField } from '../../TextField/MaskedTextField';
 import { theme } from '/styled/theme';
 import { Button } from '../../Button';
 import { RadioButtonGroup } from '../../RadioButtonGroup';
-import { RegisterAccountFormStep1Props } from '../../../contexts/RegisterAccountContext';
+import { RegisterAccountFormStep1FormValues } from '../../../contexts/RegisterAccountContext';
 import { GenderOptions } from '/helpers/constants';
 
-interface RegisterAccountFormStep01 {
-  onSubmit: (values: RegisterAccountFormStep1Props) => void;
-  formState: RegisterAccountFormStep1Props;
+interface RegisterAccountFormStep01Props {
+  onSubmit: (values: RegisterAccountFormStep1FormValues) => void;
+  formState: RegisterAccountFormStep1FormValues;
 }
 
-export const RegisterAccountFormStep01: FC<RegisterAccountFormStep01> = props => (
+export const RegisterAccountFormStep01 = (props: RegisterAccountFormStep01Props): JSX.Element => (
   <FullView justifyContent="center" padding={20}>
     <StyledText
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
@@ -29,10 +29,10 @@ export const RegisterAccountFormStep01: FC<RegisterAccountFormStep01> = props =>
   </FullView>
 );
 
-const Form: FC<RegisterAccountFormStep01> = ({
+const Form = ({
   onSubmit,
   formState,
-}: RegisterAccountFormStep01) => (
+}: RegisterAccountFormStep01Props): JSX.Element => (
   <Formik
     initialValues={{
       ...formState,

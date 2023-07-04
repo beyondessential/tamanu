@@ -6,19 +6,24 @@ import { log } from 'shared/services/logging';
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
 import * as signer from './Signer';
+import * as fijiAspenMediciReport from './fijiAspenMediciReport';
 import * as mSupply from './mSupply';
 import * as fhir from './fhir';
+import * as omniLab from './omniLab';
 
 import { checkEuDccConfig } from './EuDcc';
 import { checkSignerConfig } from './Signer';
 import { checkVdsNcConfig } from './VdsNc';
+import { checkFhirConfig } from './fhir/config';
 
 const integrations = {
   fijiVrs,
   fijiVps,
   signer,
+  fijiAspenMediciReport,
   mSupply,
   fhir,
+  omniLab,
 };
 
 export const integrationRoutes = express.Router();
@@ -33,7 +38,9 @@ export const initIntegrations = async ctx => {
         await initAppContext(ctx);
       }
       if (routes) {
-        integrationRoutes.use(`/${key}`, routes);
+        const isRouter = Object.getPrototypeOf(routes) === express.Router;
+        const actualRoutes = isRouter ? routes : routes(ctx);
+        integrationRoutes.use(`/${key}`, actualRoutes);
       }
       if (publicRoutes) {
         publicIntegrationRoutes.use(`/${key}`, publicRoutes);
@@ -48,6 +55,7 @@ export function checkIntegrationsConfig() {
   checkEuDccConfig();
   checkSignerConfig();
   checkVdsNcConfig();
+  checkFhirConfig();
 
   if (
     (config.integrations.euDcc.enabled || config.integrations.vdsNc.enabled) &&

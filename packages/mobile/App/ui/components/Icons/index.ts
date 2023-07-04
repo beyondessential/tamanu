@@ -8,6 +8,8 @@ export * from './Cross';
 export * from './Chat';
 export * from './Search';
 export * from './ScheduledVaccine';
+export * from './GreenTick';
+export * from './Error';
 
 export * from './CameraOutline';
 export * from './Settings';
@@ -17,7 +19,7 @@ export * from './ArrowDown';
 export * from './ArrowForward';
 export * from './ArrowLeft';
 export * from './ArrowUp';
-export * from './CheckUp';
+export * from './Vitals';
 export * from './Pencil';
 
 // Logos
@@ -57,7 +59,7 @@ export * from './FamilyPlanning';
 export * from './Deceased';
 export * from './Vaccine';
 export * from './Pregnancy';
-export * from './SickOrInjured';
+export * from './DiagnosisAndTreatment';
 export * from './History';
 export * from './PatientDetails';
 export * from './LabRequest';

@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
-import { formatISO9075 } from 'date-fns';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
@@ -16,62 +15,49 @@ import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
+import { getCombinedDateString } from '/helpers/date';
 
-const ALPHABET_FOR_ID = 'ABCDEFGH'
-/*I*/ + 'JK'
-/*L*/ + 'MN'
-/*O*/ + 'PQRSTUVWXYZ'
-/*01*/ + '23456789';
+const ALPHABET_FOR_ID =
+  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 interface LabRequestFormData {
   displayId: ID;
   requestedDate: Date;
+  requestedTime: Date;
   requestedBy: string;
   sampleDate: Date;
   sampleTime: Date;
-  urgent: boolean;
-  specimenAttached: boolean;
   categoryId: string;
   priorityId: string;
+  labSampleSite: string;
   labTestTypes: string[];
 }
 
-const defaultInitialValues = {
-  requestedBy: '',
-  urgent: false,
-  specimenAttached: false,
-  categoryId: null,
-};
+const validationSchema = Yup.object().shape({
+  displayId: Yup.string().required(),
+  requestedDate: Yup.date().required(),
+  sampleDate: Yup.date().required(),
+  sampleTime: Yup.date().required(),
+  categoryId: Yup.string().required('Required'),
+  requestedBy: Yup.string().required('Required'),
+  priorityId: Yup.string(),
+});
 
 interface DumbAddLabRequestScreenProps {
   selectedPatient: IPatient;
   navigation: any;
 }
+
 export const DumbAddLabRequestScreen = ({
   selectedPatient,
   navigation,
 }: DumbAddLabRequestScreenProps): ReactElement => {
-  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [
-    selectedPatient,
-  ]);
-
-  const validationSchema = Yup.object().shape({
-    displayId: Yup.string().required(),
-    requestedDate: Yup.date().required(),
-    sampleDate: Yup.date().required(),
-    sampleTime: Yup.date().required(),
-    categoryId: Yup.string().required(),
-    priorityId: Yup.string(),
-    urgent: Yup.boolean(),
-    specimenAttached: Yup.boolean(),
-  });
+  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [selectedPatient]);
 
   const navigateToHistory = useCallback(() => {
     navigation.reset({
       index: 0,
-      routes: [
-        { name: Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory },
-      ],
+      routes: [{ name: Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory }],
     });
   }, []);
 
@@ -82,80 +68,64 @@ export const DumbAddLabRequestScreen = ({
   const validate = useCallback(values => {
     const { categoryId, labTestTypes = [] } = values;
 
-    if (!categoryId) {
-      return {
-        form: 'Lab request type must be selected.',
-      };
-    }
-    if (!labTestTypes || labTestTypes.length === 0) {
-      return {
-        form: 'At least one lab test type must be selected.',
-      };
+    if (categoryId) {
+      if (!labTestTypes || labTestTypes.length === 0) {
+        return {
+          form: 'At least one lab test type must be selected',
+        };
+      }
     }
 
     return {};
   }, []);
 
-  const recordLabRequest = useCallback(
-    async (values: LabRequestFormData): Promise<void> => {
-      showMessage({
-        message: 'Submitting lab request',
-        type: 'default',
-        backgroundColor: theme.colors.BRIGHT_BLUE,
-      });
+  const recordLabRequest = useCallback(async (values: LabRequestFormData): Promise<void> => {
+    showMessage({
+      message: 'Submitting lab request',
+      type: 'default',
+      backgroundColor: theme.colors.BRIGHT_BLUE,
+    });
 
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-        { reasonForEncounter: 'Lab request from mobile' },
-      );
+    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      selectedPatient.id,
+      user.id,
+      { reasonForEncounter: 'Lab request from mobile' },
+    );
 
-      const {
-        requestedDate,
-        sampleDate,
-        sampleTime,
-        urgent,
-        specimenAttached,
-        displayId: generatedDisplayId
-      } = values;
+    const {
+      requestedDate,
+      requestedTime,
+      sampleDate,
+      sampleTime,
+      labSampleSite,
+      requestedBy,
+      displayId: generatedDisplayId,
+    } = values;
 
-      const combinedSampleTime = new Date(
-        sampleDate.getFullYear(),
-        sampleDate.getMonth(),
-        sampleDate.getDate(),
-        sampleTime.getHours(),
-        sampleTime.getMinutes(),
-        sampleTime.getSeconds(),
-        sampleTime.getMilliseconds(),
-      );
+    // Convert requestedDate and sampleTime to strings
+    const requestedDateString = getCombinedDateString(requestedDate, requestedTime);
+    const sampleTimeString = getCombinedDateString(sampleDate, sampleTime);
 
-      // Convert requestedDate and sampleTime to strings
-      const requestedDateString = formatISO9075(requestedDate);
-      const sampleTimeString = formatISO9075(combinedSampleTime);
+    await models.LabRequest.createWithTests({
+      displayId: generatedDisplayId,
+      requestedDate: requestedDateString,
+      requestedBy,
+      encounter: encounter.id,
+      labTestCategory: values.categoryId,
+      labTestPriority: values.priorityId,
+      sampleTime: sampleTimeString,
+      labTestTypeIds: values.labTestTypes,
+      labSampleSite,
+    });
 
-      await models.LabRequest.createWithTests({
-        displayId: generatedDisplayId,
-        requestedDate: requestedDateString,
-        urgent,
-        specimenAttached,
-        requestedBy: user.id,
-        encounter: encounter.id,
-        labTestCategory: values.categoryId,
-        labTestPriority: values.priorityId,
-        sampleTime: sampleTimeString,
-        labTestTypeIds: values.labTestTypes,
-      });
-
-      navigateToHistory();
-    },
-    [],
-  );
+    navigateToHistory();
+  }, []);
 
   const initialValues = {
-    ...defaultInitialValues,
     sampleTime: new Date(),
     sampleDate: new Date(),
     requestedDate: new Date(),
+    requestedTime: new Date(),
     displayId,
   };
 
@@ -169,6 +139,8 @@ export const DumbAddLabRequestScreen = ({
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
+          validateOnChange={false}
+          validateOnBlur={false}
           onSubmit={recordLabRequest}
           navigation={navigation}
           validate={validate}
@@ -180,6 +152,4 @@ export const DumbAddLabRequestScreen = ({
   );
 };
 
-export const AddLabRequestScreen = compose(withPatient)(
-  DumbAddLabRequestScreen,
-);
+export const AddLabRequestScreen = compose(withPatient)(DumbAddLabRequestScreen);

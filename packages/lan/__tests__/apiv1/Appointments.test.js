@@ -1,6 +1,7 @@
 import { createDummyPatient } from 'shared/demoData/patients';
 import { add } from 'date-fns';
 import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
+import { randomRecordId } from 'shared/demoData/utilities';
 import { createTestContext } from '../utilities';
 
 describe('Appointments', () => {
@@ -38,6 +39,19 @@ describe('Appointments', () => {
     expect(result.body.count).toEqual(1);
     // verify that the appointment returned is the one created above
     expect(result.body.data[0].id).toEqual(appointment.id);
+  });
+  it('should be backwards compatible for appointments with locations', async () => {
+    const locationId = await randomRecordId(models, 'Location');
+    await models.Appointment.update(
+      {
+        locationId,
+      },
+      {
+        where: { id: appointment.id },
+      },
+    );
+    const result = await userApp.get('/v1/appointments');
+    expect(result.body.data[0].locationGroup.id).toEqual(locationId);
   });
   it('should cancel an appointment', async () => {
     const result = await userApp.put(`/v1/appointments/${appointment.id}`).send({

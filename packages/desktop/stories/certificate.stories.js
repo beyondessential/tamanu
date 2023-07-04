@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
-import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
+import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
+import { CovidLabCertificate, VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
-import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
-import { LabRequestPrintout } from '../app/components/PatientPrinting/LabRequestPrintout';
+import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
@@ -80,11 +79,11 @@ const getLocalisation = key => {
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
     'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
     'templates.vaccineCertificate.contactNumber': '123456',
-
     'fields.firstName.longLabel': 'First Name',
     'fields.lastName.longLabel': 'Last Name',
     'fields.dateOfBirth.longLabel': 'Date of Birth',
     'fields.sex.longLabel': 'Sex',
+    previewUvciFormat: 'tamanu',
   };
   return config[key];
 };
@@ -160,10 +159,6 @@ const vaccinations = [
       endDate: null,
       reasonForEncounter: null,
       deviceId: null,
-      markedForPush: false,
-      isPushing: false,
-      pushedAt: '2022-02-21T01:06:00.372Z',
-      pulledAt: '2022-02-21T01:06:00.455Z',
       createdAt: '2022-02-03T02:03:21.849Z',
       updatedAt: '2022-02-21T01:06:00.456Z',
       patientId: 'e0f2557f-254f-4d52-8376-39f2fcacfe52',
@@ -233,21 +228,5 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         getLocalisation={getLocalisation}
       />
     </PDFViewer>
-  );
-});
-
-storiesOf('Certificates', module).add('LabRequestPrintout', () => {
-  return (
-    <Modal title="Record patient death" open width="md">
-      <LabRequestPrintout
-        labRequestData={{ displayId: 'ASDF123', requestedDate: '10/10/10' }}
-        patientData={{
-          ...patient,
-          timeOfDeath: new Date(),
-          causes: { primary: { condition: { name: 'Diabetes' } } },
-        }}
-        certificateData={certificateData}
-      />
-    </Modal>
   );
 });

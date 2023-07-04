@@ -1,0 +1,1 @@
+export { FhirEncounter } from './FhirEncounter';

@@ -1,8 +1,20 @@
+import 'jest-expect-message';
 import supertest from 'supertest';
-import Chance from 'chance';
+import config from 'config';
 import http from 'http';
 
-import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
+import {
+  seedDepartments,
+  seedFacilities,
+  seedLocations,
+  seedLocationGroups,
+  seedLabTests,
+} from 'shared/demoData';
+import { chance, fake, showError } from 'shared/test-helpers';
+import {
+  setHardcodedPermissionsUseForTestsOnly,
+  unsetUseHardcodedPermissionsUseForTestsOnly,
+} from 'shared/permissions/rolesToPermissions';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -12,13 +24,20 @@ import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
-import { SyncManager } from '../app/sync/SyncManager';
-import { WebRemote } from '../app/sync/WebRemote';
+import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
+import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 
-jest.mock('../app/sync/WebRemote');
+export function disableHardcodedPermissionsForSuite() {
+  beforeAll(() => {
+    setHardcodedPermissionsUseForTestsOnly(false);
+  });
+  afterAll(() => {
+    unsetUseHardcodedPermissionsUseForTestsOnly();
+  });
+}
+
+jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');
-
-const chance = new Chance();
 
 const formatError = response => `
 
@@ -100,14 +119,9 @@ export async function createTestContext() {
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
 
-  // sync does not interpret and create custom types
-  await sequelize.query(`CREATE DOMAIN date_time_string as CHAR(19)`);
-  await sequelize.query(`CREATE DOMAIN date_string as CHAR(10)`);
+  await sequelize.migrate('up');
 
-  // sync db and remove old test dat
-  await sequelize.sync({});
-
-  await deleteAllTestIds(dbResult);
+  await showError(deleteAllTestIds(dbResult));
 
   // populate with reference data
   const tasks = allSeeds
@@ -120,6 +134,18 @@ export async function createTestContext() {
   await seedFacilities(models);
   await seedDepartments(models);
   await seedLocations(models);
+  await seedLocationGroups(models);
+
+  // Create the facility for the current config if it doesn't exist
+  await models.Facility.findOrCreate({
+    where: {
+      id: config.serverFacilityId,
+    },
+    defaults: {
+      code: 'TEST',
+      name: 'Test Facility',
+    },
+  });
 
   const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);
@@ -144,13 +170,30 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
+  baseApp.asNewRole = async (permissions = [], roleOverrides = {}) => {
+    const { Role, Permission } = models;
+    const role = await Role.create(fake(Role), roleOverrides);
+    const app = await baseApp.asRole(role.id);
+    app.role = role;
+    await Permission.bulkCreate(
+      permissions.map(([verb, noun, objectId]) => ({
+        roleId: role.id,
+        userId: app.user.id,
+        verb,
+        noun,
+        objectId,
+      })),
+    );
+    return app;
+  };
+
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const remote = new WebRemote();
+  const centralServer = new CentralServerConnection();
 
-  const context = { baseApp, sequelize, models, remote };
+  const context = { baseApp, sequelize, models, centralServer };
 
-  context.syncManager = new SyncManager(context);
+  context.syncManager = new FacilitySyncManager(context);
 
   const close = async () => {
     await new Promise(resolve => appServer.close(resolve));

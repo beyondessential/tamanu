@@ -1,48 +1,54 @@
 import express from 'express';
 
 import { constructPermission } from 'shared/permissions/middleware';
-import { loginHandler, authMiddleware } from '../../middleware/auth';
+import { loginHandler, refreshHandler, authMiddleware } from '../../middleware/auth';
 
-import { user } from './user';
-import { patient, patientCarePlan, patientIssue } from './patient';
-import { encounter } from './encounter';
-import { vitals } from './vitals';
-import { procedure } from './procedure';
-import { suggestions } from './suggestions';
-import { triage } from './triage';
-import { referenceData } from './referenceData';
-import { diagnosis } from './diagnosis';
-import { medication } from './medication';
 import { allergy } from './allergy';
-import { ongoingCondition } from './ongoingCondition';
+import { appointments } from './appointments';
+import { asset } from './asset';
+import { attachment } from './attachment';
+import { certificateNotification } from './certificateNotification';
+import { changePassword } from './changePassword';
+import { department } from './department';
+import { diagnosis } from './diagnosis';
+import { encounter } from './encounter';
 import { familyHistory } from './familyHistory';
-import { labRequest, labTest } from './labs';
+import { imagingRequest } from './imaging';
+import { invoices, invoiceLineTypes } from './invoice';
+import { labRequest, labTest, labTestType, labTestPanel } from './labs';
 import { labRequestLog } from './labRequestLog';
+import { location } from './location';
+import { locationGroup } from './locationGroup';
+import { medication } from './medication';
+import { notePages } from './note';
+import { ongoingCondition } from './ongoingCondition';
+import { patient, patientCarePlan, patientIssue, patientFieldDefinition } from './patient';
+import { patientFacility } from './patientFacility';
+import { procedure } from './procedure';
 import { program } from './program';
+import { referenceData } from './referenceData';
+import { referral } from './referral';
+import { reportRequest } from './reportRequest';
+import { reports } from './reports';
+import { resetPassword } from './resetPassword';
+import { scheduledVaccine } from './scheduledVaccine';
+import { suggestions } from './suggestions';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
-import { referral } from './referral';
-import { imagingRequest } from './imaging';
-import { reports } from './reports';
-import { reportRequest } from './reportRequest';
-import { appointments } from './appointments';
-import { invoices, invoiceLineTypes } from './invoice';
-import { notePages } from './note';
-import { resetPassword } from './resetPassword';
-import { changePassword } from './changePassword';
-import { certificateNotification } from './certificateNotification';
-
-import { setting } from './setting';
-import { asset } from './asset';
-import { department } from './department';
-import { location } from './location';
-import { attachment } from './attachment';
-import { scheduledVaccine } from './scheduledVaccine';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
+import { triage } from './triage';
+import { user } from './user';
+import { vitals } from './vitals';
+import { template } from './template';
+import { vaccinationSettings } from './vaccinationSettings';
 
 export const apiv1 = express.Router();
+const patientDataRoutes = express.Router();
+const referenceDataRoutes = express.Router();
+const syncRoutes = express.Router();
 
+// auth endpoints (added pre auth check)
 apiv1.post('/login', loginHandler);
 apiv1.use('/resetPassword', resetPassword);
 apiv1.use('/changePassword', changePassword);
@@ -50,50 +56,57 @@ apiv1.use('/changePassword', changePassword);
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 
-apiv1.use('/suggestions', suggestions);
-apiv1.use('/user', user);
-apiv1.use('/patient', patient);
-apiv1.use('/encounter', encounter);
-apiv1.use('/vitals', vitals);
-apiv1.use('/procedure', procedure);
-apiv1.use('/triage', triage);
-apiv1.use('/referenceData', referenceData);
-apiv1.use('/diagnosis', diagnosis);
-apiv1.use('/patientIssue', patientIssue);
-apiv1.use('/familyHistory', familyHistory);
-apiv1.use('/allergy', allergy);
-apiv1.use('/ongoingCondition', ongoingCondition);
-apiv1.use('/medication', medication);
-apiv1.use('/labRequest', labRequest);
-apiv1.use('/labTest', labTest);
-apiv1.use('/labRequestLog', labRequestLog);
-apiv1.use('/referral', referral);
-apiv1.use('/imagingRequest', imagingRequest);
-apiv1.use('/scheduledVaccine', scheduledVaccine);
-apiv1.use('/program', program);
-apiv1.use('/survey', survey);
-apiv1.use('/surveyResponse', surveyResponse);
-apiv1.use('/certificateNotification', certificateNotification);
+apiv1.post('/refresh', refreshHandler);
+apiv1.use(patientDataRoutes); // see below for specifics
+apiv1.use(referenceDataRoutes); // see below for specifics
+apiv1.use(syncRoutes); // see below for specifics
 
-apiv1.use('/reports', reports);
-apiv1.use('/reportRequest', reportRequest);
-apiv1.use('/patientCarePlan', patientCarePlan);
-apiv1.use('/appointments', appointments);
+// patient data endpoints
+patientDataRoutes.use('/allergy', allergy);
+patientDataRoutes.use('/appointments', appointments);
+patientDataRoutes.use('/diagnosis', diagnosis);
+patientDataRoutes.use('/encounter', encounter);
+patientDataRoutes.use('/familyHistory', familyHistory);
+patientDataRoutes.use('/imagingRequest', imagingRequest);
+patientDataRoutes.use('/invoices', invoices);
+patientDataRoutes.use('/labRequest', labRequest);
+patientDataRoutes.use('/labTest', labTest);
+patientDataRoutes.use('/labTestType', labTestType);
+patientDataRoutes.use('/labTestPanel', labTestPanel);
+patientDataRoutes.use('/medication', medication);
+patientDataRoutes.use('/notePages', notePages);
+patientDataRoutes.use('/ongoingCondition', ongoingCondition);
+patientDataRoutes.use('/patient', patient);
+patientDataRoutes.use('/patientCarePlan', patientCarePlan);
+patientDataRoutes.use('/patientIssue', patientIssue);
+patientDataRoutes.use('/procedure', procedure);
+patientDataRoutes.use('/referral', referral);
+patientDataRoutes.use('/surveyResponse', surveyResponse);
+patientDataRoutes.use('/triage', triage);
+patientDataRoutes.use('/vitals', vitals);
 
-apiv1.use('/invoices', invoices);
-apiv1.use('/invoiceLineTypes', invoiceLineTypes);
+// reference data endpoints
+referenceDataRoutes.use('/asset', asset);
+referenceDataRoutes.use('/attachment', attachment);
+referenceDataRoutes.use('/certificateNotification', certificateNotification);
+referenceDataRoutes.use('/department', department);
+referenceDataRoutes.use('/invoiceLineTypes', invoiceLineTypes);
+referenceDataRoutes.use('/labRequestLog', labRequestLog);
+referenceDataRoutes.use('/location', location);
+referenceDataRoutes.use('/locationGroup', locationGroup);
+referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
+referenceDataRoutes.use('/program', program);
+referenceDataRoutes.use('/referenceData', referenceData);
+referenceDataRoutes.use('/reportRequest', reportRequest);
+referenceDataRoutes.use('/reports', reports);
+referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
+referenceDataRoutes.use('/suggestions', suggestions);
+referenceDataRoutes.use('/survey', survey);
+referenceDataRoutes.use('/user', user);
+referenceDataRoutes.use('/template', template);
+referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
 
-apiv1.use('/notePages', notePages);
-
-apiv1.use('/setting', setting);
-
-apiv1.use('/asset', asset);
-
-apiv1.use('/department', department);
-apiv1.use('/location', location);
-
-apiv1.use('/attachment', attachment);
-
-apiv1.use('/sync', sync);
-
-apiv1.use('/syncHealth', syncHealth);
+// sync endpoints
+syncRoutes.use('/sync', sync);
+syncRoutes.use('/syncHealth', syncHealth);
+syncRoutes.use('/patientFacility', patientFacility);

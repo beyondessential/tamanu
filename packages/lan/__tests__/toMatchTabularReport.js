@@ -26,8 +26,8 @@ const testReportLength = (receivedData, expectedData) =>
   receivedData.length === expectedData.length
     ? []
     : [
-      `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
-    ];
+        `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
+      ];
 
 const testReportContentLine = (expectContextThis, getProperty, expectedRow, receivedRow, index) => {
   const errors = [];
@@ -80,7 +80,7 @@ export const toMatchTabularReport = (
     return failForMismatchingHeadings(buildErrorMessage, receivedHeadings, expectedHeaders);
   }
 
-  const errors = testReportLength(receivedData, expectedData);
+  let errors = testReportLength(receivedData, expectedData);
 
   const keyToIndex = receivedHeadings.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
   const getProperty = (row, prop) => row[keyToIndex[prop]];
@@ -97,7 +97,7 @@ export const toMatchTabularReport = (
       receivedRow,
       index,
     );
-    errors.push(...lineErrors);
+    errors = errors.concat(lineErrors);
   });
 
   return {

@@ -30,19 +30,13 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   }
 
   async fetch(options): Promise<BaseModel[]> {
-    const data = await this.model
-      .getRepository()
-      .find(options);
-
-    return data;
+    return this.model.findVisible(options);
   }
 
   fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
     if (!value) return undefined;
     try {
-      const data = await this.model
-        .getRepository()
-        .findOne(value);
+      const data = await this.model.getRepository().findOne(value);
 
       return this.formatter(data);
     } catch (e) {
@@ -51,16 +45,16 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   };
 
   fetchSuggestions = async (search: string): Promise<OptionType[]> => {
-    const {
-      where = {},
-      column = 'name',
-    } = this.options;
+    const { where = {}, column = 'name' } = this.options;
 
     try {
       const data = await this.fetch({
         where: {
           [column]: Like(`%${search}%`),
           ...where,
+        },
+        order: {
+          [column]: 'ASC',
         },
       });
 

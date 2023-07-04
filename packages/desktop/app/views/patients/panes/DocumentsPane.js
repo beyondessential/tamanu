@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-// import { promises as asyncFs } from 'fs';
-// import { lookup as lookupMimeType } from 'mime-types';
+import { ForbiddenError } from '@tamanu/shared/errors';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
@@ -60,24 +60,28 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       }
 
       setIsSubmitting(true);
-      // TODO(web)
-      // try {
-      //   // Read and inject document creation date and type to metadata sent
-      //   // const { birthtime } = await asyncFs.stat(file);
-      //   const type = lookupMimeType(file);
-      //   await api.postWithFileUpload(endpoint, file, {
-      //     ...data,
-      //     type,
-      //     documentCreatedAt: birthtime,
-      //   });
-      //   handleClose();
-      //   setRefreshCount(refreshCount + 1);
-      // } catch (error) {
-      //   // Assume that if submission fails is because of lack of storage
-      //   setModalStatus(MODAL_STATES.ALERT_NO_SPACE_OPEN);
-      // } finally {
-      //   setIsSubmitting(false);
-      // }
+      try {
+        // Read and inject document creation date and type to metadata sent
+        // const { birthtime } = await asyncFs.stat(file); // TODO(web)
+        const type = 'application/pdf'; // lookupMimeType(file); // TODO(web)
+        await api.postWithFileUpload(endpoint, file, {
+          ...data,
+          type,
+          // documentCreatedAt: toDateTimeString(birthtime),
+          documentUploadedAt: getCurrentDateTimeString(),
+        });
+        handleClose();
+        setRefreshCount(refreshCount + 1);
+      } catch (error) {
+        // Assume that if submission fails is because of lack of storage
+        if (error instanceof ForbiddenError) {
+          throw error; // allow error to be caught by error boundary
+        } else {
+          setModalStatus(MODAL_STATES.ALERT_NO_SPACE_OPEN);
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
     },
     [refreshCount, api, endpoint, handleClose, canInvokeDocumentAction],
   );

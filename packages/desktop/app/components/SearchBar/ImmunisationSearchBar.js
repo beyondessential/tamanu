@@ -1,7 +1,7 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useSuggester } from '../../api';
-import { AutocompleteField, DisplayIdField, LocalisedField } from '../Field';
+import { AutocompleteField, DisplayIdSearchField, LocalisedField } from '../Field';
 
 export const ImmunisationSearchBar = ({ onSearch }) => {
   const villageSuggester = useSuggester('village');
@@ -10,9 +10,9 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
     <CustomisableSearchBar
       title="Search for Patients"
       onSearch={onSearch}
-      initialValues={{ displayIdExact: true }}
+      staticValues={{ displayIdExact: true }}
     >
-      <DisplayIdField />
+      <DisplayIdSearchField />
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />

@@ -6,6 +6,7 @@ import {
 } from 'shared/demoData/patients';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../../utilities';
+import { parseISO } from 'date-fns';
 
 describe('Vaccine list report', () => {
   let baseApp = null;
@@ -18,7 +19,7 @@ describe('Vaccine list report', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const models = ctx.models;
+    const { models } = ctx;
     baseApp = ctx.baseApp;
     village = await randomReferenceId(models, 'village');
 
@@ -54,7 +55,7 @@ describe('Vaccine list report', () => {
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduledVaccine1.id,
         encounterId: encounter1.id,
-        date: new Date('2021-03-10'),
+        date: parseISO('2021-03-10'),
       }),
     );
 
@@ -62,7 +63,7 @@ describe('Vaccine list report', () => {
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduledVaccine2.id,
         encounterId: encounter2.id,
-        date: new Date('2021-03-15'),
+        date: parseISO('2021-03-15'),
       }),
     );
   });
@@ -79,7 +80,7 @@ describe('Vaccine list report', () => {
   describe('returns data based on parameters', () => {
     it('should return data for patients of the right village', async () => {
       const result = await app.post('/v1/reports/vaccine-list').send({
-        parameters: { village: village, fromDate: '2021-03-15' },
+        parameters: { village, fromDate: '2021-03-15' },
       });
 
       expect(result).toHaveSucceeded();

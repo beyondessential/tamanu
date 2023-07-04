@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
-import { PATIENT_ISSUE_TYPES } from 'shared/constants';
+import { PATIENT_ISSUE_TYPES } from '@tamanu/shared/constants';
 import { Colors } from '../../constants';
 import { Modal } from '../Modal';
 import { PatientAlert } from '../PatientAlert';
@@ -18,7 +18,6 @@ const TitleContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  flex-grow: 1;
   border-bottom: 1px solid #ebebeb;
   padding-bottom: 0.5rem;
 `;

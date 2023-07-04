@@ -35,6 +35,7 @@ async function printRoutes() {
   // routes without wrapping, supressing, or transporting the output
   // eslint-disable-next-line no-console
   console.log(getRoutes(app._router).join('\n'));
+  context.close();
   process.exit(0);
 }
 

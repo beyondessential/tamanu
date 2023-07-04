@@ -9,6 +9,7 @@ import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
 import { LocalisationProvider } from '../../contexts/LocalisationContext';
 import { Core } from './Core';
+import { DetectIdleLayer } from './DetectIdleLayer';
 
 export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef>(null);
@@ -21,7 +22,9 @@ export const RootStack = (): ReactElement => {
               <LocalisationProvider>
                 <AuthProvider navRef={navigationRef}>
                   <FacilityProvider>
-                    <Core />
+                    <DetectIdleLayer>
+                      <Core />
+                    </DetectIdleLayer>
                   </FacilityProvider>
                 </AuthProvider>
               </LocalisationProvider>

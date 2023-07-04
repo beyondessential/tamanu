@@ -2,12 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
+// Desktop/Mobile duplicated
 const COLORS = {
   green: '#83d452',
   yellow: '#ffea5a',
   orange: '#fe8c00',
   red: '#ff2222',
   deepred: '#971a1a',
+  purple: '#971a1a',
 };
 
 const ColoredBadge = styled.div`

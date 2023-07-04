@@ -1,77 +1,62 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { TouchableWithoutFeedback } from 'react-native';
+import styled from 'styled-components';
 import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { SyncManager } from '~/services/sync';
+import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
 
 function stringifyError(e): string {
   const error = e.error || e;
   if (typeof error === 'string') return error;
-  if (error.name || error.message) return `${error.name}: ${error.message}`;
+  if (error.name && error.message) return `${error.name}: ${error.message}`;
+  if (error.message) return error.message;
   return JSON.stringify(e);
 }
 
+// italicised, smaller and light grey text
+const RemoteErrorText = styled(StyledText)`
+  font-size: 12px;
+  color: #c4c4c4;
+  font-style: italic;
+`;
+
 export const SyncErrorDisplay = (): ReactElement => {
-  const [index, setIndex] = useState(0);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [errorCount, setErrorCount] = useState(0);
+  const [error, setError] = useState(null);
   const backend = useContext(BackendContext);
-  const syncManager: SyncManager = backend.syncManager;
+  const syncManager: MobileSyncManager = backend.syncManager;
 
   useEffect(() => {
-    setErrorCount(syncManager.errors.length);
-    const errorHandler = ({ channel, error }): void => {
-      setErrorMessage(`Failed to sync ${channel} with ${error}`);
-      setErrorCount(syncManager.errors.length);
+    const errorHandler = ({ error: errorObject }): void => {
+      setError(errorObject);
     };
     const errorResetHandler = (): void => {
-      setErrorMessage('');
-      setErrorCount(syncManager.errors.length); // should be zero
+      setError(null);
     };
-    syncManager.emitter.on('channelSyncError', errorHandler);
-    syncManager.emitter.on('syncStarted', errorResetHandler);
+    syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
+    syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
     return (): void => {
-      syncManager.emitter.off('channelSyncError', errorHandler);
-      syncManager.emitter.off('syncStarted', errorResetHandler);
+      syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
+      syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
     };
   }, []);
 
-  const onPress = (p): void => {
-    const assumedWidth = 350; // TODO get real element width
-    const margin = assumedWidth * 0.25;
-    if (p.nativeEvent.locationX < margin) {
-      setIndex(Math.max(0, index - 1));
-    } else if (p.nativeEvent.locationX > (assumedWidth - margin)) {
-      setIndex(Math.min(errorCount - 1, index + 1));
-    }
-  };
-
-  if (errorCount === 0) {
+  if (!error) {
     return null;
   }
 
-  let error = null;
-  if (index < errorCount) {
-    error = syncManager.errors[index];
-  }
-
   return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <StyledView marginTop={10} backgroundColor="#441111">
-        <StyledView margin={8}>
-          <StyledText color="white">{errorMessage}</StyledText>
-          <StyledText color="white">{`Error ${index + 1}/${errorCount}`}</StyledText>
-          {error
-            ? (
-              <StyledView>
-                <StyledText color="red">{stringifyError(error)}</StyledText>
-                {error.record && <StyledText color="white">{JSON.stringify(error.record)}</StyledText>}
-              </StyledView>
-            )
-            : <StyledText>No error</StyledText>
-          }
-        </StyledView>
+    <StyledView
+      marginTop={20}
+      backgroundColor="rgba(247,104,83,0.2)"
+      borderWidth={1}
+      borderRadius={3}
+      borderColor="#F76853"
+    >
+      <StyledView margin={8}>
+        <StyledText color="#FFFFFF">{stringifyError(error)}</StyledText>
+        {error.remoteError && (
+          <RemoteErrorText>{stringifyError(error.remoteError)}</RemoteErrorText>
+        )}
       </StyledView>
-    </TouchableWithoutFeedback>
+    </StyledView>
   );
 };

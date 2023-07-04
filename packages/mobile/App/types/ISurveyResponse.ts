@@ -1,16 +1,22 @@
 import { ID } from './ID';
 import { IEncounter } from './IEncounter';
-import { ISurvey, IProgramDataElement } from './ISurvey';
+import { ISurvey, IProgramDataElement, SurveyTypes, ISurveyScreenComponent } from './ISurvey';
 
 export interface ISurveyResponse {
   id: ID;
   surveyId: ID;
-  startTime?: Date;
-  endTime?: Date;
+  startTime?: string;
+  endTime?: string;
   result?: number;
   resultText?: string;
   encounter?: IEncounter | string;
   survey?: ISurvey | string;
+}
+
+export interface ICreateSurveyResponse extends Omit<ISurveyResponse, 'id'> {
+  encounterReason: string;
+  surveyType: SurveyTypes;
+  components: ISurveyScreenComponent[];
 }
 
 export interface ISurveyResponseAnswer {

@@ -2,7 +2,7 @@ import { writeFileSync } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
 import { getUploadedData } from 'shared/utils/getUploadedData';
 
-import { WebRemote } from '../app/sync/WebRemote';
+import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 // Get the unmocked function to be able to test it
 const { uploadAttachment } = jest.requireActual('../app/utils/uploadAttachment');
 
@@ -26,15 +26,15 @@ getUploadedData.mockImplementation(async req => {
 });
 
 describe('UploadAttachment', () => {
-  const mockReq = { name: 'hello world image', type: 'image/jpeg' };
+  const mockReq = { name: 'hello world image', type: 'image/jpeg', deviceId: 'test-device-id' };
 
   it('abort uploading file if its above permitted max file size', async () => {
     await expect(uploadAttachment(mockReq, 1000)).rejects.toThrow(InvalidParameterError);
-    expect(WebRemote.mock.calls.length).toBe(0);
+    expect(CentralServerConnection.mock.calls.length).toBe(0);
   });
 
   it('abort creating document metadata if the sync server fails to create attachment', async () => {
-    WebRemote.mockImplementationOnce(() => ({
+    CentralServerConnection.mockImplementationOnce(() => ({
       __esModule: true,
       fetch: jest.fn(async (path, body) => {
         // Make sure the parameters match what the sync server expects
@@ -53,11 +53,12 @@ describe('UploadAttachment', () => {
       }),
     }));
     await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallFailedError);
-    expect(WebRemote.mock.calls.length).toBe(1);
+    expect(CentralServerConnection.mock.calls.length).toBe(1);
+    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 
   it('successfully uploads attachment', async () => {
-    WebRemote.mockImplementationOnce(() => ({
+    CentralServerConnection.mockImplementationOnce(() => ({
       __esModule: true,
       fetch: jest.fn(async (path, body) => {
         // Make sure the parameters match what the sync server expects
@@ -81,6 +82,7 @@ describe('UploadAttachment', () => {
       type: 'image/jpeg',
       metadata: { name: 'hello world image' },
     });
-    expect(WebRemote.mock.calls.length).toBe(2);
+    expect(CentralServerConnection.mock.calls.length).toBe(2);
+    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 });

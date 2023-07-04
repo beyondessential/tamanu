@@ -1,10 +1,7 @@
 import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
-import { findOneOrCreate } from 'shared/test-helpers';
-import Chance from 'chance';
+import { findOneOrCreate, chance } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
 
 let baseApp = null;
 let models = null;
@@ -125,7 +122,7 @@ describe('Referrals', () => {
 
   it('should use the default department if one is not provided', async () => {
     const { department: departmentCode } = config.survey.defaultCodes;
-    const department = await findOneOrCreate(ctx, ctx.models.Department, { code: departmentCode });
+    const department = await findOneOrCreate(ctx.models, ctx.models.Department, { code: departmentCode });
 
     const { locationId } = encounter;
     const result = await app.post('/v1/referral').send({
@@ -146,7 +143,7 @@ describe('Referrals', () => {
 
   it('should use the default location if one is not provided', async () => {
     const { location: locationCode } = config.survey.defaultCodes;
-    const location = await findOneOrCreate(ctx, ctx.models.Location, { code: locationCode });
+    const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
     const result = await app.post('/v1/referral').send({
@@ -155,7 +152,7 @@ describe('Referrals', () => {
       endTime: Date.now(),
       patientId: patient.id,
       surveyId: testSurvey.id,
-      departmentId: departmentId,
+      departmentId,
     });
 
     expect(result).toHaveSucceeded();

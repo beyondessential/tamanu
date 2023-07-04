@@ -1,13 +1,17 @@
-import baseConfig, { nodemon } from '../../common.webpack.config.mjs';
+import { NODE_WEBPACK_CONFIG_SWC, nodemon } from '@tamanu/build-tooling';
+
+const watch = !process.env.NOWATCH;
 
 export default {
-  ...baseConfig,
-  watch: true,
+  ...NODE_WEBPACK_CONFIG_SWC,
   devtool: 'eval',
+  watch,
   mode: 'development',
-  plugins: [
-    nodemon({
-      args: process.env.TAMANU_ARGS ? process.env.TAMANU_ARGS.split(' ') : null,
-    }),
-  ],
+  plugins: watch
+    ? [
+        nodemon({
+          args: process.env.TAMANU_ARGS ? process.env.TAMANU_ARGS.split(' ') : [],
+        }),
+      ]
+    : [],
 };

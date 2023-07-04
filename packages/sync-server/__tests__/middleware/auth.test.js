@@ -1,9 +1,13 @@
 import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
-import { createTestContext } from '../utilities';
+import jwt from 'jsonwebtoken';
+import config from 'config';
+import { createTestContext, withDate } from '../utilities';
+import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
+const TEST_DEVICE_ID = 'test-device-id';
 const TEST_FACILITY = {
   id: 'testfacilityid',
   code: 'testfacilitycode',
@@ -41,20 +45,76 @@ describe('Auth', () => {
   afterAll(async () => close());
 
   describe('Logging in', () => {
-    it('Should get a token for correct credentials', async () => {
+    it('Should get a valid access token for correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('token');
+      const contents = jwt.decode(response.body.token);
+
+      expect(contents).toEqual({
+        aud: JWT_TOKEN_TYPES.ACCESS,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        deviceId: TEST_DEVICE_ID,
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+    });
+
+    it('Should issue a refresh token and save hashed refreshId to the database', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('refreshToken');
+
+      const { refreshToken, user } = response.body;
+
+      const contents = jwt.decode(refreshToken);
+
+      expect(contents).toEqual({
+        aud: JWT_TOKEN_TYPES.REFRESH,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        refreshId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      const refreshTokenRecord = await store.models.RefreshToken.findOne({
+        where: { deviceId: TEST_DEVICE_ID, userId: user.id },
+      });
+      expect(refreshTokenRecord).not.toBeNull();
+      expect(refreshTokenRecord).toHaveProperty('refreshId');
+      expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(true);
+    });
+
+    it('Should not issue a refresh token for external client', async () => {
+      const response = await baseApp
+        .post('/v1/login')
+        .set({ 'X-Tamanu-Client': 'FHIR' })
+        .send({
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+        });
+      expect(response).toHaveSucceeded();
+      expect(response.body.refreshToken).toBeUndefined();
     });
 
     it('Should respond with user details with correct credentials', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
 
       expect(response).toHaveSucceeded();
@@ -70,12 +130,14 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
       });
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('localisation.fields.displayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
+        pattern: '[\\s\\S]*',
       });
     });
 
@@ -83,6 +145,7 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: '',
+        deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
     });
@@ -91,124 +154,164 @@ describe('Auth', () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
         password: 'not the password',
+        deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
     });
   });
 
+  describe('Refresh token', () => {
+    it('Should return a new access token with expiresAt for a valid refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(loginResponse).toHaveSucceeded();
+      const { token, refreshToken } = loginResponse.body;
+
+      // Make sure that Date used in signing new token is different from global mock date
+      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+        baseApp.post('/v1/refresh').send({
+          refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        }),
+      );
+
+      expect(refreshResponse).toHaveSucceeded();
+      expect(refreshResponse.body).toHaveProperty('token');
+
+      const oldTokenContents = jwt.decode(token);
+      const newTokenContents = jwt.decode(refreshResponse.body.token);
+
+      expect(newTokenContents).toEqual({
+        aud: JWT_TOKEN_TYPES.ACCESS,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        deviceId: TEST_DEVICE_ID,
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      expect(newTokenContents.jti).not.toEqual(oldTokenContents.jti);
+      expect(newTokenContents.iat).toBeGreaterThan(oldTokenContents.iat);
+      expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
+    });
+    it('Should return a rotated refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(loginResponse).toHaveSucceeded();
+      const { refreshToken, user } = loginResponse.body;
+
+      // Make sure that Date used in signing new token is different from global mock date
+      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
+        baseApp.post('/v1/refresh').send({
+          refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        }),
+      );
+
+      expect(refreshResponse).toHaveSucceeded();
+      expect(refreshResponse.body).toHaveProperty('refreshToken');
+
+      const newRefreshTokenContents = jwt.decode(refreshResponse.body.refreshToken);
+      const oldRefreshTokenContents = jwt.decode(refreshToken);
+
+      expect(newRefreshTokenContents).toEqual({
+        aud: JWT_TOKEN_TYPES.REFRESH,
+        iss: config.canonicalHostName,
+        userId: expect.any(String),
+        refreshId: expect.any(String),
+        jti: expect.any(String),
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      });
+
+      expect(newRefreshTokenContents.jti).not.toEqual(oldRefreshTokenContents.jti);
+      expect(newRefreshTokenContents.iat).toBeGreaterThan(oldRefreshTokenContents.iat);
+      expect(newRefreshTokenContents.exp).toBeGreaterThan(oldRefreshTokenContents.exp);
+
+      const refreshTokenRecord = await store.models.RefreshToken.findOne({
+        where: { deviceId: TEST_DEVICE_ID, userId: user.id },
+      });
+      expect(refreshTokenRecord).not.toBeNull();
+      expect(refreshTokenRecord).toHaveProperty('refreshId');
+      expect(
+        bcrypt.compare(newRefreshTokenContents.refreshId, refreshTokenRecord.refreshId),
+      ).resolves.toBe(true);
+    });
+    it('Should reject if external client', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+      const refreshResponse = await baseApp
+        .post('/v1/refresh')
+        .set('X-Tamanu-Client', 'FHIR')
+        .send({
+          refreshToken: loginResponse.refreshToken,
+          deviceId: TEST_DEVICE_ID,
+        });
+      expect(refreshResponse).toHaveRequestError();
+    });
+    it('Should reject invalid refresh token', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken: 'invalid-token',
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+    it('Should fail if refresh token requested with a token with aud not of refresh', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const { token } = loginResponse.body;
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        // Incorrectly send token instead
+        refreshToken: token,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+    it('Should fail if refresh token requested from different device', async () => {
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+
+      const { refreshToken } = loginResponse.body;
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken,
+        deviceId: 'different-device',
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+  });
+
   describe('User management', () => {
-    const USER_EMAIL = 'user.management@tamanu.test.io';
-    const USER_ID = 'user-management';
-    const DISPLAY_NAME = 'John Jones';
-    const USER_PASSWORD = 'abc_123';
-    const USER_PASSWORD_2 = 'abc_1234';
-
-    it('Should hash a password for a user synced through the api', async () => {
-      const response = await app.post('/v1/sync/user').send({
-        data: {
-          id: USER_ID,
-          email: USER_EMAIL,
-          password: USER_PASSWORD,
-          displayName: DISPLAY_NAME,
-        },
-      });
-      expect(response).toHaveSucceeded();
-
-      const savedUser = await store.findUser(USER_EMAIL);
-      expect(savedUser).toHaveProperty('password');
-      expect(savedUser.password.slice(0, 2)).toBe('$2'); // magic number for bcrypt hashes
-
-      const loginResponse = await baseApp.post('/v1/login').send({
-        email: USER_EMAIL,
-        password: USER_PASSWORD,
-        facilityId: TEST_FACILITY.id,
-      });
-      expect(loginResponse).toHaveSucceeded();
-      expect(loginResponse.body).toEqual({
-        token: expect.any(String),
-        user: {
-          id: USER_ID,
-          email: USER_EMAIL,
-          displayName: DISPLAY_NAME,
-          role: 'practitioner',
-        },
-        localisation: expect.any(Object),
-        permissions: expect.any(Object),
-        facility: expect.objectContaining(TEST_FACILITY),
-      });
-    });
-
-    it('Should hash an updated password for an existing user', async () => {
-      const response = await app.post('/v1/sync/user').send({
-        data: {
-          id: USER_ID,
-          password: USER_PASSWORD_2,
-          displayName: DISPLAY_NAME,
-        },
-      });
-      expect(response).toHaveSucceeded();
-
-      const savedUser = await store.findUser(USER_EMAIL);
-      expect(savedUser).toHaveProperty('password');
-      expect(savedUser).toHaveProperty('displayName', DISPLAY_NAME);
-      expect(savedUser.password.slice(0, 2)).toBe('$2'); // magic number for bcrypt hashes
-
-      // succeed login with new password
-      const loginResponse = await baseApp.post('/v1/login').send({
-        email: USER_EMAIL,
-        password: USER_PASSWORD_2,
-      });
-      expect(loginResponse).toHaveSucceeded();
-
-      // fail login with old password
-      const loginResponse2 = await baseApp.post('/v1/login').send({
-        email: USER_EMAIL,
-        password: USER_PASSWORD,
-      });
-      expect(loginResponse2).toHaveRequestError();
-    });
-
-    it('Should include a new user in the GET /sync/user channel', async () => {
-      const now = new Date().valueOf();
-      const newEmail = 'new-user-get@test.tamanu.io';
-      const displayName = 'test-new';
-
-      const response = await app.post('/v1/sync/user').send({
-        data: {
-          email: newEmail,
-          displayName,
-          password: USER_PASSWORD,
-        },
-      });
-      expect(response).toHaveSucceeded();
-
-      const syncResponse = await app.get(`/v1/sync/user?since=${now}`);
-      expect(syncResponse).toHaveSucceeded();
-      const found = syncResponse.body.records.find(x => x.data.email === newEmail);
-      expect(found).toBeDefined();
-      expect(found).toHaveProperty('data.displayName', displayName);
-    });
-
-    it('Should include an updated user in the GET /sync/user channel', async () => {
-      const now = new Date().valueOf();
-      const displayNameUpdated = 'updated display name';
-
-      const response = await app.post('/v1/sync/user').send({
-        recordType: 'user',
-        data: {
-          id: USER_ID,
-          displayName: displayNameUpdated,
-        },
-      });
-      expect(response).toHaveSucceeded();
-
-      const syncResponse = await app.get(`/v1/sync/user?since=${now}`);
-      expect(syncResponse).toHaveSucceeded();
-      const found = syncResponse.body.records.find(x => x.data.email === USER_EMAIL);
-      expect(found).toBeDefined();
-      expect(found).toHaveProperty('data.displayName', displayNameUpdated);
-    });
-
     test.todo('Should prevent user creation without appropriate permission');
     test.todo('Should prevent password change without appropriate permission');
   });
@@ -218,6 +321,7 @@ describe('Auth', () => {
     const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
     });
 
     expect(response).toHaveSucceeded();
@@ -237,6 +341,7 @@ describe('Auth', () => {
     const response = await baseApp.post('/v1/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
     });
 
     expect(response).toHaveSucceeded();

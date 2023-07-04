@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
+import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/shared/constants';
 
 export const getPatientDetailsValidation = sexValues => {
   return yup.object().shape({
@@ -22,7 +22,7 @@ export const getPatientDetailsValidation = sexValues => {
     birthLength: yup
       .number()
       .min(0)
-      .max(50),
+      .max(100),
     birthDeliveryType: yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
     gestationalAgeEstimate: yup
       .number()

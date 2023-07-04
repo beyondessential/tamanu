@@ -3,19 +3,23 @@ import {
   createDummyEncounter,
   createDummyEncounterDiagnosis,
   randomRecord,
-  randomRecords,
   randomReferenceData,
 } from 'shared/demoData';
-import { subDays, format } from 'date-fns';
+import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
+import { format } from 'shared/utils/dateTime';
+import { Op } from 'sequelize';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
   let expectedPatient = null;
   let app = null;
   let expectedLocation = null;
+  let expectedLocationGroup = null;
   let wrongLocation = null;
+  let wrongLocationGroup = null;
+  let newLocation = null;
   let expectedDepartment1 = null;
   let expectedDepartment2 = null;
   let expectedExaminer = null;
@@ -40,22 +44,43 @@ describe('Admissions report', () => {
       }),
     );
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
-    wrongLocation = await findOneOrCreate(ctx, models.Location, { name: 'Not-Clinic' });
-    expectedDepartment1 = await findOneOrCreate(ctx, models.Department, { name: 'Radiology' });
-    expectedDepartment2 = await findOneOrCreate(ctx, models.Department, { name: 'Cardiology' });
+    expectedLocationGroup = await findOneOrCreate(ctx.models, models.LocationGroup, {
+      name: 'Test Area',
+    });
+    expectedLocation = await findOneOrCreate(ctx.models, models.Location, {
+      name: 'Clinic',
+      locationGroupId: expectedLocationGroup.id,
+    });
+    newLocation = await findOneOrCreate(ctx.models, models.Location, {
+      name: 'Clinic 2',
+      locationGroupId: expectedLocationGroup.id,
+    });
+    wrongLocationGroup = await findOneOrCreate(ctx.models, models.LocationGroup, {
+      name: 'Wrong Area',
+    });
+    wrongLocation = await findOneOrCreate(ctx.models, models.Location, {
+      name: 'Not-Clinic',
+      locationGroupId: wrongLocationGroup.id,
+    });
+
+    expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, {
+      name: 'Radiology',
+    });
+    expectedDepartment2 = await findOneOrCreate(ctx.models, models.Department, {
+      name: 'Cardiology',
+    });
     expectedExaminer = await randomRecord(models, 'User');
-    expectedDiagnosis1 = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedDiagnosis1 = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'icd10',
       code: 'H60.5',
       name: 'Acute bacterial otitis externa',
     });
-    expectedDiagnosis2 = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedDiagnosis2 = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'icd10',
       code: 'L74.4',
       name: 'Anhidrosis',
     });
-    expectedBillingType = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedBillingType = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'patientBillingType',
       name: 'Charity',
     });
@@ -75,8 +100,8 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
-        endDate: new Date(2021, 1, 21, 11, 3, 7), // Months are 0 indexed so this is Feburary
+        startDate: '2021-02-20 09:07:26',
+        endDate: '2021-02-21 11:03:07',
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
@@ -142,12 +167,13 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           ...baseEncounterData,
-          startDate: new Date(2020, 0, 20).toISOString(),
+          startDate: '2020-01-20 00:00:00',
         }),
       );
 
       await expectedEncounter.update({
         departmentId: expectedDepartment2.id,
+        locationId: newLocation.id,
       });
 
       const departmentChangeNotePage = await models.NotePage.findOne({
@@ -155,6 +181,29 @@ describe('Admissions report', () => {
           {
             model: models.NoteItem,
             as: 'noteItems',
+            where: {
+              content: {
+                [Op.like]: 'Changed department from%',
+              },
+            },
+          },
+        ],
+        where: {
+          recordId: expectedEncounter.id,
+          noteType: 'system',
+        },
+      });
+
+      const locationChangeNotePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+            where: {
+              content: {
+                [Op.like]: 'Changed location from%',
+              },
+            },
           },
         ],
         where: {
@@ -164,13 +213,17 @@ describe('Admissions report', () => {
       });
 
       await departmentChangeNotePage.noteItems?.[0].update({
-        date: new Date(2021, 1, 20, 11, 10),
+        date: '2021-02-20 11:10:00',
+      });
+
+      await locationChangeNotePage.noteItems?.[0].update({
+        date: '2021-02-20 12:10:00',
       });
 
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
-          fromDate: new Date(2021, 1, 1),
-          location: expectedLocation.id,
+          fromDate: '2021-02-01 00:00:00',
+          locationGroup: expectedLocationGroup.id,
           department: expectedDepartment1.id, // Historical department filtered for
         },
       });
@@ -188,7 +241,8 @@ describe('Admissions report', () => {
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
           'Discharge Date': '21/02/2021 11:03:07 AM',
-          Location: 'Clinic (Location assigned: 20/02/21 9:07 AM)',
+          Location:
+            'Test Area, Clinic (Location assigned: 20/02/21 9:07 AM); Test Area, Clinic 2 (Location assigned: 20/02/21 12:10 PM)',
           Department:
             'Radiology (Department assigned: 20/02/21 9:07 AM); Cardiology (Department assigned: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',

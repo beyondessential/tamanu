@@ -1,24 +1,14 @@
 import { randomReferenceDataObjects } from 'shared/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { fake } from 'shared/test-helpers';
-import { subDays, format } from 'date-fns';
+import { toDateTimeString, format } from 'shared/utils/dateTime';
+import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
 const PROGRAM_ID = 'test-program-id';
 const SURVEY_ID = 'test-survey-id';
 const SENSITIVE_SURVEY_ID = 'test-survey-id-sensitive';
-
-// Not entirely sure why this works
-// https://stackoverflow.com/a/66672462
-const getExpectedDate = date =>
-  new Date(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-    date.getUTCHours(),
-    date.getUTCMinutes(),
-  );
 
 const createDummySurvey = async models => {
   await models.Program.create({
@@ -85,13 +75,13 @@ const createDummySurvey = async models => {
 const submitSurveyForPatient = (app, patient, date, expectedVillage) =>
   app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
-    startTime: date,
+    startTime: toDateTimeString(date),
     patientId: patient.id,
-    endTime: date,
+    endTime: toDateTimeString(date),
     answers: {
       'pde-Test1': 'Data point 1',
       'pde-CheckboxQ': 'true',
-      'pde-DateQ': '2022-05-30T02:37:12.826Z',
+      'pde-DateQ': '2022-05-30 02:37:12',
       'pde-Autocomplete': expectedVillage.id,
     },
   });
@@ -129,6 +119,7 @@ describe('Generic survey export', () => {
     });
 
     beforeEach(async () => {
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.SurveyResponse.destroy({ where: {} });
     });
 
@@ -136,7 +127,12 @@ describe('Generic survey export', () => {
       const result = await app.post(REPORT_URL).send({
         parameters: {},
       });
-      expect(result).toHaveStatus(500);
+      expect(result).toHaveStatus(400);
+      expect(result.body).toEqual({
+        error: {
+          message: 'parameter "survey" must be supplied',
+        },
+      });
     });
 
     it('should return an error if trying to access a sensitive survey', async () => {
@@ -152,7 +148,12 @@ describe('Generic survey export', () => {
           surveyId: SENSITIVE_SURVEY_ID,
         },
       });
-      expect(result).toHaveStatus(500);
+      expect(result).toHaveStatus(400);
+      expect(result.body).toEqual({
+        error: {
+          message: 'Cannot export a survey marked as "sensitive"',
+        },
+      });
     });
 
     it('should default to filtering for 30 days of data', async () => {
@@ -185,9 +186,9 @@ describe('Generic survey export', () => {
       const date = subDays(new Date(), 25);
       await app.post('/v1/surveyResponse').send({
         surveyId: SURVEY_ID,
-        startTime: date,
+        startTime: toDateTimeString(date),
         patientId: expectedPatient.id,
-        endTime: date,
+        endTime: toDateTimeString(date),
         answers: {},
       });
 
@@ -200,9 +201,10 @@ describe('Generic survey export', () => {
     });
 
     it('should return data ordered by date', async () => {
-      const date1 = subDays(new Date(), 25);
-      const date2 = subDays(new Date(), 25);
-      const date3 = subDays(new Date(), 25);
+      const date1 = toDateTimeString(subDays(new Date(), 25));
+      const date2 = toDateTimeString(subDays(new Date(), 25));
+      const date3 = toDateTimeString(subDays(new Date(), 25));
+
       // Submit in a different order just in case
       await submitSurveyForPatient(app, expectedPatient, date2, expectedVillage);
       await submitSurveyForPatient(app, expectedPatient, date3, expectedVillage);
@@ -217,13 +219,13 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport(
         [
           {
-            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(date1, 'yyyy-MM-dd hh:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(date2, 'yyyy-MM-dd hh:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(date3, 'yyyy-MM-dd hh:mm a'),
           },
         ],
         { partialMatching: true },
@@ -231,9 +233,7 @@ describe('Generic survey export', () => {
     });
 
     it('should return basic data for a survey', async () => {
-      const date = subDays(new Date(), 25);
-
-      const expectedDate = getExpectedDate(date);
+      const date = toDateTimeString(subDays(new Date(), 25));
 
       await submitSurveyForPatient(app, expectedPatient, date, expectedVillage);
 
@@ -250,17 +250,18 @@ describe('Generic survey export', () => {
           village: expectedVillage.id,
         },
       });
+      
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchTabularReport([
         {
           'Patient ID': expectedPatient.displayId,
           'First name': expectedPatient.firstName,
           'Last name': expectedPatient.lastName,
-          'Date of birth': format(expectedPatient.dateOfBirth, 'yyyy-MM-dd'),
+          'Date of birth': expectedPatient.dateOfBirth,
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Submission Time': format(expectedDate, 'yyyy-MM-dd hh:mm a'),
+          'Submission Time': format(date, 'yyyy-MM-dd hh:mm a'),
           'name-pde-CheckboxQ': 'Yes', // screenIndex: 1, componentIndex: 1
           'name-pde-Test1': 'Data point 1', // screenIndex: 1, componentIndex: 2
           'name-pde-Autocomplete': expectedVillage.name, // screenIndex: 2, componentIndex: 1

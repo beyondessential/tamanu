@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Animated, Dimensions, Alert } from 'react-native';
-
+import { View, Text, TouchableOpacity, StyleSheet, Image, GestureResponderEvent } from 'react-native';
 import { theme } from '/styled/theme';
 
 const styles = StyleSheet.create({
@@ -19,7 +18,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export const BypassWarningIcon = ({ onBypassWarning }): JSX.Element => (
+interface BypassWarningIconProps {
+  onBypassWarning: (event: GestureResponderEvent) => void
+}
+
+export const BypassWarningIcon = ({ onBypassWarning }: BypassWarningIconProps): JSX.Element => (
   <View style={styles.View}>
     <Image
       source={require('../../assets/Warning.png')}

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
@@ -26,7 +27,13 @@ export const AllergyForm = ({
           suggester={allergySuggester}
           required
         />
-        <Field name="recordedDate" label="Date recorded" component={DateField} required />
+        <Field
+          name="recordedDate"
+          label="Date recorded"
+          component={DateField}
+          saveDateAsString
+          required
+        />
         <Field
           name="practitionerId"
           label="Doctor/nurse"
@@ -42,7 +49,7 @@ export const AllergyForm = ({
       </FormGrid>
     )}
     initialValues={{
-      recordedDate: new Date(),
+      recordedDate: getCurrentDateTimeString(),
       ...editedObject,
     }}
     validationSchema={yup.object().shape({

@@ -1,8 +1,17 @@
 import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
+import { groupBy, keyBy } from 'lodash';
+import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from 'shared/constants';
 
-import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
+import {
+  getParamAndModifier,
+  getQueryObject,
+  getDefaultOperator,
+  getBaseUrl,
+  getHL7Link,
+} from './utils';
+
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
 
@@ -40,12 +49,12 @@ function patientIds(patient, additional) {
     },
     {
       use: 'secondary',
-      assigner: 'Fiji Passport Office',
+      assigner: config.hl7.assigners.patientPassport,
       value: additional.passportNumber,
     },
     {
       use: 'secondary',
-      assigner: 'RTA',
+      assigner: config.hl7.assigners.patientDrivingLicense,
       value: additional.drivingLicense,
     },
   ].filter(x => x.value);
@@ -73,28 +82,231 @@ function patientTelecom(patient, additional) {
     }));
 }
 
-export function patientToHL7Patient(patient, additional = {}) {
-  return {
-    resourceType: 'Patient',
-    id: patient.id,
-    active: true, // currently unused in Tamanu, always true
-    identifier: patientIds(patient, additional),
-    name: patientName(patient, additional),
-    birthDate: patient.dateOfBirth && format(patient.dateOfBirth, 'yyyy-MM-dd'),
-    gender: patient.sex,
-    address: patientAddress(patient, additional),
-    telecom: patientTelecom(patient, additional),
-    // Only add deceasedDateTime key if the patient is deceased
-    ...(patient.dateOfDeath && {
-      deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
-    }),
-  };
+function isPatientActive(patient) {
+  if (patient.visibilityStatus === VISIBILITY_STATUSES.CURRENT) return true;
+  return false;
 }
+
+const convertPatientToHL7Patient = (patient, additional = {}) => ({
+  resourceType: 'Patient',
+  id: patient.id,
+  active: isPatientActive(patient),
+  identifier: patientIds(patient, additional),
+  name: patientName(patient, additional),
+  birthDate: patient.dateOfBirth,
+  gender: patient.sex,
+  address: patientAddress(patient, additional),
+  telecom: patientTelecom(patient, additional),
+  // Only add deceasedDateTime key if the patient is deceased
+  ...(patient.dateOfDeath && {
+    deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+  }),
+});
+
+/**
+ * Traverse down the merge tree and build any replaces links
+ *
+ * eg:
+ * b <- merged into - c then
+ * b <- merged into - d then
+ * a <- merged into - b
+ *
+ * We should have:
+ * Patient a:
+ * link: [
+ *  {patient b, type = replaces}
+ *  {patient c, type = replaces}
+ *  {patient d, type = replaces}
+ * ]
+ */
+export function getFlattenMergedPatientReplaceLinks(
+  baseUrl,
+  patient,
+  mergedPatientsByMergedIntoId,
+  isRootPatientActive,
+) {
+  let links = [];
+  const mergedPatients = mergedPatientsByMergedIntoId[patient.id] || [];
+
+  for (const mergedPatient of mergedPatients) {
+    links.push({
+      other: {
+        reference: getHL7Link(`${baseUrl}/Patient/${mergedPatient.id}`),
+      },
+      type: isRootPatientActive
+        ? FHIR_PATIENT_LINK_TYPES.REPLACES
+        : FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
+    });
+    // get deeper level of merged patients if there's any
+    links = links.concat(
+      getFlattenMergedPatientReplaceLinks(
+        baseUrl,
+        mergedPatient,
+        mergedPatientsByMergedIntoId,
+        isRootPatientActive,
+      ),
+    );
+  }
+
+  return links;
+}
+
+/**
+ * Traverse up the merge tree and build any replaced-by/seealso links
+ * replaced-by should be the latest active patient
+ * seealso should be the inactive patients
+ *
+ * eg:
+ * b <- merged into - c then
+ * b <- merged into - d then
+ * a <- merged into - b
+ *
+ * We should have:
+ * Patient c:
+ * link: [
+ *  {patient a, type = replaced-by}
+ *  {patient b, type = seealso}
+ * ]
+ */
+export function getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patientById) {
+  let links = [];
+  const supersededPatient = patientById[patient.mergedIntoId];
+
+  if (patient.mergedIntoId && supersededPatient?.mergedIntoId) {
+    links.push({
+      other: {
+        reference: getHL7Link(`${baseUrl}/Patient/${patient.mergedIntoId}`),
+      },
+      type: FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
+    });
+    links = links.concat(
+      getFlattenMergedPatientReplacecByLinks(baseUrl, supersededPatient, patientById),
+    );
+  } else {
+    links.push({
+      other: {
+        reference: getHL7Link(`${baseUrl}/Patient/${patient.mergedIntoId}`),
+      },
+      type: FHIR_PATIENT_LINK_TYPES.REPLACED_BY,
+    });
+  }
+
+  return links;
+}
+
+const getMergedPatientByMergedIntoId = async models => {
+  const allMergedPatients = await models.Patient.findAll({
+    attributes: ['id', 'mergedIntoId'],
+    where: { mergedIntoId: { [Op.not]: null } },
+    paranoid: false,
+  });
+  return groupBy(allMergedPatients, 'mergedIntoId');
+};
+
+const getPatientById = async models => {
+  // This is going to fetch all active and inactive patients
+  // which can be memory heavy. But we only fetch the minimum
+  // info that we need which is id and mergedIntoId.
+  // So I think it is acceptable.
+  const patients = await models.Patient.findAll({
+    attributes: ['id', 'mergedIntoId'],
+    paranoid: false,
+    where: {
+      visibilityStatus: { [Op.in]: [VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.MERGED] },
+    },
+  });
+  return keyBy(patients, 'id');
+};
+
+const getPatientLinks = (
+  baseUrl,
+  patient,
+  patientById,
+  mergedPatientsByMergedIntoId,
+  isRootPatientActive,
+) => {
+  let links = [];
+
+  // Get 'replaced-by/seealso' links of a patient if there's any
+  if (patient.mergedIntoId) {
+    links = getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patientById);
+  }
+
+  const mergedPatients = mergedPatientsByMergedIntoId[patient.id] || [];
+
+  // Get 'replaces' links of a patient if there's any
+  if (mergedPatients.length) {
+    links = links.concat(
+      getFlattenMergedPatientReplaceLinks(
+        baseUrl,
+        patient,
+        mergedPatientsByMergedIntoId,
+        isRootPatientActive,
+      ),
+    );
+  }
+
+  // Reorder seealso links to be after replaces/replaced-by links
+  const seeAlsoLinks = links.filter(l => l.type === FHIR_PATIENT_LINK_TYPES.SEE_ALSO);
+  const otherLinks = links.filter(l => l.type !== FHIR_PATIENT_LINK_TYPES.SEE_ALSO);
+
+  return [...otherLinks, ...seeAlsoLinks];
+};
+
+export const patientToHL7Patient = async (req, patient, additional = {}) => {
+  const { models } = req.store;
+  const baseUrl = getBaseUrl(req, false);
+  const mergedPatientsByMergedIntoId = await getMergedPatientByMergedIntoId(models);
+  const patientById = await getPatientById(models);
+  const isRootPatientActive = Boolean(!patient.mergedIntoId);
+  const links = getPatientLinks(
+    baseUrl,
+    patient,
+    patientById,
+    mergedPatientsByMergedIntoId,
+    isRootPatientActive,
+  );
+  const hl7Patient = convertPatientToHL7Patient(patient, additional);
+
+  return { ...hl7Patient, ...(links.length ? { link: links } : {}) };
+};
+
+export const patientToHL7PatientList = async (req, patients) => {
+  const { models } = req.store;
+  const baseUrl = getBaseUrl(req, false);
+  const mergedPatientsByMergedIntoId = await getMergedPatientByMergedIntoId(models);
+  const patientById = await getPatientById(models);
+  const hl7Patients = [];
+
+  for (const patient of patients) {
+    const hl7Patient = convertPatientToHL7Patient(patient, patient.additionalData?.[0]);
+    const isRootPatientActive = Boolean(!patient.mergedIntoId);
+    const links = getPatientLinks(
+      baseUrl,
+      patient,
+      patientById,
+      mergedPatientsByMergedIntoId,
+      isRootPatientActive,
+    );
+
+    hl7Patients.push({ ...hl7Patient, ...(links.length ? { link: links } : {}) });
+  }
+
+  return hl7Patients;
+};
 
 // Receives query and returns a sequelize where clause.
 // Assumes that query already passed validation.
 export function getPatientWhereClause(displayId, query = {}) {
-  const filters = [];
+  // to only get active or merged patients
+  const filters = [
+    {
+      [Op.or]: [
+        { visibilityStatus: VISIBILITY_STATUSES.CURRENT, deletedAt: null },
+        { visibilityStatus: VISIBILITY_STATUSES.MERGED },
+      ],
+    },
+  ];
 
   // Handle search by ID separately
   if (displayId) {

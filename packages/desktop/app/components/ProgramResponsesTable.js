@@ -6,17 +6,17 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
-const getAssessorName = ({ assessorName }) => assessorName;
+const getSubmittedBy = ({ submittedBy }) => submittedBy;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
 
 const columns = [
   { key: 'endTime', title: 'Date submitted', accessor: getDate },
-  { key: 'assessorId', title: 'Submitted by', accessor: getAssessorName },
-  { key: 'program', title: 'Program', accessor: getProgramName },
-  { key: 'survey', title: 'Survey', accessor: getSurveyName },
-  { key: 'results', title: 'Results', accessor: getResults },
+  { key: 'submittedBy', title: 'Submitted by', accessor: getSubmittedBy },
+  { key: 'programName', title: 'Program', accessor: getProgramName },
+  { key: 'surveyName', title: 'Survey', accessor: getSurveyName },
+  { key: 'resultText', title: 'Results', accessor: getResults },
 ];
 
 export const DataFetchingProgramsTable = ({ endpoint }) => {
@@ -32,6 +32,10 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
       <DataFetchingTable
         endpoint={endpoint}
         columns={columns}
+        initialSort={{
+          orderBy: 'endTime',
+          order: 'asc',
+        }}
         noDataMessage="No program responses found"
         onRowClick={onSelectResponse}
         elevated={false}

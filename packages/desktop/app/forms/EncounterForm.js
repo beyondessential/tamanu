@@ -1,34 +1,34 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   Form,
   Field,
-  DateField,
   SelectField,
   AutocompleteField,
   TextField,
   Button,
   FormGrid,
   LocalisedField,
+  DateTimeField,
   SuggesterSelectField,
+  LocalisedLocationField,
+  LocationAvailabilityWarningMessage,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
-    const locationSuggester = useSuggester('location', {
-      baseQueryParameters: { filterByFacility: true },
-    });
     const practitionerSuggester = useSuggester('practitioner');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
+    const referralSourceSuggester = useSuggester('referralSource');
 
-    const renderForm = ({ submitForm }) => {
+    const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? 'Update encounter' : 'Confirm';
 
       return (
@@ -40,7 +40,14 @@ export const EncounterForm = React.memo(
             component={SelectField}
             options={encounterOptions}
           />
-          <Field name="startDate" label="Check-in date" required component={DateField} />
+          <Field
+            name="startDate"
+            label="Check-in date"
+            required
+            min="1970-01-01T00:00"
+            component={DateTimeField}
+            saveDateAsString
+          />
           <Field
             name="departmentId"
             label="Department"
@@ -49,23 +56,30 @@ export const EncounterForm = React.memo(
             suggester={departmentSuggester}
           />
           <Field
-            name="locationId"
-            label="Location"
-            required
-            component={AutocompleteField}
-            suggester={locationSuggester}
-          />
-          <LocalisedField
-            name="patientBillingTypeId"
-            endpoint="patientBillingType"
-            component={SuggesterSelectField}
-          />
-          <Field
             name="examinerId"
             label="Practitioner"
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
+          />
+          <Field name="locationId" component={LocalisedLocationField} required />
+          <LocationAvailabilityWarningMessage
+            locationId={values?.locationId}
+            style={{
+              gridColumn: '2',
+              marginTop: '-1.2rem',
+              fontSize: '12px',
+            }}
+          />
+          <LocalisedField
+            name="referralSourceId"
+            suggester={referralSourceSuggester}
+            component={AutocompleteField}
+          />
+          <LocalisedField
+            name="patientBillingTypeId"
+            endpoint="patientBillingType"
+            component={SuggesterSelectField}
           />
           <Field
             name="reasonForEncounter"
@@ -89,7 +103,7 @@ export const EncounterForm = React.memo(
         onSubmit={onSubmit}
         render={renderForm}
         initialValues={{
-          startDate: new Date(),
+          startDate: getCurrentDateTimeString(),
           encounterType,
           patientBillingTypeId,
           ...editedObject,

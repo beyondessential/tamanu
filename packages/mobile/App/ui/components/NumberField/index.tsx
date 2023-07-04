@@ -10,6 +10,7 @@ export interface NumberFieldProps extends BaseInputProps {
   isOpen?: boolean;
   placeholder?: '' | string;
   disabled?: boolean;
+  error?: string;
   secure?: boolean;
   hints?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
@@ -30,6 +31,7 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
     onFocus,
     onBlur,
     label,
+    error,
   } = props;
   const [number, setNumber] = useState(undefined);
   const onChangeNumber = (newNumber: string): void => {
@@ -41,7 +43,11 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
     }
 
     if (props.onChange) {
-      props.onChange(value);
+      if (Number.isNaN(value)) {
+        props.onChange('');
+      } else {
+        props.onChange(value);
+      }
     }
   };
 
@@ -63,7 +69,8 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
       autoFocus={autoFocus}
       onFocus={onFocus}
       onBlur={onBlur}
-      value={number === undefined ? '' : number.toString()}
+      error={error}
+      value={number === undefined || number === null ? '' : number.toString()}
       onChange={onChangeNumber}
       keyboardType="numeric"
     />

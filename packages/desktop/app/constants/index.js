@@ -1,9 +1,8 @@
-import { padStart, capitalize } from 'lodash';
+import { capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils/valueIndex';
+import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
-  IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
@@ -15,8 +14,13 @@ import {
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
+  IMAGING_REQUEST_STATUS_CONFIG,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUS_CONFIG,
   LAB_REQUEST_STATUSES,
-} from 'shared/constants';
+  LOCATION_AVAILABILITY_STATUS,
+  LOCATION_AVAILABILITY_TAG_CONFIG,
+} from '@tamanu/shared/constants';
 
 import {
   medicationIcon,
@@ -27,8 +31,6 @@ import {
 } from './images';
 
 export const MUI_SPACING_UNIT = 8;
-
-export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
 
 export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
 
@@ -58,28 +60,18 @@ export const Colors = {
   white: '#ffffff',
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
+  blue: '#1172D1',
+  veryLightBlue: '#F4F9FF',
+  metallicYellow: '#BD9503',
+  pink: '#D10580',
+  purple: '#4101C9',
+  green: '#19934E',
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
-};
-
-export const LAB_REQUEST_COLORS = {
-  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
-  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
-  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: '#caf',
-  [LAB_REQUEST_STATUSES.VERIFIED]: '#5af',
-  [LAB_REQUEST_STATUSES.PUBLISHED]: '#afa',
-  unknown: '#333',
-};
-
-export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#faa',
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
-  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
-  unknown: '#333',
 };
 
 export const REFERRAL_STATUS_LABELS = {
@@ -115,6 +107,13 @@ export const medicationStatuses = {
   FULFILLED: 'Fulfilled',
   REQUESTED: 'Requested',
 };
+
+export const binaryOptions = [
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
+];
+
+export const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
 
 export const locationOptions = [
   {
@@ -159,17 +158,22 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
   x => x.value !== CERTAINTY_OPTIONS_BY_VALUE.emergency.value,
 );
 
+// The order here is how they'll show up in the dropdown
+// Treatment plan first and alphabetical after that
 export const noteTypes = [
   { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
-  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
-  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
+  { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
+  { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
   { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
+  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
+  { value: NOTE_TYPES.HANDOVER, label: 'Handover Notes' },
+  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
+  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
+  { value: NOTE_TYPES.OTHER, label: 'Other' },
   { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
   { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
   { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
-  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.OTHER, label: 'Other' },
+  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
 
@@ -309,6 +313,42 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   value: status,
 }));
 
+export const locationAvailabilityOptions = [
+  { value: '', label: 'All' },
+  ...Object.keys(LOCATION_AVAILABILITY_STATUS).map(status => ({
+    value: status,
+    label: LOCATION_AVAILABILITY_TAG_CONFIG[status].label,
+  })),
+];
+
+export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES)
+  .filter(
+    type =>
+      ![
+        IMAGING_REQUEST_STATUS_TYPES.DELETED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+      ].includes(type),
+  )
+  .map(type => ({
+    label: IMAGING_REQUEST_STATUS_CONFIG[type].label,
+    value: type,
+  }));
+
+export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
+  .filter(
+    status =>
+      ![
+        LAB_REQUEST_STATUSES.DELETED,
+        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        LAB_REQUEST_STATUSES.CANCELLED,
+      ].includes(status),
+  )
+  .map(status => ({
+    label: LAB_REQUEST_STATUS_CONFIG[status].label,
+    value: status,
+  }));
+
 export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless
   // eslint-disable-next-line no-useless-concat
@@ -384,4 +424,36 @@ export const PATIENT_STATUS = {
   OUTPATIENT: 'Outpatient',
   EMERGENCY: 'Emergency',
   DECEASED: 'Deceased',
+};
+
+export const DRUG_ROUTE_VALUE_TO_LABEL = {
+  dermal: 'Dermal',
+  ear: 'Ear',
+  eye: 'Eye',
+  intramuscular: 'IM',
+  intravenous: 'IV',
+  inhaled: 'Inhaled',
+  nasal: 'Nasal',
+  oral: 'Oral',
+  rectal: 'Rectal',
+  subcutaneous: 'S/C',
+  sublingual: 'Sublingual',
+  topical: 'Topical',
+  vaginal: 'Vaginal',
+};
+
+export const FORM_STATUSES = {
+  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+};
+
+export const SUPPORTED_DOCUMENT_TYPES = {
+  PDF: 'PDF',
+  JPEG: 'JPEG',
+};
+
+export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
+
+export const FORM_TYPES = {
+  SEARCH_FORM: 'searchForm',
+  DATA_FORM: 'dataForm',
 };

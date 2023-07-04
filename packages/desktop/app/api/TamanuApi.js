@@ -1,9 +1,10 @@
 import qs from 'qs';
 
-import { buildAbilityForUser } from 'shared/permissions/buildAbility';
-import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
-import { ForbiddenError } from 'shared/errors';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/shared/constants';
+import { ForbiddenError } from '@tamanu/shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import { getDeviceId, notifyError } from '../utils';
 
 const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS } = LOCAL_STORAGE_KEYS;
 
@@ -17,8 +18,6 @@ const getResponseJsonSafely = async response => {
     return {};
   }
 };
-
-const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -82,6 +81,20 @@ function clearLocalStorage() {
   localStorage.removeItem(PERMISSIONS);
 }
 
+export function isErrorUnknownDefault(error, response) {
+  if (!response || typeof response.status !== 'number') {
+    return true;
+  }
+  return response.status >= 400;
+}
+
+export function isErrorUnknownAllow404s(error, response) {
+  if (response?.status === 404) {
+    return false;
+  }
+  return isErrorUnknownDefault(error, response);
+}
+
 export class TamanuApi {
   constructor(appVersion) {
     this.appVersion = appVersion;
@@ -89,6 +102,7 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.user = null;
+    this.deviceId = getDeviceId();
 
     const host = window.localStorage.getItem(HOST);
     if (host) {
@@ -127,15 +141,24 @@ export class TamanuApi {
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post('login', { email, password }, { returnResponse: true });
+    const response = await this.post(
+      'login',
+      {
+        email,
+        password,
+        deviceId: this.deviceId,
+      },
+      { returnResponse: true },
+    );
     const serverType = response.headers.get('X-Tamanu-Server');
 
     if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
 
-    const { token, localisation, server = {}, permissions } = await response.json();
+    const { token, localisation, server = {}, permissions, centralHost } = await response.json();
     server.type = serverType;
+    server.centralHost = centralHost;
     saveToLocalStorage({ token, localisation, server, permissions });
     this.setToken(token);
     this.lastRefreshed = Date.now();
@@ -176,9 +199,16 @@ export class TamanuApi {
     if (!this.host) {
       throw new Error("TamanuApi can't be used until the host is set");
     }
-    const { headers, returnResponse = false, ...otherConfig } = config;
+    const {
+      headers,
+      returnResponse = false,
+      showUnknownErrorToast = false,
+      isErrorUnknown = isErrorUnknownDefault,
+      ...otherConfig
+    } = config;
     const queryString = qs.stringify(query || {});
-    const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
+    const path = `${endpoint}${query ? `?${queryString}` : ''}`;
+    const url = `${this.prefix}/${path}`;
     const response = await fetchOrThrowIfUnavailable(url, {
       headers: {
         ...this.authHeader,
@@ -189,12 +219,6 @@ export class TamanuApi {
       ...otherConfig,
     });
     if (response.ok) {
-      const timeSinceRefresh = Date.now() - this.lastRefreshed;
-      if (timeSinceRefresh > REFRESH_DURATION) {
-        this.lastRefreshed = Date.now();
-        this.refreshToken();
-      }
-
       if (returnResponse) {
         return response;
       }
@@ -209,9 +233,11 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (response.status === 401 && this.onAuthFailure) {
+    if (response.status === 401 && endpoint !== 'login' && this.onAuthFailure) {
       clearLocalStorage();
-      this.onAuthFailure('Your session has expired. Please log in again.');
+      const message = 'Your session has expired. Please log in again.';
+      this.onAuthFailure(message);
+      throw new Error(message);
     }
 
     // handle version incompatibility
@@ -224,11 +250,21 @@ export class TamanuApi {
         throw new Error(versionIncompatibleMessage);
       }
     }
-    throw new Error(error?.message || response.status);
+    const message = error?.message || response.status;
+    if (showUnknownErrorToast && isErrorUnknown(error, response)) {
+      notifyError(['Network request failed', `Path: ${path}`, `Message: ${message}`]);
+    }
+    throw new Error(`Facility server error response: ${message}`);
   }
 
-  async get(endpoint, query, options = {}) {
-    return this.fetch(endpoint, query, { method: 'GET', ...options });
+  async get(endpoint, query, { showUnknownErrorToast = true, ...options } = {}) {
+    return this.fetch(endpoint, query, { method: 'GET', showUnknownErrorToast, ...options });
+  }
+
+  async download(endpoint, query) {
+    const response = await this.fetch(endpoint, query, { returnResponse: true });
+    const blob = await response.blob();
+    return blob;
   }
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {

@@ -1,5 +1,4 @@
 import { pick } from 'lodash';
-import { Mutex } from 'async-mutex';
 import {
   BaseEntity,
   PrimaryColumn,
@@ -7,26 +6,21 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   Column,
+  BeforeInsert,
   BeforeUpdate,
-  Index,
-  MoreThan,
-  FindOptionsUtils,
   Repository,
 } from 'typeorm/browser';
+import { getSyncTick } from '../services/sync/utils';
+import { ObjectType } from 'typeorm/browser/common/ObjectType';
+import { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 export type ModelPojo = {
   id: string;
 };
 
-export type FindMarkedForUploadOptions = {
-  channel: string;
-  limit?: number;
-  after?: string;
-};
-
 // https://stackoverflow.com/questions/54281631/is-it-possible-to-get-instancetypet-to-work-on-an-abstract-class
-type AbstractInstanceType<T> = T extends { prototype: infer U } ?
-  U : never;
+type AbstractInstanceType<T> = T extends { prototype: infer U } ? U : never;
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't
@@ -41,10 +35,13 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
   const columns = repo.metadata.columns.map(({ propertyName }) => propertyName);
   return Object.entries(data)
     .filter(([key]) => columns.includes(key))
-    .reduce((state, [key, value]) => ({
-      ...state,
-      [key]: value,
-    }), {});
+    .reduce(
+      (state, [key, value]) => ({
+        ...state,
+        [key]: value,
+      }),
+      {},
+    );
 }
 
 // This is used instead of @RelationId provided by typeorm, because
@@ -84,8 +81,7 @@ const getMappedFormValues = (values: object): object => {
 };
 
 export abstract class BaseModel extends BaseEntity {
-  // TAN-884: lock entire model class while updating markedForUpload or syncing
-  static markedForUploadMutex = new Mutex();
+  static allModels = undefined;
 
   @PrimaryColumn()
   @Generated('uuid')
@@ -97,69 +93,52 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Index()
-  @Column({ default: true })
-  markedForUpload: boolean;
+  @Column({ nullable: false, default: -999 })
+  updatedAtSyncTick: number;
 
-  @Column({ nullable: true })
-  uploadedAt: Date;
-
-  @BeforeUpdate()
-  async markForUpload() {
-    // TAN-884: make sure records always have markedForUpload set to true when sync is ongoing
-    // This may sometimes cause records to be uploaded even when an update failed!
-    // We take that risk, since it's better than not uploading a record.
-
+  constructor() {
+    super();
     const thisModel = this.constructor as typeof BaseModel;
 
-    // acquire an exclusive lock before running the update
-    await thisModel.markedForUploadMutex.runExclusive(async () => {
-      await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true });
-    });
+    if (!thisModel.syncDirection) {
+      throw new Error(`syncDirection is required for model ${this.constructor.name}`);
+    }
   }
 
-  async markParentForUpload<T extends typeof BaseModel>(
-    parentModel: T,
-    parentProperty: string,
-  ) {
-    const parent = await this.findParent(parentModel, parentProperty);
-    if (!parent) {
+  static injectAllModels(allModels: Record<string, typeof BaseModel>): void {
+    this.allModels = allModels;
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async assignUpdatedAtSyncTick(): Promise<void> {
+    // If setting to "-1" (i.e. "freshly synced into this device") we actually use "-999" instead.
+    // That way we can tell when other fields have been updated without the updatedAtSyncTick being
+    // altered (in which case this.updatedAtSyncTick will be -999, easily distinguished from -1)
+    if (this.updatedAtSyncTick === -1) {
+      this.updatedAtSyncTick = -999;
       return;
     }
-    await parent.markForUpload()
+
+    // In any other case, we set the updatedAtSyncTick to match the currentSyncTick
+    const thisModel = this.constructor as typeof BaseModel;
+    const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTick');
+    this.updatedAtSyncTick = syncTick;
   }
 
-  async findParent<T extends typeof BaseModel>(
-    parentModel: T,
-    parentProperty: string,
-  ): Promise<AbstractInstanceType<T>> {
-    let entity: AbstractInstanceType<T>;
-    const parentValue = this[parentProperty];
+  static findVisible<T extends BaseEntity>(
+    this: ObjectType<T>,
+    options?: FindManyOptions<T>,
+  ): Promise<T[]> {
+    const repo = this.getRepository<T>();
 
-    if (typeof parentValue === 'string') {
-      entity = await parentModel.findOne({
-        where: { id: parentValue }
-      }) as AbstractInstanceType<T>;
-
-    } else if (typeof parentValue === 'object') {
-      entity = await parentModel.findOne({
-        where: { id: parentValue.id },
-      }) as AbstractInstanceType<T>;
-
-    } else {
-      const thisModel = this.constructor as typeof BaseModel;
-      entity = await thisModel
-        .getRepository()
-        .createQueryBuilder()
-        .relation(thisModel, parentProperty)
-        .of(this)
-        .loadOne();
+    if (repo.metadata.columns.find(col => col.propertyName === 'visibilityStatus')) {
+      return repo.find({
+        ...options,
+        where: { ...options.where, visibilityStatus: VisibilityStatus.Current },
+      });
     }
-    return entity;
-  }
-
-  static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
-    await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
+    return repo.find(options);
   }
 
   /*
@@ -190,7 +169,9 @@ export abstract class BaseModel extends BaseEntity {
 
     // Bail early if no record was found
     if (!instance) {
-      console.error(`${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`);
+      console.error(
+        `${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`,
+      );
       return null;
     }
 
@@ -207,66 +188,22 @@ export abstract class BaseModel extends BaseEntity {
     return instance.save();
   }
 
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
-    // query is built separately so it can be modified in child classes
-    return this.findMarkedForUploadQuery(opts).getMany();
-  }
-
-  static findMarkedForUploadQuery(
-    { limit, after }: FindMarkedForUploadOptions,
-  ) {
-    const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
-
-    const qb = this.getRepository().createQueryBuilder();
-    return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {
-      where: {
-        markedForUpload: true,
-        ...whereAfter,
-      },
-      order: {
-        id: 'ASC',
-      },
-      take: limit,
-      relations: this.includedSyncRelations,
-    });
-  }
-
-  static async filterExportRecords(ids: string[]) {
-    return ids;
-  }
-
-  static async postExportCleanUp() { }
-
-  static shouldImport = true;
-
-  static shouldExport = false;
+  static syncDirection = null;
 
   static uploadLimit = 100;
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds
-  static excludedSyncColumns: string[] = [
-    'createdAt',
-    'updatedAt',
-    'markedForUpload',
-    'markedForSync',
-    'uploadedAt',
-  ];
+  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];
 
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations
   static includedSyncRelations: string[] = [];
 
-  getPlainData(): ModelPojo {
-    const thisModel = this.constructor as typeof BaseModel;
-    const repo = thisModel.getRepository();
-    const { metadata } = repo;
-    const allColumns = [
-      ...metadata.columns,
-      ...metadata.relationIds, // typeorm thinks these aren't columns
-    ].map(({ propertyName }) => propertyName);
-    return pick(this, allColumns) as ModelPojo;
+  static getTableNameForSync(): string {
+    // most tables in the wider sync universe are the same as the name on mobile, but pluralised
+    // specific plural handling, and a couple of other unique cases, are handled on the relevant
+    // model (see Diagnosis and Medication)
+    return `${this.getRepository().metadata.tableName}s`;
   }
 }

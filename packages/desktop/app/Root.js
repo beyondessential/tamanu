@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
-import { ToastContainer } from 'react-toastify';
+import { Slide, ToastContainer } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
@@ -15,13 +15,19 @@ import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
+import { ImagingRequestsProvider } from './contexts/ImagingRequests';
+import { PatientSearchProvider } from './contexts/PatientSearch';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
-      <LabRequestProvider store={store}>
-        <LocalisationProvider store={store}>{children}</LocalisationProvider>
-      </LabRequestProvider>
+      <ImagingRequestsProvider>
+        <LabRequestProvider store={store}>
+          <PatientSearchProvider>
+            <LocalisationProvider store={store}>{children}</LocalisationProvider>
+          </PatientSearchProvider>
+        </LabRequestProvider>
+      </ImagingRequestsProvider>
     </ReferralProvider>
   </EncounterProvider>
 );
@@ -37,32 +43,36 @@ const queryClient = new QueryClient({
 
 export default function Root({ api, store, history }) {
   return (
-    <Provider store={store}>
-      <ApiContext.Provider value={api}>
-        <ConnectedRouter history={history}>
-          <StateContextProviders store={store}>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <ApiContext.Provider value={api}>
+          <ConnectedRouter history={history}>
             <StylesProvider injectFirst>
               <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
-                  <QueryClientProvider client={queryClient}>
+                  <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
                     <ToastContainer
+                      hideProgressBar
+                      transition={Slide}
                       closeOnClick
                       pauseOnFocusLoss
                       draggable
                       pauseOnHover
+                      theme="colored"
+                      icon={false}
                       limit={5}
                     />
                     <CssBaseline />
                     <RoutingApp />
-                  </QueryClientProvider>
+                  </StateContextProviders>
                 </ThemeProvider>
               </MuiThemeProvider>
             </StylesProvider>
-          </StateContextProviders>
-        </ConnectedRouter>
-      </ApiContext.Provider>
-    </Provider>
+          </ConnectedRouter>
+        </ApiContext.Provider>
+      </Provider>
+    </QueryClientProvider>
   );
 }
 

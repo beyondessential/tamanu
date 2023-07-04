@@ -1,5 +1,5 @@
 #
-# Kennedy and McLean currently own sync, because it's complicated and fragile
+# Edwin and Chris currently own sync, because it's complicated and fragile
 # functionality that's core to the app, and sync bugs have scary potential for
 # data loss.
 #
@@ -9,11 +9,10 @@
 # See Slack discussion:
 # https://beyondessential.slack.com/archives/GE9NHB95F/p1649711118757929
 #
-/packages/shared-src/src/models/sync/   @stretchkennedy @mcccclean
-/packages/lan/app/sync/                 @stretchkennedy @mcccclean
-/packages/sync-server/app/sync.js       @stretchkennedy @mcccclean
-/packages/sync-server/app/database/     @stretchkennedy @mcccclean
-/packages/mobile/App/services/sync/     @stretchkennedy @mcccclean
+/packages/shared/src/sync/                              @edmofro @chris-bes
+/packages/lan/app/sync/                                 @edmofro @chris-bes
+/packages/sync-server/app/sync/                         @edmofro @chris-bes
+/packages/mobile/App/services/sync/                     @edmofro @chris-bes
 
 #
 # Félix currently owns VDS-NC/EU-DCC/Signer and CSCA.
@@ -25,8 +24,9 @@
 /packages/sync-server/integrations/VdsNc                  @passcod
 
 # 
-# Nick's a code owner of the default config files just to make sure that
-# he's across any changes that might need to be made to any particular server.
+# The deployment team are code owner of the default config files to make sure
+# that they're across any changes that might need to be made to any particular
+# server.
 # 
-/packages/sync-server/config/default.json   @nick-beyondessential
-/packages/lan/config/default.json           @nick-beyondessential
+/packages/sync-server/config/default.json   @beyondessential/tamanu-deployment-team
+/packages/lan/config/default.json           @beyondessential/tamanu-deployment-team

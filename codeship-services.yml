@@ -1,4 +1,4 @@
-app-without-db:
+build:
   cached: true
   default_cache_branch: dev
   build:
@@ -6,7 +6,7 @@ app-without-db:
     # otherwise the image busts its own cache and we lose the advantage
     image: tamanu-app
     context: .
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.codeship
   encrypted_env_file: codeship.env.encrypted
   volumes:
     - ./.tmp:/tamanu
@@ -14,23 +14,7 @@ app-without-db:
   environment:
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
 
-app-with-db:
-  cached: true
-  default_cache_branch: dev
-  build:
-    image: tamanu-app
-    context: .
-    dockerfile: Dockerfile
-  encrypted_env_file: codeship.env.encrypted
-  volumes:
-    - ./.tmp:/tamanu
-  environment:
-    ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
-    NODE_CONFIG: '{"db":{"name":"postgres","host":"postgres","username":"postgres","password":"postgres"}}'
-  depends_on:
-    - postgres
-
-awsdeployment:
+deploy:
   build:
     image: tamanu-deploy
     dockerfile: Dockerfile.deploy
@@ -40,19 +24,6 @@ awsdeployment:
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
-
-postgres:
-  build:
-    image: tamanu-postgres
-    context: .
-    dockerfile: packages/shared-src/docker/postgres/Dockerfile
-  cached: true
-  default_cache_branch: dev
-  environment:
-    - POSTGRES_DB=postgres
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
-    - 'POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
 
 mobile:
   build:

@@ -1,10 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
-import { isEqual } from 'lodash';
+import { snakeCase } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
-import { PATIENT_REGISTRY_TYPES } from 'shared/constants';
+import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import { isGeneratedDisplayId } from 'shared/utils/generateId';
 
 import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
@@ -13,6 +15,7 @@ import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
+import { patientLocations } from './patientLocations';
 import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
@@ -42,11 +45,12 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData },
+      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
       params,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
+
     if (!patient) {
       throw new NotFoundError();
     }
@@ -54,6 +58,19 @@ patientRoute.put(
     req.checkPermission('write', patient);
 
     await db.transaction(async () => {
+      // First check if displayId changed to create a secondaryId record
+      if (req.body.displayId && req.body.displayId !== patient.displayId) {
+        const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
+          ? 'secondaryIdType-tamanu-display-id'
+          : 'secondaryIdType-nhn';
+        await PatientSecondaryId.create({
+          value: patient.displayId,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          typeId: oldDisplayIdType,
+          patientId: patient.id,
+        });
+      }
+
       await patient.update(requestBodyToRecord(req.body));
 
       const patientAdditionalData = await PatientAdditionalData.findOne({
@@ -61,14 +78,10 @@ patientRoute.put(
       });
 
       if (!patientAdditionalData) {
-        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-        if (!isEqual(req.body, { markedForSync: true })) {
-          await PatientAdditionalData.create({
-            ...requestBodyToRecord(req.body),
-            patientId: patient.id,
-          });
-        }
+        await PatientAdditionalData.create({
+          ...requestBodyToRecord(req.body),
+          patientId: patient.id,
+        });
       } else {
         await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
@@ -79,16 +92,11 @@ patientRoute.put(
       const recordData = requestBodyToRecord(req.body);
       const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
 
-      if (!patientBirth) {
-        if (!isEqual(req.body, { markedForSync: true })) {
-          await PatientBirthData.create({
-            ...patientBirthRecordData,
-            patientId: patient.id,
-          });
-        }
-      } else {
+      if (patientBirth) {
         await patientBirth.update(patientBirthRecordData);
       }
+
+      await patient.writeFieldValues(req.body.patientFields);
     });
 
     res.send(dbRecordToResponse(patient));
@@ -118,6 +126,7 @@ patientRoute.post(
         ...patientAdditionalBirthData,
         patientId: createdPatient.id,
       });
+      await createdPatient.writeFieldValues(req.body.patientFields);
 
       if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
         await PatientBirthData.create({
@@ -127,6 +136,7 @@ patientRoute.post(
       }
       return createdPatient;
     });
+
     res.send(dbRecordToResponse(patientRecord));
   }),
 );
@@ -192,7 +202,10 @@ patientRoute.get(
       where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
       include: [
         ...EncounterMedication.getFullReferenceAssociations(),
-        { association: 'encounter', include: [{ association: 'location' }] },
+        {
+          association: 'encounter',
+          include: [{ association: 'location', include: ['locationGroup'] }],
+        },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
       limit: rowsPerPage,
@@ -219,16 +232,11 @@ patientRoute.get(
 
     req.checkPermission('list', 'Patient');
 
-    const {
-      orderBy = 'lastName',
-      order = 'asc',
-      rowsPerPage = 10,
-      page = 0,
-      ...filterParams
-    } = query;
+    const { orderBy, order = 'asc', rowsPerPage = 10, page = 0, ...filterParams } = query;
 
-    const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.displayId;
+    const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.lastName;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
     // add secondary search terms so no matter what the primary order, the results are secondarily
     // sorted sensibly
     const secondarySearchTerm = [
@@ -247,10 +255,54 @@ patientRoute.get(
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
+    let filterSort = '';
+    let filterSortReplacements = {};
+    // If there is a sort selected by the user, it shouldn't use exact match sort.
+    // The search is complex and it has more details over this https://linear.app/bes/issue/TAN-2038/desktop-improve-patient-listing-search-fields
+    // Basically, we are sorting results based on the following rules:
+    // 1) if the user selects a column to sort, this is our first priority.
+    // 2) In case the user used one of the filters = "Display Id", "Last Name", "First Name", we have some special rules.
+    // 2.a) If there is an exact match for 'display Id', 'last name', 'first name, it should display those results on top
+    // 2.b) In the case we have a exact match for two or more columns listed above, we will display it sorted by display id, last name, and first name
+    // 2.c) After the exact match is applied, we should prioritize the results that starts with the text the user inserted.
+    // 2.d) the same rule of 2.b is applied in case we have two or more columns starting with what the user selected.
+    // 2.e) The last rule for selected filters, is, if the user has selected any of those filters, we should also sort them alphabetically.
+    if (!orderBy) {
+      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter(v => filterParams[v]);
+      if (selectedFilters?.length) {
+        filterSortReplacements = selectedFilters.reduce((acc, filter) => {
+          return {
+            ...acc,
+            [`exactMatchSort${filter}`]: filterParams[filter].toUpperCase(),
+            [`beginsWithSort${filter}`]: `${filterParams[filter].toUpperCase()}%`,
+          };
+        }, {});
+
+        // Exact match sort
+        const exactMatchSort = selectedFilters
+          .map(filter => `upper(${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`)
+          .join(', ');
+
+        // Begins with sort
+        const beginsWithSort = selectedFilters
+          .map(filter => `upper(${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
+          .join(', ');
+
+        // the last one is
+        const alphabeticSort = selectedFilters.map(filter => `${snakeCase(filter)} ASC`).join(', ');
+
+        filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
+      }
+    }
+
+    // Check if this is the main patient listing and change FROM and SELECT
+    // clauses to improve query speed by removing unused joins
+    const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
-    const from = `
+    const from = isAllPatientsListing
+      ? `
       FROM patients
         LEFT JOIN (
             SELECT patient_id, max(start_date) AS most_recent_open_encounter
@@ -261,12 +313,55 @@ patientRoute.get(
           ON patients.id = recent_encounter_by_patient.patient_id
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+        LEFT JOIN reference_data AS village
+          ON (village.type = 'village' AND village.id = patients.village_id)
+        LEFT JOIN (
+          SELECT
+            patient_id,
+            ARRAY_AGG(value) AS secondary_ids
+          FROM patient_secondary_ids
+          GROUP BY patient_id
+        ) psi
+          ON (patients.id = psi.patient_id)
+        LEFT JOIN patient_facilities
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
+      ${whereClauses && `WHERE ${whereClauses}`}
+      `
+      : `
+      FROM patients
+        LEFT JOIN (
+            SELECT patient_id, max(start_date) AS most_recent_open_encounter
+            FROM encounters
+            WHERE end_date IS NULL
+            GROUP BY patient_id
+          ) recent_encounter_by_patient
+          ON patients.id = recent_encounter_by_patient.patient_id
+        LEFT JOIN encounters
+          ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+        LEFT JOIN users AS clinician 
+          ON clinician.id = encounters.examiner_id  
         LEFT JOIN departments AS department
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
           ON (location.id = encounters.location_id)
+        LEFT JOIN location_groups AS location_group
+          ON (location_group.id = location.location_group_id)
+        LEFT JOIN locations AS planned_location
+          ON (planned_location.id = encounters.planned_location_id)
+        LEFT JOIN location_groups AS planned_location_group
+          ON (planned_location.location_group_id = planned_location_group.id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
+        LEFT JOIN (
+          SELECT
+            patient_id,
+            ARRAY_AGG(value) AS secondary_ids
+          FROM patient_secondary_ids
+          GROUP BY patient_id
+        ) psi
+          ON (patients.id = psi.patient_id)
+        LEFT JOIN patient_facilities
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -279,6 +374,7 @@ patientRoute.get(
         }),
         filterParams,
       );
+    filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
@@ -287,33 +383,56 @@ patientRoute.get(
 
     const count = parseInt(countResult[0].count, 10);
 
-    if (count === 0) {
-      // save ourselves a query
+    if (count === 0 || filterParams.countOnly) {
+      // save ourselves a query if 0 || user requested count only
       res.send({ data: [], count });
       return;
     }
 
+    const select = isAllPatientsListing
+      ? `
+      SELECT
+        patients.*,
+        encounters.id AS encounter_id,
+        encounters.encounter_type,
+        village.id AS village_id,
+        village.name AS village_name,
+        patient_facilities.patient_id IS NOT NULL as marked_for_sync
+      `
+      : `
+      SELECT
+        patients.*,
+        encounters.id AS encounter_id,
+        encounters.encounter_type,
+        clinician.display_name as clinician,
+        department.id AS department_id,
+        department.name AS department_name,
+        location.id AS location_id,
+        location.name AS location_name,
+        location_group.name AS location_group_name,
+        planned_location_group.name AS planned_location_group_name,
+        planned_location.id AS planned_location_id,
+        planned_location.name AS planned_location_name,
+        encounters.planned_location_start_time,
+        village.id AS village_id,
+        village.name AS village_name,
+        patient_facilities.patient_id IS NOT NULL as marked_for_sync
+    `;
+
     const result = await req.db.query(
       `
-        SELECT
-          patients.*,
-          encounters.id AS encounter_id,
-          encounters.encounter_type,
-          department.id AS department_id,
-          department.name AS department_name,
-          location.id AS location_id,
-          location.name AS location_name,
-          village.id AS village_id,
-          village.name AS village_name
+        ${select}
         ${from}
 
-        ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${filterSort &&
+          `${filterSort},`} ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,
       {
         replacements: {
           ...filterReplacements,
+          ...filterSortReplacements,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
         },
@@ -337,11 +456,15 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
 
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { Patient } = models;
+    const { certType } = query;
 
     const patient = await Patient.findByPk(params.id);
-    const labTests = await patient.getCovidLabTests();
+    const labTests =
+      certType === 'clearance'
+        ? await patient.getCovidClearanceLabTests()
+        : await patient.getCovidLabTests();
 
     res.json({ data: labTests, count: labTests.length });
   }),
@@ -354,5 +477,6 @@ patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
 patientRoute.use(patientBirthData);
+patientRoute.use(patientLocations);
 
 export { patientRoute as patient };

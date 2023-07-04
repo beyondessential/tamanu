@@ -1,6 +1,6 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
-import { WebRemote } from '../sync';
+import { CentralServerConnection } from '../sync';
 
 export async function performDatabaseIntegrityChecks(context) {
   // run in a transaction so any errors roll back all changes
@@ -15,12 +15,12 @@ export async function performDatabaseIntegrityChecks(context) {
  */
 async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
-  const remote = new WebRemote(context);
-  const configuredHost = remote.host;
+  const centralServer = new CentralServerConnection(context);
+  const configuredHost = centralServer.host;
   const lastHost = await LocalSystemFact.get('syncHost');
 
   if (!lastHost) {
-    await LocalSystemFact.set('syncHost', remote.host);
+    await LocalSystemFact.set('syncHost', centralServer.host);
     return;
   }
 
@@ -53,10 +53,10 @@ async function ensureFacilityMatches(context) {
 }
 
 async function performInitialIntegritySetup(context) {
-  const remote = new WebRemote(context);
-  log.info(`Verifying sync connection to ${remote.host}...`);
+  const centralServer = new CentralServerConnection(context);
+  log.info(`Verifying sync connection to ${centralServer.host}...`);
 
-  const { token, facility } = await remote.connect();
+  const { token, facility } = await centralServer.connect();
 
   if (!token) {
     throw new Error('Could not obtain valid token from sync server.');

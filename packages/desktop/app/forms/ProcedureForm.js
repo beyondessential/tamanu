@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   Form,
   Field,
@@ -11,7 +12,7 @@ import {
   CheckField,
   AutocompleteField,
   TextField,
-  FormGroup,
+  LocationField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -30,7 +31,6 @@ export const ProcedureForm = React.memo(
     editedObject,
     anaestheticSuggester,
     procedureSuggester,
-    locationSuggester,
     practitionerSuggester,
   }) => (
     <Form
@@ -40,76 +40,85 @@ export const ProcedureForm = React.memo(
         const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
           if (editedObject?.id) return 'Update';
-          return 'Create';
+          return 'Submit';
         };
 
         const isCompleted = !!values.completed;
         const buttonText = getButtonText(isCompleted);
         return (
           <div>
-            <FormGroup disabled={isCompleted}>
-              <FormGrid>
-                <div style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="procedureTypeId"
-                    label="Procedure"
-                    required
-                    component={AutocompleteField}
-                    suggester={procedureSuggester}
-                  />
-                </div>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="locationId"
-                    label="Procedure location"
-                    required
-                    component={AutocompleteField}
-                    suggester={locationSuggester}
-                  />
-                  <Field name="date" label="Procedure date" required component={DateField} />
-                </FormGrid>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field name="startTime" label="Time started" component={TimeField} />
-                  <Field name="endTime" label="Time ended" component={TimeField} />
-                </FormGrid>
+            <FormGrid>
+              <div style={{ gridColumn: 'span 2' }}>
+                <Field
+                  name="procedureTypeId"
+                  label="Procedure"
+                  required
+                  component={AutocompleteField}
+                  suggester={procedureSuggester}
+                />
+              </div>
+              <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="physicianId"
-                  label="Physician"
+                  label="Clinician"
                   required
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
                 />
                 <Field
-                  name="assistantId"
-                  label="Assistant"
-                  component={AutocompleteField}
-                  suggester={practitionerSuggester}
+                  name="date"
+                  label="Procedure date"
+                  saveDateAsString
+                  required
+                  component={DateField}
                 />
                 <Field
-                  name="anaesthetistId"
-                  label="Anaesthetist"
-                  component={AutocompleteField}
-                  suggester={practitionerSuggester}
-                />
-                <Field
-                  name="anaestheticId"
-                  label="Anaesthetic type"
-                  component={AutocompleteField}
-                  suggester={anaestheticSuggester}
-                  rows={4}
-                  style={{ gridColumn: 'span 2' }}
-                />
-                <Field
-                  name="note"
-                  label="Notes or additional instructions"
-                  component={TextField}
-                  multiline
-                  rows={4}
-                  style={{ gridColumn: 'span 2' }}
+                  locationGroupLabel="Procedure area"
+                  label="Procedure location"
+                  name="locationId"
+                  enableLocationStatus={false}
+                  required
+                  component={LocationField}
                 />
               </FormGrid>
-            </FormGroup>
-            <FormGrid>
+              <FormGrid style={{ gridColumn: 'span 2' }}>
+                <Field
+                  name="startTime"
+                  label="Time started"
+                  component={TimeField}
+                  saveDateAsString
+                />
+                <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
+              </FormGrid>
+
+              <Field
+                name="anaesthetistId"
+                label="Anaesthetist"
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+              />
+              <Field
+                name="anaestheticId"
+                label="Anaesthetic type"
+                component={AutocompleteField}
+                suggester={anaestheticSuggester}
+                rows={4}
+                style={{ gridColumn: 'span 2' }}
+              />
+              <Field
+                name="assistantId"
+                label="Assistant"
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+              />
+              <Field
+                name="note"
+                label="Notes or additional instructions"
+                component={TextField}
+                multiline
+                rows={4}
+                style={{ gridColumn: 'span 2' }}
+              />
               <Field name="completed" label="Completed" component={CheckField} />
               <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
                 <Field
@@ -130,17 +139,17 @@ export const ProcedureForm = React.memo(
         );
       }}
       initialValues={{
-        date: new Date(),
-        startTime: new Date(),
+        date: getCurrentDateTimeString(),
+        startTime: getCurrentDateTimeString(),
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
         procedureTypeId: foreignKey('Procedure must be selected'),
         locationId: foreignKey('Location must be selected'),
         date: yup.date().required(),
-        startTime: yup.string(),
+        startTime: yup.date(),
         endTime: yup.date(),
-        physicianId: foreignKey('Physician must be selected'),
+        physicianId: foreignKey('Clinician must be selected'),
         assistantId: optionalForeignKey(),
         anaesthetistId: optionalForeignKey(),
         anaestheticId: optionalForeignKey(),

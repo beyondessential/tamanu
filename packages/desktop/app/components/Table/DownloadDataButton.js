@@ -22,13 +22,19 @@ function getHeaderValue(column) {
 }
 
 export function DownloadDataButton({ exportName, columns, data }) {
+  const exportableColumnsWithOverrides = columns
+    .filter(c => c.isExportable !== false)
+    .map(c => {
+      const { exportOverrides = {}, ...rest } = c;
+      return { ...rest, ...exportOverrides };
+    });
   const onDownloadData = async () => {
-    const header = columns.map(getHeaderValue);
+    const header = exportableColumnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
         const dx = {};
         await Promise.all(
-          columns.map(async c => {
+          exportableColumnsWithOverrides.map(async c => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
               const value = await c.asyncExportAccessor(d);
@@ -75,7 +81,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     const path = {};
     if (path.canceled) return; // Dialog was cancelled - don't write file.
     XLSX.writeFile(wb, `${path.filePath}.xlsx`);
-    openPath(`${path.filePath}.xlsx`);
+    // openPath(`${path.filePath}.xlsx`);
   };
 
   return (

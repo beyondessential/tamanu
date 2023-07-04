@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 import { check, PERMISSIONS, request } from 'react-native-permissions';
@@ -41,50 +40,29 @@ export const launchImagePicker = (): Promise<ImagePickerResponse | null> =>
   });
 
 export const getImageFromPhotoLibrary = async () => {
-  const OS = Platform.OS;
   let image : ImagePickerResponse = null;
-  if (OS === 'android') {
-    try {
-      const photoLibraryPermissionAndroid = await check(
+
+  try {
+    const photoLibraryPermissionAndroid = await check(
+      PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
+    );
+    if (photoLibraryPermissionAndroid !== 'granted') {
+      const photoLibraryPermissionRequest = await request(
         PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
       );
-      if (photoLibraryPermissionAndroid !== 'granted') {
-        const photoLibraryPermissionRequest = await request(
-          PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
-        );
-        if (photoLibraryPermissionRequest === 'granted') {
-          image = await launchImagePicker();
-          console.log('loaded');
-          return image;
-        }
-      } else {
+      if (photoLibraryPermissionRequest === 'granted') {
         image = await launchImagePicker();
+        console.log('loaded');
         return image;
       }
-    } catch (error) {
-      throw new Error(error);
+    } else {
+      image = await launchImagePicker();
+      return image;
     }
-  } else {
-    try {
-      const photoLibraryPermissionIOS = await check(
-        PERMISSIONS.IOS.PHOTO_LIBRARY
-      );
-      if (photoLibraryPermissionIOS !== 'granted') {
-        const photoLibraryPermissionRequest = await request(
-          PERMISSIONS.IOS.PHOTO_LIBRARY
-        );
-        if (photoLibraryPermissionRequest === 'granted') {
-          image = await launchImagePicker();
-          return image;
-        }
-      } else {
-        image = await launchImagePicker();
-        return image;
-      }
-    } catch (error) {
-      throw new Error(error);
-    }
+  } catch (error) {
+    throw new Error(error);
   }
+
   return image;
 };
 

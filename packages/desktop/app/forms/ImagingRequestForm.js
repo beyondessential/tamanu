@@ -2,22 +2,22 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
-
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
-import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { useLocalisation } from '../contexts/Localisation';
+import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 
 import {
   Form,
   Field,
   AutocompleteField,
   TextField,
-  CheckField,
+  ImagingPriorityField,
   TextInput,
   DateTimeField,
   MultiselectField,
@@ -99,8 +99,8 @@ export const ImagingRequestForm = React.memo(
       <Form
         onSubmit={onSubmit}
         initialValues={{
-          id: generateId(),
-          requestedDate: new Date(),
+          displayId: generateId(),
+          requestedDate: getCurrentDateTimeString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
@@ -111,14 +111,15 @@ export const ImagingRequestForm = React.memo(
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
             <FormGrid>
-              <Field name="id" label="Imaging request code" disabled component={TextField} />
+              <Field name="displayId" label="Imaging request code" disabled component={TextField} />
               <Field
                 name="requestedDate"
                 label="Order date and time"
                 required
                 component={DateTimeField}
+                saveDateAsString
               />
-              <TextInput label="Supervising doctor" disabled value={examinerLabel} />
+              <TextInput label="Supervising clinician" disabled value={examinerLabel} />
               <Field
                 name="requestedById"
                 label="Requesting doctor"
@@ -127,7 +128,7 @@ export const ImagingRequestForm = React.memo(
                 suggester={practitionerSuggester}
               />
               <div>
-                <Field name="urgent" label="Urgent?" component={CheckField} />
+                <ImagingPriorityField name="priority" />
               </div>
               <FormSeparatorLine />
               <TextInput label="Encounter" disabled value={encounterLabel} />

@@ -66,11 +66,11 @@ import groovy.json.JsonSlurper
  *   resourcesDirRelease: "$buildDir/intermediates/res/merged/release",
  *
  *   // by default the gradle tasks are skipped if none of the JS files or assets change; this means
- *   // that we don't look at files in android/ or ios/ to determine whether the tasks are up to
+ *   // that we don't look at files in android/ to determine whether the tasks are up to
  *   // date; if you have any other folders that you want to ignore for performance reasons (gradle
  *   // indexes the entire tree), add them here. Alternatively, if you have JS files in android/
  *   // for example, you might want to remove it from here.
- *   inputExcludes: ["android/**", "ios/**"],
+ *   inputExcludes: ["android/**"],
  *
  *   // override which node gets called and with what additional arguments
  *   nodeExecutableAndArgs: ["node"],
@@ -146,7 +146,7 @@ android {
         applicationId "com.tamanuapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode patch.toInteger()
+        versionCode major.toInteger() * 1000000 + minor.toInteger() * 1000 + patch.toInteger()
         versionName getAppVersion()
         multiDexEnabled true
     }

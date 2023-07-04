@@ -20,8 +20,8 @@ export interface IEncounter {
 
   encounterType: EncounterType;
 
-  startDate: Date;
-  endDate?: Date;
+  startDate: string;
+  endDate?: string;
 
   reasonForEncounter?: string;
 
@@ -37,8 +37,6 @@ export interface IEncounter {
 
   examiner?: IUser | string;
   examinerId?: string;
-
-  markedForUpload?: boolean;
 
   deviceId?: string;
 }

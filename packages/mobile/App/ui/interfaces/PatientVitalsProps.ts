@@ -11,5 +11,5 @@ export interface PatientVitalsProps {
   sv02?: number;
   avpu?: AVPUType;
   date?: Date;
-  dateRecorded?: Date
+  dateRecorded?: string
 }

@@ -1,77 +1,11 @@
 {
-  "parser": "@typescript-eslint/parser",
   "root": true,
+  "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
-  "extends": [
-    "plugin:@typescript-eslint/recommended",
-    "@beyondessential/eslint-config-beyondessential"
-  ],
-  "env": {
-    "jest": true,
-    "jasmine": true
-  },
-  "settings": {
-    "import/resolver": {
-      "node": {
-        "extensions": [
-          ".json",
-          ".ts"
-        ]
-      }
-    }
-  },
+  "extends": ["../../.eslintrc-typescript.json"],
   "rules": {
     "no-console": "off",
-    "no-shadow": "off",
-    "indent": "off",
-    "@typescript-eslint/indent": [
-      "error", 2,
-      {
-        "SwitchCase": 1
-      }
-    ],
-    "max-classes-per-file": "off",
-    "curly": "off",
     "no-dupe-class-members": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/interface-name-prefix": "off",
-    "object-curly-newline": "off",
-    "import/no-unresolved": [
-      2,
-      {
-        "caseSensitive": true
-      }
-    ],
-    "import/no-absolute-path": "off",
-    "import/extensions": [
-      "off",
-      "ignorePackages",
-      {
-        "js": "never",
-        "jsx": "never",
-        "ts": "never",
-        "tsx": "never",
-        "mjs": "never"
-      }
-    ],
-    "no-restricted-syntax": [
-      "error",
-      {
-        "selector": "ForInStatement",
-        "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
-      },
-      {
-        "selector": "LabeledStatement",
-        "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
-      },
-      {
-        "selector": "WithStatement",
-        "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
-      }
-    ],
-    "lines-between-class-members": [
-      "off"
-    ],
-    "@typescript-eslint/no-unused-vars": ["error"]
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }

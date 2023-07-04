@@ -1,35 +1,102 @@
 import React, { useState } from 'react';
-import { customAlphabet } from 'nanoid';
-
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
-
+import { useQueries } from '@tanstack/react-query';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import styled from 'styled-components';
+import { useApi, useSuggester } from '../api';
+import { combineQueries } from '../api/combineQueries';
 import { Modal } from './Modal';
-import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
-import { ALPHABET_FOR_ID } from '../constants';
+import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
+import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
+import { useEncounter } from '../contexts/Encounter';
 
-export const LabRequestModal = ({ open, onClose, encounter }) => {
+const StyledModal = styled(Modal)`
+  .MuiDialog-paper {
+    max-width: 926px;
+  }
+`;
+
+const SECTION_TITLES = {
+  [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'Individual',
+  [LAB_REQUEST_FORM_TYPES.PANEL]: 'Panel',
+};
+
+const useLabRequests = labRequestIds => {
   const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const [requestId, setRequestId] = useState();
+  const queries = useQueries({
+    queries: labRequestIds.map(labRequestId => {
+      return {
+        queryKey: ['labRequest', labRequestId],
+        queryFn: () => api.get(`labRequest/${labRequestId}`),
+        enabled: !!labRequestIds,
+      };
+    }),
+  });
+  return combineQueries(queries);
+};
+
+export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
+  const [requestFormType, setRequestFormType] = useState(null);
+  const [newLabRequestIds, setNewLabRequestIds] = useState([]);
+  const api = useApi();
+  const { loadEncounter } = useEncounter();
+  const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
+  const practitionerSuggester = useSuggester('practitioner');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+
+  const handleSubmit = async data => {
+    const response = await api.post(`labRequest`, {
+      ...data,
+      encounterId: encounter.id,
+    });
+    setNewLabRequestIds(response.map(request => request.id));
+  };
+
+  const handleClose = async () => {
+    if (newLabRequests.length > 0) {
+      setNewLabRequestIds([]);
+      await loadEncounter(encounter.id);
+    }
+    onClose();
+  };
+
+  const handleChangeStep = (step, values) => {
+    setRequestFormType(step === 0 ? null : values.requestFormType);
+  };
+
+  let ModalBody = (
+    <LabRequestMultiStepForm
+      isSubmitting={isLoading}
+      onSubmit={handleSubmit}
+      onChangeStep={handleChangeStep}
+      onCancel={onClose}
+      encounter={encounter}
+      practitionerSuggester={practitionerSuggester}
+      departmentSuggester={departmentSuggester}
+    />
+  );
+
+  if (isSuccess) {
+    ModalBody = (
+      <LabRequestSummaryPane
+        encounter={encounter}
+        labRequests={newLabRequests}
+        requestFormType={requestFormType}
+        onClose={handleClose}
+      />
+    );
+  }
 
   return (
-    <Modal width="md" title="New lab request" open={open} onClose={onClose}>
-      <ConnectedLabRequestForm
-        onSubmit={async data => {
-          const newRequest = await api.post(`labRequest`, {
-            ...data,
-            encounterId: encounter.id,
-          });
-          setRequestId(newRequest.id);
-          onClose();
-        }}
-        onCancel={onClose}
-        encounter={encounter}
-        requestId={requestId}
-        practitionerSuggester={practitionerSuggester}
-        generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 7)}
-      />
-    </Modal>
+    <StyledModal
+      maxWidth="md"
+      title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
+      open={open}
+      onClose={handleClose}
+      minHeight={500}
+    >
+      {ModalBody}
+    </StyledModal>
   );
-};
+});

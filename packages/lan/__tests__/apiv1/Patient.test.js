@@ -1,10 +1,19 @@
+import { subDays, startOfDay } from 'date-fns';
+import config from 'config';
+
 import {
   createDummyEncounter,
   createDummyEncounterMedication,
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
+import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { fake } from 'shared/test-helpers/fake';
+import { randomLabRequest } from 'shared/demoData/labRequests';
+import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
+import { CertificateTypes } from 'shared/utils/patientCertificates';
+
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -19,6 +28,11 @@ describe('Patient', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    await models.Facility.upsert({
+      id: config.serverFacilityId,
+      name: config.serverFacilityId,
+      code: config.serverFacilityId,
+    });
     patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());
@@ -148,6 +162,39 @@ describe('Patient', () => {
       expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
     });
 
+    it('should create a new patient with fields', async () => {
+      // Arrange
+      const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
+      const category = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category',
+      });
+      const definition = await PatientFieldDefinition.create({
+        name: 'Test Field',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category.id,
+      });
+      const newPatient = await createDummyPatient(models);
+
+      // Act
+      const result = await app.post('/v1/patient').send({
+        ...newPatient,
+        patientFields: {
+          [definition.id]: 'Test Field Value',
+        },
+      });
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      const values = await PatientFieldValue.findAll({
+        where: { patientId: result.body.id },
+      });
+      expect(values).toEqual([
+        expect.objectContaining({
+          value: 'Test Field Value',
+        }),
+      ]);
+    });
+
     it('should update patient details', async () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
@@ -171,6 +218,46 @@ describe('Patient', () => {
       expect(additionalDataResult.body).toHaveProperty('bloodType', 'AB+');
     });
 
+    it('should update patient fields', async () => {
+      // Arrange
+      const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
+      const category = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category',
+      });
+      const definition = await PatientFieldDefinition.create({
+        name: 'Test Field',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category.id,
+      });
+      const newPatient = await createDummyPatient(models);
+      const {
+        body: { id: patientId },
+      } = await app.post('/v1/patient').send({
+        ...newPatient,
+        patientFields: {
+          [definition.id]: 'Test Field Value',
+        },
+      });
+
+      // Act
+      const result = await app.put(`/v1/patient/${patientId}`).send({
+        patientFields: {
+          [definition.id]: 'Test Field Value 2',
+        },
+      });
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      const values = await PatientFieldValue.findAll({
+        where: { patientId },
+      });
+      expect(values).toEqual([
+        expect.objectContaining({
+          value: 'Test Field Value 2',
+        }),
+      ]);
+    });
+
     test.todo('should create a new patient as a new birth');
 
     test.todo('should add a new condition');
@@ -191,269 +278,246 @@ describe('Patient', () => {
   test.todo('should get a list of patient appointments');
   test.todo('should get a list of patient referrals');
 
-  describe('Death', () => {
-    let commons;
+  describe('Update display ID (editDisplayId feature flag)', () => {
     beforeAll(async () => {
-      const { User, Facility, Department, Location, ReferenceData } = models;
-      const { id: clinicianId } = await User.create({ ...fake(User), role: 'practitioner' });
-      const { id: facilityId } = await Facility.create(fake(Facility));
-      const { id: departmentId } = await Department.create({
-        ...fake(Department),
-        facilityId,
-      });
-      const { id: locationId } = await Location.create({
-        ...fake(Location),
-        facilityId,
-      });
-      const cond1 = await ReferenceData.create({
-        id: 'ref/icd10/K07.9',
-        type: 'icd10',
-        code: 'K07.9',
-        name: 'Dentofacial anomaly',
-      });
-      const cond2 = await ReferenceData.create({
-        id: 'ref/icd10/A51.3',
-        type: 'icd10',
-        code: 'A51.3',
-        name: 'Secondary syphilis of skin',
-      });
-      const cond3 = await ReferenceData.create({
-        id: 'ref/icd10/R41.0',
-        type: 'icd10',
-        code: 'R41.0',
-        name: 'Confusion',
-      });
-
-      const makeCommon = condition => {
-        const { deletedAt, ...dataValues } = condition.dataValues;
-        return {
-          ...dataValues,
-          createdAt: condition.createdAt.toISOString(),
-          updatedAt: condition.updatedAt.toISOString(),
-        };
-      }
-
-      commons = {
-        clinicianId,
-        facilityId,
-        departmentId,
-        locationId,
-        cond1Id: cond1.id,
-        cond2Id: cond2.id,
-        cond3Id: cond3.id,
-        cond1: makeCommon(cond1),
-        cond2: makeCommon(cond2),
-        cond3: makeCommon(cond3),
-      };
+      // Create expected reference data
+      await Promise.all([
+        models.ReferenceData.create({
+          id: 'secondaryIdType-tamanu-display-id',
+          code: 'tamanu-display-id',
+          name: 'Tamanu Display ID',
+          type: 'secondaryIdType',
+        }),
+        models.ReferenceData.create({
+          id: 'secondaryIdType-nhn',
+          code: 'nhn',
+          name: 'National Health Number',
+          type: 'secondaryIdType',
+        }),
+      ]);
     });
 
-    it('should mark a patient as dead', async () => {
-      const { Patient } = models;
-      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
-      const { clinicianId, facilityId, cond1Id, cond2Id, cond3Id } = commons;
-
-      const dod = '2021-09-01 00:00:00';
-      const result = await app.post(`/v1/patient/${id}/death`).send({
-        clinicianId,
-        facilityId,
-        outsideHealthFacility: false,
-        timeOfDeath: dod,
-        causeOfDeath: cond1Id,
-        causeOfDeathInterval: 100,
-        antecedentCause1: cond2Id,
-        antecedentCause1Interval: 120,
-        antecedentCause2: cond3Id,
-        antecedentCause2Interval: 150,
-        otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
-        surgeryInLast4Weeks: 'yes',
-        lastSurgeryDate: '2021-08-02',
-        lastSurgeryReason: cond1Id,
-        pregnant: 'no',
-        mannerOfDeath: 'Accident',
-        mannerOfDeathDate: '2021-08-31',
-        fetalOrInfant: 'yes',
-        stillborn: 'unknown',
-        birthWeight: 120,
-        numberOfCompletedPregnancyWeeks: 30,
-        ageOfMother: 21,
-        motherExistingCondition: cond1Id,
-        deathWithin24HoursOfBirth: 'yes',
-        numberOfHoursSurvivedSinceBirth: 12,
-      });
-      expect(result).toHaveSucceeded();
-
-      const foundPatient = await Patient.findByPk(id);
-      expect(foundPatient.dateOfDeath).toEqual(dod);
-    });
-
-    it('should not mark a dead patient as dead', async () => {
-      const { Patient } = models;
-      const patientData = fake(Patient);
-      patientData.dateOfDeath = '2021-08-31 12:00:00';
-      const { id } = await Patient.create(patientData);
-      const { clinicianId, facilityId, cond1Id } = commons;
-
-      const result = await app.post(`/v1/patient/${id}/death`).send({
-        clinicianId,
-        facilityId,
-        timeOfDeath: '2021-09-01 00:00:00',
-        causeOfDeath: cond1Id,
-        causeOfDeathInterval: 100,
-        mannerOfDeath: 'Disease',
-      });
-      expect(result).not.toHaveSucceeded();
-    });
-
-    it('should reject with no data', async () => {
-      const { Patient } = models;
-      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
-
-      const result = await app.post(`/v1/patient/${id}/death`).send({});
-      expect(result).not.toHaveSucceeded();
-    });
-
-    it('should reject with invalid data', async () => {
-      const { Patient } = models;
-      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
-
-      const result = await app.post(`/v1/patient/${id}/death`).send({
-        timeOfDeath: 'this is not a date',
-      });
-      expect(result).not.toHaveSucceeded();
-    });
-
-    it('should mark active encounters as discharged', async () => {
-      const { Encounter, Patient } = models;
-      const { clinicianId, facilityId, departmentId, locationId, cond1Id } = commons;
-      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
-      const { id: encId } = await Encounter.create({
-        ...fake(Encounter),
-        departmentId,
-        locationId,
-        patientId: id,
-        examinerId: clinicianId,
-        endDate: null,
+    it('Should create a secondary ID record when changing display ID', async () => {
+      const oldDisplayId = 'ABCD123456';
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: oldDisplayId,
       });
 
-      const result = await app.post(`/v1/patient/${id}/death`).send({
-        clinicianId,
-        facilityId,
-        timeOfDeath: '2021-09-01 00:00:00',
-        causeOfDeath: cond1Id,
-        causeOfDeathInterval: 100,
-        mannerOfDeath: 'Disease',
+      const newDisplayId = '123456789';
+      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
+        displayId: newDisplayId,
       });
-      expect(result).toHaveSucceeded();
+      expect(updateResult).toHaveSucceeded();
+      expect(updateResult.body.displayId).toEqual(newDisplayId);
 
-      const encounter = await Encounter.findByPk(encId);
-      expect(encounter.endDate).toBeTruthy();
-
-      const discharge = await encounter.getDischarge();
-      expect(discharge).toBeTruthy();
-      expect(discharge.dischargerId).toEqual(clinicianId);
+      const secondaryId = await models.PatientSecondaryId.findOne({
+        where: { value: oldDisplayId },
+      });
+      expect(secondaryId).toBeTruthy();
     });
 
-    it('should return no death data for alive patient', async () => {
-      const { Patient } = models;
-      const { id, dateOfBirth } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
+    it('Should use the proper secondary ID type', async () => {
+      const oldDisplayId = '0fe8e054-2149-4442-9423-9dcaf7b67c20';
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: oldDisplayId,
+      });
 
-      const result = await app.get(`/v1/patient/${id}/death`);
+      const newDisplayId = '555666777';
+      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
+        displayId: newDisplayId,
+      });
+      expect(updateResult).toHaveSucceeded();
+      expect(updateResult.body.displayId).toEqual(newDisplayId);
 
-      expect(result).toHaveStatus(404);
-      expect(result.body).toMatchObject({
-        patientId: id,
-        dateOfBirth: dateOfBirth.toISOString(),
-        dateOfDeath: null,
+      const secondaryId = await models.PatientSecondaryId.findOne({
+        where: { value: oldDisplayId },
+      });
+      expect(secondaryId.typeId).toBe('secondaryIdType-nhn');
+    });
+  });
+
+  describe('Get patient covid clearance lab tests', () => {
+    let user;
+    let lab;
+    let category;
+    let labTestType1;
+    let labTestType2;
+    let method;
+
+    beforeAll(async () => {
+      user = await models.User.create({
+        displayName: 'Test User',
+        email: 'testuser@test.test',
+      });
+      lab = await models.ReferenceData.create({
+        type: REFERENCE_TYPES.LAB_TEST_LABORATORY,
+        name: 'Test Laboratory',
+        code: 'TESTLABORATORY',
+      });
+
+      category = await models.ReferenceData.create({
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        name: 'Test Category',
+        code: 'testLabTestCategory',
+      });
+
+      labTestType1 = await models.LabTestType.create({
+        labTestCategoryId: category.id,
+        name: 'Test Test Type 1',
+        code: 'TESTTESTTYPE1',
+      });
+
+      labTestType2 = await models.LabTestType.create({
+        labTestCategoryId: category.id,
+        name: 'Test Test Type2',
+        code: 'TESTTESTTYPE2',
+      });
+
+      method = await models.ReferenceData.create({
+        type: REFERENCE_TYPES.LAB_TEST_METHOD,
+        name: 'Test Method',
+        code: 'testLabTestMethod',
       });
     });
 
-    it('should return death data for deceased patient', async () => {
-      const { Patient } = models;
-      const { id, dateOfBirth } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
-      const { clinicianId, facilityId, cond1, cond2, cond3, cond1Id, cond2Id, cond3Id } = commons;
-
-      const dod = '2021-09-01 12:30:25';
-      await app.post(`/v1/patient/${id}/death`).send({
-        clinicianId,
-        facilityId,
-        outsideHealthFacility: false,
-        timeOfDeath: dod,
-        causeOfDeath: cond1Id,
-        causeOfDeathInterval: 100,
-        antecedentCause1: cond2Id,
-        antecedentCause1Interval: 120,
-        antecedentCause2: cond3Id,
-        antecedentCause2Interval: 150,
-        otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
-        surgeryInLast4Weeks: 'yes',
-        lastSurgeryDate: '2021-08-02',
-        lastSurgeryReason: cond1Id,
-        pregnant: 'no',
-        mannerOfDeath: 'Accident',
-        mannerOfDeathDate: '2021-08-31',
-        fetalOrInfant: 'yes',
-        stillborn: 'unknown',
-        birthWeight: 120,
-        numberOfCompletedPregnancyWeeks: 30,
-        ageOfMother: 21,
-        motherExistingCondition: cond1Id,
-        deathWithin24HoursOfBirth: 'yes',
-        numberOfHoursSurvivedSinceBirth: 12,
+    it('includes lab requests after {daysSinceSampleTime} days', async () => {
+      await models.Setting.set('certifications.covidClearanceCertificate', {
+        labTestResults: ['Positive'],
+        daysSinceSampleTime: 10,
       });
 
-      const result = await app.get(`/v1/patient/${id}/death`);
+      const patient1 = await models.Patient.create(await createDummyPatient(models));
+
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient1.id,
+      });
+
+      const labRequest = await models.LabRequest.create({
+        ...(await randomLabRequest(models)),
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedById: user.id,
+        labTestLaboratoryId: lab.id,
+        sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 11)), // 1 day AFTER daysSinceSampleTime
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType1.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType2.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      const result = await app.get(
+        `/v1/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+      );
 
       expect(result).toHaveSucceeded();
-      expect(result.body.dateOfDeath).toEqual(dod);
+      expect(result.body.data.length).toEqual(2);
+    });
 
-      expect(result.body).toMatchObject({
-        patientId: id,
-
-        dateOfBirth: dateOfBirth.toISOString(),
-        dateOfDeath: dod,
-        manner: 'Accident',
-        causes: {
-          primary: {
-            condition: cond1,
-            timeAfterOnset: 100,
-          },
-          antecedent1: {
-            condition: cond2,
-            timeAfterOnset: 120,
-          },
-          antecedent2: {
-            condition: cond3,
-            timeAfterOnset: 150,
-          },
-          contributing: [
-            {
-              condition: cond2,
-              timeAfterOnset: 400,
-            },
-          ],
-          external: {
-            date: '2021-08-31',
-          },
-        },
-
-        recentSurgery: {
-          date: '2021-08-02',
-          reasonId: cond1Id,
-        },
-
-        pregnancy: 'no',
-        fetalOrInfant: {
-          birthWeight: 120,
-          carrier: {
-            age: 21,
-            existingConditionId: cond1Id,
-            weeksPregnant: 30,
-          },
-          hoursSurvivedSinceBirth: 12,
-          stillborn: 'unknown',
-          withinDayOfBirth: true,
-        },
+    it('excludes lab requests before {daysSinceSampleTime} days', async () => {
+      await models.Setting.set('certifications.covidClearanceCertificate', {
+        labTestResults: ['Positive'],
+        daysSinceSampleTime: 10,
       });
+
+      const patient2 = await models.Patient.create(await createDummyPatient(models));
+
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient2.id,
+      });
+      const labRequest = await models.LabRequest.create({
+        ...(await randomLabRequest(models)),
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedById: user.id,
+        labTestLaboratoryId: lab.id,
+        sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 9)), // 1 day BEFORE daysSinceSampleTime
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType1.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType2.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      const result = await app.get(
+        `/v1/patient/${patient2.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.length).toEqual(0);
+    });
+
+    it('includes lab requests that is in configured "labTestResults"', async () => {
+      await models.Setting.set('certifications.covidClearanceCertificate', {
+        labTestResults: ['Positive'],
+        daysSinceSampleTime: 10,
+      });
+
+      const patient1 = await models.Patient.create(await createDummyPatient(models));
+
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient1.id,
+      });
+
+      const labRequest = await models.LabRequest.create({
+        ...(await randomLabRequest(models)),
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        requestedById: user.id,
+        labTestLaboratoryId: lab.id,
+        sampleTime: toDateTimeString(subDays(startOfDay(new Date()), 11)), // 1 day AFTER daysSinceSampleTime
+      });
+
+      await models.LabTest.create({
+        result: 'Positive',
+        labTestTypeId: labTestType1.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      await models.LabTest.create({
+        result: 'Negative',
+        labTestTypeId: labTestType2.id,
+        labRequestId: labRequest.id,
+        labTestMethodId: method.id,
+        completedDate: getCurrentDateString(),
+      });
+
+      const result = await app.get(
+        `/v1/patient/${patient1.id}/covidLabTests?certType=${CertificateTypes.clearance}`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.length).toEqual(1);
+      expect(result.body.data[0].result).toEqual('Positive');
     });
   });
 });

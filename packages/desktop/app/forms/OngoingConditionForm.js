@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
-
 import {
   Form,
   Field,
@@ -13,7 +13,6 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-
 import { foreignKey } from '../utils/validation';
 
 export class OngoingConditionForm extends React.PureComponent {
@@ -34,11 +33,12 @@ export class OngoingConditionForm extends React.PureComponent {
         <Field
           name="recordedDate"
           label="Date recorded"
+          saveDateAsString
           component={DateField}
           disabled={resolving}
         />
         <Field
-          name="practitioner"
+          name="examinerId"
           label="Doctor/nurse"
           disabled={resolving}
           component={AutocompleteField}
@@ -48,9 +48,14 @@ export class OngoingConditionForm extends React.PureComponent {
         <Field name="resolved" label="Resolved" component={CheckField} />
         <Collapse in={resolving}>
           <FormGrid columns={1}>
-            <Field name="resolutionDate" label="Date resolved" component={DateField} />
             <Field
-              name="resolutionPractitioner"
+              name="resolutionDate"
+              saveDateAsString
+              label="Date resolved"
+              component={DateField}
+            />
+            <Field
+              name="resolutionPractitionerId"
               label="Doctor/nurse confirming resolution"
               component={AutocompleteField}
               suggester={practitionerSuggester}
@@ -71,7 +76,7 @@ export class OngoingConditionForm extends React.PureComponent {
     }
 
     // remove resolution-specific fields if not resolved
-    const { resolutionDate, resolutionNote, resolutionPractitioner, ...rest } = data;
+    const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
     onSubmit(rest);
   };
 
@@ -82,20 +87,20 @@ export class OngoingConditionForm extends React.PureComponent {
         onSubmit={this.onSubmit}
         render={this.renderForm}
         initialValues={{
-          date: new Date(),
-          resolutionDate: new Date(),
+          recordedDate: getCurrentDateTimeString(),
+          resolutionDate: getCurrentDateTimeString(),
           resolved: false,
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
           conditionId: foreignKey('Condition is a required field'),
-          date: yup.date(),
-          practitioner: yup.string(),
+          recordedDate: yup.date(),
+          examinerId: yup.string(),
           note: yup.string(),
 
           resolved: yup.boolean(),
-          resolutionDate: yup.string(),
-          resolutionPractitioner: yup.string(),
+          resolutionDate: yup.date(),
+          resolutionPractitionerId: yup.string(),
           resolutionNote: yup.string(),
         })}
       />

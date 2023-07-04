@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Tooltip from '@material-ui/core/Tooltip';
+import { ENCOUNTER_TYPES } from '@tamanu/shared/constants/encounters';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -33,6 +34,11 @@ export const TriageWaitTimeCell = React.memo(
   ({ encounterType, triageTime, closedTime, arrivalTime }) => {
     const [, updateState] = useState({});
 
+    // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
+    // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
+    // is undefined
+    const assumedArrivalTime = arrivalTime || triageTime;
+
     // recalculate every 30 seconds
     useEffect(() => {
       if (!closedTime) {
@@ -43,19 +49,19 @@ export const TriageWaitTimeCell = React.memo(
     }, [closedTime]);
 
     switch (encounterType) {
-      case 'triage':
+      case ENCOUNTER_TYPES.TRIAGE:
         return (
-          <TriageCell arrivalTime={arrivalTime}>
-            <div>{getDuration(triageTime)}</div>
+          <TriageCell arrivalTime={assumedArrivalTime}>
+            <div>{getDuration(assumedArrivalTime)}</div>
             <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
           </TriageCell>
         );
-      case 'observation':
+      case ENCOUNTER_TYPES.OBSERVATION:
+      case ENCOUNTER_TYPES.EMERGENCY:
         return (
-          <TriageCell arrivalTime={arrivalTime}>{`Seen at ${format(
-            new Date(closedTime),
-            'h:mma',
-          )}`}</TriageCell>
+          <TriageCell arrivalTime={arrivalTime}>
+            {`Seen at ${format(new Date(closedTime), 'h:mma')}`}
+          </TriageCell>
         );
       default:
         return <PlainCell>Admitted</PlainCell>;

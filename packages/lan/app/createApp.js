@@ -3,6 +3,7 @@ import compression from 'compression';
 import config from 'config';
 import cors from 'cors';
 import express from 'express';
+import path from 'path';
 
 import { SERVER_TYPES } from 'shared/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
@@ -13,7 +14,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-export function createApp({ sequelize, models, syncManager }) {
+export function createApp({ sequelize, models, syncManager, deviceId }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -40,6 +41,7 @@ export function createApp({ sequelize, models, syncManager }) {
     req.models = models;
     req.db = sequelize;
     req.syncManager = syncManager;
+    req.deviceId = deviceId;
 
     next();
   });
@@ -54,6 +56,10 @@ export function createApp({ sequelize, models, syncManager }) {
   });
 
   app.use('/', routes);
+
+  // Serve the latest desktop in upgrade folder so that desktops with lower versions
+  // can perform auto upgrade when pointing to this endpoint
+  app.use('/upgrade', express.static(path.join(process.cwd(), 'upgrade')));
 
   // Dis-allow all other routes
   app.get('*', (req, res) => {

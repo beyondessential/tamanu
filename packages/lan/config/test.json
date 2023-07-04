@@ -1,7 +1,6 @@
 {
   "db": {
     "name": "tamanu-lan-test",
-    "sqlitePath": null,
     "migrateOnStartup": true
   },
   "log": {
@@ -13,15 +12,18 @@
       "location": "Bed 1"
     }
   },
+  "serverFacilityId": "balwyn",
   "sync": {
-    "syncAllLabRequests": true,
     "backoff": {
       "maxAttempts": 1,
       "multiplierMs": 0,
       "maxWaitMs": 0
-    },
-    // disabled in tests because it breaks stuff that calls pullAndImport directly
-    // and we're going to remove it in 1.21 anyway
-    "allowUntil": false
-  }
+    }
+  },
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": ["test-field-id-1", "test-field-id-2"]
+    }
+  },
+  "countryTimeZone": "Pacific/Auckland"
 }

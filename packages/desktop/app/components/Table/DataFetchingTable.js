@@ -8,21 +8,14 @@ const DEFAULT_FETCH_STATE = { data: [], count: 0, errorMessage: '', isLoading: t
 
 export const DataFetchingTable = memo(
   ({
-    columns,
-    noDataMessage,
     fetchOptions,
     endpoint,
-    onRowClick,
     transformRow,
     initialSort = DEFAULT_SORT,
-    customSort,
-    className,
-    exportName = 'TamanuExport',
     refreshCount = 0,
-    rowStyle,
-    allowExport = true,
     onDataFetched,
-    elevated,
+    disablePagination = false,
+    ...props
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -50,6 +43,8 @@ export const DataFetchingTable = memo(
       setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
     }, []);
 
+    const fetchOptionsString = JSON.stringify(fetchOptions);
+
     useEffect(() => {
       updateFetchState({ isLoading: true });
       (async () => {
@@ -57,12 +52,18 @@ export const DataFetchingTable = memo(
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
-          const { data, count } = await api.get(endpoint, {
-            page,
-            rowsPerPage,
-            ...sorting,
-            ...fetchOptions,
-          });
+          const { data, count } = await api.get(
+            endpoint,
+            {
+              page,
+              ...(!disablePagination ? { rowsPerPage } : {}),
+              ...sorting,
+              ...fetchOptions,
+            },
+            {
+              showUnknownErrorToast: false,
+            },
+          );
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
@@ -82,18 +83,21 @@ export const DataFetchingTable = memo(
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
       })();
+      // Needed to compare fetchOptions as a string instead of an object
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       api,
       endpoint,
       page,
       rowsPerPage,
       sorting,
-      fetchOptions,
+      fetchOptionsString,
       refreshCount,
       forcedRefreshCount,
       transformRow,
       onDataFetched,
       updateFetchState,
+      disablePagination,
     ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
@@ -103,11 +107,10 @@ export const DataFetchingTable = memo(
     return (
       <Table
         isLoading={isLoading}
-        columns={columns}
         data={data}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}
-        page={page}
+        page={disablePagination ? null : page}
         count={count}
         onChangePage={setPage}
         onChangeRowsPerPage={setRowsPerPage}
@@ -115,15 +118,8 @@ export const DataFetchingTable = memo(
         order={order}
         orderBy={orderBy}
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-        noDataMessage={noDataMessage}
-        onRowClick={onRowClick}
-        className={className}
-        exportName={exportName}
-        customSort={customSort}
         refreshTable={refreshTable}
-        rowStyle={rowStyle}
-        allowExport={allowExport}
-        elevated={elevated}
+        {...props}
       />
     );
   },

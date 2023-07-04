@@ -1,29 +1,66 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
-import { startOfDay, endOfDay } from 'date-fns';
-import { Op } from 'sequelize';
-import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
-import { NotFoundError } from 'shared/errors';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import { Op, literal } from 'sequelize';
 import {
-  getNoteWithType,
-  mapQueryFilters,
-  getCaseInsensitiveFilter,
-  getTextToBooleanFilter,
-} from '../../database/utils';
+  NOTE_TYPES,
+  AREA_TYPE_TO_IMAGING_TYPE,
+  IMAGING_AREA_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
+import { NotFoundError } from 'shared/errors';
+import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
+import { getNotePageWithType } from 'shared/utils/notePages';
+import { mapQueryFilters } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
+import { getImagingProvider } from '../../integrations/imaging';
 
-// Object used to map field names to database column names
-const SNAKE_CASE_COLUMN_NAMES = {
-  firstName: 'first_name',
-  lastName: 'last_name',
-  displayId: 'display_id',
-  id: 'ImagingRequest.id',
-  name: 'name',
-};
+async function renderResults(models, imagingRequest) {
+  const results = imagingRequest.results
+    ?.filter(result => !result.deletedAt)
+    .map(result => result.get({ plain: true }));
+  if (!results || results.length === 0) return results;
+
+  const imagingProvider = await getImagingProvider(models);
+  if (imagingProvider) {
+    const urls = await Promise.all(
+      imagingRequest.results.map(async result => {
+        // catch all errors so we never fail to show the request if the external provider errors
+        try {
+          const url = await imagingProvider.getUrlForResult(result);
+          if (!url) return null;
+
+          return { resultId: result.id, url };
+        } catch (err) {
+          return { resultId: result.id, err };
+        }
+      }),
+    );
+
+    for (const result of results) {
+      const externalResult = urls.find(url => url?.resultId === result.id);
+      if (!externalResult) continue;
+
+      const { url, err } = externalResult;
+      if (url) {
+        result.externalUrl = url;
+      } else {
+        result.externalError = err?.toString() ?? 'Unknown error';
+      }
+    }
+  }
+
+  return results.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+}
 
 // Filtering functions for sequelize queries
-const caseInsensitiveFilter = getCaseInsensitiveFilter(SNAKE_CASE_COLUMN_NAMES);
-const urgencyTextToBooleanFilter = getTextToBooleanFilter('urgent');
+const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `${value}%`,
+  },
+});
 
 export const imagingRequest = express.Router();
 
@@ -40,6 +77,7 @@ imagingRequest.get(
     const records = await ReferenceData.findAll({
       where: {
         type: Object.values(IMAGING_AREA_TYPES),
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
     // Key areas by imagingType
@@ -58,36 +96,43 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingResult, User, ReferenceData },
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
-      include: ImagingRequest.getFullReferenceAssociations(),
+      include: [
+        {
+          model: User,
+          as: 'requestedBy',
+        },
+        {
+          model: ReferenceData,
+          as: 'areas',
+        },
+        {
+          model: ImagingResult,
+          as: 'results',
+          include: [
+            {
+              model: User,
+              as: 'completedBy',
+            },
+          ],
+        },
+        {
+          association: 'notePages',
+          include: [{ association: 'noteItems' }],
+        },
+      ],
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
-    // Get related notes (general, area to be imaged)
-    const relatedNotePages = await imagingRequestObject.getNotePages();
-    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const noteItems = await otherNotePage.getNoteItems();
-
-    // Extract note content if note exists, else default content to empty string
-    const noteContent = noteItems[0]?.content || '';
-
-    // Free text area content fallback
-    const areaNoteContent =
-      getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED)?.noteItems?.[0]?.content ||
-      '';
-
-    // Convert Sequelize model to use a custom object as response
-    const responseObject = {
+    res.send({
       ...imagingRequestObject.get({ plain: true }),
-      note: noteContent,
-      areaNote: areaNoteContent,
-    };
-
-    res.send(responseObject);
+      ...(await imagingRequestObject.extractNotes()),
+      results: await renderResults(req.models, imagingRequestObject),
+    });
   }),
 );
 
@@ -95,14 +140,16 @@ imagingRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingResult },
       params: { id },
+      user,
+      body: { areas, note, areaNote, newResult, ...imagingRequestData },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
+
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
-    const { areas, areaNote, ...imagingRequestData } = req.body;
 
     await imagingRequestObject.update(imagingRequestData);
 
@@ -112,65 +159,74 @@ imagingRequest.put(
     }
 
     // Get related notes (general, area to be imaged)
-    const relatedNotePages = await imagingRequestObject.getNotePages();
+    const relatedNotePages = await imagingRequestObject.getNotePages({
+      where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
 
-    // Get separate note objects
-    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
-    // The returned note content will read its value depending if
-    // note exists or gets created, else it should be an empty string
-    let noteContent = '';
-    let areaNoteContent = '';
-
-    // Update the content of the note object if it exists
-    if (otherNotePage) {
-      const otherNoteItems = await otherNotePage.getNoteItems();
-      const otherNoteItem = otherNoteItems[0];
-      await otherNoteItem?.update({ content: req.body.note });
-      noteContent = otherNoteItem?.content || '';
-    }
-    // Else, create a new one only if it has content
-    else if (req.body.note) {
-      const notePage = await imagingRequestObject.createNotePage({
-        noteType: NOTE_TYPES.OTHER,
-      });
-      const noteItem = await notePage.createNoteItem({
-        content: req.body.note,
-        authorId: req.user.id,
-      });
-      noteContent = noteItem.content;
-    }
-
-    // Update the content of the area to be imaged note object if it exists
-    if (areaNotePage) {
-      const areaNoteItems = await areaNotePage.getNoteItems();
-      const areaNoteItem = areaNoteItems[0];
-      await areaNoteItem.update({ content: req.body.areaNote });
-      areaNoteContent = areaNoteItem?.content || '';
-    }
-    // Else, create a new one only if it has content
-    else if (req.body.areaNote) {
-      const notePage = await imagingRequestObject.createNotePage({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      });
-      const noteItem = await notePage.createNoteItem({
-        content: req.body.note,
-        authorId: req.user.id,
-      });
-
-      areaNoteContent = noteItem.content;
-    }
-
-    // Convert Sequelize model to use a custom object as response
-    const responseObject = {
-      ...imagingRequestObject.get({ plain: true }),
-      note: noteContent,
-      // Fallback free text area notes
-      areaNote: areaNoteContent,
+    const notes = {
+      note: '',
+      areaNote: '',
     };
 
-    res.send(responseObject);
+    // Update or create the note with new content if provided
+    if (note) {
+      if (otherNotePage) {
+        const [otherNoteItem] = await otherNotePage.getNoteItems();
+        const newNote = `${otherNoteItem.content}. ${note}`;
+        await otherNoteItem.update({ content: newNote });
+        notes.note = otherNoteItem.content;
+      } else {
+        const notePage = await imagingRequestObject.createNotePage({
+          noteType: NOTE_TYPES.OTHER,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: note,
+          authorId: user.id,
+        });
+        notes.note = noteItem.content;
+      }
+    }
+
+    // Update or create the imaging areas note with new content if provided
+    if (areaNote) {
+      if (areaNotePage) {
+        const areaNoteItems = await areaNotePage.getNoteItems();
+        const areaNoteItem = areaNoteItems[0];
+        await areaNoteItem.update({ content: areaNote });
+        notes.areaNote = areaNoteItem?.content || '';
+      } else {
+        const notePage = await imagingRequestObject.createNotePage({
+          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: areaNote,
+          authorId: user.id,
+        });
+        notes.areaNote = noteItem.content;
+      }
+    }
+
+    if (newResult?.completedAt) {
+      const imagingResult = await ImagingResult.create({
+        ...newResult,
+        imagingRequestId: imagingRequestObject.id,
+      });
+
+      if (imagingRequestObject.results) {
+        imagingRequestObject.results.push(imagingResult);
+      } else {
+        imagingRequestObject.results = [imagingResult];
+      }
+    }
+
+    res.send({
+      ...imagingRequestObject.get({ plain: true }),
+      ...notes,
+      results: await renderResults(req.models, imagingRequestObject),
+    });
   }),
 );
 
@@ -179,56 +235,51 @@ imagingRequest.post(
   asyncHandler(async (req, res) => {
     const {
       models: { ImagingRequest },
+      user,
+      body: { areas, note, areaNote, ...imagingRequestData },
     } = req;
     req.checkPermission('create', 'ImagingRequest');
-    const { areas, areaNote, ...imagingRequestData } = req.body;
 
-    const newImagingRequest = await ImagingRequest.create(imagingRequestData);
+    let newImagingRequest;
+    const notes = {
+      note: '',
+      areaNote: '',
+    };
+    await ImagingRequest.sequelize.transaction(async () => {
+      newImagingRequest = await ImagingRequest.create(imagingRequestData);
 
-    // Creates the reference data associations for the areas to be imaged
-    if (areas) {
-      await newImagingRequest.setAreas(areas.split(/,\s/));
-    }
+      // Creates the reference data associations for the areas to be imaged
+      if (areas) {
+        await newImagingRequest.setAreas(areas.split(/,\s/));
+      }
 
-    // Return notes content or empty string with the response for consistency
-    let noteContent = '';
-    let areaNoteContent = '';
+      if (note) {
+        const notePage = await newImagingRequest.createNotePage({
+          noteType: NOTE_TYPES.OTHER,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: note,
+          authorId: user.id,
+        });
+        notes.note = noteItem.content;
+      }
 
-    // Only create a note if it has content
-    if (req.body.note) {
-      const notePage = await newImagingRequest.createNotePage({
-        noteType: NOTE_TYPES.OTHER,
-      });
-
-      const noteItem = await notePage.createNoteItem({
-        content: req.body.note,
-        authorId: req.user.id,
-      });
-
-      // Update note content for response with saved data
-      noteContent = noteItem.content;
-    }
-
-    // Only create an area to be imaged note if it has content
-    if (req.body.areaNote) {
-      const notePage = await newImagingRequest.createNotePage({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      });
-
-      const noteItem = await notePage.createNoteItem({
-        content: req.body.note,
-        authorId: req.user.id,
-      });
-
-      // Update area to be imaged content for response with saved data
-      areaNoteContent = noteItem.content;
-    }
+      if (areaNote) {
+        const notePage = await newImagingRequest.createNotePage({
+          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: areaNote,
+          authorId: user.id,
+        });
+        notes.areaNote = noteItem.content;
+      }
+    });
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...newImagingRequest.get({ plain: true }),
-      note: noteContent,
-      areaNote: areaNoteContent,
+      ...notes,
     };
 
     res.send(responseObject);
@@ -244,33 +295,44 @@ globalImagingRequests.get(
     const { models, query } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const nullPosition =
+      orderBy === 'completedAt' && (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+
     const patientFilters = mapQueryFilters(filterParams, [
-      { key: 'firstName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
-      { key: 'lastName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
-      { key: 'displayId', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+      { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
+    ]);
+
+    const encounterFilters = mapQueryFilters(filterParams, [
+      { key: 'departmentId', operator: Op.eq },
     ]);
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
-        alias: 'id',
-        operator: Op.startsWith,
-        mapFn: caseInsensitiveFilter,
+        alias: 'displayId',
+        mapFn: caseInsensitiveStartsWithFilter,
       },
       { key: 'imagingType', operator: Op.eq },
-      { key: 'status', operator: Op.eq },
       {
-        key: 'urgency',
-        alias: 'urgent',
-        operator: Op.eq,
-        mapFn: urgencyTextToBooleanFilter,
+        key: 'status',
+        operator: Op.in,
+        mapFn: (fieldName, operator, value) => ({
+          [fieldName]: {
+            [operator]: Array.isArray(value) ? value : [value],
+          },
+        }),
       },
+      { key: 'priority', operator: Op.eq },
+      { key: 'locationGroupId', operator: Op.eq },
       {
         key: 'requestedDateFrom',
         alias: 'requestedDate',
         operator: Op.gte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: startOfDay(value).toISOString(),
+            [operator]: toDateTimeString(startOfDay(new Date(value))),
           },
         }),
       },
@@ -280,47 +342,109 @@ globalImagingRequests.get(
         operator: Op.lte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: endOfDay(value).toISOString(),
+            [operator]: toDateTimeString(endOfDay(new Date(value))),
           },
         }),
       },
+      { key: 'requestedById', operator: Op.eq },
     ]);
 
     // Associations to include on query
     const requestedBy = {
       association: 'requestedBy',
     };
-    const areas = {
-      association: 'areas',
-      through: {
-        // Don't include attributes on through table
-        attributes: [],
-      },
-    };
     const patient = {
       association: 'patient',
       where: patientFilters,
+      attributes: ['displayId', 'firstName', 'lastName', 'id'],
     };
+
+    const locationWhere = {
+      where:
+        filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
+          ? {}
+          : { facilityId: { [Op.eq]: config.serverFacilityId } },
+    };
+
+    const location = {
+      association: 'location',
+      ...locationWhere,
+    };
+
     const encounter = {
       association: 'encounter',
-      include: [patient],
+      where: encounterFilters,
+      include: [patient, location],
+      attributes: ['id', 'departmentId'],
       required: true,
     };
 
+    const imagingResultFilters = {};
+    const replacements = {};
+
+    // Sequelize does not support FROM sub query, only sub query as field
+    // and alias cannot be used in where clause. So to filter by MAX(imaging_results.completed_at),
+    // the sub query has to be duplicated in the where clause as well in the select part.
+    if (filterParams.completedAt) {
+      imagingResultFilters.id = {
+        [Op.in]: literal(
+          `(
+            SELECT imaging_request_id FROM (SELECT imaging_request_id, MAX(completed_at)
+            FROM imaging_results
+            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
+            GROUP BY imaging_request_id
+            HAVING MAX(completed_at) LIKE :completedAtFilterDate) AS max_completed_at
+          )`,
+        ),
+      };
+      replacements.completedAtFilterDate = `${toDateString(parseISO(filterParams.completedAt))}%`;
+    }
+
     // Query database
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
-      where: imagingRequestFilters,
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      include: [requestedBy, encounter, areas],
+      where: {
+        [Op.and]: {
+          ...imagingRequestFilters,
+          ...imagingResultFilters,
+          status: {
+            [Op.notIn]: [
+              IMAGING_REQUEST_STATUS_TYPES.DELETED,
+              IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+              IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+            ],
+          },
+        },
+      },
+      order: orderBy
+        ? [[...orderBy.split('.'), `${orderDirection}${nullPosition ? ` ${nullPosition}` : ''}`]]
+        : undefined,
+      include: [requestedBy, encounter],
+      attributes: {
+        include: [
+          // Aggregate results into a new field using a literal subquery. This avoids Sequelize
+          // including an entry for each ImagingRequest per result & messing up the pagination
+          [
+            literal(`(
+            SELECT MAX(completed_at)
+            FROM imaging_results
+            WHERE imaging_results.imaging_request_id = "ImagingRequest".id
+          )`),
+            'completedAt',
+          ],
+        ],
+      },
       limit: rowsPerPage,
       offset: page * rowsPerPage,
+      distinct: true,
+      subQuery: false,
+      replacements,
     });
 
     // Extract and normalize data calling a base model method
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows.map(x => x.get({ plain: true }));
+    const data = rows.map(row => row.get({ plain: true }));
     res.send({
       count,
       data,

@@ -13,6 +13,7 @@ import { useBackendEffect } from '../../../../../hooks';
 
 export const ProgramViewHistoryScreen = ({
   route,
+  navigation,
 }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, selectedPatient, latestResponseId } = route.params;
 
@@ -20,8 +21,21 @@ export const ProgramViewHistoryScreen = ({
   // a new survey is submitted (as this tab can be mounted while
   // it isn't active)
   const [responses, error] = useBackendEffect(
-    ({ models }) => models.Survey.getResponses(surveyId),
-    [latestResponseId],
+    ({ models }) => {
+      if (!navigation.isFocused) {
+        // always show the loading screen when in background
+        // (ie, it will be what's shown when the user navigates
+        // to this tab). We don't want to load & render all the
+        // responses as it causes performance issues.
+        return null;
+      }
+
+      return models.SurveyResponse.getForPatient(
+        selectedPatient.id,
+        surveyId,
+      );
+    },
+    [navigation.isFocused, latestResponseId],
   );
 
   if (error) {
@@ -32,18 +46,6 @@ export const ProgramViewHistoryScreen = ({
     return <LoadingScreen />;
   }
 
-  const responsesToShow = selectedPatient
-    ? responses.filter(({ encounter }) => {
-        if (typeof encounter === "string" ) {
-          return false;
-        }
-        if (typeof encounter.patient === "string") {
-          return false;
-        }
-        return encounter.patient.id === selectedPatient.id;
-      })
-    : responses;
-
   return (
     <FlatList
       style={{
@@ -53,7 +55,7 @@ export const ProgramViewHistoryScreen = ({
         backgroundColor: theme.colors.BACKGROUND_GREY,
       }}
       showsVerticalScrollIndicator={false}
-      data={responsesToShow}
+      data={responses}
       keyExtractor={(item): string => item.id}
       renderItem={({ item, index }): ReactElement => (
         <SurveyResponseLink

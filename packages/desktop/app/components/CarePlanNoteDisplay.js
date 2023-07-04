@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
-import { MoreDropdownMenu } from './MoreDropdownMenu';
+import { MenuButton } from './MenuButton';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 
@@ -73,23 +73,19 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           <Timestamp>
             <DateDisplay date={note.date} />
           </Timestamp>
-          <MoreDropdownMenu
+          <MenuButton
             iconColor={Colors.midText}
-            actions={[
-              {
-                label: 'Edit',
-                onClick() {
-                  onEditClicked();
-                },
+            actions={{
+              Edit: () => {
+                onEditClicked();
               },
-              !isMainCarePlan && {
-                label: 'Delete',
-                async onClick() {
+              ...(!isMainCarePlan && {
+                Delete: async () => {
                   await deleteNote(note.id);
                   onNoteDeleted();
                 },
-              },
-            ]}
+              }),
+            }}
           />
         </VerticalCenter>
       </NoteHeaderContainer>

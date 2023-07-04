@@ -1,8 +1,10 @@
 module.exports = {
   features: {
-    babelModeV7: true
+    babelModeV7: true,
   },
-  webpackFinal: config => {
-    return config;
+  addons: ['@storybook/addon-links', '@storybook/addon-actions', '@storybook/addon-controls'],
+  stories: ['../stories/**/*.stories.@(js|mdx)'],
+  core: {
+    builder: 'webpack5',
   },
 };

@@ -1,21 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
-import { ENCOUNTER_TYPES } from 'shared/constants';
-import { useParams } from 'react-router-dom';
+import { ENCOUNTER_TYPES } from '@tamanu/shared/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { Button, EncounterTopBar, connectRoutedModal, ContentPane } from '../../components';
+import { EncounterTopBar, ContentPane } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
-import { DischargeModal } from '../../components/DischargeModal';
-import { MoveModal } from '../../components/MoveModal';
-import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeModal';
-import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { TabDisplay } from '../../components/TabDisplay';
+import { useApi } from '../../api';
 import {
   VitalsPane,
   NotesPane,
@@ -28,12 +23,11 @@ import {
   InvoicingPane,
   EncounterInfoPane,
 } from './panes';
-import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
-
-const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
-  connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { EncounterActions } from './components';
+import { useReferenceData } from '../../api/queries';
+import { useAuth } from '../../contexts/Auth';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -71,9 +65,7 @@ const TABS = [
   {
     label: 'Programs',
     key: ENCOUNTER_TAB_NAMES.PROGRAMS,
-    render: ({ encounter, ...props }) => (
-      <EncounterProgramsPane endpoint={`encounter/${encounter.id}/programResponses`} {...props} />
-    ),
+    render: props => <EncounterProgramsPane {...props} />,
   },
   {
     label: 'Documents',
@@ -87,111 +79,6 @@ const TABS = [
     condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];
-
-const EncounterActionDropdown = ({ encounter }) => {
-  const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
-  const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType`, { type });
-  const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
-  const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
-  const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
-  const onViewSummary = () => navigateToSummary();
-
-  if (encounter.endDate) {
-    return (
-      <Button variant="outlined" color="primary" onClick={onViewSummary}>
-        View discharge summary
-      </Button>
-    );
-  }
-
-  const progression = {
-    [ENCOUNTER_TYPES.TRIAGE]: 0,
-    [ENCOUNTER_TYPES.OBSERVATION]: 1,
-    [ENCOUNTER_TYPES.EMERGENCY]: 2,
-    [ENCOUNTER_TYPES.ADMISSION]: 3,
-  };
-  const isProgressionForward = (currentState, nextState) =>
-    progression[nextState] > progression[currentState];
-
-  const actions = [
-    {
-      label: 'Move to active ED care',
-      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
-      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
-    },
-    {
-      label: 'Move to emergency short stay',
-      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
-      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
-    },
-    {
-      label: 'Admit to hospital',
-      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
-      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
-    },
-    // {
-    //   label: 'Finalise location change',
-    //   condition: () => encounter.plannedLocation,
-    //   onClick: onFinaliseLocationChange,
-    // },
-    // {
-    //   label: 'Cancel location change',
-    //   condition: () => encounter.plannedLocation,
-    //   onClick: onCancelLocationChange,
-    // },
-    {
-      label: 'Discharge without being seen',
-      onClick: onDischargeOpen,
-      condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: 'Discharge',
-      onClick: onDischargeOpen,
-      condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: 'Change department',
-      onClick: onChangeDepartment,
-    },
-    {
-      label: 'Change location',
-      condition: () => !encounter.plannedLocation,
-      onClick: onChangeLocation,
-    },
-  ].filter(action => !action.condition || action.condition());
-
-  return <DropdownButton variant="outlined" actions={actions} />;
-};
-
-const EncounterActions = ({ encounter }) => {
-  const params = useParams();
-
-  const RoutedDischargeModal = useMemo(() => getConnectRoutedModal(params, 'discharge'), [params])(
-    DischargeModal,
-  );
-
-  const RoutedChangeEncounterTypeModal = useMemo(
-    () => getConnectRoutedModal(params, 'changeType'),
-    [params],
-  )(ChangeEncounterTypeModal);
-
-  const RoutedChangeDepartmentModal = useMemo(
-    () => getConnectRoutedModal(params, 'changeDepartment'),
-    [params],
-  )(ChangeDepartmentModal);
-
-  const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
-
-  return (
-    <>
-      <EncounterActionDropdown encounter={encounter} />
-      <RoutedDischargeModal encounter={encounter} />
-      <RoutedChangeEncounterTypeModal encounter={encounter} />
-      <RoutedChangeDepartmentModal />
-      <RoutedMoveModal encounter={encounter} />
-    </>
-  );
-};
 
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
@@ -232,12 +119,19 @@ const StyledTabDisplay = styled(TabDisplay)`
 `;
 
 export const EncounterView = () => {
+  const api = useApi();
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
+  const { facility } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
-  const [currentTab, setCurrentTab] = React.useState(query.get('tab') || 'vitals');
+  const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
+  const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
   const disabled = encounter?.endDate || patient.death;
+
+  useEffect(() => {
+    api.post(`user/recently-viewed-patients/${patient.id}`);
+  }, [api, patient.id]);
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
@@ -250,10 +144,16 @@ export const EncounterView = () => {
         subTitle={encounter.location?.facility?.name}
         encounter={encounter}
       >
-        <EncounterActions encounter={encounter} />
+        {(facility.id === encounter.location.facilityId || encounter.endDate) && (
+          <EncounterActions encounter={encounter} />
+        )}
       </EncounterTopBar>
       <ContentPane>
-        <EncounterInfoPane encounter={encounter} />
+        <EncounterInfoPane
+          encounter={encounter}
+          getLocalisation={getLocalisation}
+          patientBillingType={patientBillingTypeData?.name}
+        />
         <Box mt={4} mb={4}>
           <Divider />
         </Box>
@@ -269,6 +169,7 @@ export const EncounterView = () => {
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
+          patient={patient}
           disabled={disabled}
         />
       </ContentPane>

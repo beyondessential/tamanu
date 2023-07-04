@@ -9,7 +9,7 @@
     "protocol": "http"
   },
   "db": {
-    "name": "develop",
-    "sqlitePath": "data/tamanu-dev.db"
-  }
+    "name": "develop"
+  },
+  "countryTimeZone": "Pacific/Auckland"
 }

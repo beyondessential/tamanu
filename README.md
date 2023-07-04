@@ -6,18 +6,18 @@
 
 | Package | Runbook | Description |
 | ------- | ------- | ----------- |
-| [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The synchronisation server, which lan server and mobile client instances communicate with to synchronise data |
-| [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The local server, which the app communicates with |
+| [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The central server, which facility server and mobile client instances communicate with to synchronise data |
+| [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The facility server, which the app communicates with |
 | [meta-server](packages/meta-server) | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7) | The metadata server, which serves information about app versions and known sync-server installations |
 | [desktop](packages/desktop) | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The main Electron app |
 | [mobile](packages/mobile) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app  |
-| [shared-src](packages/shared-src) | N/A | Shared code among Tamanu components |
-| [shared](packages/shared) | N/A | The build output of the `shared-src` module (ignored by version control) |
+| [@tamanu/shared](packages/shared) | N/A | Shared code monolith among Tamanu components |
+| [@tamanu/build-tooling](packages/build-tooling) | N/A | Shared build tooling code |
 | [csca](packages/csca) | [csca runbook](https://beyond-essential.slab.com/posts/csca-runbook-be1td5ml), [signer runbook](https://beyond-essential.slab.com/posts/signer-runbook-hcws6er3) | A tool to create and manage a CSCA / ICAO eMRTD PKI |
 
-The latest version for each Tamanu service (Local Area Network Server, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
+The latest version for each Tamanu service (Servers, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
 
-- LAN server: https://meta.tamanu.io/version/lan
+- Facility server: https://meta.tamanu.io/version/lan
 - Desktop client: https://meta.tamanu.io/version/desktop
 - Mobile client: https://meta.tamanu.io/version/mobile
 
@@ -29,13 +29,22 @@ First, clone the repo via git:
 $ git clone git@github.com:beyondessential/tamanu.git
 ```
 
+For MacBook ARM64 users, some dependencies cannot be compiled, it is recommended to switch to X86_64 for python v3. If insist, please install python v2:
+
+```bash
+$ brew install pyenv
+$ pyenv install --list
+$ pyenv install 2.7.18
+$ pyenv versions
+$ pyenv global 2.7.18
+
+Put eval "$(pyenv init --path)" in ~/.zprofile (or ~/.bash_profile or ~/.zshrc)
+```
+
 Install dependencies with yarn:
 
 ```bash
 $ cd tamanu
-$ # Enable yarn workspaces
-$ yarn config set workspaces-experimental true
-$ yarn config set workspaces-nohoist-experimental true
 $ yarn
 ```
 
@@ -70,10 +79,69 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 ## Run
 
 <details>
+<summary>Prerequisites</summary>
+
+#### Install postgres
+
+##### OSX
+
+Run:
+```bash
+brew install postgres
+brew services start postgres
+```
+
+##### WSL
+
+Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`
+
+##### Linux
+
+Install PostgreSQL from your package manager
+
+</details>
+
+<details>
+<summary>Sync server</summary>
+
+By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
+
+#### Prerequisite
+1. Duplicate `sync-server/config/local.example` as new file `config/local.json`.
+2. Create db using `tamanu-sync` or any customised name, new db can be with or without owner.
+3. Store db name, root username, password or db owner credentials to `config/local.json` db config.
+
+#### Run
+
+```bash
+yarn install
+yarn workspace sync-server setup-dev # If it doesn't work, go for 'Pull data from remote'
+yarn sync-start-dev
+```
+
+#### Pull data from remote
+1. Ask help for pulling data from tamanu dev
+2. Import data to local by running: 
+
+```
+psql -U [DB_USERNAME] -d tamanu-sync < [Path to tamanu-central-dev.sql]
+```
+
+</details>
+
+<details>
 <summary>LAN server</summary>
 
 The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
+
+#### Prerequisite
+1. Start `sync-server`
+2. Duplicate `lan/config/local.example` as new file `config/local.json`.
+3. Create db using `tamanu-lan` or any customised name, new db can be with or without owner.
+4. Store db name, root username, password or db owner credentials to `config/local.json` db config.
+
+#### Run
 
 ```bash
 $ yarn lan-start-dev
@@ -86,17 +154,13 @@ with testing. You can set up predictable test data rather than having to click t
 UI screens every time, and the live-reload turnaround is way faster than the desktop version. (this
 is in addition to the fact that any backend functionality should have tests against it anyway)
 
-The lan server uses sequelize to manage database connections, and can switch between sqlite and postgres.
-The development config (`packages/lan/config/development.json`) sets the `db.sqlitePath` config variable,
-which causes the app to use sqlite as a database - this is to make initial setup easier. If you have
-postgres available, set the appropriate connection variables in your `local.json`, making sure to
-set `sqlitePath` to `""` so the postgres connection is respected.
+The lan server uses sequelize to manage database connections, and uses postgres exclusively.
+As soons as you have postgres available, set the appropriate connection variables in your `local.json`.
 
 When the app detects an empty or missing db on startup, it'll run an importer on an excel file to populate all the initial patients, users and reference data.
 
 - the app will classify the db as empty if it has no users in it
 - the initial definitions file to import is defined in `config.initialDataPath` (`packages/lan/data/demo_definitions.xlsx` by default)
-- by default, the database is an sqlite db at `packages/lan/data/tamanu-dev.db`; deleting that file and restarting the lan process to trigger the import is the quickest way to get a fresh database
 - this is also true for production! initial production deployment expects a data definition document to be provided
 </details>
 
@@ -113,45 +177,6 @@ Note that we also use storybook to develop components in isolation, which you ca
 the desktop directory using `yarn storybook`.
 </details>
 
-<details>
-<summary>Sync server</summary>
-
-By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
-
-#### OSX
-
-Run:
-
-```bash
-brew install postgres
-brew services start postgres
-createdb tamanu-sync
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### WSL
-
-Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then run:
-
-```bash
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-#### Linux
-
-Install PostgreSQL from your package manager, and create a new database `tamanu-sync`, then run:
-
-```bash
-yarn install
-yarn workspace sync-server setup-dev
-yarn sync-start-dev
-```
-
-</details>
 
 ## Integrations
 

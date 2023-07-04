@@ -3,10 +3,10 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';
-import { randomBytes } from 'crypto';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
+import { findUser, getRandomBase64String } from './utils';
 
 export const resetPassword = express.Router();
 
@@ -28,7 +28,7 @@ resetPassword.post(
 
     const { email } = body;
 
-    const user = await store.findUser(email);
+    const user = await findUser(models, email);
 
     if (!user) {
       log.info(`Password reset request: No user found with email ${email}`);
@@ -43,17 +43,8 @@ resetPassword.post(
   }),
 );
 
-const createToken = async length => {
-  return new Promise((resolve, reject) => {
-    randomBytes(length, (err, buf) => {
-      if (err) reject(err);
-      resolve(buf.toString('base64'));
-    });
-  });
-};
-
 const createOneTimeLogin = async (models, user) => {
-  const token = await createToken(config.auth.resetPassword.tokenLength);
+  const token = await getRandomBase64String(config.auth.resetPassword.tokenLength);
 
   const expiresAt = addMinutes(new Date(), config.auth.resetPassword.tokenExpiry);
 
@@ -69,14 +60,14 @@ const createOneTimeLogin = async (models, user) => {
 const sendResetEmail = async (emailService, user, token) => {
   const emailText = `
       Hi ${user.displayName},
-      
+
       You are receiving this email because someone requested a password reset for
       this user account. To reset your password enter the following reset code into Tamanu.
-  
+
       Reset Code: ${token}
-  
+
       If you believe this was sent to you in error, please ignore this email.
-      
+
       tamanu.io`;
 
   const result = await emailService.sendEmail({

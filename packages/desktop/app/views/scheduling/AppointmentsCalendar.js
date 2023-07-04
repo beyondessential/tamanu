@@ -5,7 +5,8 @@ import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
-import { PageContainer, TopBar } from '../../components';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
@@ -13,15 +14,21 @@ import { Button } from '../../components/Button';
 import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
-import { useApi } from '../../api';
+import { useApi, useSuggester } from '../../api';
 
 const LeftContainer = styled.div`
-  min-height: 100vh;
+  min-height: 100%;
   border-right: 1px solid ${Colors.outline};
 `;
 
 const RightContainer = styled.div`
-  overflow: hidden;
+  position: relative;
+`;
+
+const TopBar = styled(TopBarBase)`
+  position: sticky;
+  top: 0;
+  height: ${TOP_BAR_HEIGHT}px;
 `;
 
 const DateHeader = styled.div`
@@ -39,9 +46,10 @@ const DateDisplay = styled.span`
 `;
 
 const CalendarContainer = styled.div`
-  margin-left: calc(25px + 3.5rem);
-  margin-right: 25px;
   overflow: auto;
+  height: calc(100vh - ${TOP_BAR_HEIGHT}px - 1px);
+  width: 100%;
+  position: absolute;
 `;
 
 const Section = styled.div`
@@ -73,71 +81,80 @@ const TodayButton = styled(Button)`
 
 export const AppointmentsCalendar = () => {
   const api = useApi();
-  const filters = [
-    {
-      name: 'location',
-      text: 'Locations',
-      suggester: new Suggester(api, 'location', {
-        baseQueryParameters: { filterByFacility: true },
-      }),
-    },
-    {
-      name: 'clinician',
-      text: 'Clinicians',
-      suggester: new Suggester(api, 'practitioner'),
-    },
-  ];
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
+
   const [date, setDate] = useState(new Date());
-  const [activeFilter, setActiveFilter] = useState(filters[0]);
   const [filterValue, setFilterValue] = useState('');
   const [appointmentType, setAppointmentType] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [activeFilter, setActiveFilter] = useState('locationGroup');
+
   const updateCalendar = () => {
     setRefreshCount(refreshCount + 1);
   };
+  const updateFilterValue = e => setFilterValue(e.target.value || '');
+
+  const filters = {
+    locationGroup: {
+      label: 'Area',
+      component: (
+        <AutocompleteInput
+          value={filterValue}
+          onChange={updateFilterValue}
+          suggester={locationGroupSuggester}
+        />
+      ),
+    },
+    clinician: {
+      label: 'Clinicians',
+      component: (
+        <AutocompleteInput
+          value={filterValue}
+          onChange={updateFilterValue}
+          suggester={new Suggester(api, 'practitioner')}
+        />
+      ),
+    },
+  };
+
   useEffect(() => {
     (async () => {
       const { data } = await api.get('appointments', {
-        after: startOfDay(date).toISOString(),
-        before: endOfDay(date).toISOString(),
+        after: toDateTimeString(startOfDay(date)),
+        before: toDateTimeString(endOfDay(date)),
         all: true,
       });
       setAppointments(data);
     })();
   }, [api, date, refreshCount]);
+
   return (
     <PageContainer>
       <TwoColumnDisplay>
         <LeftContainer>
-          <TopBar title="Calendar" />
+          <TopBarBase title="Calendar" />
           <Section>
             <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
             <FilterSwitch>
-              {filters.map(filter => (
+              {Object.entries(filters).map(([key, { label }]) => (
                 <Button
-                  key={filter.name}
-                  color={filter.name === activeFilter.name ? 'primary' : null}
-                  variant={filter.name === activeFilter.name ? 'contained' : null}
+                  key={key}
+                  color={key === activeFilter ? 'primary' : null}
+                  variant={key === activeFilter ? 'contained' : null}
                   onClick={() => {
-                    setActiveFilter(filter);
+                    setActiveFilter(key);
                     setFilterValue('');
                   }}
                 >
-                  {filter.text}
+                  {label}
                 </Button>
               ))}
             </FilterSwitch>
           </Section>
           <Section>
-            <SectionTitle variant="subtitle2">{activeFilter.text}</SectionTitle>
-            <AutocompleteInput
-              value={filterValue}
-              onChange={e => {
-                setFilterValue(e.target.value);
-              }}
-              suggester={activeFilter.suggester}
-            />
+            <SectionTitle variant="subtitle2">{filters[activeFilter].label}</SectionTitle>
+            {filters[activeFilter].component}
           </Section>
           <Section>
             <SectionTitle variant="subtitle2">Appointment type</SectionTitle>

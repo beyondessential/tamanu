@@ -2,31 +2,31 @@ import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
   AutocompleteField,
-  CheckField,
   Field,
   LocalisedField,
-  DisplayIdField,
+  DisplayIdSearchField,
   DOBFields,
+  SearchField,
 } from '../Field';
 import { useSuggester } from '../../api';
+import { SearchBarCheckField } from './SearchBarCheckField';
 
 export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
   const villageSuggester = useSuggester('village');
+
   return (
     <CustomisableSearchBar
       title="Search for Patients"
-      renderCheckField={
-        <Field name="deceased" label="Include deceased patients" component={CheckField} />
-      }
       onSearch={onSearch}
-      initialValues={{ displayIdExact: true }}
+      staticValues={{ displayIdExact: true }}
     >
-      <LocalisedField name="firstName" />
-      <LocalisedField name="lastName" />
+      <LocalisedField name="firstName" component={SearchField} />
+      <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
-      <DisplayIdField />
+      <DisplayIdSearchField />
       <DOBFields />
-      <Field name="clinicalStatus" label="Clinical status" />
+      <Field name="clinicalStatus" label="Clinical status" component={SearchField} />
+      <SearchBarCheckField name="deceased" label="Include deceased patients" />
     </CustomisableSearchBar>
   );
 });

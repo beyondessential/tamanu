@@ -25,8 +25,8 @@
       "path": "packages/scripts"
     },
     {
-      "name": "shared-src",
-      "path": "packages/shared-src"
+      "name": "shared",
+      "path": "packages/shared"
     },
     {
       "name": "sync-server",
@@ -38,19 +38,12 @@
     "files.exclude": {
       "packages/": true
     },
-    "editor.formatOnSave": false,
-    "cSpell.words": [
-      "singularize",
-      "upsert",
-      "upserted"
-    ],
+    "cSpell.words": ["singularize", "upsert", "upserted"],
     "json.schemas": [
       {
-          "fileMatch": [
-              "*.hl7.json"
-          ],
-          "url": "./packages/sync-server/__tests__/hl7fhir/fhir.schema.json",
+        "fileMatch": ["*.hl7.json"],
+        "url": "./packages/sync-server/__tests__/hl7fhir/fhir.schema.json"
       }
     ]
-  },
+  }
 }

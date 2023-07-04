@@ -3,20 +3,23 @@ import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-export const VitalsTableTitle = (): JSX.Element => (
+export const VitalsTableTitle = () : JSX.Element => (
   <StyledView
-    background={theme.colors.MAIN_SUPER_DARK}
+    background={theme.colors.WHITE}
     width={screenPercentageToDP(31.63, Orientation.Width)}
-    height={screenPercentageToDP(4.86, Orientation.Height)}
+    height={screenPercentageToDP(6.86, Orientation.Height)}
+    borderBottomWidth={1}
+    borderRightWidth={1}
+    borderColor={theme.colors.BOX_OUTLINE}
     justifyContent="center"
     paddingLeft={screenPercentageToDP(3.64, Orientation.Width)}
   >
     <StyledText
-      fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-      fontWeight={700}
-      color={theme.colors.WHITE}
+      fontSize={screenPercentageToDP(1.6, Orientation.Height)}
+      fontWeight={500}
+      color="#326699"
     >
-      Measures
+      Measure
     </StyledText>
   </StyledView>
 );

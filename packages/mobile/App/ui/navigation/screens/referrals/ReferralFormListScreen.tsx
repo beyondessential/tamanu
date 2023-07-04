@@ -15,21 +15,25 @@ export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
   const { ability } = useAuth();
 
-  const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
-    surveyType: SurveyTypes.Referral,
-  }));
+  const [surveys, error] = useBackendEffect(({ models }) =>
+    models.Survey.find({
+      where: {
+        surveyType: SurveyTypes.Referral,
+      },
+      order: {
+        name: 'ASC',
+      },
+    }),
+  );
 
   const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
 
   const onNavigateToSurvey = (survey): any => {
-    navigation.navigate(
-      Routes.HomeStack.ReferralStack.ReferralList.AddReferralDetails,
-      {
-        surveyId: survey.id,
-        surveyName: survey.name,
-        surveyType: SurveyTypes.Referral,
-      },
-    );
+    navigation.navigate(Routes.HomeStack.ReferralStack.ReferralList.AddReferralDetails, {
+      surveyId: survey.id,
+      surveyName: survey.name,
+      surveyType: SurveyTypes.Referral,
+    });
   };
 
   return (
@@ -43,16 +47,13 @@ export const ReferralFormListScreen = (): ReactElement => {
             width: '100%',
             height: '100%',
             backgroundColor: theme.colors.BACKGROUND_GREY,
+            paddingTop: 5,
           }}
           showsVerticalScrollIndicator={false}
           data={filteredSurveys}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
-            <MenuOptionButton
-              title={item.name}
-              onPress={(): void => onNavigateToSurvey(item)}
-              fontWeight={500}
-            />
+            <MenuOptionButton title={item.name} onPress={(): void => onNavigateToSurvey(item)} />
           )}
           ItemSeparatorComponent={Separator}
         />

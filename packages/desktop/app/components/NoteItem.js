@@ -4,8 +4,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import EditIcon from '@material-ui/icons/Edit';
-import DoneIcon from '@material-ui/icons/Done';
-import CloseIcon from '@material-ui/icons/Close';
 import Tooltip from '@material-ui/core/Tooltip';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
@@ -13,37 +11,43 @@ import { DateDisplay } from './DateDisplay';
 import { TextInput } from './Field/TextField';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { withPermissionCheck } from './withPermissionCheck';
 
 const EditTextWrapper = styled.div`
   width: 100%;
+  margin-bottom: 10px;
 `;
-const StyledListItem = styled(ListItem)``;
 const StyledEditIcon = styled(EditIcon)`
   float: right;
   width: 1rem;
   height: 1rem;
   color: ${Colors.primary};
 `;
-const StyledDoneIcon = styled(DoneIcon)`
+const StyledSaveText = styled.span`
   float: right;
-  width: 1rem;
-  height: 1rem;
+  font-size: 11px;
+  font-weight: bold;
+  text-decoration: underline;
   bottom: 0;
   right: 10px;
+  cursor: pointer;
   color: ${Colors.primary};
 `;
-const StyledCloseIcon = styled(CloseIcon)`
+const StyledCancelText = styled.span`
   float: right;
-  width: 1rem;
-  height: 1rem;
+  font-size: 11px;
+  text-decoration: underline;
   bottom: 0;
   right: 30px;
+  margin-right: 10px;
+  cursor: pointer;
 `;
 const StyledListItemText = styled(ListItemText)`
   .MuiListItemText-primary {
     font-size: 14px;
     line-height: 18px;
     white-space: pre-line;
+    width: 100%;
   }
 `;
 const StyledNoteItemSecondaryWrapper = styled.div`
@@ -58,6 +62,7 @@ const StyledViewChangeLogWrapper = styled.span`
   font-size: 11px;
   font-weight: bold;
   text-decoration: underline;
+  cursor: pointer;
   color: ${Colors.primary};
 `;
 const StyledNoteItemLogMetadata = styled.div`
@@ -85,6 +90,7 @@ const StyledTooltip = styled(props => (
     font-weight: 400;
     white-space: pre-line;
     cursor: pointer;
+    overflow-y: auto;
     max-height: 700px;
     max-width: 700px;
   }
@@ -96,28 +102,30 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
   }
 
   return childNoteItems.map(noteItem => (
-    <>
+    <div key={noteItem.id}>
       <StyledNoteItemLogMetadata>
-        <span>{noteItem.author.displayName} </span>
-        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
+        {noteItem.author?.displayName ? <span>{noteItem.author.displayName} </span> : null}
+        {noteItem.onBehalfOf?.displayName ? (
+          <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
+        ) : null}
         <DateDisplay date={noteItem.date} showTime />
       </StyledNoteItemLogMetadata>
 
       <StyledNoteItemLogContent>{noteItem.content}</StyledNoteItemLogContent>
       <br />
-    </>
+    </div>
   ));
 };
 
 const NoteItemMain = ({ noteItem }) => <span>{noteItem.content} </span>;
 
-const NoteItemSecondary = ({ noteItem, isEditting, onEditClick }) => {
+const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission }) => {
   const [isTooltipOpen, setTooltipOpen] = useState(false);
   const { currentUser } = useAuth();
 
   return (
     <StyledNoteItemSecondaryWrapper>
-      {!isEditting && currentUser.id === noteItem.authorId && (
+      {!isEditting && (hasPermission || currentUser.id === noteItem.authorId) && (
         <StyledEditIcon onClick={onEditClick} />
       )}
       <br />
@@ -144,7 +152,9 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick }) => {
   );
 };
 
-export const NoteItem = ({ noteItem, onEditNoteItem }) => {
+const NoteItemSecondaryWithPermission = withPermissionCheck(NoteItemSecondary);
+
+export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) => {
   const [isEditting, setIsEditting] = useState(false);
   const [content, setContent] = useState(noteItem.content);
   const handleDone = () => {
@@ -154,8 +164,8 @@ export const NoteItem = ({ noteItem, onEditNoteItem }) => {
 
   return (
     <>
-      <Divider />
-      <StyledListItem>
+      {index !== 0 && <Divider />}
+      <ListItem ref={lastNoteItemRef}>
         {isEditting ? (
           <EditTextWrapper>
             <TextInput
@@ -165,24 +175,34 @@ export const NoteItem = ({ noteItem, onEditNoteItem }) => {
               multiline
               onChange={event => setContent(event.target.value)}
             />
-            <StyledDoneIcon onClick={handleDone} />
-            <StyledCloseIcon onClick={() => setIsEditting(!isEditting)} />
+            <StyledSaveText onClick={handleDone}>Save</StyledSaveText>
+            <StyledCancelText
+              onClick={() => {
+                // resetting note item content
+                setContent(noteItem.content);
+                setIsEditting(!isEditting);
+              }}
+            >
+              Cancel
+            </StyledCancelText>
           </EditTextWrapper>
         ) : (
           <StyledListItemText
             primary={
               <>
                 <NoteItemMain noteItem={noteItem} />
-                <NoteItemSecondary
+                <NoteItemSecondaryWithPermission
                   noteItem={noteItem}
                   isEditting={isEditting}
                   onEditClick={() => setIsEditting(!isEditting)}
+                  verb="write"
+                  noun="OtherPractitionerEncounterNote"
                 />
               </>
             }
           />
         )}
-      </StyledListItem>
+      </ListItem>
     </>
   );
 };

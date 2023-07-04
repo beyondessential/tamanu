@@ -1,7 +1,7 @@
 export { PatientDetailsPane } from './DetailsPane';
 export * from './DocumentsPane';
 export { HistoryPane } from './HistoryPane';
-export { ImmunisationsPane } from './ImmunisationsPane';
+export { VaccinesPane } from './VaccinesPane';
 export { ImagingPane } from './ImagingPane';
 export { LabsPane } from './LabsPane';
 export { PatientMedicationPane } from './PatientMedicationPane';
@@ -15,3 +15,4 @@ export { ReferralPane } from './ReferralPane';
 export { InvoicingPane } from './InvoicingPane';
 export { InvoicesPane } from './InvoicesPane';
 export { VitalsPane } from './VitalsPane';
+export { PatientResultsPane } from './PatientResultsPane';

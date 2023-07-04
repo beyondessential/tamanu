@@ -1,8 +1,12 @@
 import config from 'config';
-import mailgun from 'mailgun-js';
+import formData from 'form-data';
+import Mailgun from 'mailgun.js';
+import { createReadStream } from 'fs';
+import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
-import { createReadStream } from 'fs';
+
+const mailgun = new Mailgun(formData);
 
 const { apiKey, domain } = config.mailgun;
 
@@ -25,10 +29,11 @@ async function getReadStreamSafe(path) {
 
 export class EmailService {
   constructor() {
-    this.mailgunService = apiKey && domain ? mailgun({ apiKey, domain }) : null;
+    this.mailgunService =
+      apiKey && domain ? mailgun.client({ username: 'api', key: apiKey }) : null;
   }
 
-  async sendEmail({ attachment, ...email }) {
+  async sendEmail({ attachment: untypedAttachment, ...email }) {
     // no mailgun service, unable to send email
     if (!this.mailgunService) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: 'Email service not found' };
@@ -52,11 +57,14 @@ export class EmailService {
       };
     }
 
-    let attachmentStream;
-    if (attachment) {
+    let attachment;
+    if (typeof untypedAttachment === 'string') {
       try {
-        // pass mailgun a readable stream instead of the path
-        attachmentStream = await getReadStreamSafe(attachment);
+        // pass mailgun readable stream instead of the path
+        attachment = {
+          data: await getReadStreamSafe(untypedAttachment),
+          filename: basename(untypedAttachment),
+        };
       } catch (e) {
         log.error('Could not read attachment for email', e);
         return {
@@ -64,12 +72,14 @@ export class EmailService {
           error: 'Attachment missing or unreadable',
         };
       }
+    } else {
+      attachment = untypedAttachment;
     }
 
     try {
-      const emailResult = await this.mailgunService.messages().send({
+      const emailResult = await this.mailgunService.messages.create(domain, {
         ...email,
-        attachment: attachmentStream,
+        attachment,
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {

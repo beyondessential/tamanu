@@ -1,16 +1,16 @@
 import {
-  Entity,
+  BeforeInsert,
   Column,
+  Entity,
+  In,
+  Index,
   ManyToOne,
   OneToMany,
-  Index,
-  BeforeUpdate,
-  BeforeInsert,
   RelationId,
 } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
-import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
@@ -27,19 +27,25 @@ import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { DateTimeStringColumn } from './DateColumns';
+import { NotePage } from './NotePage';
 
 const TIME_OFFSET = 3;
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column({ type: 'varchar' })
   encounterType: EncounterType;
 
-  @Column()
-  startDate: Date;
+  @DateTimeStringColumn()
+  startDate: string;
 
-  @Column({ nullable: true })
-  endDate?: Date;
+  @DateTimeStringColumn({ nullable: true })
+  endDate?: string;
 
   @Column({ default: '', nullable: true })
   reasonForEncounter?: string;
@@ -137,48 +143,81 @@ export class Encounter extends BaseModel implements IEncounter {
   )
   vitals: Vitals[];
 
-  static async getOrCreateCurrentEncounter(
-    patientId: string,
-    userId: string,
-    createdEncounterOptions: any = {},
-  ): Promise<Encounter> {
+  @BeforeInsert()
+  async markPatientForSync(): Promise<void> {
+    await Patient.markForSync(this.patient);
+  }
+
+  static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
     const repo = this.getRepository();
 
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
-    const found = await repo
+    return repo
       .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
       .andWhere("startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
       .getOne();
+  }
 
-    if (found) return found;
+  static async getOrCreateCurrentEncounter(
+    patientId: string,
+    userId: string,
+    createdEncounterOptions: any = {},
+  ): Promise<Encounter> {
+    const currentEncounter = await Encounter.getCurrentEncounterForPatient(patientId);
+
+    if (currentEncounter) {
+      return currentEncounter;
+    }
 
     // Read the selected facility for this client
     const facilityId = await readConfig('facilityId', '');
+    let { departmentId, locationId } = createdEncounterOptions;
 
-    // Find the first department and location that matches the
-    // selected facility to provide the default value for mobile.
-    const defaultDepartment = await Department.findOne({
-      where: { facility: { id: facilityId } },
-    });
-    const defaultLocation = await Location.findOne({
-      where: { facility: { id: facilityId } },
-    });
+    if (!departmentId) {
+      // Find the first department and location that matches the
+      // selected facility to provide the default value for mobile.
+      const defaultDepartment = await Department.findOne({
+        where: { facility: { id: facilityId } },
+      });
+
+      if (!defaultDepartment) {
+        throw new Error(
+          `No default Department is configured for facility: ${facilityId}. You need to update the Department reference data.`,
+        );
+      }
+
+      departmentId = defaultDepartment.id;
+    }
+
+    if (!locationId) {
+      const defaultLocation = await Location.findOne({
+        where: { facility: { id: facilityId } },
+      });
+
+      if (!defaultLocation) {
+        throw new Error(
+          `No default Location is configured for facility: ${facilityId}. You need to update the Location reference data.`,
+        );
+      }
+
+      locationId = defaultLocation.id;
+    }
 
     return Encounter.createAndSaveOne({
       patient: patientId,
       examiner: userId,
-      startDate: new Date(),
+      startDate: getCurrentDateTimeString(),
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
-      department: defaultDepartment.id,
-      location: defaultLocation.id,
+      department: departmentId,
+      location: locationId,
       deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });
@@ -187,11 +226,22 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getForPatient(patientId: string): Promise<Encounter[]> {
     const repo = this.getRepository();
 
-    return repo.find({
+    const encounters = await repo.find({
       where: { patient: { id: patientId } },
       relations: ['location', 'location.facility'],
       order: { startDate: 'DESC' },
     });
+
+    const notes = await NotePage.find({
+      where: { recordId: In(encounters.map(({ id }) => id)) },
+      relations: ['noteItems'],
+    });
+
+    // Usually a patient won't have too many encounters, but if they do, this will be slow.
+    return encounters.map(encounter => ({
+      ...encounter,
+      notePages: notes.filter(note => note.recordId === encounter.id),
+    }));
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
@@ -223,42 +273,6 @@ export class Encounter extends BaseModel implements IEncounter {
     return query.getRawMany();
   }
 
-  static shouldExport = true;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markPatient() {
-    // adding an encounter to a patient should mark them for syncing in future
-    // we don't need to upload the patient, so we only set markedForSync
-    const parent = await this.findParent(Patient, 'patient');
-    if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
-    }
-  }
-
-  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
-    const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
-    const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
-    if (patientId) {
-      const records = await this.findMarkedForUploadQuery(opts)
-        .andWhere('patientId = :patientId', { patientId })
-        .getMany();
-      return records as BaseModel[];
-    }
-    if (scheduledVaccineId) {
-      const records = await this.findMarkedForUploadQuery(opts)
-        .innerJoinAndSelect('Encounter.administeredVaccines', 'AdministeredVaccine')
-        .andWhere('AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId', {
-          scheduledVaccineId,
-        })
-        .getMany();
-      return records as BaseModel[];
-    }
-
-    throw new Error(`Could not extract marked for upload from ${opts.channel}`);
-  }
-
   static includedSyncRelations = [
     'administeredVaccines',
     'surveyResponses',
@@ -270,5 +284,8 @@ export class Encounter extends BaseModel implements IEncounter {
     'completedReferrals',
     'labRequests',
     'labRequests.tests',
+    // Can't add these here as there's no ORM relation
+    // 'notePages',
+    // 'notePages.noteItems',
   ];
 }

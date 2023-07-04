@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import * as yup from 'yup';
 import styled from 'styled-components';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
-
 import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
 import { FormGrid } from './FormGrid';
 
@@ -45,7 +46,10 @@ export function CarePlanNoteForm({
         // reload notes on failure just in case it was recorded
         onReloadNotes();
       }}
-      initialValues={note || { date: new Date() }}
+      initialValues={note || { date: getCurrentDateTimeString() }}
+      validationSchema={yup.object().shape({
+        content: yup.string().required('Content is required'),
+      })}
       render={() => (
         <>
           <FormGrid columns={2}>
@@ -55,13 +59,14 @@ export function CarePlanNoteForm({
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="date" label="Date recorded" component={DateTimeField} />
+            <Field name="date" label="Date recorded" component={DateTimeField} saveDateAsString />
           </FormGrid>
           <FormGrid columns={1}>
             <Field
               name="content"
               placeholder="Write a note..."
               component={TextField}
+              required
               multiline
               rows={4}
             />

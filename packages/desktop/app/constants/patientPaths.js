@@ -27,3 +27,15 @@ export const PATIENT_PATHS = {
   LAB_REQUEST: LAB_REQUEST_PATH,
   IMAGING_REQUEST: IMAGING_REQUEST_PATH,
 };
+
+export const PATIENT_TABS = {
+  HISTORY: 'history',
+  DETAILS: 'details',
+  RESULTS: 'results',
+  REFERRALS: 'referrals',
+  PROGRAMS: 'programs',
+  DOCUMENTS: 'documents',
+  VACCINES: 'vaccines',
+  MEDICATION: 'medication',
+  INVOICES: 'invoices',
+};

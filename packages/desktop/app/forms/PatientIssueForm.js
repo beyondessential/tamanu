@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
-
-import { PATIENT_ISSUE_TYPES } from 'shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { PATIENT_ISSUE_TYPES } from '@tamanu/shared/constants';
 import { Form, Field, DateField, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -16,9 +16,15 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
     onSubmit={onSubmit}
     render={({ submitForm }) => (
       <FormGrid columns={1}>
-        <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
+        <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} required />
         <Field name="note" label="Notes" component={TextField} multiline rows={2} />
-        <Field name="recordedDate" label="Date recorded" component={DateField} required />
+        <Field
+          name="recordedDate"
+          label="Date recorded"
+          component={DateField}
+          saveDateAsString
+          required
+        />
         <ConfirmCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
@@ -27,7 +33,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       </FormGrid>
     )}
     initialValues={{
-      recordedDate: new Date(),
+      recordedDate: getCurrentDateTimeString(),
       type: 'issue',
       ...editedObject,
     }}

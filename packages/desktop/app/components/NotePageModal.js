@@ -1,50 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { groupBy } from 'lodash';
-import { NOTE_RECORD_TYPES } from 'shared/constants';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { isEmpty } from 'lodash';
+import { NOTE_RECORD_TYPES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
+import { groupRootNoteItems } from '../utils/groupRootNoteItems';
 
 import { Modal } from './Modal';
 import { NotePageForm } from '../forms/NotePageForm';
+import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
-
-/**
- * Group flat note items into nested ones:
- * eg:
- * [note1, note2, note3]
- * [
- *  {
- *    'note1'
- *    noteItems: [note2, note3]
- *  }
- * ]
- * @param {*} noteItems
- * @returns
- */
-const groupNoteItems = noteItems => {
-  const noteItemByRevisedId = groupBy(noteItems, noteItem => noteItem.revisedById || 'root');
-  const rootNoteItems = [];
-
-  // noteItemByRevisedId.root should never be empty but just in case
-  if (noteItemByRevisedId.root) {
-    noteItemByRevisedId.root
-      .sort((n1, n2) => n1.date.localeCompare(n2.date))
-      .forEach(rootNoteItem => {
-        let newRootNodeItem = { ...rootNoteItem };
-        let childNoteItems = noteItemByRevisedId[rootNoteItem.id];
-        if (childNoteItems?.length) {
-          childNoteItems = childNoteItems.sort((n1, n2) => n2.date.localeCompare(n1.date));
-          childNoteItems = [...childNoteItems, newRootNodeItem];
-          newRootNodeItem = childNoteItems.shift();
-        }
-        newRootNodeItem.noteItems = childNoteItems;
-        rootNoteItems.push(newRootNodeItem);
-      });
-  }
-
-  return rootNoteItems;
-};
 
 export const NotePageModal = ({
   title = 'Note',
@@ -53,11 +19,15 @@ export const NotePageModal = ({
   onSaved,
   encounterId,
   notePage,
+  cancelText,
 }) => {
   const api = useApi();
   const { currentUser } = useAuth();
   const [noteItems, setNoteItems] = useState([]);
   const [noteTypeCountByType, setNoteTypeCountByType] = useState({});
+  const [openNoteItemCancelConfirmModal, setOpenNoteItemCancelConfirmModal] = useState(false);
+  const contentRef = useRef(null);
+
   const practitionerSuggester = new Suggester(api, 'practitioner');
 
   useEffect(() => {
@@ -65,7 +35,7 @@ export const NotePageModal = ({
       if (notePage) {
         const noteItemsResponse = await api.get(`notePages/${notePage.id}/noteItems`);
         const newNoteItems = noteItemsResponse.data;
-        const rootNoteItems = groupNoteItems(newNoteItems);
+        const rootNoteItems = groupRootNoteItems(newNoteItems);
 
         setNoteItems(rootNoteItems);
       }
@@ -79,6 +49,7 @@ export const NotePageModal = ({
       const newData = {
         ...data,
         authorId: currentUser.id,
+        onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
         recordId: encounterId,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       };
@@ -94,7 +65,7 @@ export const NotePageModal = ({
         newNoteItems = [response.noteItem];
       }
 
-      const rootNoteItems = groupNoteItems(newNoteItems);
+      const rootNoteItems = groupRootNoteItems(newNoteItems);
 
       setNoteItems(rootNoteItems);
       resetForm();
@@ -111,6 +82,7 @@ export const NotePageModal = ({
 
       const newNoteItem = {
         authorId: currentUser.id,
+        date: getCurrentDateTimeString(),
         onBehalfOfId: noteItem.onBehalfOfId,
         revisedById: noteItem.revisedById || noteItem.id,
         content,
@@ -120,24 +92,57 @@ export const NotePageModal = ({
       const response = await api.get(`notePages/${notePage.id}/noteItems`);
 
       const newNoteItems = response.data;
-      const rootNoteItems = groupNoteItems(newNoteItems);
+      const rootNoteItems = groupRootNoteItems(newNoteItems);
 
       setNoteItems(rootNoteItems);
+      onSaved();
     },
-    [api, currentUser.id, notePage],
+    [api, currentUser.id, notePage, onSaved],
   );
 
   return (
-    <Modal title={title} open={open} width="md" onClose={onClose}>
-      <NotePageForm
-        onSubmit={handleCreateNewNoteItem}
-        onEditNoteItem={handleEditNoteItem}
-        onCancel={onClose}
-        practitionerSuggester={practitionerSuggester}
-        notePage={notePage}
-        noteItems={noteItems}
-        noteTypeCountByType={noteTypeCountByType}
+    <>
+      <ConfirmModal
+        title="Discard add note"
+        open={openNoteItemCancelConfirmModal}
+        width="sm"
+        onCancel={() => setOpenNoteItemCancelConfirmModal(false)}
+        onConfirm={() => {
+          setOpenNoteItemCancelConfirmModal(false);
+          onClose();
+        }}
+        customContent={<p>Are you sure you want to remove any changes you have made?</p>}
       />
-    </Modal>
+      <Modal
+        title={title}
+        open={open}
+        width="md"
+        onClose={() => {
+          if (!isEmpty(contentRef.current.textContent)) {
+            setOpenNoteItemCancelConfirmModal(true);
+          } else {
+            onClose();
+          }
+        }}
+      >
+        <NotePageForm
+          onSubmit={handleCreateNewNoteItem}
+          onEditNoteItem={handleEditNoteItem}
+          onCancel={() => {
+            if (!isEmpty(contentRef.current.textContent)) {
+              setOpenNoteItemCancelConfirmModal(true);
+            } else {
+              onClose();
+            }
+          }}
+          practitionerSuggester={practitionerSuggester}
+          notePage={notePage}
+          noteItems={noteItems}
+          noteTypeCountByType={noteTypeCountByType}
+          cancelText={cancelText}
+          contentRef={contentRef}
+        />
+      </Modal>
+    </>
   );
 };

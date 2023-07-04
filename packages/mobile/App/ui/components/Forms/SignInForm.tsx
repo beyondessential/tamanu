@@ -19,29 +19,24 @@ import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 
-interface SignInFormModel {
+interface SignInFormModelValues {
   email: string;
   password: string;
   server: string;
 }
 
-const signInValidationSchema = Yup.object().shape({
-  email: Yup.string().email(),
-  // .required(),
-  password: Yup.string(), //.required(),
-  server: Yup.string(),
-});
+const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
 const ServerInfo = __DEV__
   ? ({ host }): ReactElement => {
-    const { facilityName } = useFacility();
-    return (
-      <StyledView marginBottom={10}>
-        <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
-        <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
-      </StyledView>
-    );
-  }
+      const { facilityName } = useFacility();
+      return (
+        <StyledView marginBottom={10}>
+          <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
+          <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
+        </StyledView>
+      );
+    }
   : (): ReactElement => null; // hide info on production
 
 export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
@@ -49,7 +44,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const passwordRef = useRef(null);
   const authCtx = useAuth();
   const signIn = useCallback(
-    async (values: SignInFormModel) => {
+    async (values: SignInFormModelValues) => {
       try {
         if (!existingHost && !values.server) {
           // TODO it would be better to properly respond to form validation and show the error
@@ -81,31 +76,39 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
         password: '',
         server: '',
       }}
-      validationSchema={signInValidationSchema}
+      validateOnChange={false}
+      validateOnBlur={false}
+      validationSchema={Yup.object().shape({
+        email: Yup.string()
+          .email('Must be a valid email address')
+          .required(REQUIRED_VALIDATION_MESSAGE),
+        password: Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
+        server: existingHost ? Yup.string() : Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
+      })}
       onSubmit={signIn}
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <StyledView
-          marginTop={screenPercentageToDP(14.7, Orientation.Height)}
+          marginTop={screenPercentageToDP(3.7, Orientation.Height)}
           marginRight={screenPercentageToDP(2.43, Orientation.Width)}
           marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
         >
-          <StyledText fontSize={13} marginBottom={5} color={theme.colors.SECONDARY_MAIN}>
-            ACCOUNT DETAILS
-          </StyledText>
           <StyledView justifyContent="space-around">
             {existingHost ? (
               <ServerInfo host={existingHost} />
             ) : (
-              <Field name="server" component={ServerSelector} label="Select a country" />
+              <Field name="server" component={ServerSelector} label="Country" />
             )}
             <Field
               name="email"
               keyboardType="email-address"
               component={TextField}
               label="Email"
+              placeholder="Enter your email address"
               blurOnSubmit={false}
               returnKeyType="next"
+              labelFontSize="14"
+              labelColor={theme.colors.WHITE}
               onSubmitEditing={(): void => {
                 passwordRef.current.focus();
               }}
@@ -116,6 +119,9 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
               autoCapitalize="none"
               component={TextField}
               label="Password"
+              labelFontSize="14"
+              placeholder="Enter your password"
+              labelColor={theme.colors.WHITE}
               secure
               onSubmitEditing={handleSubmit}
             />
@@ -128,7 +134,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             textColor={theme.colors.TEXT_SUPER_DARK}
             fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
-            buttonText="Sign in"
+            buttonText="Log in"
           />
         </StyledView>
       )}

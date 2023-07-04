@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
+import { omit } from 'lodash';
 import { Typography, Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
-import { checkVisibility } from '../../utils';
+import { getVisibleQuestions, getInvisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
 
 const COMPLETE_MESSAGE = `
@@ -45,25 +46,19 @@ const DefaultSuccessScreen = ({ onClose }) => (
   </div>
 );
 
-const getVisibleQuestions = (questionComponents, values) =>
-  // Adapt the questionComponents from react elements to the survey config objects which the
-  // checkVisibility util expects
-  questionComponents.filter(c =>
-    checkVisibility(
-      {
-        visibilityCriteria: JSON.stringify(c.props.visibilityCriteria),
-        dataElement: {},
-      },
-      values,
-      questionComponents.map(x => ({
-        dataElement: { id: x.props.name, name: x.props.name, code: x.props.name },
-      })),
-    ),
-  );
-const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast }) => {
+export const DefaultFormScreen = ({
+  screenComponent,
+  values,
+  onStepForward,
+  onStepBack,
+  isLast,
+  screenIndex,
+  customBottomRow,
+}) => {
   const { children } = screenComponent.props;
   const questionComponents = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(questionComponents, values);
+  const hasStepBack = screenIndex > 0;
 
   // screenComponent is a react element (not a component) so we have to attach the new children manually
   const updatedScreenComponent = {
@@ -74,14 +69,16 @@ const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast
   return (
     <>
       {updatedScreenComponent}
-      <Box mt={4} display="flex" justifyContent="space-between">
-        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-          Back
-        </OutlinedButton>
-        <Button color="primary" variant="contained" onClick={onStepForward}>
-          {isLast ? 'Submit' : 'Continue'}
-        </Button>
-      </Box>
+      {customBottomRow || (
+        <Box mt={4} display="flex" justifyContent="space-between">
+          <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
+            Back
+          </OutlinedButton>
+          <Button color="primary" variant="contained" onClick={onStepForward}>
+            {isLast ? 'Submit' : 'Continue'}
+          </Button>
+        </Box>
+      )}
     </>
   );
 };
@@ -119,12 +116,15 @@ export const PaginatedForm = ({
   children,
   onSubmit,
   onCancel,
+  FormScreen = DefaultFormScreen,
   SummaryScreen = DefaultSummaryScreen,
   SuccessScreen = DefaultSuccessScreen,
   validationSchema,
   initialValues,
+  formProps,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
+  const [showStepper, setShowStepper] = useState(true);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
   const onSubmitForm = async data => {
@@ -145,7 +145,7 @@ export const PaginatedForm = ({
       onSubmit={onSubmitForm}
       validationSchema={validationSchema}
       initialValues={initialValues}
-      render={({ submitForm, values, setValues }) => {
+      render={({ submitForm, validateForm, values, setValues, setStatus }) => {
         if (screenIndex <= maxIndex) {
           const screenComponent = formScreens.find((screen, i) =>
             i === screenIndex ? screen : null,
@@ -153,32 +153,40 @@ export const PaginatedForm = ({
 
           return (
             <>
-              <FormStepper
-                screenIndex={screenIndex}
-                handleStep={handleStep}
-                screens={formScreens}
-              />
+              {showStepper && (
+                <FormStepper
+                  screenIndex={screenIndex}
+                  handleStep={handleStep}
+                  screens={formScreens}
+                />
+              )}
               <FormScreen
                 screenComponent={screenComponent}
                 values={values}
+                setValues={setValues}
+                submitForm={submitForm}
                 onStepForward={onStepForward}
                 isLast={isLast}
-                onStepBack={screenIndex > 0 ? onStepBack : null}
+                onStepBack={onStepBack}
+                screenIndex={screenIndex}
+                setShowStepper={setShowStepper}
+                onCancel={onCancel}
+                validateForm={validateForm}
+                setStatus={setStatus}
               />
             </>
           );
         }
 
         const submitVisibleValues = event => {
-          const visibleFields = new Set(
-            getVisibleQuestions(
+          const invisibleFields = new Set(
+            getInvisibleQuestions(
               formScreens.map(s => React.Children.toArray(s.props.children)).flat(),
               values,
             ).map(q => q.props.name),
           );
-          const visibleValues = Object.fromEntries(
-            Object.entries(values).filter(([key]) => visibleFields.has(key)),
-          );
+          const visibleValues = omit({ ...values }, invisibleFields);
+
           setValues(visibleValues);
           submitForm(event);
         };
@@ -191,6 +199,7 @@ export const PaginatedForm = ({
           />
         );
       }}
+      {...formProps}
     />
   );
 };

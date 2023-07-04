@@ -1,15 +1,15 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-
-import { NotActiveView } from '../views';
-import { ImagingRequestListingView } from '../views/ImagingRequestListingView';
+import {
+  ImagingRequestListingView,
+  CompletedImagingRequestListingView,
+} from '../views/ImagingRequestListingView';
 
 export const ImagingRoutes = React.memo(({ match }) => (
   <div>
     <Switch>
       <Route path={`${match.path}/all`} component={ImagingRequestListingView} />
-      <Route path={`${match.path}/new`} component={NotActiveView} />
-      <Route path={`${match.path}/completed`} component={NotActiveView} />
+      <Route path={`${match.path}/completed`} component={CompletedImagingRequestListingView} />
       <Redirect to={`${match.path}/all`} />
     </Switch>
   </div>

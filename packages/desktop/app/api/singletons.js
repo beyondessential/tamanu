@@ -1,4 +1,4 @@
 import { TamanuApi } from './TamanuApi';
-import packagej from '../package.json';
+import pkg from '../package.json';
 
-export const API = new TamanuApi(packagej.version);
+export const API = new TamanuApi(pkg.version);

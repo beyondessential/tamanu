@@ -1,10 +1,30 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getFilteredListByPermission } from 'shared/utils/getFilteredListByPermission';
+import { NotFoundError } from 'shared/errors';
 import { findRouteObject, permissionCheckingRouter, simpleGetList } from './crudHelpers';
 
 export const survey = express.Router();
 
+// There should only be one survey with surveyType vitals, fetch it
+// Needs to be added before the /:id endpoint so that endpoint doesn't catch it instead
+survey.get(
+  '/vitals',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+
+    req.checkPermission('read', 'Vitals');
+    const surveyRecord = await models.Survey.findOne({
+      where: { surveyType: 'vitals' },
+    });
+    if (!surveyRecord) throw new NotFoundError();
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
+    res.send({
+      ...surveyRecord.forResponse(),
+      components,
+    });
+  }),
+);
 survey.get(
   '/:id',
   asyncHandler(async (req, res) => {

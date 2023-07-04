@@ -1,8 +1,5 @@
-import {
-  createDummyPatient,
-  randomUser,
-  randomReferenceId,
-} from 'shared/demoData/patients';
+import { createDummyPatient, randomUser, randomReferenceId } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {
@@ -35,9 +32,9 @@ describe('PatientCarePlan', () => {
 
     it('should create a care plan with note', async () => {
       const onBehalfOfUserId = await randomUser(models);
-      const noteDate = new Date().toISOString();
+      const carePlanDate = getCurrentDateTimeString();
       const result = await app.post('/v1/patientCarePlan').send({
-        date: noteDate,
+        date: carePlanDate,
         carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
@@ -45,19 +42,19 @@ describe('PatientCarePlan', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
-      expect(result.body).toHaveProperty('date', noteDate);
+      expect(result.body).toHaveProperty('date', carePlanDate);
       expect(result.body.patientId).toBe(patient.get('id'));
       expect(result.body.carePlanId).toBe(carePlanId);
       const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
-      expect(noteResult.body[0]).toHaveProperty('date', noteDate);
+      expect(noteResult.body[0]).toHaveProperty('date', carePlanDate);
     });
 
     it('should reject care plan without notes', async () => {
       const result = await app.post('/v1/patientCarePlan').send({
-        date: new Date().toISOString(),
+        date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
       });
@@ -67,7 +64,7 @@ describe('PatientCarePlan', () => {
     it('should return return notes in order of creation', async () => {
       const onBehalfOfUserId = await randomUser(models);
       const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
-        date: new Date().toISOString(),
+        date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
         examinerId: onBehalfOfUserId,
@@ -77,7 +74,7 @@ describe('PatientCarePlan', () => {
       const additionalNoteRequest = await app
         .post(`/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`)
         .send({
-          date: new Date().toISOString(),
+          date: getCurrentDateTimeString(),
           content: 'Second note',
           examinerId: onBehalfOfUserId,
         });
@@ -94,7 +91,7 @@ describe('PatientCarePlan', () => {
     });
 
     it('should delete a note', async () => {
-      const noteDate = new Date().toISOString();
+      const noteDate = getCurrentDateTimeString();
       const result = await app.post('/v1/patientCarePlan').send({
         date: noteDate,
         carePlanId,

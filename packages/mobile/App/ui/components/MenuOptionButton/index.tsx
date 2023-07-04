@@ -4,25 +4,15 @@ import { StyledText, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ArrowForwardIcon } from '../Icons';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
-
-export interface MenuOptionButtonProps {
-  Icon?: FC<IconWithSizeProps>;
-  title: string;
-  onPress: () => void;
-  fontWeight?: number;
-}
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
   Icon,
   title,
   onPress,
-  fontWeight = 400,
+  fontWeight = 500,
 }: MenuOptionButtonProps): React.ReactElement => (
-  <TouchableHighlight
-    underlayColor={theme.colors.DEFAULT_OFF}
-    onPress={onPress}
-  >
+  <TouchableHighlight underlayColor={theme.colors.DEFAULT_OFF} onPress={onPress}>
     <RowView
       width="100%"
       height={screenPercentageToDP('6.29', Orientation.Height)}
@@ -30,9 +20,7 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
       alignItems="center"
     >
       {Icon && (
-        <StyledView
-          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-        >
+        <StyledView paddingRight={screenPercentageToDP(4.86, Orientation.Width)}>
           <Icon
             size={screenPercentageToDP(2.43, Orientation.Height)}
             fill={theme.colors.TEXT_SOFT}

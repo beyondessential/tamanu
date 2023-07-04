@@ -1,5 +1,6 @@
 import { addMinutes } from 'date-fns';
-import { chance } from 'chance';
+import { toDateTimeString } from 'shared/utils/dateTime';
+import { chance } from '../../../chance';
 
 export const insertSurveyResponse = async (
   { SurveyResponse, SurveyResponseAnswer },
@@ -10,8 +11,8 @@ export const insertSurveyResponse = async (
   const response = await SurveyResponse.create({
     encounterId,
     surveyId: survey.id,
-    startTime,
-    endTime: addMinutes(startTime, 10),
+    startTime: toDateTimeString(startTime),
+    endTime: toDateTimeString(addMinutes(startTime, 10)),
   });
 
   const readableAnswers = generateAnswers(setupData);

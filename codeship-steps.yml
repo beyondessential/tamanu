@@ -1,154 +1,144 @@
 - name: tamanu does
-  tag: not-this
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
+  tag: ^(main$|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
   steps:
     - name: copy files
-      service: app-without-db
+      service: build
       command: /pre/scripts/copy_files.sh
     - name: install dependencies
-      service: app-without-db
+      service: build
       command: scripts/build_shared.sh
-    - name: run migrations
-      service: app-with-db
-      command: scripts/apply_and_revert_sync_server_migrations.sh
-    - name: hygiene checks (on PR branches)
-      type: parallel
-      exclude: ^(master$|dev$|staging-|ci-|uat-)
-      steps:
-        - name: lint desktop app and servers
-          service: app-without-db
-          command: scripts/lint.sh pr-lints
-        - name: ensure storybook builds
-          service: app-without-db
-          command: "yarn workspace desktop run verify-storybook"
-        # - TODO(WAITM-215): mobile lints
-    - name: test
-      type: serial
-      steps:
-        - name: the desktop app and servers
-          service: app-with-db
-          type: parallel
-          steps:
-            - name: on main branches
-              command: scripts/test.sh
-              tag: ^(master$|dev$|staging-|ci-|uat-)
-            - name: on PR branches
-              command: scripts/test.sh pr-coverage
-              exclude: ^(master$|dev$|staging-|ci-|uat-)
-        - name: the mobile app
-          service: mobile
-          command: "yarn test:coverage"
-    - name: fix ssh for builds
-      tag: ^(master$|dev$|staging-|ci-|uat-)
-      service: app-without-db
-      command: /pre/scripts/fix_ssh.sh
     - name: build packages
-      tag: ^(master$|dev$|staging-|ci-|uat-)
+      exclude: ^release-desktop-
+      service: build
       type: parallel
       steps:
-        - name: for lan
-          tag: ^(master$|dev$|staging-|ci-|uat-)
-          service: app-without-db
-          command: ./scripts/build_package_release.sh lan
-        - name: for desktop installer
-          service: app-without-db
-          tag: ^(master$|dev$|staging-|ci-|uat-)
-          command: ./scripts/build_desktop.sh build-only
+        - name: for desktop and lan
+          exclude: ^deploy-meta$
+          type: serial
+          steps:
+            - name: for desktop installer
+              exclude: ^deploy-meta$
+              command: ./scripts/build_desktop.sh build-only
+            - name: for lan
+              exclude: ^deploy-meta$
+              type: serial
+              steps:
+                - name: build linux release
+                  command: ./scripts/build_package_release.sh lan
+                - name: package windows release
+                  tag: ^(main$|release/|ci-)
+                  command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
         - name: for sync release
-          tag: ^(master$|dev$|staging-|ci-|uat-)
-          service: app-without-db
-          command: ./scripts/build_package_release.sh sync-server
+          exclude: ^deploy-meta$
+          type: serial
+          steps:
+            - name: build linux release
+              command: ./scripts/build_package_release.sh sync-server
+            - name: package windows release
+              tag: ^(main$|release/|ci-)
+              command: ./scripts/build_server_zip.sh sync-server ./deploy
         - name: for meta release
-          tag: ^(master$|dev$|staging-|ci-|uat-)
-          service: app-without-db
+          tag: ^(main$|deploy-meta$|ci-)
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
-      tag: ^(master$|dev$|staging-|ci-|uat-|release-desktop-)
       type: parallel
       steps:
-        - name: the desktop installer
-          service: app-without-db
-          tag: ^(release-desktop-)
-          command: ./scripts/build_desktop.sh build-and-release
-        - name: all artefacts to s3
-          service: awsdeployment
-          tag: ^(master$|dev$|staging-|ci-|uat-)
-          command: ./scripts/push.sh
+        - name: fix ssh for builds
+          service: build
+          command: /pre/scripts/fix_ssh.sh
         # the following serial steps are a fix for a bug where version names can
         # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: the sync server
-          tag: ^(master$|dev$|staging-|ci-|uat-)
+          exclude: ^(release-desktop-|deploy-meta$)
           type: serial
+          service: deploy
           steps:
-            - name: onto dev
-              tag: ^(dev$|ci-)
-              service: awsdeployment
-              command: ./scripts/deploy_sync.sh dev tamanu-central-server-dev-16
-            - name: onto uat
+            - name: onto fiji vps uat
               tag: ^uat-
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh uat-fiji-vps tamanu-sync-server-uat-fiji-vps
-            - name: onto staging
-              tag: ^(staging-)
-              service: awsdeployment
-              command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
-            - name: onto demo
-              tag: ^(master$)
-              service: awsdeployment
-              command: ./scripts/deploy_sync.sh demo tamanu-sync-server-demo
+            - name: onto rispacs uat
+              tag: ^uatrispacs-
+              command: ./scripts/deploy_sync.sh uatrispacs tamanu-sync-server-uat-rispacs-16
+            - name: onto pmi uat
+              tag: ^uatpmi-
+              command: ./scripts/deploy_sync.sh uatpmi tamanu-central-server-uat-pmi
             - name: onto nauru demo
-              tag: ^(master$)
-              service: awsdeployment
-              command: ./scripts/deploy_sync.sh demo-nauru tamanu-sync-server-demo-nauru
-            - name: onto palau demo
-              tag: ^(master$)
-              service: awsdeployment
-              command: ./scripts/deploy_sync.sh demo-palau tamanu-sync-server-demo-palau
+              tag: ^(deploy-nauru-demo$)
+              command: ./scripts/deploy_sync.sh nauru-demo tamanu-central-server-nauru-demo
+            - name: onto klaus
+              tag: ^(klaus-)
+              command: ./scripts/deploy_sync.sh klaus tamanu-central-server-klaus
+            - name: onto sima
+              tag: ^(sima-)
+              command: ./scripts/deploy_sync.sh sima tamanu-central-server-sima
+            - name: onto sepi
+              tag: ^(sepi-)
+              command: ./scripts/deploy_sync.sh sepi tamanu-central-server-sepi
+            - name: onto da
+              tag: ^(da-)
+              command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: the lan server
-          tag: ^(master$|dev$|staging-|ci-|uat-)
+          exclude: ^(release-desktop-|deploy-meta$)
           type: serial
+          service: deploy
           steps:
-            - name: onto dev A
-              tag: ^(dev$|ci-)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16a
-            - name: onto dev B
-              tag: ^(dev$|ci-)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16b
-            - name: onto uat
+            - name: onto klaus A
+              tag: ^(klaus-)
+              command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-a
+            - name: onto klaus B
+              tag: ^(klaus-)
+              command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-b
+            - name: onto sima A
+              tag: ^(sima-)
+              command: ./scripts/deploy_lan.sh sima tamanu-facility-server-sima-a
+            - name: onto sepi A
+              tag: ^(sepi-)
+              command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
+            - name: onto sepi B
+              tag: ^(sepi-)
+              command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-b
+            - name: onto da A
+              tag: ^(da-)
+              command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
+            - name: onto da B
+              tag: ^(da-)
+              command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-b
+            - name: onto fiji vps uat
               tag: ^uat-
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
-            - name: onto staging A
-              tag: ^(staging-)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16a
-            - name: onto staging B
-              tag: ^(staging-)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
-            - name: onto demo
-              tag: ^(master$)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh demo tamanu-lan-server-demo
+            - name: onto rispacs uat
+              tag: ^uatrispacs-
+              command: ./scripts/deploy_lan.sh uatrispacs tamanu-facility-server-rispacs
+            - name: onto pmi uat
+              tag: ^uatpmi-
+              command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi
+            - name: onto pmi uat (Lautoka)
+              tag: ^uatpmi-
+              command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi-lautoka
             - name: onto nauru demo
-              tag: ^(master$)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
+              tag: ^(deploy-nauru-demo$)
+              command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo
+            - name: onto nauru demo 2
+              tag: ^(deploy-nauru-demo$)
+              command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo-2
         - name: the meta server
-          tag: ^(dev$|ci-)
+          service: deploy
           type: serial
           steps:
             - name: onto dev
-              tag: ^(dev$|ci-)
-              service: awsdeployment
+              tag: ^(main$|ci-)
               command: ./scripts/deploy_meta.sh dev tamanu-meta-server-dev-16
-            # meta production environment is deployed from dev so we can quickly add/remove features
-            # TODO: revist whether this is a good idea at some later date
             - name: onto prod
-              tag: ^dev$
-              service: awsdeployment
+              tag: ^(deploy-meta)$
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
+        - name: upload all artefacts to s3
+          exclude: ^(release-desktop-|deploy-meta$)
+          service: deploy
+          command: ./scripts/push.sh
+        - name: deploy desktop installer to auto-update channel
+          service: build
+          tag: ^(release-desktop-)
+          command: ./scripts/build_desktop.sh build-and-release

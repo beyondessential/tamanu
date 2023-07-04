@@ -1,29 +1,54 @@
-import Chance from 'chance';
-
 import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
-import { fake } from 'shared/test-helpers/fake';
+import { fake, chance } from 'shared/test-helpers';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testDiagnosticReportHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - DiagnosticReport`, () => {
-    const chance = new Chance();
     let ctx;
     let app;
     beforeAll(async () => {
-      ctx = await createTestContext();
+      ctx = await createTestContext(requestHeaders['X-Tamanu-Client']);
       app = await ctx.baseApp.asRole('practitioner');
     });
     afterAll(() => ctx.close());
 
     async function createLabTestHierarchy(patient, { isRDT = false } = {}) {
-      const { LabTest, LabRequest, ReferenceData, LabTestType, Encounter, User } = ctx.store.models;
+      const {
+        Department,
+        Facility,
+        LabTest,
+        LabRequest,
+        Location,
+        ReferenceData,
+        LabTestType,
+        Encounter,
+        User,
+      } = ctx.store.models;
+
+      const facility = await Facility.create({
+        ...fake(Facility),
+        name: 'Utopia HQ',
+      });
+
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+
+      const department = await Department.create({
+        ...fake(Department),
+        facilityId: facility.id,
+      });
 
       const examiner = await User.create(fake(User));
+
       const encounter = await Encounter.create({
         ...fake(Encounter),
         patientId: patient.id,
         examinerId: examiner.id,
+        locationId: location.id,
+        departmentId: department.id,
       });
       const laboratory = await ReferenceData.create({
         ...fake(ReferenceData),
@@ -109,6 +134,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
             lastUpdated: labTest.updatedAt.toISOString(),
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 1,
           link: [
             {
@@ -118,6 +144,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
           ],
           entry: [
             {
+              fullUrl: expect.stringContaining(labTest.id),
               resource: {
                 resourceType: 'DiagnosticReport',
                 id: labTest.id,
@@ -300,6 +327,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
             lastUpdated: null,
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 0,
           link: [
             {

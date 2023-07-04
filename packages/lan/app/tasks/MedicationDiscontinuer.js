@@ -4,6 +4,7 @@ import { Op, Sequelize } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+import { toDateTimeString } from 'shared/utils/dateTime';
 
 export class MedicationDiscontinuer extends ScheduledTask {
   getName() {
@@ -23,7 +24,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
 
   async run() {
     // Get start of day
-    const startOfToday = startOfDay(new Date());
+    const startOfToday = toDateTimeString(startOfDay(new Date()));
 
     // Get all encounters with the same facility as the lan server
     // (found in the config). Note that the facility will be read from
@@ -70,6 +71,5 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // the identifier with the values provided
     const queryInterface = this.sequelize.getQueryInterface();
     await queryInterface.bulkUpdate('encounter_medications', values, identifier);
-    log.info('MedicationDiscontinuer finished running');
   }
 }

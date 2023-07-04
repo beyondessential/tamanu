@@ -3,6 +3,7 @@
     "allowAdminRoutes": false
   },
   "discovery": {
+    "enabled": true,
     "overrideAddress": "",
     "overridePort": null,
     "protocol": "https"
@@ -14,7 +15,7 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "dataset": "tamanu-general",
+    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
     "enabled": true
   },
   "sync": {
@@ -24,50 +25,24 @@
     "password": "",
     "timeout": 10000,
     "readOnly": false,
+    "persistedCacheBatchSize": 10000,
     "enabled": true,
-    "syncAllLabRequests": false,
     "backoff": {
       "multiplierMs": 300,
       "maxAttempts": 15,
       "maxWaitMs": 10000
     },
-    "channelsWithChanges": {
-      "algorithm": {
-        "initialBatchSize": 1000,
-        "maxErrorRate": 0.01,
-        "maxErrorsFloor": 100,
-        "maxBatchSize": 1000,
-        "minBatchSize": 50,
-        "throttleFactorUp": 1.2,
-        "throttleFactorDown": 0.5
-      },
-      "backoff": {
-        "multiplierMs": 300,
-        "maxAttempts": 3,
-        "maxWaitMs": 1000
-      }
-    },
     "dynamicLimiter": {
-      "exportLimit": 100,
-      "initialPullLimit": 10, // start with a relatively low limit then grow upward
-      "minPullLimit": 1,
-      "maxPullLimit": 10000,
-      "optimalPullTimePerPageMs": 2000, // aim for 2 seconds per page
-      "maxLimitChangePerBatch": 0.2 // max 20% increase/decrease from batch to batch
-    },
-    // embedPatientNotes is a workaround for TAN-1757
-    // TODO: remove after 1.21 release
-    "embedPatientNotes": false,
-    // allowUntil makes sync only export records that were updated before the sync started
-    // this stops sync from sending newly updated records that might cause conflicts
-    // however, it could also prevent sync from syncing frequently changing records
-    // TODO: remove after 1.21 release
-    "allowUntil": true
+      "initialLimit": 10, // start relatively low then grow upward
+      "minLimit": 1,
+      "maxLimit": 10000,
+      "optimalTimePerPageMs": 2000, // aim for 2 seconds per page
+      "maxLimitChangePerPage": 0.2 // max 20% increase/decrease from page to page
+    }
   },
   "port": 4000,
   "db": {
     "name": "tamanu-lan",
-    "sqlitePath": "data/tamanu.db",
     "username": "",
     "password": "",
     "verbose": false,
@@ -100,6 +75,13 @@
       "schedule": "1 0 * * *"
     }
   },
+  // Note: this config should be duplicated on the sync server if the same behavior is
+  // desired for "this facility" and "all facilities"
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": []
+    }
+  },
   "questionCodeIds": {
     "passport": "pde-FijCOVRDT005",
     "nationalityId": "pde-PalauCOVSamp7"
@@ -113,6 +95,12 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": ["loopback"]
-  }
+    "trusted": [
+      "loopback"
+    ]
+  },
+  // this should be an IANA tzdata timezone
+  // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  "countryTimeZone": "Australia/Melbourne",
+  "allowMismatchedTimeZones": false
 }

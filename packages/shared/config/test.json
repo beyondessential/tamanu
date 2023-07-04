@@ -1,0 +1,10 @@
+{
+  "db": {
+    "sqlitePath": "/tmp/tamanu-shared-src-tests.db",
+    "testMode": true,
+    "verbose": false
+  },
+  "log": {
+    "consoleLevel": "none"
+  }
+}

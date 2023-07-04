@@ -19,14 +19,11 @@ export const VillageSection = (): ReactElement => {
   const { models } = useBackend();
   const { getString } = useLocalisation();
 
-  const villageSuggester = new Suggester(
-    models.ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.Village,
-      },
+  const villageSuggester = new Suggester(models.ReferenceData, {
+    where: {
+      type: ReferenceDataType.Village,
     },
-  );
+  });
 
   // uses new IdRelation decorator on model, so the field is `villageId` and not `village`
   return (

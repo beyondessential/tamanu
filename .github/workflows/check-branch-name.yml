@@ -1,0 +1,33 @@
+name: Check branch name
+
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  merge-to-main:
+    name: When merging to main
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev'
+    steps:
+    - name: Warn if branch name is not prefixed with feature/ or fix/
+      env:
+        BRANCH_NAME: ${{ github.head_ref }}
+      shell: bash
+      run: |
+        if ! grep -qP '^(feature|fix|epic)/' <<< "$BRANCH_NAME"; then
+          echo "::warning::Branch name should be prefixed with feature/ or fix/ or epic/"
+          exit 1
+        fi
+
+    - name: Warn if feature branch name is not prefixed with ticket number
+      if: always() && startsWith(github.head_ref, 'feature/')
+      env:
+        BRANCH_NAME: ${{ github.head_ref }}
+      shell: bash
+      run: |
+        if ! grep -qP '^feature/[A-Za-z]+-[0-9]+(-\w+)?' <<< "$BRANCH_NAME"; then
+          echo "::warning::Feature branch name should be prefixed with ticket number, e.g. feature/abc-123-..."
+          exit 1
+        fi

@@ -4,14 +4,13 @@ import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Separator } from '/components/Separator';
 import { MenuOptionButton } from '/components/MenuOptionButton';
+import { MenuOptionButtonProps } from '/types/MenuOptionButtonProps';
 
-interface PatientMenuListprops {
-  list: any[];
+interface PatientMenuListProps {
+  list: MenuOptionButtonProps[];
 }
 
-export const PatientMenuButtons = ({
-  list,
-}: PatientMenuListprops): ReactElement => (
+export const PatientMenuButtons = ({ list }: PatientMenuListProps): ReactElement => (
   <StyledView background={theme.colors.WHITE}>
     <FlatList
       scrollEnabled={false}

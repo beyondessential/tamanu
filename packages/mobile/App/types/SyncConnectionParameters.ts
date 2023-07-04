@@ -3,3 +3,13 @@ export interface SyncConnectionParameters {
   password: string;
   server: string;
 }
+
+export interface ReconnectWithPasswordParameters {
+  password: string;
+}
+
+export enum CentralConnectionStatus {
+  Disconnected = 'disconnected',
+  Connected = 'connected',
+  Error = 'error'
+}

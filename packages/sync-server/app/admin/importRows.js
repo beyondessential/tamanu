@@ -1,6 +1,7 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
+import config from 'config';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -21,13 +22,21 @@ function findFieldName(values, fkField) {
   return null;
 }
 
+function getPrimaryKey(model, values) {
+  if (model === 'PatientAdditionalData') {
+    return values.patientId;
+  }
+
+  return values.id;
+}
+
 function loadExisting(Model, id) {
   if (!id) return null;
 
   // user model needs to have access to password to hash it
-  if (Model.name === 'User') return Model.scope('withPassword').findByPk(id);
+  if (Model.name === 'User') return Model.scope('withPassword').findByPk(id, { paranoid: false });
 
-  return Model.findByPk(id);
+  return Model.findByPk(id, { paranoid: false });
 }
 
 export async function importRows(
@@ -133,6 +142,16 @@ export async function importRows(
         } else {
           schemaName = 'ReferenceData';
         }
+      } else if (model === 'SurveyScreenComponent') {
+        // The question type is added to the SSC rows in programImporter/screens.js
+        const { type } = values;
+        const specificSchemaName = `SSC${type}`;
+        const specificSchemaExists = !!schemas[specificSchemaName];
+        if (config.validateQuestionConfigs.enabled && specificSchemaExists) {
+          schemaName = specificSchemaName;
+        } else {
+          schemaName = 'SurveyScreenComponent';
+        }
       } else {
         const specificSchemaExists = !!schemas[model];
         if (specificSchemaExists) {
@@ -166,11 +185,21 @@ export async function importRows(
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
-    const existing = await loadExisting(Model, values.id);
+    const primaryKey = getPrimaryKey(model, values);
+    const existing = await loadExisting(Model, primaryKey);
     try {
       if (existing) {
-        await existing.update(values);
-        updateStat(stats, statkey(model, sheetName), 'updated');
+        if (values.deletedAt) {
+          await existing.destroy();
+          updateStat(stats, statkey(model, sheetName), 'deleted');
+        } else {
+          if (existing.deletedAt) {
+            await existing.restore();
+            updateStat(stats, statkey(model, sheetName), 'restored');
+          }
+          await existing.update(values);
+          updateStat(stats, statkey(model, sheetName), 'updated');
+        }
       } else {
         await Model.create(values);
         updateStat(stats, statkey(model, sheetName), 'created');

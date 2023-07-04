@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NotePageModal } from '../../../components/NotePageModal';
-import { NotePageTable } from '../../../components/NotePageTable';
+import { NotePageTableWithPermission } from '../../../components/NotePageTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 
@@ -12,7 +12,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <NotePageModal
-        title="New Note"
+        title="New note"
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
@@ -25,13 +25,13 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}
-          verb="write"
-          noun="Encounter"
+          verb="create"
+          noun="EncounterNote"
         >
           New note
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <NotePageTable encounterId={encounter.id} />
+      <NotePageTableWithPermission encounterId={encounter.id} verb="write" noun="EncounterNote" />
     </TabPane>
   );
 });

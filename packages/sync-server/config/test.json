@@ -3,10 +3,18 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
-    "reportNoUserError": true
+    "secret": "secret",
+    "refreshToken": {
+      "secret": "refreshSecret"
+    },
+    "reportNoUserError": true,
+    "useHardcodedPermissions": false
   },
   "log": {
     "consoleLevel": "warn"
+  },
+  "cors": {
+    "allowedOrigin": "https://fake-place-xxx-yyy.com"
   },
   "localisation": {
     "data": {
@@ -15,6 +23,22 @@
         "name": "Utopia",
         "alpha-2": "UT",
         "alpha-3": "UTO"
+      },
+      "imagingTypes": {
+        "xRay": { "label": "X-Ray" },
+        "ctScan": { "label": "CT Scan" },
+        "ultrasound": { "label": "Ultrasound" },
+        "mri": { "label": "MRI" },
+        "ecg": { "label": "Electrocardiogram (ECG)" },
+        "holterMonitor": { "label": "Holter Monitor" },
+        "echocardiogram": { "label": "Echocardiogram" },
+        "mammogram": { "label": "Mammogram" },
+        "endoscopy": { "label": "Endoscopy" },
+        "fluroscopy": { "label": "Fluroscopy" },
+        "angiogram": { "label": "Angiogram" },
+        "colonoscopy": { "label": "Colonoscopy" },
+        "vascularStudy": { "label": "Vascular Study" },
+        "stressTest": { "label": "Treadmill" }
       }
     }
   },
@@ -22,7 +46,9 @@
     "fijiVrs": {
       "enabled": true,
       "host": "http://localhost:8080",
-      "expectAccessToken": ["test-access-token"]
+      "expectAccessToken": [
+        "test-access-token"
+      ]
     },
     "fijiVps": {
       "enabled": true
@@ -34,11 +60,18 @@
       "enabled": true,
       "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
     },
+    "fijiAspenMediciReport": {
+      "enabled": true
+    },
     "mSupply": {
       "enabled": true
     },
     "fhir": {
       "enabled": true
+    },
+    "omniLab": {
+      "enabled": true,
+      "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
     }
   },
   "disk": {
@@ -48,7 +81,13 @@
   },
   "notifications": {
     "certificates": {
-      "labTestCategoryIds": ["labTestCategory-COVID"]
+      "labTestCategoryIds": [
+        "labTestCategory-COVID"
+      ]
     }
-  }
+  },
+  "validateQuestionConfigs": {
+    "enabled": true
+  },
+  "countryTimeZone": "Pacific/Auckland"
 }

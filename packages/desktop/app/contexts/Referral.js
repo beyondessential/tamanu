@@ -27,7 +27,6 @@ export const ReferralProvider = ({ children }) => {
     const data = await api.get(`referral/${referralId}`);
     setReferral({ ...data });
     setIsLoadingReferral(false);
-    window.referral = referral;
   };
 
   const writeReferral = async (referralId, data) => {

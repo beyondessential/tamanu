@@ -1,5 +1,5 @@
 import { inRange } from 'lodash';
-
+import { isDate, formatISO9075 } from 'date-fns';
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
 
 export const FieldTypes = {
@@ -10,6 +10,7 @@ export const FieldTypes = {
   MULTI_SELECT: 'MultiSelect',
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
+  DATE_TIME: 'DateTime',
   SUBMISSION_DATE: 'SubmissionDate',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
@@ -35,7 +36,7 @@ export const getStringValue = (type: string, value: any): string => {
 
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
-      return value && value.toISOString();
+      return value && formatISO9075(value);
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
       if (typeof value === 'string') return value;
@@ -103,10 +104,7 @@ function compareData(dataType: string, expected: string, given: any): boolean {
  * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
  */
 function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents): boolean {
-  const [
-    elementCode = '',
-    expectedAnswer = '',
-  ] = visibilityCriteria.split(/\s*:\s*/);
+  const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
 
   let givenAnswer = values[elementCode] || '';
   if (givenAnswer.toLowerCase) {
@@ -155,8 +153,8 @@ export function checkVisibilityCriteria(
       return true;
     }
 
-    const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]): boolean => {
-      const value = values[questionId];
+    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
+      const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -168,9 +166,9 @@ export function checkVisibilityCriteria(
         }
       }
 
-      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionId);
+      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
       if (matchingComponent?.dataElement?.type === DataElementType.MultiSelect) {
-        const givenValues = values[questionId].split(', ');
+        const givenValues = values[questionCode].split(', ');
         return givenValues.includes(answersEnablingFollowUp);
       }
 

@@ -1,14 +1,14 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { WebRemote } from '../../../sync';
+import { CentralServerConnection } from '../../../sync';
 
 export const patientProfilePicture = express.Router();
 
 patientProfilePicture.get(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {
-    const { params } = req;
+    const { params, deviceId } = req;
 
     // what we want is:
     // - the answer body
@@ -51,9 +51,9 @@ patientProfilePicture.get(
     // the body of a ProfilePhoto survey answer is an attachment id
     const attachmentId = result[0].body;
 
-    // load the attachment from the remote
-    const remote = new WebRemote();
-    const response = await remote.fetch(`attachment/${attachmentId}?base64=true`, {
+    // load the attachment from the central server
+    const centralServer = new CentralServerConnection({ deviceId });
+    const response = await centralServer.fetch(`attachment/${attachmentId}?base64=true`, {
       method: 'GET',
     });
 

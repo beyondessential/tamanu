@@ -4,6 +4,7 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
+import { formatISO } from 'date-fns';
 
 export const LAB_CATEGORY_ID = 'labTestCategory-COVID';
 export const LAB_METHOD_ID = 'labTestMethod-SWAB';
@@ -45,9 +46,9 @@ export async function createLabTests(models) {
   }
 }
 
-export async function createCovidTestForPatient(models, patient, testDate, testOverrides) {
+export async function createCovidTestForPatient(models, patient, testDate, testOverrides, requestOverrides = {}) {
   if (!testDate) {
-    testDate = new Date().toISOString();
+    testDate = formatISO(new Date(), { representation: 'date' });
   }
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
@@ -57,6 +58,7 @@ export async function createCovidTestForPatient(models, patient, testDate, testO
     patientId: patient.id,
     requestedDate: testDate,
     encounterId: encounter.id,
+    ...requestOverrides,
   });
   const labRequest = await models.LabRequest.create(labRequestData);
   const labTest = await models.LabTest.create({

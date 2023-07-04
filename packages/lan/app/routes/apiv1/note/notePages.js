@@ -1,9 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError, ForbiddenError } from 'shared/errors';
-import { NOTE_RECORD_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 
 import { noteItems } from './noteItems';
+import { checkNotePermission } from '../../../utils/checkNotePermission';
 
 const notePageRoute = express.Router();
 export { notePageRoute as notePages };
@@ -16,12 +17,9 @@ function canModifyNote(notePage) {
 notePageRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Note');
-
     const { models, body: noteData } = req;
 
-    const owner = await models[noteData.recordType].findByPk(noteData.recordId);
-    req.checkPermission('write', owner);
+    await checkNotePermission(req, noteData, 'create');
 
     const notePage = await models.NotePage.create({
       recordType: noteData.recordType,
@@ -45,8 +43,6 @@ notePageRoute.post(
 notePageRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Note');
-
     const { models, params } = req;
     const notePageId = params.id;
     const notePage = await models.NotePage.findOne({
@@ -66,11 +62,10 @@ notePageRoute.get(
           ],
         },
       ],
-      where: { id: notePageId },
+      where: { id: notePageId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('write', owner);
+    await checkNotePermission(req, notePage, 'read');
 
     res.send(notePage);
   }),
@@ -92,7 +87,7 @@ notePageRoute.put(
           ],
         },
       ],
-      where: { id: params.id },
+      where: { id: params.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
     if (!editedNotePage) {
@@ -119,7 +114,9 @@ notePageRoute.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const notePageToDelete = await models.NotePage.findByPk(req.params.id);
+    const notePageToDelete = await models.NotePage.findOne({
+      where: { id: req.params.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
 
     if (!notePageToDelete) {
       throw new NotFoundError();
@@ -131,16 +128,7 @@ notePageRoute.delete(
 
     req.checkPermission('write', notePageToDelete.recordType);
 
-    await req.models.NoteItem.destroy({
-      where: {
-        notePageId: req.params.id,
-      },
-    });
-    await req.models.NotePage.destroy({
-      where: {
-        id: req.params.id,
-      },
-    });
+    await notePageToDelete.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
 
     res.send({});
   }),

@@ -1,3 +1,4 @@
+import { LabTestPanel } from '~/models/LabTestPanel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
@@ -17,11 +18,13 @@ export interface ILabTestType {
   maleMax?: number;
   femaleMin?: number;
   femaleMax?: number;
-  rangeText?:string;
-  resultType? : LabTestResultType;
+  rangeText?: string;
+  resultType?: LabTestResultType;
   options?: string;
 
   labTestCategory: IReferenceData;
   labTestCategoryId: string;
   visibilityStatus: VisibilityStatus.Current,
+
+  labTestPanels?: LabTestPanel[];
 }

@@ -1,4 +1,4 @@
-import { differenceInWeeks } from 'date-fns';
+import { differenceInWeeks, parseISO } from 'date-fns';
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
@@ -10,10 +10,11 @@ export enum VaccineStatus {
   UPCOMING = 'UPCOMING',
   OVERDUE = 'OVERDUE',
   RECORDED_IN_ERROR = 'RECORDED_IN_ERROR',
+  HISTORICAL = 'HISTORICAL',
 }
 
 export function getWeeksFromDate(date: string): number {
-  return differenceInWeeks(new Date(), new Date(date));
+  return differenceInWeeks(new Date(), parseISO(date));
 }
 
 type VaccineStatusMessage = {
@@ -28,7 +29,9 @@ function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessa
   if (weeksUntilDue < -4) {
     return {
       status: VaccineStatus.MISSED,
-      warningMessage: `Patient has missed this vaccine by ${Math.abs(weeksUntilDue)} weeks, please refer to the catchup schedule.`,
+      warningMessage: `Patient has missed this vaccine by ${Math.abs(
+        weeksUntilDue,
+      )} weeks, please refer to the catchup schedule.`,
     };
   }
   if (weeksUntilDue < 0) {
@@ -79,23 +82,26 @@ export function getVaccineStatus(
   administeredVaccines,
 ): VaccineStatusMessage {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue, index, vaccine: drug } = scheduledVaccine;
-  const previouslyAdministeredVaccine = administeredVaccines
-  && administeredVaccines.find(vaccine => {
-    const previousVaccine = vaccine.scheduledVaccine.index === index - 1;
-    const matchingDrug = vaccine.scheduledVaccine.vaccine.id === drug.id;
+  const previouslyAdministeredVaccine =
+    administeredVaccines &&
+    administeredVaccines.find(vaccine => {
+      const previousVaccine = vaccine.scheduledVaccine.index === index - 1;
+      const matchingDrug = vaccine.scheduledVaccine.vaccine.id === drug.id;
 
-    return previousVaccine && matchingDrug && weeksFromLastVaccinationDue;
-  });
+      return previousVaccine && matchingDrug && weeksFromLastVaccinationDue;
+    });
   const weeksUntilDue = weeksFromBirthDue - getWeeksFromDate(patient.dateOfBirth);
   // returns NaN if previouslyAdministeredVaccine is null, 0 if weeksFromLastVaccinationDue is null,
   // or the amount of weeks until the amount of weeks required between vaccines has passed.
-  const weeksUntilGapPeriodPassed = weeksFromLastVaccinationDue
-                                    - getWeeksFromDate(previouslyAdministeredVaccine?.date);
+  const weeksUntilGapPeriodPassed =
+    weeksFromLastVaccinationDue - getWeeksFromDate(previouslyAdministeredVaccine?.date);
 
   if (weeksFromBirthDue) return getVaccineStatusForWeeksFromBirthDue(weeksUntilDue);
   if (weeksFromLastVaccinationDue) {
     return getVaccineStatusForWeeksFromLastVaccinationDue(
-      weeksUntilGapPeriodPassed, previouslyAdministeredVaccine, index,
+      weeksUntilGapPeriodPassed,
+      previouslyAdministeredVaccine,
+      index,
     );
   }
 
@@ -108,7 +114,9 @@ const generators = {
 };
 
 function createIdGenerator(format): () => {} {
-  const generatorPattern = Array.from(format).map((char: string) => generators[char] || ((): string => ''));
+  const generatorPattern = Array.from(format).map(
+    (char: string) => generators[char] || ((): string => ''),
+  );
 
   return (): string => generatorPattern.map(generator => generator()).join('');
 }

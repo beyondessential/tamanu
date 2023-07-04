@@ -1,0 +1,92 @@
+{
+  "root": true,
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "@beyondessential/eslint-config-beyondessential"
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [
+          ".json",
+          ".ts"
+        ]
+      }
+    }
+  },
+  "rules": {
+    "no-shadow": "off",
+    "indent": "off",
+    "@typescript-eslint/indent": [
+      "error", 2,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "react/jsx-indent": [
+      2,
+      2
+    ],
+    "react/jsx-indent-props": "off",
+    "max-classes-per-file": "off",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "class-methods-use-this": "off",
+    "curly": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-closing-bracket-location": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-curly-newline": "off",
+    "react/prop-types": [
+      "off"
+    ],
+    "react/require-default-props": [
+      2,
+      {
+        "forbidDefaultForRequired": false,
+        "ignoreFunctionalComponents": true
+      }
+    ],
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/interface-name-prefix": "off",
+    "object-curly-newline": "off",
+    "import/no-unresolved": [
+      2,
+      {
+        "caseSensitive": true
+      }
+    ],
+    "import/no-absolute-path": "off",
+    "import/extensions": [
+      "off",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never",
+        "mjs": "never"
+      }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ForInStatement",
+        "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
+      },
+      {
+        "selector": "LabeledStatement",
+        "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
+      },
+      {
+        "selector": "WithStatement",
+        "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
+      }
+    ],
+    "lines-between-class-members": [
+      "off"
+    ],
+    "no-unused-vars": "off",
+    "consistent-return": "off",
+    "@typescript-eslint/no-unused-vars": "off"
+  }
+}

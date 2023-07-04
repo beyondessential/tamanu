@@ -55,7 +55,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const pad = await PatientAdditionalData.findOne({ where: { patientId } });
   const passport = pad?.passport;
 
-  const vaccinations = await patient.getAdministeredVaccines({
+  const { data: vaccinations } = await patient.getAdministeredVaccines({
     order: [['date', 'ASC']],
     include: [
       {
@@ -185,7 +185,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
+      ...pid(firstName, lastName, dateOfBirth, sex),
       ...pidDoc,
     },
     ve: [...vaccines.values()],
@@ -203,7 +203,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     Encounter,
   } = models;
 
-  const { country, timeZone } = await getLocalisation();
+  const { country } = await getLocalisation();
   const countryCode = country['alpha-3'];
 
   const test = await LabTest.findOne({
@@ -267,7 +267,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
+      ...pid(firstName, lastName, dateOfBirth, sex),
       ...pidDoc,
     },
     sp: {
@@ -281,7 +281,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     },
     dat: {
       sc: formatInTimeZone(request.sampleTime, 'UTC', DATE_FORMAT_RFC3339),
-      ri: formatInTimeZone(test.completedDate, 'UTC', DATE_FORMAT_RFC3339),
+      ri: formatInTimeZone(new Date(test.completedDate), 'UTC', DATE_FORMAT_RFC3339),
     },
     tr: {
       tc: METHOD_CODE[method.code] ?? method.code,
@@ -290,7 +290,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
+function pid(firstName, lastName, dob, sex) {
   const MAX_LEN = 39;
   const primary = tr(lastName);
   const secondary = tr(firstName);
@@ -305,7 +305,7 @@ function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
 
   const data = {
     n: name,
-    dob: formatInTimeZone(dateOfBirth, timeZone, DATE_FORMAT_ISODATE),
+    dob,
   };
 
   if (sex && SEX_TO_CHAR[sex]) {

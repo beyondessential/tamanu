@@ -1,3 +1,4 @@
+import config from 'config';
 import {
   createDummyPatient,
   createDummyEncounter,
@@ -7,13 +8,15 @@ import {
 } from 'shared/demoData';
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Triage', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let facility = null;
+  let emergencyDepartment = null;
   let ctx;
 
   beforeAll(async () => {
@@ -21,7 +24,19 @@ describe('Triage', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+
+    facility = await models.Facility.findOne({
+      where: { id: config.serverFacilityId },
+    });
+
+    [emergencyDepartment] = await models.Department.upsert({
+      id: 'emergency',
+      code: 'Emergency',
+      name: 'Emergency',
+      facilityId: config.serverFacilityId,
+    });
   });
+
   afterAll(() => ctx.close());
 
   it('should admit a patient to triage', async () => {
@@ -36,6 +51,31 @@ describe('Triage', () => {
 
     const createdTriage = await models.Triage.findByPk(response.body.id);
     expect(createdTriage).toBeTruthy();
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
+  });
+
+  it('should record arrival mode when admit a patient to triage', async () => {
+    const arrivalMode = await models.ReferenceData.create({
+      id: 'test-arrival-mode-id',
+      type: 'arrivalMode',
+      code: 'test-arrival-mode-id',
+      name: 'Test arrival mode',
+    });
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/v1/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        arrivalModeId: arrivalMode.id,
+      }),
+    );
+    expect(response).toHaveSucceeded();
+
+    const createdTriage = await models.Triage.findByPk(response.body.id);
+    expect(createdTriage).toBeTruthy();
+    expect(createdTriage.arrivalModeId).toEqual(arrivalMode.id);
+
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter).toBeTruthy();
   });
@@ -93,6 +133,7 @@ describe('Triage', () => {
 
     const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
       encounterType: ENCOUNTER_TYPES.EMERGENCY,
+      submittedTime: getCurrentDateTimeString(),
     });
     expect(progressResponse).toHaveSucceeded();
     const updatedTriage = await models.Triage.findByPk(createdTriage.id);
@@ -152,45 +193,76 @@ describe('Triage', () => {
     expect(createdEncounter.reasonForEncounter).toContain(secondaryReason.name);
   });
 
-  describe('listing & filtering', () => {
-    beforeAll(async () => {
-      // create a few test triages
-      const { Facility, Location } = models;
-      const fac = await Facility.create({
-        ...fake(models.Facility, { id: 'ref/facility/ba' }),
-      });
-      const { id: locationId } = await Location.create({
-        ...fake(Location),
-        facilityId: fac.id,
-      });
+  it("should use Emergency department for encounter's department", async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const createdTriage = await models.Triage.create(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+        secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+      }),
+    );
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter.departmentId).toEqual(emergencyDepartment.id);
+  });
 
+  it('should throw error when there is no Emergency department for the current facility', async () => {
+    const testFacility = await models.Facility.create({
+      ...fake(models.Facility, { id: 'testFacility' }),
+    });
+    await emergencyDepartment.update({ facilityId: testFacility.id });
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    await expect(
+      models.Triage.create(
+        await createDummyTriage(models, {
+          patientId: encounterPatient.id,
+          chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+          secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+        }),
+      ),
+    ).rejects.toThrow('Cannot find Emergency department for current facility');
+
+    await emergencyDepartment.update({ facilityId: config.serverFacilityId });
+  });
+
+  describe('Listing & filtering', () => {
+    let createTestTriage;
+
+    beforeAll(async () => {
+      await models.Triage.truncate({ cascade: true });
+
+      // create a few test triages
+      const { id: locationId } = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: facility.id,
+      });
       const triageConfigs = [
         {
           score: 1,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
+          triageTime: '2022-01-03 06:15:00',
         },
         {
           score: 2,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
+          arrivalTime: '2022-01-03 06:15:00',
         },
         {
           score: 3,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 10:15 am')),
+          arrivalTime: '2022-01-03 10:15:00',
         },
         {
           score: 3,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 9:15 am')),
+          arrivalTime: '2022-01-03 09:15:00',
         },
         {
           score: 3,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 8:15 am')),
+          arrivalTime: '2022-01-03 08:15:00',
         },
       ];
 
-      const createTriagePatient = async overrides => {
+      createTestTriage = async overrides => {
         const { Patient, Triage } = models;
         const encounterPatient = await Patient.create(await createDummyPatient(models));
-        await Triage.create(
+        return Triage.create(
           await createDummyTriage(models, {
             patientId: encounterPatient.id,
             locationId,
@@ -201,7 +273,7 @@ describe('Triage', () => {
 
       const promises = [];
       triageConfigs.forEach(c => {
-        promises.push(createTriagePatient(c));
+        promises.push(createTestTriage(c));
       });
       await Promise.all(promises);
     });
@@ -219,6 +291,18 @@ describe('Triage', () => {
       expect(results.data[2]).toHaveProperty('arrivalTime', '2022-01-03 08:15:00');
       expect(results.data[3]).toHaveProperty('arrivalTime', '2022-01-03 09:15:00');
       expect(results.data[4]).toHaveProperty('arrivalTime', '2022-01-03 10:15:00');
+    });
+
+    it('should include short stay patients in the triage list', async () => {
+      const createdTriage = await createTestTriage();
+      const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+      await createdEncounter.update({
+        reasonForEncounter: 'Test include short stay',
+        encounterType: ENCOUNTER_TYPES.EMERGENCY,
+      });
+      const response = await app.get('/v1/triage');
+
+      expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
     });
 
     test.todo('should get a list of all triages with relevant attached data');
