@@ -47,7 +47,7 @@ export const PatientDetailPrintout = React.memo(
         </ColumnContainer>
         <ColumnContainer>
           <LocalisedLabel name="villageName">{villageName}</LocalisedLabel>
-          <LocalisedLabel path="fields.patientDisplayId.shortLabel">{displayId}</LocalisedLabel>
+          <LocalisedLabel path="fields.displayId.shortLabel">{displayId}</LocalisedLabel>
           <PatientBarcode patient={patient} barWidth={2} barHeight={60} margin={0} />
         </ColumnContainer>
       </RowContainer>

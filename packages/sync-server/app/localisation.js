@@ -35,7 +35,7 @@ const unhideableFieldSchema = yup
 
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
-  'patientDisplayId',
+  'displayId',
   'firstName',
   'lastName',
   'dateOfBirth',

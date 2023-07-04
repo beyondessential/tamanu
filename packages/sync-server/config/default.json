@@ -300,7 +300,7 @@
           "shortLabel": "Sync",
           "longLabel": "Marked for sync"
         },
-        "patientDisplayId": {
+        "displayId": {
           "shortLabel": "NHN",
           "longLabel": "National Health Number",
           "pattern": "[\\s\\S]*"

@@ -175,7 +175,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </h4>
         <h4>
           <Label>
-            <LocalisedText path="fields.patientDisplayId.shortLabel" />:{' '}
+            <LocalisedText path="fields.displayId.shortLabel" />:{' '}
           </Label>
           <IdValue>{patient.displayId}</IdValue>
         </h4>
