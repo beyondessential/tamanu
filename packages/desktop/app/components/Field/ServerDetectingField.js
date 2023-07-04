@@ -20,12 +20,9 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
   const attemptServerDetection = useCallback(async () => {
     setStatusMessage('Detecting server, please wait...');
     try {
-      const serverDetails = await discoverServer();
-      console.log(serverDetails);
-      if (!serverDetails) {
-        setStatusMessage('Could not detect a server. Click retry or enter manually');
-        return;
-      }
+      // TODO(web)
+      setStatusMessage('Could not detect a server. Click retry or enter manually');
+      return;
 
       const { protocol, address, port } = serverDetails[0];
       const host = `${protocol}://${address}:${port}`;
