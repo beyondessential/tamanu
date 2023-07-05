@@ -87,6 +87,31 @@ describe('Labs', () => {
     }
   });
 
+  it('should record a lab request with a note', async () => {
+    const data = await randomLabRequest(models, {
+      patientId,
+    });
+    const content = chance.string();
+
+    const response = await app.post('/v1/labRequest').send({
+      ...data,
+      note: {
+        date: chance.date(),
+        content,
+      }
+    });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
+      include: 'notePages'
+    });
+    expect(labRequest).toBeTruthy();
+
+    expect(labRequest.notePages).toHaveLength(1);
+    const note = await labRequest.notePages[0].getNoteItems();
+    expect(note[0]).toHaveProperty('content', content);
+  });
+
   it('should record a lab request with a Lab Test Panel', async () => {
     const labTestPanel = await models.LabTestPanel.create({
       name: 'Demo test panel',
