@@ -32,9 +32,6 @@ describe('Labs', () => {
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
-  beforeEach(async () => {
-    await models.LabRequest.truncate({ cascade: true, force: true });
-  });
 
   it('should record a lab request', async () => {
     const labRequest = await randomLabRequest(models, {
@@ -289,7 +286,7 @@ describe('Labs', () => {
       });
     };
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       // Because of the high number of lab requests
       // the endpoint pagination doesn't return the expected results.
       await models.LabRequest.truncate({ cascade: true, force: true });
