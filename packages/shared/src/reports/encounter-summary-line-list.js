@@ -74,12 +74,11 @@ with
         concat(
           'Note type: ', note_type,
           ', Content: ', "content",
-          ', Note date: ', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+          ', Note date: ', to_char(n."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ),
         '; '
       ) aggregated_notes
-    from note_pages np
-    join note_items ni on ni.note_page_id = np.id
+    from notes n
     group by record_id
   ),
   lab_test_info as (
@@ -210,8 +209,7 @@ with
           'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ) order by ni.date asc
       ) "Notes"
-    from note_pages np
-    join note_items ni on ni.note_page_id = np.id
+    from notes n
     where note_type != 'system'
     group by record_id
   ),
@@ -221,19 +219,18 @@ with
       matched_vals[1] change_type,
       matched_vals[2] "from",
       matched_vals[3] "to",
-      ni.date,
-      ni.id
-    from note_pages np
-    join note_items ni on ni.note_page_id = np.id
+      n.date,
+      n.id
+    from notes n
     join (
       select
         id,
         regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
-      from note_items
+      from notes
     ) matched_vals
-    on matched_vals.id = ni.id 
+    on matched_vals.id = n.id 
     where note_type = 'system'
-    and ni.content ~ 'Changed (.*) from (.*) to (.*)'
+    and n.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
   first_from_table as (
     select

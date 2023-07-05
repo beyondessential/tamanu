@@ -46,9 +46,9 @@ export class Triage extends Model {
       as: 'arrivalMode',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,

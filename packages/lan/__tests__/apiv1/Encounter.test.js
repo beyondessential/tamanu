@@ -118,16 +118,16 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
     await Promise.all([
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 1'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 2'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 3'),
-      models.NotePage.createForRecord(otherEncounter.id, 'Encounter', 'treatmentPlan', 'Fail'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 1'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 2'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 3'),
+      models.Note.createForRecord(otherEncounter.id, 'Encounter', 'treatmentPlan', 'Fail'),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notePages`);
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
-    expect(result.body.data.every(x => x.noteItems[0].content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
   });
 
   test.todo('should get a list of procedures');
@@ -346,10 +346,8 @@ describe('Encounter', () => {
         })),
       });
 
-      const notePage = await labRequest1.createNotePage({
+      await labRequest1.createNote({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      });
-      await notePage.createNoteItem({
         content: 'Testing lab request note',
         authorId: app.user.id,
       });
@@ -361,7 +359,7 @@ describe('Encounter', () => {
         data: expect.any(Array),
       });
       expect(labRequest1.id).toEqual(result.body.data[0].id);
-      expect(result.body.data[0].notePages).not.toBeDefined();
+      expect(result.body.data[0].notes).not.toBeDefined();
     });
 
     it('should get a list of lab requests including associated note pages if specified in query parameter', async () => {
@@ -378,24 +376,20 @@ describe('Encounter', () => {
         })),
       });
 
-      const notePage = await labRequest1.createNotePage({
+      const note = await labRequest1.createNote({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      });
-      const noteItem = await notePage.createNoteItem({
         content: 'Testing lab request note',
         authorId: app.user.id,
       });
 
-      const result = await app.get(
-        `/v1/encounter/${encounter.id}/labRequests?includeNotePages=true`,
-      );
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests?includeNotes=true`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         count: 1,
         data: expect.any(Array),
       });
       expect(labRequest1.id).toEqual(result.body.data[0].id);
-      expect(result.body.data[0].notePages[0].noteItems[0].content).toEqual(noteItem.content);
+      expect(result.body.data[0].notes[0].content).toEqual(note.content);
     });
   });
 
@@ -605,11 +599,12 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x => x.content.includes('triage') && x.content.includes('admission');
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(
+          notes[0].content.includes('triage') && notes[0].content.includes('admission'),
+        ).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should fail to change encounter type to an invalid type', async () => {
@@ -624,8 +619,8 @@ describe('Encounter', () => {
         });
         expect(result).toHaveRequestError();
 
-        const notePages = await v.getNotePages();
-        expect(notePages).toHaveLength(0);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
       });
 
       it('should change encounter department and add a note', async () => {
@@ -642,12 +637,13 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x =>
-          x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(
+          notes[0].content.includes(departments[0].name) &&
+            notes[0].content.includes(departments[1].name),
+        ).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should change encounter location and add a note', async () => {
@@ -664,12 +660,13 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x =>
-          x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(
+          notes[0].content.includes(fromLocation.name) &&
+            notes[0].content.includes(toLocation.name),
+        ).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should include comma separated location_group and location name in created note on updating encounter location', async () => {
@@ -701,11 +698,10 @@ describe('Encounter', () => {
           locationId: location2.id,
         });
 
-        const [notePage] = await encounter.getNotePages();
-        const [noteItem] = await notePage.getNoteItems();
+        const [notes] = await encounter.getNotes();
 
         expect(result).toHaveSucceeded();
-        expect(noteItem.content).toEqual(
+        expect(notes.content).toEqual(
           `Changed location from ${locationGroup.name}, ${location.name} to ${locationGroup2.name}, ${location2.name}`,
         );
       });
@@ -730,12 +726,12 @@ describe('Encounter', () => {
         });
         expect(updatedEncounter.examinerId).toEqual(toClinician.id);
 
-        const notePages = await existingEncounter.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        expect(noteItems[0].content).toEqual(
+        const notes = await existingEncounter.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(notes[0].content).toEqual(
           `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
         );
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should discharge a patient', async () => {
@@ -770,11 +766,10 @@ describe('Encounter', () => {
           dischargerId: app.user.id,
         });
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x => x.content.includes('Discharged');
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(notes[0].content.includes('Discharged')).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should only update medications marked for discharge', async () => {
@@ -867,8 +862,8 @@ describe('Encounter', () => {
         expect(updatedEncounter).toHaveProperty('encounterType', 'clinic');
         expect(updatedEncounter).toHaveProperty('locationId', fromLocation.id);
 
-        const notePages = await v.getNotePages();
-        expect(notePages).toHaveLength(0);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
       });
 
       test.todo('should not admit a patient who is already in an encounter');

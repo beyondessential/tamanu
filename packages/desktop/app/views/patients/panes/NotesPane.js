@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NotePageModal } from '../../../components/NotePageModal';
-import { NotePageTableWithPermission } from '../../../components/NotePageTable';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+// import { NotePageTableWithPermission } from '../../../components/NotePageTable';
+// import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 
-export const NotesPane = React.memo(({ encounter, readonly }) => {
+export const NotesPane = React.memo(({ encounter }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { loadEncounter } = useEncounter();
 
@@ -21,7 +21,10 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           await loadEncounter(encounter.id);
         }}
       />
-      <TableButtonRow variant="small">
+      {
+        // TODO: Commented out old UI components for NotePages
+        // Will be implemented with new components later
+        /* <TableButtonRow variant="small">
         <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}
@@ -30,8 +33,9 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         >
           New note
         </ButtonWithPermissionCheck>
-      </TableButtonRow>
-      <NotePageTableWithPermission encounterId={encounter.id} verb="write" noun="EncounterNote" />
+      </TableButtonRow> */
+      }
+      {/* <NotePageTableWithPermission encounterId={encounter.id} verb="write" noun="EncounterNote" /> */}
     </TabPane>
   );
 });
