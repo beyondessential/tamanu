@@ -287,6 +287,9 @@ describe('Labs', () => {
     };
 
     beforeAll(async () => {
+      // Because of the high number of lab requests
+      // the endpoint pagination doesn't return the expected results.
+      await models.LabRequest.truncate({ cascade: true, force: true });
       await makeRequestAtFacility(config.serverFacilityId);
       await makeRequestAtFacility(config.serverFacilityId);
       await makeRequestAtFacility(config.serverFacilityId);
