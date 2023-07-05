@@ -1,10 +1,5 @@
 import { fake } from 'shared/test-helpers';
-import { REPORT_STATUSES, REPORT_DEFAULT_DATE_RANGES } from 'shared/constants';
-import {
-  setHardcodedPermissionsUseForTestsOnly,
-  unsetUseHardcodedPermissionsUseForTestsOnly,
-} from 'shared/permissions/rolesToPermissions';
-import { createTestContext } from '../utilities';
+import { createTestContext, disableHardcodedPermissionsForSuite } from '../utilities';
 import { testReportPermissions, setupReportPermissionsTest } from './reportsApiCommon';
 
 const reportsUtils = {
@@ -21,6 +16,7 @@ describe('Reports', () => {
     baseApp = ctx.baseApp;
   });
   afterAll(() => ctx.close());
+  disableHardcodedPermissionsForSuite();
 
   describe('database defined reports', () => {
     let adminApp = null;
@@ -72,14 +68,7 @@ describe('Reports', () => {
   });
 
   describe('list', () => {
-    beforeAll(async () => {
-      setHardcodedPermissionsUseForTestsOnly(false);
-    });
-
-    afterAll(() => {
-      unsetUseHardcodedPermissionsUseForTestsOnly();
-    });
-
+    disableHardcodedPermissionsForSuite();
     it('should get permitted db and builtin reports', async () => {
       // Arrange
       const { app, permittedReports } = await setupReportPermissionsTest(baseApp, ctx.models);
@@ -90,9 +79,9 @@ describe('Reports', () => {
       // Assert
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(permittedReports.length);
-      expect(res.body.map(r => r.id).sort()).toEqual(permittedReports.map(
-        r => `${r.id}_version-1`,
-      ).sort());
+      expect(res.body.map(r => r.id).sort()).toEqual(
+        permittedReports.map(r => `${r.id}_version-1`).sort(),
+      );
     });
   });
 
@@ -104,23 +93,21 @@ describe('Reports', () => {
   });
 
   describe('post', () => {
-    let app = null;
-    beforeAll(async () => {
-      app = await baseApp.asRole('practitioner');
-    });
-
+    disableHardcodedPermissionsForSuite();
     it('should reject reading a report with insufficient permissions', async () => {
-      const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post('/v1/reports/incomplete-referrals', {});
+      const app = await baseApp.asRole('base');
+      const result = await app.post('/v1/reports/incomplete-referrals', {});
       expect(result).toBeForbidden();
     });
     it('should fail with 404 and message if report module is not found', async () => {
       jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
+      const app = await baseApp.asRole('practitioner');
       const res = await app.post('/v1/reports/invalid-report', {});
       expect(res).toHaveStatus(404);
       expect(res.body).toMatchObject({ error: { message: 'Report module not found' } });
     });
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
+      const app = await baseApp.asNewRole([['run', 'StaticReport', 'incomplete-referrals']]);
       const res = await app.post('/v1/reports/incomplete-referrals').send({
         parameters: {
           fromDate: '2020-01-01',

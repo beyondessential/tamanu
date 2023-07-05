@@ -22,6 +22,7 @@ import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -119,7 +120,7 @@ export const PatientView = () => {
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
   return (
-    <>
+    <PatientSearchParametersProvider>
       <PatientAlert alerts={patient.alerts} />
       <StyledDisplayTabs
         tabs={visibleTabs}
@@ -130,6 +131,6 @@ export const PatientView = () => {
         birthData={birthData}
         disabled={disabled}
       />
-    </>
+    </PatientSearchParametersProvider>
   );
 };

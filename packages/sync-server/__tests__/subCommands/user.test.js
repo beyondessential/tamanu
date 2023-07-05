@@ -1,12 +1,9 @@
-import Chance from 'chance';
 import bcrypt from 'bcrypt';
 
-import { fake } from 'shared/test-helpers/fake';
+import { fake, chance } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 import { changePassword } from '../../app/subCommands/user';
-
-const chance = new Chance();
 
 // mock 'read' and provide implementation
 jest.mock('read');

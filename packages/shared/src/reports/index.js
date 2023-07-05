@@ -7,7 +7,6 @@ import * as covidVaccineList from './covid-module/covid-vaccine-list';
 import {
   generateCovidVaccineSummaryDose1Report,
   generateCovidVaccineSummaryDose2Report,
-  permission as covidVaccineSummaryPermission,
 } from './covid-module/covid-vaccine-summary';
 import * as aefi from './aefi';
 import * as samoaAefi from './samoa-aefi';
@@ -62,12 +61,10 @@ export async function getReportModule(reportId, models) {
       return covidVaccineList;
     case 'covid-vaccine-summary-dose1':
       return {
-        permission: covidVaccineSummaryPermission,
         dataGenerator: generateCovidVaccineSummaryDose1Report,
       };
     case 'covid-vaccine-summary-dose2':
       return {
-        permission: covidVaccineSummaryPermission,
         dataGenerator: generateCovidVaccineSummaryDose2Report,
       };
     case 'aefi':

@@ -179,5 +179,3 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportData = encounters.map(transformDataPoint);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
-
-export const permission = 'Encounter';
