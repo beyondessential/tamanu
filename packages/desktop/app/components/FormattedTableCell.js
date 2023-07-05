@@ -33,7 +33,7 @@ function round(float, { rounding } = {}) {
 }
 
 function getTooltip(float, config = {}, visibilityCriteria = {}) {
-  const { unit } = config;
+  const { unit = '' } = config;
   const { normalRange } = visibilityCriteria;
   if (normalRange && float < normalRange.min) {
     return {
