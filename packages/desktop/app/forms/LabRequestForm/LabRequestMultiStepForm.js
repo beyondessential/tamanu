@@ -33,7 +33,7 @@ export const LabRequestMultiStepForm = ({
       onSubmit={onSubmit}
       isSubmitting={isSubmitting}
       initialValues={{
-        requestFormType: LAB_REQUEST_FORM_TYPES.PANEL,
+        requestFormType: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),

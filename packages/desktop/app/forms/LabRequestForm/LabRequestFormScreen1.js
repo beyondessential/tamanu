@@ -56,7 +56,7 @@ const OPTIONS = {
   },
 };
 
-const useLabRequestFormTypeOptions = setFieldValue => {
+const useLabRequestFormTypeOptions = () => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { onlyAllowLabPanels } = getLocalisation('features') || {};
@@ -64,7 +64,7 @@ const useLabRequestFormTypeOptions = setFieldValue => {
   const { data, isSuccess } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
-  const arePanels = data?.length > 0;
+  const arePanels = isSuccess && data?.length > 0;
   const options = [];
   if (arePanels) {
     options.push(OPTIONS.PANEL);
@@ -72,14 +72,6 @@ const useLabRequestFormTypeOptions = setFieldValue => {
   if (!onlyAllowLabPanels) {
     options.push(OPTIONS.INDIVIDUAL);
   }
-
-  const defaultOption = options.length > 0 ? options[0].value : undefined;
-
-  useEffect(() => {
-    if (isSuccess) {
-      setFieldValue('requestFormType', defaultOption);
-    }
-  }, [defaultOption, setFieldValue, isSuccess]);
 
   return { options };
 };

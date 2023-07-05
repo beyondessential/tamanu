@@ -38,16 +38,20 @@ export const MultiStepForm = ({
 
   const next = values => {
     setSnapshot(values);
-    const nextStep = stepNumber + 1;
+    const nextStep = Math.min(stepNumber + 1, totalSteps - 1);
     if (onChangeStep) {
       onChangeStep(nextStep, values);
     }
-    setStepNumber(Math.min(nextStep, totalSteps - 1));
+    setStepNumber(nextStep);
   };
 
   const previous = values => {
     setSnapshot(values);
-    setStepNumber(Math.max(stepNumber - 1, 0));
+    const prevStep = Math.max(stepNumber - 1, 0);
+    if (onChangeStep) {
+      onChangeStep(prevStep, values);
+    }
+    setStepNumber(prevStep);
   };
 
   const handleSubmit = async (values, bag) => {
