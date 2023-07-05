@@ -15,13 +15,6 @@ import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
-const VALID_LAB_REQUEST_STATUSES = [
-  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-  LAB_REQUEST_STATUSES.RESULTS_PENDING,
-  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-  LAB_REQUEST_STATUSES.VERIFIED,
-  LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-];
 
 describe('Labs', () => {
   let patientId = null;
@@ -265,6 +258,13 @@ describe('Labs', () => {
   });
 
   describe('Filtering by allFacilities', () => {
+    const VALID_LAB_REQUEST_STATUSES = [
+      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      LAB_REQUEST_STATUSES.RESULTS_PENDING,
+      LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+      LAB_REQUEST_STATUSES.VERIFIED,
+      LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+    ];
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
       const location = await models.Location.create({
