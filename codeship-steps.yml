@@ -1,7 +1,7 @@
 - name: tamanu deployment
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
-  tag: ^(main$|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$|deploy-nauru-demo$)
+  tag: ^(uatrispacs-|uatpmi-)
   steps:
     - name: copy files
       service: build
@@ -14,22 +14,15 @@
       service: build
       type: parallel
       steps:
-        - name: for desktop and lan
+        - name: for lan
           exclude: ^deploy-meta$
           type: serial
           steps:
-            - name: for desktop installer
-              exclude: ^deploy-meta$
-              command: ./scripts/build_desktop.sh build-only
-            - name: for lan
-              exclude: ^deploy-meta$
-              type: serial
-              steps:
-                - name: build linux release
-                  command: ./scripts/build_package_release.sh lan
-                - name: package windows release
-                  tag: ^(main$|release/|ci-)
-                  command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
+            - name: build linux release
+              command: ./scripts/build_package_release.sh lan
+            - name: package windows release
+              tag: ^(master$|dev$|staging-|ci-)
+              command: ./scripts/build_server_zip.sh lan ./deploy
         - name: for sync release
           exclude: ^deploy-meta$
           type: serial
@@ -39,9 +32,6 @@
             - name: package windows release
               tag: ^(main$|release/|ci-)
               command: ./scripts/build_server_zip.sh sync-server ./deploy
-        - name: for meta release
-          tag: ^(main$|deploy-meta$|ci-)
-          command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
       type: parallel
       steps:
@@ -56,89 +46,27 @@
           type: serial
           service: deploy
           steps:
-            - name: onto fiji vps uat
-              tag: ^uat-
-              command: ./scripts/deploy_sync.sh uat-fiji-vps tamanu-sync-server-uat-fiji-vps
             - name: onto rispacs uat
               tag: ^uatrispacs-
               command: ./scripts/deploy_sync.sh uatrispacs tamanu-sync-server-uat-rispacs-16
             - name: onto pmi uat
               tag: ^uatpmi-
               command: ./scripts/deploy_sync.sh uatpmi tamanu-central-server-uat-pmi
-            - name: onto nauru demo
-              tag: ^(deploy-nauru-demo$)
-              command: ./scripts/deploy_sync.sh nauru-demo tamanu-central-server-nauru-demo
-            - name: onto klaus
-              tag: ^(klaus-)
-              command: ./scripts/deploy_sync.sh klaus tamanu-central-server-klaus
-            - name: onto sima
-              tag: ^(sima-)
-              command: ./scripts/deploy_sync.sh sima tamanu-central-server-sima
-            - name: onto sepi
-              tag: ^(sepi-)
-              command: ./scripts/deploy_sync.sh sepi tamanu-central-server-sepi
-            - name: onto da
-              tag: ^(da-)
-              command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: the lan server
           exclude: ^(release-desktop-|deploy-meta$)
           type: serial
           service: deploy
           steps:
-            - name: onto klaus A
-              tag: ^(klaus-)
-              command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-a
-            - name: onto klaus B
-              tag: ^(klaus-)
-              command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-b
-            - name: onto sima A
-              tag: ^(sima-)
-              command: ./scripts/deploy_lan.sh sima tamanu-facility-server-sima-a
-            - name: onto sepi A
-              tag: ^(sepi-)
-              command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
-            - name: onto sepi B
-              tag: ^(sepi-)
-              command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-b
-            - name: onto da A
-              tag: ^(da-)
-              command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
-            - name: onto da B
-              tag: ^(da-)
-              command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-b
-            - name: onto fiji vps uat
-              tag: ^uat-
-              command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
             - name: onto rispacs uat
               tag: ^uatrispacs-
               command: ./scripts/deploy_lan.sh uatrispacs tamanu-facility-server-rispacs
             - name: onto pmi uat
               tag: ^uatpmi-
               command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi
-            - name: onto pmi uat (Lautoka)
+            - name: onto pmi uat lautoka
               tag: ^uatpmi-
               command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi-lautoka
-            - name: onto nauru demo
-              tag: ^(deploy-nauru-demo$)
-              command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo
-            - name: onto nauru demo 2
-              tag: ^(deploy-nauru-demo$)
-              command: ./scripts/deploy_lan.sh nauru-demo tamanu-facility-server-nauru-demo-2
-        - name: the meta server
-          service: deploy
-          type: serial
-          steps:
-            - name: onto dev
-              tag: ^(main$|ci-)
-              command: ./scripts/deploy_meta.sh dev tamanu-meta-server-dev-16
-            - name: onto prod
-              tag: ^(deploy-meta)$
-              command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
         - name: upload all artefacts to s3
           exclude: ^(release-desktop-|deploy-meta$)
           service: deploy
           command: ./scripts/push.sh
-        - name: deploy desktop installer to auto-update channel
-          service: build
-          tag: ^(release-desktop-)
-          command: ./scripts/build_desktop.sh build-and-release
