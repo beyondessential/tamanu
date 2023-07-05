@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
@@ -100,7 +100,7 @@ export const LabRequestSummaryPane = React.memo(
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
     });
-
+    const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
 
@@ -133,7 +133,11 @@ export const LabRequestSummaryPane = React.memo(
           />
         </Card>
         <Actions>
-          <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.LABEL_PRINT)}>
+          <OutlinedButton
+            size="small"
+            onClick={() => setIsOpen(MODALS.LABEL_PRINT)}
+            disabled={noRowSelected}
+          >
             Print label
           </OutlinedButton>
           <LabRequestPrintLabelModal
@@ -142,7 +146,7 @@ export const LabRequestSummaryPane = React.memo(
             onClose={() => setIsOpen(false)}
           />
           <OutlinedButton
-            disabled={areNotesLoading}
+            disabled={areNotesLoading || noRowSelected}
             size="small"
             onClick={() => setIsOpen(MODALS.PRINT)}
           >

@@ -15,14 +15,6 @@ import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
-const VALID_LAB_REQUEST_STATUSES = [
-  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-  LAB_REQUEST_STATUSES.RESULTS_PENDING,
-  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-  LAB_REQUEST_STATUSES.VERIFIED,
-  LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-  LAB_REQUEST_STATUSES.PUBLISHED,
-];
 
 describe('Labs', () => {
   let patientId = null;
@@ -85,6 +77,31 @@ describe('Labs', () => {
       expect(createdTests).toHaveLength(requests[i].labTestTypeIds.length);
       expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
     }
+  });
+
+  it('should record a lab request with a note', async () => {
+    const data = await randomLabRequest(models, {
+      patientId,
+    });
+    const content = chance.string();
+
+    const response = await app.post('/v1/labRequest').send({
+      ...data,
+      note: {
+        date: chance.date(),
+        content,
+      }
+    });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
+      include: 'notePages'
+    });
+    expect(labRequest).toBeTruthy();
+
+    expect(labRequest.notePages).toHaveLength(1);
+    const note = await labRequest.notePages[0].getNoteItems();
+    expect(note[0]).toHaveProperty('content', content);
   });
 
   it('should record a lab request with a Lab Test Panel', async () => {
@@ -266,6 +283,15 @@ describe('Labs', () => {
   });
 
   describe('Filtering by allFacilities', () => {
+    // These are the only statuses returned by the listing endpoint
+    // when no specific argument is included.
+    const VALID_LISTING_LAB_REQUEST_STATUSES = [
+      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      LAB_REQUEST_STATUSES.RESULTS_PENDING,
+      LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+      LAB_REQUEST_STATUSES.VERIFIED,
+      LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+    ];
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
       const location = await models.Location.create({
@@ -281,11 +307,14 @@ describe('Labs', () => {
         ...fake(models.LabRequest),
         encounterId: encounter.id,
         requestedById: app.user.id,
-        status: chance.pickone(VALID_LAB_REQUEST_STATUSES),
+        status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
       });
     };
 
     beforeAll(async () => {
+      // Because of the high number of lab requests
+      // the endpoint pagination doesn't return the expected results.
+      await models.LabRequest.truncate({ cascade: true, force: true });
       await makeRequestAtFacility(config.serverFacilityId);
       await makeRequestAtFacility(config.serverFacilityId);
       await makeRequestAtFacility(config.serverFacilityId);

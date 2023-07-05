@@ -462,8 +462,9 @@ async function createLabRequest(
   if (note?.content) {
     const notePage = await newLabRequest.createNotePage({
       noteType: NOTE_TYPES.OTHER,
+      date: note.date,
     });
-    await notePage.createNoteItem({ content: note, authorId: user.id });
+    await notePage.createNoteItem({ ...note, authorId: user.id });
   }
   return newLabRequest;
 }
