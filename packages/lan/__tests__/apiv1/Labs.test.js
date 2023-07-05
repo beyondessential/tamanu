@@ -258,7 +258,9 @@ describe('Labs', () => {
   });
 
   describe('Filtering by allFacilities', () => {
-    const VALID_LAB_REQUEST_STATUSES = [
+    // These are the only statuses returned by the listing endpoint
+    // when no specific argument is included.
+    const VALID_LISTING_LAB_REQUEST_STATUSES = [
       LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       LAB_REQUEST_STATUSES.RESULTS_PENDING,
       LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
@@ -280,7 +282,7 @@ describe('Labs', () => {
         ...fake(models.LabRequest),
         encounterId: encounter.id,
         requestedById: app.user.id,
-        status: chance.pickone(VALID_LAB_REQUEST_STATUSES),
+        status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
       });
     };
 
