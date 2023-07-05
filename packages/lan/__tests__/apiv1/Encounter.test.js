@@ -1117,14 +1117,14 @@ describe('Encounter', () => {
           {
             responseId: 'response_id_5',
             submissionDate: formatISO9075(addHours(new Date(), -5)),
-            value: null,
+            value: null, // null value exist on the databases for historical reasons
           },
         ];
         const patientVitalSbpKey = VITALS_DATA_ELEMENT_IDS.sbp;
 
         beforeAll(async () => {
-          for (let i = 0; i < answers.length; i++) {
-            const { submissionDate, value, responseId } = answers[i];
+          for (const answer of answers) {
+            const { submissionDate, value, responseId } = answer;
             const surveyResponseAnswersBody = {
               'pde-PatientVitalsDate': submissionDate,
               [patientVitalSbpKey]: value,
@@ -1155,7 +1155,7 @@ describe('Encounter', () => {
           }
         });
 
-        it('should get all specific vital data by data element id', async () => {
+        it('should get vital data within time frame and filter out empty and null value', async () => {
           const startDateString = formatISO9075(addHours(new Date(), -4));
           const endDateString = formatISO9075(new Date());
           const expectedAnswers = answers.filter(
@@ -1189,7 +1189,7 @@ describe('Encounter', () => {
           expect(resultRecordedDate).toEqual(expectedRecordedDate);
         });
 
-        it('should get vital data within time frame', async () => {
+        it('should get vital data on the edge of time frame (equal to startdate)', async () => {
           const startDateString = answers[0].submissionDate;
           const endDateString = formatISO9075(new Date());
           const result = await app.get(
