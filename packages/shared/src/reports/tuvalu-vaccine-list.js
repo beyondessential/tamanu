@@ -79,5 +79,3 @@ export async function dataGenerator({ models }, parameters) {
   const reportData = await addSurveyDataToVaccinations(models, vaccinationData);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 }
-
-export const permission = 'PatientVaccine';
