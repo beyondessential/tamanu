@@ -60,11 +60,20 @@ describe('Labs', () => {
   });
 
   it('should record two lab requests with one test type each', async () => {
+    const categories = await models.ReferenceData.findAll({
+      where: {
+        type: 'labTestCategory',
+      },
+    });
+    const category1 = categories[0].id;
+    const category2 = categories[1].id;
     const labRequest = await randomLabRequest(models, {
       patientId,
+      categoryId: category1,
     });
     const labRequest2 = await randomLabRequest(models, {
       patientId,
+      categoryId: category2,
     });
 
     const response = await app.post('/v1/labRequest').send({
@@ -98,12 +107,12 @@ describe('Labs', () => {
       note: {
         date: chance.date(),
         content,
-      }
+      },
     });
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
-      include: 'notePages'
+      include: 'notePages',
     });
     expect(labRequest).toBeTruthy();
 
