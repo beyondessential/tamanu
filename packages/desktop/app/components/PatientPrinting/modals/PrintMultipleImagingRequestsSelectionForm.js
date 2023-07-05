@@ -21,7 +21,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
       const result = await api.get(
         `encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
         {
-          includeNotePages: 'true',
+          includeNotes: 'true',
           status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
           orderBy: 'requestedDate',
           order: 'ASC',

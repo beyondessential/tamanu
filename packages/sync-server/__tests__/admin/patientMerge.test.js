@@ -201,14 +201,14 @@ describe('Patient merge', () => {
   it('Should merge a page of notes across', async () => {
     const [keep, merge] = await makeTwoPatients();
 
-    const note = await merge.createNotePage({
+    const note = await merge.createNote({
       noteType: NOTE_TYPES.OTHER,
     });
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
     expect(updates).toEqual({
       Patient: 1,
-      NotePage: 1,
+      Note: 1,
     });
     await note.reload();
     expect(note.recordId).toEqual(keep.id);
@@ -525,18 +525,18 @@ describe('Patient merge', () => {
     });
 
     it('Should remerge a patient note', async () => {
-      const { NotePage } = models;
+      const { Note } = models;
 
       const [keep, merge] = await makeTwoPatients();
       await mergePatient(models, keep.id, merge.id);
 
-      const note = await merge.createNotePage({
-        ...fake(NotePage),
+      const note = await merge.createNote({
+        ...fake(Note),
       });
 
       const results = await maintainerTask.remergePatientRecords();
       expect(results).toEqual({
-        NotePage: 1,
+        Note: 1,
       });
 
       await note.reload();

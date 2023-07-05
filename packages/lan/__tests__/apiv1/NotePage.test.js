@@ -65,19 +65,12 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const notePage = await models.NotePage.findOne({
-        include: [
-          {
-            model: models.NoteItem,
-            as: 'noteItems',
-          },
-        ],
+      const note = await models.Note.findOne({
         where: { id: response.body.id },
       });
-      const noteItem = notePage.noteItems[0];
-      expect(noteItem.content).toEqual(content);
-      expect(notePage.recordType).toEqual('LabRequest');
-      expect(notePage.recordId).toEqual(labRequest.body[0].id);
+      expect(note.content).toEqual(content);
+      expect(note.recordType).toEqual('LabRequest');
+      expect(note.recordId).toEqual(labRequest.body[0].id);
     });
   });
 
@@ -100,20 +93,13 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const notePage = await models.NotePage.findOne({
-        include: [
-          {
-            model: models.NoteItem,
-            as: 'noteItems',
-          },
-        ],
+      const note = await models.Note.findOne({
         where: { id: response.body.id },
       });
-      const noteItem = notePage.noteItems[0];
 
-      expect(noteItem.content).toEqual(content);
-      expect(notePage.recordType).toEqual('Encounter');
-      expect(notePage.recordId).toEqual(encounter.id);
+      expect(note.content).toEqual(content);
+      expect(note.recordType).toEqual('Encounter');
+      expect(note.recordId).toEqual(encounter.id);
     });
 
     it('should not write a note on an non-existent record', async () => {
@@ -143,15 +129,14 @@ describe('Note', () => {
       });
 
       it('should forbid editing notes on a forbidden record', async () => {
-        const notePage = await models.NotePage.createForRecord(
+        const note = await models.Note.createForRecord(
           encounter.id,
           NOTE_RECORD_TYPES.ENCOUNTER,
           NOTE_TYPES.SYSTEM,
           chance.paragraph(),
         );
-        await notePage.getNoteItems();
 
-        const response = await noPermsApp.put(`/v1/notePages/${notePage.id}`).send({
+        const response = await noPermsApp.put(`/v1/notes/${note.id}`).send({
           content: 'forbidden',
         });
 
@@ -159,7 +144,7 @@ describe('Note', () => {
       });
 
       it('should forbid editing an encounter note', async () => {
-        const note = await models.NotePage.createForRecord(
+        const note = await models.Note.createForRecord(
           encounter.id,
           NOTE_RECORD_TYPES.ENCOUNTER,
           NOTE_TYPES.SYSTEM,
@@ -167,7 +152,7 @@ describe('Note', () => {
           app.user.id,
         );
 
-        const response = await app.put(`/v1/notePages/${note.id}`).send({
+        const response = await app.put(`/v1/notes/${note.id}`).send({
           content: 'updated',
         });
 
@@ -186,21 +171,20 @@ describe('Note', () => {
     });
 
     it('should allow editing a patient care plan note regardless of the author', async () => {
-      const notePage = await models.NotePage.createForRecord(
+      const note = await models.Note.createForRecord(
         patientCarePlan.id,
         NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
         NOTE_TYPES.TREATMENT_PLAN,
         chance.paragraph(),
         testUser.id,
       );
-      await notePage.getNoteItems();
-      const response = await app.put(`/v1/notePages/${notePage.id}`).send({
+      const response = await app.put(`/v1/notes/${note.id}`).send({
         content: 'updated',
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body.id).toEqual(notePage.id);
-      expect(response.body.noteItems[0].content).toEqual('updated');
+      expect(response.body.id).toEqual(note.id);
+      expect(response.body.content).toEqual('updated');
     });
   });
 });

@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { getNotePagesWithType } from '../../../utils/notePages';
+import { getNotesWithType } from '../../../utils/notes';
 import {
   FhirAnnotation,
   FhirCodeableConcept,
@@ -265,21 +265,21 @@ function labOrderDetails(upstream) {
 }
 
 function labAnnotations(upstream) {
-  return upstream.notePages.map(notePage => {
+  return upstream.notes.map(note => {
     return new FhirAnnotation({
-      time: formatFhirDate(notePage.date),
-      text: notePage.noteItems.map(noteItem => noteItem.content).join('\n\n'),
+      time: formatFhirDate(note.date),
+      text: note.content,
     });
   });
 }
 
 function imagingAnnotations(upstream) {
   // See EPI-451: imaging requests can embed notes about the area to image
-  return getNotePagesWithType(upstream.notePages, NOTE_TYPES.OTHER).map(
-    np =>
+  return getNotesWithType(upstream.notes, NOTE_TYPES.OTHER).map(
+    note =>
       new FhirAnnotation({
-        time: formatFhirDate(np.date),
-        text: np.noteItems.map(ni => ni.content).join('\n\n'),
+        time: formatFhirDate(note.date),
+        text: note.content,
       }),
   );
 }
