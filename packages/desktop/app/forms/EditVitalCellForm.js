@@ -67,7 +67,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   return (
     <LogContainer>
       <LogText>
-        {vitalLabel}: {newValue}
+        {vitalLabel}: {newValue === '' ? 'Entry deleted' : newValue}
       </LogText>
       {reasonForChange && <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>}
       <LogTextSmall>
