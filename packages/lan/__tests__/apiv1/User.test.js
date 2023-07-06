@@ -44,15 +44,10 @@ describe('User', () => {
     });
 
     it('should include role in the data returned by a successful login', async () => {
-      // Arrange
-
-      // Act
       const result = await baseApp.post('/v1/login').send({
         email: authUser.email,
         password: rawPassword,
       });
-
-      // Assert
       expect(result).toHaveSucceeded();
       expect(result.body.role).toMatchObject({
         id: authRole.id,
