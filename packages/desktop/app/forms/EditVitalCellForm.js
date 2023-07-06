@@ -4,6 +4,7 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { SelectField, Form, Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
@@ -98,7 +99,9 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     [valueName],
   );
   const handleSubmit = async data => {
-    const newShapeData = {};
+    const newShapeData = {
+      date: getCurrentDateTimeString(),
+    };
     Object.entries(data).forEach(([key, value]) => {
       if (key === valueName) newShapeData.newValue = value;
       else newShapeData[key] = value;

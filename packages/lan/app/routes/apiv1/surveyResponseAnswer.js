@@ -52,8 +52,9 @@ surveyResponseAnswer.put(
     const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
 
     await db.transaction(async () => {
-      const { newValue = '', reasonForChange } = req.body;
+      const { newValue = '', reasonForChange, date } = req.body;
       await VitalLog.create({
+        date,
         reasonForChange,
         previousValue: answerObject.body,
         newValue,
@@ -101,6 +102,7 @@ surveyResponseAnswer.put(
         );
         const newCalculatedValue = stringValue ?? '';
         await VitalLog.create({
+          date,
           reasonForChange,
           previousValue: calculatedAnswer.body,
           newValue: newCalculatedValue,
