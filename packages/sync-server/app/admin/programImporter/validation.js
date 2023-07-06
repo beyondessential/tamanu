@@ -5,10 +5,13 @@ import { ImporterMetadataError, ValidationError } from '../errors';
 
 const visualisationConfigSchema = yup.object().shape({
   yAxis: yup.object().shape({
-    graphRange: yup.object().shape({
-      min: yup.number().required(),
-      max: yup.number().required(),
-    }),
+    graphRange: yup
+      .object()
+      .shape({
+        min: yup.number().required(),
+        max: yup.number().required(),
+      })
+      .required(),
     normalRange: yup
       .object()
       .shape({
@@ -30,7 +33,8 @@ const visualisationConfigSchema = yup.object().shape({
           }
           return true;
         },
-      }),
+      })
+      .required(),
     interval: yup.number().required(),
   }),
 });
