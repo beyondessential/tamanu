@@ -76,5 +76,3 @@ export const dataGenerator = async ({ models }, parameters = {}) =>
     reportColumnTemplate,
     dateFormat: 'yyyy/MM/dd',
   });
-
-export const permission = 'LabTest';

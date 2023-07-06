@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useSuggester } from '../../../api';
-import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../components';
-import { Colors } from '../../../constants';
-
-const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
-  border-top: 1px solid ${Colors.outline};
-  padding-top: 26px;
-`;
+import { AutocompleteInput, FormGrid, Modal, ModalActionRow } from '../../../components';
 
 export const LabRequestChangePriorityModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
@@ -33,7 +26,7 @@ export const LabRequestChangePriorityModal = React.memo(
               setPriorityId(value);
             }}
           />
-          <StyledConfirmCancelRow onConfirm={updateLab} confirmText="Confirm" onCancel={onClose} />
+          <ModalActionRow confirmText="Confirm" onConfirm={updateLab} onCancel={onClose} />
         </FormGrid>
       </Modal>
     );
