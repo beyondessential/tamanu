@@ -83,7 +83,7 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
 
 export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, ...props }) => {
   const float = round(parseFloat(value), config);
-  const formattedValue = isNaN(float) ? capitalize(value) : float;
+  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
   const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
     float,
     config,
