@@ -1093,6 +1093,11 @@ describe('Encounter', () => {
       });
 
       describe('vitals data by data element id', () => {
+        const nullAnswer = {
+          responseId: 'response_id_5',
+          submissionDate: formatISO9075(addHours(new Date(), -5)),
+          value: 'null', // null value exist on the databases for historical reasons
+        };
         const answers = [
           {
             responseId: 'response_id_1',
@@ -1114,11 +1119,7 @@ describe('Encounter', () => {
             submissionDate: formatISO9075(addHours(new Date(), -4)),
             value: '',
           },
-          {
-            responseId: 'response_id_5',
-            submissionDate: formatISO9075(addHours(new Date(), -5)),
-            value: null, // null value exist on the databases for historical reasons
-          },
+          nullAnswer,
         ];
         const patientVitalSbpKey = VITALS_DATA_ELEMENT_IDS.sbp;
 
@@ -1138,6 +1139,17 @@ describe('Encounter', () => {
               answers: surveyResponseAnswersBody,
             });
           }
+
+          // Can't import null value by endpoint as it is prevented, so we have to update it manually
+          await models.SurveyResponseAnswer.update(
+            { body: null },
+            {
+              where: {
+                response_id: nullAnswer.responseId,
+                data_element_id: patientVitalSbpKey,
+              },
+            },
+          );
         });
 
         afterAll(async () => {
@@ -1159,7 +1171,7 @@ describe('Encounter', () => {
           const startDateString = formatISO9075(addHours(new Date(), -4));
           const endDateString = formatISO9075(new Date());
           const expectedAnswers = answers.filter(
-            answer => answer.value !== '' && answer.value !== null,
+            answer => answer.value !== '' && answer.value !== nullAnswer.value,
           );
 
           const result = await app.get(
