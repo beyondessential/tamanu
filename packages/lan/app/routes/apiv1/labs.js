@@ -456,6 +456,7 @@ async function createLabRequest(
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     labTestTypeIds,
     labTestCategoryId,
+    userId: user.id,
   };
 
   const newLabRequest = await models.LabRequest.createWithTests(labRequestData);

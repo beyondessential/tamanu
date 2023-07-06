@@ -49,6 +49,12 @@ describe('Labs', () => {
     });
     expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
     expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+
+    const createdLogs = await models.LabRequestLog.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdLogs).toHaveLength(1);
+    expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
   });
 
   it('should record two lab requests with one test type each', async () => {
@@ -85,6 +91,12 @@ describe('Labs', () => {
       });
       expect(createdTests).toHaveLength(requests[i].labTestTypeIds.length);
       expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+
+      const createdLogs = await models.LabRequestLog.findAll({
+        where: { labRequestId: createdRequest.id },
+      });
+      expect(createdLogs).toHaveLength(1);
+      expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
     }
   });
 
@@ -172,6 +184,12 @@ describe('Labs', () => {
     });
     expect(createdTests).toHaveLength(labTestTypes.length);
     expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+
+    const createdLogs = await models.LabRequestLog.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdLogs).toHaveLength(1);
+    expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
   });
 
   it('should record samples for panels', async () => {
@@ -212,6 +230,12 @@ describe('Labs', () => {
         x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
       ),
     );
+
+    const createdLogs = await models.LabRequestLog.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdLogs).toHaveLength(1);
+    expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
   });
 
   it('should not record a lab request with an invalid testTypeId', async () => {
