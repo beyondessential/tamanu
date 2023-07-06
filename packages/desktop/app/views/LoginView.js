@@ -72,7 +72,8 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
-    // The await is necessary, as redux-thunk returns a promise
+    // The await is necessary to prevent redux-form unlocking submission
+    // redux-thunk definitely returns a promise, and this works
     await dispatch(login(host, email, password));
   };
 
