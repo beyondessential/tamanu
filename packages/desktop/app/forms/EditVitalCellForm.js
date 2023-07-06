@@ -69,7 +69,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       <LogText>
         {vitalLabel}: {newValue}
       </LogText>
-      <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>
+      {reasonForChange && <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>}
       <LogTextSmall>
         {userDisplayName} {date}
       </LogTextSmall>
