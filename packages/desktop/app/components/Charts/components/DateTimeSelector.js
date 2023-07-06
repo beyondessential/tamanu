@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { debounce } from 'lodash';
 import { addDays, format, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
@@ -86,13 +87,13 @@ export const DateTimeSelector = props => {
           size="small"
           saveDateAsString
           value={format(new Date(startDateString), 'yyyy-MM-dd')} // display date in yyyy-MM-dd format on text input
-          onChange={newValue => {
+          onChange={debounce(newValue => {
             const { value: dateString } = newValue.target;
             if (dateString) {
               formatAndSetStartDate(startOfDay(new Date(dateString)));
               formatAndSetEndDate(startOfDay(addDays(new Date(dateString), 1)));
             }
-          }}
+          }, 200)}
           arrows
         />
       )}
