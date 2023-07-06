@@ -22,10 +22,8 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 
   const response = await fetch(`${META_SERVER}/servers`);
   const servers: Server[] = await response.json();
-  const testBranchServer = { name: 'EPI-492', host: 'https://central.epi-492-add-ability-to-configure.internal.tamanu.io' };
-  const hackySolution = [...servers, testBranchServer];
 
-  return hackySolution.map(s => ({ label: s.name, value: s.host }));
+  return servers.map(s => ({ label: s.name, value: s.host }));
 };
 
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
