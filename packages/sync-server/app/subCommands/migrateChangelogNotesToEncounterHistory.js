@@ -43,28 +43,28 @@ export async function migrateChangelogNotesToEncounterHistory({
             where content like 'Changed%'
         ),
 
-        non_duplicated_location_names_in_location_groups as (
-            select name
+        unique_location_names_in_location_groups as (
+            select name, location_group_id, facility_id
             from locations
             group by facility_id, location_group_id, name
             having count(*) = 1
         ),
 
-        non_duplicated_location_names_in_facility as (
-            select name
+        unique_location_names_in_facility as (
+            select name, facility_id
             from locations
             group by facility_id, name
             having count(*) = 1
         ),
 
-        non_duplicated_department_names as (
-            select name
+        unique_department_names as (
+            select name, facility_id
             from departments
             group by facility_id, name
             having count(*) = 1
         ),
 
-        non_duplicated_user_names as (
+        unique_user_names as (
             select display_name
             from users
             group by display_name
@@ -305,7 +305,7 @@ export async function migrateChangelogNotesToEncounterHistory({
             union
             -- Changelog when encounters are changed to the latest
             select
-                log.encounter_id,
+                log.encounter_id as record_id,
                 log.start_datetime as date,
                 d.id as department_id,
                 l.id as location_id,
@@ -325,12 +325,23 @@ export async function migrateChangelogNotesToEncounterHistory({
             -- This is to filter the case where there are multiple location 
             -- with the same names out of the changelog, same as departments and users
             and case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then
-                    exists (select name from non_duplicated_location_names_in_location_groups where name = l.name)
+                    exists (select name 
+                                from unique_location_names_in_location_groups uniques 
+                            where name = l.name 
+                                and lg.id = uniques.location_group_id)
                 else
-                    exists (select name from non_duplicated_location_names_in_facility where name = l.name)
+                    exists (select name 
+                                from unique_location_names_in_facility uniques
+                            where name = l.name
+                                and l.facility_id = uniques.facility_id)
                 end
-            and exists (select name from non_duplicated_department_names where name = d.name)
-            and exists (select display_name from non_duplicated_department_names where display_name = u.display_name)
+            and exists (select name 
+                            from unique_department_names uniques
+                        where name = d.name
+                            and d.facility_id = uniques.facility_id)
+            and exists (select display_name 
+                            from unique_user_names
+                        where display_name = u.display_name)
             order by record_id, date
         ),
         inserted as (

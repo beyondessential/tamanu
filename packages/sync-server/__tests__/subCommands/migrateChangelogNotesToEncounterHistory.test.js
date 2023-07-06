@@ -11,7 +11,8 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   let ctx;
   let models;
   let patient;
-  let facility;
+  let facility1;
+  let facility2;
   let locationGroup1;
   let locationGroup2;
 
@@ -33,16 +34,16 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     return models.Location.create(
       fake(models.Location, {
         name: locationName,
-        facilityId: facility.id,
+        facilityId: facility1.id,
         locationGroupId: locationGroup1.id,
         ...overrides,
       }),
     );
   };
 
-  const createDepartment = async departmentName => {
+  const createDepartment = async (departmentName, overrides) => {
     return models.Department.create(
-      fake(models.Department, { name: departmentName, facilityId: facility.id }),
+      fake(models.Department, { name: departmentName, facilityId: facility1.id, ...overrides }),
     );
   };
 
@@ -69,19 +70,25 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     models = ctx.store.models;
 
     patient = await models.Patient.create(await createDummyPatient(models));
-    facility = await models.Facility.create({
+    facility1 = await models.Facility.create({
       ...fake(models.Facility),
       name: 'Utopia HQ',
     });
+
+    facility2 = await models.Facility.create({
+      ...fake(models.Facility),
+      name: 'Epi HQ',
+    });
+
     locationGroup1 = await models.LocationGroup.create({
       code: 'ward-1',
       name: 'Ward 1',
-      facilityId: facility.id,
+      facilityId: facility1.id,
     });
     locationGroup2 = await models.LocationGroup.create({
       code: 'ward-2',
       name: 'Ward 2',
-      facilityId: facility.id,
+      facilityId: facility1.id,
     });
   });
 
@@ -915,6 +922,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = location2.id;
       await encounter.save();
 
+      // Migration
       await migrateChangelogNotesToEncounterHistory();
 
       expect(exitSpy).toBeCalledWith(0);
@@ -939,6 +947,128 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounterId: encounter.id,
         departmentId: department.id,
         locationId: location2.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
+    });
+
+    it('skips changelog with duplicated location names in a location group', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const location1 = await createLocation('location same name', {
+        locationGroupId: locationGroup1.id,
+      });
+      const location2 = await createLocation('location same name', {
+        locationGroupId: locationGroup1.id,
+      });
+      const location3 = await createLocation('location same name', {
+        locationGroupId: locationGroup2.id,
+      });
+      const department = await createDepartment('department');
+      const clinician = await createUser('user');
+      const encounterType = 'admission';
+
+      const encounter = await createEncounter(patient, {
+        departmentId: department.id,
+        locationId: location1.id,
+        examinerId: clinician.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+      });
+
+      // Change location
+      await encounter.addLocationChangeNote(
+        'Changed location',
+        location2.id,
+        toDateTimeString(sub(new Date(), { days: 3 })),
+      );
+      encounter.locationId = location2.id;
+      await encounter.save();
+
+      // Change location
+      await encounter.addLocationChangeNote(
+        'Changed location',
+        location3.id,
+        toDateTimeString(sub(new Date(), { days: 1 })),
+      );
+      encounter.locationId = location3.id;
+      await encounter.save();
+
+      await migrateChangelogNotesToEncounterHistory();
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords).toHaveLength(1);
+
+      // Latest encounter
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location3.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
+    });
+
+    it('skips changelog with duplicated department names in a facility', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const department1 = await createDepartment('department same name', {
+        facilityId: facility1.id,
+      });
+      const department2 = await createDepartment('department same name', {
+        facilityId: facility1.id,
+      });
+      const department3 = await createDepartment('department 3', {
+        facilityId: facility1.id,
+      });
+
+      const location = await createLocation('location');
+      const clinician = await createUser('user');
+      const encounterType = 'admission';
+
+      const encounter = await createEncounter(patient, {
+        departmentId: department1.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+      });
+
+      // Change department 1
+      await encounter.addDepartmentChangeNote(
+        department2.id,
+        toDateTimeString(sub(new Date(), { days: 4 })),
+      );
+      encounter.departmentId = department2.id;
+      await encounter.save();
+
+      // Change department 2
+      await encounter.addDepartmentChangeNote(
+        department3.id,
+        toDateTimeString(sub(new Date(), { days: 2 })),
+      );
+      encounter.departmentId = department3.id;
+      await encounter.save();
+
+      // Migration
+      await migrateChangelogNotesToEncounterHistory();
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords).toHaveLength(1);
+
+      // Latest encounter
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department3.id,
+        locationId: location.id,
         examinerId: clinician.id,
         encounterType,
       });
