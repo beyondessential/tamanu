@@ -33,7 +33,6 @@ const columns = [
     key: 'sampleTime',
     title: 'Sample time',
     accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showTime />,
-    style: { textAlign: 'center' },
     widthProportion: 2,
   },
   {

@@ -5,7 +5,7 @@ import { LabRequestSampleDetailsCard } from './LabRequestSampleDetailsCard';
 
 export const LabRequestSampleDetailsModal = ({ open, onClose, labRequest }) => {
   return (
-    <Modal open={open} onClose={onClose} title="Sample details" disableHeaderCloseIcon>
+    <Modal open={open} onClose={onClose} title="Sample details" cornerExitButton={false}>
       <LabRequestSampleDetailsCard labRequest={labRequest} />
       <Box display="flex" justifyContent="flex-end" pt={3}>
         <Button onClick={onClose}>Close</Button>

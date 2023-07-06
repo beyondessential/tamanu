@@ -53,8 +53,7 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
-    const { panelIds, labTestTypeIds } = body;
-    const { note } = body;
+    const { panelIds, labTestTypeIds, note } = body;
     req.checkPermission('create', 'LabRequest');
 
     if (!panelIds?.length && !labTestTypeIds?.length) {
@@ -457,14 +456,16 @@ async function createLabRequest(
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     labTestTypeIds,
     labTestCategoryId,
+    userId: user.id,
   };
 
   const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
-  if (note) {
+  if (note?.content) {
     const notePage = await newLabRequest.createNotePage({
       noteType: NOTE_TYPES.OTHER,
+      date: note.date,
     });
-    await notePage.createNoteItem({ content: note, authorId: user.id });
+    await notePage.createNoteItem({ ...note, authorId: user.id });
   }
   return newLabRequest;
 }
@@ -505,7 +506,7 @@ async function createIndividualLabRequests(models, body, note, user) {
       const newLabRequest = await createLabRequest(
         labRequestBody,
         requestSampleDetails,
-        labTestTypeIds,
+        category.get('lab_test_type_ids'),
         categoryId,
         models,
         note,

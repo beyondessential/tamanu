@@ -63,8 +63,8 @@ export class LabRequest extends Model {
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
-      const { LabTest, LabTestPanelRequest } = this.sequelize.models;
-      const { date, labTestPanelId, ...requestData } = data;
+      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize.models;
+      const { labTest, labTestPanelId, userId, ...requestData } = data;
       let newLabRequest;
 
       if (labTestPanelId) {
@@ -77,13 +77,19 @@ export class LabRequest extends Model {
         newLabRequest = await this.create(requestData);
       }
 
+      await LabRequestLog.create({
+        status: newLabRequest.status,
+        labRequestId: newLabRequest.id,
+        updatedById: userId,
+      });
+
       // then create tests
       await Promise.all(
         labTestTypeIds.map(t =>
           LabTest.create({
             labTestTypeId: t,
             labRequestId: newLabRequest.id,
-            date,
+            date: labTest?.date,
           }),
         ),
       );

@@ -7,6 +7,7 @@ import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { RequiredIndicator } from '../RequiredIndicator';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -67,7 +68,7 @@ export const AutocompleteModalField = ({
           color={theme.colors.TEXT_SUPER_DARK}
         >
           {fieldLabel}
-          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+          {required && <RequiredIndicator />}
         </StyledText>
       )}
       <Button

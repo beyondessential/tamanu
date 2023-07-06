@@ -16,25 +16,16 @@ permissions:
   id-token: write # OIDC token for AWS
 
 jobs:
+  info:
+    name: Branch info
+    uses: ./.github/workflows/branch-info.yml
+
   down:
+    needs: info
     name: Bring down environment
     runs-on: ubuntu-latest
 
     steps:
-      - name: Normalise branch/ref name
-        uses: actions/github-script@v6
-        id: ref
-        env:
-          GH_HEAD_REF: ${{ github.head_ref }}
-          GH_REF_NAME: ${{ github.ref_name }}
-        with:
-          result-encoding: string
-          script: |
-            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
-              .replace(/[^a-z0-9-]/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-|-$/g, ''));
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -76,7 +67,7 @@ jobs:
           work-dir: ops/pulumi/tamanu-internal
           command: destroy
           remove: true
-          stack-name: bes/${{ steps.ref.outputs.result }}
+          stack-name: bes/${{ needs.info.outputs.branch }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
         env:
