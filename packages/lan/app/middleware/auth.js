@@ -129,18 +129,20 @@ export async function loginHandler(req, res, next) {
       password,
       deviceId,
     );
-    const [facility, permissions, token] = await Promise.all([
+    const [facility, permissions, token, role] = await Promise.all([
       models.Facility.findByPk(config.serverFacilityId),
       getPermissionsForRoles(models, user.role),
       getToken(user),
+      models.Role.findByPk(user.role),
     ]);
     res.send({
       token,
       central,
       localisation,
       permissions,
+      role: role?.forResponse() ?? null,
       server: {
-        facility: facility && facility.forResponse(),
+        facility: facility?.forResponse() ?? null,
       },
     });
   } catch (e) {
