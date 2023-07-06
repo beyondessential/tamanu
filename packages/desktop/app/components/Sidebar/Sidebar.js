@@ -150,7 +150,7 @@ export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const [isRetracted, setIsRetracted] = useState(false);
   const { appVersion } = useApi();
-  const { facility, centralHost, currentUser, onLogout } = useAuth();
+  const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
 
@@ -174,6 +174,7 @@ export const Sidebar = React.memo(({ items }) => {
   const handleExtendButtonClick = useCallback(extendSidebar, []);
 
   const initials = getInitials(currentUser.displayName);
+  const roleName = currentRole?.name ?? currentUser?.role;
 
   return (
     <Container $retracted={isRetracted}>
@@ -252,7 +253,9 @@ export const Sidebar = React.memo(({ items }) => {
           {!isRetracted && (
             <Box flex={1}>
               <UserName>{currentUser?.displayName}</UserName>
-              <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>
+              <ConnectedTo>
+                {roleName} | {facility?.name ? facility.name : centralHost}
+              </ConnectedTo>
               <Box display="flex" justifyContent="space-between">
                 <Version>Version {appVersion}</Version>
                 <LogoutButton
