@@ -92,7 +92,8 @@ surveyResponse.post(
 
     // Responses for the vitals survey will check against 'Vitals' create permissions
     // All others witll check against 'SurveyResponse' create permissions
-    req.checkPermission('create', await models.Survey.getResponsePermissionCheck(body.surveyId));
+    const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
+    req.checkPermission('create', noun);
 
     const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {
@@ -101,9 +102,10 @@ surveyResponse.post(
       userId: req.user.id,
       ...body,
     };
+    const isVitalsSurvey = noun === 'Vitals';
 
     const responseRecord = await db.transaction(async () => {
-      return models.SurveyResponse.createWithAnswers(updatedBody);
+      return models.SurveyResponse.createWithAnswers(updatedBody, isVitalsSurvey);
     });
     res.send(responseRecord);
   }),

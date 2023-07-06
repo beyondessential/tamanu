@@ -177,7 +177,7 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static async createWithAnswers(data) {
+  static async createWithAnswers(data, isVitalSurvey) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
@@ -237,10 +237,17 @@ export class SurveyResponse extends Model {
       if (body === null) {
         continue;
       }
-      await models.SurveyResponseAnswer.create({
+      const answer = await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,
         responseId: record.id,
+      });
+      if (!isVitalSurvey) continue;
+      await models.VitalLog.create({
+        date: record.endTime,
+        newValue: body,
+        recordedById: responseData.userId,
+        answerId: answer.id,
       });
     }
 
