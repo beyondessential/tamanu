@@ -25,7 +25,6 @@ export const LineChart = props => {
 
   const { margin, tableHeight, height, xAxisTicks, yAxisTicks } = chartProps;
   const { yAxis: yAxisConfigs } = visualisationConfig;
-  const isNoData = chartData.length === 0 && !isLoading;
   const measureData = getMeasureData(chartData, visualisationConfig, useInwardArrowVector);
   const DotComponent = useInwardArrowVector ? InwardArrowVectorDot : CustomDot;
 
@@ -86,7 +85,9 @@ export const LineChart = props => {
         activeDot={<DotComponent active tableHeight={tableHeight} />}
         isAnimationActive={false}
       />
-      {isNoData && <Customized component={<NoDataStateScreen />} />}
+      {(chartData.length === 0 || isLoading) && (
+        <Customized component={<NoDataStateScreen isLoading={isLoading} />} />
+      )}
     </LineChartComponent>
   );
 };
