@@ -39,6 +39,7 @@ jobs:
       - name: Checkout ops
         uses: actions/checkout@v3
         with:
+          ref: tamanu-browser
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
           path: ops
