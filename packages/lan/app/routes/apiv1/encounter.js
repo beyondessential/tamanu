@@ -367,7 +367,7 @@ encounterRelations.get(
             vl.answer_id,
             ARRAY_AGG((
               JSONB_BUILD_OBJECT(
-                'previousValue', vl.previous_value,
+                'newValue', vl.new_value,
                 'reasonForChange', vl.reason_for_change,
                 'date', vl.date,
                 'userDisplayName', u.display_name
