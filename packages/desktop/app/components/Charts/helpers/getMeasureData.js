@@ -15,7 +15,9 @@ const getDescription = ({ data, isInsideNormalRange, isOutsideGraphRange, yAxis 
   let description = '';
   if (!isInsideNormalRange) {
     description += `(Outside normal range ${
-      data.value < yAxis.graphRange.min ? `< ${yAxis.graphRange.min}` : `> ${yAxis.graphRange.max}`
+      data.value < yAxis.normalRange.min
+        ? `< ${yAxis.normalRange.min}`
+        : `> ${yAxis.normalRange.max}`
     })`;
   }
   if (isOutsideGraphRange) {
