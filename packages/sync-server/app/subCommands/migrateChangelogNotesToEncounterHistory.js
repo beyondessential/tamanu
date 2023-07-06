@@ -21,7 +21,7 @@ export async function migrateChangelogNotesToEncounterHistory({
         `
         with
         -- Get all the changelog notes with content starts by 'Changed%'
-        notes_system as (
+        all_encounter_notes_system as (
             select
                 np.id,
                 np.record_id,
@@ -32,10 +32,43 @@ export async function migrateChangelogNotesToEncounterHistory({
             left join note_items ni on ni.note_page_id = np.id
             where note_type = 'system'
             and record_type = 'Encounter'
-            and ni.content like 'Changed%'
             and np.record_id > :fromId
             order by np.record_id, ni.date
             limit :limit
+        ),
+
+        encounter_changed_notes_system as (
+            select * 
+            from all_encounter_notes_system
+            where content like 'Changed%'
+        ),
+
+        non_duplicated_location_names_in_location_groups as (
+            select name
+            from locations
+            group by facility_id, location_group_id, name
+            having count(*) = 1
+        ),
+
+        non_duplicated_location_names_in_facility as (
+            select name
+            from locations
+            group by facility_id, name
+            having count(*) = 1
+        ),
+
+        non_duplicated_department_names as (
+            select name
+            from departments
+            group by facility_id, name
+            having count(*) = 1
+        ),
+
+        non_duplicated_user_names as (
+            select display_name
+            from users
+            group by display_name
+            having count(*) = 1
         ),
 
         -- Generate a encounter_history structure record for each changelog
@@ -56,6 +89,7 @@ export async function migrateChangelogNotesToEncounterHistory({
                         -- Some historical location changelog did not include location group.
                         -- So checking for ',' to handle the case
                         case when split_part(right(n.content, -22), ' to ', 1) like '%, %' then
+                            -- get the {from} location part before 'to' (index 1) = {location_group, location}, then get the location part after ',' (index 2)
                             split_part(split_part(right(n.content, -22), ' to ', 1), ', ', 2)
                         else
                             split_part(right(n.content, -22), ' to ', 1)
@@ -63,12 +97,34 @@ export async function migrateChangelogNotesToEncounterHistory({
                     when lag(n.content) over w like 'Changed location%' then
                         -- Some historical location changelog did not include location group.
                         -- So checking for ',' to handle the case
-                        case when split_part(right(n.content, -22), ' to ', 2) like '%,%' then
-                            split_part(right(lag(n.content) over w, -22), ' to ', 2)
-                        else
+                        case when split_part(right(lag(n.content) over w, -22), ' to ', 2) like '%,%' then
+                            -- get the {to} location part before 'to' (index 2) = {location_group, location}, then get the location part after ',' (index 2)
                             split_part(split_part(right(lag(n.content) over w, -22), ' to ', 2), ', ', 2)
+                        else
+                            split_part(right(lag(n.content) over w, -22), ' to ', 2)
                         end
                 end as location_name,
+
+                -- Location group column
+                case when n.content like 'Changed location%' then
+                        -- Some historical location changelog did not include location group.
+                        -- So checking for ',' to handle the case
+                        case when split_part(right(n.content, -22), ' to ', 1) like '%, %' then
+                            -- get the {from} location_group part after 'to' (index 1) = {location_group, location}, then get the location_group part before ',' (index 1)
+                            split_part(split_part(right(n.content, -22), ' to ', 1), ', ', 1)
+                        else
+                            'non_determined_location_group_name'
+                        end
+                    when lag(n.content) over w like 'Changed location%' then
+                        -- Some historical location changelog did not include location group.
+                        -- So checking for ',' to handle the case
+                        case when split_part(right(lag(n.content) over w, -22), ' to ', 2) like '%,%' then
+                            -- get the {to} location_group part after 'to' (index 2) = {location_group, location}, then get the location_group part before ',' (index 1)
+                            split_part(split_part(right(lag(n.content) over w, -22), ' to ', 2), ', ', 1)
+                        else
+                            'non_determined_location_group_name'
+                        end
+                end as location_group_name,
 
                 -- Department column
                 case when n.content like 'Changed department%' then split_part(right(n.content, -24), ' to ', 1)
@@ -80,7 +136,7 @@ export async function migrateChangelogNotesToEncounterHistory({
                     when lag(n.content) over w like 'Changed supervising clinician%' then split_part(right(lag(n.content) over w, -35), ' to ', 2)
                 end as examiner_name,
                 n.content
-            from notes_system n
+            from encounter_changed_notes_system n
             left join encounters e on e.id = n.record_id
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
@@ -135,6 +191,22 @@ export async function migrateChangelogNotesToEncounterHistory({
                             l.name)
                 end as location_name,
 
+                case when location_group_name notnull then location_group_name
+                    else coalesce(
+                            (array_remove(array_agg(location_group_name) 
+                                over (partition by encounter_id
+                                    order by start_datetime desc
+                                    rows between
+                                    1 following and
+                                    unbounded following), null))[1],
+                            (array_remove(array_agg(location_group_name)
+                                over (partition by encounter_id
+                                    order by start_datetime
+                                    rows between
+                                    1 following and
+                                    unbounded following), null))[1])
+                end as location_group_name,
+
                 case when department_name notnull then department_name
                     else coalesce(
                             (array_remove(array_agg(department_name) 
@@ -175,7 +247,7 @@ export async function migrateChangelogNotesToEncounterHistory({
             left join facilities f on f.id = l.facility_id
             left join users u on u.id = e.examiner_id
         ),
-        -- Generate a encounter_history structure record for the latest change of the encounter
+        -- Generate encounter_history structure records for the latest change of the encounter
         change_log_latest as (
             select
                 DISTINCT ON(record_id)
@@ -186,15 +258,42 @@ export async function migrateChangelogNotesToEncounterHistory({
                 examiner_id,
                 encounter_type,
                 record_id
-            from notes_system notes
+            from encounter_changed_notes_system notes
             left join encounters e on notes.record_id = e.id
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
-            where content like 'Changed%'
-            and l.facility_id = d.facility_id
+            where l.facility_id = d.facility_id
             order by record_id, date desc
         ),
+        -- Generate encounter_history structure records for encounter's state when they are first created
+        changelog_encounter_created as (
+            select
+                DISTINCT ON(e.id)
+                e.id as record_id,
+                start_date as date,
+                department_id,
+                location_id,
+                examiner_id,
+                encounter_type
+            from encounters e
+            left join all_encounter_notes_system n on e.id = n.record_id
+            left join locations l on l.id = e.location_id
+            left join departments d on d.id = e.department_id
+            where n.id isnull or content not like 'Changed%'
+            order by e.id, date
+        ),
         change_log_with_id as (
+            -- Changelog when encounters are first created
+            select
+                record_id,
+                date,
+                department_id,
+                location_id,
+                examiner_id,
+                encounter_type
+            from changelog_encounter_created
+            union
+            -- Changelog when encounters are changed in between
             select
                 record_id,
                 date,
@@ -204,6 +303,7 @@ export async function migrateChangelogNotesToEncounterHistory({
                 encounter_type
             from change_log_latest
             union
+            -- Changelog when encounters are changed to the latest
             select
                 log.encounter_id,
                 log.start_datetime as date,
@@ -213,28 +313,24 @@ export async function migrateChangelogNotesToEncounterHistory({
                 log.encounter_type
             from change_log_historical_complete log
             left join departments d on d.name = log.department_name and
-                                        d.facility_id = log.encounter_facility_id
+                                    d.facility_id = log.encounter_facility_id
+            left join location_groups lg on lg.name = log.location_group_name and
+                                        lg.facility_id = log.encounter_facility_id
             left join locations l on l.name = log.location_name and
+                                    case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then l.location_group_id = lg.id else true end and
                                     l.facility_id = log.encounter_facility_id
             left join users u on u.display_name = log.examiner_name
             where d.facility_id = log.encounter_facility_id
             and l.facility_id = log.encounter_facility_id
             -- This is to filter the case where there are multiple location 
             -- with the same names out of the changelog, same as departments and users
-            and l.name in (select name
-                from locations
-                where locations.facility_id = l.facility_id
-                group by facility_id, name
-                having count(*) = 1)
-            and d.name in (select name
-                from departments
-                where departments.facility_id = d.facility_id
-                group by facility_id, name
-                having count(*) = 1)
-            and u.display_name in (select display_name
-                from users
-                group by display_name
-                having count(*) = 1)
+            and case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then
+                    exists (select name from non_duplicated_location_names_in_location_groups where name = l.name)
+                else
+                    exists (select name from non_duplicated_location_names_in_facility where name = l.name)
+                end
+            and exists (select name from non_duplicated_department_names where name = d.name)
+            and exists (select display_name from non_duplicated_department_names where display_name = u.display_name)
             order by record_id, date
         ),
         inserted as (

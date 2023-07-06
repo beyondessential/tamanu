@@ -4,6 +4,7 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { SYNC_DIRECTIONS } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class EncounterHistory extends Model {
   static init({ primaryKey, ...options }) {
@@ -58,5 +59,12 @@ export class EncounterHistory extends Model {
       examinerId: data.examinerId,
       date: data.submittedTime || getCurrentDateTimeString(),
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 }

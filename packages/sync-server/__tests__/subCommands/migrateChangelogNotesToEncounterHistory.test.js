@@ -12,7 +12,8 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   let models;
   let patient;
   let facility;
-  let locationGroup;
+  let locationGroup1;
+  let locationGroup2;
 
   const createEncounter = async (encounterPatient, overrides = {}) => {
     const encounter = await models.Encounter.create({
@@ -21,15 +22,20 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       ...overrides,
     });
 
+    // Clear the encounter_history data so that
+    // the migration will not skip this encounter when migrating changelog
+    await models.EncounterHistory.destroy({ where: { encounterId: encounter.id }, force: true });
+
     return encounter;
   };
 
-  const createLocation = async locationName => {
+  const createLocation = async (locationName, overrides) => {
     return models.Location.create(
       fake(models.Location, {
         name: locationName,
         facilityId: facility.id,
-        locationGroupId: locationGroup.id,
+        locationGroupId: locationGroup1.id,
+        ...overrides,
       }),
     );
   };
@@ -67,9 +73,14 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       ...fake(models.Facility),
       name: 'Utopia HQ',
     });
-    locationGroup = await models.LocationGroup.create({
+    locationGroup1 = await models.LocationGroup.create({
       code: 'ward-1',
       name: 'Ward 1',
+      facilityId: facility.id,
+    });
+    locationGroup2 = await models.LocationGroup.create({
+      code: 'ward-2',
+      name: 'Ward 2',
       facilityId: facility.id,
     });
   });
@@ -81,7 +92,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await clearTestData();
     });
 
-    it('migrates change log with location change', async () => {
+    it('migrates changelog with location change', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const oldLocation = await createLocation('oldLocation');
       const newLocation = await createLocation('newLocation');
@@ -109,18 +120,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords[0].locationId).toEqual(oldLocation.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual('admission');
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: oldLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+      });
 
-      expect(encounterHistoryRecords[1].locationId).toEqual(newLocation.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual('admission');
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: newLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+      });
     });
 
-    it('migrates change log with department change', async () => {
+    it('migrates changelog with department change', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location = await createLocation('location');
       const oldDepartment = await createDepartment('oldDepartment');
@@ -144,18 +161,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords[0].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(oldDepartment.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual('admission');
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: oldDepartment.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+      });
 
-      expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(newDepartment.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual('admission');
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: newDepartment.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+      });
     });
 
-    it('migrates change log with clinician change', async () => {
+    it('migrates changelog with clinician change', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location = await createLocation('location');
       const department = await createDepartment('department');
@@ -179,18 +202,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords[0].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(oldClinician.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual('admission');
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: oldClinician.id,
+        encounterType: 'admission',
+      });
 
-      expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(newClinician.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual('admission');
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: newClinician.id,
+        encounterType: 'admission',
+      });
     });
 
-    it('migrates change log with encounter_type change', async () => {
+    it('migrates changelog with encounter_type change', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location = await createLocation('location');
       const department = await createDepartment('department');
@@ -213,15 +242,21 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords[0].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual('admission');
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+      });
 
-      expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual('clinic');
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: 'clinic',
+      });
     });
   });
 
@@ -230,7 +265,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await clearTestData();
     });
 
-    it('migrates change log with multiple different changes', async () => {
+    it('migrates changelog with multiple different changes', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const oldLocation = await createLocation('oldLocation');
       const newLocation = await createLocation('newLocation');
@@ -287,37 +322,52 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Original encounter
-      expect(encounterHistoryRecords[0].locationId).toEqual(oldLocation.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(oldDepartment.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(oldUser.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual(oldEncounterType);
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: oldDepartment.id,
+        locationId: oldLocation.id,
+        examinerId: oldUser.id,
+        encounterType: oldEncounterType,
+      });
 
       // Location change history
-      expect(encounterHistoryRecords[1].locationId).toEqual(newLocation.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(oldDepartment.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(oldUser.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual(oldEncounterType);
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: oldDepartment.id,
+        locationId: newLocation.id,
+        examinerId: oldUser.id,
+        encounterType: oldEncounterType,
+      });
 
       // Department change history
-      expect(encounterHistoryRecords[2].locationId).toEqual(newLocation.id);
-      expect(encounterHistoryRecords[2].departmentId).toEqual(newDepartment.id);
-      expect(encounterHistoryRecords[2].examinerId).toEqual(oldUser.id);
-      expect(encounterHistoryRecords[2].encounterType).toEqual(oldEncounterType);
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: newDepartment.id,
+        locationId: newLocation.id,
+        examinerId: oldUser.id,
+        encounterType: oldEncounterType,
+      });
 
       // Clinician change history
-      expect(encounterHistoryRecords[3].locationId).toEqual(newLocation.id);
-      expect(encounterHistoryRecords[3].departmentId).toEqual(newDepartment.id);
-      expect(encounterHistoryRecords[3].examinerId).toEqual(newUser.id);
-      expect(encounterHistoryRecords[3].encounterType).toEqual(oldEncounterType);
+      expect(encounterHistoryRecords[3]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: newDepartment.id,
+        locationId: newLocation.id,
+        examinerId: newUser.id,
+        encounterType: oldEncounterType,
+      });
 
       // Encounter type change history
-      expect(encounterHistoryRecords[4].locationId).toEqual(newLocation.id);
-      expect(encounterHistoryRecords[4].departmentId).toEqual(newDepartment.id);
-      expect(encounterHistoryRecords[4].examinerId).toEqual(newUser.id);
-      expect(encounterHistoryRecords[4].encounterType).toEqual(newEncounterType);
+      expect(encounterHistoryRecords[4]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: newDepartment.id,
+        locationId: newLocation.id,
+        examinerId: newUser.id,
+        encounterType: newEncounterType,
+      });
     });
 
-    it('migrates change log with multiple location changes', async () => {
+    it('migrates changelog with multiple location changes', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location1 = await createLocation('location1');
       const location2 = await createLocation('location2');
@@ -371,31 +421,43 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Original encounter
-      expect(encounterHistoryRecords[0].locationId).toEqual(location1.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location1.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
 
       // Location change history 1
-      expect(encounterHistoryRecords[1].locationId).toEqual(location2.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location2.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
 
       // Location change history 2
-      expect(encounterHistoryRecords[2].locationId).toEqual(location3.id);
-      expect(encounterHistoryRecords[2].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[2].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location3.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
 
       // Location change history 3
-      expect(encounterHistoryRecords[3].locationId).toEqual(location4.id);
-      expect(encounterHistoryRecords[3].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[3].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[3].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[3]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location4.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
     });
 
-    it('migrates change log with multiple department changes', async () => {
+    it('migrates changelog with multiple department changes', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location = await createLocation('location');
       const department1 = await createDepartment('department1');
@@ -445,31 +507,43 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Original department
-      expect(encounterHistoryRecords[0].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department1.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department1.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
 
       // Department change history 1
-      expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department2.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department2.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
 
       // Department change history 2
-      expect(encounterHistoryRecords[2].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[2].departmentId).toEqual(department3.id);
-      expect(encounterHistoryRecords[2].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department3.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
 
       // Department change history 3
-      expect(encounterHistoryRecords[3].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[3].departmentId).toEqual(department4.id);
-      expect(encounterHistoryRecords[3].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[3].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[3]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department4.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
     });
 
-    it('migrates change log with multiple clinician changes', async () => {
+    it('migrates changelog with multiple clinician changes', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location = await createLocation('location');
       const department = await createDepartment('department');
@@ -519,31 +593,43 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Original encounter
-      expect(encounterHistoryRecords[0].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician1.id,
+        encounterType,
+      });
 
       // Clinician change history 1
-      expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician2.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician2.id,
+        encounterType,
+      });
 
       // Clinician change history 2
-      expect(encounterHistoryRecords[2].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[2].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[2].examinerId).toEqual(clinician3.id);
-      expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician3.id,
+        encounterType,
+      });
 
       // Clinician change history 3
-      expect(encounterHistoryRecords[3].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[3].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[3].examinerId).toEqual(clinician4.id);
-      expect(encounterHistoryRecords[3].encounterType).toEqual(encounterType);
+      expect(encounterHistoryRecords[3]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician4.id,
+        encounterType,
+      });
     });
 
-    it('migrates change log with multiple encounter_type changes', async () => {
+    it('migrates changelog with multiple encounter_type changes', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location = await createLocation('location');
       const department = await createDepartment('department');
@@ -593,31 +679,43 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Original encounter
-      expect(encounterHistoryRecords[0].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType1);
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: encounterType1,
+      });
 
       // Encounter type change history 1
-      expect(encounterHistoryRecords[1].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType2);
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: encounterType2,
+      });
 
       // Encounter type change history 2
-      expect(encounterHistoryRecords[2].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[2].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[2].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType3);
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: encounterType3,
+      });
 
       // Encounter type change history 3
-      expect(encounterHistoryRecords[3].locationId).toEqual(location.id);
-      expect(encounterHistoryRecords[3].departmentId).toEqual(department.id);
-      expect(encounterHistoryRecords[3].examinerId).toEqual(clinician.id);
-      expect(encounterHistoryRecords[3].encounterType).toEqual(encounterType4);
+      expect(encounterHistoryRecords[3]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType: encounterType4,
+      });
     });
 
-    it('migrates change log with multiple mixed changes', async () => {
+    it('migrates changelog with multiple mixed changes', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location1 = await createLocation('location1');
       const location2 = await createLocation('location2');
@@ -709,50 +807,141 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Original encounter
-      expect(encounterHistoryRecords[0].locationId).toEqual(location1.id);
-      expect(encounterHistoryRecords[0].departmentId).toEqual(department1.id);
-      expect(encounterHistoryRecords[0].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[0].encounterType).toEqual(encounterType1);
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department1.id,
+        locationId: location1.id,
+        examinerId: clinician1.id,
+        encounterType: encounterType1,
+      });
 
-      expect(encounterHistoryRecords[1].locationId).toEqual(location2.id);
-      expect(encounterHistoryRecords[1].departmentId).toEqual(department1.id);
-      expect(encounterHistoryRecords[1].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[1].encounterType).toEqual(encounterType1);
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department1.id,
+        locationId: location2.id,
+        examinerId: clinician1.id,
+        encounterType: encounterType1,
+      });
 
-      expect(encounterHistoryRecords[2].locationId).toEqual(location2.id);
-      expect(encounterHistoryRecords[2].departmentId).toEqual(department1.id);
-      expect(encounterHistoryRecords[2].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[2].encounterType).toEqual(encounterType2);
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department1.id,
+        locationId: location2.id,
+        examinerId: clinician1.id,
+        encounterType: encounterType2,
+      });
 
-      expect(encounterHistoryRecords[3].locationId).toEqual(location2.id);
-      expect(encounterHistoryRecords[3].departmentId).toEqual(department1.id);
-      expect(encounterHistoryRecords[3].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[3].encounterType).toEqual(encounterType3);
+      expect(encounterHistoryRecords[3]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department1.id,
+        locationId: location2.id,
+        examinerId: clinician1.id,
+        encounterType: encounterType3,
+      });
 
-      expect(encounterHistoryRecords[4].locationId).toEqual(location3.id);
-      expect(encounterHistoryRecords[4].departmentId).toEqual(department1.id);
-      expect(encounterHistoryRecords[4].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[4].encounterType).toEqual(encounterType3);
+      expect(encounterHistoryRecords[4]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department1.id,
+        locationId: location3.id,
+        examinerId: clinician1.id,
+        encounterType: encounterType3,
+      });
 
-      expect(encounterHistoryRecords[5].locationId).toEqual(location3.id);
-      expect(encounterHistoryRecords[5].departmentId).toEqual(department2.id);
-      expect(encounterHistoryRecords[5].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[5].encounterType).toEqual(encounterType3);
+      expect(encounterHistoryRecords[5]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department2.id,
+        locationId: location3.id,
+        examinerId: clinician1.id,
+        encounterType: encounterType3,
+      });
 
-      expect(encounterHistoryRecords[6].locationId).toEqual(location3.id);
-      expect(encounterHistoryRecords[6].departmentId).toEqual(department3.id);
-      expect(encounterHistoryRecords[6].examinerId).toEqual(clinician1.id);
-      expect(encounterHistoryRecords[6].encounterType).toEqual(encounterType3);
+      expect(encounterHistoryRecords[6]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department3.id,
+        locationId: location3.id,
+        examinerId: clinician1.id,
+        encounterType: encounterType3,
+      });
 
-      expect(encounterHistoryRecords[7].locationId).toEqual(location3.id);
-      expect(encounterHistoryRecords[7].departmentId).toEqual(department3.id);
-      expect(encounterHistoryRecords[7].examinerId).toEqual(clinician2.id);
-      expect(encounterHistoryRecords[7].encounterType).toEqual(encounterType3);
+      expect(encounterHistoryRecords[7]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department3.id,
+        locationId: location3.id,
+        examinerId: clinician2.id,
+        encounterType: encounterType3,
+      });
 
-      expect(encounterHistoryRecords[8].locationId).toEqual(location3.id);
-      expect(encounterHistoryRecords[8].departmentId).toEqual(department3.id);
-      expect(encounterHistoryRecords[8].examinerId).toEqual(clinician2.id);
-      expect(encounterHistoryRecords[8].encounterType).toEqual(encounterType4);
+      expect(encounterHistoryRecords[8]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department3.id,
+        locationId: location3.id,
+        examinerId: clinician2.id,
+        encounterType: encounterType4,
+      });
+    });
+  });
+
+  describe('edge cases', () => {
+    beforeEach(async () => {
+      await clearTestData();
+    });
+
+    it('migrates changelog with duplicated location names in a location group', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const location1 = await createLocation('location same name', {
+        locationGroupId: locationGroup1.id,
+      });
+      const location2 = await createLocation('location same name', {
+        locationGroupId: locationGroup2.id,
+      });
+      const department = await createDepartment('department');
+      const clinician = await createUser('user');
+      const encounterType = 'admission';
+
+      const encounter = await createEncounter(patient, {
+        departmentId: department.id,
+        locationId: location1.id,
+        examinerId: clinician.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+      });
+
+      // Change location
+      await encounter.addLocationChangeNote(
+        'Changed location',
+        location2.id,
+        toDateTimeString(sub(new Date(), { days: 3 })),
+      );
+      encounter.locationId = location2.id;
+      await encounter.save();
+
+      await migrateChangelogNotesToEncounterHistory();
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords).toHaveLength(2);
+
+      // Original encounter
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location1.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
+
+      // Location change history
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location2.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
     });
   });
 });
