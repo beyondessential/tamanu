@@ -70,9 +70,6 @@ export const getMeasureData = (rawData, visualisationConfig, useInwardArrowVecto
       };
     })
     .sort((a, b) => {
-      if (a.timestamp === b.timestamp) {
-        throw new Error('Two vital records share the same date and time');
-      }
       return a.timestamp - b.timestamp;
     });
 };
