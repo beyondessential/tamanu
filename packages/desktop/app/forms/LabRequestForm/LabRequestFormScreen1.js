@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
@@ -42,7 +42,7 @@ const OPTIONS = {
   },
 };
 
-const useLabRequestFormTypeOptions = setFieldValue => {
+const useLabRequestFormTypeOptions = () => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { onlyAllowLabPanels } = getLocalisation('features') || {};
@@ -50,7 +50,7 @@ const useLabRequestFormTypeOptions = setFieldValue => {
   const { data, isSuccess } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
-  const arePanels = data?.length > 0;
+  const arePanels = isSuccess && data?.length > 0;
   const options = [];
   if (arePanels) {
     options.push(OPTIONS.PANEL);
@@ -59,23 +59,11 @@ const useLabRequestFormTypeOptions = setFieldValue => {
     options.push(OPTIONS.INDIVIDUAL);
   }
 
-  const defaultOption = options.length > 0 ? options[0].value : undefined;
-
-  useEffect(() => {
-    if (isSuccess) {
-      setFieldValue('requestFormType', defaultOption);
-    }
-  }, [defaultOption, setFieldValue, isSuccess]);
-
   return { options };
 };
 
-export const LabRequestFormScreen1 = ({
-  setFieldValue,
-  practitionerSuggester,
-  departmentSuggester,
-}) => {
-  const { options } = useLabRequestFormTypeOptions(setFieldValue);
+export const LabRequestFormScreen1 = ({ practitionerSuggester, departmentSuggester }) => {
+  const { options } = useLabRequestFormTypeOptions();
 
   return (
     <>
