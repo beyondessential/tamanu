@@ -1,8 +1,9 @@
 import { trace, propagation, context } from '@opentelemetry/api';
-import { sign, verify } from 'jsonwebtoken';
+import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
 import { v4 as uuid } from 'uuid';
+import { promisify } from 'util';
 
 import { BadAuthenticationError } from 'shared/errors';
 import { log } from 'shared/services/logging';
@@ -15,8 +16,10 @@ const { tokenDuration, secret } = config.auth;
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
 const jwtSecretKey = secret || uuid();
+const sign = promisify(signCallback);
+const verify = promisify(verifyCallback);
 
-export function getToken(user, expiresIn = tokenDuration) {
+export async function getToken(user, expiresIn = tokenDuration) {
   return sign(
     {
       userId: user.id,
@@ -73,14 +76,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
     });
   });
 
-  const token = getToken(user);
-  const permissions = await getPermissionsForRoles(models, user.role);
-  return {
-    token,
-    central: true,
-    localisation,
-    permissions,
-  };
+  return { central: true, user, localisation };
 }
 
 async function localLogin(models, email, password) {
@@ -97,9 +93,7 @@ async function localLogin(models, email, password) {
     order: [['createdAt', 'DESC']],
   });
 
-  const token = getToken(user);
-  const permissions = await getPermissionsForRoles(models, user.role);
-  return { token, central: false, localisation, permissions };
+  return { central: false, user, localisation };
 }
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
@@ -129,15 +123,22 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const responseData = await centralServerLoginWithLocalFallback(
+    const { central, user, localisation } = await centralServerLoginWithLocalFallback(
       models,
       email,
       password,
       deviceId,
     );
-    const facility = await models.Facility.findByPk(config.serverFacilityId);
+    const [facility, permissions, token] = await Promise.all([
+      models.Facility.findByPk(config.serverFacilityId),
+      getPermissionsForRoles(models, user.role),
+      getToken(user),
+    ]);
     res.send({
-      ...responseData,
+      token,
+      central,
+      localisation,
+      permissions,
       server: {
         facility: facility && facility.forResponse(),
       },
@@ -173,7 +174,7 @@ async function getUserFromToken(request) {
 
   const token = bearer[1];
   try {
-    const { userId } = decodeToken(token);
+    const { userId } = await decodeToken(token);
     return models.User.findByPk(userId);
   } catch (e) {
     throw new BadAuthenticationError(
