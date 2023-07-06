@@ -1,7 +1,7 @@
 import React from 'react';
 import { Colors } from '../../../constants';
 
-export const NoDataOrIsLoadingStateScreen = props => {
+export const NoDataStateScreen = props => {
   const { height, width, offset, isLoading } = props;
   const { height: offsetHeight, width: offsetWidth, top: offsetTop, left: offsetLeft } = offset; // height and width without Axis
 
