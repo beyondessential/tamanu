@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { useAuth } from '../../contexts/Auth';
 
 import { MultiStepForm, FormStep } from '../MultiStepForm';
@@ -33,7 +32,6 @@ export const LabRequestMultiStepForm = ({
       onSubmit={onSubmit}
       isSubmitting={isSubmitting}
       initialValues={{
-        requestFormType: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
