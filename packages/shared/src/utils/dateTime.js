@@ -114,19 +114,19 @@ export function getCurrentDateString() {
 }
 
 export function convertISO9075toRFC3339(dateString) {
-  return dateFnsFormat(new Date(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  return dateFnsFormat(parseISO(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 }
 
 export function ageInWeeks(dob) {
-  return differenceInWeeks(new Date(), new Date(dob));
+  return differenceInWeeks(new Date(), parseISO(dob));
 }
 
 export function ageInMonths(dob) {
-  return differenceInMonths(new Date(), new Date(dob));
+  return differenceInMonths(new Date(), parseISO(dob));
 }
 
 export function ageInYears(dob) {
-  return differenceInYears(new Date(), new Date(dob));
+  return differenceInYears(new Date(), parseISO(dob));
 }
 
 export function compareDateStrings(key = 'desc') {
