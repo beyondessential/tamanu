@@ -15,7 +15,7 @@ import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/Customise
 import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
-import { NoDataStateScreen } from './components/NoDataStateScreen';
+import { NoDataOrIsLoadingStateScreen } from './components/NoDataOrIsLoadingStateScreen';
 import { Y_AXIS_WIDTH } from './constants';
 import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
 import { CustomTooltip } from './components/CustomTooltip';
@@ -86,7 +86,7 @@ export const LineChart = props => {
         isAnimationActive={false}
       />
       {(chartData.length === 0 || isLoading) && (
-        <Customized component={<NoDataStateScreen isLoading={isLoading} />} />
+        <Customized component={<NoDataOrIsLoadingStateScreen isLoading={isLoading} />} />
       )}
     </LineChartComponent>
   );
