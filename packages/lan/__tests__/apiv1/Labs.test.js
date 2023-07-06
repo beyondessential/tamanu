@@ -52,11 +52,20 @@ describe('Labs', () => {
   });
 
   it('should record two lab requests with one test type each', async () => {
+    const categories = await models.ReferenceData.findAll({
+      where: {
+        type: 'labTestCategory',
+      },
+    });
+    const category1 = categories[0].id;
+    const category2 = categories[1].id;
     const labRequest = await randomLabRequest(models, {
       patientId,
+      categoryId: category1,
     });
     const labRequest2 = await randomLabRequest(models, {
       patientId,
+      categoryId: category2,
     });
 
     const response = await app.post('/v1/labRequest').send({
@@ -79,6 +88,37 @@ describe('Labs', () => {
     }
   });
 
+  it('it should create one record only when the category is the same', async () => {
+    const categories = await models.ReferenceData.findAll({
+      where: {
+        type: 'labTestCategory',
+      },
+    });
+    const category1 = categories[0].id;
+    const labRequest = await randomLabRequest(models, {
+      patientId,
+      categoryId: category1,
+    });
+    const labRequest2 = await randomLabRequest(models, {
+      patientId,
+      categoryId: category1,
+    });
+    const labTestTypeIds = [...labRequest.labTestTypeIds, ...labRequest2.labTestTypeIds];
+    const response = await app.post('/v1/labRequest').send({
+      ...labRequest,
+      labTestTypeIds,
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.length).toEqual(1);
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
+    expect(createdRequest).toBeTruthy();
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+    const createdTests = await models.LabTest.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdTests).toHaveLength(labTestTypeIds.length);
+  });
+
   it('should record a lab request with a note', async () => {
     const data = await randomLabRequest(models, {
       patientId,
@@ -90,12 +130,12 @@ describe('Labs', () => {
       note: {
         date: chance.date(),
         content,
-      }
+      },
     });
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
-      include: 'notePages'
+      include: 'notePages',
     });
     expect(labRequest).toBeTruthy();
 
