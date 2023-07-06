@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { differenceInYears, differenceInMonths, differenceInWeeks } from 'date-fns';
+import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../store/ducks/patient';
@@ -42,9 +42,9 @@ const getNormalRangeByAge = (
   }
 
   const age = {
-    years: differenceInYears(new Date(), new Date(dateOfBirth)),
-    months: differenceInMonths(new Date(), new Date(dateOfBirth)),
-    weeks: differenceInWeeks(new Date(), new Date(dateOfBirth)),
+    years: differenceInYears(new Date(), parseISO(dateOfBirth)),
+    months: differenceInMonths(new Date(), parseISO(dateOfBirth)),
+    weeks: differenceInWeeks(new Date(), parseISO(dateOfBirth)),
   };
 
   const normalRangeByAge = normalRange.find(
