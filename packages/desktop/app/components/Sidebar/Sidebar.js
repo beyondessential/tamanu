@@ -74,7 +74,7 @@ const Footer = styled.div`
 const FooterContent = styled.div`
   display: flex;
   color: white;
-  height: 65px;
+  min-height: 65px;
   align-items: center;
   justify-content: ${props => (props.$retracted ? 'center' : 'default')};
   transition: ${props => props.theme.transitions.create('justify-content')};
