@@ -346,7 +346,7 @@ describe('Labs', () => {
     });
   });
 
-  it('should not retrieve panel if the visibility status is "current"', async () => {
+  it('should only retrieve panels with a visibilityStatus status of current', async () => {
     await models.LabTestPanel.create({
       name: 'Historical test panel',
       code: 'historical-test-panel',
