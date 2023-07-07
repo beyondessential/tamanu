@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import { Box } from '@material-ui/core';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
@@ -10,19 +8,8 @@ import { useVitalsSurveyQuery } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
 import { ForbiddenError } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
-
-// eslint-disable-next-line no-unused-vars
-const ErrorMessage = ({ error }) => {
-  return (
-    <Box p={5} mb={4}>
-      <Alert severity="error">
-        <AlertTitle>Error: Cannot load vitals form</AlertTitle>
-        Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly.
-      </Alert>
-    </Box>
-  );
-};
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurveyQuery();
@@ -43,7 +30,13 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   }
 
   if (isError) {
-    return <ErrorMessage error={error} />;
+    return (
+      <ErrorMessage
+        title="Error: Cannot load vitals form"
+        errorMessage="Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly."
+        error={error}
+      />
+    );
   }
 
   const handleSubmit = data => {
