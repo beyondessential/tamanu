@@ -70,7 +70,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
     <div style={{ gridColumn: '1 / -1' }}>
       {isLoading ? (
         <OuterLabelFieldWrapper label="Select your request type" required>
-          <Box display="flex" alignItems="center" marginTop='3px'>
+          <Box display="flex" alignItems="center" marginTop="3px">
             <RadioItemSkeleton variant="rect" />
             <RadioItemSkeleton variant="rect" />
           </Box>
