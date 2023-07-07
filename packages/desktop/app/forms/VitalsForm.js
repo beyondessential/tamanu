@@ -4,7 +4,8 @@ import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
-import { useVitalsSurveyQuery } from '../api/queries';
+import { combineQueries } from '../api/combineQueries';
+import { useVitalsSurveyQuery, usePatientAdditionalDataQuery } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
 import { ForbiddenError } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
@@ -12,7 +13,12 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
-  const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurveyQuery();
+  const {
+    data: [vitalsSurvey, patientAdditionalData],
+    isLoading,
+    isError,
+    error,
+  } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery()]);
   const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
@@ -52,7 +58,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-        ...getFormInitialValues(vitalsSurvey.components, patient),
+        ...getFormInitialValues(vitalsSurvey.components, patient, patientAdditionalData),
       }}
       validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};

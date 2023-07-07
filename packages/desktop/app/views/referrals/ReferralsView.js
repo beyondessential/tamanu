@@ -1,12 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { SURVEY_TYPES } from '@tamanu/shared/constants';
 import { useApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { PatientListingView } from 'desktop/app/views';
 import { FormGrid } from 'desktop/app/components/FormGrid';
-import { SURVEY_TYPES } from '@tamanu/shared/constants';
+import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
+import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
+import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
@@ -23,6 +26,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
 
+  // TODO: convert surveys to react-query
   useEffect(() => {
     (async () => {
       const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
@@ -56,6 +60,18 @@ const ReferralFlow = ({ patient, currentUser }) => {
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });
   };
 
+  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <ErrorMessage title="Error" error={error} />;
+  }
+
   if (!referralSurvey) {
     return (
       <ProgramsPane>
@@ -80,6 +96,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       survey={referralSurvey}
       onCancel={unsetReferral}
       patient={patient}
+      patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
     />
   );
