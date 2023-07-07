@@ -50,7 +50,7 @@ export const useVitals = encounterId => {
               recordedDate: date,
               answerId: records[date]?.id,
               value: records[date]?.body,
-              historyLogs: records[date]?.logs ?? [],
+              historyLogs: getSortedLogsByDate(records[date]?.logs),
               ...configs,
             },
           }),
@@ -70,3 +70,8 @@ export const useVitals = encounterId => {
     error,
   };
 };
+
+function getSortedLogsByDate(logs) {
+  if (!logs) return [];
+  return logs.slice().sort((a, b) => b.date.localeCompare(a.date));
+}
