@@ -307,6 +307,9 @@ export async function migrateChangelogNotesToEncounterHistory({
             select
                 log.encounter_id as record_id,
                 log.start_datetime as date,
+                -- For department_id, when there are duplicated department names in the same facility,
+                -- it is not possible to work out exactly which one it is from the department name,
+                -- so replace it with a placeholder department.
                 case when exists (select name 
                                 from unique_department_names uniques
                                 where name = d.name
@@ -316,6 +319,9 @@ export async function migrateChangelogNotesToEncounterHistory({
                         else 
                             'department-Placeholder'
                     end as department_id,
+                -- For location_id, when there are duplicated location names in the same location_group,
+                -- it is not possible to work out exactly which one it is from the location name,
+                -- so replace it with a placeholder location.
                 case when (lg.id notnull and 
                             log.location_group_name <> 'non_determined_location_group_name' and
                             exists (select uniques.name 
@@ -331,6 +337,9 @@ export async function migrateChangelogNotesToEncounterHistory({
                     else
                         'location-Placeholder'
                     end as location_id,
+                -- For examiner_id, when there are duplicated user names,
+                -- it is not possible to work out exactly which one it is from the user name,
+                -- so replace it with a placeholder user.
                 case when exists (select display_name 
                                 from unique_user_names
                                 where display_name = u.display_name)
